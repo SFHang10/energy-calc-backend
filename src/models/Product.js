@@ -6,7 +6,8 @@ const productSchema = new mongoose.Schema({
   power: { type: Number, required: true }, // in Watts
   energyRating: { type: String },
   manufacturer: { type: String },
-  modelNo: { type: String }
+  modelNo: { type: String },
+  source: { type: String, required: true } // e.g., 'energystar', 'eprel'
 });
 
 module.exports = mongoose.model('Product', productSchema); 
