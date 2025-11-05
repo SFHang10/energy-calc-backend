@@ -378,6 +378,21 @@ app.get('/product-energy-widget', (req, res) => {
   res.sendFile(__dirname + '/product-energy-widget-glassmorphism.html');
 });
 
+// Explicitly serve product-categories.html (backup route in case static file middleware doesn't catch it)
+app.get('/product-categories.html', (req, res) => {
+  console.log('📂 Serving product-categories.html');
+  const filePath = __dirname + '/product-categories.html';
+  const fs = require('fs');
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({
+      error: 'File not found',
+      message: 'product-categories.html not found in deployment'
+    });
+  }
+});
+
 // Test widget endpoint
 app.get('/test-widget', (req, res) => {
   res.json({
