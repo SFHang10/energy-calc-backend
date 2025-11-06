@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const fs = require('fs');
 
 console.log('🚀 Members router loading...');
 
@@ -10,6 +11,14 @@ const router = express.Router();
 
 // Database connection
 const dbPath = path.join(__dirname, '../database/members.db');
+const dbDir = path.dirname(dbPath);
+
+// Ensure database directory exists
+if (!fs.existsSync(dbDir)) {
+  console.log('📁 Creating database directory:', dbDir);
+  fs.mkdirSync(dbDir, { recursive: true });
+}
+
 console.log('🔍 Database path:', dbPath);
 console.log('🔍 Current directory:', __dirname);
 console.log('🔍 Absolute database path:', path.resolve(dbPath));
@@ -19,6 +28,28 @@ const db = new sqlite3.Database(dbPath, (err) => {
     console.error('❌ Database connection error:', err.message);
   } else {
     console.log('✅ Database connected successfully to:', dbPath);
+    // Initialize database tables if they don't exist
+    db.serialize(() => {
+      db.run(`CREATE TABLE IF NOT EXISTS members (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        name TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        last_login DATETIME,
+        interests TEXT,
+        reset_token TEXT,
+        reset_expires DATETIME
+      )`);
+      
+      db.run(`CREATE TABLE IF NOT EXISTS subscription_tiers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        price REAL NOT NULL,
+        features TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`);
+    });
   }
 });
 
