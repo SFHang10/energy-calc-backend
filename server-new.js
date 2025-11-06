@@ -351,15 +351,21 @@ app.get('/test-members', (req, res) => {
 
 // Explicitly serve product-categories.html BEFORE static middleware
 app.get('/product-categories.html', (req, res) => {
-  console.log('📂 Serving product-categories.html');
-  const filePath = __dirname + '/product-categories.html';
+  console.log('📂 Route handler called for product-categories.html');
+  console.log('📂 __dirname:', __dirname);
+  const filePath = require('path').join(__dirname, 'product-categories.html');
+  console.log('📂 File path:', filePath);
   const fs = require('fs');
   if (fs.existsSync(filePath)) {
+    console.log('✅ File exists, sending file');
     res.sendFile(filePath);
   } else {
+    console.log('❌ File does not exist at:', filePath);
     res.status(404).json({
       error: 'File not found',
-      message: 'product-categories.html not found in deployment'
+      message: 'product-categories.html not found in deployment',
+      path: filePath,
+      dirname: __dirname
     });
   }
 });
