@@ -10,6 +10,14 @@ console.log('📦 Products router loading...');
 let db;
 try {
     const dbPath = path.join(__dirname, '..', 'database', 'energy_calculator_central.db');
+    const dbDir = path.dirname(dbPath);
+    
+    // Ensure database directory exists
+    if (!fs.existsSync(dbDir)) {
+        console.log('📁 Creating database directory:', dbDir);
+        fs.mkdirSync(dbDir, { recursive: true });
+    }
+    
     db = new sqlite3.Database(dbPath);
     console.log(`🔗 Connected to ETL database: ${dbPath}`);
 } catch (error) {

@@ -67,6 +67,14 @@ function extractWixMedia(wixProduct) {
 
 // Database connections
 const dbPath = path.join(__dirname, '..', 'database', 'energy_calculator.db');
+const dbDir = path.dirname(dbPath);
+
+// Ensure database directory exists
+if (!fs.existsSync(dbDir)) {
+  console.log('📁 Creating database directory:', dbDir);
+  fs.mkdirSync(dbDir, { recursive: true });
+}
+
 const grantsDataPath = path.join(__dirname, '..', 'products-with-grants-and-collection.json');
 const fullDatabasePath = path.join(__dirname, '..', 'FULL-DATABASE-5554.json');
 
