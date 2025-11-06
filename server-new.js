@@ -349,6 +349,36 @@ app.get('/test-members', (req, res) => {
   });
 });
 
+// Explicitly serve product-categories.html BEFORE static middleware
+app.get('/product-categories.html', (req, res) => {
+  console.log('📂 Serving product-categories.html');
+  const filePath = __dirname + '/product-categories.html';
+  const fs = require('fs');
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({
+      error: 'File not found',
+      message: 'product-categories.html not found in deployment'
+    });
+  }
+});
+
+// Explicitly serve category-product-page.html BEFORE static middleware
+app.get('/category-product-page.html', (req, res) => {
+  console.log('📂 Serving category-product-page.html');
+  const filePath = __dirname + '/category-product-page.html';
+  const fs = require('fs');
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({
+      error: 'File not found',
+      message: 'category-product-page.html not found in deployment'
+    });
+  }
+});
+
 // Serve static files (including the widget HTML) - BUT NOT THE WIDGET FILES
 app.use(express.static('.', {
   index: false,
@@ -378,17 +408,19 @@ app.get('/product-energy-widget', (req, res) => {
   res.sendFile(__dirname + '/product-energy-widget-glassmorphism.html');
 });
 
-// Explicitly serve product-categories.html (backup route in case static file middleware doesn't catch it)
-app.get('/product-categories.html', (req, res) => {
-  console.log('📂 Serving product-categories.html');
-  const filePath = __dirname + '/product-categories.html';
+// Routes moved above static middleware to ensure they're checked first
+
+// Explicitly serve product-page-v2-marketplace-v2-enhanced.html
+app.get('/product-page-v2-marketplace-v2-enhanced.html', (req, res) => {
+  console.log('📂 Serving product-page-v2-marketplace-v2-enhanced.html');
+  const filePath = __dirname + '/product-page-v2-marketplace-v2-enhanced.html';
   const fs = require('fs');
   if (fs.existsSync(filePath)) {
     res.sendFile(filePath);
   } else {
     res.status(404).json({
       error: 'File not found',
-      message: 'product-categories.html not found in deployment'
+      message: 'product-page-v2-marketplace-v2-enhanced.html not found in deployment'
     });
   }
 });
