@@ -614,12 +614,12 @@
                 document.getElementById('products-container').innerHTML = '<div class="loading">Loading products...</div>';
 
                 // Fetch ALL products for category filtering (need all to filter properly)
-                // But use a large limit to get all products in one request
+                // Use limit of 6000 to cover all ~5556 products
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout for large dataset
                 
-                // Load all products (use large limit to get all products for filtering)
-                const response = await fetch('/api/products?limit=10000&offset=0', {
+                // Load all products (limit 6000 covers all ~5556 products)
+                const response = await fetch('/api/products?limit=6000&offset=0', {
                     signal: controller.signal
                 });
                 
