@@ -431,6 +431,21 @@ app.get('/product-page-v2-marketplace-v2-enhanced.html', (req, res) => {
   }
 });
 
+// Explicitly serve product-page-v2-marketplace-test.html (test version with image fixes)
+app.get('/product-page-v2-marketplace-test.html', (req, res) => {
+  console.log('📂 Serving product-page-v2-marketplace-test.html');
+  const filePath = __dirname + '/product-page-v2-marketplace-test.html';
+  const fs = require('fs');
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({
+      error: 'File not found',
+      message: 'product-page-v2-marketplace-test.html not found in deployment'
+    });
+  }
+});
+
 // Test widget endpoint
 app.get('/test-widget', (req, res) => {
   res.json({
