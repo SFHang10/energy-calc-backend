@@ -613,48 +613,55 @@
                 // Show loading state
                 document.getElementById('products-container').innerHTML = '<div class="loading">Loading products...</div>';
 
-                // Progressive loading: Load first page quickly, then load rest in background
-                // This makes page load fast while still allowing full category filtering
+                // Use server-side category filtering (much faster and more reliable)
+                // This avoids the "no products" issue when first 50 products don't match category
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
                 
-                // Step 1: Load first 50 products quickly (show immediately)
-                const firstPageResponse = await fetch('/api/products?limit=50&offset=0', {
+                // Load ALL products for this category from server (server-side filtering)
+                // This ensures we get products that match the category, not random first 50
+                const response = await fetch(`/api/products/category/${encodeURIComponent(category)}`, {
                     signal: controller.signal
                 });
                 
                 clearTimeout(timeoutId);
                 
-                if (!firstPageResponse.ok) {
-                    throw new Error(`HTTP error! status: ${firstPageResponse.status}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
-                const firstPageData = await firstPageResponse.json();
+                const data = await response.json();
                 
-                if (firstPageData.products && firstPageData.products.length > 0) {
-                    allProducts = firstPageData.products;
-                    console.log(`✅ Loaded first ${firstPageData.products.length} products (fast initial load)`);
+                if (data.products && data.products.length > 0) {
+                    // Server already filtered by category, so use these directly
+                    allProducts = data.products;
+                    filteredProducts = data.products; // Already filtered by server
                     
-                    // Filter and show first page immediately
-                    filteredProducts = allProducts.filter(info.filter);
-                    console.log(`✅ Filtered ${filteredProducts.length} products for ${category} (from first page)`);
+                    console.log(`✅ Loaded ${data.products.length} products for ${category} (server-side filtered)`);
                     
                     // Update brand filter options
                     updateBrandFilter();
                     
-                    // Apply current filters (show first page immediately)
+                    // Apply current filters (show products immediately)
                     applyFilters();
-                    
-                    // Step 2: Load remaining products in background (progressive loading)
-                    const totalProducts = firstPageData.total_products || 0;
-                    if (totalProducts > 50) {
-                        console.log(`🔄 Loading remaining ${totalProducts - 50} products in background...`);
-                        
-                        // Load remaining products in chunks
-                        loadRemainingProducts(50, totalProducts, info.filter);
-                    }
                 } else {
-                    showError('No products data received from server');
+                    // If server-side filtering returns empty, fall back to client-side filtering
+                    console.log(`⚠️ Server-side filtering returned empty, trying client-side filtering...`);
+                    
+                    // Load all products and filter client-side
+                    const allProductsResponse = await fetch('/api/products?limit=6000&offset=0');
+                    const allProductsData = await allProductsResponse.json();
+                    
+                    if (allProductsData.products && allProductsData.products.length > 0) {
+                        allProducts = allProductsData.products;
+                        filteredProducts = allProducts.filter(info.filter);
+                        console.log(`✅ Loaded ${filteredProducts.length} products for ${category} (client-side filtered)`);
+                        
+                        updateBrandFilter();
+                        applyFilters();
+                    } else {
+                        showError('No products data received from server');
+                    }
                 }
             } catch (error) {
                 console.error('Error loading products:', error);
@@ -666,45 +673,6 @@
             }
         }
         
-        // Load remaining products in background (progressive loading)
-        async function loadRemainingProducts(startOffset, totalProducts, categoryFilter) {
-            const chunkSize = 100; // Load 100 products at a time
-            let currentOffset = startOffset;
-            
-            while (currentOffset < totalProducts) {
-                try {
-                    const response = await fetch(`/api/products?limit=${chunkSize}&offset=${currentOffset}`);
-                    if (!response.ok) break;
-                    
-                    const data = await response.json();
-                    if (!data.products || data.products.length === 0) break;
-                    
-                    // Add new products to allProducts array
-                    allProducts = [...allProducts, ...data.products];
-                    console.log(`✅ Loaded ${data.products.length} more products (${allProducts.length}/${totalProducts} total)`);
-                    
-                    // Re-filter with new products
-                    filteredProducts = allProducts.filter(categoryFilter);
-                    console.log(`✅ Updated filtered products: ${filteredProducts.length} for category`);
-                    
-                    // Update brand filter options
-                    updateBrandFilter();
-                    
-                    // Re-apply filters to show new products
-                    applyFilters();
-                    
-                    currentOffset += chunkSize;
-                    
-                    // Small delay to avoid overwhelming the server
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                } catch (error) {
-                    console.error(`Error loading products chunk at offset ${currentOffset}:`, error);
-                    break;
-                }
-            }
-            
-            console.log(`✅ Finished loading all ${allProducts.length} products`);
-        }
 
         // Update brand filter options
         function updateBrandFilter() {
