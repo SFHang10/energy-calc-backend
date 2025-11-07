@@ -263,6 +263,7 @@ async function getProducts(forceETL = false) {
 }
 
 // Load ETL products on startup (background update)
+// This is optional - if database is empty, it's fine, we use JSON instead
 if (db) {
     loadProductsFromETLDatabase()
         .then(products => {
@@ -271,7 +272,12 @@ if (db) {
             console.log(`🚀 ETL products loaded in background: ${products.length} products`);
         })
         .catch(error => {
-            console.error('❌ Failed to load ETL products:', error);
+            // Database might be empty - that's OK, we use JSON instead
+            if (error.code === 'SQLITE_ERROR' && error.message.includes('no such table')) {
+                console.log(`ℹ️ Database table not found - using JSON products instead (${hardcodedProducts.length} products)`);
+            } else {
+                console.error('❌ Failed to load ETL products:', error.message);
+            }
         });
 }
 
