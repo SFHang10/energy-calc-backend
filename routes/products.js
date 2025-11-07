@@ -87,12 +87,23 @@ const ETL_UPDATE_INTERVAL = 30 * 60 * 1000; // 30 minutes
 // Load hardcoded products from JSON file (fast, saves API calls)
 try {
     const dataPath = path.join(__dirname, '..', 'FULL-DATABASE-5554.json');
-    const data = fs.readFileSync(dataPath, 'utf8');
-    const jsonData = JSON.parse(data);
-    hardcodedProducts = jsonData.products || [];
-    console.log(`✅ Loaded ${hardcodedProducts.length} hardcoded products from JSON`);
+    console.log(`📂 Attempting to load JSON from: ${dataPath}`);
+    console.log(`📂 Current directory: ${__dirname}`);
+    
+    // Check if file exists first
+    if (!fs.existsSync(dataPath)) {
+        console.error(`❌ JSON file not found at: ${dataPath}`);
+        hardcodedProducts = [];
+    } else {
+        console.log(`✅ JSON file found, reading...`);
+        const data = fs.readFileSync(dataPath, 'utf8');
+        const jsonData = JSON.parse(data);
+        hardcodedProducts = jsonData.products || [];
+        console.log(`✅ Loaded ${hardcodedProducts.length} hardcoded products from JSON`);
+    }
 } catch (error) {
     console.error('❌ Error loading hardcoded products:', error.message);
+    console.error('❌ Error stack:', error.stack);
     hardcodedProducts = [];
 }
 
@@ -150,21 +161,29 @@ async function getProducts(forceETL = false) {
     
     // Use hardcoded products by default (fast)
     let products = [];
+    console.log(`🔍 getProducts called - forceETL: ${forceETL}, hardcodedProducts.length: ${hardcodedProducts.length}`);
+    
     if (!forceETL && hardcodedProducts.length > 0) {
+        console.log(`✅ Using hardcoded products (${hardcodedProducts.length} products)`);
         products = hardcodedProducts;
     } else {
+        console.log(`⚠️ Hardcoded products empty or ETL forced, trying database...`);
         // Use ETL products if hardcoded is empty or forced
         if (db) {
             try {
+                console.log(`🔄 Loading from ETL database...`);
                 products = await loadProductsFromETLDatabase();
                 etlProducts = products;
                 lastETLUpdate = now;
+                console.log(`✅ Loaded ${products.length} products from ETL database`);
             } catch (error) {
                 console.error('❌ Error loading ETL products:', error);
                 // Fallback to hardcoded if ETL fails
                 products = hardcodedProducts.length > 0 ? hardcodedProducts : [];
+                console.log(`⚠️ Fallback to hardcoded: ${products.length} products`);
             }
         } else {
+            console.log(`⚠️ Database not connected, using hardcoded: ${hardcodedProducts.length} products`);
             products = hardcodedProducts;
         }
     }
