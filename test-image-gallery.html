@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Placement Images - Test Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .stats {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .stat-item .number {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-item .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .image-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .image-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .image-container {
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .image-card:hover .image-container img {
+            transform: scale(1.1);
+        }
+
+        .image-info {
+            padding: 15px;
+        }
+
+        .image-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95em;
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+
+        .image-size {
+            color: #666;
+            font-size: 0.85em;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .badge-motor {
+            background: #d1f2eb;
+            color: #0e6655;
+        }
+
+        .badge-hvac {
+            background: #d6eaf8;
+            color: #2874a6;
+        }
+
+        .badge-heat {
+            background: #fadbd8;
+            color: #922b21;
+        }
+
+        .badge-food {
+            background: #f9e79f;
+            color: #7d6608;
+        }
+
+        .badge-appliance {
+            background: #d5d8dc;
+            color: #2e4057;
+        }
+
+        .badge-other {
+            background: #e8daef;
+            color: #6c3483;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Product Placement Image Gallery</h1>
+        <p class="subtitle">All images available for your 5,556 products</p>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="number" id="totalImages">0</span>
+                <span class="label">Total Images</span>
+            </div>
+            <div class="stat-item">
+                <span class="number">5,556</span>
+                <span class="label">Products Covered</span>
+            </div>
+            <div class="stat-item">
+                <span class="number">100%</span>
+                <span class="label">Coverage</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search for images by name...">
+        </div>
+
+        <div class="gallery" id="gallery">
+            <!-- Images will be inserted here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Image data
+        const images = [
+            { name: 'Appliances.jpg', path: 'product-placement/Appliances.jpg', category: 'appliance' },
+            { name: 'ATHEN XL 175.jpeg', path: 'product-placement/ATHEN XL 175.jpeg', category: 'other' },
+            { name: 'Cm Fridge.jpeg', path: 'product-placement/Cm Fridge.jpeg', category: 'food' },
+            { name: 'ecostore HP by Electrolux Professional.jpeg', path: 'product-placement/ecostore HP  by Electrolux Professional.jpeg', category: 'heat' },
+            { name: 'ecostore HP by Electrolux Professional.jpeg (2)', path: 'product-placement/ecostore HP  by Electrolux Professional.Model number EJ2HBAAXXG.jpeg', category: 'heat' },
+            { name: 'ecostore HP Premium.jpeg', path: 'product-placement/ecostore HP Premium by Electrolux Professional.Jpeg', category: 'heat' },
+            { name: 'Electrolux Wall Oven.jpg', path: 'product-placement/Electrolux EI30EF55QS 30 Single Wall Oven.jpg', category: 'appliance' },
+            { name: 'Electrolux Professional.jpeg', path: 'product-placement/Electrolux Professional Model number EJ2KBAAXXG.jpeg', category: 'appliance' },
+            { name: 'Food Services.jpeg', path: 'product-placement/Food Services.jpeg', category: 'food' },
+            { name: 'Frigidaire Oven.jpg', path: 'product-placement/Frigidaire Gallery FGEW3065UF 30 Wall Oven.jpg', category: 'appliance' },
+            { name: 'GE Profile Oven.jpeg', path: 'product-placement/GE Profile P2B940YPFS 30 Double Wall Oven.jpeg', category: 'appliance' },
+            { name: 'Heating.jpeg', path: 'product-placement/Heatin0g.jpeg', category: 'heat' },
+            { name: 'Heating Controls.jpeg', path: 'product-placement/Heating Controls .jpeg', category: 'heat' },
+            { name: 'HeatPump.jpeg', path: 'product-placement/HeatPump.Jpeg', category: 'heat' },
+            { name: 'HeatPumps.jpg', path: 'product-placement/HeatPumps.jpg', category: 'heat' },
+            { name: 'Hisense Dishwasher.jpg', path: 'product-placement/Hisense Dishwasher.jpg', category: 'appliance' },
+            { name: 'HVAC.jpeg', path: 'product-placement/HVAC.jpeg', category: 'hvac' },
+            { name: 'HVAC1.jpeg', path: 'product-placement/HVAC1.jpeg', category: 'hvac' },
+            { name: 'KitchenAid Oven 1.jpg', path: 'product-placement/KitchenAid KODE500ESS 30 Double Wall Oven.jpg', category: 'appliance' },
+            { name: 'KitchenAid Oven 2.jpg', path: 'product-placement/KitchenAid KODE500ESS 30 Double Wall Ovenjpg.jpg', category: 'appliance' },
+            { name: 'LG Oven.jpeg', path: 'product-placement/LG LDE4413ST 30 Double Wall Oven.jpeg', category: 'appliance' },
+            { name: 'Light.jpeg', path: 'product-placement/Light.jpeg', category: 'other' },
+            { name: 'Maytag Oven.jpg', path: 'product-placement/Maytag MWO5105BZ 30 Single Wall Ovenjpg.jpg', category: 'appliance' },
+            { name: 'microwavemainhp.jpg', path: 'product-placement/microwavemainhp.jpg', category: 'appliance' },
+            { name: 'Motor.jpeg', path: 'product-placement/Motor.jpeg', category: 'motor' },
+            { name: 'Motor.jpg', path: 'product-placement/Motor.jpg', category: 'motor' },
+            { name: 'Samsung Oven.jpg', path: 'product-placement/Samsung NE58K9430WS 30 Wall Oven.jpg', category: 'appliance' },
+            { name: 'Savings.jpg', path: 'product-placement/Savings.jpg', category: 'other' },
+            { name: 'Smart Home.jpeg', path: 'product-placement/Smart Home. jpeg.jpeg', category: 'other' },
+            { name: 'Smart Warm Home.jpeg', path: 'product-placement/Smart Warm Home. jpeg.jpeg', category: 'other' },
+            { name: 'Whirlpool Oven.jpg', path: 'product-placement/Whirlpool WOD51HZES 30 Double Wall Oven.jpg', category: 'appliance' }
+        ];
+
+        function getCategoryName(category) {
+            const names = {
+                'motor': 'Motor/Drive',
+                'hvac': 'HVAC/Cooling',
+                'heat': 'Heat Pump',
+                'food': 'Foodservice',
+                'appliance': 'Appliance',
+                'other': 'Other'
+            };
+            return names[category] || 'Other';
+        }
+
+        function getCategoryBadge(category) {
+            const badges = {
+                'motor': 'badge-motor',
+                'hvac': 'badge-hvac',
+                'heat': 'badge-heat',
+                'food': 'badge-food',
+                'appliance': 'badge-appliance',
+                'other': 'badge-other'
+            };
+            return badges[category] || 'badge-other';
+        }
+
+        function renderGallery(filteredImages) {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+
+            filteredImages.forEach(img => {
+                const card = document.createElement('div');
+                card.className = 'image-card';
+                
+                card.innerHTML = `
+                    <div class="image-container">
+                        <img src="${img.path}" alt="${img.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x250/cccccc/666666?text=Image+Not+Found'">
+                    </div>
+                    <div class="image-info">
+                        <div class="image-name">${img.name}</div>
+                        <span class="category-badge ${getCategoryBadge(img.category)}">${getCategoryName(img.category)}</span>
+                    </div>
+                `;
+                
+                gallery.appendChild(card);
+            });
+        }
+
+        function updateStats(count) {
+            document.getElementById('totalImages').textContent = count;
+        }
+
+        // Initialize
+        renderGallery(images);
+        updateStats(images.length);
+
+        // Search functionality
+        document.getElementById('searchBox').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = images.filter(img => 
+                img.name.toLowerCase().includes(searchTerm) ||
+                img.category.toLowerCase().includes(searchTerm) ||
+                getCategoryName(img.category).toLowerCase().includes(searchTerm)
+            );
+            renderGallery(filtered);
+            updateStats(filtered.length);
+        });
+
+        console.log('✅ Image gallery loaded with', images.length, 'images');
+    </script>
+</body>
+</html>
+
+
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Placement Images - Test Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .stats {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .stat-item .number {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-item .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .image-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .image-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .image-container {
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .image-card:hover .image-container img {
+            transform: scale(1.1);
+        }
+
+        .image-info {
+            padding: 15px;
+        }
+
+        .image-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95em;
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+
+        .image-size {
+            color: #666;
+            font-size: 0.85em;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .badge-motor {
+            background: #d1f2eb;
+            color: #0e6655;
+        }
+
+        .badge-hvac {
+            background: #d6eaf8;
+            color: #2874a6;
+        }
+
+        .badge-heat {
+            background: #fadbd8;
+            color: #922b21;
+        }
+
+        .badge-food {
+            background: #f9e79f;
+            color: #7d6608;
+        }
+
+        .badge-appliance {
+            background: #d5d8dc;
+            color: #2e4057;
+        }
+
+        .badge-other {
+            background: #e8daef;
+            color: #6c3483;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Product Placement Image Gallery</h1>
+        <p class="subtitle">All images available for your 5,556 products</p>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="number" id="totalImages">0</span>
+                <span class="label">Total Images</span>
+            </div>
+            <div class="stat-item">
+                <span class="number">5,556</span>
+                <span class="label">Products Covered</span>
+            </div>
+            <div class="stat-item">
+                <span class="number">100%</span>
+                <span class="label">Coverage</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search for images by name...">
+        </div>
+
+        <div class="gallery" id="gallery">
+            <!-- Images will be inserted here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Image data
+        const images = [
+            { name: 'Appliances.jpg', path: 'product-placement/Appliances.jpg', category: 'appliance' },
+            { name: 'ATHEN XL 175.jpeg', path: 'product-placement/ATHEN XL 175.jpeg', category: 'other' },
+            { name: 'Cm Fridge.jpeg', path: 'product-placement/Cm Fridge.jpeg', category: 'food' },
+            { name: 'ecostore HP by Electrolux Professional.jpeg', path: 'product-placement/ecostore HP  by Electrolux Professional.jpeg', category: 'heat' },
+            { name: 'ecostore HP by Electrolux Professional.jpeg (2)', path: 'product-placement/ecostore HP  by Electrolux Professional.Model number EJ2HBAAXXG.jpeg', category: 'heat' },
+            { name: 'ecostore HP Premium.jpeg', path: 'product-placement/ecostore HP Premium by Electrolux Professional.Jpeg', category: 'heat' },
+            { name: 'Electrolux Wall Oven.jpg', path: 'product-placement/Electrolux EI30EF55QS 30 Single Wall Oven.jpg', category: 'appliance' },
+            { name: 'Electrolux Professional.jpeg', path: 'product-placement/Electrolux Professional Model number EJ2KBAAXXG.jpeg', category: 'appliance' },
+            { name: 'Food Services.jpeg', path: 'product-placement/Food Services.jpeg', category: 'food' },
+            { name: 'Frigidaire Oven.jpg', path: 'product-placement/Frigidaire Gallery FGEW3065UF 30 Wall Oven.jpg', category: 'appliance' },
+            { name: 'GE Profile Oven.jpeg', path: 'product-placement/GE Profile P2B940YPFS 30 Double Wall Oven.jpeg', category: 'appliance' },
+            { name: 'Heating.jpeg', path: 'product-placement/Heatin0g.jpeg', category: 'heat' },
+            { name: 'Heating Controls.jpeg', path: 'product-placement/Heating Controls .jpeg', category: 'heat' },
+            { name: 'HeatPump.jpeg', path: 'product-placement/HeatPump.Jpeg', category: 'heat' },
+            { name: 'HeatPumps.jpg', path: 'product-placement/HeatPumps.jpg', category: 'heat' },
+            { name: 'Hisense Dishwasher.jpg', path: 'product-placement/Hisense Dishwasher.jpg', category: 'appliance' },
+            { name: 'HVAC.jpeg', path: 'product-placement/HVAC.jpeg', category: 'hvac' },
+            { name: 'HVAC1.jpeg', path: 'product-placement/HVAC1.jpeg', category: 'hvac' },
+            { name: 'KitchenAid Oven 1.jpg', path: 'product-placement/KitchenAid KODE500ESS 30 Double Wall Oven.jpg', category: 'appliance' },
+            { name: 'KitchenAid Oven 2.jpg', path: 'product-placement/KitchenAid KODE500ESS 30 Double Wall Ovenjpg.jpg', category: 'appliance' },
+            { name: 'LG Oven.jpeg', path: 'product-placement/LG LDE4413ST 30 Double Wall Oven.jpeg', category: 'appliance' },
+            { name: 'Light.jpeg', path: 'product-placement/Light.jpeg', category: 'other' },
+            { name: 'Maytag Oven.jpg', path: 'product-placement/Maytag MWO5105BZ 30 Single Wall Ovenjpg.jpg', category: 'appliance' },
+            { name: 'microwavemainhp.jpg', path: 'product-placement/microwavemainhp.jpg', category: 'appliance' },
+            { name: 'Motor.jpeg', path: 'product-placement/Motor.jpeg', category: 'motor' },
+            { name: 'Motor.jpg', path: 'product-placement/Motor.jpg', category: 'motor' },
+            { name: 'Samsung Oven.jpg', path: 'product-placement/Samsung NE58K9430WS 30 Wall Oven.jpg', category: 'appliance' },
+            { name: 'Savings.jpg', path: 'product-placement/Savings.jpg', category: 'other' },
+            { name: 'Smart Home.jpeg', path: 'product-placement/Smart Home. jpeg.jpeg', category: 'other' },
+            { name: 'Smart Warm Home.jpeg', path: 'product-placement/Smart Warm Home. jpeg.jpeg', category: 'other' },
+            { name: 'Whirlpool Oven.jpg', path: 'product-placement/Whirlpool WOD51HZES 30 Double Wall Oven.jpg', category: 'appliance' }
+        ];
+
+        function getCategoryName(category) {
+            const names = {
+                'motor': 'Motor/Drive',
+                'hvac': 'HVAC/Cooling',
+                'heat': 'Heat Pump',
+                'food': 'Foodservice',
+                'appliance': 'Appliance',
+                'other': 'Other'
+            };
+            return names[category] || 'Other';
+        }
+
+        function getCategoryBadge(category) {
+            const badges = {
+                'motor': 'badge-motor',
+                'hvac': 'badge-hvac',
+                'heat': 'badge-heat',
+                'food': 'badge-food',
+                'appliance': 'badge-appliance',
+                'other': 'badge-other'
+            };
+            return badges[category] || 'badge-other';
+        }
+
+        function renderGallery(filteredImages) {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+
+            filteredImages.forEach(img => {
+                const card = document.createElement('div');
+                card.className = 'image-card';
+                
+                card.innerHTML = `
+                    <div class="image-container">
+                        <img src="${img.path}" alt="${img.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x250/cccccc/666666?text=Image+Not+Found'">
+                    </div>
+                    <div class="image-info">
+                        <div class="image-name">${img.name}</div>
+                        <span class="category-badge ${getCategoryBadge(img.category)}">${getCategoryName(img.category)}</span>
+                    </div>
+                `;
+                
+                gallery.appendChild(card);
+            });
+        }
+
+        function updateStats(count) {
+            document.getElementById('totalImages').textContent = count;
+        }
+
+        // Initialize
+        renderGallery(images);
+        updateStats(images.length);
+
+        // Search functionality
+        document.getElementById('searchBox').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = images.filter(img => 
+                img.name.toLowerCase().includes(searchTerm) ||
+                img.category.toLowerCase().includes(searchTerm) ||
+                getCategoryName(img.category).toLowerCase().includes(searchTerm)
+            );
+            renderGallery(filtered);
+            updateStats(filtered.length);
+        });
+
+        console.log('✅ Image gallery loaded with', images.length, 'images');
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
