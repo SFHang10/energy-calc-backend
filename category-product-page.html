@@ -97,8 +97,11 @@
         .product-image {
             width: 100%;
             height: 200px;
-            object-fit: cover;
+            object-fit: contain;
+            object-position: center;
             background: #f0f0f0;
+            padding: 10px;
+            display: block;
         }
 
         .product-info {
@@ -293,8 +296,154 @@
         let currentPage = 1;
         const productsPerPage = 12;
 
-        // Category mapping
+        // Helper function to get the correct power value (matches product-widget.js logic)
+        function getProductPower(product) {
+            // Helper function to detect gas products
+            const isGasProduct = (p) => {
+                const name = (p.name || '').toLowerCase();
+                const category = (p.category || '').toLowerCase();
+                const fuelType = (p.fuelType || p.fuel_type || '').toLowerCase();
+                
+                return name.includes('gas') || 
+                       name.includes('condensing') || 
+                       name.includes('warm air unit heater') ||
+                       name.includes('boiler') ||
+                       fuelType === 'gas' ||
+                       (category.includes('heating') && (name.includes('heater') || name.includes('boiler')));
+            };
+            
+            // Mapping for known gas products and their heating capacities
+            const gasProductHeatingCapacity = {
+                'etl_13_75468': 100,
+                'etl_13_75467': 100,
+                'etl_13_75466': 100,
+                'etl_13_75465': 100,
+            };
+            
+            // Parse power - handle string or number
+            let productPower = typeof product.power === 'string' 
+                ? parseFloat(product.power.replace(/[^\d.]/g, '')) || 0
+                : (product.power || 0);
+            
+            // If power is invalid/0, check if energyRating contains the actual power value
+            if (productPower === 0 || productPower === null || isNaN(productPower)) {
+                const energyRatingPower = typeof product.energyRating === 'string'
+                    ? parseFloat(product.energyRating.replace(/[^\d.]/g, ''))
+                    : (typeof product.energyRating === 'number' ? product.energyRating : null);
+                
+                if (energyRatingPower && energyRatingPower > 0 && energyRatingPower < 1000) {
+                    // Use energyRating as power if it's a reasonable power value (0-1000 kW)
+                    productPower = energyRatingPower;
+                }
+            }
+            
+            // For gas products, use heating capacity if power is 0/unknown
+            const isGas = isGasProduct(product);
+            if (isGas && (productPower === 0 || productPower === null || isNaN(productPower))) {
+                let heatingCapacity = gasProductHeatingCapacity[product.id] || 
+                                      gasProductHeatingCapacity[product.name] ||
+                                      product.heatingCapacity ||
+                                      null;
+                
+                if (heatingCapacity) {
+                    productPower = heatingCapacity;
+                }
+            }
+            
+            return productPower;
+        }
+
+        // Category mapping - maps display names from categories page to filter functions
         const categoryInfo = {
+            // Display names from categories page
+            'Heat Pumps': {
+                title: '🔥 Heat Pumps',
+                description: 'High-efficiency heat pumps for residential and commercial applications',
+                filter: (product) => {
+                    const name = product.name.toLowerCase();
+                    const brand = product.brand.toLowerCase();
+                    return name.includes('heat pump') || name.includes('auriga') || 
+                           name.includes('altherma') || name.includes('vitocal') ||
+                           name.includes('air-to-water') || name.includes('air to water') ||
+                           (brand.includes('daikin') && (name.includes('altherma') || name.includes('air-to-water'))) ||
+                           (brand.includes('baxi') && name.includes('auriga')) ||
+                           (brand.includes('viessmann') && name.includes('vitocal'));
+                }
+            },
+            'HVAC Equipment': {
+                title: '🏭 HVAC Equipment',
+                description: 'Professional HVAC drives, controls, and systems',
+                filter: (product) => {
+                    const name = product.name.toLowerCase();
+                    const brand = product.brand.toLowerCase();
+                    // Check HVAC-specific keywords FIRST (priority)
+                    return name.includes('hvac') || 
+                           name.includes('hvac drive') || 
+                           name.includes('vlt') || 
+                           name.includes('refrigeration drive') || 
+                           name.includes('frenic') ||
+                           name.includes('optidrive') || 
+                           name.includes('chilled beam') ||
+                           name.includes('perfect irus') || 
+                           (brand.includes('danfoss') && name.includes('vlt')) ||
+                           brand.includes('fuji electric') || 
+                           brand.includes('invertek') ||
+                           // Also check subcategory for HVAC products
+                           (product.subcategory && product.subcategory.toLowerCase().includes('hvac')) ||
+                           (product.category && product.category.toLowerCase().includes('hvac'));
+                }
+            },
+            'Motor Drives': {
+                title: '⚡ Motor Drives',
+                description: 'High-efficiency IE4 and IE3 motors for industrial applications',
+                filter: (product) => {
+                    const name = product.name.toLowerCase();
+                    const brand = product.brand.toLowerCase();
+                    // EXCLUDE HVAC products first (HVAC has priority)
+                    if (name.includes('hvac') || 
+                        name.includes('vlt') || 
+                        name.includes('frenic') ||
+                        name.includes('optidrive') ||
+                        brand.includes('danfoss') && name.includes('vlt') ||
+                        brand.includes('fuji electric') ||
+                        brand.includes('invertek') ||
+                        (product.subcategory && product.subcategory.toLowerCase().includes('hvac')) ||
+                        (product.category && product.category.toLowerCase().includes('hvac'))) {
+                        return false; // Exclude HVAC products from Motor Drives
+                    }
+                    // Then check for motor-specific keywords
+                    return name.includes('motor') || 
+                           (name.includes('drive') && !name.includes('hvac')) || // Drive but not HVAC drive
+                           name.includes('vsd') || 
+                           name.includes('ie4') || name.includes('ie3') ||
+                           name.includes('asynchronous') || name.includes('gear') ||
+                           brand.includes('nord gear') || brand.includes('abb') ||
+                           (brand.includes('weg') && (name.includes('motor') || (name.includes('drive') && !name.includes('hvac'))));
+                }
+            },
+            'Heating Equipment': {
+                title: '🌡️ Heating Equipment',
+                description: 'Commercial heating systems, boilers, and water heaters',
+                filter: (product) => {
+                    const name = product.name.toLowerCase();
+                    const brand = product.brand.toLowerCase();
+                    return name.includes('boiler') || name.includes('heater') || 
+                           name.includes('heating') || name.includes('water heater') ||
+                           name.includes('radiator') || name.includes('thermal') ||
+                           product.category === 'ETL Technology' && (name.includes('heat') || name.includes('thermal'));
+                }
+            },
+            'Lighting': {
+                title: '💡 Lighting',
+                description: 'Energy-efficient LED lighting systems and controls',
+                filter: (product) => {
+                    return product.category === 'Lighting' || 
+                           product.name.toLowerCase().includes('light') ||
+                           product.name.toLowerCase().includes('led') ||
+                           product.name.toLowerCase().includes('luminaire');
+                }
+            },
+            // Legacy category keys for backward compatibility
             'refrigeration': {
                 title: '❄️ Refrigeration Equipment',
                 description: 'Commercial refrigeration systems, display cabinets, and cooling solutions',
@@ -313,35 +462,40 @@
                 title: '🍽️ Professional Foodservice Equipment',
                 description: 'Combination steam ovens, convection ovens, and commercial dishwashers',
                 filter: (product) => {
-                    const name = product.name.toLowerCase();
-                    const brand = product.brand.toLowerCase();
-                    return name.includes('oven') || name.includes('steam') || 
-                           name.includes('dishwasher') || name.includes('combination') ||
-                           name.includes('convection') || name.includes('undercounter') ||
-                           name.includes('hood-type') || name.includes('foodservice') ||
-                           brand.includes('electrolux') || brand.includes('lainox') ||
-                           brand.includes('eloma') || brand.includes('lincat');
+                    return product.category === 'professional-foodservice' ||
+                           product.category === 'Restaurant Equipment';
                 }
             },
             'heat-pumps': {
                 title: '🔥 Heat Pumps',
                 description: 'High-efficiency heat pumps for residential and commercial applications',
                 filter: (product) => {
-                    return product.shopCategory === 'Heat Pumps';
+                    const name = product.name.toLowerCase();
+                    const brand = product.brand.toLowerCase();
+                    return name.includes('heat pump') || name.includes('auriga') || 
+                           name.includes('altherma') || name.includes('vitocal') ||
+                           name.includes('air-to-water') || name.includes('air to water');
                 }
             },
             'hvac': {
                 title: '🏭 HVAC Equipment',
                 description: 'Professional HVAC drives, controls, and systems',
                 filter: (product) => {
-                    return product.shopCategory === 'HVAC Equipment';
+                    const name = product.name.toLowerCase();
+                    return name.includes('hvac') || name.includes('vlt') || 
+                           name.includes('refrigeration drive') || name.includes('frenic') ||
+                           name.includes('optidrive') || name.includes('chilled beam');
                 }
             },
             'motors': {
                 title: '⚡ Motors',
                 description: 'High-efficiency IE4 and IE3 motors for industrial applications',
                 filter: (product) => {
-                    return product.shopCategory === 'Motor Drives';
+                    const name = product.name.toLowerCase();
+                    const brand = product.brand.toLowerCase();
+                    return name.includes('motor') || name.includes('drive') || 
+                           name.includes('vsd') || name.includes('ie4') || name.includes('ie3') ||
+                           brand.includes('nord gear') || brand.includes('abb') || brand.includes('weg');
                 }
             },
             'solar': {
@@ -357,7 +511,7 @@
                 title: '⭐ Premium Products',
                 description: 'High-end, premium efficiency products with advanced features',
                 filter: (product) => {
-                    const power = parseFloat(product.power) || 0;
+                    const power = getProductPower(product);
                     const efficiency = (product.efficiency || '').toLowerCase();
                     const price = parseFloat(product.price) || 0;
                     
@@ -371,7 +525,7 @@
                 description: 'Compact motors under 5kW for residential applications',
                 filter: (product) => {
                     const name = product.name.toLowerCase();
-                    const power = parseFloat(product.power) || 0;
+                    const power = getProductPower(product);
                     const brand = product.brand.toLowerCase();
                     
                     return (name.includes('motor') || name.includes('ie4') || 
@@ -428,12 +582,19 @@
         // Load products based on URL parameter
         function loadProductsFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
-            const category = urlParams.get('category') || 'all';
+            // Decode the category parameter (handles spaces and special characters)
+            const category = decodeURIComponent(urlParams.get('category') || 'all');
+            
+            console.log(`📋 Category from URL: "${category}"`);
+            console.log(`📋 Available categories:`, Object.keys(categoryInfo));
+            console.log(`📋 Category exists?`, categoryInfo.hasOwnProperty(category));
             
             if (categoryInfo[category]) {
+                console.log(`✅ Valid category, loading products for: "${category}"`);
                 loadProducts(category);
             } else {
-                console.error('Invalid category:', category);
+                console.warn(`⚠️ Invalid category: "${category}". Falling back to "all".`);
+                console.log('Available categories:', Object.keys(categoryInfo));
                 loadProducts('all');
             }
         }
@@ -530,10 +691,10 @@
                 filtered = filtered.filter(p => p.brand === brandFilter);
             }
 
-            // Apply power filter
+            // Apply power filter (use getProductPower to get correct power value)
             if (powerFilter) {
                 filtered = filtered.filter(p => {
-                    const power = parseFloat(p.power) || 0;
+                    const power = getProductPower(p);
                     switch (powerFilter) {
                         case '0-1': return power >= 0 && power <= 1;
                         case '1-5': return power > 1 && power <= 5;
@@ -558,7 +719,7 @@
             filtered.sort((a, b) => {
                 switch (sortBy) {
                     case 'name': return a.name.localeCompare(b.name);
-                    case 'power': return (parseFloat(b.power) || 0) - (parseFloat(a.power) || 0);
+                    case 'power': return getProductPower(b) - getProductPower(a);
                     case 'brand': return a.brand.localeCompare(b.brand);
                     case 'price': return (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0);
                     default: return 0;
@@ -567,6 +728,29 @@
 
             // Display products
             displayProducts(filtered);
+        }
+
+        // Get proper image URL
+        function getImageUrl(imageUrl) {
+            if (!imageUrl) {
+                return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGOUZBIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2Qzc1N0QiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Qcm9kdWN0IEltYWdlPC90ZXh0Pgo8L3N2Zz4K';
+            }
+            
+            // If it's already a full URL (http/https), use it as is
+            if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+                return imageUrl;
+            }
+            
+            // Get the base URL (works for both localhost and production)
+            const baseUrl = window.location.origin;
+            
+            // If it's a relative path, make it absolute
+            if (imageUrl.startsWith('/')) {
+                return `${baseUrl}${imageUrl}`;
+            }
+            
+            // If it's a local path (like "product-placement/Image.jpg"), make it absolute
+            return `${baseUrl}/${imageUrl}`;
         }
 
         // Display products with pagination
@@ -593,16 +777,17 @@
             // Generate product cards
             const productsHTML = pageProducts.map(product => `
                 <div class="product-card" onclick="viewProduct('${product.id}')">
-                    <img src="${product.image_url || 'https://via.placeholder.com/300x200/2d7a5f/ffffff?text=Product+Image'}" 
+                    <img src="${getImageUrl(product.imageUrl || product.image_url)}" 
                          alt="${product.name}" class="product-image" 
-                         onerror="this.src='https://via.placeholder.com/300x200/2d7a5f/ffffff?text=Product+Image'">
+                         onload="console.log('✅ Image loaded:', this.src)"
+                         onerror="console.log('❌ Image failed:', this.src); this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGOUZBIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2Qzc1N0QiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Qcm9kdWN0IEltYWdlPC90ZXh0Pgo8L3N2Zz4K'">
                     <div class="product-info">
                         <div class="product-name">${product.name}</div>
                         <div class="product-brand">${product.brand}</div>
                         <div class="product-specs">
                             <div class="spec-item">
                                 <div class="spec-label">Power</div>
-                                <div class="spec-value">${product.power}W</div>
+                                <div class="spec-value">${getProductPower(product)}kW</div>
                             </div>
                             <div class="spec-item">
                                 <div class="spec-label">Rating</div>
@@ -683,7 +868,7 @@
 
         // View product details
         function viewProduct(productId) {
-            window.open(`/product-page-v2.html?product=${productId}`, '_blank');
+            window.open(`/product-page-v2-marketplace-v2-enhanced.html?product=${productId}`, '_blank');
         }
 
         // Add to cart
