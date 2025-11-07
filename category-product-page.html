@@ -749,7 +749,7 @@
             displayProducts(filtered);
         }
 
-        // Get proper image URL
+        // Get proper image URL (handles both old "Product Placement" and new "product-placement" paths)
         function getImageUrl(imageUrl) {
             if (!imageUrl) {
                 return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGOUZBIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2Qzc1N0QiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Qcm9kdWN0IEltYWdlPC90ZXh0Pgo8L3N2Zz4K';
@@ -763,13 +763,19 @@
             // Get the base URL (works for both localhost and production)
             const baseUrl = window.location.origin;
             
+            // Normalize path: Convert "Product Placement" to "product-placement" (folder was renamed)
+            let normalizedPath = imageUrl;
+            if (normalizedPath.includes('Product Placement')) {
+                normalizedPath = normalizedPath.replace(/Product Placement/g, 'product-placement');
+            }
+            
             // If it's a relative path, make it absolute
-            if (imageUrl.startsWith('/')) {
-                return `${baseUrl}${imageUrl}`;
+            if (normalizedPath.startsWith('/')) {
+                return `${baseUrl}${normalizedPath}`;
             }
             
             // If it's a local path (like "product-placement/Image.jpg"), make it absolute
-            return `${baseUrl}/${imageUrl}`;
+            return `${baseUrl}/${normalizedPath}`;
         }
 
         // Display products with pagination
