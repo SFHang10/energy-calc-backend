@@ -281,14 +281,27 @@ if (db) {
         });
 }
 
-// GET /products - Return all products (hybrid: hardcoded first, ETL fallback)
+// GET /products - Return products with pagination (like test version)
 router.get('/', async (req, res) => {
     try {
-        const products = await getProducts();
+        const { limit = 50, offset = 0 } = req.query;
+        const limitNum = parseInt(limit) || 50;
+        const offsetNum = parseInt(offset) || 0;
+        
+        console.log(`🔍 getProducts called - limit: ${limitNum}, offset: ${offsetNum}`);
+        
+        const allProducts = await getProducts();
+        const totalProducts = allProducts.length;
+        
+        // Apply pagination (like test version)
+        const paginatedProducts = allProducts.slice(offsetNum, offsetNum + limitNum);
+        
         res.json({
             success: true,
-            total_products: products.length,
-            products: products,
+            total_products: totalProducts,
+            limit: limitNum,
+            offset: offsetNum,
+            products: paginatedProducts,
             source: hardcodedProducts.length > 0 ? 'hardcoded_json' : 'etl_database',
             last_updated: new Date().toISOString()
         });
