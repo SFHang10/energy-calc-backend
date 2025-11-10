@@ -1081,7 +1081,19 @@
         let allProducts = [];
         let filteredProducts = [];
         let selectedProduct = null;
-        const BACKEND_URL = 'http://localhost:4000';
+        
+        // Backend URL configuration - auto-detect based on current location
+        const BACKEND_URL = (() => {
+            // If running on localhost, use localhost:4000
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                return 'http://localhost:4000';
+            }
+            // Otherwise use the same origin (works for production if page is on same domain)
+            // Or set to your production URL if page is on different domain (e.g., Wix)
+            return window.location.origin || 'https://energy-calc-backend.onrender.com';
+        })();
+        
+        console.log('🔧 Calculator Widget Backend URL configured:', BACKEND_URL);
 
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', function() {
@@ -1114,34 +1126,69 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const productId = urlParams.get('productId') || urlParams.get('product');
                 
-                if (productId) {
-                    console.log(`🔄 Loading product: ${productId}`);
-                    await loadProductFromAPI(productId);
-                } else {
-                    // Fallback to hardcoded product for testing
+                // Check if product data is already in URL parameters (from product page)
+                const productName = urlParams.get('productName');
+                const productPower = urlParams.get('productPower');
+                const productBrand = urlParams.get('productBrand');
+                const productCategory = urlParams.get('productCategory');
+                const productImage = urlParams.get('productImage');
+                
+                console.log('🔍 URL Parameters check:', {
+                    productId,
+                    productName,
+                    productPower,
+                    productBrand,
+                    productCategory,
+                    productImage
+                });
+                
+                // If we have all product data in URL parameters, use it directly
+                if (productId && productName && productPower && productBrand) {
+                    console.log(`✅ Using product data from URL parameters: ${productName}`);
                     currentProduct = {
-                        id: 'sample_1',
-                        name: 'Samsung 4-Door French Door Refrigerator',
-                        power: 180,
-                        brand: 'Samsung',
-                        category: 'Appliances',
-                        imageUrl: 'https://via.placeholder.com/200x200/2d7a5f/ffffff?text=Samsung'
+                        id: productId,
+                        name: decodeURIComponent(productName),
+                        power: parseFloat(productPower) || 0.12,
+                        brand: decodeURIComponent(productBrand),
+                        category: productCategory ? decodeURIComponent(productCategory) : 'Energy Products',
+                        imageUrl: productImage ? decodeURIComponent(productImage) : `https://via.placeholder.com/200x200/2d7a5f/ffffff?text=${encodeURIComponent(productName)}`
                     };
                     updateProductDisplay();
+                    console.log('✅ Glassmorphism Widget initialized successfully with URL parameters');
+                    // Load comparison products in background (don't wait for it)
+                    loadAllProducts().catch(err => console.warn('⚠️ Failed to load comparison products:', err));
+                    return; // Exit early - we have all the data we need
+                } else if (productId) {
+                    // Try to load from API if we have productId but not all parameters
+                    console.log(`🔄 Loading product from API: ${productId} (missing URL parameters)`);
+                    try {
+                        await loadProductFromAPI(productId);
+                    } catch (apiError) {
+                        console.warn('⚠️ API call failed, product data may be incomplete:', apiError);
+                        // Don't fall back to Samsung - show error or use what we have
+                        if (!currentProduct) {
+                            throw new Error('Failed to load product from API and no URL parameters available');
+                        }
+                    }
+                } else {
+                    // No product data at all - show error message
+                    console.error('❌ No product data available in URL parameters or productId');
+                    showErrorMessage('No product data available. Please select a product from the product page.');
+                    return;
                 }
                 console.log('✅ Glassmorphism Widget initialized successfully');
             } catch (error) {
                 console.error('❌ Error initializing widget:', error);
-                // Fallback to default product
-                currentProduct = {
-                    id: 'sample_1',
-                    name: 'Samsung 4-Door French Door Refrigerator',
-                    power: 180,
-                    brand: 'Samsung',
-                    category: 'Appliances',
-                    imageUrl: 'https://via.placeholder.com/200x200/2d7a5f/ffffff?text=Samsung'
-                };
-                updateProductDisplay();
+                showErrorMessage('Failed to load product. Please try refreshing the page or selecting a different product.');
+            }
+        }
+        
+        // Show error message in the widget
+        function showErrorMessage(message) {
+            const productNameEl = document.getElementById('product-name');
+            if (productNameEl) {
+                productNameEl.textContent = 'Error: ' + message;
+                productNameEl.style.color = '#ff6b6b';
             }
         }
 

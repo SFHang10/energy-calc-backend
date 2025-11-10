@@ -848,7 +848,7 @@
             
             <div class="tech-grid">
                 <div class="tech-item">
-                    <div class="tech-item-title">⚡ Power Rating</div>
+                    <div id="tech-power-label" class="tech-item-title">⚡ Power Rating</div>
                     <div id="tech-power" class="tech-item-value">Loading...</div>
                 </div>
                 <div class="tech-item">
@@ -1478,6 +1478,16 @@
         }
 
         function transformETLProduct(product) {
+            // Check if product is gas-powered
+            const isGas = product.isGas || false;
+            const heatingCapacity = product.heatingCapacity || null;
+            const fuelType = product.fuelType || 'Electric';
+            
+            // Determine power display label and value
+            const powerLabel = isGas ? 'Heating Capacity' : 'Power Rating';
+            const powerValue = isGas && heatingCapacity ? heatingCapacity : product.power;
+            const powerDisplay = `${powerValue}kW`;
+            
             return {
                 id: product.id,
                 name: product.name,
@@ -1485,18 +1495,23 @@
                 price: 1500, // Fixed price for display
                 category: product.category || 'Energy Products',
                 brand: product.brand || 'Unknown',
-                power: `${product.power}kW`,
+                power: powerDisplay, // Display version (string)
+                powerLabel: powerLabel, // "Power Rating" or "Heating Capacity"
+                powerValue: powerValue, // Original numeric value for calculator
+                isGas: isGas,
+                heatingCapacity: heatingCapacity,
+                fuelType: fuelType,
                 modelNumber: product.modelNumber || product.id,
                 energyRating: product.energyRating || 'A',
                 efficiency: product.efficiency || 'High',
                 imageUrl: getImageUrl(product.image_url || product.imageUrl),
-                images: [], // Will be loaded from JSON file
-                videos: [], // Will be loaded from JSON file
-                descriptionShort: `Professional ${product.category || 'Energy Product'} - ${product.brand || 'High-quality'} ${product.name}. Energy-efficient design with ${product.power}kW power rating.`,
+                images: product.images || [], // From API (includes Wix media)
+                videos: product.videos || [], // From API (includes Wix media)
+                descriptionShort: `Professional ${product.category || 'Energy Product'} - ${product.brand || 'High-quality'} ${product.name}. ${isGas ? `Gas-powered with ${heatingCapacity || powerValue}kW heating capacity.` : `Energy-efficient design with ${powerValue}kW power rating.`}`,
                 descriptionFull: `The ${product.name} is a professional-grade ${product.category || 'energy product'} designed for maximum efficiency and performance. This ${product.brand || 'high-quality'} product delivers exceptional performance while maintaining low operating costs.`,
                 additionalInfo: [
-                    `Power Rating: ${product.power}kW`,
-                    `Energy Rating: ${product.energyRating || 'A'}`,
+                    `${powerLabel}: ${powerDisplay}`,
+                    isGas ? `Fuel Type: ${fuelType}` : `Energy Rating: ${product.energyRating || 'A'}`,
                     `Efficiency: ${product.efficiency || 'High'}`,
                     `Brand: ${product.brand || 'Professional'}`,
                     `Category: ${product.category || 'Energy Products'}`,
@@ -1610,6 +1625,11 @@
             updateMediaGallery(currentProduct);
 
             // Tech info
+            // Update power label for gas products
+            const powerLabelEl = document.getElementById('tech-power-label');
+            if (powerLabelEl && currentProduct.powerLabel) {
+                powerLabelEl.textContent = currentProduct.powerLabel; // "Power Rating" or "Heating Capacity"
+            }
             document.getElementById('tech-power').textContent = currentProduct.power;
             document.getElementById('tech-brand').textContent = currentProduct.brand;
             document.getElementById('tech-category').textContent = currentProduct.category;
@@ -1949,10 +1969,16 @@
             }
 
             const baseUrl = 'product-energy-widget-glassmorphism.html';
+            // Use original numeric powerValue for calculator (check for 0 or invalid)
+            const numericPower = currentProduct.powerValue;
+            const powerForCalculator = (numericPower && numericPower > 0) 
+                ? numericPower.toString() 
+                : '0.12';
+            
             const params = new URLSearchParams({
                 productId: currentProduct.id,
                 productName: currentProduct.name,
-                productPower: currentProduct.power ? currentProduct.power.replace('kW', '') : '0.12',
+                productPower: powerForCalculator,
                 productBrand: currentProduct.brand,
                 productCategory: currentProduct.category,
                 productImage: currentProduct.imageUrl
