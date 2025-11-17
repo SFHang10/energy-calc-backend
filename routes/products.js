@@ -269,7 +269,8 @@ if (db) {
         })
         .catch(error => {
             // Database might be empty - that's OK, we use JSON instead
-            if (error.code === 'SQLITE_ERROR' && error.message.includes('no such table')) {
+            if ((error.code === 'SQLITE_ERROR' && error.message.includes('no such table')) || 
+                error.message === 'TABLE_NOT_FOUND') {
                 console.log(`ℹ️ Database table not found - using JSON products instead (${hardcodedProducts.length} products)`);
             } else {
                 console.error('❌ Failed to load ETL products:', error.message);
