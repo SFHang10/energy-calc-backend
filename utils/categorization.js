@@ -19,12 +19,25 @@ function getProductType(category, subcategory = '', name = '') {
     const subcat = (subcategory || '').toLowerCase();
     const productName = (name || '').toLowerCase();
 
-    // Ovens
+    // Ovens - check for professional foodservice equipment that are ovens
+    // Keywords: oven, combi, skyline, cooking equipment, trays, convection, steam
     if (cat.includes('oven') || 
         subcat.includes('oven') || 
         productName.includes('oven') ||
         cat.includes('combi') ||
-        subcat.includes('combi')) {
+        subcat.includes('combi') ||
+        productName.includes('combi') ||
+        productName.includes('skyline') ||
+        productName.includes('convection') ||
+        productName.includes('steam') ||
+        (cat.includes('professional-foodservice') && (
+            productName.includes('cooking') ||
+            productName.includes('tray') ||
+            productName.includes('gn1') ||
+            productName.includes('gn 1') ||
+            subcat.toLowerCase().includes('cooking') ||
+            subcat.toLowerCase().includes('oven')
+        ))) {
         return 'oven';
     }
 
@@ -243,8 +256,23 @@ function categorizeProduct(category, subcategory = '', name = '') {
     }
     // Handle other categories
     else {
-        // Ovens
-        if (cat.includes('oven') || subcat.includes('oven') || productName.includes('oven')) {
+        // Ovens - check for professional foodservice equipment that are ovens
+        // Keywords: oven, combi, skyline, cooking equipment, trays, convection, steam
+        if (cat.includes('oven') || 
+            subcat.includes('oven') || 
+            productName.includes('oven') ||
+            productName.includes('combi') ||
+            productName.includes('skyline') ||
+            productName.includes('convection') ||
+            productName.includes('steam') ||
+            (cat.includes('professional-foodservice') && (
+                productName.includes('cooking') ||
+                productName.includes('tray') ||
+                productName.includes('gn1') ||
+                productName.includes('gn 1') ||
+                subcat.toLowerCase().includes('cooking') ||
+                subcat.toLowerCase().includes('oven')
+            ))) {
             displayCategory = 'Ovens';
             productType = 'oven';
         }
