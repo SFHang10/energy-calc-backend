@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 app.use(cors());
@@ -26,6 +27,10 @@ console.log('Members router loaded successfully');
 console.log('Loading subscriptions router...');
 const subscriptionsRouter = require('./routes/subscriptions-simple');
 console.log('Subscriptions router loaded successfully');
+
+console.log('Loading Wix pricing plans router...');
+const wixPricingPlansRouter = require('./routes/wix-pricing-plans');
+console.log('Wix pricing plans router loaded successfully');
 
 console.log('Loading product widget router...');
 const productWidgetRouter = require('./routes/product-widget');
@@ -55,6 +60,8 @@ app.use('/api/members', membersRouter);
 console.log('✅ /api/members route mounted');
 app.use('/api/subscriptions', subscriptionsRouter);
 console.log('✅ /api/subscriptions route mounted');
+app.use('/api/wix-pricing-plans', wixPricingPlansRouter);
+console.log('✅ /api/wix-pricing-plans route mounted');
 
 app.use('/api/product-widget', productWidgetRouter);
 console.log('✅ /api/product-widget route mounted');
@@ -326,6 +333,20 @@ app.post('/api/calculator-wix/compare', (req, res) => {
   res.json(comparison);
 });
 
+// Root route handler
+app.get('/', (req, res) => {
+  res.json({
+    status: 'API is running',
+    message: 'Energy Calculator API',
+    endpoints: {
+      health: '/health',
+      products: '/api/products',
+      calculate: '/api/calculate',
+      members: '/api/members'
+    }
+  });
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({
@@ -396,6 +417,14 @@ app.use(express.static('.', {
   }
 }));
 
+// Explicitly serve product-placement images to ensure they're accessible
+app.use('/product-placement', express.static(path.join(__dirname, 'product-placement'), {
+  setHeaders: (res, filePath) => {
+    // Set appropriate cache headers for images
+    res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+  }
+}));
+
 // Serve the robust image energy widget HTML file - FORCE UPDATE WITH CACHE BUSTING
 app.get('/product-energy-widget.html', (req, res) => {
   console.log('🎨 Serving GLASSMORPHISM version of widget');
@@ -442,6 +471,35 @@ app.get('/product-page-v2-marketplace-test.html', (req, res) => {
     res.status(404).json({
       error: 'File not found',
       message: 'product-page-v2-marketplace-test.html not found in deployment'
+    });
+  }
+});
+
+// Serve energy calculator
+app.get('/Energy Cal 2/energy-calculator-enhanced.html', (req, res) => {
+  const fs = require('fs');
+  const filePath = __dirname + '/Energy Cal 2/energy-calculator-enhanced.html';
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({
+      error: 'File not found',
+      message: 'Energy calculator file not found'
+    });
+  }
+});
+
+// Serve member content pages
+app.get('/member-content/:page', (req, res) => {
+  const fs = require('fs');
+  const page = req.params.page;
+  const filePath = __dirname + '/wix-integration/member-content/' + page;
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({
+      error: 'File not found',
+      message: `Member content page ${page} not found`
     });
   }
 });
