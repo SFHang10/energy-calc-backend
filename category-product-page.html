@@ -818,6 +818,45 @@
         }
 
         // Get proper image URL (handles both old "Product Placement" and new "product-placement" paths)
+        // Get the best available image for a product
+        function getProductImage(product) {
+            // First, try to get image from images array (usually has real ETL images)
+            if (product.images) {
+                let images = [];
+                try {
+                    images = typeof product.images === 'string' 
+                        ? JSON.parse(product.images) 
+                        : product.images;
+                } catch (e) {
+                    images = [];
+                }
+                
+                // Find first non-placeholder image
+                const realImage = images.find(img => 
+                    img && 
+                    !img.includes('placeholder.com') && 
+                    !img.includes('via.placeholder')
+                );
+                
+                if (realImage) {
+                    return getImageUrl(realImage);
+                }
+            }
+            
+            // Fall back to imageUrl if images array doesn't have a real image
+            const imageUrl = product.imageUrl || product.image_url;
+            
+            // Skip placeholder images
+            if (imageUrl && 
+                !imageUrl.includes('placeholder.com') && 
+                !imageUrl.includes('via.placeholder')) {
+                return getImageUrl(imageUrl);
+            }
+            
+            // Return placeholder if no real image found
+            return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGOUZBIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2Qzc1N0QiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Qcm9kdWN0IEltYWdlPC90ZXh0Pgo8L3N2Zz4K';
+        }
+        
         function getImageUrl(imageUrl) {
             if (!imageUrl) {
                 return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGOUZBIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2Qzc1N0QiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Qcm9kdWN0IEltYWdlPC90ZXh0Pgo8L3N2Zz4K';
@@ -870,7 +909,7 @@
             // Generate product cards
             const productsHTML = pageProducts.map(product => `
                 <div class="product-card" onclick="viewProduct('${product.id}')">
-                    <img src="${getImageUrl(product.imageUrl || product.image_url)}" 
+                    <img src="${getProductImage(product)}" 
                          alt="${product.name}" class="product-image" 
                          onload="console.log('✅ Image loaded:', this.src)"
                          onerror="console.log('❌ Image failed:', this.src); this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGOUZBIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2Qzc1N0QiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Qcm9kdWN0IEltYWdlPC90ZXh0Pgo8L3N2Zz4K'">
