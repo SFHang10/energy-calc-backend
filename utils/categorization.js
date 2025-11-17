@@ -97,9 +97,16 @@ function getProductType(category, subcategory = '', name = '') {
         subcat.includes('lighting') || 
         subcat.includes('led') ||
         subcat.includes('lamp') ||
+        subcat.includes('lighting control') ||
+        subcat.includes('building lighting') ||
+        subcat.includes('presence detector') ||
+        subcat.includes('daylight detector') ||
+        subcat.includes('enlighted') || // Enlighted Inc is a lighting controls manufacturer
         productName.includes('light') ||
         productName.includes('led') ||
-        productName.includes('lamp')) {
+        productName.includes('lamp') ||
+        productName.includes('micro sensor') || // Micro Sensor is a lighting control product
+        productName.includes('sensor') && (productName.includes('light') || productName.includes('enlighted'))) {
         return 'lights';
     }
 
@@ -215,9 +222,16 @@ function categorizeProduct(category, subcategory = '', name = '') {
         // Lighting
         else if (subcat.includes('lighting') || 
                  subcat.includes('led') ||
-                 subcat.includes('lamp')) {
+                 subcat.includes('lamp') ||
+                 subcat.includes('lighting control') ||
+                 subcat.includes('building lighting') ||
+                 subcat.includes('presence detector') ||
+                 subcat.includes('daylight detector') ||
+                 subcat.includes('enlighted') || // Enlighted Inc is a lighting controls manufacturer
+                 productName.includes('micro sensor') || // Micro Sensor is a lighting control product
+                 (productName.includes('sensor') && (productName.includes('light') || productName.includes('enlighted')))) {
             displayCategory = 'Lighting';
-            displaySubcategory = subcat;
+            displaySubcategory = subcat.includes('enlighted') ? 'Lighting Controls' : subcat;
             productType = 'lights';
         }
         // Refrigeration (ETL Technology category)
@@ -320,7 +334,15 @@ function categorizeProduct(category, subcategory = '', name = '') {
         // Lighting
         else if (cat.includes('lighting') || cat.includes('light') ||
                  subcat.includes('lighting') || subcat.includes('led') ||
-                 productName.includes('light') || productName.includes('led')) {
+                 subcat.includes('lighting control') ||
+                 subcat.includes('building lighting') ||
+                 subcat.includes('presence detector') ||
+                 subcat.includes('daylight detector') ||
+                 subcat.includes('enlighted') || // Enlighted Inc is a lighting controls manufacturer
+                 productName.includes('light') || 
+                 productName.includes('led') ||
+                 productName.includes('micro sensor') || // Micro Sensor is a lighting control product
+                 (productName.includes('sensor') && (productName.includes('light') || productName.includes('enlighted')))) {
             displayCategory = 'Lighting';
             productType = 'lights';
         }
