@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
+const { categorizeProduct } = require('../utils/categorization');
 const router = express.Router();
 
 console.log('📦 Products router loading...');
@@ -145,8 +146,14 @@ async function loadProductsFromETLDatabase() {
         
         db.all(query, [], (err, rows) => {
             if (err) {
-                console.error('❌ Database error:', err);
-                reject(err);
+                // If database table doesn't exist, reject with specific error that can be handled
+                if (err.code === 'SQLITE_ERROR' && err.message.includes('no such table')) {
+                    console.log(`ℹ️ Database table not found - using JSON products instead (${hardcodedProducts.length} products)`);
+                    reject(new Error('TABLE_NOT_FOUND'));
+                } else {
+                    console.error('❌ Database error:', err);
+                    reject(err);
+                }
             } else {
                 console.log(`✅ Loaded ${rows.length} ETL products from database`);
                 resolve(rows);
@@ -177,10 +184,16 @@ async function getProducts(forceETL = false) {
                 lastETLUpdate = now;
                 console.log(`✅ Loaded ${products.length} products from ETL database`);
             } catch (error) {
-                console.error('❌ Error loading ETL products:', error);
-                // Fallback to hardcoded if ETL fails
-                products = hardcodedProducts.length > 0 ? hardcodedProducts : [];
-                console.log(`⚠️ Fallback to hardcoded: ${products.length} products`);
+                // If table not found, silently fall back to hardcoded products
+                if (error.message === 'TABLE_NOT_FOUND') {
+                    products = hardcodedProducts.length > 0 ? hardcodedProducts : [];
+                    console.log(`ℹ️ Using hardcoded products (${products.length} products)`);
+                } else {
+                    console.error('❌ Error loading ETL products:', error);
+                    // Fallback to hardcoded if ETL fails
+                    products = hardcodedProducts.length > 0 ? hardcodedProducts : [];
+                    console.log(`⚠️ Fallback to hardcoded: ${products.length} products`);
+                }
             }
         } else {
             console.log(`⚠️ Database not connected, using hardcoded: ${hardcodedProducts.length} products`);
@@ -188,76 +201,28 @@ async function getProducts(forceETL = false) {
         }
     }
     
-    // Apply enhanced categorization to all products
+    // Apply unified categorization to all products (matches audit widget)
     return products.map(product => {
-        // Create better category mapping for shop display
-        let displayCategory = product.category;
-        let displaySubcategory = product.subcategory;
-        
-        // Enhanced categorization for ETL Technology products
-        if (product.category === 'ETL Technology') {
-            const subcategory = product.subcategory || '';
-            
-            // Heat Pumps and Heating Equipment
-            if (subcategory.includes('Baxi Heating-Commercial') || 
-                subcategory.includes('Heat Pump') || 
-                subcategory.includes('heat pump') ||
-                product.name.toLowerCase().includes('heat pump')) {
-                displayCategory = 'Heat Pumps';
-                displaySubcategory = 'Air to Water Heat Pumps';
-            }
-            // HVAC Equipment
-            else if (subcategory.includes('HVAC') || 
-                     subcategory.includes('Reznor') ||
-                     subcategory.includes('Air Conditioning')) {
-                displayCategory = 'HVAC Equipment';
-                displaySubcategory = subcategory.includes('HVAC') ? 'HVAC Drives' : 'Heating Systems';
-            }
-            // Motor Drives and Controls
-            else if (subcategory.includes('Motor') || 
-                     subcategory.includes('Drive') ||
-                     subcategory.includes('Inverter') ||
-                     subcategory.includes('Control')) {
-                displayCategory = 'Motor Drives';
-                displaySubcategory = 'Variable Speed Drives';
-            }
-            // Heating Equipment
-            else if (subcategory.includes('HEATING') || 
-                     subcategory.includes('Heating') ||
-                     subcategory.includes('Boiler') ||
-                     subcategory.includes('Water Heater')) {
-                displayCategory = 'Heating Equipment';
-                displaySubcategory = subcategory;
-            }
-            // Lighting
-            else if (subcategory.includes('Lighting') || 
-                     subcategory.includes('LED') ||
-                     subcategory.includes('Lamp')) {
-                displayCategory = 'Lighting';
-                displaySubcategory = subcategory;
-            }
-            // Keep as ETL Technology for other products
-            else {
-                displayCategory = 'ETL Technology';
-                displaySubcategory = subcategory;
-            }
-        }
-        // Keep other categories as is
-        else {
-            displayCategory = product.category;
-            displaySubcategory = product.subcategory;
-        }
+        // Use unified categorization function that matches audit widget
+        const categorization = categorizeProduct(
+            product.category || '',
+            product.subcategory || '',
+            product.name || ''
+        );
         
         return {
             ...product,
-            displayCategory,
-            displaySubcategory,
-            // Add shop-specific fields
-            shopCategory: displayCategory,
-            shopSubcategory: displaySubcategory,
-            isHVAC: displayCategory === 'HVAC Equipment' || displayCategory === 'Heat Pumps',
-            isMotor: displayCategory === 'Motor Drives',
-            isHeating: displayCategory === 'Heat Pumps' || displayCategory === 'Heating Equipment'
+            // Unified categorization fields (matches audit widget)
+            displayCategory: categorization.displayCategory,
+            displaySubcategory: categorization.displaySubcategory,
+            productType: categorization.productType, // For audit widget compatibility
+            // Shop-specific fields (same as displayCategory for marketplace)
+            shopCategory: categorization.shopCategory,
+            shopSubcategory: categorization.shopSubcategory,
+            // Helper flags
+            isHVAC: categorization.isHVAC,
+            isMotor: categorization.isMotor,
+            isHeating: categorization.isHeating
         };
     });
 }
@@ -358,11 +323,34 @@ router.get('/categories', async (req, res) => {
 // GET /products/category/:category - Return products by category
 router.get('/category/:category', async (req, res) => {
     try {
-        const category = req.params.category;
+        const category = decodeURIComponent(req.params.category);
+        console.log(`🔍 Filtering products for category: "${category}"`);
+        
         const products = await getProducts();
-        const filteredProducts = products.filter(p => 
-            (p.shopCategory || p.displayCategory || p.category) === category
-        );
+        console.log(`📦 Total products loaded: ${products.length}`);
+        
+        // Filter products - check multiple category fields and normalize comparison
+        const filteredProducts = products.filter(p => {
+            const shopCat = (p.shopCategory || '').trim();
+            const displayCat = (p.displayCategory || '').trim();
+            const origCat = (p.category || '').trim();
+            const searchCat = category.trim();
+            
+            // Case-insensitive comparison
+            return shopCat.toLowerCase() === searchCat.toLowerCase() ||
+                   displayCat.toLowerCase() === searchCat.toLowerCase() ||
+                   origCat.toLowerCase() === searchCat.toLowerCase();
+        });
+        
+        console.log(`✅ Found ${filteredProducts.length} products for category "${category}"`);
+        
+        // Log sample categories for debugging
+        if (filteredProducts.length === 0 && products.length > 0) {
+            const sampleCategories = [...new Set(products.slice(0, 20).map(p => 
+                p.shopCategory || p.displayCategory || p.category
+            ).filter(Boolean))];
+            console.log(`⚠️ No products found. Sample categories in database:`, sampleCategories);
+        }
         
         res.json({
             success: true,
@@ -372,11 +360,13 @@ router.get('/category/:category', async (req, res) => {
             source: hardcodedProducts.length > 0 ? 'hardcoded_json' : 'etl_database'
         });
     } catch (error) {
+        console.error('❌ Error filtering products by category:', error);
         res.status(500).json({
             success: false,
             category: req.params.category,
             total_products: 0,
-            products: []
+            products: [],
+            error: error.message
         });
     }
 });
