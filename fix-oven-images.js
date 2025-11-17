@@ -23,8 +23,49 @@ const IMAGE_FIXES = {
     },
     'rest_oven_3': { // Garland GR6 6-Burner Gas Range
         currentImage: 'Product Placement/Food Services.jpeg',
-        correctImage: 'product-placement/Oven.jpeg', // Using generic oven image for gas range
+        correctImage: 'product-placement/Oven.jpeg',
         name: 'Garland GR6 6-Burner Gas Range'
+    },
+    // Additional oven products with incorrect images
+    'oven_2': { // GE Profile P2B940YPFS 30" Double Wall Oven
+        currentImage: 'Product Placement/Motor.jpg',
+        correctImage: 'product-placement/GE Profile P2B940YPFS 30 Double Wall Oven.jpeg',
+        name: 'GE Profile P2B940YPFS 30" Double Wall Oven'
+    },
+    'oven_3': { // KitchenAid KODE500ESS 30" Double Wall Oven
+        currentImage: 'Product Placement/Motor.jpg',
+        correctImage: 'product-placement/KitchenAid KODE500ESS 30 Double Wall Oven.jpg',
+        name: 'KitchenAid KODE500ESS 30" Double Wall Oven'
+    },
+    'oven_8': { // LG LDE4413ST 30" Double Wall Oven
+        currentImage: 'Product Placement/Motor.jpg',
+        correctImage: 'product-placement/LG LDE4413ST 30 Double Wall Oven.jpeg',
+        name: 'LG LDE4413ST 30" Double Wall Oven'
+    },
+    'oven_5': { // Maytag MWO5105BZ 30" Single Wall Oven
+        currentImage: 'Product Placement/Motor.jpg',
+        correctImage: 'product-placement/Maytag MWO5105BZ 30 Single Wall Ovenjpg.jpg',
+        name: 'Maytag MWO5105BZ 30" Single Wall Oven'
+    },
+    'oven_7': { // Samsung NE58K9430WS 30" Wall Oven
+        currentImage: 'Product Placement/Motor.jpg',
+        correctImage: 'product-placement/Samsung NE58K9430WS 30 Wall Oven.jpg',
+        name: 'Samsung NE58K9430WS 30" Wall Oven'
+    },
+    'oven_4': { // Whirlpool WOD51HZES 30" Double Wall Oven
+        currentImage: 'Product Placement/Motor.jpg',
+        correctImage: 'product-placement/Whirlpool WOD51HZES 30 Double Wall Oven.jpg',
+        name: 'Whirlpool WOD51HZES 30" Double Wall Oven'
+    },
+    'rest_oven_1': { // Vulcan VC4GD 4-Burner Gas Range
+        currentImage: 'Product Placement/Food Services.jpeg',
+        correctImage: 'product-placement/Oven.jpeg',
+        name: 'Vulcan VC4GD 4-Burner Gas Range'
+    },
+    'rest_oven_2': { // Wolf CR3040 30" Gas Range
+        currentImage: 'Product Placement/Food Services.jpeg',
+        correctImage: 'product-placement/Oven.jpeg',
+        name: 'Wolf CR3040 30" Gas Range'
     }
 };
 
