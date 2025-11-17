@@ -527,11 +527,29 @@
         }
 
         .additional-tech-btn.expanded {
-            background: #dc3545;
+            background: #1e7e34;
         }
 
         .additional-tech-btn.expanded:hover {
-            background: #c82333;
+            background: #155724;
+        }
+
+        /* Additional Technical Information - Darker green */
+        #additional-tech-btn.expanded {
+            background: #1e7e34;
+        }
+
+        #additional-tech-btn.expanded:hover {
+            background: #155724;
+        }
+
+        /* Additional Information - Slightly different dark green */
+        #additional-info-btn.expanded {
+            background: #155724;
+        }
+
+        #additional-info-btn.expanded:hover {
+            background: #0d4f1c;
         }
 
         .additional-tech-panel {
@@ -1621,6 +1639,18 @@
             // Load additional media from JSON file
             await loadAdditionalMedia();
 
+            // Show/hide Watch Video button based on videos availability
+            const videoBtn = document.querySelector('.video-btn');
+            if (videoBtn) {
+                if (currentProduct.videos && currentProduct.videos.length > 0) {
+                    videoBtn.style.display = 'inline-block';
+                    console.log(`✅ Showing Watch Video button (${currentProduct.videos.length} video(s) available)`);
+                } else {
+                    videoBtn.style.display = 'none';
+                    console.log('⚠️ Hiding Watch Video button (no videos available)');
+                }
+            }
+
             // Update media gallery with all available media
             updateMediaGallery(currentProduct);
 
@@ -1769,14 +1799,23 @@
             
             // Add videos if available
             if (product.videos && product.videos.length > 0) {
-                product.videos.forEach(videoUrl => {
-                    mediaItems.push({
-                        type: 'video',
-                        url: videoUrl,
-                        thumbnail: videoUrl // Use the video URL itself as thumbnail - browsers will show first frame
-                    });
-                    console.log('✅ Added video:', videoUrl);
+                console.log('🎥 Processing videos:', product.videos);
+                product.videos.forEach((videoUrl, index) => {
+                    // Ensure videoUrl is a string
+                    const normalizedVideoUrl = typeof videoUrl === 'string' ? videoUrl : String(videoUrl);
+                    if (normalizedVideoUrl && normalizedVideoUrl !== 'null' && normalizedVideoUrl !== 'undefined') {
+                        mediaItems.push({
+                            type: 'video',
+                            url: normalizedVideoUrl,
+                            thumbnail: normalizedVideoUrl // Use the video URL itself as thumbnail - browsers will show first frame
+                        });
+                        console.log(`✅ Added video ${index + 1}:`, normalizedVideoUrl);
+                    } else {
+                        console.log(`⚠️ Skipped invalid video URL:`, videoUrl);
+                    }
                 });
+            } else {
+                console.log('❌ No videos found for product');
             }
             
             console.log('📊 Total media items:', mediaItems.length);
@@ -2312,7 +2351,7 @@
                     
                     <!-- C. Related Products -->
                     <div class="related-products" style="margin-top: 20px;">
-                        <h5 style="margin: 0 0 15px 0; color: #212529;">🛍️ Customers Also Bought</h5>
+                        <h5 style="margin: 0 0 15px 0; color: #212529;">🛍️ Customers who bought this also looked at</h5>
                         <div style="display: flex; gap: 10px; overflow-x: auto;">
                             <div class="related-product" style="
                                 min-width: 120px;
