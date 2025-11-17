@@ -11,20 +11,32 @@ const WIX_SITE_ID = 'cfa82ec2-a075-4152-9799-6a1dd5c01ef4';
 async function fetchWixProductMedia(wixId) {
   try {
     // Use Wix REST API to fetch product with media
+    // Note: This requires proper authentication via Wix API key or OAuth token
+    const apiKey = process.env.WIX_API_KEY || process.env.WIX_ACCESS_TOKEN;
+    
+    if (!apiKey) {
+      console.log(`⚠️ Wix API key not configured - cannot fetch media for product ${wixId}`);
+      return null;
+    }
+
     const response = await fetch(`https://www.wixapis.com/stores-reader/v1/products/${wixId}`, {
       headers: {
-        'Authorization': process.env.WIX_API_KEY || '',
+        'Authorization': apiKey,
         'wix-site-id': WIX_SITE_ID,
         'Content-Type': 'application/json'
       }
     });
 
     if (!response.ok) {
-      console.log(`⚠️ Wix API returned ${response.status} for product ${wixId}`);
+      const errorText = await response.text();
+      console.log(`⚠️ Wix API returned ${response.status} for product ${wixId}: ${errorText}`);
       return null;
     }
 
     const data = await response.json();
+    if (data.product && data.product.media) {
+      console.log(`✅ Successfully fetched Wix media for ${wixId}: ${data.product.media.items?.length || 0} items`);
+    }
     return data.product || null;
   } catch (error) {
     console.log(`⚠️ Error fetching Wix media for ${wixId}:`, error.message);
@@ -35,6 +47,7 @@ async function fetchWixProductMedia(wixId) {
 // Helper function to extract images and videos from Wix media
 function extractWixMedia(wixProduct) {
   if (!wixProduct || !wixProduct.media) {
+    console.log('⚠️ No media found in Wix product');
     return { images: [], videos: [] };
   }
 
@@ -46,22 +59,31 @@ function extractWixMedia(wixProduct) {
     const mainMedia = wixProduct.media.mainMedia;
     if (mainMedia.mediaType === 'image' && mainMedia.image?.url) {
       images.push(mainMedia.image.url);
+      console.log(`📸 Added main image: ${mainMedia.image.url}`);
     } else if (mainMedia.mediaType === 'video' && mainMedia.video?.files?.[0]?.url) {
-      videos.push(mainMedia.video.files[0].url);
+      // Use the highest quality video (first in array is usually highest)
+      const videoUrl = mainMedia.video.files[0].url;
+      videos.push(videoUrl);
+      console.log(`🎥 Added main video: ${videoUrl}`);
     }
   }
 
   // Extract additional media items
   if (wixProduct.media.items && Array.isArray(wixProduct.media.items)) {
-    wixProduct.media.items.forEach(item => {
+    wixProduct.media.items.forEach((item, index) => {
       if (item.mediaType === 'image' && item.image?.url) {
         images.push(item.image.url);
+        console.log(`📸 Added image ${index + 1}: ${item.image.url}`);
       } else if (item.mediaType === 'video' && item.video?.files?.[0]?.url) {
-        videos.push(item.video.files[0].url);
+        // Use the highest quality video (first in array is usually highest)
+        const videoUrl = item.video.files[0].url;
+        videos.push(videoUrl);
+        console.log(`🎥 Added video ${index + 1}: ${videoUrl}`);
       }
     });
   }
 
+  console.log(`✅ Extracted ${images.length} images and ${videos.length} videos from Wix media`);
   return { images, videos };
 }
 
@@ -245,6 +267,18 @@ router.get('/:productId', async (req, res) => {
           : [];
       }
       
+      // Extract currentProduct from JSON (for comparison with existing product)
+      let currentProduct = null;
+      if (grantsProduct && grantsProduct.currentProduct) {
+        currentProduct = typeof grantsProduct.currentProduct === 'string'
+          ? JSON.parse(grantsProduct.currentProduct)
+          : grantsProduct.currentProduct;
+      } else if (fullDbProduct.currentProduct) {
+        currentProduct = typeof fullDbProduct.currentProduct === 'string'
+          ? JSON.parse(fullDbProduct.currentProduct)
+          : fullDbProduct.currentProduct;
+      }
+      
       // Initialize images and videos arrays from existing data
       let images = [];
       let videos = [];
@@ -322,6 +356,8 @@ router.get('/:productId', async (req, res) => {
         // Government grants data (already parsed above)
         grants: Array.isArray(grants) ? grants : [],
         collectionAgencies: Array.isArray(collectionAgencies) ? collectionAgencies : [],
+        // Current product for comparison (from JSON)
+        currentProduct: currentProduct || null,
         standardComparison: {
           name: `Standard ${fullDbProduct.category || 'Product'}`,
           power: standardPower,
@@ -481,6 +517,44 @@ router.get('/:productId', async (req, res) => {
         }
       }
       
+      // Extract currentProduct from JSON (for comparison with existing product)
+      let currentProduct = null;
+      if (grantsProduct.currentProduct) {
+        currentProduct = typeof grantsProduct.currentProduct === 'string'
+          ? JSON.parse(grantsProduct.currentProduct)
+          : grantsProduct.currentProduct;
+      }
+      
+      // Parse grants if they're stored as JSON strings
+      let grants = [];
+      if (grantsProduct.grants) {
+        if (Array.isArray(grantsProduct.grants)) {
+          grants = grantsProduct.grants;
+        } else if (typeof grantsProduct.grants === 'string') {
+          try {
+            const parsed = JSON.parse(grantsProduct.grants);
+            grants = Array.isArray(parsed) ? parsed : [];
+          } catch (e) {
+            grants = [];
+          }
+        }
+      }
+      
+      // Parse collectionAgencies if stored as JSON strings
+      let collectionAgencies = [];
+      if (grantsProduct.collectionAgencies) {
+        if (Array.isArray(grantsProduct.collectionAgencies)) {
+          collectionAgencies = grantsProduct.collectionAgencies;
+        } else if (typeof grantsProduct.collectionAgencies === 'string') {
+          try {
+            const parsed = JSON.parse(grantsProduct.collectionAgencies);
+            collectionAgencies = Array.isArray(parsed) ? parsed : [];
+          } catch (e) {
+            collectionAgencies = [];
+          }
+        }
+      }
+      
       const product = {
         id: grantsProduct.id,
         name: grantsProduct.name,
@@ -499,9 +573,11 @@ router.get('/:productId', async (req, res) => {
         isGas: isGas,
         heatingCapacity: heatingCapacity || (isGas ? grantsPower : null),
         fuelType: isGas ? 'Gas' : 'Electric',
-        // ADD government grants data
-        grants: grantsProduct.grants || [],
-        collectionAgencies: grantsProduct.collectionAgencies || [],
+        // Government grants data (properly parsed from JSON)
+        grants: grants,
+        collectionAgencies: collectionAgencies,
+        // Current product for comparison (from JSON)
+        currentProduct: currentProduct || null,
         standardComparison: {
           name: `Standard ${grantsProduct.category || 'Product'}`,
           power: standardPower,
@@ -529,6 +605,16 @@ router.get('/:productId', async (req, res) => {
       db.close();
       
       if (err) {
+        // If database table doesn't exist, return 404 instead of error
+        if (err.code === 'SQLITE_ERROR' && err.message.includes('no such table')) {
+          console.log(`ℹ️ Database table not found for compare - product ${productId} not found in JSON fallback`);
+          return res.status(404).json({
+            success: false,
+            message: 'Product not found',
+            productId: productId
+          });
+        }
+        
         console.error('Database error:', err);
         return res.status(500).json({
           success: false,
@@ -655,6 +741,47 @@ router.get('/compare/:productId', (req, res) => {
   const { productId } = req.params;
   const { electricityRate = 0.15, hoursPerDay = 8 } = req.query;
 
+  // First, try to find product in FULL-DATABASE-5554.json (preferred method)
+  if (fullDatabaseData && fullDatabaseData.products) {
+    const fullDbProduct = fullDatabaseData.products.find(p => 
+      p.id === productId || 
+      p.name.toLowerCase().includes(productId.toLowerCase()) ||
+      (p.modelNumber && p.modelNumber.toLowerCase().includes(productId.toLowerCase()))
+    );
+    
+    if (fullDbProduct) {
+      const power = parseFloat(fullDbProduct.power) || 0;
+      const powerInKw = power / 1000; // Convert W to kW
+      const electricityRateNum = parseFloat(electricityRate) || 0.15;
+      const hoursPerDayNum = parseFloat(hoursPerDay) || 8;
+      
+      const dailyCost = powerInKw * electricityRateNum * hoursPerDayNum;
+      const monthlyCost = dailyCost * 30;
+      const annualCost = dailyCost * 365;
+      
+      return res.json({
+        success: true,
+        product: {
+          id: fullDbProduct.id,
+          name: fullDbProduct.name,
+          power: power,
+          brand: fullDbProduct.brand
+        },
+        results: {
+          daily: dailyCost,
+          monthly: monthlyCost,
+          annual: annualCost,
+          inputs: {
+            power: power,
+            electricityRate: electricityRateNum,
+            hoursPerDay: hoursPerDayNum
+          }
+        }
+      });
+    }
+  }
+
+  // Fallback to database if JSON not available
   const db = new sqlite3.Database(dbPath);
   
   // Query the real database for the product
@@ -665,6 +792,16 @@ router.get('/compare/:productId', (req, res) => {
       db.close();
       
       if (err) {
+        // If database table doesn't exist, return 404 instead of error
+        if (err.code === 'SQLITE_ERROR' && err.message.includes('no such table')) {
+          console.log(`ℹ️ Database table not found for compare - product ${productId} not found in JSON fallback`);
+          return res.status(404).json({
+            success: false,
+            message: 'Product not found',
+            productId: productId
+          });
+        }
+        
         console.error('Database error:', err);
         return res.status(500).json({
           success: false,
@@ -797,6 +934,18 @@ router.get('/products/all', (req, res) => {
       db.close();
       
       if (err) {
+        // If database table doesn't exist, just use JSON products (already loaded above)
+        if (err.code === 'SQLITE_ERROR' && err.message.includes('no such table')) {
+          console.log(`ℹ️ Database table not found - using JSON products only (${allProducts.length} products)`);
+          return res.json({
+            success: true,
+            products: allProducts,
+            total: allProducts.length,
+            grantsProducts: grantsData ? grantsData.products.length : 0,
+            originalProducts: 0
+          });
+        }
+        
         console.error('Database error:', err);
         return res.status(500).json({
           success: false,
@@ -870,6 +1019,58 @@ router.get('/products/search', (req, res) => {
     });
   }
   
+  // First, try to search in JSON database (preferred method)
+  if (fullDatabaseData && fullDatabaseData.products) {
+    let filteredProducts = fullDatabaseData.products;
+    
+    // Apply filters
+    if (q) {
+      const searchTerm = q.toLowerCase();
+      filteredProducts = filteredProducts.filter(p => 
+        (p.name && p.name.toLowerCase().includes(searchTerm)) ||
+        (p.modelNumber && p.modelNumber.toLowerCase().includes(searchTerm)) ||
+        (p.brand && p.brand.toLowerCase().includes(searchTerm))
+      );
+    }
+    
+    if (category) {
+      const categoryTerm = category.toLowerCase();
+      filteredProducts = filteredProducts.filter(p => 
+        p.category && p.category.toLowerCase().includes(categoryTerm)
+      );
+    }
+    
+    if (brand) {
+      const brandTerm = brand.toLowerCase();
+      filteredProducts = filteredProducts.filter(p => 
+        p.brand && p.brand.toLowerCase().includes(brandTerm)
+      );
+    }
+    
+    // Limit to 50 results
+    filteredProducts = filteredProducts.slice(0, 50);
+    
+    const products = filteredProducts.map(p => ({
+      id: p.id,
+      name: p.name,
+      power: p.power,
+      brand: p.brand || 'Unknown',
+      category: p.category || 'General',
+      subcategory: p.subcategory,
+      energyRating: p.energyRating || 'N/A',
+      efficiency: p.efficiency || 'Standard',
+      modelNumber: p.modelNumber
+    }));
+    
+    return res.json({
+      success: true,
+      products: products,
+      total: products.length,
+      searchParams: { q, category, brand }
+    });
+  }
+  
+  // Fallback to database if JSON not available
   const db = new sqlite3.Database(dbPath);
   
   let query = 'SELECT id, name, power, brand, category, subcategory, energy_rating, efficiency, model_number FROM products WHERE 1=1';
@@ -897,6 +1098,17 @@ router.get('/products/search', (req, res) => {
     db.close();
     
     if (err) {
+      // If database table doesn't exist, return empty results
+      if (err.code === 'SQLITE_ERROR' && err.message.includes('no such table')) {
+        console.log(`ℹ️ Database table not found for search - using JSON fallback`);
+        return res.json({
+          success: true,
+          products: [],
+          total: 0,
+          searchParams: { q, category, brand }
+        });
+      }
+      
       console.error('Database error:', err);
       return res.status(500).json({
         success: false,
@@ -931,9 +1143,42 @@ router.get('/incentives/:productId', (req, res) => {
   const { productId } = req.params;
   const { country = 'NL' } = req.query;
   
+  // First, try to find product in FULL-DATABASE-5554.json (preferred method)
+  if (fullDatabaseData && fullDatabaseData.products) {
+    const fullDbProduct = fullDatabaseData.products.find(p => 
+      p.id === productId || 
+      p.name.toLowerCase().includes(productId.toLowerCase()) ||
+      (p.modelNumber && p.modelNumber.toLowerCase().includes(productId.toLowerCase()))
+    );
+    
+    if (fullDbProduct) {
+      // Get incentives based on product category and country
+      const incentives = getIncentivesForProduct({
+        id: fullDbProduct.id,
+        name: fullDbProduct.name,
+        category: fullDbProduct.category,
+        subcategory: fullDbProduct.subcategory,
+        brand: fullDbProduct.brand
+      }, country);
+      
+      return res.json({
+        success: true,
+        product: {
+          id: fullDbProduct.id,
+          name: fullDbProduct.name,
+          category: fullDbProduct.category,
+          subcategory: fullDbProduct.subcategory,
+          brand: fullDbProduct.brand
+        },
+        country: country,
+        incentives: incentives
+      });
+    }
+  }
+  
+  // Fallback to database if JSON not available
   const db = new sqlite3.Database(dbPath);
   
-  // Query the real database for the product first
   db.get(
     'SELECT * FROM products WHERE id = ? OR name LIKE ? OR model_number = ?',
     [productId, `%${productId}%`, productId],
@@ -941,6 +1186,16 @@ router.get('/incentives/:productId', (req, res) => {
       db.close();
       
       if (err) {
+        // If database table doesn't exist, return 404 instead of error
+        if (err.code === 'SQLITE_ERROR' && err.message.includes('no such table')) {
+          console.log(`ℹ️ Database table not found for incentives - product ${productId} not found in JSON fallback`);
+          return res.status(404).json({
+            success: false,
+            message: 'Product not found',
+            productId: productId
+          });
+        }
+        
         console.error('Database error:', err);
         return res.status(500).json({
           success: false,
