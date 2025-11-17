@@ -362,7 +362,9 @@
                 filter: (product) => {
                     const name = product.name.toLowerCase();
                     const brand = product.brand.toLowerCase();
-                    return name.includes('heat pump') || name.includes('auriga') || 
+                    return product.displayCategory === 'Heat Pumps' ||
+                           product.shopCategory === 'Heat Pumps' ||
+                           name.includes('heat pump') || name.includes('auriga') || 
                            name.includes('altherma') || name.includes('vitocal') ||
                            name.includes('air-to-water') || name.includes('air to water') ||
                            (brand.includes('daikin') && (name.includes('altherma') || name.includes('air-to-water'))) ||
@@ -377,7 +379,9 @@
                     const name = product.name.toLowerCase();
                     const brand = product.brand.toLowerCase();
                     // Check HVAC-specific keywords FIRST (priority)
-                    return name.includes('hvac') || 
+                    return product.displayCategory === 'HVAC Equipment' ||
+                           product.shopCategory === 'HVAC Equipment' ||
+                           name.includes('hvac') || 
                            name.includes('hvac drive') || 
                            name.includes('vlt') || 
                            name.includes('refrigeration drive') || 
@@ -400,7 +404,9 @@
                     const name = product.name.toLowerCase();
                     const brand = product.brand.toLowerCase();
                     // EXCLUDE HVAC products first (HVAC has priority)
-                    if (name.includes('hvac') || 
+                    if (product.displayCategory === 'HVAC Equipment' ||
+                        product.shopCategory === 'HVAC Equipment' ||
+                        name.includes('hvac') || 
                         name.includes('vlt') || 
                         name.includes('frenic') ||
                         name.includes('optidrive') ||
@@ -412,7 +418,9 @@
                         return false; // Exclude HVAC products from Motor Drives
                     }
                     // Then check for motor-specific keywords
-                    return name.includes('motor') || 
+                    return product.displayCategory === 'Motor Drives' ||
+                           product.shopCategory === 'Motor Drives' ||
+                           name.includes('motor') || 
                            (name.includes('drive') && !name.includes('hvac')) || // Drive but not HVAC drive
                            name.includes('vsd') || 
                            name.includes('ie4') || name.includes('ie3') ||
@@ -427,7 +435,9 @@
                 filter: (product) => {
                     const name = product.name.toLowerCase();
                     const brand = product.brand.toLowerCase();
-                    return name.includes('boiler') || name.includes('heater') || 
+                    return product.displayCategory === 'Heating Equipment' ||
+                           product.shopCategory === 'Heating Equipment' ||
+                           name.includes('boiler') || name.includes('heater') || 
                            name.includes('heating') || name.includes('water heater') ||
                            name.includes('radiator') || name.includes('thermal') ||
                            product.category === 'ETL Technology' && (name.includes('heat') || name.includes('thermal'));
@@ -438,9 +448,59 @@
                 description: 'Energy-efficient LED lighting systems and controls',
                 filter: (product) => {
                     return product.category === 'Lighting' || 
+                           product.displayCategory === 'Lighting' ||
+                           product.shopCategory === 'Lighting' ||
                            product.name.toLowerCase().includes('light') ||
                            product.name.toLowerCase().includes('led') ||
                            product.name.toLowerCase().includes('luminaire');
+                }
+            },
+            'Ovens': {
+                title: '🔥 Ovens',
+                description: 'Commercial ovens and cooking equipment',
+                filter: (product) => {
+                    const name = product.name.toLowerCase();
+                    return product.displayCategory === 'Ovens' ||
+                           product.shopCategory === 'Ovens' ||
+                           name.includes('oven') ||
+                           name.includes('combi') ||
+                           name.includes('steam') ||
+                           name.includes('convection');
+                }
+            },
+            'Hand Dryers': {
+                title: '🤚 Hand Dryers',
+                description: 'High-efficiency hand dryers for commercial restrooms',
+                filter: (product) => {
+                    const name = product.name.toLowerCase();
+                    return product.displayCategory === 'Hand Dryers' ||
+                           product.shopCategory === 'Hand Dryers' ||
+                           name.includes('hand dryer') ||
+                           name.includes('handdryer') ||
+                           name.includes('hand-dryer') ||
+                           name.includes('air fury') ||
+                           name.includes('turbo force') ||
+                           name.includes('tempest');
+                }
+            },
+            'Fridges and Freezers': {
+                title: '🧊 Fridges and Freezers',
+                description: 'Energy-efficient refrigeration and freezing solutions',
+                filter: (product) => {
+                    const name = product.name.toLowerCase();
+                    return product.displayCategory === 'Fridges and Freezers' ||
+                           product.shopCategory === 'Fridges and Freezers' ||
+                           name.includes('fridge') ||
+                           name.includes('refrigerator') ||
+                           name.includes('refrigeration') ||
+                           name.includes('freezer') ||
+                           name.includes('cooling cabinet') ||
+                           name.includes('display cabinet') ||
+                           name.includes('display fridge') ||
+                           name.includes('bar fridge') ||
+                           product.category === 'Refrigerated Display Cabinets' ||
+                           product.category === 'Professional Refrigerated Storage Cabinets' ||
+                           (product.subcategory && product.subcategory.toLowerCase().includes('refrigerated'));
                 }
             },
             // Legacy category keys for backward compatibility
