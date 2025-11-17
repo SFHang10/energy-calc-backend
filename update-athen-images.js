@@ -91,6 +91,11 @@ database.products.forEach(product => {
     else if (productName.includes('athen xl 175')) {
         match = IMAGE_UPDATES['ATHEN XL 175'];
     }
+    // Check for ATHEN XL EC 207 (use 210 image as placeholder until specific image available)
+    else if (productName.includes('athen xl ec 207')) {
+        // Use 210 image as they're similar models
+        match = IMAGE_UPDATES['ATHEN XL 210'];
+    }
     
     if (match) {
         console.log(`📸 Updating: ${product.name}`);
