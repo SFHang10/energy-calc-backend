@@ -29,8 +29,16 @@ const subscriptionsRouter = require('./routes/subscriptions-simple');
 console.log('Subscriptions router loaded successfully');
 
 console.log('Loading Wix pricing plans router...');
-const wixPricingPlansRouter = require('./routes/wix-pricing-plans');
-console.log('Wix pricing plans router loaded successfully');
+let wixPricingPlansRouter;
+try {
+  wixPricingPlansRouter = require('./routes/wix-pricing-plans');
+  console.log('Wix pricing plans router loaded successfully');
+} catch (error) {
+  console.error('❌ Failed to load Wix pricing plans router:', error.message);
+  console.error('Error details:', error);
+  // Don't exit, just continue without Wix pricing plans router
+  wixPricingPlansRouter = null;
+}
 
 console.log('Loading product widget router...');
 const productWidgetRouter = require('./routes/product-widget');
@@ -60,8 +68,14 @@ app.use('/api/members', membersRouter);
 console.log('✅ /api/members route mounted');
 app.use('/api/subscriptions', subscriptionsRouter);
 console.log('✅ /api/subscriptions route mounted');
-app.use('/api/wix-pricing-plans', wixPricingPlansRouter);
-console.log('✅ /api/wix-pricing-plans route mounted');
+
+// Mount Wix pricing plans router only if it loaded successfully
+if (wixPricingPlansRouter) {
+  app.use('/api/wix-pricing-plans', wixPricingPlansRouter);
+  console.log('✅ /api/wix-pricing-plans route mounted');
+} else {
+  console.log('⚠️ Wix pricing plans routes not mounted due to loading error');
+}
 
 app.use('/api/product-widget', productWidgetRouter);
 console.log('✅ /api/product-widget route mounted');
