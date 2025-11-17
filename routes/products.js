@@ -202,7 +202,7 @@ async function getProducts(forceETL = false) {
     }
     
     // Apply unified categorization to all products (matches audit widget)
-    return products.map(product => {
+    const categorizedProducts = products.map(product => {
         // Use unified categorization function that matches audit widget
         const categorization = categorizeProduct(
             product.category || '',
@@ -225,6 +225,22 @@ async function getProducts(forceETL = false) {
             isHeating: categorization.isHeating
         };
     });
+    
+    // Debug: Log category distribution
+    if (categorizedProducts.length > 0) {
+        const categoryCounts = {};
+        categorizedProducts.forEach(p => {
+            const cat = p.displayCategory || p.shopCategory || p.category || 'Uncategorized';
+            categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+        });
+        console.log('📊 Category distribution:', Object.entries(categoryCounts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10)
+            .map(([cat, count]) => `${cat}: ${count}`)
+            .join(', '));
+    }
+    
+    return categorizedProducts;
 }
 
 // Load ETL products on startup (background update)
@@ -346,10 +362,32 @@ router.get('/category/:category', async (req, res) => {
         
         // Log sample categories for debugging
         if (filteredProducts.length === 0 && products.length > 0) {
-            const sampleCategories = [...new Set(products.slice(0, 20).map(p => 
+            const sampleCategories = [...new Set(products.slice(0, 50).map(p => 
                 p.shopCategory || p.displayCategory || p.category
             ).filter(Boolean))];
-            console.log(`⚠️ No products found. Sample categories in database:`, sampleCategories);
+            console.log(`⚠️ No products found for "${category}". Sample categories in database:`, sampleCategories);
+            
+            // Also check for products that might match but with different casing/spacing
+            const potentialMatches = products.filter(p => {
+                const shopCat = (p.shopCategory || '').toLowerCase();
+                const displayCat = (p.displayCategory || '').toLowerCase();
+                const origCat = (p.category || '').toLowerCase();
+                const searchLower = category.toLowerCase();
+                
+                return shopCat.includes(searchLower) || 
+                       displayCat.includes(searchLower) || 
+                       origCat.includes(searchLower) ||
+                       searchLower.includes(shopCat) ||
+                       searchLower.includes(displayCat) ||
+                       searchLower.includes(origCat);
+            });
+            
+            if (potentialMatches.length > 0) {
+                console.log(`💡 Found ${potentialMatches.length} potential matches with similar category names:`);
+                potentialMatches.slice(0, 5).forEach(p => {
+                    console.log(`   - "${p.name}": shopCategory="${p.shopCategory}", displayCategory="${p.displayCategory}", category="${p.category}"`);
+                });
+            }
         }
         
         res.json({
