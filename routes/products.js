@@ -243,6 +243,21 @@ async function getProducts(forceETL = false) {
     return categorizedProducts;
 }
 
+/**
+ * Filter products for marketplace display
+ * Excludes comparative products (non-ETL products) that are only for calculator comparisons
+ * @param {Array} products - All products
+ * @returns {Array} - Only ETL products for marketplace
+ */
+function filterMarketplaceProducts(products) {
+    // Only include products with IDs starting with 'etl_' (ETL products)
+    // Exclude comparative products like 'oven_1', 'sample_*', etc.
+    return products.filter(product => {
+        const productId = product.id || '';
+        return productId.startsWith('etl_');
+    });
+}
+
 // Load ETL products on startup (background update)
 // This is optional - if database is empty, it's fine, we use JSON instead
 if (db) {
@@ -272,10 +287,12 @@ router.get('/', async (req, res) => {
         console.log(`🔍 getProducts called - limit: ${limitNum}, offset: ${offsetNum}`);
         
         const allProducts = await getProducts();
-        const totalProducts = allProducts.length;
+        // Filter out comparative products - only show ETL products in marketplace
+        const marketplaceProducts = filterMarketplaceProducts(allProducts);
+        const totalProducts = marketplaceProducts.length;
         
         // Apply pagination (like test version)
-        const paginatedProducts = allProducts.slice(offsetNum, offsetNum + limitNum);
+        const paginatedProducts = marketplaceProducts.slice(offsetNum, offsetNum + limitNum);
         
         res.json({
             success: true,
@@ -315,21 +332,23 @@ router.get('/etl', async (req, res) => {
     }
 });
 
-// GET /products/count - Return product count
+// GET /products/count - Return product count (marketplace only - ETL products)
 router.get('/count', async (req, res) => {
     try {
         const products = await getProducts();
-        res.json({ count: products.length });
+        const marketplaceProducts = filterMarketplaceProducts(products);
+        res.json({ count: marketplaceProducts.length });
     } catch (error) {
         res.status(500).json({ count: 0 });
     }
 });
 
-// GET /products/categories - Return all categories (enhanced)
+// GET /products/categories - Return all categories (enhanced - marketplace only)
 router.get('/categories', async (req, res) => {
     try {
         const products = await getProducts();
-        const categories = [...new Set(products.map(p => p.shopCategory || p.displayCategory || p.category).filter(Boolean))];
+        const marketplaceProducts = filterMarketplaceProducts(products);
+        const categories = [...new Set(marketplaceProducts.map(p => p.shopCategory || p.displayCategory || p.category).filter(Boolean))];
         res.json(categories.sort());
     } catch (error) {
         res.status(500).json([]);
@@ -345,8 +364,12 @@ router.get('/category/:category', async (req, res) => {
         const products = await getProducts();
         console.log(`📦 Total products loaded: ${products.length}`);
         
+        // Filter out comparative products - only show ETL products in marketplace
+        const marketplaceProducts = filterMarketplaceProducts(products);
+        console.log(`🛒 Marketplace products (ETL only): ${marketplaceProducts.length}`);
+        
         // Filter products - check multiple category fields and normalize comparison
-        const filteredProducts = products.filter(p => {
+        const filteredProducts = marketplaceProducts.filter(p => {
             const shopCat = (p.shopCategory || '').trim();
             const displayCat = (p.displayCategory || '').trim();
             const origCat = (p.category || '').trim();
