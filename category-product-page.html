@@ -460,12 +460,20 @@
                 description: 'Commercial ovens and cooking equipment',
                 filter: (product) => {
                     const name = product.name.toLowerCase();
+                    const category = (product.category || '').toLowerCase();
                     return product.displayCategory === 'Ovens' ||
                            product.shopCategory === 'Ovens' ||
                            name.includes('oven') ||
                            name.includes('combi') ||
                            name.includes('steam') ||
-                           name.includes('convection');
+                           name.includes('convection') ||
+                           name.includes('skyline') ||
+                           (category.includes('professional-foodservice') && (
+                               name.includes('tray') ||
+                               name.includes('gn1') ||
+                               name.includes('gn 1') ||
+                               name.includes('cooking')
+                           ));
                 }
             },
             'Hand Dryers': {
