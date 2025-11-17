@@ -61,12 +61,20 @@ function getProductType(category, subcategory = '', name = '') {
     }
 
     // Hand Dryers
+    // ETL uses: "Hand Dryers" as technology category
     if (cat.includes('hand dryer') || 
         cat.includes('handdryer') ||
+        cat.includes('hand-dryer') ||
+        cat.toLowerCase() === 'hand dryers' ||
         subcat.includes('hand dryer') || 
         subcat.includes('handdryer') ||
+        subcat.includes('hand-dryer') ||
         productName.includes('hand dryer') ||
-        productName.includes('handdryer')) {
+        productName.includes('handdryer') ||
+        productName.includes('hand-dryer') ||
+        productName.includes('air fury') ||
+        productName.includes('turbo force') ||
+        productName.includes('tempest')) {
         return 'handdryer';
     }
 
@@ -213,6 +221,20 @@ function categorizeProduct(category, subcategory = '', name = '') {
             displaySubcategory = subcat;
             productType = 'fridge';
         }
+        // Hand Dryers (ETL Technology category)
+        else if (subcat.includes('hand dryer') ||
+                 subcat.includes('handdryer') ||
+                 subcat.includes('hand-dryer') ||
+                 productName.includes('hand dryer') ||
+                 productName.includes('handdryer') ||
+                 productName.includes('hand-dryer') ||
+                 productName.includes('air fury') ||
+                 productName.includes('turbo force') ||
+                 productName.includes('tempest')) {
+            displayCategory = 'Hand Dryers';
+            displaySubcategory = subcat;
+            productType = 'handdryer';
+        }
         // Keep as ETL Technology for other products
         else {
             displayCategory = 'ETL Technology';
@@ -253,9 +275,17 @@ function categorizeProduct(category, subcategory = '', name = '') {
             productType = 'fridge';
         }
         // Hand Dryers
+        // ETL uses: "Hand Dryers" as technology category
         else if (cat.includes('hand dryer') || cat.includes('handdryer') ||
+                 cat.includes('hand-dryer') ||
+                 cat.toLowerCase() === 'hand dryers' ||
                  subcat.includes('hand dryer') || subcat.includes('handdryer') ||
-                 productName.includes('hand dryer') || productName.includes('handdryer')) {
+                 subcat.includes('hand-dryer') ||
+                 productName.includes('hand dryer') || productName.includes('handdryer') ||
+                 productName.includes('hand-dryer') ||
+                 productName.includes('air fury') ||
+                 productName.includes('turbo force') ||
+                 productName.includes('tempest')) {
             displayCategory = 'Hand Dryers';
             productType = 'handdryer';
         }
