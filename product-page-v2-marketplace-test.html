@@ -1766,8 +1766,49 @@
             // Create media items array
             mediaItems = [];
             
-            // Add main image (always add, even if it's a placeholder)
-            const mainImageUrl = getImageUrl(product.imageUrl);
+            // Get the best available image (prioritize images array over imageUrl)
+            let mainImageUrl = null;
+            
+            // First, try to get image from images array (usually has real ETL images)
+            if (product.images && product.images.length > 0) {
+                let images = [];
+                try {
+                    images = typeof product.images === 'string' 
+                        ? JSON.parse(product.images) 
+                        : product.images;
+                } catch (e) {
+                    images = [];
+                }
+                
+                // Find first non-placeholder image
+                const realImage = images.find(img => 
+                    img && 
+                    !img.includes('placeholder.com') && 
+                    !img.includes('via.placeholder')
+                );
+                
+                if (realImage) {
+                    mainImageUrl = getImageUrl(realImage);
+                }
+            }
+            
+            // Fall back to imageUrl if images array doesn't have a real image
+            if (!mainImageUrl) {
+                const imageUrl = product.imageUrl || product.image_url;
+                // Skip placeholder images
+                if (imageUrl && 
+                    !imageUrl.includes('placeholder.com') && 
+                    !imageUrl.includes('via.placeholder')) {
+                    mainImageUrl = getImageUrl(imageUrl);
+                }
+            }
+            
+            // If still no image, use placeholder
+            if (!mainImageUrl) {
+                mainImageUrl = getImageUrl(null); // Returns placeholder SVG
+            }
+            
+            // Add main image
             mediaItems.push({
                 type: 'image',
                 url: mainImageUrl,
@@ -1775,14 +1816,26 @@
             });
             console.log('✅ Added main image:', mainImageUrl);
             
-            // Add additional images if available
+            // Add additional images if available (avoid duplicates and placeholders)
             if (product.images && product.images.length > 0) {
                 console.log('📸 Processing additional images:', product.images);
-                product.images.forEach((imgUrl, index) => {
+                let images = [];
+                try {
+                    images = typeof product.images === 'string' 
+                        ? JSON.parse(product.images) 
+                        : product.images;
+                } catch (e) {
+                    images = [];
+                }
+                
+                images.forEach((imgUrl, index) => {
+                    if (!imgUrl) return;
                     console.log(`📸 Processing image ${index + 1}:`, imgUrl);
                     const normalizedImgUrl = getImageUrl(imgUrl);
-                    // Avoid duplicates (compare normalized URLs)
-                    if (normalizedImgUrl !== mainImageUrl) {
+                    // Avoid duplicates and placeholders
+                    if (normalizedImgUrl !== mainImageUrl && 
+                        !normalizedImgUrl.includes('placeholder.com') &&
+                        !normalizedImgUrl.includes('via.placeholder')) {
                         mediaItems.push({
                             type: 'image',
                             url: normalizedImgUrl,
@@ -1790,7 +1843,7 @@
                         });
                         console.log('✅ Added additional image:', normalizedImgUrl);
                     } else {
-                        console.log('⏭️ Skipped duplicate image:', normalizedImgUrl);
+                        console.log('⏭️ Skipped duplicate or placeholder image:', normalizedImgUrl);
                     }
                 });
             } else {
