@@ -36,18 +36,27 @@ function getProductType(category, subcategory = '', name = '') {
     }
 
     // Refrigerators (check after freezers to avoid conflicts)
+    // ETL uses: "Refrigerated Display Cabinets", "Professional Refrigerated Storage Cabinets", etc.
     if (cat.includes('refrigerator') || 
         cat.includes('fridge') || 
         cat.includes('refrigeration') ||
+        cat.includes('refrigerated display') ||
+        cat.includes('refrigerated storage') ||
+        cat.includes('professional refrigerated') ||
         subcat.includes('refrigerator') || 
         subcat.includes('fridge') ||
         subcat.includes('refrigeration') ||
+        subcat.includes('refrigerated display') ||
+        subcat.includes('refrigerated storage') ||
+        subcat.includes('professional refrigerated') ||
         subcat.includes('cooling') ||
         productName.includes('refrigerator') ||
         productName.includes('fridge') ||
         productName.includes('refrigeration') ||
         productName.includes('cooling cabinet') ||
-        productName.includes('display cabinet')) {
+        productName.includes('display cabinet') ||
+        productName.includes('display fridge') ||
+        productName.includes('bar fridge')) {
         return 'fridge';
     }
 
@@ -190,6 +199,20 @@ function categorizeProduct(category, subcategory = '', name = '') {
             displaySubcategory = subcat;
             productType = 'lights';
         }
+        // Refrigeration (ETL Technology category)
+        else if (subcat.includes('refrigerated display') ||
+                 subcat.includes('refrigerated storage') ||
+                 subcat.includes('professional refrigerated') ||
+                 subcat.includes('refrigeration') ||
+                 subcat.includes('refrigerator') ||
+                 subcat.includes('cooling') ||
+                 productName.includes('fridge') ||
+                 productName.includes('refrigerator') ||
+                 productName.includes('refrigeration')) {
+            displayCategory = 'Fridges and Freezers';
+            displaySubcategory = subcat;
+            productType = 'fridge';
+        }
         // Keep as ETL Technology for other products
         else {
             displayCategory = 'ETL Technology';
@@ -209,13 +232,23 @@ function categorizeProduct(category, subcategory = '', name = '') {
             productType = 'freezer';
         }
         // Refrigerators/Fridges
+        // ETL uses: "Refrigerated Display Cabinets", "Professional Refrigerated Storage Cabinets"
         else if (cat.includes('refrigerator') || cat.includes('fridge') || 
                  cat.includes('refrigeration') ||
+                 cat.includes('refrigerated display') ||
+                 cat.includes('refrigerated storage') ||
+                 cat.includes('professional refrigerated') ||
                  subcat.includes('refrigerator') || subcat.includes('fridge') ||
-                 subcat.includes('refrigeration') || subcat.includes('cooling') ||
+                 subcat.includes('refrigeration') || 
+                 subcat.includes('refrigerated display') ||
+                 subcat.includes('refrigerated storage') ||
+                 subcat.includes('professional refrigerated') ||
+                 subcat.includes('cooling') ||
                  productName.includes('refrigerator') || productName.includes('fridge') ||
                  productName.includes('refrigeration') || productName.includes('cooling cabinet') ||
-                 productName.includes('display cabinet')) {
+                 productName.includes('display cabinet') ||
+                 productName.includes('display fridge') ||
+                 productName.includes('bar fridge')) {
             displayCategory = 'Fridges and Freezers';
             productType = 'fridge';
         }
