@@ -887,24 +887,37 @@
             }
             
             // URL-encode the path to handle spaces and special characters
-            let encodedPath = normalizedPath;
+            // Split by '/' and encode each segment, preserving the structure
+            const pathParts = normalizedPath.split('/').filter(p => p.length > 0);
+            const encodedParts = pathParts.map(part => {
+                // Encode each path segment (filename or directory name)
+                return encodeURIComponent(part);
+            });
+            
+            // Reconstruct the path
+            let encodedPath = encodedParts.join('/');
+            
+            // Add leading slash if original had one
             if (normalizedPath.startsWith('/')) {
-                // For absolute paths, encode each segment separately
-                const parts = normalizedPath.split('/').filter(p => p);
-                encodedPath = '/' + parts.map(part => encodeURIComponent(part)).join('/');
-            } else {
-                // For relative paths, encode each segment separately
-                const parts = normalizedPath.split('/').filter(p => p);
-                encodedPath = parts.map(part => encodeURIComponent(part)).join('/');
+                encodedPath = '/' + encodedPath;
             }
             
-            // If it's a relative path, make it absolute
-            if (normalizedPath.startsWith('/')) {
-                return `${baseUrl}${encodedPath}`;
+            // Construct final URL
+            const finalUrl = normalizedPath.startsWith('/') 
+                ? `${baseUrl}${encodedPath}`
+                : `${baseUrl}/${encodedPath}`;
+            
+            // Debug logging for ATHEN XL products
+            if (imageUrl.includes('ATHEN XL')) {
+                console.log('🖼️ Image URL encoding:', {
+                    original: imageUrl,
+                    normalized: normalizedPath,
+                    encoded: encodedPath,
+                    final: finalUrl
+                });
             }
             
-            // If it's a local path (like "product-placement/Image.jpg"), make it absolute
-            return `${baseUrl}/${encodedPath}`;
+            return finalUrl;
         }
 
         // Display products with pagination
