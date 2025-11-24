@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Energy Calculator Widget - Glassmorphism Design</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -153,6 +154,38 @@
             font-size: 1rem;
             font-weight: 300;
             color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Find My Rate Button - Matches glass-button style */
+        .find-rate-btn {
+            background: rgba(40, 167, 69, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(40, 167, 69, 0.4);
+            border-radius: 12px;
+            padding: 10px 18px;
+            color: #4ade80;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin: 0 auto;
+        }
+
+        .find-rate-btn:hover {
+            background: rgba(40, 167, 69, 0.3);
+            border-color: rgba(40, 167, 69, 0.6);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .find-rate-btn i {
+            font-size: 0.85rem;
         }
 
         .glass-input {
@@ -940,6 +973,11 @@
             <div class="input-group">
                 <label class="input-label" for="electricity-rate">Electricity Rate (€ per kWh)</label>
                 <input type="number" id="electricity-rate" class="glass-input" value="0.15" step="0.01" min="0" placeholder="Enter electricity rate">
+                <div style="margin-top: 12px; text-align: center; width: 100%;">
+                    <button class="find-rate-btn" onclick="openGreenwaysCalculator()" title="Find your local electricity rate using our interactive map. Prices are to provide as a guide only for your likely electrical rate." style="width: auto; min-width: 180px;">
+                        <i class="fas fa-map-marked-alt"></i> Find My Rate
+                    </button>
+                </div>
             </div>
             
             <div class="input-group">
@@ -1785,6 +1823,24 @@
         // Show message
         function showMessage(message, type = 'info') {
             console.log(`${type.toUpperCase()}: ${message}`);
+        }
+        // Energy Prices Calculator Integration - Find My Rate Button
+        function openGreenwaysCalculator() {
+            // Open EnergyPrices.eu in a small widget-like window
+            const energyPricesWindow = window.open(
+                'https://www.energyprices.eu/',
+                'energy-prices-calculator',
+                'width=400,height=350,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,location=no,status=no,left=150,top=150'
+            );
+            
+            // Focus the new window
+            if (energyPricesWindow) {
+                energyPricesWindow.focus();
+                console.log('🗺️ Opened EnergyPrices.eu in small widget window');
+            } else {
+                // Fallback if popup is blocked
+                alert('Please allow popups for this site to open the electricity rate calculator, or visit: https://www.energyprices.eu/');
+            }
         }
     </script>
 </body>

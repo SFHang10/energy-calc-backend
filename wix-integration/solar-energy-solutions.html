@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Energy Solutions - Greenways</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Green Energy Theme CSS - Modern Dark Aesthetic */
+        :root {
+            --primary-green: #22c55e;
+            --secondary-green: #4ade80;
+            --accent-green: #86efac;
+            --light-green: #dcfce7;
+            --dark-green: #16a34a;
+            --white: #FFFFFF;
+            --gray: #94a3b8;
+            --light-gray: #f1f5f9;
+            --dark-bg: #0f172a;
+            --dark-bg-2: #1e293b;
+            --dark-bg-3: #334155;
+            --border: rgba(34, 197, 94, 0.3);
+            --shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #f1f5f9;
+            background: 
+                linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%),
+                radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.08) 0%, transparent 50%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Background Image Overlay - Dynamic based on selection */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Default backdrop - Housing (solar-home.jpg) */
+            background-image: url('../product-placement/solar-home.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.4;
+            z-index: -1;
+            pointer-events: none;
+            transition: background-image 0.8s ease-in-out, opacity 0.5s ease;
+        }
+
+        /* Housing backdrop (default) */
+        body.solar-housing::after {
+            background-image: url('../product-placement/solar-home.jpg');
+        }
+
+        /* Office backdrop */
+        body.solar-office::after {
+            background-image: url('../product-placement/Office Solar.avif');
+        }
+
+        /* Restaurant backdrop */
+        body.solar-restaurant::after {
+            background-image: url('../product-placement/Solar restuarant.png');
+        }
+
+        /* Dark overlay for better text readability */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            text-shadow: 0 0 30px rgba(34, 197, 94, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: rgba(241, 245, 249, 0.9);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Three-Card Selection Grid - Adapted from membership page */
+        .solar-selection-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 40px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .solar-selection-card {
+            background: 
+                linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(51, 65, 85, 0.6)),
+                radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 0 1px rgba(34, 197, 94, 0.2);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 400px;
+        }
+
+        .solar-selection-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(59, 130, 246, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .solar-selection-card:hover::before {
+            opacity: 1;
+        }
+
+        .solar-selection-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(34, 197, 94, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 20px rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+        }
+
+        .solar-selection-card.selected {
+            background: 
+                linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(59, 130, 246, 0.2)),
+                radial-gradient(circle at center, rgba(34, 197, 94, 0.15), transparent);
+            border-color: #22c55e;
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 
+                0 15px 30px rgba(34, 197, 94, 0.2),
+                0 0 0 2px rgba(34, 197, 94, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .solar-selection-card.selected::before {
+            opacity: 1;
+        }
+
+        .solar-image-preview {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .solar-housing-image {
+            background-image: url('../product-placement/solar-home.jpg');
+            background-color: rgba(34, 197, 94, 0.1);
+        }
+
+        .solar-office-image {
+            background-image: url('../product-placement/Office Solar.avif');
+            background-color: rgba(34, 197, 94, 0.1);
+        }
+
+        .solar-restaurant-image {
+            background-image: url('../product-placement/Solar restuarant.png');
+            background-color: rgba(34, 197, 94, 0.1);
+        }
+
+        .solar-overlay {
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .solar-selection-card:hover .solar-overlay {
+            background: rgba(0, 0, 0, 0.7);
+            transform: scale(1.05);
+        }
+
+        .solar-overlay-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+            color: #22c55e;
+        }
+
+        .solar-card-content {
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: space-between;
+        }
+
+        .solar-card-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .solar-card-description {
+            color: rgba(241, 245, 249, 0.8);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        /* Content Sections */
+        .content-section {
+            margin-top: 40px;
+            padding: 40px;
+            background: 
+                linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(51, 65, 85, 0.7)),
+                radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-section h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+
+        .content-section h3 {
+            font-size: 1.8rem;
+            color: #4ade80;
+            margin: 30px 0 15px;
+        }
+
+        .content-section p {
+            color: rgba(241, 245, 249, 0.9);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .content-section ul, .content-section ol {
+            margin: 20px 0;
+            padding-left: 30px;
+        }
+
+        .content-section li {
+            color: rgba(241, 245, 249, 0.9);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .info-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-card h4 {
+            color: #22c55e;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .info-card p {
+            color: rgba(241, 245, 249, 0.8);
+            font-size: 1rem;
+        }
+
+        .property-value-section {
+            background: rgba(34, 197, 94, 0.1);
+            border-left: 4px solid #22c55e;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+
+        .property-value-section h4 {
+            color: #22c55e;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .property-value-btn {
+            display: inline-block;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .property-value-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-container {
+            position: relative;
+            width: 90%;
+            max-width: 1200px;
+            height: 90%;
+            max-height: 900px;
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: var(--white);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: var(--white);
+            font-size: 1.8rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-iframe {
+            width: 100%;
+            height: calc(100% - 70px);
+            border: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Navigation */
+        .back-link {
+            display: inline-block;
+            margin: 20px 0;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .solar-selection-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .content-section {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>☀️ Solar Energy Solutions</h1>
+            <p>Discover how solar energy can transform your property - whether it's a home, office, or restaurant</p>
+        </div>
+
+        <!-- Three Selection Cards -->
+        <div class="solar-selection-grid">
+            <!-- Housing Card -->
+            <div class="solar-selection-card selected" onclick="selectSolarOption('housing')" data-option="housing">
+                <div class="solar-image-preview solar-housing-image">
+                    <div class="solar-overlay">
+                        <span class="solar-overlay-icon">🏠</span>
+                        <div style="font-weight: 600; font-size: 1.1rem;">Housing</div>
+                    </div>
+                </div>
+                <div class="solar-card-content">
+                    <div class="solar-card-name">Residential Solar</div>
+                    <p class="solar-card-description">Solar solutions for homes and residential properties. Increase property value and reduce energy costs.</p>
+                </div>
+            </div>
+
+            <!-- Office Card -->
+            <div class="solar-selection-card" onclick="selectSolarOption('office')" data-option="office">
+                <div class="solar-image-preview solar-office-image">
+                    <div class="solar-overlay">
+                        <span class="solar-overlay-icon">🏢</span>
+                        <div style="font-weight: 600; font-size: 1.1rem;">Office</div>
+                    </div>
+                </div>
+                <div class="solar-card-content">
+                    <div class="solar-card-name">Commercial Solar</div>
+                    <p class="solar-card-description">Solar energy systems for offices and commercial buildings. Maximize ROI and sustainability.</p>
+                </div>
+            </div>
+
+            <!-- Restaurant Card -->
+            <div class="solar-selection-card" onclick="selectSolarOption('restaurant')" data-option="restaurant">
+                <div class="solar-image-preview solar-restaurant-image">
+                    <div class="solar-overlay">
+                        <span class="solar-overlay-icon">🍽️</span>
+                        <div style="font-weight: 600; font-size: 1.1rem;">Restaurant</div>
+                    </div>
+                </div>
+                <div class="solar-card-content">
+                    <div class="solar-card-name">Restaurant Solar</div>
+                    <p class="solar-card-description">Energy-efficient solar solutions for restaurants. Reduce operational costs and carbon footprint.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Sections -->
+        
+        <!-- Housing Content -->
+        <div class="content-section active" id="housing-content">
+            <h2>🏠 Residential Solar Energy Solutions</h2>
+            <p>Transform your home into an energy-efficient powerhouse with residential solar solutions. Not only will you reduce your electricity bills, but you'll also significantly increase your property value.</p>
+
+            <!-- Property Value Section -->
+            <div class="property-value-section">
+                <h4>📈 Property Value Increase</h4>
+                <p><strong>Solar installations can increase your property value by 3-4% on average.</strong> This means:</p>
+                <ul>
+                    <li>A home valued at €300,000 can see an increase of €9,000 to €12,000</li>
+                    <li>Properties with solar panels sell faster than those without</li>
+                    <li>Buyers are willing to pay a premium for energy-efficient homes</li>
+                    <li>Solar panels are considered a permanent home improvement</li>
+                </ul>
+                <p style="margin-top: 15px;">Studies show that homes with solar panels not only have higher resale values but also attract environmentally conscious buyers who value long-term energy savings.</p>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="openPropertyValueModal()" class="property-value-btn">
+                        📊 View Detailed Property Value Analysis →
+                    </button>
+                </div>
+            </div>
+
+            <h3>Key Benefits for Homeowners</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>💶 Cost Savings</h4>
+                    <p>Reduce electricity bills by 50-90% depending on system size and energy usage patterns. Average savings of €1,000-€2,500 per year.</p>
+                </div>
+                <div class="info-card">
+                    <h4>🌱 Environmental Impact</h4>
+                    <p>Reduce your carbon footprint by 3-4 tons of CO2 annually. Equivalent to planting 100 trees per year.</p>
+                </div>
+                <div class="info-card">
+                    <h4>🔋 Energy Independence</h4>
+                    <p>Protect yourself from rising electricity prices. Generate your own clean energy for 25+ years.</p>
+                </div>
+                <div class="info-card">
+                    <h4>🏆 Government Incentives</h4>
+                    <p>Take advantage of tax credits, rebates, and feed-in tariffs. Up to 30% federal tax credit available.</p>
+                </div>
+            </div>
+
+            <h3>Installation Process</h3>
+            <ol>
+                <li><strong>Site Assessment:</strong> Our experts evaluate your roof condition, orientation, shading, and energy needs</li>
+                <li><strong>System Design:</strong> Custom design optimized for your home's specific requirements</li>
+                <li><strong>Permits & Approvals:</strong> We handle all necessary building and utility permits</li>
+                <li><strong>Professional Installation:</strong> Certified installers complete the installation in 1-3 days</li>
+                <li><strong>Monitoring & Maintenance:</strong> Set up energy monitoring and schedule regular maintenance</li>
+            </ol>
+
+            <h3>Typical System Sizes</h3>
+            <ul>
+                <li><strong>Small (3-5 kW):</strong> Ideal for apartments and small homes (€5,000-€8,000)</li>
+                <li><strong>Medium (6-8 kW):</strong> Perfect for average family homes (€10,000-€15,000)</li>
+                <li><strong>Large (9-12 kW):</strong> For larger homes with high energy usage (€18,000-€25,000)</li>
+            </ul>
+        </div>
+
+        <!-- Office Content -->
+        <div class="content-section" id="office-content">
+            <h2>🏢 Commercial Solar Energy Solutions</h2>
+            <p>Power your business with clean, renewable solar energy. Commercial solar installations offer exceptional ROI and demonstrate your commitment to sustainability.</p>
+
+            <h3>Benefits for Businesses</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>💰 Financial Returns</h4>
+                    <p>Average payback period of 5-8 years. ROI of 15-25% over 25 years. Significant tax benefits and depreciation advantages.</p>
+                </div>
+                <div class="info-card">
+                    <h4>📊 Brand Value</h4>
+                    <p>Enhance your corporate image and attract environmentally conscious clients and employees.</p>
+                </div>
+                <div class="info-card">
+                    <h4>⚡ Energy Security</h4>
+                    <p>Reduce dependence on grid electricity. Protect against price volatility and power outages.</p>
+                </div>
+                <div class="info-card">
+                    <h4>📈 Competitive Advantage</h4>
+                    <p>Lower operational costs mean better profit margins and competitive pricing.</p>
+                </div>
+            </div>
+
+            <h3>Commercial System Features</h3>
+            <ul>
+                <li><strong>Scalable Systems:</strong> From 10 kW to multi-megawatt installations</li>
+                <li><strong>Roof & Ground Mount:</strong> Flexible installation options for any property</li>
+                <li><strong>Smart Monitoring:</strong> Real-time energy production and consumption tracking</li>
+                <li><strong>Maintenance Packages:</strong> Comprehensive service agreements available</li>
+            </ul>
+
+            <h3>Typical Commercial Installations</h3>
+            <ul>
+                <li><strong>Small Office (10-50 kW):</strong> €20,000-€80,000 - Covers 30-60% of energy needs</li>
+                <li><strong>Medium Business (50-200 kW):</strong> €80,000-€300,000 - Covers 50-80% of energy needs</li>
+                <li><strong>Large Commercial (200+ kW):</strong> €300,000+ - Can achieve 100% energy independence</li>
+            </ul>
+
+            <h3>Financing Options</h3>
+            <ul>
+                <li><strong>Cash Purchase:</strong> Maximum savings and fastest payback</li>
+                <li><strong>Solar Loans:</strong> Low-interest financing with immediate savings</li>
+                <li><strong>Power Purchase Agreements (PPA):</strong> No upfront cost, pay for power generated</li>
+                <li><strong>Leasing:</strong> Fixed monthly payments, maintenance included</li>
+            </ul>
+        </div>
+
+        <!-- Restaurant Content -->
+        <div class="content-section" id="restaurant-content">
+            <h2>🍽️ Restaurant Solar Energy Solutions</h2>
+            <p>Restaurants have unique energy needs with high electricity consumption from cooking equipment, refrigeration, and HVAC systems. Solar energy can dramatically reduce operational costs.</p>
+
+            <h3>Restaurant-Specific Benefits</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>🔥 High Energy Usage</h4>
+                    <p>Restaurants typically use 2-3x more energy per square foot than offices. Solar can offset 40-70% of electricity costs.</p>
+                </div>
+                <div class="info-card">
+                    <h4>❄️ Refrigeration Savings</h4>
+                    <p>Solar power is perfect for running energy-intensive refrigeration systems 24/7.</p>
+                </div>
+                <div class="info-card">
+                    <h4>🌡️ HVAC Efficiency</h4>
+                    <p>Power your heating and cooling systems with clean energy, reducing operational costs significantly.</p>
+                </div>
+                <div class="info-card">
+                    <h4>🍽️ Customer Appeal</h4>
+                    <p>Showcase your commitment to sustainability. Many customers prefer eco-friendly restaurants.</p>
+                </div>
+            </div>
+
+            <h3>Restaurant Energy Profile</h3>
+            <ul>
+                <li><strong>Average Energy Use:</strong> 50-100 kWh per square foot annually</li>
+                <li><strong>Peak Usage:</strong> Lunch and dinner hours (11 AM - 10 PM)</li>
+                <li><strong>24/7 Loads:</strong> Refrigeration, security systems, some lighting</li>
+                <li><strong>High-Demand Equipment:</strong> Ovens, grills, fryers, dishwashers, HVAC</li>
+            </ul>
+
+            <h3>Recommended System Sizes</h3>
+            <ul>
+                <li><strong>Small Restaurant (50-100 m²):</strong> 20-40 kW system (€40,000-€80,000)</li>
+                <li><strong>Medium Restaurant (100-200 m²):</strong> 40-80 kW system (€80,000-€160,000)</li>
+                <li><strong>Large Restaurant (200+ m²):</strong> 80-150 kW system (€160,000-€300,000)</li>
+            </ul>
+
+            <h3>Special Considerations</h3>
+            <ul>
+                <li><strong>Roof Space:</strong> Restaurants often have limited roof space - consider ground mounts or parking canopy systems</li>
+                <li><strong>Ventilation:</strong> Ensure solar panels don't interfere with kitchen exhaust systems</li>
+                <li><strong>Battery Storage:</strong> Consider battery systems to store excess energy for peak hours</li>
+                <li><strong>Time-of-Use:</strong> Solar production aligns well with restaurant peak hours</li>
+            </ul>
+
+            <h3>ROI for Restaurants</h3>
+            <p>With high energy consumption, restaurants typically see:</p>
+            <ul>
+                <li><strong>Payback Period:</strong> 4-7 years (faster than residential)</li>
+                <li><strong>Annual Savings:</strong> €5,000-€30,000+ depending on size</li>
+                <li><strong>25-Year Savings:</strong> €125,000-€750,000+</li>
+                <li><strong>Tax Benefits:</strong> Accelerated depreciation and tax credits</li>
+            </ul>
+        </div>
+
+        <!-- Back Link -->
+        <a href="members-section.html" class="back-link">← Back to Members Section</a>
+    </div>
+
+    <script>
+        // Select Solar Option Function - Adapted from tier selection
+        function selectSolarOption(option) {
+            console.log('Selected solar option:', option);
+            
+            // Remove selected class from all cards
+            document.querySelectorAll('.solar-selection-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked card
+            const selectedCard = document.querySelector(`[data-option="${option}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+            }
+            
+            // Change backdrop based on selection
+            document.body.classList.remove('solar-housing', 'solar-office', 'solar-restaurant');
+            document.body.classList.add(`solar-${option}`);
+            
+            // Hide all content sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected content section
+            const contentSection = document.getElementById(`${option}-content`);
+            if (contentSection) {
+                contentSection.classList.add('active');
+                // Smooth scroll to content
+                contentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Modal Functions
+        function openPropertyValueModal() {
+            const modal = document.getElementById('property-value-modal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function closePropertyValueModal() {
+            const modal = document.getElementById('property-value-modal');
+            modal.classList.remove('active');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        // Initialize - show housing content by default
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default backdrop to housing
+            document.body.classList.add('solar-housing');
+            // Housing is already selected by default (has 'selected' class)
+            // Content is already active
+
+            // Modal event listeners
+            const modal = document.getElementById('property-value-modal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closePropertyValueModal();
+                    }
+                });
+
+                // Close modal with Escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && modal.classList.contains('active')) {
+                        closePropertyValueModal();
+                    }
+                });
+            }
+        });
+    </script>
+
+    <!-- Property Value Modal -->
+    <div id="property-value-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>📊 Property Value Analysis - Solar Energy</h3>
+                <button class="modal-close" onclick="closePropertyValueModal()" aria-label="Close modal">×</button>
+            </div>
+            <iframe 
+                class="modal-iframe" 
+                src="https://www.greenwaysbuildings.com/marketinsightsforsolarenergy"
+                title="Property Value Analysis"
+                allow="fullscreen">
+            </iframe>
+        </div>
+    </div>
+</body>
+</html>
+

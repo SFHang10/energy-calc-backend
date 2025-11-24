@@ -1,0 +1,3025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Energy Members Section</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Green Energy Theme CSS - Modern Dark Aesthetic */
+        :root {
+            --primary-green: #22c55e;
+            --secondary-green: #4ade80;
+            --accent-green: #86efac;
+            --light-green: #dcfce7;
+            --dark-green: #16a34a;
+            --white: #FFFFFF;
+            --gray: #94a3b8;
+            --light-gray: #f1f5f9;
+            --dark-bg: #0f172a;
+            --dark-bg-2: #1e293b;
+            --dark-bg-3: #334155;
+            --border: rgba(34, 197, 94, 0.3);
+            --shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #f1f5f9;
+            background: 
+                linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%),
+                radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.08) 0%, transparent 50%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Background Image Overlay - Dynamic based on tier selection */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Default backdrop - green-buildings-1600-x-1067-wallpaper-richu29freg5tc1n.jpg for landing page */
+            background-image: url('../product-placement/green-buildings-1600-x-1067-wallpaper-richu29freg5tc1n.jpg');
+            background-size: auto;
+            background-position: top left;
+            background-repeat: repeat;
+            opacity: 0.45;
+            z-index: -1;
+            pointer-events: none;
+            transition: background-image 0.8s ease-in-out, opacity 0.5s ease;
+        }
+
+        /* Tier-specific background images */
+        body.tier-free::after {
+            background-image: url('../Renewable.jpeg');
+        }
+
+        body.tier-green::after {
+            background-image: url('../product-placement/renewable-energy-light-bulb-with-green-energy-efficiency_956920-97376.avif');
+        }
+
+        body.tier-partner::after {
+            background-image: url('../product-placement/3d-glowing-green-energy-core-symbolizing-renewable-energy-sources_1093726-30448_edited.jpg');
+        }
+
+        /* Subtle texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(34,197,94,0.03)"/><circle cx="75" cy="75" r="1" fill="rgba(34,197,94,0.03)"/><circle cx="50" cy="10" r="0.5" fill="rgba(34,197,94,0.02)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 30px;
+            background: 
+                linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8)),
+                radial-gradient(circle at center, rgba(34, 197, 94, 0.15), transparent);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 0 1px rgba(34, 197, 94, 0.3);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(135deg, rgba(34, 197, 94, 0.05), rgba(34, 197, 94, 0.05)),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20,20 Q50,10 80,20 Q90,50 80,80 Q50,90 20,80 Q10,50 20,20" fill="none" stroke="rgba(34,197,94,0.1)" stroke-width="0.5"/></svg>');
+            pointer-events: none;
+        }
+
+        .header h1,
+        .header p {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            text-shadow: 0 0 30px rgba(34, 197, 94, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .auth-container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .auth-form {
+            flex: 1;
+            min-width: 300px;
+            background: 
+                linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8)),
+                radial-gradient(circle at center, rgba(34, 197, 94, 0.08), transparent);
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 0 1px rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(135deg, rgba(34, 197, 94, 0.03), rgba(34, 197, 94, 0.03));
+            pointer-events: none;
+        }
+
+        .form-title {
+            color: #f1f5f9;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 12px;
+            font-size: 16px;
+            color: #f1f5f9;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #64748b;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 
+                0 0 0 3px rgba(34, 197, 94, 0.2),
+                0 0 20px rgba(34, 197, 94, 0.1);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: var(--white);
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 8px 20px rgba(34, 197, 94, 0.3),
+                0 0 0 1px rgba(34, 197, 94, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 12px 30px rgba(34, 197, 94, 0.4),
+                0 0 0 1px rgba(34, 197, 94, 0.4),
+                0 0 30px rgba(34, 197, 94, 0.2);
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+        }
+
+        /* Preferences Button - Matches Login Panel Style */
+        .preferences-btn {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(51, 65, 85, 0.6)) !important;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(34, 197, 94, 0.3) !important;
+            color: var(--white) !important;
+            text-align: center !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .preferences-btn .preferences-text {
+            color: #f1f5f9; /* White text to match Account Information heading */
+            font-weight: 700; /* Bold to match h3 styling */
+        }
+
+        .preferences-btn:hover {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(51, 65, 85, 0.75)) !important;
+            border-color: rgba(34, 197, 94, 0.5) !important;
+            transform: translateY(-2px);
+            box-shadow: 
+                0 12px 30px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(34, 197, 94, 0.4);
+        }
+
+        .preferences-btn:hover .preferences-text {
+            color: #ffffff; /* Keep white on hover */
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #94a3b8;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-footer a {
+            color: #22c55e;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .form-footer a:hover {
+            color: #4ade80;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .subscription-tiers {
+            background: 
+                linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8)),
+                radial-gradient(circle at center, rgba(34, 197, 94, 0.08), transparent);
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 0 1px rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .subscription-tiers::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(135deg, rgba(34, 197, 94, 0.03), rgba(34, 197, 94, 0.03));
+            pointer-events: none;
+        }
+
+        .tiers-title {
+            color: #f1f5f9;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tiers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        /* Tier Selection Cards - Widget Style */
+        .tier-selection-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tier-selection-card {
+            background: 
+                linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(51, 65, 85, 0.6)),
+                radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 0 1px rgba(34, 197, 94, 0.2);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 480px;
+        }
+
+        .tier-selection-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(59, 130, 246, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .tier-selection-card:hover::before {
+            opacity: 1;
+        }
+
+        .tier-selection-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(34, 197, 94, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 20px rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+        }
+
+        .tier-selection-card.selected {
+            background: 
+                linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(59, 130, 246, 0.2)),
+                radial-gradient(circle at center, rgba(34, 197, 94, 0.15), transparent);
+            border-color: #22c55e;
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 
+                0 15px 30px rgba(34, 197, 94, 0.2),
+                0 0 0 2px rgba(34, 197, 94, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .tier-selection-card.selected::before {
+            opacity: 1;
+        }
+
+        .tier-image-preview {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .tier-free-image {
+            background-image: url('../Renewable.jpeg');
+        }
+
+        .tier-green-image {
+            background-image: url('../product-placement/renewable-energy-light-bulb-with-green-energy-efficiency_956920-97376.avif');
+            background-color: rgba(34, 197, 94, 0.1); /* Fallback color if image not found */
+        }
+
+        .tier-partner-image {
+            background-image: url('../product-placement/3d-glowing-green-energy-core-symbolizing-renewable-energy-sources_1093726-30448_edited.jpg');
+            background-color: rgba(34, 197, 94, 0.15); /* Fallback color if image not found */
+        }
+
+        .tier-overlay {
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .tier-selection-card:hover .tier-overlay {
+            background: rgba(0, 0, 0, 0.7);
+            transform: scale(1.05);
+        }
+
+        .tier-overlay-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+            color: #22c55e;
+        }
+
+        .tier-card-content {
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: space-between;
+        }
+
+        .tier-card-content p {
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tier-card-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tier-card-price {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tier-card-price .currency {
+            font-size: 1rem;
+            vertical-align: top;
+        }
+
+        .tier-card {
+            background: 
+                linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(51, 65, 85, 0.6)),
+                radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 0 1px rgba(34, 197, 94, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tier-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .tier-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: #22c55e;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(34, 197, 94, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 20px rgba(34, 197, 94, 0.2);
+        }
+
+        .tier-card:hover::before {
+            opacity: 1;
+        }
+
+        .tier-card.featured {
+            border-color: #22c55e;
+            background: 
+                linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.15)),
+                radial-gradient(circle at center, rgba(34, 197, 94, 0.15), transparent);
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 
+                0 15px 30px rgba(34, 197, 94, 0.2),
+                0 0 0 2px rgba(34, 197, 94, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .tier-card.featured::before {
+            opacity: 1;
+        }
+
+        .tier-name {
+            color: #f1f5f9;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tier-price {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tier-price .currency {
+            font-size: 1rem;
+            vertical-align: top;
+        }
+
+        .tier-features {
+            color: #cbd5e1;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tier-btn {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: var(--white);
+            padding: 12px 25px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 8px 20px rgba(34, 197, 94, 0.3),
+                0 0 0 1px rgba(34, 197, 94, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .tier-btn:hover {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            box-shadow: 
+                0 12px 30px rgba(34, 197, 94, 0.4),
+                0 0 0 1px rgba(34, 197, 94, 0.4),
+                0 0 30px rgba(34, 197, 94, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .member-dashboard {
+            background: 
+                linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8)),
+                radial-gradient(circle at center, rgba(34, 197, 94, 0.08), transparent);
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 0 1px rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            display: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .member-dashboard::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(135deg, rgba(34, 197, 94, 0.03), rgba(34, 197, 94, 0.03));
+            pointer-events: none;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .welcome-message {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .user-info {
+            background: 
+                linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(51, 65, 85, 0.6));
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        .info-value {
+            color: #f1f5f9;
+            font-weight: 500;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: var(--white);
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 8px 20px rgba(34, 197, 94, 0.3),
+                0 0 0 1px rgba(34, 197, 94, 0.2),
+                0 0 20px rgba(34, 197, 94, 0.4);
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            box-shadow: 
+                0 12px 30px rgba(34, 197, 94, 0.5),
+                0 0 0 1px rgba(34, 197, 94, 0.4),
+                0 0 40px rgba(34, 197, 94, 0.6);
+            transform: translateY(-2px);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+        }
+
+        .action-btn.danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 
+                0 8px 20px rgba(239, 68, 68, 0.3),
+                0 0 0 1px rgba(239, 68, 68, 0.2);
+        }
+
+        .action-btn.danger:hover {
+            background: linear-gradient(135deg, #f87171, #ef4444);
+            box-shadow: 
+                0 12px 30px rgba(239, 68, 68, 0.4),
+                0 0 0 1px rgba(239, 68, 68, 0.4),
+                0 0 30px rgba(239, 68, 68, 0.2);
+        }
+
+        /* Video Section Styles */
+        .videos-section {
+            margin-top: 40px;
+            padding: 30px;
+            background: 
+                linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8)),
+                radial-gradient(circle at center, rgba(34, 197, 94, 0.08), transparent);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 0 1px rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .videos-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(135deg, rgba(34, 197, 94, 0.03), rgba(34, 197, 94, 0.03));
+            pointer-events: none;
+        }
+
+        .videos-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .videos-header h2 {
+            color: var(--primary-green);
+            font-size: 1.8rem;
+        }
+
+        .video-filter {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            color: #cbd5e1;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        .filter-btn:hover {
+            border-color: #22c55e;
+            color: #86efac;
+            background: rgba(34, 197, 94, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(34, 197, 94, 0.2));
+            color: #f1f5f9;
+            border-color: #22c55e;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .videos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .video-card {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: 
+                linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(51, 65, 85, 0.6));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .video-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(34, 197, 94, 0.5),
+                0 0 20px rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: var(--gray);
+            display: block;
+        }
+
+        .video-play-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(34, 197, 94, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 24px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .video-card:hover .video-play-overlay {
+            background: rgba(34, 197, 94, 1);
+            transform: translate(-50%, -50%) scale(1.15);
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.6);
+        }
+
+        .video-info {
+            padding: 15px;
+        }
+
+        .video-title {
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .video-description {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 60px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: var(--white);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        /* Video Modal */
+        .video-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-modal.active {
+            display: flex;
+        }
+
+        .video-modal-content {
+            position: relative;
+            width: 90%;
+            max-width: 900px;
+            background: 
+                linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .video-modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(51, 65, 85, 0.8);
+            backdrop-filter: blur(10px);
+            color: var(--white);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            transition: all 0.3s ease;
+        }
+
+        .video-modal-close:hover {
+            background: rgba(34, 197, 94, 0.8);
+            border-color: #22c55e;
+            transform: scale(1.1);
+        }
+
+        .video-iframe-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+        }
+
+        .video-iframe-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .content-section {
+            background: 
+                linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8)),
+                radial-gradient(circle at center, rgba(34, 197, 94, 0.08), transparent);
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 0 1px rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            margin-top: 20px;
+            display: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(135deg, rgba(34, 197, 94, 0.03), rgba(34, 197, 94, 0.03));
+            pointer-events: none;
+        }
+
+        .content-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .content-card {
+            background: 
+                linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(51, 65, 85, 0.6));
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 16px;
+            border-left: 4px solid #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .content-card h4 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .content-card p {
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 15px;
+            font-size: 1rem;
+            /* Limit description to 2 lines */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.5;
+            max-height: 3em; /* 2 lines * 1.5 line-height */
+            text-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .content-meta {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+            /* Ensure product count is always visible */
+            min-height: 2.5em;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            text-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* Product count badge */
+        .product-count {
+            background: var(--primary-green);
+            color: var(--white);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        .content-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .content-card {
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .content-card.premium-locked {
+            opacity: 0.7;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+        
+        .content-card.premium-locked .content-icon {
+            filter: grayscale(100%);
+        }
+        
+        .action-btn.locked {
+            background: var(--gray);
+            cursor: not-allowed;
+        }
+        
+        .action-btn.locked:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+        }
+
+        .message.success {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+        }
+
+        .message.info {
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #94a3b8;
+        }
+
+        .spinner {
+            border: 3px solid rgba(34, 197, 94, 0.3);
+            border-top: 3px solid #22c55e;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .auth-container {
+                flex-direction: column;
+            }
+            
+            .tiers-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌱 Green Energy Members Section</h1>
+            <p>Join our community of sustainability professionals and access exclusive energy efficiency resources</p>
+        </div>
+
+        <!-- Message Display -->
+        <div id="message-display"></div>
+
+        <!-- Login Form -->
+        <div class="auth-container" id="login-container" style="display: none;">
+            <div class="auth-form">
+                <h2 class="form-title">Welcome Back</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Email Address</label>
+                        <input type="email" id="login-email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn">Sign In</button>
+                </form>
+                <div class="form-footer">
+                    <p><a href="#" onclick="showPasswordReset()">Forgot Password?</a></p>
+                    <p style="margin-top: 10px; color: var(--gray); font-size: 0.9rem;">
+                        New users: <a href="#" onclick="showSignupSection()" style="color: var(--primary-green); font-weight: 600;">Sign up here</a>
+                    </p>
+                    <p style="margin-top: 5px; color: var(--gray); font-size: 0.85rem;">
+                        Legacy accounts: <a href="#" onclick="showRegistration()" style="color: var(--gray);">Register here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registration Form (Hidden by default - only for legacy users) -->
+        <div class="auth-form" id="registration-form" style="display: none;">
+            <div style="background: rgba(251, 191, 36, 0.2); border: 1px solid rgba(251, 191, 36, 0.4); padding: 15px; border-radius: 12px; margin-bottom: 20px; backdrop-filter: blur(10px);">
+                <p style="color: #fbbf24; margin: 0; font-weight: 600;">⚠️ Note: New users should sign up using the main signup above.</p>
+                <p style="color: #fbbf24; margin: 5px 0 0 0; font-size: 0.9rem;">This form is only for legacy accounts.</p>
+            </div>
+            <h2 class="form-title">Create Account (Legacy)</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="register-firstName">First Name</label>
+                    <input type="text" id="register-firstName" name="firstName" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-lastName">Last Name</label>
+                    <input type="text" id="register-lastName" name="lastName" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email Address</label>
+                    <input type="email" id="register-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" name="password" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="register-company">Company (Optional)</label>
+                    <input type="text" id="register-company" name="company">
+                </div>
+                <div class="form-group">
+                    <label for="register-interests">Sustainability Interests</label>
+                    <textarea id="register-interests" name="interests" rows="3" placeholder="e.g., Green Buildings, Renewable Energy, Energy Efficiency"></textarea>
+                </div>
+                <button type="submit" class="btn" onclick="console.log('Create Account button clicked')">Create Account</button>
+            </form>
+            <div class="form-footer">
+                <p>Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
+                <p style="margin-top: 10px;"><a href="#" onclick="showSignupSection()" style="color: var(--primary-green); font-weight: 600;">→ Use main signup instead</a></p>
+            </div>
+        </div>
+
+        <!-- Password Reset Form -->
+        <div class="auth-form" id="password-reset-form" style="display: none;">
+            <h2 class="form-title">Reset Password</h2>
+            <form id="reset-form">
+                <div class="form-group">
+                    <label for="reset-email">Email Address</label>
+                    <input type="email" id="reset-email" name="email" required>
+                </div>
+                <button type="submit" class="btn">Send Reset Link</button>
+            </form>
+            <div class="form-footer">
+                <p>Remember your password? <a href="#" onclick="showLogin()">Login here</a></p>
+            </div>
+        </div>
+
+        <!-- Primary Signup Section (Hidden) -->
+        <div class="subscription-tiers" style="display: none; background: linear-gradient(135deg, var(--primary-green), var(--secondary-green)); color: var(--white); margin-bottom: 30px;">
+            <h2 class="tiers-title" style="color: var(--white);">🎯 Join Greenways Membership</h2>
+            <p style="text-align: center; margin-bottom: 30px; font-size: 1.1rem; opacity: 0.95;">
+                Sign up to access membership features, manage your subscription, and unlock exclusive content.
+            </p>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <button onclick="showRegistration()" class="btn" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8)); color: #22c55e; font-size: 1.1rem; padding: 18px 40px; display: inline-block; text-decoration: none; font-weight: 700; border: 1px solid rgba(34, 197, 94, 0.3); cursor: pointer; border-radius: 12px; backdrop-filter: blur(10px);">
+                    Sign Up Now →
+                </button>
+            </div>
+            <p style="text-align: center; font-size: 0.9rem; opacity: 0.85; margin-top: 15px;">
+                Already a member? <a href="#" onclick="showLogin()" style="color: var(--white); text-decoration: underline; font-weight: 600; cursor: pointer;">Login here</a>
+            </p>
+        </div>
+
+        <!-- Alternative: Backend Login (for existing users) -->
+        <div class="subscription-tiers" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(51, 65, 85, 0.6)), radial-gradient(circle at center, rgba(34, 197, 94, 0.06), transparent); backdrop-filter: blur(20px); border: 1px solid rgba(34, 197, 94, 0.3);">
+            <h2 class="tiers-title" style="font-size: 1.2rem; color: #f1f5f9;">Greenways Membership Login</h2>
+            <p style="text-align: center; margin-bottom: 20px; color: #94a3b8; font-size: 0.95rem;">
+                Login to your Greenways account to access membership features and exclusive content.
+            </p>
+            <div style="text-align: center;">
+                <button class="btn" onclick="showLogin()" style="background: var(--gray); max-width: 300px; margin: 0 auto;">Login to Your Account</button>
+            </div>
+        </div>
+
+        <!-- Tier Selection - Widget Style -->
+        <div class="subscription-tiers" style="margin-top: 40px;">
+            <h2 class="tiers-title">Choose Your Membership Plan</h2>
+            <p style="text-align: center; margin-bottom: 20px; color: var(--gray); font-size: 0.95rem;">
+                Select a plan to see it come to life. Each plan unlocks different features and resources.
+            </p>
+            <div class="tier-selection-grid" id="tier-selection-grid">
+                <!-- Free Tier -->
+                <div class="tier-selection-card" onclick="selectTierCard('free')" data-tier="free">
+                    <div class="tier-image-preview tier-free-image">
+                        <div class="tier-overlay">
+                            <span class="tier-overlay-icon">🌱</span>
+                            <div class="tier-label">Free</div>
+                        </div>
+                    </div>
+                    <div class="tier-card-content">
+                        <div class="tier-card-name">Free Membership</div>
+                        <div class="tier-card-price">
+                            <span class="currency">€</span>0
+                        </div>
+                        <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 15px;">
+                            Basic access to energy calculators and community resources
+                        </p>
+                        <button class="tier-btn" onclick="event.stopPropagation(); selectTier('basic')">
+                            Choose Free
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Green Membership Tier -->
+                <div class="tier-selection-card" onclick="selectTierCard('green')" data-tier="green">
+                    <div class="tier-image-preview tier-green-image">
+                        <div class="tier-overlay">
+                            <span class="tier-overlay-icon">🌿</span>
+                            <div class="tier-label">Green Member</div>
+                        </div>
+                    </div>
+                    <div class="tier-card-content">
+                        <div class="tier-card-name">Green Membership</div>
+                        <div class="tier-card-price">
+                            <span class="currency">€</span>20<span style="font-size: 0.8rem; color: #94a3b8;">/month</span>
+                        </div>
+                        <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 15px;">
+                            Advanced calculators, data storage, and priority support
+                        </p>
+                        <button class="tier-btn" onclick="event.stopPropagation(); selectTier('premium')">
+                            Choose Green
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Green Partner Tier -->
+                <div class="tier-selection-card" onclick="selectTierCard('partner')" data-tier="partner">
+                    <div class="tier-image-preview tier-partner-image">
+                        <div class="tier-overlay">
+                            <span class="tier-overlay-icon">🌳</span>
+                            <div class="tier-label">Green Partner</div>
+                        </div>
+                    </div>
+                    <div class="tier-card-content">
+                        <div class="tier-card-name">Green Partner</div>
+                        <div class="tier-card-price">
+                            <span class="currency">€</span>80<span style="font-size: 0.8rem; color: #94a3b8;">/month</span>
+                        </div>
+                        <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 15px;">
+                            Professional tools, custom reports, and dedicated support
+                        </p>
+                        <button class="tier-btn" onclick="event.stopPropagation(); selectTier('professional')">
+                            Choose Partner
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Member Dashboard -->
+        <div class="member-dashboard" id="member-dashboard">
+            <div class="dashboard-header">
+                <h2 class="welcome-message">Welcome, <span id="user-name">Member</span>! 👋</h2>
+                <p>You're all set to access exclusive energy efficiency resources</p>
+            </div>
+            
+            <div class="user-info">
+                <h3>Account Information</h3>
+                <div class="info-row">
+                    <span class="info-label">Full Name:</span>
+                    <span class="info-value" id="user-name-display">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value" id="user-email">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Subscription Tier:</span>
+                    <span class="info-value" id="subscription-status">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Interests:</span>
+                    <span class="info-value" id="user-interests">-</span>
+                </div>
+            </div>
+            
+            <div class="dashboard-actions">
+                <a href="member-preferences.html" class="btn preferences-btn">🎯 <span class="preferences-text">My Preferences</span></a>
+                <button class="action-btn" onclick="loadMemberContent()">View Member Content</button>
+                <button class="action-btn" onclick="document.getElementById('videos-section').scrollIntoView({behavior: 'smooth'}); loadVideos();">🎥 Watch Videos</button>
+                <button class="action-btn" onclick="manageSubscription()">Manage Subscription</button>
+                <button class="action-btn danger" onclick="handleLogout()">Logout</button>
+            </div>
+
+            <!-- Notifications Section -->
+            <div class="notifications-section" id="notifications-section" style="margin-top: 30px; display: none;">
+                <h3 style="color: var(--primary-green); margin-bottom: 15px;">
+                    🔔 Notifications 
+                    <span id="unread-count-badge" style="background: #f44336; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px;"></span>
+                </h3>
+                <div id="notifications-list" style="max-height: 400px; overflow-y: auto;"></div>
+                <div style="margin-top: 10px;">
+                    <button onclick="markAllNotificationsRead()" class="btn" style="background: var(--gray); font-size: 0.9rem; padding: 8px 20px;">Mark All as Read</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Member Content Section -->
+        <div class="content-section" id="content-section">
+            <h2 class="content-title">Your Member Content</h2>
+            <div class="content-grid" id="member-content">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading your content...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Videos Section -->
+        <div class="videos-section" id="videos-section" style="display: none;">
+            <div class="videos-header">
+                <h2>🎥 Member Videos</h2>
+                <div class="video-filter" id="video-filters">
+                    <button class="filter-btn active" onclick="filterVideos('all')">All</button>
+                    <button class="filter-btn" onclick="filterVideos('energy')">Energy Saving</button>
+                    <button class="filter-btn" onclick="filterVideos('solar')">Solar</button>
+                    <button class="filter-btn" onclick="filterVideos('hvac')">HVAC</button>
+                    <button class="filter-btn" onclick="filterVideos('lighting')">Lighting</button>
+                </div>
+            </div>
+            <div class="videos-grid" id="videos-grid">
+                <!-- Videos will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Video Modal -->
+        <div class="video-modal" id="video-modal" onclick="closeVideoModal(event)">
+            <div class="video-modal-content" onclick="event.stopPropagation()">
+                <button class="video-modal-close" onclick="closeVideoModal()">×</button>
+                <div class="video-iframe-container" id="video-iframe-container">
+                    <!-- Video iframe loads here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - Auto-detect production vs development
+        const isFileProtocol = window.location.protocol === 'file:';
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || !window.location.hostname;
+        
+        const API_BASE_URL = (isFileProtocol || isLocalhost)
+            ? 'http://localhost:4000'
+            : window.location.origin; // Use same origin in production (Render)
+        let currentUser = null;
+        let authToken = localStorage.getItem('energy_calc_membership_token');
+        let subscriptionsLoading = false;
+        let subscriptionsLoaded = false;
+
+        // Initialize the page
+        function initializePage() {
+            // Skip loading subscription tiers - we now use static tier selection cards
+            // The tier cards are already in the HTML, no need to load from API
+            
+            // Check auth status if token exists
+            if (authToken) {
+                // Check if we have a recent auth check (within 5 minutes)
+                const lastAuthCheck = sessionStorage.getItem('lastAuthCheck');
+                const lastAuthTime = lastAuthCheck ? parseInt(lastAuthCheck) : 0;
+                const now = Date.now();
+                const fiveMinutes = 5 * 60 * 1000;
+                
+                // If we checked recently (within 5 minutes), trust the session and show dashboard
+                // This prevents logout when navigating back from content pages
+                if (lastAuthCheck && (now - lastAuthTime < fiveMinutes)) {
+                    console.log('Recent auth check found, trusting session without API call');
+                    // Try to restore user from sessionStorage
+                    const cachedUser = sessionStorage.getItem('cachedUser');
+                    if (cachedUser) {
+                        try {
+                            currentUser = JSON.parse(cachedUser);
+                            showMemberDashboard();
+                            return;
+                        } catch (e) {
+                            console.warn('Failed to parse cached user, will make gentle auth check');
+                        }
+                    }
+                    // If no cached user but recent auth check exists, make a gentle auth check
+                    // that won't log out on errors - just to get user data
+                    checkAuthStatus();
+                } else {
+                    // Otherwise, do a gentle auth check
+                    checkAuthStatus();
+                }
+            }
+        }
+
+        // Handle initial page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            
+            // Check if we're coming from a content page (hash in URL)
+            if (window.location.hash === '#content-section') {
+                // Wait a bit for page to load, then scroll and show content
+                setTimeout(() => {
+                    const contentSection = document.getElementById('content-section');
+                    if (contentSection) {
+                        // If user is logged in, load and show content
+                        if (authToken && currentUser) {
+                            contentSection.style.display = 'block';
+                            loadMemberContent();
+                        }
+                        // Scroll to content section
+                        contentSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }, 300);
+            }
+        });
+
+        // Handle hash changes (when navigating with #content-section)
+        window.addEventListener('hashchange', function() {
+            if (window.location.hash === '#content-section') {
+                setTimeout(() => {
+                    const contentSection = document.getElementById('content-section');
+                    if (contentSection) {
+                        if (authToken && currentUser) {
+                            contentSection.style.display = 'block';
+                            loadMemberContent();
+                        }
+                        contentSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }, 100);
+            }
+        });
+
+        // Handle page navigation (back/forward button, browser cache restore)
+        window.addEventListener('pageshow', function(event) {
+            // If page was restored from cache (back/forward navigation)
+            if (event.persisted) {
+                console.log('Page restored from cache, reinitializing...');
+                initializePage();
+                
+                // Also check for hash
+                if (window.location.hash === '#content-section') {
+                    setTimeout(() => {
+                        const contentSection = document.getElementById('content-section');
+                        if (contentSection && authToken && currentUser) {
+                            contentSection.style.display = 'block';
+                            loadMemberContent();
+                            contentSection.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }, 300);
+                }
+            }
+        });
+
+        // Also check if subscriptions are loaded when page becomes visible
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                // Small delay to ensure DOM is ready
+                setTimeout(() => {
+                    // Check if subscription tiers container is empty or still showing loading
+                    const container = document.getElementById('subscription-tiers');
+                    if (container && (container.innerHTML.includes('Loading') || container.children.length === 0)) {
+                        console.log('Subscriptions not loaded, loading now...');
+                        subscriptionsLoaded = false; // Reset flag to allow reload
+                        loadSubscriptionTiers();
+                    }
+                }, 100);
+            }
+        });
+
+        // Show/Hide Forms
+        function showRegistration() {
+            console.log('showRegistration called');
+            
+            // Hide other forms
+            const loginContainer = document.getElementById('login-container');
+            const passwordResetForm = document.getElementById('password-reset-form');
+            
+            if (loginContainer) {
+                loginContainer.style.display = 'none';
+                console.log('Login container hidden');
+            }
+            
+            if (passwordResetForm) {
+                passwordResetForm.style.display = 'none';
+                console.log('Password reset form hidden');
+            }
+            
+            // Show the registration form
+            const registrationForm = document.getElementById('registration-form');
+            if (registrationForm) {
+                registrationForm.style.display = 'block';
+                console.log('Registration form shown');
+            } else {
+                console.error('Registration form not found!');
+            }
+            
+            // Show selected tier info
+            const selectedTier = localStorage.getItem('selectedTier');
+            if (selectedTier) {
+                const tierNames = {
+                    'basic': 'Free',
+                    'premium': 'Green Member', 
+                    'professional': 'Eco Professional',
+                    'enterprise': 'Sustainability Partner'
+                };
+                const tierName = tierNames[selectedTier] || 'Membership Plan';
+                showMessage(`Registering for ${tierName} plan`, 'info');
+            }
+            
+            // Scroll to the form
+            if (registrationForm) {
+                registrationForm.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function showSignupSection() {
+            // Scroll to the signup section and show registration form
+            const signupSection = document.querySelector('.subscription-tiers');
+            if (signupSection) {
+                signupSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // After scrolling, show the registration form
+                setTimeout(() => {
+                    showRegistration();
+                }, 300);
+            } else {
+                // If signup section not found, just show registration
+                showRegistration();
+            }
+        }
+
+        function showLogin() {
+            console.log('showLogin called');
+            
+            // Show the login container
+            const loginContainer = document.getElementById('login-container');
+            if (loginContainer) {
+                loginContainer.style.display = 'flex';
+                console.log('Login container shown');
+            }
+            
+            // Hide other forms
+            const registrationForm = document.getElementById('registration-form');
+            const passwordResetForm = document.getElementById('password-reset-form');
+            
+            if (registrationForm) {
+                registrationForm.style.display = 'none';
+                console.log('Registration form hidden');
+            }
+            
+            if (passwordResetForm) {
+                passwordResetForm.style.display = 'none';
+                console.log('Password reset form hidden');
+            }
+            
+            // Scroll to the login container
+            if (loginContainer) {
+                loginContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function showPasswordReset() {
+            console.log('showPasswordReset called');
+            
+            // Hide other forms
+            const loginContainer = document.getElementById('login-container');
+            const registrationForm = document.getElementById('registration-form');
+            const passwordResetForm = document.getElementById('password-reset-form');
+            
+            if (loginContainer) {
+                loginContainer.style.display = 'none';
+                console.log('Login container hidden');
+            }
+            
+            if (registrationForm) {
+                registrationForm.style.display = 'none';
+                console.log('Registration form hidden');
+            }
+            
+            if (passwordResetForm) {
+                passwordResetForm.style.display = 'block';
+                console.log('Password reset form shown');
+            }
+            
+            // Scroll to the password reset form
+            if (passwordResetForm) {
+                passwordResetForm.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Message Display
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.getElementById('message-display');
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => messageDiv.style.display = 'none', 5000);
+        }
+
+        // API Helper
+        async function apiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
+                        ...options.headers
+                    },
+                    ...options
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'API request failed');
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+
+        // Load Subscription Tiers
+        async function loadSubscriptionTiers() {
+            // Prevent duplicate loading
+            if (subscriptionsLoading) {
+                console.log('Subscriptions already loading, skipping...');
+                return;
+            }
+
+            // If already loaded and container has content, skip
+            const container = document.getElementById('subscription-tiers');
+            if (subscriptionsLoaded && container && container.children.length > 0 && !container.innerHTML.includes('Loading')) {
+                console.log('Subscriptions already loaded, skipping...');
+                return;
+            }
+
+            subscriptionsLoading = true;
+            try {
+                console.log('Loading subscription tiers...');
+                const data = await apiCall('/api/members/subscription-tiers');
+                console.log('Received data:', data);
+                displaySubscriptionTiers(data.tiers);
+                subscriptionsLoaded = true;
+            } catch (error) {
+                console.error('Error loading tiers:', error);
+                showMessage('Failed to load subscription plans: ' + error.message, 'error');
+                // Show fallback tiers
+                displayFallbackTiers();
+                subscriptionsLoaded = true; // Mark as loaded even with fallback
+            } finally {
+                subscriptionsLoading = false;
+            }
+        }
+
+        // Fallback tiers if API fails
+        function displayFallbackTiers() {
+            const container = document.getElementById('subscription-tiers');
+            const fallbackTiers = [
+                { id: 'basic', name: 'Basic Member', price: 0, features: ['Basic energy calculators', 'Community access', 'Email support'] },
+                { id: 'premium', name: 'Premium Member', price: 29.99, features: ['Advanced calculators', 'Data storage', 'Priority support'] },
+                { id: 'professional', name: 'Professional Member', price: 99.99, features: ['Building consultancy', 'Custom reports', 'API access'] },
+                { id: 'enterprise', name: 'Enterprise Member', price: 299.99, features: ['24/7 support', 'Custom integrations', 'SLA guarantees'] }
+            ];
+            displaySubscriptionTiers(fallbackTiers);
+        }
+
+        // Display Subscription Tiers
+        function displaySubscriptionTiers(tiers) {
+            const container = document.getElementById('subscription-tiers');
+            container.innerHTML = '';
+
+            tiers.forEach(tier => {
+                const tierCard = document.createElement('div');
+                tierCard.className = `tier-card ${tier.id === 'premium' ? 'featured' : ''}`;
+                
+                // Handle different price formats from API
+                // Backend returns price_monthly, but also check for price for compatibility
+                let priceText = 'Free';
+                const priceValue = tier.price_monthly !== undefined ? tier.price_monthly : tier.price;
+                if (priceValue && priceValue !== 0) {
+                    const price = parseFloat(priceValue);
+                    priceText = `€${price.toFixed(2)}${tier.billingCycle ? `/${tier.billingCycle}` : '/month'}`;
+                }
+                
+                // Handle different features formats
+                let featuresText = 'Basic features included';
+                if (tier.features && Array.isArray(tier.features)) {
+                    featuresText = tier.features.slice(0, 3).join(', ') + (tier.features.length > 3 ? '...' : '');
+                } else if (tier.features && typeof tier.features === 'string') {
+                    featuresText = tier.features;
+                }
+                
+                const isFree = (priceValue === 0 || !priceValue);
+                tierCard.innerHTML = `
+                    <div class="tier-name">${tier.name || 'Membership Plan'}</div>
+                    <div class="tier-price">
+                        <span class="currency">${isFree ? '' : '€'}</span>${priceText}
+                    </div>
+                    <div class="tier-features">${featuresText}</div>
+                    <button class="tier-btn" onclick="selectTier('${tier.id || 'basic'}')">
+                        ${isFree ? 'Join Free' : 'Choose Plan'}
+                    </button>
+                `;
+                
+                container.appendChild(tierCard);
+            });
+        }
+
+        // Select Tier Card (for backdrop preview)
+        function selectTierCard(tierType) {
+            console.log('Selected tier card:', tierType);
+            
+            // Remove selected class from all cards
+            document.querySelectorAll('.tier-selection-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked card
+            const selectedCard = document.querySelector(`[data-tier="${tierType}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+            }
+            
+            // Change backdrop based on tier selection
+            document.body.classList.remove('tier-free', 'tier-green', 'tier-partner');
+            document.body.classList.add(`tier-${tierType}`);
+        }
+
+        // Select Subscription Tier (for registration)
+        function selectTier(tierId) {
+            console.log('Selected tier:', tierId);
+            
+            // Map tierId to tierType for backdrop
+            const tierMapping = {
+                'basic': 'free',
+                'premium': 'green',
+                'professional': 'partner',
+                'enterprise': 'partner'
+            };
+            
+            const tierType = tierMapping[tierId] || 'free';
+            
+            // Update backdrop
+            selectTierCard(tierType);
+            
+            // Store selected tier for later use
+            localStorage.setItem('selectedTier', tierId);
+            
+            // Show different messages based on tier
+            const tierNames = {
+                'basic': 'Free',
+                'premium': 'Green Member', 
+                'professional': 'Green Partner',
+                'enterprise': 'Green Partner'
+            };
+            
+            const tierName = tierNames[tierId] || 'Membership Plan';
+            showMessage(`Selected ${tierName} plan. Please complete registration below.`, 'success');
+            
+            // Force show the registration form
+            setTimeout(() => {
+                showRegistration();
+            }, 100);
+        }
+
+        // User Registration
+        document.getElementById('register-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('Registration form submitted');
+            console.log('Form data:', e.target);
+            
+            const formData = new FormData(e.target);
+            console.log('FormData entries:');
+            for (let [key, value] of formData.entries()) {
+                console.log(key, ':', value);
+            }
+            
+            const userData = {
+                first_name: formData.get('firstName'),
+                last_name: formData.get('lastName'),
+                email: formData.get('email'),
+                password: formData.get('password'),
+                company: formData.get('company'),
+                interests: formData.get('interests')
+            };
+
+            console.log('Sending registration data:', userData);
+
+            try {
+                const response = await apiCall('/api/members/register', {
+                    method: 'POST',
+                    body: JSON.stringify(userData)
+                });
+
+                console.log('Registration response:', response);
+                showMessage('Account created successfully! You can now access member features.', 'success');
+                
+                // Store the token and user data
+                if (response.token) {
+                    localStorage.setItem('energy_calc_membership_token', response.token);
+                    authToken = response.token;
+                }
+                
+                currentUser = response.user || {
+                    first_name: formData.get('firstName'),
+                    last_name: formData.get('lastName'),
+                    email: formData.get('email'),
+                    subscription_tier: 'Free',
+                    interests: formData.get('interests')
+                };
+                
+                // Cache auth status and user data to avoid unnecessary checks when navigating back
+                const now = Date.now();
+                sessionStorage.setItem('lastAuthCheck', now.toString());
+                if (currentUser) {
+                    sessionStorage.setItem('cachedUser', JSON.stringify(currentUser));
+                }
+                showMemberDashboard();
+                e.target.reset();
+            } catch (error) {
+                console.error('Registration error:', error);
+                showMessage('Registration failed: ' + error.message, 'error');
+            }
+        });
+
+        // User Login
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('Login form submitted');
+            
+            const formData = new FormData(e.target);
+            const loginData = {
+                email: formData.get('email'),
+                password: formData.get('password')
+            };
+
+            console.log('Sending login data:', loginData);
+
+            try {
+                const response = await apiCall('/api/members/login', {
+                    method: 'POST',
+                    body: JSON.stringify(loginData)
+                });
+
+                console.log('Login response:', response);
+                showMessage('Login successful!', 'success');
+                
+                // Store the token and user data
+                if (response.token) {
+                    localStorage.setItem('energy_calc_membership_token', response.token);
+                    authToken = response.token;
+                }
+                
+                currentUser = response.user;
+                // Cache auth status and user data to avoid unnecessary checks when navigating back
+                const now = Date.now();
+                sessionStorage.setItem('lastAuthCheck', now.toString());
+                if (currentUser) {
+                    sessionStorage.setItem('cachedUser', JSON.stringify(currentUser));
+                }
+                showMemberDashboard();
+                e.target.reset();
+            } catch (error) {
+                console.error('Login error:', error);
+                showMessage('Login failed: ' + error.message, 'error');
+            }
+        });
+
+        // Password Reset
+        document.getElementById('reset-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('Password reset form submitted');
+            
+            const formData = new FormData(e.target);
+            const email = formData.get('email');
+
+            try {
+                const response = await apiCall('/api/members/forgot-password', {
+                    method: 'POST',
+                    body: JSON.stringify({ email })
+                });
+
+                console.log('Password reset response:', response);
+                
+                if (response.success) {
+                    showMessage(response.message, 'success');
+                    
+                    // Show the reset link in development (remove in production)
+                    if (response.resetLink) {
+                        showMessage(`Development: Click the link below to reset your password:`, 'info');
+                        
+                        // Create a clickable link
+                        const linkElement = document.createElement('a');
+                        linkElement.href = response.resetLink;
+                        linkElement.textContent = 'Reset Password';
+                        linkElement.style.color = '#2E7D32';
+                        linkElement.style.fontWeight = 'bold';
+                        linkElement.style.textDecoration = 'underline';
+                        linkElement.style.marginLeft = '10px';
+                        linkElement.target = '_blank';
+                        
+                        // Add the link to the message display
+                        const messageDiv = document.getElementById('message-display');
+                        messageDiv.appendChild(document.createElement('br'));
+                        messageDiv.appendChild(linkElement);
+                    }
+                    
+                    // Clear the form
+                    e.target.reset();
+                    
+                    // Show login form after a delay
+                    setTimeout(() => {
+                        showLogin();
+                    }, 5000);
+                } else {
+                    showMessage('Password reset failed: ' + (response.error || 'Unknown error'), 'error');
+                }
+                
+            } catch (error) {
+                console.error('Password reset error:', error);
+                showMessage('Password reset failed: ' + error.message, 'error');
+            }
+        });
+
+        // Check Authentication Status
+        async function checkAuthStatus() {
+            // Only check auth if token exists
+            if (!authToken) {
+                return;
+            }
+            
+            // Check if we've validated recently (within last 5 minutes) to avoid unnecessary API calls
+            const lastAuthCheck = sessionStorage.getItem('lastAuthCheck');
+            const lastAuthTime = lastAuthCheck ? parseInt(lastAuthCheck) : 0;
+            const now = Date.now();
+            const fiveMinutes = 5 * 60 * 1000;
+            
+            // If we checked recently, trust the session - show dashboard even without user data
+            if (lastAuthCheck && (now - lastAuthTime < fiveMinutes)) {
+                console.log('Recent auth check found, trusting session');
+                // Try to restore user from cache
+                const cachedUser = sessionStorage.getItem('cachedUser');
+                if (cachedUser) {
+                    try {
+                        currentUser = JSON.parse(cachedUser);
+                    } catch (e) {
+                        console.warn('Failed to parse cached user');
+                    }
+                }
+                // Show dashboard regardless - we trust the session
+                showMemberDashboard();
+                // Still try to refresh user data in background, but don't log out on errors
+                // This is done asynchronously without blocking
+                setTimeout(() => {
+                    refreshUserDataSilently();
+                }, 100);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/members/profile`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    // Only log out on authentication errors
+                    localStorage.removeItem('energy_calc_membership_token');
+                    sessionStorage.removeItem('lastAuthCheck');
+                    authToken = null;
+                    showMessage('Session expired. Please login again.', 'info');
+                    return;
+                }
+
+                if (!response.ok) {
+                    // For other errors, don't log out - keep existing session if we have one
+                    console.warn('Auth check failed but keeping session:', response.status);
+                    if (currentUser) {
+                        // If we have cached user data, use it
+                        showMemberDashboard();
+                    }
+                    return;
+                }
+
+                const data = await response.json();
+                currentUser = data.user || data.member;
+                // Store successful auth check time and cache user data
+                sessionStorage.setItem('lastAuthCheck', now.toString());
+                if (currentUser) {
+                    sessionStorage.setItem('cachedUser', JSON.stringify(currentUser));
+                }
+                showMemberDashboard();
+            } catch (error) {
+                // Network errors or other issues - don't log out, keep existing session
+                console.warn('Auth check error (keeping session):', error.message);
+                // If we have cached user data, use it instead of logging out
+                if (currentUser) {
+                    showMemberDashboard();
+                } else {
+                    // Only log out if it's clearly an authentication error AND we have no cached user
+                    if (error.message && (error.message.includes('401') || error.message.includes('403') || error.message.includes('Unauthorized'))) {
+                        localStorage.removeItem('energy_calc_membership_token');
+                        sessionStorage.removeItem('lastAuthCheck');
+                        authToken = null;
+                        showMessage('Session expired. Please login again.', 'info');
+                    }
+                }
+            }
+        }
+
+        // Silently refresh user data without logging out on errors
+        async function refreshUserDataSilently() {
+            if (!authToken) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/members/profile`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.user || data.member;
+                    // Update cache
+                    sessionStorage.setItem('lastAuthCheck', Date.now().toString());
+                    if (currentUser) {
+                        sessionStorage.setItem('cachedUser', JSON.stringify(currentUser));
+                        // Update dashboard with fresh data if it's visible
+                        if (document.getElementById('member-dashboard') && document.getElementById('member-dashboard').style.display === 'block') {
+                            document.getElementById('user-name').textContent = `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() || 'Member';
+                            document.getElementById('user-name-display').textContent = `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() || 'Member';
+                            document.getElementById('user-email').textContent = currentUser.email || 'Not provided';
+                            document.getElementById('subscription-status').textContent = currentUser.subscription_tier || 'Free';
+                            document.getElementById('user-interests').textContent = currentUser.interests || 'Not specified';
+                        }
+                    }
+                }
+                // Silently ignore errors - don't log out
+            } catch (error) {
+                // Silently ignore - don't log out on network errors
+                console.warn('Background user data refresh failed (keeping session):', error.message);
+            }
+        }
+
+        // Show Member Dashboard
+        function showMemberDashboard() {
+            document.querySelector('.auth-container').style.display = 'none';
+            document.getElementById('registration-form').style.display = 'none';
+            document.getElementById('member-dashboard').style.display = 'block';
+            document.getElementById('content-section').style.display = 'none';
+            
+            // Update user info (handle case where currentUser might be null or incomplete)
+            if (currentUser) {
+                document.getElementById('user-name').textContent = `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() || 'Member';
+                document.getElementById('user-name-display').textContent = `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() || 'Member';
+                document.getElementById('user-email').textContent = currentUser.email || 'Not provided';
+                document.getElementById('subscription-status').textContent = currentUser.subscription_tier || 'Free';
+                document.getElementById('user-interests').textContent = currentUser.interests || 'Not specified';
+            } else {
+                // If no user data, show placeholder but keep dashboard visible
+                document.getElementById('user-name').textContent = 'Member';
+                document.getElementById('user-name-display').textContent = 'Member';
+                document.getElementById('user-email').textContent = 'Loading...';
+                document.getElementById('subscription-status').textContent = 'Loading...';
+                document.getElementById('user-interests').textContent = 'Not specified';
+                // Try to get user data in background without logging out
+                refreshUserDataSilently();
+            }
+            
+            // Load notifications
+            loadNotifications();
+            
+            // Load videos
+            loadVideos();
+        }
+
+        // Load and display notifications
+        async function loadNotifications() {
+            try {
+                const response = await apiCall('/members/notifications');
+                const notifications = response.notifications || [];
+                const unreadCount = response.unread_count || 0;
+
+                const notificationsSection = document.getElementById('notifications-section');
+                const notificationsList = document.getElementById('notifications-list');
+                const unreadBadge = document.getElementById('unread-count-badge');
+
+                if (notifications.length === 0) {
+                    notificationsSection.style.display = 'none';
+                    return;
+                }
+
+                notificationsSection.style.display = 'block';
+                
+                if (unreadCount > 0) {
+                    unreadBadge.textContent = unreadCount;
+                    unreadBadge.style.display = 'inline-block';
+                } else {
+                    unreadBadge.style.display = 'none';
+                }
+
+                notificationsList.innerHTML = notifications.map(notif => `
+                    <div class="notification-item" style="
+                        background: ${notif.is_read ? 'var(--light-gray)' : 'var(--light-green)'};
+                        padding: 15px;
+                        margin-bottom: 10px;
+                        border-radius: 8px;
+                        border-left: 4px solid ${notif.is_read ? 'var(--gray)' : 'var(--primary-green)'};
+                        cursor: pointer;
+                    " onclick="handleNotificationClick(${notif.id}, ${notif.content_id || 'null'}, ${notif.is_read})">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 5px 0; color: var(--primary-green);">${notif.title}</h4>
+                                <p style="margin: 0; color: var(--gray); font-size: 0.9rem;">${notif.message || ''}</p>
+                                ${notif.content_url ? `<p style="margin: 5px 0 0 0; color: var(--secondary-green); font-size: 0.85rem;">📄 View Content →</p>` : ''}
+                            </div>
+                            ${!notif.is_read ? '<span style="background: var(--primary-green); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">New</span>' : ''}
+                        </div>
+                        <div style="margin-top: 8px; font-size: 0.8rem; color: var(--gray);">
+                            ${new Date(notif.created_at).toLocaleDateString()}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+            }
+        }
+
+        // Handle notification click
+        async function handleNotificationClick(notificationId, contentId, isRead) {
+            // Mark as read if unread
+            if (!isRead) {
+                try {
+                    await apiCall(`/members/notifications/${notificationId}/read`, 'POST');
+                    loadNotifications(); // Reload to update UI
+                } catch (error) {
+                    console.error('Error marking notification as read:', error);
+                }
+            }
+
+            // Navigate to content if available
+            if (contentId) {
+                // You can customize this based on your content routing
+                window.location.href = `member-content/advanced-energy-analysis.html`;
+            }
+        }
+
+        // Mark all notifications as read
+        async function markAllNotificationsRead() {
+            try {
+                await apiCall('/members/notifications/read-all', 'POST');
+                loadNotifications(); // Reload to update UI
+                showMessage('All notifications marked as read', 'success');
+            } catch (error) {
+                console.error('Error marking all as read:', error);
+                showMessage('Failed to mark all as read', 'error');
+            }
+        }
+
+        // Load Member Content
+        async function loadMemberContent() {
+            try {
+                const userTier = currentUser?.subscription_tier || 'Free';
+                const userInterests = currentUser?.interests || '';
+                
+                // Get content based on subscription tier
+                const content = getContentForTier(userTier, userInterests);
+                
+                console.log('Loading member content:', content.length, 'items');
+                console.log('Content items:', content.map(c => c.title));
+                
+                displayMemberContent(content);
+                document.getElementById('content-section').style.display = 'block';
+                
+                // Scroll to content
+                document.getElementById('content-section').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                showMessage('Failed to load content: ' + error.message, 'error');
+            }
+        }
+        
+        // Get content based on subscription tier
+        function getContentForTier(tier, interests) {
+            const baseContent = [
+                {
+                    title: "Energy Savings Calculator",
+                    description: "Calculate potential energy savings and ROI for your building improvements.",
+                    category: "Tools",
+                    required_tier: "Free",
+                    icon: "📊",
+                    action: "openCalculator"
+                },
+                {
+                    title: "Energy Audit Calculator",
+                    description: "Do a full audit on all your appliances in home/restaurant/building.",
+                    category: "Tools",
+                    required_tier: "Free",
+                    icon: "🔍",
+                    action: "openAuditCalculator"
+                },
+                {
+                    title: "Energy Efficiency Basics",
+                    description: "Essential guide to understanding energy consumption and reduction strategies.",
+                    category: "Resources",
+                    required_tier: "Free",
+                    icon: "📚",
+                    action: "openGuide('basics')"
+                },
+                {
+                    title: "Marketplace Products",
+                    description: "Browse products from the marketplace. View detailed information, grants, and collection services for each product.",
+                    category: "Marketplace",
+                    required_tier: "Free",
+                    icon: "🛒",
+                    action: "openMarketplaceProducts"
+                },
+                {
+                    title: "Energy Generation Solutions",
+                    description: "Comprehensive guide to solar energy assessment and implementation.",
+                    category: "Resources",
+                    required_tier: "Free",
+                    icon: "☀️",
+                    action: "openMembershipTemplate"
+                }
+            ];
+            
+            if (tier === 'Free') {
+                return baseContent.concat([
+                    {
+                        title: "Advanced Energy Analysis",
+                        description: "Detailed building energy audits and optimization recommendations.",
+                        category: "Services",
+                        required_tier: "Premium",
+                        icon: "🔒",
+                        action: "showUpgrade",
+                        locked: true
+                    },
+                    {
+                        title: "Green Building Materials Database",
+                        description: "Comprehensive database of sustainable building materials and suppliers.",
+                        category: "Resources",
+                        required_tier: "Premium",
+                        icon: "🔒",
+                        action: "showUpgrade",
+                        locked: true
+                    }
+                ]);
+            }
+            
+            if (tier === 'Green Member' || tier === 'Eco Professional' || tier === 'Sustainability Partner' || tier === 'Premium Member') {
+                return baseContent.concat([
+                    {
+                        title: "Advanced Energy Analysis",
+                        description: "Detailed building energy audits and optimization recommendations.",
+                        category: "Services",
+                        required_tier: "Premium",
+                        icon: "🏢",
+                        action: "openGuide('advanced')"
+                    },
+                    {
+                        title: "Green Building Materials",
+                        description: "Comprehensive database of sustainable building materials and suppliers.",
+                        category: "Resources",
+                        required_tier: "Premium",
+                        icon: "🌱",
+                        action: "openMaterials"
+                    },
+                    {
+                        title: "LED Lighting Solutions",
+                        description: "Complete guide to LED retrofitting and smart lighting systems.",
+                        category: "Resources",
+                        required_tier: "Premium",
+                        icon: "💡",
+                        action: "openGuide('lighting')"
+                    }
+                ]);
+            }
+            
+            if (tier === 'Eco Professional' || tier === 'Sustainability Partner' || tier === 'Professional Member') {
+                return baseContent.concat([
+                    {
+                        title: "Advanced Energy Analysis",
+                        description: "Detailed building energy audits and optimization recommendations.",
+                        category: "Services",
+                        required_tier: "Professional",
+                        icon: "🏢",
+                        action: "openGuide('advanced')"
+                    },
+                    {
+                        title: "Green Building Materials",
+                        description: "Comprehensive database of sustainable building materials and suppliers.",
+                        category: "Resources",
+                        required_tier: "Professional",
+                        icon: "🌱",
+                        action: "openMaterials"
+                    },
+                    {
+                        title: "LED Lighting Solutions",
+                        description: "Complete guide to LED retrofitting and smart lighting systems.",
+                        category: "Resources",
+                        required_tier: "Professional",
+                        icon: "💡",
+                        action: "openGuide('lighting')"
+                    },
+                    {
+                        title: "HVAC Optimization",
+                        description: "Professional HVAC system optimization and maintenance guides.",
+                        category: "Services",
+                        required_tier: "Professional",
+                        icon: "🔧",
+                        action: "openGuide('hvac')"
+                    },
+                    {
+                        title: "ROI Analysis Tools",
+                        description: "Advanced financial analysis tools for energy efficiency investments.",
+                        category: "Tools",
+                        required_tier: "Professional",
+                        icon: "📈",
+                        action: "openROITools"
+                    }
+                ]);
+            }
+            
+            if (tier === 'Sustainability Partner' || tier === 'Enterprise Member') {
+                return baseContent.concat([
+                    {
+                        title: "Advanced Energy Analysis",
+                        description: "Detailed building energy audits and optimization recommendations.",
+                        category: "Services",
+                        required_tier: "Enterprise",
+                        icon: "🏢",
+                        action: "openGuide('advanced')"
+                    },
+                    {
+                        title: "Green Building Materials",
+                        description: "Comprehensive database of sustainable building materials and suppliers.",
+                        category: "Resources",
+                        required_tier: "Enterprise",
+                        icon: "🌱",
+                        action: "openMaterials"
+                    },
+                    {
+                        title: "LED Lighting Solutions",
+                        description: "Complete guide to LED retrofitting and smart lighting systems.",
+                        category: "Resources",
+                        required_tier: "Enterprise",
+                        icon: "💡",
+                        action: "openGuide('lighting')"
+                    },
+                    {
+                        title: "HVAC Optimization",
+                        description: "Professional HVAC system optimization and maintenance guides.",
+                        category: "Services",
+                        required_tier: "Enterprise",
+                        icon: "🔧",
+                        action: "openGuide('hvac')"
+                    },
+                    {
+                        title: "ROI Analysis Tools",
+                        description: "Advanced financial analysis tools for energy efficiency investments.",
+                        category: "Tools",
+                        required_tier: "Enterprise",
+                        icon: "📈",
+                        action: "openROITools"
+                    },
+                    {
+                        title: "Dedicated Account Manager",
+                        description: "Personal consultation and support for your sustainability goals.",
+                        category: "Services",
+                        required_tier: "Enterprise",
+                        icon: "🤝",
+                        action: "contactAccountManager"
+                    },
+                    {
+                        title: "API Access",
+                        description: "Direct API access to integrate with your existing systems.",
+                        category: "Tools",
+                        required_tier: "Enterprise",
+                        icon: "🔌",
+                        action: "openAPIDocs"
+                    }
+                ]);
+            }
+            
+            return baseContent;
+        }
+
+        // Display Member Content
+        function displayMemberContent(content) {
+            const container = document.getElementById('member-content');
+            container.innerHTML = '';
+
+            if (content.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--gray);">No content available for your subscription tier.</p>';
+                return;
+            }
+
+            content.forEach(item => {
+                const contentCard = document.createElement('div');
+                contentCard.className = `content-card ${item.locked ? 'premium-locked' : ''}`;
+                
+                const buttonText = item.locked ? 'Upgrade to Access' : 'Access Content';
+                const buttonClass = item.locked ? 'action-btn locked' : 'action-btn';
+                
+                // Truncate description if too long (limit to ~100 characters for 2 lines)
+                let displayDescription = item.description;
+                if (displayDescription && displayDescription.length > 100) {
+                    displayDescription = displayDescription.substring(0, 97) + '...';
+                }
+                
+                // Use data attribute to avoid quote escaping issues
+                contentCard.innerHTML = `
+                    <div class="content-icon">${item.icon}</div>
+                    <h4>${item.title}</h4>
+                    <p>${displayDescription}</p>
+                    <div class="content-meta">
+                        <span><strong>Category:</strong> ${item.category}</span>
+                        <span><strong>Tier:</strong> ${item.required_tier}</span>
+                        ${item.productCount !== undefined ? `<span class="product-count">${item.productCount} Products</span>` : ''}
+                    </div>
+                    <button class="${buttonClass}" data-action="${item.action.replace(/"/g, '&quot;')}">${buttonText}</button>
+                `;
+                
+                // Add click event listener to button
+                const button = contentCard.querySelector('button');
+                button.addEventListener('click', function() {
+                    const action = this.getAttribute('data-action');
+                    handleContentAction(action);
+                });
+                
+                container.appendChild(contentCard);
+            });
+        }
+
+        // Handle content action clicks
+        function handleContentAction(actionString) {
+            try {
+                // Evaluate the action string as JavaScript
+                // This handles both simple function calls and function calls with parameters
+                if (actionString.includes('(') && actionString.includes(')')) {
+                    // Function with parameters like "openGuide('basics')"
+                    eval(actionString);
+                } else {
+                    // Simple function call like "openCalculator"
+                    eval(actionString + '()');
+                }
+            } catch (error) {
+                console.error('Error executing action:', actionString, error);
+                showMessage('Failed to open content. Please try again.', 'error');
+            }
+        }
+
+        // Content Action Functions
+        function openCalculator() {
+            showMessage('Opening Energy Calculator...', 'info');
+            // Redirect to your enhanced calculator
+            // Use absolute path from server root
+            const calculatorUrl = window.location.origin + '/Energy Cal 2/energy-calculator-enhanced.html';
+            window.open(calculatorUrl, '_blank');
+        }
+        
+        function openAuditCalculator() {
+            showMessage('Opening Energy Audit Calculator...', 'info');
+            // Open the audit calculator widget
+            // The file is in the parent directory (energy-cal-backend)
+            const auditUrl = '../energy-audit-widget-main.html';
+            window.open(auditUrl, '_blank');
+        }
+        
+        function openGuide(guideType) {
+            const guides = {
+                'basics': 'member-content/energy-efficiency-basics.html',
+                'advanced': 'member-content/advanced-energy-analysis.html',
+                'lighting': 'member-content/led-lighting-solutions.html',
+                'hvac': 'member-content/hvac-optimization.html'
+            };
+            
+            if (guides[guideType]) {
+                // Use relative path from current location (wix-integration folder)
+                window.open(guides[guideType], '_blank');
+            } else {
+                showMessage(`Opening ${guideType} guide...`, 'info');
+            }
+        }
+        
+        function openMarketplaceProducts() {
+            showMessage('Opening Marketplace Products...', 'info');
+            // Open the unified dashboard which has marketplace products section
+            // Use window.open to preserve the current page, or navigate in same window
+            // If user wants to stay on current page, use window.open with '_blank'
+            // If user wants to navigate, use window.location.href
+            // For now, navigate in same window but preserve token
+            const currentToken = localStorage.getItem('energy_calc_membership_token');
+            if (currentToken) {
+                // Token exists, navigate normally
+                window.location.href = 'unified-membership-dashboard.html';
+            } else {
+                // No token, show message
+                showMessage('Please login first to access marketplace products', 'error');
+            }
+        }
+        
+        function openMembershipTemplate() {
+            showMessage('Opening Energy Generation Solutions...', 'info');
+            // Open the new solar energy solutions page with three-card selection
+            window.open('solar-energy-solutions.html', '_blank');
+        }
+        
+        function openMaterials() {
+            window.open('member-content/green-building-materials.html', '_blank');
+        }
+        
+        function openROITools() {
+            showMessage('Opening ROI Analysis Tools...', 'info');
+            // Open the content manager
+            window.open('content-manager.html', '_blank');
+        }
+        
+        function contactAccountManager() {
+            showMessage('Contacting your dedicated account manager...', 'info');
+            setTimeout(() => {
+                showMessage('Account manager will contact you within 24 hours!', 'success');
+            }, 1000);
+        }
+        
+        function openAPIDocs() {
+            showMessage('Opening API Documentation...', 'info');
+            // This could link to your API documentation
+            setTimeout(() => {
+                showMessage('API documentation opened successfully!', 'success');
+            }, 1000);
+        }
+        
+        function showUpgrade() {
+            showMessage('Upgrade to access premium content!', 'info');
+            // Scroll to subscription tiers
+            document.querySelector('.subscription-tiers').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Manage Subscription
+        function manageSubscription() {
+            const userTier = currentUser?.subscription_tier || 'Free';
+            
+            if (userTier === 'Free') {
+                showMessage('Upgrade your subscription to access premium features!', 'info');
+                document.querySelector('.subscription-tiers').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                showMessage(`You are currently on the ${userTier} plan. Subscription management coming soon!`, 'info');
+            }
+        }
+
+        // Video Functions
+        let allVideos = [];
+        let currentVideoFilter = 'all';
+
+        // Sample video data (you can replace this with API calls later)
+        const sampleVideos = [
+            {
+                id: 1,
+                title: 'Introduction to Energy Efficiency',
+                description: 'Learn the basics of energy efficiency and how to reduce your carbon footprint.',
+                thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+                videoId: 'dQw4w9WgXcQ',
+                duration: '5:30',
+                category: 'energy',
+                tags: ['energy saving', 'basics', 'introduction']
+            },
+            {
+                id: 2,
+                title: 'Solar Panel Installation Guide',
+                description: 'Step-by-step guide to installing solar panels for your home or business.',
+                thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+                videoId: 'dQw4w9WgXcQ',
+                duration: '12:45',
+                category: 'solar',
+                tags: ['solar', 'installation', 'renewable energy']
+            },
+            {
+                id: 3,
+                title: 'HVAC System Optimization',
+                description: 'How to optimize your HVAC system for maximum energy efficiency.',
+                thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+                videoId: 'dQw4w9WgXcQ',
+                duration: '8:20',
+                category: 'hvac',
+                tags: ['hvac', 'optimization', 'energy saving']
+            },
+            {
+                id: 4,
+                title: 'LED Lighting Retrofit Benefits',
+                description: 'Discover the benefits of retrofitting your lighting to LED technology.',
+                thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+                videoId: 'dQw4w9WgXcQ',
+                duration: '6:15',
+                category: 'lighting',
+                tags: ['led', 'lighting', 'retrofit']
+            },
+            {
+                id: 5,
+                title: 'Heat Pump Technology Explained',
+                description: 'Understanding how heat pumps work and their energy efficiency benefits.',
+                thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+                videoId: 'dQw4w9WgXcQ',
+                duration: '10:00',
+                category: 'energy',
+                tags: ['heat pump', 'heating', 'energy efficient']
+            },
+            {
+                id: 6,
+                title: 'Smart Home Energy Management',
+                description: 'How smart home technology can help you save energy and money.',
+                thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+                videoId: 'dQw4w9WgXcQ',
+                duration: '7:30',
+                category: 'energy',
+                tags: ['smart home', 'automation', 'energy management']
+            }
+        ];
+
+        // Load videos from API (filtered by user interests)
+        async function loadVideos() {
+            try {
+                const response = await apiCall('/api/members/videos');
+                if (response && response.videos) {
+                    allVideos = response.videos;
+                    renderVideos();
+                    document.getElementById('videos-section').style.display = 'block';
+                    
+                    // Show message if videos are filtered by interests
+                    if (response.user_interests && response.user_interests.length > 0) {
+                        console.log(`Showing ${response.videos.length} videos based on your interests: ${response.user_interests.join(', ')}`);
+                    }
+                } else {
+                    // Fallback to sample videos if API fails
+                    console.warn('API returned no videos, using sample videos');
+                    allVideos = sampleVideos;
+                    renderVideos();
+                    document.getElementById('videos-section').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading videos:', error);
+                // Fallback to sample videos on error
+                allVideos = sampleVideos;
+                renderVideos();
+                document.getElementById('videos-section').style.display = 'block';
+                showMessage('Using sample videos. Personalized videos will be available once preferences are set.', 'info');
+            }
+        }
+
+        // Render videos based on current filter
+        function renderVideos() {
+            const grid = document.getElementById('videos-grid');
+            const filteredVideos = currentVideoFilter === 'all' 
+                ? allVideos 
+                : allVideos.filter(v => v.category === currentVideoFilter);
+
+            if (filteredVideos.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 40px;">No videos found for this category.</p>';
+                return;
+            }
+
+            grid.innerHTML = filteredVideos.map((video, index) => {
+                // Handle both YouTube (videoId) and Wix (videoUrl) videos
+                // Store video data in a data attribute for safe passing
+                const videoData = {
+                    videoId: video.videoId || '',
+                    videoUrl: video.videoUrl || '',
+                    title: video.title || 'Video',
+                    source: video.source || 'youtube'
+                };
+                
+                return `
+                <div class="video-card" onclick="openVideoModal(${index})" data-video='${JSON.stringify(videoData).replace(/'/g, "&#39;")}'>
+                    <img src="${video.thumbnail}" alt="${video.title}" class="video-thumbnail" loading="lazy" onerror="this.src='https://via.placeholder.com/320x180?text=Video+Thumbnail'">
+                    <div class="video-play-overlay">▶</div>
+                    <div class="video-duration">${video.duration}</div>
+                    <div class="video-info">
+                        <div class="video-title">${video.title}</div>
+                        <div class="video-description">${video.description}</div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+            
+            // Store videos array globally for modal access
+            window.currentVideoList = filteredVideos;
+        }
+
+        // Filter videos by category
+        function filterVideos(category) {
+            currentVideoFilter = category;
+            
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderVideos();
+        }
+
+        // Open video modal with lazy loading (supports both YouTube and Wix videos)
+        function openVideoModal(index) {
+            const modal = document.getElementById('video-modal');
+            const container = document.getElementById('video-iframe-container');
+            
+            // Get video data from stored array or data attribute
+            const video = window.currentVideoList && window.currentVideoList[index] 
+                ? window.currentVideoList[index]
+                : JSON.parse(document.querySelectorAll('.video-card')[index]?.dataset.video || '{}');
+            
+            if (!video) {
+                console.error('Video data not found');
+                return;
+            }
+            
+            let videoHtml = '';
+            
+            // Check if it's a Wix video (has videoUrl) or YouTube video (has videoId)
+            if (video.videoUrl && video.source === 'wix') {
+                // Wix video - use HTML5 video player
+                videoHtml = `
+                    <video 
+                        controls 
+                        autoplay 
+                        style="width: 100%; height: 100%; max-width: 100%; max-height: 90vh;"
+                        onerror="this.parentElement.innerHTML='<p style=\\'padding: 40px; text-align: center;\\'>Video unavailable. Please try again later.</p>'"
+                    >
+                        <source src="${video.videoUrl}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                `;
+            } else if (video.videoId) {
+                // YouTube video - use embed
+                videoHtml = `
+                    <iframe 
+                        src="https://www.youtube.com/embed/${video.videoId}?autoplay=1" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen
+                        loading="lazy"
+                        style="width: 100%; height: 100%; max-width: 100%; max-height: 90vh;"
+                    ></iframe>
+                `;
+            } else {
+                videoHtml = '<p style="padding: 40px; text-align: center;">Video source not available.</p>';
+            }
+            
+            container.innerHTML = videoHtml;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        // Close video modal
+        function closeVideoModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            
+            const modal = document.getElementById('video-modal');
+            const container = document.getElementById('video-iframe-container');
+            
+            modal.classList.remove('active');
+            container.innerHTML = ''; // Remove iframe to stop video
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeVideoModal();
+            }
+        });
+
+        // Handle Logout
+        function handleLogout() {
+            localStorage.removeItem('energy_calc_membership_token');
+            authToken = null;
+            currentUser = null;
+            
+            document.getElementById('member-dashboard').style.display = 'none';
+            document.getElementById('content-section').style.display = 'none';
+            document.querySelector('.auth-container').style.display = 'flex';
+            
+            showMessage('Logged out successfully', 'success');
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
