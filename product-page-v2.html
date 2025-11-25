@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Dynamic Product Page - Energy Calculator - v2.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .product-page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .breadcrumb a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        /* Back Button */
+        .back-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-button:hover {
+            background: #0056b3;
+        }
+
+        .back-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Main Product Section */
+        .product-main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Product Image */
+        .product-image-section {
+            position: relative;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 400px;
+            object-fit: contain;
+            object-position: center;
+            border-radius: 8px;
+            background: #f0f0f0;
+            padding: 15px;
+            display: block;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #6c757d;
+        }
+
+        .image-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #dee2e6;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background: #007bff;
+        }
+
+        /* Product Details */
+        /* Product Media Gallery */
+        .product-media-section {
+            position: relative;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-media-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+        }
+
+        .main-media-image,
+        .main-media-video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+            transition: transform 0.3s ease;
+            padding: 15px;
+            background: #f0f0f0;
+        }
+
+        .main-media-image:hover {
+            transform: scale(1.05);
+        }
+
+        .main-media-video {
+            background: #000;
+        }
+
+        .media-placeholder {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .media-controls {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .media-control-btn {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .media-control-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .media-counter {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .media-thumbnails {
+            display: flex;
+            gap: 8px;
+            padding: 15px;
+            overflow-x: auto;
+            background: #f8f9fa;
+        }
+
+        .media-thumbnail {
+            min-width: 80px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border 0.3s ease;
+            position: relative;
+        }
+
+        .media-thumbnail.active {
+            border-color: #007bff;
+        }
+
+        .media-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+            padding: 5px;
+            background: #f0f0f0;
+        }
+
+        .media-thumbnail.video::after {
+            content: "▶";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 20px;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+
+        .media-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+
+        .media-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .media-dot.active {
+            background: #007bff;
+        }
+
+        .product-details {
+            padding: 20px 0;
+        }
+
+        .product-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #212529;
+        }
+
+        .product-sku {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+
+        .product-price {
+            font-size: 32px;
+            font-weight: 700;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+
+        .product-description {
+            margin-bottom: 25px;
+        }
+
+        .description-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #495057;
+        }
+
+        .description-short {
+            display: block;
+        }
+
+        .description-full {
+            display: none;
+        }
+
+        .read-more-btn {
+            color: #007bff;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .read-more-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* Quantity and Add to Cart */
+        .quantity-section {
+            margin-bottom: 25px;
+        }
+
+        .quantity-label {
+            font-weight: 500;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .quantity-input {
+            display: flex;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .quantity-btn {
+            background: #f8f9fa;
+            border: none;
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .quantity-btn:hover {
+            background: #e9ecef;
+        }
+
+        .quantity-number {
+            border: none;
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 500;
+            width: 80px;
+        }
+
+        .add-to-cart-btn {
+            background: #fd7e14;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .add-to-cart-btn:hover {
+            background: #e8590c;
+        }
+
+        .video-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .video-btn:hover {
+            background: #0056b3;
+        }
+
+        /* Social Sharing */
+        .social-sharing {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #dee2e6;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .social-btn:hover {
+            border-color: #007bff;
+            background: #f8f9fa;
+        }
+
+        /* Tech Information Section */
+        .tech-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .tech-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #212529;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .tech-item {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+
+        .tech-item-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #212529;
+        }
+
+        .tech-item-value {
+            color: #495057;
+            font-size: 16px;
+        }
+
+        /* Additional Technical Information Dropdown */
+        .additional-tech-container {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .additional-tech-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .additional-tech-btn:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .additional-tech-btn.expanded {
+            background: #dc3545;
+        }
+
+        .additional-tech-btn.expanded:hover {
+            background: #c82333;
+        }
+
+        .additional-tech-panel {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: none;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .additional-tech-panel.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .additional-tech-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #212529;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        .additional-tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .additional-tech-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+
+        .additional-tech-item-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #212529;
+            font-size: 14px;
+        }
+
+        .additional-tech-item-value {
+            color: #495057;
+            font-size: 14px;
+        }
+
+        /* Additional Information */
+        .additional-info {
+            margin-top: 30px;
+        }
+
+        .additional-info h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #212529;
+        }
+
+        .additional-info ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .additional-info li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+            color: #495057;
+        }
+
+        .additional-info li:last-child {
+            border-bottom: none;
+        }
+
+        .additional-info li::before {
+            content: "•";
+            color: #007bff;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* Calculator Widget Integration */
+        .calculator-widget {
+            margin-top: 30px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .calculator-widget iframe {
+            width: 100%;
+            height: 800px;
+            border: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .product-page-container {
+                padding: 10px;
+            }
+            
+            .product-main {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .product-title {
+                font-size: 24px;
+            }
+
+            .product-price {
+                font-size: 28px;
+            }
+
+            .tech-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quantity-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .add-to-cart-btn {
+                width: 100%;
+            }
+            
+            .calculator-widget iframe {
+                height: 600px;
+            }
+            
+            .tech-section {
+                padding: 20px;
+            }
+            
+            .additional-tech-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .product-page-container {
+                padding: 5px;
+            }
+            
+            .product-title {
+                font-size: 20px;
+            }
+
+            .product-price {
+                font-size: 24px;
+            }
+            
+            .calculator-widget iframe {
+                height: 500px;
+            }
+            
+            .tech-section {
+                padding: 15px;
+            }
+            
+            .breadcrumb {
+                font-size: 12px;
+            }
+            
+            .social-sharing {
+                justify-content: center;
+            }
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="product-page-container">
+        <!-- Breadcrumb with Back Button -->
+        <nav class="breadcrumb">
+            <button onclick="goBack()" class="back-button" title="Go back to previous page">← Back</button>
+            <a href="/product-categories.html">Home</a> / 
+            <a href="/product-categories.html" id="breadcrumb-category-link">Products</a> / 
+            <span id="breadcrumb-product">Loading...</span>
+        </nav>
+
+        <!-- Main Product Section -->
+        <div class="product-main">
+            <!-- Product Media Gallery -->
+            <div class="product-media-section">
+                <!-- Main Media Display -->
+                <div class="main-media-container">
+                    <img id="main-media" class="main-media-image" src="" alt="Product Image" style="display: none;">
+                    <video id="main-media-video" class="main-media-video" controls style="display: none;">
+                        <source src="" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <div id="media-placeholder" class="media-placeholder">
+                        Loading product media...
+                    </div>
+                    
+                    <!-- Media Controls -->
+                    <div class="media-controls">
+                        <button id="play-pause-btn" class="media-control-btn" onclick="togglePlayPause()" style="display: none;">
+                            <span id="play-icon">▶</span>
+                        </button>
+                        <div class="media-counter">
+                            <span id="current-media">1</span> / <span id="total-media">1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Media Thumbnails -->
+                <div class="media-thumbnails" id="media-thumbnails">
+                    <!-- Thumbnails will be dynamically generated -->
+                </div>
+
+                <!-- Media Navigation Dots -->
+                <div class="media-dots" id="media-dots">
+                    <!-- Dots will be dynamically generated -->
+                </div>
+            </div>
+
+            <!-- Product Details -->
+            <div class="product-details">
+                <h1 id="product-title" class="product-title">Loading product...</h1>
+                <div id="product-sku" class="product-sku">SKU: Loading...</div>
+                <div id="product-price" class="product-price">€0.00</div>
+                
+                <div class="product-description">
+                    <div id="description-short" class="description-text description-short">
+                        Loading product description...
+                    </div>
+                    <div id="description-full" class="description-text description-full">
+                        <!-- Full description will be loaded here -->
+                    </div>
+                    <span id="read-more-btn" class="read-more-btn" onclick="toggleDescription()" style="display: none;">
+                        Read more
+                    </span>
+                </div>
+
+                <div class="quantity-section">
+                    <label class="quantity-label">Quantity:</label>
+                    <div class="quantity-controls">
+                        <div class="quantity-input">
+                            <button class="quantity-btn" onclick="decreaseQuantity()">-</button>
+                            <input type="number" id="quantity" class="quantity-number" value="1" min="1">
+                            <button class="quantity-btn" onclick="increaseQuantity()">+</button>
+                        </div>
+                        <button class="video-btn" onclick="showVideo()">
+                            📹 Watch Video
+                        </button>
+                        <button class="add-to-cart-btn" onclick="addToCart()">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+
+                <div class="social-sharing">
+                    <div class="social-btn" onclick="shareOnFacebook()">f</div>
+                    <div class="social-btn" onclick="shareOnWhatsApp()">w</div>
+                    <div class="social-btn" onclick="shareGeneric()">↗</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tech Information Section -->
+        <div class="tech-section">
+            <h2 class="tech-title">Technical Information</h2>
+            
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <div id="tech-power-label" class="tech-item-title">Power Rating</div>
+                    <div id="tech-power" class="tech-item-value">Loading...</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item-title">Brand</div>
+                    <div id="tech-brand" class="tech-item-value">Loading...</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item-title">Category</div>
+                    <div id="tech-category" class="tech-item-value">Loading...</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item-title">Model Number</div>
+                    <div id="tech-model" class="tech-item-value">Loading...</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item-title">Energy Rating</div>
+                    <div id="tech-energy-rating" class="tech-item-value">Loading...</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item-title">Efficiency</div>
+                    <div id="tech-efficiency" class="tech-item-value">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Additional Information Dropdowns -->
+            <div class="additional-tech-container">
+                <button id="additional-tech-btn" class="additional-tech-btn" onclick="toggleAdditionalTech()">
+                    <span id="additional-tech-text">Additional Technical Information</span>
+                    <span id="additional-tech-icon">▼</span>
+                </button>
+                <button id="additional-info-btn" class="additional-tech-btn" onclick="toggleAdditionalInfo()" style="margin-left: 15px;">
+                    <span id="additional-info-text">Additional Information</span>
+                    <span id="additional-info-icon">▼</span>
+                </button>
+            </div>
+
+            <div id="additional-tech-panel" class="additional-tech-panel">
+                <h3 class="additional-tech-title">Detailed Technical Specifications</h3>
+                <div id="additional-tech-grid" class="additional-tech-grid">
+                    <!-- Additional technical information will be loaded here -->
+                </div>
+            </div>
+
+            <div id="additional-info-panel" class="additional-tech-panel">
+                <h3 class="additional-tech-title">Product Information & Benefits</h3>
+                <div id="additional-info-grid" class="additional-tech-grid">
+                    <!-- Additional information will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="additional-info">
+                <h3>Additional Information</h3>
+                <ul id="additional-info-list">
+                    <li>Loading additional information...</li>
+                </ul>
+            </div>
+
+            <!-- Energy Calculator Widget -->
+            <div class="calculator-widget">
+                <iframe id="calculator-iframe" src="" width="100%" height="800" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentProduct = null;
+        let isDescriptionExpanded = false;
+        let isAdditionalTechExpanded = false;
+        let isAdditionalInfoExpanded = false;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Dynamic Product Page v2.0 initialized (ETL API) - ' + new Date().toISOString());
+            loadProductFromURL();
+        });
+
+        // Load product data from URL parameters
+        function loadProductFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('product') || urlParams.get('id');
+            
+            if (productId) {
+                loadProduct(productId);
+            } else {
+                // Default product for testing
+                loadProduct('etl_11_86407');
+            }
+        }
+
+        // Load product data
+        async function loadProduct(productId) {
+            try {
+                console.log(`🔄 Loading product: ${productId}`);
+                
+                const productData = await getProductData(productId);
+                
+                if (productData) {
+                    currentProduct = productData;
+                    updateProductDisplay();
+                    updateCalculatorWidget();
+                } else {
+                    showError('Product not found');
+                }
+            } catch (error) {
+                console.error('Error loading product:', error);
+                showError('Failed to load product');
+            }
+        }
+
+        // Get product data from ETL API (working version)
+        async function getProductData(productId) {
+            try {
+                console.log(`🔄 Fetching ETL product data for: ${productId}`);
+                
+                const response = await fetch(`/api/product-widget/${productId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.product) {
+                    console.log('✅ Found product in ETL data:', data.product);
+                    return transformETLProduct(data.product);
+                } else {
+                    console.log('❌ Product not found in ETL data');
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error fetching product data:', error);
+                return null;
+            }
+        }
+
+        // Get proper image URL (handles relative paths, empty values, etc.)
+        function getImageUrl(imageUrl) {
+            if (!imageUrl || imageUrl.trim() === '') {
+                // Use base64 data URI (same as category-product-page.html) - works offline, no external dependencies
+                return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDYwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI2MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjMkQ3QTVGIi8+Cjx0ZXh0IHg9IjMwMCIgeT0iMjAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Qcm9kdWN0IEltYWdlPC90ZXh0Pgo8L3N2Zz4K';
+            }
+            
+            // Already a full URL (http/https), use it as is
+            if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+                return imageUrl;
+            }
+            
+            // Relative path starting with /
+            if (imageUrl.startsWith('/')) {
+                return `http://localhost:4000${imageUrl}`;
+            }
+            
+            // Relative path without /
+            return `http://localhost:4000/${imageUrl}`;
+        }
+
+        // Transform ETL product data to our format (working version)
+        function transformETLProduct(product) {
+            // Check if product is gas-powered
+            const isGas = product.isGas || false;
+            const heatingCapacity = product.heatingCapacity || null;
+            const fuelType = product.fuelType || 'Electric';
+            
+            // Determine power display label and value
+            const powerLabel = isGas ? 'Heating Capacity' : 'Power Rating';
+            const powerValue = isGas && heatingCapacity ? heatingCapacity : product.power;
+            const powerDisplay = `${powerValue}kW`;
+            
+            return {
+                id: product.id,
+                name: product.name,
+                sku: `ETL-${product.id.toUpperCase()}`,
+                price: 1500, // Fixed price for display
+                category: product.category || 'Energy Products',
+                brand: product.brand || 'Unknown',
+                power: powerDisplay, // Display version (string)
+                powerLabel: powerLabel, // "Power Rating" or "Heating Capacity"
+                powerValue: powerValue, // Original numeric value for calculator
+                isGas: isGas,
+                heatingCapacity: heatingCapacity,
+                fuelType: fuelType,
+                modelNumber: product.modelNumber || product.id,
+                energyRating: product.energyRating || 'A',
+                efficiency: product.efficiency || 'High',
+                imageUrl: getImageUrl(product.image_url || product.imageUrl),
+                images: product.images || [], // From API (includes Wix media)
+                videos: product.videos || [], // From API (includes Wix media)
+                descriptionShort: `Professional ${product.category || 'Energy Product'} - ${product.brand || 'High-quality'} ${product.name}. ${isGas ? `Gas-powered with ${heatingCapacity || powerValue}kW heating capacity.` : `Energy-efficient design with ${powerValue}kW power rating.`}`,
+                descriptionFull: `The ${product.name} is a professional-grade ${product.category || 'energy product'} designed for maximum efficiency and performance. This ${product.brand || 'high-quality'} product delivers exceptional performance while maintaining low operating costs.`,
+                additionalInfo: [
+                    `${powerLabel}: ${powerDisplay}`,
+                    isGas ? `Fuel Type: ${fuelType}` : `Energy Rating: ${product.energyRating || 'A'}`,
+                    `Efficiency: ${product.efficiency || 'High'}`,
+                    `Brand: ${product.brand || 'Professional'}`,
+                    `Category: ${product.category || 'Energy Products'}`,
+                    `Model: ${product.modelNumber || product.id}`,
+                    'Professional installation recommended',
+                    'Comprehensive warranty included'
+                ],
+                additionalTechInfo: {
+                    'Running Cost (Annual)': product.runningCostPerYear ? `€${product.runningCostPerYear.toLocaleString()}` : 'Not specified',
+                    'Water per Cycle': product.water_per_cycle_liters ? `${product.water_per_cycle_liters}L` : 'N/A',
+                    'Water per Year': product.water_per_year_liters ? `${product.water_per_year_liters}L` : 'N/A',
+                    'Capacity': product.capacity_kg ? `${product.capacity_kg}kg` : 'N/A',
+                    'Place Settings': product.place_settings ? `${product.place_settings} settings` : 'N/A',
+                    'Source': product.source || 'ETL',
+                    'Subcategory': product.subcategory || 'General',
+                    'Installation Type': 'Professional installation recommended',
+                    'Warranty Period': '2 years comprehensive warranty',
+                    'Certification': 'ETL certified, CE marked',
+                    'Maintenance': 'Annual maintenance recommended',
+                    'Compatibility': 'Universal compatibility',
+                    'Dimensions': 'Standard industry dimensions',
+                    'Weight': 'Varies by model',
+                    'Operating Temperature': '-10°C to +40°C',
+                    'Humidity Range': 'Up to 95% RH',
+                    'Noise Level': 'Low noise operation',
+                    'Safety Features': 'Multiple safety systems included'
+                },
+                marketingInfo: {
+                    'Product Benefits': 'High efficiency design reduces energy costs',
+                    'Customer Value': 'Professional-grade equipment for commercial use',
+                    'Usage Tips': 'Regular maintenance ensures optimal performance',
+                    'Energy Savings': 'Up to 30% reduction in energy consumption',
+                    'ROI Information': 'Payback period typically 2-3 years',
+                    'Support': 'Comprehensive technical support available',
+                    'Delivery': 'Fast delivery and professional installation',
+                    'Financing': 'Flexible payment options available'
+                }
+            };
+        }
+
+        // Sample data functions for demonstration
+        function getSampleImages(productName) {
+            const name = productName.toLowerCase();
+            
+            // Air Fury Hand Dryer - Multiple angles
+            if (name.includes('air fury') || name.includes('hand dryer')) {
+                return [
+                    'https://images.unsplash.com/photo-1581578731548-c6a0c3f2f2c0?w=600&h=400&fit=crop',
+                    'https://images.unsplash.com/photo-1581578731548-c6a0c3f2f2c0?w=600&h=400&fit=crop&crop=face',
+                    'https://images.unsplash.com/photo-1581578731548-c6a0c3f2f2c0?w=600&h=400&fit=crop&crop=top',
+                    'https://images.unsplash.com/photo-1581578731548-c6a0c3f2f2c0?w=600&h=400&fit=crop&crop=bottom',
+                    'https://images.unsplash.com/photo-1581578731548-c6a0c3f2f2c0?w=600&h=400&fit=crop&crop=left'
+                ];
+            }
+            
+            // Motors - Industrial equipment
+            if (name.includes('motor') || name.includes('asynchronous')) {
+                return [
+                    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=400&fit=crop',
+                    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=400&fit=crop&crop=face',
+                    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=400&fit=crop&crop=top',
+                    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=400&fit=crop&crop=bottom'
+                ];
+            }
+            
+            // Default - Multiple generic product images
+            return [
+                'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop&crop=face',
+                'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop&crop=top',
+                'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop&crop=bottom'
+            ];
+        }
+
+        function getSampleVideos(productName) {
+            const name = productName.toLowerCase();
+            
+            // Motors - Technical video
+            if (name.includes('motor') || name.includes('asynchronous')) {
+                return ['https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4'];
+            }
+            
+            // Air Fury Hand Dryer - Demo video
+            if (name.includes('air fury') || name.includes('hand dryer')) {
+                return ['https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4'];
+            }
+            
+            // Default - No videos
+            return [];
+        }
+
+        // Load additional media from JSON file
+        async function loadAdditionalMedia() {
+            try {
+                console.log('🔄 Loading additional media for:', currentProduct.name);
+                const response = await fetch('product-media-data.json');
+                if (!response.ok) {
+                    console.log('❌ No additional media file found, using default media');
+                    return;
+                }
+                
+                const mediaData = await response.json();
+                const productName = currentProduct.name;
+                console.log('📋 Available products in JSON:', Object.keys(mediaData));
+                console.log('🔍 Looking for product:', productName);
+                
+                if (mediaData[productName]) {
+                    const productMedia = mediaData[productName];
+                    console.log('📸 Found media data:', productMedia);
+                    
+                    // Add additional images to the product object
+                    if (productMedia.images && productMedia.images.length > 0) {
+                        currentProduct.images = productMedia.images;
+                        console.log('✅ Added images to currentProduct:', currentProduct.images);
+                    }
+                    
+                    // Add videos to the product object
+                    if (productMedia.videos && productMedia.videos.length > 0) {
+                        currentProduct.videos = productMedia.videos;
+                        console.log('✅ Added videos to currentProduct:', currentProduct.videos);
+                    }
+                    
+                    console.log(`✅ Loaded additional media for ${productName}:`, {
+                        images: productMedia.images?.length || 0,
+                        videos: productMedia.videos?.length || 0
+                    });
+                } else {
+                    console.log(`❌ No additional media found for ${productName}`);
+                    console.log('Available products:', Object.keys(mediaData));
+                }
+            } catch (error) {
+                console.log('❌ Error loading additional media:', error);
+            }
+        }
+
+        // Update product display
+        async function updateProductDisplay() {
+            if (!currentProduct) return;
+
+            // Basic info
+            document.getElementById('product-title').textContent = currentProduct.name;
+            document.getElementById('product-sku').textContent = `SKU: ${currentProduct.sku}`;
+            document.getElementById('product-price').textContent = `€${currentProduct.price.toLocaleString()}`;
+            
+            // Breadcrumb - make category clickable
+            const categoryLink = document.getElementById('breadcrumb-category-link');
+            if (categoryLink && currentProduct.category) {
+                categoryLink.textContent = currentProduct.category;
+                categoryLink.href = `/category-product-page.html?category=${encodeURIComponent(currentProduct.category)}`;
+            }
+            document.getElementById('breadcrumb-product').textContent = currentProduct.name;
+
+            // Description
+            document.getElementById('description-short').textContent = currentProduct.descriptionShort;
+            document.getElementById('description-full').textContent = currentProduct.descriptionFull;
+            
+            // Show read more button if there's additional content
+            if (currentProduct.descriptionFull && currentProduct.descriptionFull !== currentProduct.descriptionShort) {
+                document.getElementById('read-more-btn').style.display = 'inline-block';
+            }
+
+            // Load additional media from JSON file
+            await loadAdditionalMedia();
+
+            // Update media gallery with all available media
+            updateMediaGallery(currentProduct);
+
+            // Tech info
+            // Update power label for gas products
+            const powerLabelEl = document.getElementById('tech-power-label');
+            if (powerLabelEl && currentProduct.powerLabel) {
+                powerLabelEl.textContent = currentProduct.powerLabel; // "Power Rating" or "Heating Capacity"
+            }
+            document.getElementById('tech-power').textContent = currentProduct.power;
+            document.getElementById('tech-brand').textContent = currentProduct.brand;
+            document.getElementById('tech-category').textContent = currentProduct.category;
+            document.getElementById('tech-model').textContent = currentProduct.modelNumber;
+            document.getElementById('tech-energy-rating').textContent = currentProduct.energyRating;
+            document.getElementById('tech-efficiency').textContent = currentProduct.efficiency;
+
+            // Additional info
+            const additionalList = document.getElementById('additional-info-list');
+            additionalList.innerHTML = '';
+            currentProduct.additionalInfo.forEach(info => {
+                const li = document.createElement('li');
+                li.textContent = info;
+                additionalList.appendChild(li);
+            });
+
+            // Additional technical information
+            const additionalTechGrid = document.getElementById('additional-tech-grid');
+            additionalTechGrid.innerHTML = '';
+            
+            Object.entries(currentProduct.additionalTechInfo).forEach(([key, value]) => {
+                if (value && value !== 'N/A' && value !== 'Not specified') {
+                    const techItem = document.createElement('div');
+                    techItem.className = 'additional-tech-item';
+                    techItem.innerHTML = `
+                        <div class="additional-tech-item-title">${key}</div>
+                        <div class="additional-tech-item-value">${value}</div>
+                    `;
+                    additionalTechGrid.appendChild(techItem);
+                }
+            });
+
+            // Additional information (marketing)
+            const additionalInfoGrid = document.getElementById('additional-info-grid');
+            additionalInfoGrid.innerHTML = '';
+            
+            Object.entries(currentProduct.marketingInfo).forEach(([key, value]) => {
+                if (value && value !== 'N/A' && value !== 'Not specified') {
+                    const infoItem = document.createElement('div');
+                    infoItem.className = 'additional-tech-item';
+                    infoItem.innerHTML = `
+                        <div class="additional-tech-item-title">${key}</div>
+                        <div class="additional-tech-item-value">${value}</div>
+                    `;
+                    additionalInfoGrid.appendChild(infoItem);
+                }
+            });
+        }
+
+        // Media Gallery Functions
+        let currentMediaIndex = 0;
+        let mediaItems = [];
+
+        function updateMediaGallery(product) {
+            console.log('🔄 updateMediaGallery called with product:', product.name);
+            console.log('📸 Product images:', product.images);
+            console.log('🎥 Product videos:', product.videos);
+            
+            // Create media items array
+            mediaItems = [];
+            
+            // Always add main image (use placeholder if missing)
+            // Check if imageUrl is empty/null/undefined
+            const hasImage = product.imageUrl && product.imageUrl.trim() !== '' && product.imageUrl !== 'null' && product.imageUrl !== 'undefined';
+            // Use base64 data URI for placeholder (works offline, no external dependencies)
+            const placeholderDataUri = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDYwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI2MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjMkQ3QTVGIi8+Cjx0ZXh0IHg9IjMwMCIgeT0iMjAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Qcm9kdWN0IEltYWdlPC90ZXh0Pgo8L3N2Zz4K';
+            const imageToUse = hasImage 
+                ? product.imageUrl 
+                : placeholderDataUri;
+            mediaItems.push({
+                type: 'image',
+                url: imageToUse,
+                thumbnail: imageToUse
+            });
+            console.log('✅ Added main image:', imageToUse);
+            console.log('📊 Product imageUrl value:', product.imageUrl);
+            
+            // Add additional images if available
+            if (product.images && product.images.length > 0) {
+                console.log('📸 Processing additional images:', product.images);
+                product.images.forEach((imgUrl, index) => {
+                    console.log(`📸 Processing image ${index + 1}:`, imgUrl);
+                    if (imgUrl !== product.imageUrl) { // Avoid duplicates
+                        mediaItems.push({
+                            type: 'image',
+                            url: imgUrl,
+                            thumbnail: imgUrl
+                        });
+                        console.log('✅ Added additional image:', imgUrl);
+                    } else {
+                        console.log('⏭️ Skipped duplicate image:', imgUrl);
+                    }
+                });
+            } else {
+                console.log('❌ No additional images found for product');
+            }
+            
+            // Add videos if available
+            if (product.videos && product.videos.length > 0) {
+                product.videos.forEach(videoUrl => {
+                    mediaItems.push({
+                        type: 'video',
+                        url: videoUrl,
+                        thumbnail: videoUrl // Use the video URL itself as thumbnail - browsers will show first frame
+                    });
+                    console.log('✅ Added video:', videoUrl);
+                });
+            }
+            
+            console.log('📊 Total media items:', mediaItems.length);
+            
+            // If no media, show placeholder
+            if (mediaItems.length === 0) {
+                showMediaPlaceholder();
+                return;
+            }
+            
+            // Update media display
+            updateMainMedia();
+            updateThumbnails();
+            updateDots();
+            updateMediaCounter();
+        }
+
+        function updateMainMedia() {
+            const mainImage = document.getElementById('main-media');
+            const mainVideo = document.getElementById('main-media-video');
+            const placeholder = document.getElementById('media-placeholder');
+            
+            // Hide all media elements
+            mainImage.style.display = 'none';
+            mainVideo.style.display = 'none';
+            placeholder.style.display = 'none';
+            
+            if (mediaItems.length === 0) {
+                placeholder.style.display = 'flex';
+                return;
+            }
+            
+            const currentMedia = mediaItems[currentMediaIndex];
+            
+            if (currentMedia.type === 'video') {
+                mainVideo.src = currentMedia.url;
+                mainVideo.style.display = 'block';
+                document.getElementById('play-pause-btn').style.display = 'flex';
+            } else {
+                mainImage.src = currentMedia.url;
+                mainImage.style.display = 'block';
+                document.getElementById('play-pause-btn').style.display = 'none';
+            }
+        }
+
+        function updateThumbnails() {
+            const thumbnailsContainer = document.getElementById('media-thumbnails');
+            thumbnailsContainer.innerHTML = '';
+            
+            mediaItems.forEach((media, index) => {
+                const thumbnail = document.createElement('div');
+                thumbnail.className = `media-thumbnail ${media.type === 'video' ? 'video' : ''} ${index === currentMediaIndex ? 'active' : ''}`;
+                thumbnail.onclick = () => selectMedia(index);
+                
+                if (media.type === 'video') {
+                    // Create video element for video thumbnails
+                    const video = document.createElement('video');
+                    video.src = media.url;
+                    video.muted = true; // Mute for thumbnail
+                    video.preload = 'metadata'; // Load first frame
+                    video.style.width = '100%';
+                    video.style.height = '100%';
+                    video.style.objectFit = 'cover';
+                    
+                    // Add play icon overlay
+                    const playIcon = document.createElement('div');
+                    playIcon.style.cssText = `
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: rgba(0,0,0,0.7);
+                        color: white;
+                        border-radius: 50%;
+                        width: 30px;
+                        height: 30px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 12px;
+                    `;
+                    playIcon.innerHTML = '▶';
+                    
+                    thumbnail.style.position = 'relative';
+                    thumbnail.appendChild(video);
+                    thumbnail.appendChild(playIcon);
+                } else {
+                    // Create image element for image thumbnails
+                    const img = document.createElement('img');
+                    img.src = media.url; // Use url instead of thumbnail
+                    img.alt = `Thumbnail ${index + 1}`;
+                    
+                    // Add error handling for failed image loads
+                    img.onerror = function() {
+                        console.error('❌ Failed to load thumbnail image:', media.url);
+                        // Create a fallback placeholder
+                        const placeholder = document.createElement('div');
+                        placeholder.style.cssText = `
+                            width: 100%;
+                            height: 100%;
+                            background: #f0f0f0;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: #666;
+                            font-size: 12px;
+                        `;
+                        placeholder.textContent = 'Image';
+                        thumbnail.innerHTML = '';
+                        thumbnail.appendChild(placeholder);
+                    };
+                    
+                    img.onload = function() {
+                        console.log('✅ Thumbnail image loaded:', media.url);
+                    };
+                    
+                    thumbnail.appendChild(img);
+                }
+                
+                thumbnailsContainer.appendChild(thumbnail);
+            });
+        }
+
+        function updateDots() {
+            const dotsContainer = document.getElementById('media-dots');
+            dotsContainer.innerHTML = '';
+            
+            mediaItems.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = `media-dot ${index === currentMediaIndex ? 'active' : ''}`;
+                dot.onclick = () => selectMedia(index);
+                dotsContainer.appendChild(dot);
+            });
+        }
+
+        function updateMediaCounter() {
+            document.getElementById('current-media').textContent = currentMediaIndex + 1;
+            document.getElementById('total-media').textContent = mediaItems.length;
+        }
+
+        function selectMedia(index) {
+            currentMediaIndex = index;
+            updateMainMedia();
+            updateThumbnails();
+            updateDots();
+            updateMediaCounter();
+        }
+
+        function nextMedia() {
+            currentMediaIndex = (currentMediaIndex + 1) % mediaItems.length;
+            updateMainMedia();
+            updateThumbnails();
+            updateDots();
+            updateMediaCounter();
+        }
+
+        function previousMedia() {
+            currentMediaIndex = (currentMediaIndex - 1 + mediaItems.length) % mediaItems.length;
+            updateMainMedia();
+            updateThumbnails();
+            updateDots();
+            updateMediaCounter();
+        }
+
+        function showMediaPlaceholder() {
+            const placeholder = document.getElementById('media-placeholder');
+            placeholder.style.display = 'flex';
+            placeholder.textContent = 'No media available';
+            
+            // Hide other elements
+            document.getElementById('main-media').style.display = 'none';
+            document.getElementById('main-media-video').style.display = 'none';
+            document.getElementById('media-thumbnails').innerHTML = '';
+            document.getElementById('media-dots').innerHTML = '';
+        }
+
+        // Update calculator widget (working version)
+        function updateCalculatorWidget() {
+            if (!currentProduct) {
+                console.log('❌ No current product for calculator');
+                return;
+            }
+
+            console.log('🔄 Updating calculator widget with product:', currentProduct);
+            const iframe = document.getElementById('calculator-iframe');
+            
+            if (!iframe) {
+                console.log('❌ Calculator iframe not found');
+                return;
+            }
+
+            const baseUrl = 'product-energy-widget-glassmorphism.html';
+            // Use original numeric powerValue for calculator (check for 0 or invalid)
+            const numericPower = currentProduct.powerValue;
+            const powerForCalculator = (numericPower && numericPower > 0) 
+                ? numericPower.toString() 
+                : '0.12';
+            
+            const params = new URLSearchParams({
+                productId: currentProduct.id,
+                productName: currentProduct.name,
+                productPower: powerForCalculator,
+                productBrand: currentProduct.brand,
+                productCategory: currentProduct.category,
+                productImage: currentProduct.imageUrl
+            });
+
+            const finalUrl = `${baseUrl}?${params.toString()}`;
+            console.log('🔄 Setting calculator iframe src:', finalUrl);
+            iframe.src = finalUrl;
+        }
+
+        // Toggle description
+        function toggleDescription() {
+            const shortDesc = document.getElementById('description-short');
+            const fullDesc = document.getElementById('description-full');
+            const readMoreBtn = document.getElementById('read-more-btn');
+            
+            if (isDescriptionExpanded) {
+                shortDesc.style.display = 'block';
+                fullDesc.style.display = 'none';
+                readMoreBtn.textContent = 'Read more';
+                isDescriptionExpanded = false;
+            } else {
+                shortDesc.style.display = 'none';
+                fullDesc.style.display = 'block';
+                readMoreBtn.textContent = 'Read less';
+                isDescriptionExpanded = true;
+            }
+        }
+
+        // Toggle additional technical information
+        function toggleAdditionalTech() {
+            const panel = document.getElementById('additional-tech-panel');
+            const btn = document.getElementById('additional-tech-btn');
+            const text = document.getElementById('additional-tech-text');
+            const icon = document.getElementById('additional-tech-icon');
+            
+            if (isAdditionalTechExpanded) {
+                panel.classList.remove('show');
+                btn.classList.remove('expanded');
+                text.textContent = 'Additional Technical Information';
+                icon.textContent = '▼';
+                isAdditionalTechExpanded = false;
+            } else {
+                panel.classList.add('show');
+                btn.classList.add('expanded');
+                text.textContent = 'Hide Technical Information';
+                icon.textContent = '▲';
+                isAdditionalTechExpanded = true;
+            }
+        }
+
+        // Toggle additional information
+        function toggleAdditionalInfo() {
+            const panel = document.getElementById('additional-info-panel');
+            const btn = document.getElementById('additional-info-btn');
+            const text = document.getElementById('additional-info-text');
+            const icon = document.getElementById('additional-info-icon');
+            
+            if (isAdditionalInfoExpanded) {
+                panel.classList.remove('show');
+                btn.classList.remove('expanded');
+                text.textContent = 'Additional Information';
+                icon.textContent = '▼';
+                isAdditionalInfoExpanded = false;
+            } else {
+                panel.classList.add('show');
+                btn.classList.add('expanded');
+                text.textContent = 'Hide Additional Information';
+                icon.textContent = '▲';
+                isAdditionalInfoExpanded = true;
+            }
+        }
+
+        // Quantity controls
+        function increaseQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            quantityInput.value = parseInt(quantityInput.value) + 1;
+        }
+
+        function decreaseQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            if (parseInt(quantityInput.value) > 1) {
+                quantityInput.value = parseInt(quantityInput.value) - 1;
+            }
+        }
+
+        // Add to cart
+        function addToCart() {
+            const quantity = document.getElementById('quantity').value;
+            console.log(`Adding ${quantity} x ${currentProduct.name} to cart`);
+            // Implement cart functionality
+            alert(`Added ${quantity} x ${currentProduct.name} to cart!`);
+        }
+
+        // Social sharing
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+        }
+
+        function shareOnWhatsApp() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent(`Check out this product: ${currentProduct.name}`);
+            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
+        }
+
+        function shareGeneric() {
+            if (navigator.share) {
+                navigator.share({
+                    title: currentProduct.name,
+                    text: currentProduct.descriptionShort,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback to copying URL
+                navigator.clipboard.writeText(window.location.href);
+                alert('URL copied to clipboard!');
+            }
+        }
+
+        // Toggle additional technical information
+        function toggleAdditionalTech() {
+            const panel = document.getElementById('additional-tech-panel');
+            const btn = document.getElementById('additional-tech-btn');
+            const text = document.getElementById('additional-tech-text');
+            const icon = document.getElementById('additional-tech-icon');
+            
+            if (isAdditionalTechExpanded) {
+                panel.classList.remove('show');
+                btn.classList.remove('expanded');
+                text.textContent = 'Additional Technical Information';
+                icon.textContent = '▼';
+                isAdditionalTechExpanded = false;
+            } else {
+                panel.classList.add('show');
+                btn.classList.add('expanded');
+                text.textContent = 'Hide Technical Information';
+                icon.textContent = '▲';
+                isAdditionalTechExpanded = true;
+            }
+        }
+
+        // Toggle additional information
+        function toggleAdditionalInfo() {
+            const panel = document.getElementById('additional-info-panel');
+            const btn = document.getElementById('additional-info-btn');
+            const text = document.getElementById('additional-info-text');
+            const icon = document.getElementById('additional-info-icon');
+            
+            if (isAdditionalInfoExpanded) {
+                panel.classList.remove('show');
+                btn.classList.remove('expanded');
+                text.textContent = 'Additional Information';
+                icon.textContent = '▼';
+                isAdditionalInfoExpanded = false;
+            } else {
+                panel.classList.add('show');
+                btn.classList.add('expanded');
+                text.textContent = 'Hide Additional Information';
+                icon.textContent = '▲';
+                isAdditionalInfoExpanded = true;
+            }
+        }
+
+        // Quantity controls
+        function increaseQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            quantityInput.value = parseInt(quantityInput.value) + 1;
+        }
+
+        function decreaseQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            if (parseInt(quantityInput.value) > 1) {
+                quantityInput.value = parseInt(quantityInput.value) - 1;
+            }
+        }
+
+        // Add to cart
+        function addToCart() {
+            const quantity = document.getElementById('quantity').value;
+            console.log(`Adding ${quantity} x ${currentProduct.name} to cart`);
+            // Implement cart functionality
+            alert(`Added ${quantity} x ${currentProduct.name} to cart!`);
+        }
+
+        // Social sharing
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+        }
+
+        function shareOnWhatsApp() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent(`Check out this product: ${currentProduct.name}`);
+            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
+        }
+
+        function shareGeneric() {
+            if (navigator.share) {
+                navigator.share({
+                    title: currentProduct.name,
+                    text: currentProduct.descriptionShort,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback to copying URL
+                navigator.clipboard.writeText(window.location.href);
+                alert('URL copied to clipboard!');
+            }
+        }
+
+        function togglePlayPause() {
+            const video = document.getElementById('main-media-video');
+            const playIcon = document.getElementById('play-icon');
+            
+            if (video.paused) {
+                video.play();
+                playIcon.textContent = '⏸';
+            } else {
+                video.pause();
+                playIcon.textContent = '▶';
+            }
+        }
+
+        // Error handling
+        function showError(message) {
+            document.getElementById('product-title').textContent = 'Error';
+            document.getElementById('product-sku').textContent = message;
+            console.error(message);
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Dynamic Product Page v2 initialized');
+            
+            // Get product ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('product') || urlParams.get('id');
+            
+            if (productId) {
+                console.log('🔄 Loading product:', productId);
+                loadProduct(productId);
+            } else {
+                showError('No product ID provided in URL');
+            }
+        });
+
+        // Show video (enhanced with actual video data)
+        function showVideo() {
+            if (!currentProduct) {
+                console.log('No product loaded');
+                return;
+            }
+            
+            console.log(`Showing video for product: ${currentProduct.name}`);
+            
+            // Check if product has videos
+            if (currentProduct.videos && currentProduct.videos.length > 0) {
+                // Create a modal to display the video
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.8);
+                    z-index: 10000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                `;
+                
+                const videoContainer = document.createElement('div');
+                videoContainer.style.cssText = `
+                    position: relative;
+                    max-width: 90%;
+                    max-height: 90%;
+                    background: white;
+                    border-radius: 8px;
+                    overflow: hidden;
+                `;
+                
+                const video = document.createElement('video');
+                video.src = currentProduct.videos[0]; // Use first video
+                video.controls = true;
+                video.autoplay = true;
+                video.style.cssText = `
+                    width: 100%;
+                    height: auto;
+                    max-width: 800px;
+                    max-height: 600px;
+                `;
+                
+                const closeBtn = document.createElement('button');
+                closeBtn.innerHTML = '✕';
+                closeBtn.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    background: rgba(0,0,0,0.7);
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 40px;
+                    height: 40px;
+                    font-size: 20px;
+                    cursor: pointer;
+                    z-index: 10001;
+                `;
+                
+                closeBtn.onclick = () => {
+                    document.body.removeChild(modal);
+                };
+                
+                modal.onclick = (e) => {
+                    if (e.target === modal) {
+                        document.body.removeChild(modal);
+                    }
+                };
+                
+                videoContainer.appendChild(video);
+                videoContainer.appendChild(closeBtn);
+                modal.appendChild(videoContainer);
+                document.body.appendChild(modal);
+                
+                console.log(`✅ Playing video: ${currentProduct.videos[0]}`);
+            } else {
+                alert('No video available for this product yet.');
+            }
+        }
+
+        // Back button functionality - safe navigation back to previous page
+        function goBack() {
+            // Check if there's history to go back to
+            if (window.history.length > 1) {
+                console.log('🔙 Going back in browser history');
+                window.history.back();
+            } else {
+                // Fallback: redirect to energy audit widget if no history
+                console.log('⚠️ No history available, redirecting to audit widget');
+                const auditWidgetUrl = 'energy-audit-widget-v3-embedded-test.html';
+                window.location.href = auditWidgetUrl;
+            }
+        }
+    </script>
+</body>
+</html>
