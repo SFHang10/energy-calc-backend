@@ -28,7 +28,7 @@
             text-align: center;
             margin-bottom: 40px;
             padding: 30px;
-            background: linear-gradient(135deg, #1976D2, #42A5F5);
+            background: linear-gradient(135deg, #1976D2, #42A5F5); /* Fallback gradient */
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -39,6 +39,7 @@
             overflow: hidden;
             transition: background-image 0.8s ease-in-out;
         }
+
 
         /* Dark overlay for text readability */
         .header::before {
@@ -387,6 +388,7 @@
             'Heating Equipment': 'https://static.wixstatic.com/media/c123de_5ec669fffe0e4b56bfe93efb177b22cf~mv2.jpeg',
             'Ovens': 'https://static.wixstatic.com/media/c123de_281b24bf85fc4b2d8cf13e3a6cefcf92~mv2.jpeg',
             'HVAC Equipment': 'https://static.wixstatic.com/media/c123de_fac577d2258d460883750968948c54f5~mv2.jpeg',
+            'Motor Drives': 'https://static.wixstatic.com/media/c123de_d66f1b33c9ec4ed4afcb7c281b8f02d9~mv2.jpg', // Using 'all' image for Motor Drives
             'all': 'https://static.wixstatic.com/media/c123de_d66f1b33c9ec4ed4afcb7c281b8f02d9~mv2.jpg'
         };
 
@@ -683,7 +685,10 @@
             // Set default background image (will be updated when category loads)
             const header = document.querySelector('.header');
             if (header) {
-                header.style.backgroundImage = `url('${categoryBackgroundImages['all']}')`;
+                header.style.background = `url('${categoryBackgroundImages['all']}')`;
+                header.style.backgroundSize = 'cover';
+                header.style.backgroundPosition = 'center';
+                header.style.backgroundRepeat = 'no-repeat';
             }
             loadProductsFromURL();
             setupEventListeners();
@@ -708,7 +713,10 @@
                 // Set default background for invalid categories
                 const header = document.querySelector('.header');
                 if (header) {
-                    header.style.backgroundImage = `url('${categoryBackgroundImages['all']}')`;
+                    header.style.background = `url('${categoryBackgroundImages['all']}')`;
+                    header.style.backgroundSize = 'cover';
+                    header.style.backgroundPosition = 'center';
+                    header.style.backgroundRepeat = 'no-repeat';
                 }
                 loadProducts('all');
             }
@@ -729,8 +737,11 @@
                 const header = document.querySelector('.header');
                 const backgroundImage = categoryBackgroundImages[category] || categoryBackgroundImages['all'];
                 if (header && backgroundImage) {
-                    // Overlay is handled by CSS ::before pseudo-element, so just set the image
-                    header.style.backgroundImage = `url('${backgroundImage}')`;
+                    // Set both background and background-image to override the gradient
+                    header.style.background = `url('${backgroundImage}')`;
+                    header.style.backgroundSize = 'cover';
+                    header.style.backgroundPosition = 'center';
+                    header.style.backgroundRepeat = 'no-repeat';
                     console.log(`🎨 Set background image for category "${category}": ${backgroundImage}`);
                 }
 
