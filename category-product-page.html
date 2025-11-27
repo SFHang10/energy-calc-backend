@@ -29,9 +29,35 @@
             margin-bottom: 40px;
             padding: 30px;
             background: linear-gradient(135deg, #1976D2, #42A5F5);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             color: white;
             border-radius: 15px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            transition: background-image 0.8s ease-in-out;
+        }
+
+        /* Dark overlay for text readability */
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5));
+            z-index: 1;
+            border-radius: 15px;
+        }
+
+        /* Ensure text is above overlay */
+        .header h1,
+        .header p {
+            position: relative;
+            z-index: 2;
         }
 
         .header h1 {
@@ -353,6 +379,17 @@
             return productPower;
         }
 
+        // Category background images mapping
+        const categoryBackgroundImages = {
+            'Hand Dryers': 'https://static.wixstatic.com/media/c123de_96d81aaa0c1748f0a8bbcb20fbb1629d~mv2.jpeg',
+            'Fridges and Freezers': 'https://static.wixstatic.com/media/c123de_ab678c6399a840079485b12b6cdb22e6~mv2.jpg',
+            'Lighting': 'https://static.wixstatic.com/media/c123de_cfc31f64eeb14c138c6983f30ce4c8c6~mv2.jpeg',
+            'Heating Equipment': 'https://static.wixstatic.com/media/c123de_5ec669fffe0e4b56bfe93efb177b22cf~mv2.jpeg',
+            'Ovens': 'https://static.wixstatic.com/media/c123de_281b24bf85fc4b2d8cf13e3a6cefcf92~mv2.jpeg',
+            'HVAC Equipment': 'https://static.wixstatic.com/media/c123de_fac577d2258d460883750968948c54f5~mv2.jpeg',
+            'all': 'https://static.wixstatic.com/media/c123de_d66f1b33c9ec4ed4afcb7c281b8f02d9~mv2.jpg'
+        };
+
         // Category mapping - maps display names from categories page to filter functions
         const categoryInfo = {
             // Display names from categories page
@@ -643,6 +680,11 @@
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Category Product Page initialized');
+            // Set default background image (will be updated when category loads)
+            const header = document.querySelector('.header');
+            if (header) {
+                header.style.backgroundImage = `url('${categoryBackgroundImages['all']}')`;
+            }
             loadProductsFromURL();
             setupEventListeners();
         });
@@ -663,6 +705,11 @@
             } else {
                 console.warn(`⚠️ Invalid category: "${category}". Falling back to "all".`);
                 console.log('Available categories:', Object.keys(categoryInfo));
+                // Set default background for invalid categories
+                const header = document.querySelector('.header');
+                if (header) {
+                    header.style.backgroundImage = `url('${categoryBackgroundImages['all']}')`;
+                }
                 loadProducts('all');
             }
         }
@@ -677,6 +724,15 @@
                 document.getElementById('category-title').textContent = info.title;
                 document.getElementById('category-description').textContent = info.description;
                 document.title = `${info.title} - Energy Calculator`;
+
+                // Update header background image based on category
+                const header = document.querySelector('.header');
+                const backgroundImage = categoryBackgroundImages[category] || categoryBackgroundImages['all'];
+                if (header && backgroundImage) {
+                    // Overlay is handled by CSS ::before pseudo-element, so just set the image
+                    header.style.backgroundImage = `url('${backgroundImage}')`;
+                    console.log(`🎨 Set background image for category "${category}": ${backgroundImage}`);
+                }
 
                 // Show loading state
                 document.getElementById('products-container').innerHTML = '<div class="loading">Loading products...</div>';
@@ -1033,9 +1089,19 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // View product details
+        // View product details - opens on same page (not new tab)
         function viewProduct(productId) {
-            window.open(`/product-page-v2-marketplace-test.html?product=${productId}`, '_blank');
+            // Use production product page (product-page-v2.html) instead of test version
+            // Open on same page instead of new tab
+            const productUrl = `product-page-v2.html?product=${encodeURIComponent(productId)}`;
+            
+            // Check if we're on localhost or production
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const baseUrl = isLocalhost ? 'http://localhost:4000' : window.location.origin;
+            const fullUrl = `${baseUrl}/${productUrl}`;
+            
+            console.log('🛒 Opening product page:', fullUrl);
+            window.location.href = fullUrl;
         }
 
         // Add to cart
