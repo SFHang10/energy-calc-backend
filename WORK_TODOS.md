@@ -264,6 +264,45 @@
 
 ---
 
+## 🔄 Category Page Navigation Issue (2025-01-10)
+
+### Problem
+**Status:** ✅ **COMPLETED**  
+**Location:** `product-categories.html` (line 715) and `category-product-page.html`
+
+**Original Issue:**
+- Clicking a category from the main categories page opened `category-product-page.html` in a **new tab/window** (`window.open(..., '_blank')`)
+- Users didn't realize it's a new page/tab
+- Users thought they needed to close the entire browser tab to get back
+- No clear navigation back to categories page
+- **Inconsistent** with product page navigation (which uses same-page navigation)
+
+### Solution Implemented
+**Changed to same-page navigation** (consistent with product pages):
+
+**Tasks Completed:**
+- [x] Changed `window.open(..., '_blank')` to `window.location.href` in `product-categories.html` (line 715) ✅
+- [x] Added "Back" button to `category-product-page.html` (similar to product page) ✅
+- [x] Added `goBack()` function with fallback to categories page ✅
+- [ ] Test navigation flow: Categories → Category Page → Product Page → Back → Back → Categories (TODO: Test on production)
+- [ ] Verify browser back button works correctly (TODO: Test on production)
+- [ ] Test on mobile devices (TODO: Test on production)
+
+**Alternative Solution (if keeping new tabs):**
+- [ ] Add prominent "Back to Categories" button on category page
+- [ ] Add breadcrumb navigation with "Categories" link
+- [ ] Consider modal/overlay instead of new page
+
+**Files to Modify:**
+- `product-categories.html` - Change `openCategoryPage()` function (line 715)
+- `category-product-page.html` - Add back button and navigation
+
+**Related Issues:**
+- Similar issue was fixed for product pages (changed from new tab to same-page)
+- See `NAVIGATION_CHANGES_SUMMARY.md` for reference implementation
+
+---
+
 ## 📝 Notes
 
 - Some todos may have been completed already
