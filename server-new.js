@@ -7,6 +7,81 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Explicitly serve product-categories.html BEFORE any static middleware
+app.get('/product-categories.html', (req, res) => {
+  console.log('📂 Route handler called for product-categories.html');
+  console.log('📂 __dirname:', __dirname);
+  const filePath = path.join(__dirname, 'product-categories.html');
+  console.log('📂 File path:', filePath);
+  const fs = require('fs');
+  if (fs.existsSync(filePath)) {
+    console.log('✅ File exists, sending file');
+    res.sendFile('product-categories.html', { root: __dirname });
+  } else {
+    console.log('❌ File does not exist at:', filePath);
+    res.status(404).json({
+      error: 'File not found',
+      message: 'product-categories.html not found in deployment',
+      path: filePath,
+      dirname: __dirname
+    });
+  }
+});
+
+// Explicitly serve product-page-v2.html BEFORE any static middleware
+// Match both with and without query parameters
+app.get('/product-page-v2.html', (req, res, next) => {
+  console.log('📂 Route handler hit for product-page-v2.html');
+  console.log('📂 Request URL:', req.url);
+  console.log('📂 Original URL:', req.originalUrl);
+  console.log('📂 Query params:', req.query);
+  
+  const filePath = path.join(__dirname, 'product-page-v2.html');
+  const fs = require('fs');
+  console.log('📂 Looking for file at:', filePath);
+  console.log('📂 __dirname is:', __dirname);
+  
+  if (fs.existsSync(filePath)) {
+    console.log('✅ File exists, sending...');
+    // Use sendFile with root option for better path resolution
+    res.sendFile('product-page-v2.html', { root: __dirname });
+  } else {
+    console.log('❌ File does not exist at:', filePath);
+    res.status(404).json({
+      error: 'File not found',
+      message: 'product-page-v2.html not found in deployment',
+      path: filePath,
+      dirname: __dirname
+    });
+  }
+});
+
+// Serve static files from root directory (for HTML files, images, etc.)
+// BUT skip product-page-v2.html and product-categories.html since we have explicit routes for them
+app.use(express.static('.', {
+  index: false,
+  setHeaders: (res, filePath) => {
+    // Skip product-page-v2.html and product-categories.html - let explicit routes handle them
+    if (filePath.includes('product-page-v2.html') || filePath.includes('product-categories.html')) {
+      return; // Don't serve via static middleware
+    }
+  }
+}));
+
+// Specifically serve product-placement folder with proper headers
+app.use('/product-placement', express.static(path.join(__dirname, 'product-placement'), {
+    setHeaders: (res, filePath) => {
+        // Set cache headers for images (1 year)
+        if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg') || 
+            filePath.endsWith('.png') || filePath.endsWith('.webp') || 
+            filePath.endsWith('.avif') || filePath.endsWith('.gif')) {
+            res.setHeader('Cache-Control', 'public, max-age=31536000');
+        }
+        // Set CORS headers (though same origin, good practice)
+        res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+}));
+
 // Import route modules
 console.log('Loading products router...');
 const productsRouter = require('./routes/products');
@@ -384,26 +459,7 @@ app.get('/test-members', (req, res) => {
   });
 });
 
-// Explicitly serve product-categories.html BEFORE static middleware
-app.get('/product-categories.html', (req, res) => {
-  console.log('📂 Route handler called for product-categories.html');
-  console.log('📂 __dirname:', __dirname);
-  const filePath = require('path').join(__dirname, 'product-categories.html');
-  console.log('📂 File path:', filePath);
-  const fs = require('fs');
-  if (fs.existsSync(filePath)) {
-    console.log('✅ File exists, sending file');
-    res.sendFile(filePath);
-  } else {
-    console.log('❌ File does not exist at:', filePath);
-    res.status(404).json({
-      error: 'File not found',
-      message: 'product-categories.html not found in deployment',
-      path: filePath,
-      dirname: __dirname
-    });
-  }
-});
+// Route handler moved to top (before static middleware) - see line ~11
 
 // Explicitly serve category-product-page.html BEFORE static middleware
 app.get('/category-product-page.html', (req, res) => {
