@@ -259,6 +259,31 @@
             background: #f8f9fa;
         }
 
+        /* Back Button */
+        .back-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .back-button:hover {
+            background: #0056b3;
+        }
+
+        .back-button:active {
+            transform: scale(0.98);
+        }
+
         @media (max-width: 768px) {
             .filter-group {
                 flex-direction: column;
@@ -273,6 +298,9 @@
 </head>
 <body>
     <div class="container">
+        <!-- Back Button -->
+        <button onclick="goBack()" class="back-button" title="Go back to previous page">← Back</button>
+        
         <div class="header">
             <h1 id="category-title">Loading Products...</h1>
             <p id="category-description">Browse our energy-efficient products</p>
@@ -1139,6 +1167,19 @@
                     </button>
                 </div>
             `;
+        }
+
+        // Back button function - navigate back to categories page
+        function goBack() {
+            // Check if there's history to go back to
+            if (window.history.length > 1) {
+                console.log('🔙 Going back in browser history');
+                window.history.back();
+            } else {
+                // Fallback: redirect to categories page if no history
+                console.log('⚠️ No history available, redirecting to categories page');
+                window.location.href = '/product-categories.html';
+            }
         }
     </script>
 </body>
