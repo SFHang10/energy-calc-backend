@@ -873,6 +873,34 @@
                             💶 See Financial Incentives
                         </button>
                     </div>
+                    <div style="margin-top: 10px;">
+                        <button class="deep-dive-btn" onclick="openDeepDive()" style="
+                            width: 100%;
+                            padding: 14px 20px;
+                            background: linear-gradient(135deg, #1a5f2a 0%, #2E7D32 100%);
+                            color: white;
+                            border: none;
+                            border-radius: 8px;
+                            font-size: 15px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 10px;
+                            transition: all 0.3s ease;
+                            box-shadow: 0 2px 8px rgba(46, 125, 50, 0.3);
+                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(46,125,50,0.4)';"
+                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(46,125,50,0.3)';">
+                            🔍 Product Deep Dive
+                            <span style="
+                                background: rgba(255,255,255,0.2);
+                                padding: 2px 8px;
+                                border-radius: 4px;
+                                font-size: 11px;
+                            ">Members</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="social-sharing">
@@ -3213,6 +3241,23 @@
                 console.error('Error loading product from API:', error);
                 return null;
             }
+        }
+
+        // Open Deep Dive page for current product
+        function openDeepDive() {
+            if (!currentProduct) {
+                alert('No product loaded. Please wait for the product to load.');
+                return;
+            }
+            
+            // Build the Deep Dive URL with product ID (Deep Dive page expects ?id= or ?productId=)
+            const productId = currentProduct.id || currentProduct.modelNumber || currentProduct.name;
+            const deepDiveUrl = `${BACKEND_URL}/wix-integration/member-product-deep-dive.html?id=${encodeURIComponent(productId)}`;
+            
+            console.log('🔍 Opening Deep Dive for:', productId);
+            
+            // Open in new tab so user doesn't lose their place
+            window.open(deepDiveUrl, '_blank');
         }
 
         async function showFinancialIncentives() {
