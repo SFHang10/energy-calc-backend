@@ -286,15 +286,15 @@ router.get('/:productId', async (req, res) => {
       // Parse existing images field - handle both array and JSON string formats
       if (fullDbProduct.images) {
         if (Array.isArray(fullDbProduct.images)) {
-          // Already an array - use directly
-          images = fullDbProduct.images.filter(url => url && typeof url === 'string' && url.startsWith('http'));
+          // Already an array - filter out invalid entries (single chars, nulls)
+          images = fullDbProduct.images.filter(url => url && typeof url === 'string' && url.length > 10);
         } else if (typeof fullDbProduct.images === 'string') {
           try {
             const parsedImages = JSON.parse(fullDbProduct.images);
-            images = Array.isArray(parsedImages) ? parsedImages.filter(url => url && url.startsWith('http')) : [];
+            images = Array.isArray(parsedImages) ? parsedImages.filter(url => url && typeof url === 'string' && url.length > 10) : [];
           } catch (e) {
             // Not JSON, treat as single URL string
-            if (fullDbProduct.images.startsWith('http')) {
+            if (fullDbProduct.images.length > 10) {
               images = [fullDbProduct.images];
             }
           }
@@ -304,15 +304,15 @@ router.get('/:productId', async (req, res) => {
       // Parse existing videos field - handle both array and JSON string formats
       if (fullDbProduct.videos) {
         if (Array.isArray(fullDbProduct.videos)) {
-          // Already an array - use directly
-          videos = fullDbProduct.videos.filter(url => url && typeof url === 'string' && url.startsWith('http'));
+          // Already an array - filter out invalid entries (single chars, nulls)
+          videos = fullDbProduct.videos.filter(url => url && typeof url === 'string' && url.length > 10);
         } else if (typeof fullDbProduct.videos === 'string') {
           try {
             const parsedVideos = JSON.parse(fullDbProduct.videos);
-            videos = Array.isArray(parsedVideos) ? parsedVideos.filter(url => url && url.startsWith('http')) : [];
+            videos = Array.isArray(parsedVideos) ? parsedVideos.filter(url => url && typeof url === 'string' && url.length > 10) : [];
           } catch (e) {
             // Not JSON, treat as single URL string
-            if (fullDbProduct.videos.startsWith('http')) {
+            if (fullDbProduct.videos.length > 10) {
               videos = [fullDbProduct.videos];
             }
           }
@@ -429,13 +429,13 @@ router.get('/:productId', async (req, res) => {
       // Parse existing images field - handle both array and JSON string formats
       if (grantsProduct.images) {
         if (Array.isArray(grantsProduct.images)) {
-          images = grantsProduct.images.filter(url => url && typeof url === 'string' && url.startsWith('http'));
+          images = grantsProduct.images.filter(url => url && typeof url === 'string' && url.length > 10);
         } else if (typeof grantsProduct.images === 'string') {
           try {
             const parsedImages = JSON.parse(grantsProduct.images);
-            images = Array.isArray(parsedImages) ? parsedImages.filter(url => url && url.startsWith('http')) : [];
+            images = Array.isArray(parsedImages) ? parsedImages.filter(url => url && typeof url === 'string' && url.length > 10) : [];
           } catch (e) {
-            if (grantsProduct.images.startsWith('http')) {
+            if (grantsProduct.images.length > 10) {
               images = [grantsProduct.images];
             }
           }
@@ -445,13 +445,13 @@ router.get('/:productId', async (req, res) => {
       // Parse existing videos field - handle both array and JSON string formats
       if (grantsProduct.videos) {
         if (Array.isArray(grantsProduct.videos)) {
-          videos = grantsProduct.videos.filter(url => url && typeof url === 'string' && url.startsWith('http'));
+          videos = grantsProduct.videos.filter(url => url && typeof url === 'string' && url.length > 10);
         } else if (typeof grantsProduct.videos === 'string') {
           try {
             const parsedVideos = JSON.parse(grantsProduct.videos);
-            videos = Array.isArray(parsedVideos) ? parsedVideos.filter(url => url && url.startsWith('http')) : [];
+            videos = Array.isArray(parsedVideos) ? parsedVideos.filter(url => url && typeof url === 'string' && url.length > 10) : [];
           } catch (e) {
-            if (grantsProduct.videos.startsWith('http')) {
+            if (grantsProduct.videos.length > 10) {
               videos = [grantsProduct.videos];
             }
           }
