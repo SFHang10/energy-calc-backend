@@ -283,28 +283,38 @@ router.get('/:productId', async (req, res) => {
       let images = [];
       let videos = [];
       
-      // Parse existing images field if it exists (JSON string)
+      // Parse existing images field - handle both array and JSON string formats
       if (fullDbProduct.images) {
-        try {
-          const parsedImages = JSON.parse(fullDbProduct.images);
-          images = Array.isArray(parsedImages) ? parsedImages : [];
-        } catch (e) {
-          // If not JSON, treat as single string
-          if (typeof fullDbProduct.images === 'string') {
-            images = [fullDbProduct.images];
+        if (Array.isArray(fullDbProduct.images)) {
+          // Already an array - use directly
+          images = fullDbProduct.images.filter(url => url && typeof url === 'string' && url.startsWith('http'));
+        } else if (typeof fullDbProduct.images === 'string') {
+          try {
+            const parsedImages = JSON.parse(fullDbProduct.images);
+            images = Array.isArray(parsedImages) ? parsedImages.filter(url => url && url.startsWith('http')) : [];
+          } catch (e) {
+            // Not JSON, treat as single URL string
+            if (fullDbProduct.images.startsWith('http')) {
+              images = [fullDbProduct.images];
+            }
           }
         }
       }
       
-      // Parse existing videos field if it exists (JSON string)
+      // Parse existing videos field - handle both array and JSON string formats
       if (fullDbProduct.videos) {
-        try {
-          const parsedVideos = JSON.parse(fullDbProduct.videos);
-          videos = Array.isArray(parsedVideos) ? parsedVideos : [];
-        } catch (e) {
-          // If not JSON, treat as single string
-          if (typeof fullDbProduct.videos === 'string') {
-            videos = [fullDbProduct.videos];
+        if (Array.isArray(fullDbProduct.videos)) {
+          // Already an array - use directly
+          videos = fullDbProduct.videos.filter(url => url && typeof url === 'string' && url.startsWith('http'));
+        } else if (typeof fullDbProduct.videos === 'string') {
+          try {
+            const parsedVideos = JSON.parse(fullDbProduct.videos);
+            videos = Array.isArray(parsedVideos) ? parsedVideos.filter(url => url && url.startsWith('http')) : [];
+          } catch (e) {
+            // Not JSON, treat as single URL string
+            if (fullDbProduct.videos.startsWith('http')) {
+              videos = [fullDbProduct.videos];
+            }
           }
         }
       }
@@ -416,26 +426,34 @@ router.get('/:productId', async (req, res) => {
       let images = [];
       let videos = [];
       
-      // Parse existing images field if it exists (JSON string)
+      // Parse existing images field - handle both array and JSON string formats
       if (grantsProduct.images) {
-        try {
-          const parsedImages = JSON.parse(grantsProduct.images);
-          images = Array.isArray(parsedImages) ? parsedImages : [];
-        } catch (e) {
-          if (typeof grantsProduct.images === 'string') {
-            images = [grantsProduct.images];
+        if (Array.isArray(grantsProduct.images)) {
+          images = grantsProduct.images.filter(url => url && typeof url === 'string' && url.startsWith('http'));
+        } else if (typeof grantsProduct.images === 'string') {
+          try {
+            const parsedImages = JSON.parse(grantsProduct.images);
+            images = Array.isArray(parsedImages) ? parsedImages.filter(url => url && url.startsWith('http')) : [];
+          } catch (e) {
+            if (grantsProduct.images.startsWith('http')) {
+              images = [grantsProduct.images];
+            }
           }
         }
       }
       
-      // Parse existing videos field if it exists (JSON string)
+      // Parse existing videos field - handle both array and JSON string formats
       if (grantsProduct.videos) {
-        try {
-          const parsedVideos = JSON.parse(grantsProduct.videos);
-          videos = Array.isArray(parsedVideos) ? parsedVideos : [];
-        } catch (e) {
-          if (typeof grantsProduct.videos === 'string') {
-            videos = [grantsProduct.videos];
+        if (Array.isArray(grantsProduct.videos)) {
+          videos = grantsProduct.videos.filter(url => url && typeof url === 'string' && url.startsWith('http'));
+        } else if (typeof grantsProduct.videos === 'string') {
+          try {
+            const parsedVideos = JSON.parse(grantsProduct.videos);
+            videos = Array.isArray(parsedVideos) ? parsedVideos.filter(url => url && url.startsWith('http')) : [];
+          } catch (e) {
+            if (grantsProduct.videos.startsWith('http')) {
+              videos = [grantsProduct.videos];
+            }
           }
         }
       }
