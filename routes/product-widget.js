@@ -1077,7 +1077,10 @@ router.get('/products/search', (req, res) => {
       subcategory: p.subcategory,
       energyRating: p.energyRating || 'N/A',
       efficiency: p.efficiency || 'Standard',
-      modelNumber: p.modelNumber
+      modelNumber: p.modelNumber,
+      imageUrl: p.imageUrl || null,
+      images: p.images || [],
+      price: p.price || null
     }));
     
     return res.json({
