@@ -2558,12 +2558,18 @@
 
             document.body.appendChild(modal);
             
-            // Load related products dynamically
-            if (currentProduct && currentProduct.category) {
-                loadRelatedProducts(currentProduct.id, currentProduct.category);
-            } else if (currentProduct && currentProduct.subcategory) {
-                loadRelatedProducts(currentProduct.id, currentProduct.subcategory);
-            }
+            // Load related products dynamically (with small delay to ensure DOM is ready)
+            setTimeout(() => {
+                if (currentProduct && currentProduct.category) {
+                    console.log('📦 Loading related products for category:', currentProduct.category);
+                    loadRelatedProducts(currentProduct.id, currentProduct.category);
+                } else if (currentProduct && currentProduct.subcategory) {
+                    console.log('📦 Loading related products for subcategory:', currentProduct.subcategory);
+                    loadRelatedProducts(currentProduct.id, currentProduct.subcategory);
+                } else {
+                    console.log('⚠️ No category found for related products. Product:', currentProduct);
+                }
+            }, 100);
             
             // Close modal when clicking overlay
             modal.onclick = (e) => {
