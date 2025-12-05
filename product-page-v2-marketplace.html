@@ -2722,7 +2722,7 @@
                 console.log('🔍 Loading related products for category:', currentCategory);
                 
                 // Fetch products from the same category
-                const response = await fetch(`${API_BASE}/api/product-widget/products/search?category=${encodeURIComponent(currentCategory)}`);
+                const response = await fetch(`${BACKEND_URL}/api/product-widget/products/search?category=${encodeURIComponent(currentCategory)}`);
                 
                 if (!response.ok) {
                     throw new Error('Failed to fetch related products');
@@ -2799,16 +2799,16 @@
             // Check various image fields
             if (product.imageUrl && product.imageUrl.length > 5) {
                 if (product.imageUrl.startsWith('http')) return product.imageUrl;
-                return `${API_BASE}/${product.imageUrl}`;
+                return `${BACKEND_URL}/${product.imageUrl}`;
             }
             if (product.image_url && product.image_url.length > 5) {
                 if (product.image_url.startsWith('http')) return product.image_url;
-                return `${API_BASE}/${product.image_url}`;
+                return `${BACKEND_URL}/${product.image_url}`;
             }
             if (product.images && product.images.length > 0) {
                 const firstImage = product.images[0];
                 if (firstImage.startsWith('http')) return firstImage;
-                return `${API_BASE}/${firstImage}`;
+                return `${BACKEND_URL}/${firstImage}`;
             }
             // Return placeholder
             return 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="70" height="70"><rect fill="%23f8f9fa" width="70" height="70"/><text x="35" y="40" text-anchor="middle" fill="%236c757d" font-size="24">📦</text></svg>';
