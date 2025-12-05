@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Products - Energy Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #1976D2, #42A5F5);
+            color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .demo-notice {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .demo-notice h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .demo-notice p {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .demo-notice a {
+            display: inline-block;
+            background: #1976D2;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 5px;
+        }
+
+        .demo-notice a:hover {
+            background: #1565C0;
+        }
+
+        .category-info {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .category-info h2 {
+            color: #1976D2;
+            margin-bottom: 15px;
+        }
+
+        .category-info p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .filter-example {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #1976D2;
+        }
+
+        .filter-example h4 {
+            color: #1976D2;
+            margin-bottom: 10px;
+        }
+
+        .filter-example code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .url-examples {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .url-examples h2 {
+            color: #1976D2;
+            margin-bottom: 20px;
+        }
+
+        .url-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .url-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+
+        .url-item h4 {
+            color: #28a745;
+            margin-bottom: 8px;
+        }
+
+        .url-item a {
+            color: #1976D2;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .url-item a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .url-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="category-title">Category Product Pages</h1>
+            <p id="category-description">Dynamic product filtering system</p>
+        </div>
+
+        <div class="demo-notice">
+            <h3>🚧 Demo Mode</h3>
+            <p>This is a demonstration of the category filtering system. The actual product data will load when the server is running properly.</p>
+            <a href="http://localhost:4000/product-categories.html">📱 View Navigation Page</a>
+            <a href="http://localhost:4000/product-page-v2.html?product=etl_11_86407">🔗 Sample Product Page</a>
+        </div>
+
+        <div class="category-info">
+            <h2>🎯 How Category Filtering Works</h2>
+            <p>Each category page uses intelligent filtering to show only relevant products based on:</p>
+            
+            <div class="filter-example">
+                <h4>Example: Heat Pumps Filter</h4>
+                <p>Products are included if their name contains:</p>
+                <code>heat pump</code>, <code>altherma</code>, <code>vitocal</code>, <code>auriga</code>
+                <p>Or their brand is:</p>
+                <code>baxi</code>, <code>daikin</code>, <code>viessmann</code>, <code>bosch</code>
+            </div>
+
+            <div class="filter-example">
+                <h4>Example: Motors Filter</h4>
+                <p>Products are included if their name contains:</p>
+                <code>motor</code>, <code>ie4</code>, <code>asynchronous</code>
+                <p>Or their brand is:</p>
+                <code>nord</code>, <code>abb</code>
+            </div>
+        </div>
+
+        <div class="url-examples">
+            <h2>🔗 Available Category Pages</h2>
+            <div class="url-list">
+                <div class="url-item">
+                    <h4>🔥 Heat Pumps</h4>
+                    <a href="http://localhost:4000/category-product-page.html?category=heat-pumps">
+                        http://localhost:4000/category-product-page.html?category=heat-pumps
+                    </a>
+                </div>
+
+                <div class="url-item">
+                    <h4>🏭 HVAC Equipment</h4>
+                    <a href="http://localhost:4000/category-product-page.html?category=hvac">
+                        http://localhost:4000/category-product-page.html?category=hvac
+                    </a>
+                </div>
+
+                <div class="url-item">
+                    <h4>⚡ Motors</h4>
+                    <a href="http://localhost:4000/category-product-page.html?category=motors">
+                        http://localhost:4000/category-product-page.html?category=motors
+                    </a>
+                </div>
+
+                <div class="url-item">
+                    <h4>☀️ Solar Products</h4>
+                    <a href="http://localhost:4000/category-product-page.html?category=solar">
+                        http://localhost:4000/category-product-page.html?category=solar
+                    </a>
+                </div>
+
+                <div class="url-item">
+                    <h4>⭐ Premium Products</h4>
+                    <a href="http://localhost:4000/category-product-page.html?category=premium">
+                        http://localhost:4000/category-product-page.html?category=premium
+                    </a>
+                </div>
+
+                <div class="url-item">
+                    <h4>🔧 Small Motors</h4>
+                    <a href="http://localhost:4000/category-product-page.html?category=small-motors">
+                        http://localhost:4000/category-product-page.html?category=small-motors
+                    </a>
+                </div>
+
+                <div class="url-item">
+                    <h4>🛍️ All Products</h4>
+                    <a href="http://localhost:4000/category-product-page.html?category=all">
+                        http://localhost:4000/category-product-page.html?category=all
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update page based on URL parameter
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = urlParams.get('category') || 'all';
+            
+            const categoryInfo = {
+                'heat-pumps': {
+                    title: '🔥 Heat Pumps',
+                    description: 'High-efficiency heat pumps for residential and commercial applications'
+                },
+                'hvac': {
+                    title: '🏭 HVAC Equipment',
+                    description: 'Professional HVAC drives, controls, and systems'
+                },
+                'motors': {
+                    title: '⚡ Motors',
+                    description: 'High-efficiency IE4 and IE3 motors for industrial applications'
+                },
+                'solar': {
+                    title: '☀️ Solar Products',
+                    description: 'Solar thermal and photovoltaic systems'
+                },
+                'premium': {
+                    title: '⭐ Premium Products',
+                    description: 'High-end, premium efficiency products with advanced features'
+                },
+                'small-motors': {
+                    title: '🔧 Small Motors',
+                    description: 'Compact motors under 5kW for residential applications'
+                },
+                'all': {
+                    title: '🛍️ All Products',
+                    description: 'Complete range of energy-efficient products'
+                }
+            };
+            
+            if (categoryInfo[category]) {
+                const info = categoryInfo[category];
+                document.getElementById('category-title').textContent = info.title;
+                document.getElementById('category-description').textContent = info.description;
+                document.title = `${info.title} - Energy Calculator`;
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+

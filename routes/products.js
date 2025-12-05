@@ -333,6 +333,41 @@ router.get('/etl', async (req, res) => {
     }
 });
 
+// GET /products/all - Return ALL products including comparative products (for calculator use)
+router.get('/all', async (req, res) => {
+    try {
+        const { limit = 10000, offset = 0 } = req.query;
+        const limitNum = parseInt(limit) || 10000;
+        const offsetNum = parseInt(offset) || 0;
+        
+        console.log(`🔍 getProducts/all called - limit: ${limitNum}, offset: ${offsetNum}`);
+        
+        const allProducts = await getProducts();
+        // DO NOT filter - return ALL products including comparative ones for calculator
+        const totalProducts = allProducts.length;
+        
+        // Apply pagination
+        const paginatedProducts = allProducts.slice(offsetNum, offsetNum + limitNum);
+        
+        res.json({
+            success: true,
+            total_products: totalProducts,
+            limit: limitNum,
+            offset: offsetNum,
+            products: paginatedProducts,
+            source: hardcodedProducts.length > 0 ? 'hardcoded_json' : 'etl_database',
+            last_updated: new Date().toISOString(),
+            note: 'This endpoint returns ALL products including comparative products for calculator use'
+        });
+    } catch (error) {
+        console.error('❌ Error getting all products:', error);
+        res.status(500).json({
+            error: 'Failed to load products',
+            products: []
+        });
+    }
+});
+
 // GET /products/count - Return product count (marketplace only - ETL products)
 router.get('/count', async (req, res) => {
     try {

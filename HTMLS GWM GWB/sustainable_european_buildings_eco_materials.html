@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sustainable European Buildings & Eco Materials</title>
+    <!-- No Scrolling Settings -->
+    <meta name="scrolling" content="no">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #4a7c9a;
+            /* Removed min-height: 100vh - this was causing the large blue space */
+            padding: 20px;
+            overflow-x: hidden;
+            overflow-y: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            /* Added background to container instead of body */
+            background: #4a7c9a;
+            padding: 20px;
+            border-radius: 20px;
+        }
+        
+        .header {
+            text-align: center !important;
+            margin-bottom: 40px !important;
+            color: white !important;
+            position: relative !important;
+            overflow: hidden !important;
+            padding: 40px 20px !important;
+            line-height: 1.4 !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+            display: block !important;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: simple-shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes simple-shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .header h1 {
+            font-size: 3em !important;
+            margin-bottom: 15px !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+            position: relative !important;
+            z-index: 1 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            line-height: 1.2 !important;
+            max-width: 100% !important;
+            padding: 0 10px !important;
+            white-space: normal !important;
+            overflow: hidden !important;
+            display: block !important;
+            width: 100% !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+            font-weight: 700 !important;
+        }
+        
+        .header p {
+            font-size: 1.2em !important;
+            opacity: 0.9 !important;
+            max-width: 600px !important;
+            margin: 0 auto !important;
+            position: relative !important;
+            z-index: 1 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            line-height: 1.5 !important;
+            padding: 0 20px !important;
+            white-space: normal !important;
+            overflow: hidden !important;
+            display: block !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+        }
+        
+        .companies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, 400px);
+            gap: 30px;
+            margin-bottom: 40px;
+            justify-content: center;
+        }
+        
+        .company-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+        }
+        
+        .company-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .company-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(74, 124, 154, 0.05) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .company-card:hover::before {
+            opacity: 1;
+        }
+        
+        .company-image {
+            width: 100%;
+            height: 250px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+        }
+        
+        .company-name-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(59, 130, 246, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1.1em;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: simple-pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes simple-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        .company-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: white;
+            padding: 20px;
+            transform: translateY(100%);
+            transition: transform 0.2s ease;
+        }
+        
+        .company-card:hover .company-overlay {
+            transform: translateY(0);
+        }
+        
+        .company-name {
+            font-size: 1.4em;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .company-location {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+        
+        .company-content {
+            padding: 25px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .company-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        
+        .company-description {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .company-specialties {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .specialty-tag {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+        }
+        
+        .specialty-tag:hover {
+            transform: scale(1.02);
+        }
+        
+        .contact-info {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-size: 0.9em;
+            transition: transform 0.2s ease;
+        }
+        
+        .contact-item:hover {
+            transform: translateX(3px);
+        }
+        
+        .contact-icon {
+            margin-right: 8px;
+            width: 16px;
+            height: 16px;
+            opacity: 0.7;
+        }
+        
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .floating-element {
+            position: absolute;
+            font-size: 1.2rem;
+            opacity: 0.05;
+            animation: simple-float 4s ease-in-out infinite;
+        }
+        
+        .floating-element:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .floating-element:nth-child(2) { top: 20%; right: 15%; animation-delay: 1s; }
+        .floating-element:nth-child(3) { bottom: 30%; left: 20%; animation-delay: 2s; }
+        .floating-element:nth-child(4) { bottom: 15%; right: 10%; animation-delay: 3s; }
+        .floating-element:nth-child(5) { top: 50%; left: 5%; animation-delay: 4s; }
+        
+        @keyframes simple-float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em !important;
+                line-height: 1.3 !important;
+                padding: 0 15px !important;
+            }
+            
+            .header p {
+                font-size: 1.1em !important;
+                line-height: 1.6 !important;
+                padding: 0 25px !important;
+            }
+            
+            .companies-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .company-card {
+                margin: 0 10px;
+            }
+            
+            .header h1 {
+                font-size: 2.2em !important;
+                line-height: 1.4 !important;
+                padding: 0 20px !important;
+            }
+            
+            .header p {
+                font-size: 1em !important;
+                line-height: 1.7 !important;
+                padding: 0 30px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="floating-elements">
+            <div class="floating-element">  ️</div>
+            <div class="floating-element">🌱</div>
+            <div class="floating-element">♻️</div>
+            <div class="floating-element">💚</div>
+            <div class="floating-element">🏢</div>
+        </div>
+
+        <div class="header">
+            <h1>Sustainable European Buildings & Eco Materials</h1>
+            <p>Discover innovative companies leading the way in sustainable construction and eco-friendly building solutions across Europe</p>
+        </div>
+        
+        <div class="companies-grid">
+            <!-- Company 1: Solar Panels -->
+            <div class="company-card">
+                <div class="company-image" style="background-image: url('https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&h=600&fit=crop')">
+                    <div class="company-name-overlay">SolarTech Europe</div>
+                </div>
+                <div class="company-overlay">
+                    <div class="company-name">SolarTech Europe</div>
+                    <div class="company-location">Munich, Germany</div>
+                </div>
+                <div class="company-content">
+                    <div class="company-title">SolarTech Europe</div>
+                    <div class="company-description">Leading provider of high-efficiency solar panel systems for residential and commercial buildings across Europe.</div>
+                    <div class="company-specialties">
+                        <span class="specialty-tag">Solar Panels</span>
+                        <span class="specialty-tag">Energy Storage</span>
+                        <span class="specialty-tag">Smart Grid</span>
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">📧</span>
+                            info@solartech-europe.com
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">🌐</span>
+                            solartech-europe.com
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Company 2: Green Building Materials -->
+            <div class="company-card">
+                <div class="company-image" style="background-image: url('https://static.wixstatic.com/media/c123de_5a32535e60b44c979b25bca7e7860270~mv2.jpg')">
+                    <div class="company-name-overlay">EcoMaterials Ltd</div>
+                </div>
+                <div class="company-overlay">
+                    <div class="company-name">EcoMaterials Ltd</div>
+                    <div class="company-location">Amsterdam, Netherlands</div>
+                </div>
+                <div class="company-content">
+                    <div class="company-title">EcoMaterials Ltd</div>
+                    <div class="company-description">Specialists in sustainable building materials including recycled steel, bamboo, and eco-friendly concrete alternatives.</div>
+                    <div class="company-specialties">
+                        <span class="specialty-tag">Recycled Materials</span>
+                        <span class="specialty-tag">Bamboo</span>
+                        <span class="specialty-tag">Eco Concrete</span>
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">📧</span>
+                            contact@ecomaterials.nl
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">🌐</span>
+                            ecomaterials.nl
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Company 3: Smart Home Systems -->
+            <div class="company-card">
+                <div class="company-image" style="background-image: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop')">
+                    <div class="company-name-overlay">SmartHome Europe</div>
+                </div>
+                <div class="company-overlay">
+                    <div class="company-name">SmartHome Europe</div>
+                    <div class="company-location">Stockholm, Sweden</div>
+                </div>
+                <div class="company-content">
+                    <div class="company-title">SmartHome Europe</div>
+                    <div class="company-description">Advanced home automation systems that optimize energy consumption and create sustainable living environments.</div>
+                    <div class="company-specialties">
+                        <span class="specialty-tag">Home Automation</span>
+                        <span class="specialty-tag">Energy Management</span>
+                        <span class="specialty-tag">IoT Integration</span>
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">📧</span>
+                            hello@smarthome-europe.se
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">🌐</span>
+                            smarthome-europe.se
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Company 4: Wind Energy -->
+            <div class="company-card">
+                <div class="company-image" style="background-image: url('https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=800&h=600&fit=crop')">
+                    <div class="company-name-overlay">WindPower Solutions</div>
+                </div>
+                <div class="company-overlay">
+                    <div class="company-name">WindPower Solutions</div>
+                    <div class="company-location">Copenhagen, Denmark</div>
+                </div>
+                <div class="company-content">
+                    <div class="company-title">WindPower Solutions</div>
+                    <div class="company-description">Innovative wind turbine technology for urban and rural applications, maximizing renewable energy generation.</div>
+                    <div class="company-specialties">
+                        <span class="specialty-tag">Wind Turbines</span>
+                        <span class="specialty-tag">Urban Wind</span>
+                        <span class="specialty-tag">Energy Storage</span>
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">📧</span>
+                            info@windpower-solutions.dk
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">🌐</span>
+                            windpower-solutions.dk
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Company 5: Green Roofing -->
+            <div class="company-card">
+                <div class="company-image" style="background-image: url('https://static.wixstatic.com/media/c123de_c80a2b9d5ca541df8098fb9d64c94693~mv2.jpeg')">
+                    <div class="company-name-overlay">GreenRoof Systems</div>
+                </div>
+                <div class="company-overlay">
+                    <div class="company-name">GreenRoof Systems</div>
+                    <div class="company-location">Zurich, Switzerland</div>
+                </div>
+                <div class="company-content">
+                    <div class="company-title">GreenRoof Systems</div>
+                    <div class="company-description">Living roof solutions that improve building insulation, reduce urban heat islands, and promote biodiversity.</div>
+                    <div class="company-specialties">
+                        <span class="specialty-tag">Living Roofs</span>
+                        <span class="specialty-tag">Urban Greening</span>
+                        <span class="specialty-tag">Biodiversity</span>
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">📧</span>
+                            info@greenroof-systems.ch
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">🌐</span>
+                            greenroof-systems.ch
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Company 6: Insulation -->
+            <div class="company-card">
+                <div class="company-image" style="background-image: url('https://static.wixstatic.com/media/c123de_943f509dba9f43dca119e2f620c1bf78~mv2.webp')">
+                    <div class="company-name-overlay">EcoInsulate</div>
+                </div>
+                <div class="company-overlay">
+                    <div class="company-name">EcoInsulate</div>
+                    <div class="company-location">Oslo, Norway</div>
+                </div>
+                <div class="company-content">
+                    <div class="company-title">EcoInsulate</div>
+                    <div class="company-description">High-performance insulation materials made from recycled and natural fibers for maximum energy efficiency.</div>
+                    <div class="company-specialties">
+                        <span class="specialty-tag">Natural Insulation</span>
+                        <span class="specialty-tag">Recycled Materials</span>
+                        <span class="specialty-tag">Thermal Performance</span>
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">📧</span>
+                            contact@ecoinsulate.no
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">🌐</span>
+                            ecoinsulate.no
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Company 7: WaterWise BV -->
+            <div class="company-card">
+                <div class="company-image" style="background-image: url('https://apollobusiness.freetls.fastly.net/clientdata/155/media/clientimages/kleine-reparaties1.jpg?v=1899126801811900731150600&width=1900&height=731&crop=1919,738,x0,y183&auto=webp&quality=80')">
+                    <div class="company-name-overlay">WaterWise BV</div>
+                </div>
+                <div class="company-overlay">
+                    <div class="company-name">WaterWise BV</div>
+                    <div class="company-location">Beverwijk, Netherlands</div>
+                </div>
+                <div class="company-content">
+                    <div class="company-title">WaterWise BV</div>
+                    <div class="company-description">Professional cleaning and maintenance services for construction sites, specializing in sustainable building practices and environmental care.</div>
+                    <div class="company-specialties">
+                        <span class="specialty-tag">Construction Cleaning</span>
+                        <span class="specialty-tag">Site Maintenance</span>
+                        <span class="specialty-tag">Environmental Care</span>
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">📧</span>
+                            admin@waterwisebv.nl
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">🌐</span>
+                            waterwisebv.com
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Company 8: Sustainable Lighting -->
+            <div class="company-card">
+                <div class="company-image" style="background-image: url('https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=800&h=600&fit=crop')">
+                    <div class="company-name-overlay">EcoLight Solutions</div>
+                </div>
+                <div class="company-overlay">
+                    <div class="company-name">EcoLight Solutions</div>
+                    <div class="company-location">Helsinki, Finland</div>
+                </div>
+                <div class="company-content">
+                    <div class="company-title">EcoLight Solutions</div>
+                    <div class="company-description">Energy-efficient LED lighting systems with smart controls for commercial and residential buildings.</div>
+                    <div class="company-specialties">
+                        <span class="specialty-tag">LED Lighting</span>
+                        <span class="specialty-tag">Smart Controls</span>
+                        <span class="specialty-tag">Energy Efficiency</span>
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">📧</span>
+                            hello@ecolight-solutions.fi
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">🌐</span>
+                            ecolight-solutions.fi
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Company 9: Energy Storage -->
+            <div class="company-card">
+                <div class="company-image" style="background-image: url('https://static.wixstatic.com/media/c123de_08521bd77d7642b5b11260978cb3ac36~mv2.webp')">
+                    <div class="company-name-overlay">PowerStore Solutions</div>
+                </div>
+                <div class="company-overlay">
+                    <div class="company-name">PowerStore Solutions</div>
+                    <div class="company-location">Vienna, Austria</div>
+                </div>
+                <div class="company-content">
+                    <div class="company-title">PowerStore Solutions</div>
+                    <div class="company-description">Advanced battery storage systems for renewable energy integration and grid stability.</div>
+                    <div class="company-specialties">
+                        <span class="specialty-tag">Battery Storage</span>
+                        <span class="specialty-tag">Grid Integration</span>
+                        <span class="specialty-tag">Energy Management</span>
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">📧</span>
+                            contact@powerstore-solutions.at
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">🌐</span>
+                            powerstore-solutions.at
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

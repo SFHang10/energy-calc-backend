@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Calculator - Compare Products & Calculate Savings</title>
+    <style>
+        /* Energy Calculator Theme */
+        :root {
+            --primary-blue: #1976D2;
+            --secondary-blue: #42A5F5;
+            --accent-blue: #90CAF9;
+            --light-blue: #E3F2FD;
+            --dark-blue: #0D47A1;
+            --success-green: #4CAF50;
+            --warning-orange: #FF9800;
+            --white: #FFFFFF;
+            --gray: #757575;
+            --light-gray: #F5F5F5;
+            --border: #E0E0E0;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: var(--light-blue);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: var(--white);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .calculator-section {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .section-title {
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            text-align: center;
+            border-bottom: 2px solid var(--light-blue);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(25, 118, 210, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .result-card {
+            background: var(--light-blue);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .result-card h4 {
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: var(--gray);
+        }
+
+        .result-value {
+            color: var(--dark-blue);
+            font-weight: 600;
+        }
+
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .data-source {
+            font-size: 0.8em;
+            color: var(--gray);
+            font-style: italic;
+        }
+
+        .savings-highlight {
+            background: var(--success-green);
+            color: var(--white);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        .product-selector {
+            background: var(--light-gray);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        .product-power {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--gray);
+        }
+
+        .spinner {
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--primary-blue);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .api-status {
+            background: var(--light-gray);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--warning-orange);
+        }
+
+        .api-status h4 {
+            color: var(--warning-orange);
+            margin-bottom: 10px;
+        }
+
+        .api-status p {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        /* Category selection styling */
+        .category-section {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .category-option {
+            background: var(--light-blue);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .category-option:hover {
+            border-color: var(--primary-blue);
+            background: var(--accent-blue);
+            transform: translateY(-2px);
+        }
+
+        .category-option.selected {
+            border-color: var(--success-green);
+            background: var(--success-green);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .category-option img {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 8px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .category-option h4 {
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .category-option p {
+            font-size: 0.8rem;
+            margin: 5px 0 0 0;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .category-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 10px;
+            }
+            
+            .category-option {
+                padding: 12px;
+            }
+            
+            .category-option h4 {
+                font-size: 0.8rem;
+            }
+            
+            .category-option p {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ Energy Calculator</h1>
+            <p>Compare energy-efficient products with standard alternatives and calculate your potential savings</p>
+        </div>
+
+        <!-- API Status Display -->
+        <div class="api-status">
+            <h4>📡 API Connection Status</h4>
+            <p><strong>ETL API:</strong> <span id="etl-status">Checking...</span></p>
+            <p><strong>Energy Star API:</strong> <span id="energystar-status">Checking...</span></p>
+            <p><em>Note: Using enhanced sample data for demonstration. Real API integration requires server-side implementation.</em></p>
+        </div>
+
+        <!-- Message Display -->
+        <div id="message-display"></div>
+
+        <!-- Category Selection -->
+        <div class="category-section">
+            <h2 class="section-title">Select Appliance Category</h2>
+            <p>Choose a category to filter products and make selection easier</p>
+            <div id="category-stats" style="margin-bottom: 20px; padding: 15px; background: var(--light-blue); border-radius: 8px; font-size: 0.9rem; color: var(--gray);">
+                <strong>Product Count:</strong> <span id="total-products">0</span> total products available
+            </div>
+            <div class="category-grid">
+                <div class="category-option" onclick="selectCategory('all')">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIwIDVMMCAyMFYzNUg0MFYyMEwyMCA1WiIgZmlsbD0iIzE5NzZEMiIvPgo8cmVjdCB4PSI1IiB5PSIyMCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjE1IiBmaWxsPSIjRkZGRkZGIi8+CjxjaXJjbGUgY3g9IjE1IiBjeT0iMjgiIHI9IjIiIGZpbGw9IiM4ODg4ODgiLz4KPGNpcmNsZSBjeD0iMjUiIGN5PSIyOCIgcj0iMiIgZmlsbD0iIzg4ODg4OCIvPgo8L3N2Zz4K" alt="All Categories">
+                    <h4>All Categories</h4>
+                    <p>Show all products</p>
+                </div>
+                <div class="category-option" onclick="selectCategory('appliances')">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjI1IiB4PSI1IiB5PSI1IiBmaWxsPSIjRkZGRkZGIiBzdHJva2U9IiMzMzMiIHN0cm9rZS13aWR0aD0iMiIvPgo8cmVjdCB3aWR0aD0iMjAiIGhlaWdodD0iMTUiIHg9IjEwIiB5PSIxMCIgZmlsbD0iI0NDQyIvPgo8Y2lyY2xlIGN4PSIyMCIgY3k9IjE3LjUiIHI9IjEiIGZpbGw9IiMzMzMiLz4KPC9zdmc+Cg==" alt="Appliances">
+                    <h4>Appliances</h4>
+                    <p>Fridges, washing machines, etc.</p>
+                </div>
+                <div class="category-option" onclick="selectCategory('electronics')">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiB4PSI1IiB5PSIxMCIgZmlsbD0iIzAwMCIvPgo8cmVjdCB3aWR0aD0iMjAiIGhlaWdodD0iMTUiIHg9IjEwIiB5PSIxMiIgZmlsbD0iIzMzMyIvPgo8Y2lyY2xlIGN4PSIyMCIgY3k9IjE5LjUiIHI9IjEiIGZpbGw9IiNmZmYiLz4KPC9zdmc+Cg==" alt="Electronics">
+                    <h4>Electronics</h4>
+                    <p>TVs, computers, etc.</p>
+                </div>
+                <div class="category-option" onclick="selectCategory('lighting')">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTUiIGZpbGw9IiNGRkY5QzAiLz4KPHBhdGggZD0iTTIwIDVMMzUgMzVIMFYzNUwyMCA1WiIgZmlsbD0iI0ZGRjlDMCIvPgo8L3N2Zz4K" alt="Lighting">
+                    <h4>Lighting</h4>
+                    <p>LED bulbs, fixtures</p>
+                </div>
+                <div class="category-option" onclick="selectCategory('heating')">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTUiIGZpbGw9IiNGRjU3MjIiLz4KPHBhdGggZD0iTTIwIDVMMzUgMzVIMFYzNUwyMCA1WiIgZmlsbD0iI0ZGNTcyMiIvPgo8L3N2Zz4K" alt="Heating">
+                    <h4>Heating</h4>
+                    <p>Boilers, heat pumps</p>
+                </div>
+                <div class="category-option" onclick="selectCategory('renewable')">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTUiIGZpbGw9IiNGRkY5QzAiLz4KPHBhdGggZD0iTTIwIDVMMzUgMzVIMFYzNUwyMCA1WiIgZmlsbD0iI0ZGRjlDMCIvPgo8L3N2Zz4K" alt="Renewable">
+                    <h4>Renewable</h4>
+                    <p>Solar panels, wind</p>
+                </div>
+                <div class="category-option" onclick="selectCategory('smart')">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTUiIGZpbGw9IiM0Q0FGNTAiLz4KPHBhdGggZD0iTTIwIDVMMzUgMzVIMFYzNUwyMCA1WiIgZmlsbD0iIzRDQUY1MCIvPgo8L3N2Zz4K" alt="Smart Home">
+                    <h4>Smart Home</h4>
+                    <p>Thermostats, sensors</p>
+                </div>
+            </div>
+            <div style="margin-top: 20px; text-align: center;">
+                <button onclick="selectCategory('all')" class="btn" style="width: auto; padding: 10px 20px; font-size: 0.9rem;">
+                    🔄 Show All Categories
+                </button>
+            </div>
+        </div>
+
+        <!-- Calculator Interface -->
+        <div class="calculator-grid">
+            <!-- Current Products Section -->
+            <div class="calculator-section">
+                <h2 class="section-title">Current Products</h2>
+                <div class="form-group">
+                    <label for="electricity-rate">Electricity Rate (€ per kWh)</label>
+                    <input type="number" id="electricity-rate" value="0.15" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="hours-per-day">Hours of Use per Day</label>
+                    <input type="number" id="hours-per-day" value="8" min="1" max="24">
+                </div>
+                
+                <div id="current-products">
+                    <div class="product-selector">
+                        <div class="product-info">
+                            <span class="product-name">Select Current Product</span>
+                            <span class="product-power">0W</span>
+                        </div>
+                        <select class="product-select" onchange="updateProductInfo(this, 'current')">
+                            <option value="">Choose a product...</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="addCurrentProduct()">+ Add Another Product</button>
+            </div>
+
+            <!-- New Products Section -->
+            <div class="calculator-section">
+                <h2 class="section-title">Energy-Efficient Alternatives</h2>
+                <div class="form-group">
+                    <label for="efficiency-hours">Hours of Use per Day</label>
+                    <input type="number" id="efficiency-hours" value="8" min="1" max="24">
+                </div>
+                
+                <div id="efficient-products">
+                    <div class="product-selector">
+                        <div class="product-info">
+                            <span class="product-name">Select Efficient Product</span>
+                            <span class="product-power">0W</span>
+                        </div>
+                        <select class="product-select" onchange="updateProductInfo(this, 'efficient')">
+                            <option value="">Choose a product...</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="addEfficientProduct()">+ Add Another Product</button>
+            </div>
+        </div>
+
+        <!-- Calculate Button -->
+        <div style="text-align: center; margin-bottom: 30px;">
+            <button class="btn" onclick="calculateSavings()" style="max-width: 300px;">
+                🧮 Calculate Energy Savings
+            </button>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="results-section" style="display: none;">
+            <h2 class="section-title">Your Energy Savings Analysis</h2>
+            <div id="results-content">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Calculating your savings...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+                // Configuration
+        const BACKEND_URL = 'http://localhost:4000';
+        const ETL_API_KEY = 'de6a4b7c-771e-4f22-9721-11f39763d794'; // Keep this for backend
+        let currentProducts = [];
+        let efficientProducts = [];
+        let allProducts = [];
+        let energyStarProducts = [];
+
+        // Global variables for category filtering
+        let selectedCategory = 'all';
+        let filteredProducts = [];
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Initializing Energy Calculator...');
+            // Initialize category system
+            selectCategory('all');
+            checkAPIs();
+            loadEnhancedSampleData();
+            
+            // Try to load real products after a short delay
+            setTimeout(() => {
+                loadRealProducts();
+            }, 1000);
+        });
+
+        // Category selection function
+        function selectCategory(category) {
+            console.log('Category selected:', category);
+            selectedCategory = category;
+            
+            // Update visual selection
+            document.querySelectorAll('.category-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            const selectedElement = document.querySelector(`[onclick="selectCategory('${category}')"]`);
+            if (selectedElement) {
+                selectedElement.classList.add('selected');
+            }
+            
+            // Filter products based on category
+            filterProductsByCategory();
+            
+            // Repopulate all product selects
+            populateProductSelects();
+            
+            // Show success message
+            showMessage(`Showing products in ${category === 'all' ? 'all categories' : category} category`, 'success');
+        }
+
+        // Filter products by selected category
+        function filterProductsByCategory() {
+            if (selectedCategory === 'all') {
+                filteredProducts = [...allProducts, ...energyStarProducts];
+            } else {
+                // Filter ETL products
+                const filteredETL = allProducts.filter(product => 
+                    product.category && product.category.toLowerCase().includes(selectedCategory.toLowerCase())
+                );
+                
+                // Filter Energy Star products
+                const filteredEnergyStar = energyStarProducts.filter(product => 
+                    product.category && product.category.toLowerCase().includes(selectedCategory.toLowerCase())
+                );
+                
+                filteredProducts = [...filteredETL, ...filteredEnergyStar];
+            }
+            
+            console.log(`Filtered products for category '${selectedCategory}':`, filteredProducts.length);
+            
+            // Update product count display
+            updateProductCount();
+        }
+
+        // Update product count display
+        function updateProductCount() {
+            const totalElement = document.getElementById('total-products');
+            if (totalElement) {
+                const total = allProducts.length + energyStarProducts.length;
+                const filtered = filteredProducts.length;
+                const categoryText = selectedCategory === 'all' ? 'all categories' : selectedCategory;
+                totalElement.textContent = `${filtered} of ${total} products in ${categoryText}`;
+            }
+        }
+
+        // Check API connections (for status display)
+        async function checkAPIs() {
+            // Check Backend API
+            try {
+                const backendResponse = await fetch(`${BACKEND_URL}/api/etl/products?size=1`);
+                if (backendResponse.ok) {
+                    document.getElementById('etl-status').textContent = 'Backend Connected ✅';
+                    document.getElementById('etl-status').style.color = '#4CAF50';
+                } else {
+                    document.getElementById('etl-status').textContent = 'Backend Error ❌';
+                    document.getElementById('etl-status').style.color = '#f44336';
+                }
+            } catch (error) {
+                document.getElementById('etl-status').textContent = 'Backend Unreachable ❌';
+                document.getElementById('etl-status').style.color = '#f44336';
+            }
+
+            // Check Energy Star API
+            try {
+                const esResponse = await fetch('https://data.energystar.gov/resource/8bne-dm2k.json?$limit=1');
+                if (esResponse.ok) {
+                    document.getElementById('energystar-status').textContent = 'Connected ✅';
+                    document.getElementById('energystar-status').style.color = '#4CAF50';
+                } else {
+                    document.getElementById('energystar-status').textContent = 'Not Found ❌';
+                    document.getElementById('energystar-status').style.color = '#f44336';
+                }
+            } catch (error) {
+                document.getElementById('energystar-status').textContent = 'Error ❌';
+                document.getElementById('energystar-status').style.color = '#f44336';
+            }
+        }
+
+                // Load real products from backend
+        async function loadRealProducts() {
+            try {
+                console.log('🔄 Loading real products from ETL API...');
+                const response = await fetch(`${BACKEND_URL}/api/etl/products?limit=100`);
+                
+                if (response.ok) {
+                    const realProducts = await response.json();
+                    console.log('✅ Loaded real products:', realProducts.length);
+                    
+                    // Transform real products to match your format
+                    const transformedProducts = realProducts.map(product => ({
+                        id: `etl_${product.id}`,
+                        name: product.name || 'ETL Product',
+                        power: product.power || 100,
+                        category: getTechnologyName(product.technology_name) || 'Appliances',
+                        brand: product.brand || 'ETL Certified',
+                        runningCostPerYear: 0, // Calculate this
+                        energyRating: 'A+',
+                        efficiency: 'high',
+                        source: 'ETL',
+                        modelNumber: product.model_number || 'ETL-' + product.id
+                    }));
+                    
+                    // Replace sample data with real data
+                    allProducts = transformedProducts;
+                    filterProductsByCategory();
+                    populateProductSelects();
+                    
+                    showMessage(`Loaded ${transformedProducts.length} real products from ETL API!`, 'success');
+                }
+            } catch (error) {
+                console.log('❌ Failed to load real products:', error);
+                showMessage('Using sample data - backend connection failed', 'info');
+            }
+        }
+
+        // Helper function to map technology names to categories
+        function getTechnologyName(techName) {
+            if (!techName) return 'Appliances';
+            
+            const techLower = techName.toLowerCase();
+            if (techLower.includes('refrigerator') || techLower.includes('washing') || techLower.includes('dishwasher')) {
+                return 'Appliances';
+            } else if (techLower.includes('lighting') || techLower.includes('lamp') || techLower.includes('bulb')) {
+                return 'Lighting';
+            } else if (techLower.includes('heating') || techLower.includes('boiler') || techLower.includes('heat pump')) {
+                return 'Heating';
+            } else if (techLower.includes('solar') || techLower.includes('wind') || techLower.includes('renewable')) {
+                return 'Renewable';
+            } else if (techLower.includes('smart') || techLower.includes('thermostat') || techLower.includes('sensor')) {
+                return 'Smart Home';
+            } else if (techLower.includes('tv') || techLower.includes('computer') || techLower.includes('electronics')) {
+                return 'Electronics';
+            }
+            return 'Appliances';
+        }
+
+        // Load enhanced sample data (based on real ETL products)
+        function loadEnhancedSampleData() {
+            console.log('   Loading enhanced ETL-style sample data...');
+            
+            // ETL-Style Energy Efficient Products (Real Specifications)
+            allProducts = [
+                // APPLIANCES - Refrigerators
+                {
+                    id: 'etl_ref_001',
+                    name: 'Samsung RT38K501J8B 381L Fridge Freezer',
+                    power: 95,
+                    category: 'Appliances',
+                    brand: 'Samsung',
+                    runningCostPerYear: 24.70,
+                    energyRating: 'A+++',
+                    efficiency: 'high',
+                    source: 'ETL',
+                    modelNumber: 'RT38K501J8B',
+                    technology: 'Digital Inverter Compressor',
+                    annualSavings: 45.30
+                },
+                {
+                    id: 'etl_ref_002',
+                    name: 'LG GSL760PZXV 601L French Door Fridge',
+                    power: 120,
+                    category: 'Appliances',
+                    brand: 'LG',
+                    runningCostPerYear: 31.20,
+                    energyRating: 'A+++',
+                    efficiency: 'high',
+                    source: 'ETL',
+                    modelNumber: 'GSL760PZXV',
+                    technology: 'Linear Compressor',
+                    annualSavings: 38.80
+                },
+                {
+                    id: 'etl_ref_003',
+                    name: 'Bosch KGN39XWPA 388L Fridge Freezer',
+                    power: 110,
+                    category: 'Appliances',
+                    brand: 'Bosch',
+                    runningCostPerYear: 28.60,
+                    energyRating: 'A+++',
+                    efficiency: 'high',
+                    source: 'ETL',
+                    modelNumber: 'KGN39XWPA',
+                    technology: 'VitaFresh Pro',
+                    annualSavings: 41.40
+                },
+
+                // APPLIANCES - Washing Machines
+                {
+                    id: 'etl_wm_001',
+                    name: 'Miele WDB020 WCS 8kg Washing Machine',
+                    power: 180,
+                    category: 'Appliances',
+                    brand: 'Miele',
+                    runningCostPerYear: 46.80,
+                    energyRating: 'A+++',
+                    efficiency: 'high',
+                    source: 'ETL',
+                    modelNumber: 'WDB020 WCS',
+                    technology: 'EcoPower Motor',
+                    annualSavings: 74.90
+                },
+                {
+                    id: 'etl_wm_002',
+                    name: 'Samsung WW90T554DAX 9kg Washing Machine',
+                    power: 160,
+                    category: 'Appliances',
+                    brand: 'Samsung',
+                    runningCostPerYear: 41.60,
+                    energyRating: 'A+++',
+                    efficiency: 'high',
+                    source: 'ETL',
+                    modelNumber: 'WW90T554DAX',
+                    technology: 'EcoBubble Technology',
+                    annualSavings: 80.10
+                },
+                {
+                    id: 'etl_wm_003',
+                    name: 'LG F4V310WSE 10.5kg Washing Machine',
+                    power: 175,
+                    category: 'Appliances',
+                    brand: 'LG',
+                    runningCostPerYear: 45.50,
+                    energyRating: 'A+++',
+                    efficiency: 'high',
+                    source: 'ETL',
+                    modelNumber: 'F4V310WSE',
+                    technology: 'Direct Drive Motor',
+                    annualSavings: 76.20
+                },
+
+                // APPLIANCES - Dishwashers
+                {
+                    id: 'etl_dw_001',
+                    name: 'Miele G 7160 SCVi 14 Place Dishwasher',
+                    power: 150,
+                    category: 'Appliances',
+                    brand: 'Miele',
+                    runningCostPerYear: 39.00,
+                    energyRating: 'A+++',
+                    efficiency: 'high',
+                    source: 'ETL',
+                    modelNumber: 'G 7160 SCVi',
+                    technology: 'EcoPower Pump',
+                    annualSavings: 82.70
+                },
+                {
+                    id: 'etl_dw_002',
+                    name: 'Bosch SMS6VIC00G 12 Place Dishwasher',
+                    power: 140,
+                    category: 'Appliances',
+                    brand: 'Bosch',
+                    runningCostPerYear: 36.40,
+                    energyRating: 'A+++',
+                    efficiency: 'high',
+                    source: 'ETL',
+                    modelNumber: 'SMS6VIC00G',
+                    technology: 'EcoSilence Drive',
+                    annualSavings: 85.30
+                },
+
+                // LIGHTING - LED Systems
+                {
+                    id: 'etl_led_001',
+                    name: 'Philips Hue White Ambiance Starter Kit',
+                    power: 25,
+                    category: 'Lighting',
+                    brand: 'Philips',
+                    runningCostPerYear: 6.50,
+                    energyRating: 'A+',
+                    efficiency: 'high',
+                    source: 'ETL',
+                    modelNumber: '929001953101',
+                    technology: 'Smart LED Technology',
+                    annualSavings: 23.50
+                },
+                {
+                    id: 'etl_led_002',
+                    name: 'Osram LEDVANCE LED Panel 600x600',
+                    power: 35,
+                    category: 'Lighting',
+                    brand: 'Osram',
+                    runningCostPerYear: 9.10,
+                    energyRating: 'A+',
+                    efficiency: 'high',
+                    source: 'ETL',
+                    modelNumber: 'LEDVANCE-600',
+                    technology: 'High-Efficiency LED',
+                    annualSavings: 21.30
+                },
+
+                // HEATING - Heat Pumps
+                {
+                    id: 'etl_hp_001',
+                    name: 'Mitsubishi Ecodan PUHZ-W50VHA Heat Pump',
+                    power: 2500,
+                    category: 'Heating',
+                    brand: 'Mitsubishi',
+                    runningCostPerYear: 650.00,
+                    energyRating: 'A+++',
+                    efficiency: 'high',
+                    source: 'ETL',
+                    modelNumber: 'PUHZ-W50VHA',
+                    technology: 'Inverter Technology',
+                    annualSavings: 1350.00
+                },
+                {
+                    id: 'etl_hp_002',
+                    name: 'Daikin Altherma 3 H HT Heat Pump',
+                    power: 2200,
+                    category: 'Heating',
+                    brand: 'Daikin',
+                    runningCostPerYear: 572.00,
+                    energyRating: 'A+++',
+                    efficiency: 'high',
+                    source: 'ETL',
+                    modelNumber: 'Altherma-3-H-HT',
+                    technology: 'Bluevolution Technology',
+                    annualSavings: 1428.00
+                },
+
+                // RENEWABLE - Solar Systems
+                {
+                    id: 'etl_solar_001',
+                    name: 'LG NeON R 380W Solar Panel',
+                    power: 0,
+                    category: 'Renewable',
+                    brand: 'LG',
+                    runningCostPerYear: -190.00,
+                    energyRating: 'A+++',
+                    efficiency: 'renewable',
+                    source: 'ETL',
+                    modelNumber: 'LG380N1K-A5',
+                    technology: 'NeON Technology',
+                    annualSavings: 190.00
+                },
+                {
+                    id: 'etl_solar_002',
+                    name: 'Panasonic HIT N330 Solar Panel',
+                    power: 0,
+                    category: 'Renewable',
+                    brand: 'Panasonic',
+                    runningCostPerYear: -165.00,
+                    energyRating: 'A+++',
+                    efficiency: 'renewable',
+                    source: 'ETL',
+                    modelNumber: 'VBHN330SA16',
+                    technology: 'HIT Technology',
+                    annualSavings: 165.00
+                },
+
+                // SMART HOME - Thermostats
+                {
+                    id: 'etl_smart_001',
+                    name: 'Nest Learning Thermostat 3rd Gen',
+                    power: 8,
+                    category: 'Smart Home',
+                    brand: 'Nest',
+                    runningCostPerYear: 2.08,
+                    energyRating: 'A+',
+                    efficiency: 'high',
+                    source: 'ETL',
+                    modelNumber: 'T3017UK',
+                    technology: 'Learning Algorithm',
+                    annualSavings: 87.90
+                },
+                {
+                    id: 'etl_smart_002',
+                    name: 'Hive Active Heating 2 Thermostat',
+                    power: 6,
+                    category: 'Smart Home',
+                    brand: 'Hive',
+                    runningCostPerYear: 1.56,
+                    energyRating: 'A+',
+                    efficiency: 'high',
+                    source: 'ETL',
+                    modelNumber: 'HIVE-ACTIVE-2',
+                    technology: 'Smart Scheduling',
+                    annualSavings: 88.40
+                }
+            ];
+
+            // Standard/Inefficient Products for Comparison
+            const standardProducts = [
+                // Standard Refrigerators
+                {
+                    id: 'std_ref_001',
+                    name: 'Standard 350L Fridge Freezer',
+                    power: 350,
+                    category: 'Appliances',
+                    brand: 'StandardBrand',
+                    runningCostPerYear: 91.00,
+                    energyRating: 'C',
+                    efficiency: 'low',
+                    source: 'Standard',
+                    modelNumber: 'STD-REF-350',
+                    technology: 'Standard Compressor',
+                    annualSavings: 0
+                },
+                {
+                    id: 'std_ref_002',
+                    name: 'Basic 500L French Door Fridge',
+                    power: 450,
+                    category: 'Appliances',
+                    brand: 'BasicBrand',
+                    runningCostPerYear: 117.00,
+                    energyRating: 'D',
+                    efficiency: 'low',
+                    source: 'Standard',
+                    modelNumber: 'BASIC-FRENCH-500',
+                    technology: 'Standard Cooling',
+                    annualSavings: 0
+                },
+
+                // Standard Washing Machines
+                {
+                    id: 'std_wm_001',
+                    name: 'Standard 8kg Washing Machine',
+                    power: 400,
+                    category: 'Appliances',
+                    brand: 'StandardWash',
+                    runningCostPerYear: 104.00,
+                    energyRating: 'D',
+                    efficiency: 'low',
+                    source: 'Standard',
+                    modelNumber: 'STD-WM-8KG',
+                    technology: 'Standard Motor',
+                    annualSavings: 0
+                },
+                {
+                    id: 'std_wm_002',
+                    name: 'Basic 10kg Washing Machine',
+                    power: 500,
+                    category: 'Appliances',
+                    brand: 'BasicWash',
+                    runningCostPerYear: 130.00,
+                    energyRating: 'E',
+                    efficiency: 'low',
+                    source: 'Standard',
+                    modelNumber: 'BASIC-WM-10KG',
+                    technology: 'Basic Technology',
+                    annualSavings: 0
+                },
+
+                // Standard Lighting
+                {
+                    id: 'std_light_001',
+                    name: 'Traditional 60W Incandescent Bulb',
+                    power: 60,
+                    category: 'Lighting',
+                    brand: 'TraditionalLight',
+                    runningCostPerYear: 15.60,
+                    energyRating: 'E',
+                    efficiency: 'low',
+                    source: 'Standard',
+                    modelNumber: 'STD-INC-60W',
+                    technology: 'Incandescent',
+                    annualSavings: 0
+                },
+                {
+                    id: 'std_light_002',
+                    name: 'Standard 100W Halogen Bulb',
+                    power: 100,
+                    category: 'Lighting',
+                    brand: 'StandardHalogen',
+                    runningCostPerYear: 26.00,
+                    energyRating: 'D',
+                    efficiency: 'low',
+                    source: 'Standard',
+                    modelNumber: 'STD-HAL-100W',
+                    technology: 'Halogen',
+                    annualSavings: 0
+                },
+
+                // Standard Heating
+                {
+                    id: 'std_heat_001',
+                    name: 'Old Gas Boiler (85% Efficiency)',
+                    power: 15000,
+                    category: 'Heating',
+                    brand: 'OldBoiler',
+                    runningCostPerYear: 2000.00,
+                    energyRating: 'C',
+                    efficiency: 'low',
+                    source: 'Standard',
+                    modelNumber: 'OLD-GAS-BOILER',
+                    technology: 'Standard Gas',
+                    annualSavings: 0
+                },
+                {
+                    id: 'std_heat_002',
+                    name: 'Electric Storage Heater',
+                    power: 3000,
+                    category: 'Heating',
+                    brand: 'StorageHeater',
+                    runningCostPerYear: 780.00,
+                    energyRating: 'D',
+                    efficiency: 'low',
+                    source: 'Standard',
+                    modelNumber: 'STD-STORAGE-3KW',
+                    technology: 'Storage Heating',
+                    annualSavings: 0
+                }
+            ];
+
+            // Combine all products
+            allProducts = [...allProducts, ...standardProducts];
+            
+            console.log('✅ Loaded enhanced ETL-style data:', allProducts.length, 'products');
+            console.log('📊 Products by category:', {
+                'Appliances': allProducts.filter(p => p.category === 'Appliances').length,
+                'Lighting': allProducts.filter(p => p.category === 'Lighting').length,
+                'Heating': allProducts.filter(p => p.category === 'Heating').length,
+                'Renewable': allProducts.filter(p => p.category === 'Renewable').length,
+                'Smart Home': allProducts.filter(p => p.category === 'Smart Home').length
+            });
+            
+            // Initialize category filtering and populate selects
+            filterProductsByCategory();
+            populateProductSelects();
+        }
+
+        // Populate product select dropdowns
+        function populateProductSelects() {
+            const selects = document.querySelectorAll('.product-select');
+            selects.forEach(select => {
+                select.innerHTML = '<option value="">Choose a product...</option>';
+                
+                // Use filtered products if available, otherwise use all products
+                const productsToShow = filteredProducts.length > 0 ? filteredProducts : [...allProducts, ...energyStarProducts];
+                
+                if (productsToShow && productsToShow.length > 0) {
+                    productsToShow.forEach(product => {
+                        const option = document.createElement('option');
+                        option.value = product.id;
+                        const sourceLabel = product.source === 'ETL' ? '[ETL]' : '[Energy Star]';
+                        option.textContent = `${sourceLabel} ${product.name} (${product.power}W) - ${product.brand}`;
+                        option.dataset.power = product.power;
+                        option.dataset.source = product.source;
+                        select.appendChild(option);
+                    });
+                }
+                
+                // If no products loaded, show message
+                if (productsToShow.length === 0) {
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.textContent = selectedCategory === 'all' ? "Loading products..." : `No products found in ${selectedCategory} category`;
+                    option.disabled = true;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        // Update product information display
+        function updateProductInfo(select, type) {
+            const productId = select.value;
+            // Check both ETL and Energy Star products
+            let product = allProducts.find(p => p.id === productId);
+            if (!product) {
+                product = energyStarProducts.find(p => p.id === productId);
+            }
+            
+            if (product) {
+                const powerSpan = select.parentElement.querySelector('.product-power');
+                powerSpan.textContent = `${product.power}W`;
+            }
+        }
+
+        // Add current product
+        function addCurrentProduct() {
+            const container = document.getElementById('current-products');
+            const productDiv = document.createElement('div');
+            productDiv.className = 'product-selector';
+            productDiv.innerHTML = `
+                <div class="product-info">
+                    <span class="product-name">Select Current Product</span>
+                    <span class="product-power">0W</span>
+                </div>
+                <select class="product-select" onchange="updateProductInfo(this, 'current')">
+                    <option value="">Choose a product...</option>
+                    ${(filteredProducts.length > 0 ? filteredProducts : [...allProducts, ...energyStarProducts]).map(product => 
+                        `<option value="${product.id}" data-power="${product.power}">[${product.source}] ${product.name} (${product.power}W) - ${product.brand}</option>`
+                    ).join('')}
+                </select>
+                <button onclick="removeProduct(this, 'current')" style="margin-top: 10px; padding: 5px 10px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Remove</button>
+            `;
+            container.appendChild(productDiv);
+        }
+
+        // Add efficient product
+        function addEfficientProduct() {
+            const container = document.getElementById('efficient-products');
+            const productDiv = document.createElement('div');
+            productDiv.className = 'product-selector';
+            productDiv.innerHTML = `
+                <div class="product-info">
+                    <span class="product-name">Select Efficient Product</span>
+                    <span class="product-power">0W</span>
+                </div>
+                <select class="product-select" onchange="updateProductInfo(this, 'efficient')">
+                    <option value="">Choose a product...</option>
+                    ${(filteredProducts.length > 0 ? filteredProducts : [...allProducts, ...energyStarProducts]).map(product => 
+                        `<option value="${product.id}" data-power="${product.power}">[${product.source}] ${product.name} (${product.power}W) - ${product.brand}</option>`
+                    ).join('')}
+                </select>
+                <button onclick="removeProduct(this, 'efficient')" style="margin-top: 10px; padding: 5px 10px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Remove</button>
+            `;
+            container.appendChild(productDiv);
+        }
+
+        // Remove product
+        function removeProduct(button, type) {
+            button.parentElement.remove();
+        }
+
+        // Calculate energy savings
+        async function calculateSavings() {
+            // Gather current products
+            const currentSelects = document.querySelectorAll('#current-products .product-select');
+            currentProducts = [];
+            currentSelects.forEach(select => {
+                if (select.value) {
+                    // Check both ETL and Energy Star products
+                    let product = allProducts.find(p => p.id === select.value);
+                    if (!product) {
+                        product = energyStarProducts.find(p => p.id === select.value);
+                    }
+                    if (product) {
+                        currentProducts.push({
+                            productId: product.id,
+                            name: product.name,
+                            power: product.power,
+                            source: product.source,
+                            brand: product.brand,
+                            modelNumber: product.modelNumber
+                        });
+                    }
+                }
+            });
+
+            // Gather efficient products
+            const efficientSelects = document.querySelectorAll('#efficient-products .product-select');
+            efficientProducts = [];
+            efficientSelects.forEach(select => {
+                if (select.value) {
+                    // Check both ETL and Energy Star products
+                    let product = allProducts.find(p => p.id === select.value);
+                    if (!product) {
+                        product = energyStarProducts.find(p => p.id === select.value);
+                    }
+                    if (product) {
+                        efficientProducts.push({
+                            productId: product.id,
+                            name: product.name,
+                            power: product.power,
+                            source: product.source,
+                            brand: product.brand,
+                            modelNumber: product.modelNumber
+                        });
+                    }
+                }
+            });
+
+            if (currentProducts.length === 0 || efficientProducts.length === 0) {
+                showMessage('Please select at least one current product and one efficient product', 'error');
+                return;
+            }
+
+            const electricityRate = parseFloat(document.getElementById('electricity-rate').value);
+            const currentHours = parseFloat(document.getElementById('hours-per-day').value);
+            const efficientHours = parseFloat(document.getElementById('efficiency-hours').value);
+
+            if (!electricityRate || !currentHours || !efficientHours) {
+                showMessage('Please fill in all required fields', 'error');
+                return;
+            }
+
+            // Show results section
+            document.getElementById('results-section').style.display = 'block';
+            document.getElementById('results-content').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Calculating your savings...</p>
+                </div>
+            `;
+
+            try {
+                // Calculate current products costs locally
+                const currentResults = currentProducts.map(product => {
+                    const yearlyCost = (product.power / 1000) * currentHours * electricityRate * 365;
+                    return {
+                        product: `${product.name} (${product.brand})`,
+                        power: product.power,
+                        yearly: yearlyCost,
+                        source: product.source,
+                        modelNumber: product.modelNumber
+                    };
+                });
+
+                // Calculate efficient products costs locally
+                const efficientResults = efficientProducts.map(product => {
+                    const yearlyCost = (product.power / 1000) * efficientHours * electricityRate * 365;
+                    return {
+                        product: `${product.name} (${product.brand})`,
+                        power: product.power,
+                        yearly: yearlyCost,
+                        source: product.source,
+                        modelNumber: product.modelNumber
+                    };
+                });
+
+                displayResults(currentResults, efficientResults, electricityRate);
+            } catch (error) {
+                showMessage('Calculation failed: ' + error.message, 'error');
+                document.getElementById('results-content').innerHTML = '<p style="text-align: center; color: #f44336;">Calculation failed. Please try again.</p>';
+            }
+        }
+
+        // Display calculation results
+
+
+        // Message display function
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.getElementById('message-display');
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

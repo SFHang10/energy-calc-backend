@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Embedded ETL Loading</title>
+</head>
+<body>
+    <h1>Test Embedded ETL Products Loading</h1>
+    <div id="status">Loading...</div>
+    <div id="results"></div>
+
+    <script src="embedded-etl-products.js"></script>
+    <script>
+        console.log('Testing embedded ETL products loading...');
+        
+        // Check if the embedded data loaded
+        if (typeof EMBEDDED_ETL_PRODUCTS !== 'undefined') {
+            console.log('✅ EMBEDDED_ETL_PRODUCTS found');
+            console.log('Total products:', EMBEDDED_ETL_PRODUCTS.length);
+            
+            document.getElementById('status').innerHTML = `✅ Loaded ${EMBEDDED_ETL_PRODUCTS.length} products`;
+            
+            // Show sample products
+            const sampleProducts = EMBEDDED_ETL_PRODUCTS.slice(0, 5);
+            let html = '<h2>Sample Products:</h2><ul>';
+            sampleProducts.forEach(product => {
+                html += `<li>${product.name} (${product.type}) - ${product.power}kW</li>`;
+            });
+            html += '</ul>';
+            document.getElementById('results').innerHTML = html;
+            
+        } else {
+            console.log('❌ EMBEDDED_ETL_PRODUCTS not found');
+            document.getElementById('status').innerHTML = '❌ EMBEDDED_ETL_PRODUCTS not loaded';
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

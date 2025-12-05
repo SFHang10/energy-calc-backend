@@ -146,3 +146,8 @@ if (updatedCount === 0) {
     console.log(`   Total products: ${database.products.length}`);
 }
 
+
+
+
+
+

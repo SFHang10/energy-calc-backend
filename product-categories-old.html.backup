@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Categories - Energy Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            color: #333333;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #666666;
+            font-weight: 300;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .category-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            height: 380px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .category-card:hover {
+            background: #ffffff;
+            transform: translateY(-10px);
+            border-color: #28a745;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .category-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .category-title {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .category-description {
+            font-size: 1.1rem;
+            color: #666666;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            flex-grow: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .category-link {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 1px solid #28a745;
+            font-size: 1rem;
+        }
+
+        .category-link:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+
+        .quick-links {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .quick-links h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: 300;
+            color: #2c3e50;
+        }
+
+        .quick-links a {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .quick-links a:hover {
+            background: #218838;
+        }
+
+        /* Iframe specific styles to prevent half-screen effect */
+        iframe {
+            width: 100% !important;
+            height: 100vh !important;
+            border: none !important;
+            display: block !important;
+        }
+
+        /* Mobile iframe optimizations */
+        @media (max-width: 768px) {
+            iframe {
+                height: 100vh !important;
+                min-height: 600px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            iframe {
+                height: 100vh !important;
+                min-height: 500px !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                margin-bottom: 30px;
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .categories-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .category-card {
+                padding: 20px;
+                height: auto;
+                min-height: 300px;
+            }
+            
+            .category-icon {
+                font-size: 3rem;
+                margin-bottom: 10px;
+            }
+            
+            .category-title {
+                font-size: 1.3rem;
+                margin-bottom: 10px;
+            }
+            
+            .category-description {
+                font-size: 0.9rem;
+                line-height: 1.4;
+                margin-bottom: 15px;
+            }
+            
+            .category-link {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+            
+            .quick-links {
+                padding: 20px;
+            }
+            
+            .quick-links h3 {
+                font-size: 1.2rem;
+            }
+            
+            .quick-links a {
+                display: block;
+                margin: 8px 0;
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 5px;
+            }
+            
+            .header {
+                margin-bottom: 20px;
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .category-card {
+                padding: 15px;
+                min-height: 280px;
+            }
+            
+            .category-icon {
+                font-size: 2.5rem;
+            }
+            
+            .category-title {
+                font-size: 1.2rem;
+            }
+            
+            .category-description {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛍️ Product Categories</h1>
+            <p>Browse our energy-efficient products by category</p>
+        </div>
+
+        <div class="categories-grid">
+            <div class="category-card" onclick="openCategory('refrigeration')">
+                <span class="category-icon">❄️</span>
+                <h2 class="category-title">Refrigeration Equipment</h2>
+                <p class="category-description">
+                    Commercial refrigeration systems, display cabinets, walk-in coolers, 
+                    evaporative condensers, and energy-efficient cooling solutions. 2,580 ETL products.
+                </p>
+                <a href="#" class="category-link" onclick="event.stopPropagation(); openCategory('refrigeration')">
+                    View Refrigeration Equipment
+                </a>
+            </div>
+
+            <div class="category-card" onclick="openCategory('professional-foodservice')">
+                <span class="category-icon">🍽️</span>
+                <h2 class="category-title">Professional Foodservice Equipment</h2>
+                <p class="category-description">
+                    Professional foodservice equipment Inc. combination steam ovens, 
+                    convection ovens, undercounter and hood-type dishwashers. 67 ETL products.
+                </p>
+                <a href="#" class="category-link" onclick="event.stopPropagation(); openCategory('professional-foodservice')">
+                    View Professional Equipment
+                </a>
+            </div>
+
+            <div class="category-card" onclick="openCategory('heat-pumps')">
+                <span class="category-icon">🔥</span>
+                <h2 class="category-title">Heat Pumps</h2>
+                <p class="category-description">
+                    High-efficiency heat pumps for residential and commercial applications. 
+                    Includes Baxi Auriga, Daikin Altherma, Viessmann Vitocal, and more.
+                </p>
+                <a href="#" class="category-link" onclick="event.stopPropagation(); openCategory('heat-pumps')">
+                    View Heat Pumps
+                </a>
+            </div>
+
+            <div class="category-card" onclick="openCategory('hvac')">
+                <span class="category-icon">🏭</span>
+                <h2 class="category-title">HVAC Equipment</h2>
+                <p class="category-description">
+                    Professional HVAC drives, controls, and systems. 
+                    Includes Danfoss VLT, Fuji Electric, Invertek Optidrive, and more.
+                </p>
+                <a href="#" class="category-link" onclick="event.stopPropagation(); openCategory('hvac')">
+                    View HVAC Equipment
+                </a>
+            </div>
+
+            <div class="category-card" onclick="openCategory('motors')">
+                <span class="category-icon">⚡</span>
+                <h2 class="category-title">Motors</h2>
+                <p class="category-description">
+                    High-efficiency IE4 and IE3 motors for industrial applications. 
+                    Includes NORD Gear, ABB motors, and asynchronous drives.
+                </p>
+                <a href="#" class="category-link" onclick="event.stopPropagation(); openCategory('motors')">
+                    View Motors
+                </a>
+            </div>
+
+            <div class="category-card" onclick="openCategory('solar')">
+                <span class="category-icon">☀️</span>
+                <h2 class="category-title">Solar Products</h2>
+                <p class="category-description">
+                    Solar thermal and photovoltaic systems for renewable energy generation. 
+                    Includes solar panels, thermal collectors, and related equipment.
+                </p>
+                <a href="#" class="category-link" onclick="event.stopPropagation(); openCategory('solar')">
+                    View Solar Products
+                </a>
+            </div>
+
+            <div class="category-card" onclick="openCategory('premium')">
+                <span class="category-icon">⭐</span>
+                <h2 class="category-title">Premium Products</h2>
+                <p class="category-description">
+                    High-end, premium efficiency products with advanced features. 
+                    Top-tier equipment for demanding applications.
+                </p>
+                <a href="#" class="category-link" onclick="event.stopPropagation(); openCategory('premium')">
+                    View Premium Products
+                </a>
+            </div>
+
+            <div class="category-card" onclick="openCategory('small-motors')">
+                <span class="category-icon">🔧</span>
+                <h2 class="category-title">Small Motors</h2>
+                <p class="category-description">
+                    Compact motors under 5kW for residential applications. 
+                    Perfect for home automation and small-scale projects.
+                </p>
+                <a href="#" class="category-link" onclick="event.stopPropagation(); openCategory('small-motors')">
+                    View Small Motors
+                </a>
+            </div>
+
+            <div class="category-card" onclick="openCategory('nord-gear')">
+                <span class="category-icon">⚙️</span>
+                <h2 class="category-title">NORD Gear</h2>
+                <p class="category-description">
+                    High-efficiency motors and gearboxes from NORD Gear Ltd. 
+                    690 ETL certified products for industrial applications.
+                </p>
+                <a href="#" class="category-link" onclick="event.stopPropagation(); openCategory('nord-gear')">
+                    View NORD Gear Products
+                </a>
+            </div>
+
+            <div class="category-card" onclick="openCategory('abb')">
+                <span class="category-icon">🔧</span>
+                <h2 class="category-title">ABB Motors</h2>
+                <p class="category-description">
+                    Premium motors and drives from ABB Ltd. 
+                    468 ETL certified products for commercial and industrial use.
+                </p>
+                <a href="#" class="category-link" onclick="event.stopPropagation(); openCategory('abb')">
+                    View ABB Products
+                </a>
+            </div>
+
+            <div class="category-card" onclick="openCategory('weg')">
+                <span class="category-icon">⚡</span>
+                <h2 class="category-title">WEG Motors</h2>
+                <p class="category-description">
+                    Energy-efficient motors from WEG Electric Motors (UK) Ltd. 
+                    371 ETL certified products for various applications.
+                </p>
+                <a href="#" class="category-link" onclick="event.stopPropagation(); openCategory('weg')">
+                    View WEG Products
+                </a>
+            </div>
+
+            <div class="category-card" onclick="openCategory('danfoss')">
+                <span class="category-icon">🌡️</span>
+                <h2 class="category-title">Danfoss</h2>
+                <p class="category-description">
+                    HVAC drives and controls from Danfoss Ltd. 
+                    263 ETL certified products for heating and cooling systems.
+                </p>
+                <a href="#" class="category-link" onclick="event.stopPropagation(); openCategory('danfoss')">
+                    View Danfoss Products
+                </a>
+            </div>
+
+            <div class="category-card" onclick="openCategory('all')">
+                <span class="category-icon">🛍️</span>
+                <h2 class="category-title">All Products</h2>
+                <p class="category-description">
+                    Complete range of energy-efficient products from all categories. 
+                    Browse our entire catalog of sustainable energy solutions.
+                </p>
+                <a href="#" class="category-link" onclick="event.stopPropagation(); openCategory('all')">
+                    View All Products
+                </a>
+            </div>
+        </div>
+
+        <div class="quick-links">
+            <h3>Quick Links</h3>
+            <a href="/product-page-v2.html?product=etl_11_86407">Sample Product Page</a>
+            <a href="/category-product-page.html?category=heat-pumps">Heat Pumps</a>
+            <a href="/category-product-page.html?category=hvac">HVAC Equipment</a>
+            <a href="/category-product-page.html?category=motors">Motors</a>
+            <a href="/category-product-page.html?category=all">All Products</a>
+        </div>
+    </div>
+
+    <script>
+        function openCategory(category) {
+            window.open(`/category-product-page.html?category=${category}`, '_blank');
+        }
+    </script>
+</body>
+</html>

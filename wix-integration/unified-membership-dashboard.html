@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greenways Unified Membership - Buildings & Marketplace</title>
+    <style>
+        :root {
+            --primary-green: #2E7D32;
+            --secondary-green: #4CAF50;
+            --accent-green: #81C784;
+            --light-green: #E8F5E8;
+            --dark-green: #1B5E20;
+            --white: #FFFFFF;
+            --gray: #757575;
+            --light-gray: #F5F5F5;
+            --border: #E0E0E0;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --buildings-blue: #1976D2;
+            --marketplace-orange: #F57C00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, var(--light-green) 0%, #E3F2FD 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px;
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            color: var(--white);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+
+        .site-badges {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .site-badge {
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .site-badge.buildings {
+            background: var(--buildings-blue);
+            color: white;
+        }
+
+        .site-badge.marketplace {
+            background: var(--marketplace-orange);
+            color: white;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .dashboard-card h3 {
+            color: var(--primary-green);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+        }
+
+        .member-info {
+            background: var(--light-gray);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--gray);
+        }
+
+        .info-value {
+            color: var(--dark-green);
+            font-weight: 500;
+        }
+
+        .site-access-card {
+            border-left: 4px solid var(--primary-green);
+        }
+
+        .site-access-card.buildings {
+            border-left-color: var(--buildings-blue);
+        }
+
+        .site-access-card.marketplace {
+            border-left-color: var(--marketplace-orange);
+        }
+
+        .access-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .access-status.active {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .access-status.inactive {
+            background: #E0E0E0;
+            color: var(--gray);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 125, 50, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--gray);
+            color: var(--white);
+        }
+
+        .btn-secondary:hover {
+            background: #616161;
+        }
+
+        .content-section {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            margin-top: 30px;
+        }
+
+        .content-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .content-tab {
+            padding: 12px 25px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .content-tab.active {
+            color: var(--primary-green);
+            border-bottom-color: var(--primary-green);
+        }
+
+        .content-tab:hover {
+            color: var(--primary-green);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .content-card {
+            background: var(--light-gray);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary-green);
+            transition: transform 0.3s ease;
+        }
+
+        .content-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .content-card h4 {
+            color: var(--primary-green);
+            margin-bottom: 10px;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌱 Greenways Unified Membership</h1>
+            <p class="subtitle">One membership. Access to both platforms.</p>
+            <div class="site-badges">
+                <span class="site-badge buildings">🏢 Greenways Buildings</span>
+                <span class="site-badge marketplace">🛒 Greenways Marketplace</span>
+            </div>
+        </div>
+
+        <div id="message-display"></div>
+
+        <!-- Member Dashboard -->
+        <div id="member-dashboard" class="hidden">
+            <div class="dashboard-grid">
+                <!-- Member Info Card -->
+                <div class="dashboard-card">
+                    <h3><span class="card-icon">👤</span> Your Account</h3>
+                    <div class="member-info" id="member-info">
+                        <div class="info-row">
+                            <span class="info-label">Name:</span>
+                            <span class="info-value" id="member-name">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Email:</span>
+                            <span class="info-value" id="member-email">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Membership Tier:</span>
+                            <span class="info-value" id="member-tier">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Status:</span>
+                            <span class="info-value" id="member-status">-</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="handleLogout()">Logout</button>
+                </div>
+
+                <!-- Buildings Access Card -->
+                <div class="dashboard-card site-access-card buildings">
+                    <h3><span class="card-icon">🏢</span> Greenways Buildings</h3>
+                    <div class="member-info">
+                        <div class="info-row">
+                            <span class="info-label">Access Status:</span>
+                            <span class="info-value" id="buildings-status">Checking...</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Member ID:</span>
+                            <span class="info-value" id="buildings-member-id">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Active Plans:</span>
+                            <span class="info-value" id="buildings-plans">-</span>
+                        </div>
+                    </div>
+                    <span class="access-status" id="buildings-access-badge">Checking...</span>
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-primary" onclick="syncMembership('buildings')">Sync Membership</button>
+                    </div>
+                </div>
+
+                <!-- Marketplace Access Card -->
+                <div class="dashboard-card site-access-card marketplace">
+                    <h3><span class="card-icon">🛒</span> Greenways Marketplace</h3>
+                    <div class="member-info">
+                        <div class="info-row">
+                            <span class="info-label">Access Status:</span>
+                            <span class="info-value" id="marketplace-status">Checking...</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Member ID:</span>
+                            <span class="info-value" id="marketplace-member-id">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Active Plans:</span>
+                            <span class="info-value" id="marketplace-plans">-</span>
+                        </div>
+                    </div>
+                    <span class="access-status" id="marketplace-access-badge">Checking...</span>
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-primary" onclick="syncMembership('marketplace')">Sync Membership</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Marketplace Products Section -->
+            <div class="content-section" style="margin-top: 30px;">
+                <h3 style="color: var(--primary-green); margin-bottom: 20px;">🛒 Marketplace Products</h3>
+                <p style="color: var(--gray); margin-bottom: 20px;">
+                    Browse products from the marketplace. Click any product to view detailed information, grants, and collection services.
+                </p>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <button class="btn btn-primary" onclick="loadMarketplaceProducts()">Load Marketplace Products</button>
+                </div>
+                <div class="content-grid" id="marketplace-products-grid" style="display: none;">
+                    <!-- Products will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Content Section -->
+            <div class="content-section">
+                <h3 style="color: var(--primary-green); margin-bottom: 20px;">📚 Your Content</h3>
+                <div class="content-tabs">
+                    <button class="content-tab active" onclick="showContent('all')">All Content</button>
+                    <button class="content-tab" onclick="showContent('buildings')">Buildings</button>
+                    <button class="content-tab" onclick="showContent('marketplace')">Marketplace</button>
+                </div>
+                <div class="content-grid" id="content-grid">
+                    <div class="loading">Loading content...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Form (shown if not authenticated) -->
+        <div id="login-container" class="dashboard-card" style="max-width: 500px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, var(--primary-green), var(--secondary-green)); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+                <h3 style="color: white; margin-bottom: 10px;">🎯 New Member?</h3>
+                <p style="margin-bottom: 15px; opacity: 0.95;">Join Greenways to access exclusive content</p>
+                <button onclick="window.location.href='members-section.html'" class="btn" style="background: white; color: var(--primary-green); padding: 12px 30px; border: none; display: inline-block; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                    Sign Up Now →
+                </button>
+            </div>
+            <h3 style="text-align: center; margin-bottom: 20px; color: var(--gray); font-size: 1.1rem;">Or Login with Existing Account</h3>
+            <form id="login-form">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Email:</label>
+                    <input type="email" id="login-email" required style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 16px;">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Password:</label>
+                    <input type="password" id="login-password" required style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 16px;">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+            </form>
+            <p style="text-align: center; margin-top: 20px; color: var(--gray); font-size: 0.9rem;">
+                Existing backend account? <a href="members-section.html" style="color: var(--primary-green);">Login here</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Auto-detect production vs development
+        const isFileProtocol = window.location.protocol === 'file:';
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || !window.location.hostname;
+        
+        const API_BASE_URL = (isFileProtocol || isLocalhost)
+            ? 'http://localhost:4000/api'
+            : window.location.origin + '/api';
+        let authToken = localStorage.getItem('energy_calc_membership_token');
+        let currentUser = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (authToken) {
+                checkAuthStatus();
+            } else {
+                document.getElementById('login-container').classList.remove('hidden');
+            }
+        });
+
+        // Login form handler
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/members/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    authToken = data.token;
+                    localStorage.setItem('energy_calc_membership_token', authToken);
+                    currentUser = data.user;
+                    showMessage('Login successful!', 'success');
+                    checkAuthStatus();
+                } else {
+                    showMessage(data.error || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showMessage('Login error: ' + error.message, 'error');
+            }
+        });
+
+        // Check authentication status
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/members/unified-status`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.member;
+                    displayDashboard(data);
+                } else if (response.status === 401 || response.status === 403) {
+                    // Only clear token on actual auth failures (401/403), not network errors
+                    localStorage.removeItem('energy_calc_membership_token');
+                    authToken = null;
+                    document.getElementById('login-container').classList.remove('hidden');
+                    showMessage('Session expired. Please login again.', 'error');
+                } else {
+                    // Network or server error - don't clear token, just show error
+                    console.error('Auth check failed with status:', response.status);
+                    showMessage('Unable to verify login status. Please try again.', 'error');
+                    // Still show login form as fallback
+                    document.getElementById('login-container').classList.remove('hidden');
+                }
+            } catch (error) {
+                // Network error - don't clear token, just show error
+                console.error('Auth check error:', error);
+                showMessage('Connection error. Please check if server is running.', 'error');
+                // Still show login form as fallback, but don't clear token
+                document.getElementById('login-container').classList.remove('hidden');
+            }
+        }
+
+        // Display dashboard
+        function displayDashboard(data) {
+            document.getElementById('login-container').classList.add('hidden');
+            document.getElementById('member-dashboard').classList.remove('hidden');
+
+            // Member info
+            document.getElementById('member-name').textContent = data.member.name || data.member.email;
+            document.getElementById('member-email').textContent = data.member.email;
+            document.getElementById('member-tier').textContent = data.member.subscription_tier;
+            document.getElementById('member-status').textContent = data.member.subscription_status;
+
+            // Buildings access
+            const buildings = data.membership_sync?.buildings || data.wix_sync?.buildings;
+            document.getElementById('buildings-status').textContent = buildings.hasAccess ? 'Active' : 'Not Linked';
+            document.getElementById('buildings-member-id').textContent = buildings.memberId || 'Not linked';
+            document.getElementById('buildings-plans').textContent = buildings.hasAccess ? 'Active' : '-';
+            const buildingsBadge = document.getElementById('buildings-access-badge');
+            buildingsBadge.textContent = buildings.hasAccess ? 'Active' : 'Inactive';
+            buildingsBadge.className = `access-status ${buildings.hasAccess ? 'active' : 'inactive'}`;
+
+            // Marketplace access
+            const marketplace = data.membership_sync?.marketplace || data.wix_sync?.marketplace;
+            document.getElementById('marketplace-status').textContent = marketplace.hasAccess ? 'Active' : 'Not Linked';
+            document.getElementById('marketplace-member-id').textContent = marketplace.memberId || 'Not linked';
+            document.getElementById('marketplace-plans').textContent = marketplace.hasAccess ? 'Active' : '-';
+            const marketplaceBadge = document.getElementById('marketplace-access-badge');
+            marketplaceBadge.textContent = marketplace.hasAccess ? 'Active' : 'Inactive';
+            marketplaceBadge.className = `access-status ${marketplace.hasAccess ? 'active' : 'inactive'}`;
+
+            // Load content
+            loadContent('all');
+        }
+
+        // Sync membership
+        async function syncMembership(site) {
+            showMessage(`Syncing membership for ${site}...`, 'info');
+            // This would call the sync endpoint
+            // For now, just show message
+            setTimeout(() => {
+                showMessage('Syncing your membership status...', 'info');
+            }, 1000);
+        }
+
+        // Load content
+        async function loadContent(site) {
+            try {
+                const url = site === 'all' 
+                    ? `${API_BASE_URL}/members/content-unified`
+                    : `${API_BASE_URL}/members/content-unified?site=${site}`;
+                
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    displayContent(data.content || []);
+                }
+            } catch (error) {
+                console.error('Error loading content:', error);
+            }
+        }
+
+        // Show content tab
+        function showContent(site) {
+            document.querySelectorAll('.content-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            loadContent(site);
+        }
+
+        // Display content
+        function displayContent(content) {
+            const grid = document.getElementById('content-grid');
+            if (content.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: var(--gray);">No content available.</p>';
+                return;
+            }
+
+            grid.innerHTML = content.map(item => `
+                <div class="content-card">
+                    <h4>${item.title || 'Untitled'}</h4>
+                    <p>${item.description || ''}</p>
+                    <small style="color: var(--gray);">Tier: ${item.required_tier || 'Free'}</small>
+                </div>
+            `).join('');
+        }
+
+        // Logout
+        function handleLogout() {
+            localStorage.removeItem('energy_calc_membership_token');
+            authToken = null;
+            currentUser = null;
+            document.getElementById('member-dashboard').classList.add('hidden');
+            document.getElementById('login-container').classList.remove('hidden');
+            showMessage('Logged out successfully', 'success');
+        }
+
+        // Show message
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.getElementById('message-display');
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => messageDiv.style.display = 'none', 5000);
+        }
+
+        // Load marketplace products
+        async function loadMarketplaceProducts() {
+            try {
+                showMessage('Loading marketplace products...', 'info');
+                const response = await fetch(`${API_BASE_URL}/products?limit=12`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayMarketplaceProducts(data.products || data || []);
+                } else {
+                    showMessage('Failed to load products', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                showMessage('Error loading products: ' + error.message, 'error');
+            }
+        }
+
+        // Display marketplace products
+        function displayMarketplaceProducts(products) {
+            const grid = document.getElementById('marketplace-products-grid');
+            grid.style.display = 'grid';
+            
+            if (products.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: var(--gray); grid-column: 1/-1;">No products available.</p>';
+                return;
+            }
+
+            grid.innerHTML = products.slice(0, 12).map(product => `
+                <div class="content-card" style="cursor: pointer;" onclick="openProductDeepDive('${product.id}')">
+                    ${product.imageUrl ? `<img src="${product.imageUrl}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;" alt="${product.name}">` : ''}
+                    <h4>${product.name || 'Product'}</h4>
+                    <p style="color: var(--gray); font-size: 0.9rem; margin: 10px 0;">
+                        ${product.brand || ''} ${product.category ? '• ' + product.category : ''}
+                    </p>
+                    ${product.power ? `<div style="color: var(--primary-green); font-weight: 600; margin: 10px 0;">${product.power}W</div>` : ''}
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">View Details →</button>
+                </div>
+            `).join('');
+            
+            showMessage(`Loaded ${products.length} products`, 'success');
+        }
+
+        // Open product deep dive page
+        function openProductDeepDive(productId) {
+            window.location.href = `member-product-deep-dive.html?id=${productId}`;
+        }
+    </script>
+</body>
+</html>
+

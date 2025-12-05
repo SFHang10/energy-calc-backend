@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Static Product Page - No Server Required</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .product-page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .breadcrumb a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        /* Main Product Section */
+        .product-main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Product Image */
+        .product-image-section {
+            position: relative;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #f0f0f0;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #6c757d;
+        }
+
+        .image-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #dee2e6;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background: #007bff;
+        }
+
+        /* Product Details */
+        /* Product Media Gallery */
+        .product-media-section {
+            position: relative;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-media-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+        }
+
+        .main-media-image,
+        .main-media-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .main-media-image:hover {
+            transform: scale(1.05);
+        }
+
+        .main-media-video {
+            background: #000;
+        }
+
+        .media-placeholder {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .media-controls {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .media-control-btn {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .media-control-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .media-counter {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .media-thumbnails {
+            display: flex;
+            gap: 8px;
+            padding: 15px;
+            overflow-x: auto;
+            background: #f8f9fa;
+        }
+
+        .media-thumbnail {
+            min-width: 80px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border 0.3s ease;
+            position: relative;
+        }
+
+        .media-thumbnail.active {
+            border-color: #007bff;
+        }
+
+        .media-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .media-thumbnail.video::after {
+            content: "▶";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 20px;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+
+        .media-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+
+        .media-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .media-dot.active {
+            background: #007bff;
+        }
+
+        .product-details {
+            padding: 20px 0;
+        }
+
+        .product-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #212529;
+        }
+
+        .product-sku {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+
+        .product-price {
+            font-size: 32px;
+            font-weight: 700;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+
+        .product-description {
+            margin-bottom: 25px;
+        }
+
+        .description-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #495057;
+        }
+
+        .description-short {
+            display: block;
+        }
+
+        .description-full {
+            display: none;
+        }
+
+        .read-more-btn {
+            color: #007bff;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .read-more-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* Quantity and Add to Cart */
+        .quantity-section {
+            margin-bottom: 25px;
+        }
+
+        .quantity-label {
+            font-weight: 500;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .quantity-input {
+            display: flex;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .quantity-btn {
+            background: #f8f9fa;
+            border: none;
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .quantity-btn:hover {
+            background: #e9ecef;
+        }
+
+        .quantity-number {
+            border: none;
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 500;
+            width: 80px;
+        }
+
+        .add-to-cart-btn {
+            background: #fd7e14;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .add-to-cart-btn:hover {
+            background: #e8590c;
+        }
+
+        /* Social Sharing */
+        .social-sharing {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #dee2e6;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .social-btn:hover {
+            border-color: #007bff;
+            background: #f8f9fa;
+        }
+
+        /* Tech Information Section */
+        .tech-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .tech-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #212529;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .tech-item {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+
+        .tech-item-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #212529;
+        }
+
+        .tech-item-value {
+            color: #495057;
+            font-size: 16px;
+        }
+
+        /* Additional Technical Information Dropdown */
+        .additional-tech-container {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .additional-tech-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .additional-tech-btn:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .additional-tech-btn.expanded {
+            background: #dc3545;
+        }
+
+        .additional-tech-btn.expanded:hover {
+            background: #c82333;
+        }
+
+        .additional-tech-panel {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: none;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .additional-tech-panel.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .additional-tech-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #212529;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        .additional-tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .additional-tech-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+
+        .additional-tech-item-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #212529;
+            font-size: 14px;
+        }
+
+        .additional-tech-item-value {
+            color: #495057;
+            font-size: 14px;
+        }
+
+        /* Additional Information */
+        .additional-info {
+            margin-top: 30px;
+        }
+
+        .additional-info h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #212529;
+        }
+
+        .additional-info ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .additional-info li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+            color: #495057;
+        }
+
+        .additional-info li:last-child {
+            border-bottom: none;
+        }
+
+        .additional-info li::before {
+            content: "•";
+            color: #007bff;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* Calculator Widget Integration */
+        .calculator-widget {
+            margin-top: 30px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .calculator-widget iframe {
+            width: 100%;
+            height: 800px;
+            border: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .product-main {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .product-title {
+                font-size: 24px;
+            }
+
+            .product-price {
+                font-size: 28px;
+            }
+
+            .tech-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quantity-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .add-to-cart-btn {
+                width: 100%;
+            }
+        }
+
+        /* Simple Calculator Styles */
+        .simple-calculator {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .calc-input-group {
+            margin-bottom: 20px;
+        }
+
+        .calc-input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .calc-input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .calc-input-group input:focus {
+            outline: none;
+            border-color: #28a745;
+        }
+
+        .calc-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .calc-button:hover {
+            background: #218838;
+        }
+
+        .calc-results {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+
+        .calc-results h4 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item.highlight {
+            background: #d4edda;
+            margin: 10px -20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .result-label {
+            color: #495057;
+        }
+
+        .result-value {
+            font-weight: 600;
+            color: #28a745;
+        }
+
+        .result-item.highlight .result-value {
+            color: #155724;
+            font-size: 18px;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="product-page-container">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+            <a href="/">Home</a> / 
+            <span id="breadcrumb-category">Products</span> / 
+            <span id="breadcrumb-product">Loading...</span>
+        </nav>
+
+        <!-- Main Product Section -->
+        <div class="product-main">
+            <!-- Product Media Gallery -->
+            <div class="product-media-section">
+                <!-- Main Media Display -->
+                <div class="main-media-container">
+                    <img id="main-media" class="main-media-image" src="" alt="Product Image" style="display: none;">
+                    <video id="main-media-video" class="main-media-video" controls style="display: none;">
+                        <source src="" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <div id="media-placeholder" class="media-placeholder">
+                        Loading product media...
+                    </div>
+                    
+                    <!-- Media Controls -->
+                    <div class="media-controls">
+                        <button id="play-pause-btn" class="media-control-btn" onclick="togglePlayPause()" style="display: none;">
+                            <span id="play-icon">▶</span>
+                        </button>
+                        <div class="media-counter">
+                            <span id="current-media">1</span> / <span id="total-media">1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Media Thumbnails -->
+                <div class="media-thumbnails" id="media-thumbnails">
+                    <!-- Thumbnails will be dynamically generated -->
+                </div>
+
+                <!-- Media Navigation Dots -->
+                <div class="media-dots" id="media-dots">
+                    <!-- Dots will be dynamically generated -->
+                </div>
+            </div>
+
+            <!-- Product Details -->
+            <div class="product-details">
+                <h1 id="product-title" class="product-title">Loading product...</h1>
+                <div id="product-sku" class="product-sku">SKU: Loading...</div>
+                <div id="product-price" class="product-price">€0.00</div>
+                
+                <div class="product-description">
+                    <div id="description-short" class="description-text description-short">
+                        Loading product description...
+                    </div>
+                    <div id="description-full" class="description-text description-full">
+                        <!-- Full description will be loaded here -->
+                    </div>
+                    <span id="read-more-btn" class="read-more-btn" onclick="toggleDescription()" style="display: none;">
+                        Read more
+                    </span>
+                </div>
+
+                <div class="quantity-section">
+                    <label class="quantity-label">Quantity:</label>
+                    <div class="quantity-controls">
+                        <div class="quantity-input">
+                            <button class="quantity-btn" onclick="decreaseQuantity()">-</button>
+                            <input type="number" id="quantity" class="quantity-number" value="1" min="1">
+                            <button class="quantity-btn" onclick="increaseQuantity()">+</button>
+                        </div>
+                        <button class="add-to-cart-btn" onclick="addToCart()">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+
+                <div class="social-sharing">
+                    <div class="social-btn" onclick="shareOnFacebook()">f</div>
+                    <div class="social-btn" onclick="shareOnWhatsApp()">w</div>
+                    <div class="social-btn" onclick="shareGeneric()">↗</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tech Information Section -->
+        <div class="tech-section">
+            <h2 class="tech-title">Technical Information</h2>
+            
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <div class="tech-item-title">Power Rating</div>
+                    <div id="tech-power" class="tech-item-value">Loading...</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item-title">Brand</div>
+                    <div id="tech-brand" class="tech-item-value">Loading...</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item-title">Category</div>
+                    <div id="tech-category" class="tech-item-value">Loading...</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item-title">Model Number</div>
+                    <div id="tech-model" class="tech-item-value">Loading...</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item-title">Energy Rating</div>
+                    <div id="tech-energy-rating" class="tech-item-value">Loading...</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item-title">Efficiency</div>
+                    <div id="tech-efficiency" class="tech-item-value">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Additional Information Dropdowns -->
+            <div class="additional-tech-container">
+                <button id="additional-tech-btn" class="additional-tech-btn" onclick="toggleAdditionalTech()">
+                    <span id="additional-tech-text">Additional Technical Information</span>
+                    <span id="additional-tech-icon">▼</span>
+                </button>
+                <button id="additional-info-btn" class="additional-tech-btn" onclick="toggleAdditionalInfo()" style="margin-left: 15px;">
+                    <span id="additional-info-text">Additional Information</span>
+                    <span id="additional-info-icon">▼</span>
+                </button>
+            </div>
+
+            <div id="additional-tech-panel" class="additional-tech-panel">
+                <h3 class="additional-tech-title">Detailed Technical Specifications</h3>
+                <div id="additional-tech-grid" class="additional-tech-grid">
+                    <!-- Additional technical information will be loaded here -->
+                </div>
+            </div>
+
+            <div id="additional-info-panel" class="additional-tech-panel">
+                <h3 class="additional-tech-title">Product Information & Benefits</h3>
+                <div id="additional-info-grid" class="additional-tech-grid">
+                    <!-- Additional information will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="additional-info">
+                <h3>Additional Information</h3>
+                <ul id="additional-info-list">
+                    <li>Loading additional information...</li>
+                </ul>
+            </div>
+
+            <!-- Simple Energy Calculator (No Server Required) -->
+            <div class="calculator-widget">
+                <h3>Energy Savings Calculator</h3>
+                <div class="simple-calculator">
+                    <div class="calc-input-group">
+                        <label for="current-power">Current Appliance Power (kW):</label>
+                        <input type="number" id="current-power" step="0.1" value="2.0" placeholder="Enter power rating">
+                    </div>
+                    
+                    <div class="calc-input-group">
+                        <label for="hours-per-day">Hours per Day:</label>
+                        <input type="number" id="hours-per-day" value="8" placeholder="Daily usage hours">
+                    </div>
+                    
+                    <div class="calc-input-group">
+                        <label for="days-per-year">Days per Year:</label>
+                        <input type="number" id="days-per-year" value="365" placeholder="Annual usage days">
+                    </div>
+                    
+                    <div class="calc-input-group">
+                        <label for="electricity-rate">Electricity Rate (€/kWh):</label>
+                        <input type="number" id="electricity-rate" step="0.01" value="0.25" placeholder="Cost per kWh">
+                    </div>
+                    
+                    <button onclick="calculateEnergySavings()" class="calc-button">Calculate Annual Cost</button>
+                    
+                    <div id="calc-results" class="calc-results" style="display: none;">
+                        <h4>Annual Energy Cost:</h4>
+                        <div class="result-item">
+                            <span class="result-label">Current Appliance:</span>
+                            <span id="current-cost" class="result-value">€0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Energy Efficient Alternative:</span>
+                            <span id="efficient-cost" class="result-value">€0</span>
+                        </div>
+                        <div class="result-item highlight">
+                            <span class="result-label">Annual Savings:</span>
+                            <span id="annual-savings" class="result-value">€0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Payback Period:</span>
+                            <span id="payback-period" class="result-value">0 years</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentProduct = null;
+        let isDescriptionExpanded = false;
+        let isAdditionalTechExpanded = false;
+        let isAdditionalInfoExpanded = false;
+
+        // Simple Energy Calculator (No Server Required)
+        function calculateEnergySavings() {
+            const currentPower = parseFloat(document.getElementById('current-power').value) || 0;
+            const hoursPerDay = parseFloat(document.getElementById('hours-per-day').value) || 0;
+            const daysPerYear = parseFloat(document.getElementById('days-per-year').value) || 0;
+            const electricityRate = parseFloat(document.getElementById('electricity-rate').value) || 0;
+
+            if (currentPower === 0 || hoursPerDay === 0 || daysPerYear === 0 || electricityRate === 0) {
+                alert('Please fill in all fields with valid numbers.');
+                return;
+            }
+
+            // Calculate annual energy consumption
+            const annualKWh = currentPower * hoursPerDay * daysPerYear;
+            
+            // Calculate costs
+            const currentCost = annualKWh * electricityRate;
+            const efficientCost = currentCost * 0.6; // Assume 40% energy savings
+            const annualSavings = currentCost - efficientCost;
+            
+            // Calculate payback period (assuming €2000 investment)
+            const investmentCost = 2000;
+            const paybackYears = investmentCost / annualSavings;
+
+            // Display results
+            document.getElementById('current-cost').textContent = `€${currentCost.toLocaleString()}`;
+            document.getElementById('efficient-cost').textContent = `€${efficientCost.toLocaleString()}`;
+            document.getElementById('annual-savings').textContent = `€${annualSavings.toLocaleString()}`;
+            document.getElementById('payback-period').textContent = `${paybackYears.toFixed(1)} years`;
+
+            // Show results
+            document.getElementById('calc-results').style.display = 'block';
+        }
+
+        // Auto-populate calculator with product data
+        function populateCalculator() {
+            if (currentProduct && currentProduct.power) {
+                const powerValue = parseFloat(currentProduct.power.replace('kW', ''));
+                if (!isNaN(powerValue)) {
+                    document.getElementById('current-power').value = powerValue;
+                }
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Static Product Page initialized (No Server Required) - ' + new Date().toISOString());
+            loadProductFromURL();
+        });
+
+        // Load product data from URL parameters
+        function loadProductFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('product') || urlParams.get('id');
+            
+            if (productId) {
+                loadProduct(productId);
+            } else {
+                // Default product for testing
+                loadProduct('etl_11_86407');
+            }
+        }
+
+        // Load product data
+        async function loadProduct(productId) {
+            try {
+                console.log(`🔄 Loading product: ${productId}`);
+                
+                const productData = await getProductData(productId);
+                
+                if (productData) {
+                    currentProduct = productData;
+                    updateProductDisplay();
+                    populateCalculator(); // Auto-populate calculator with product data
+                } else {
+                    showError('Product not found');
+                }
+            } catch (error) {
+                console.error('Error loading product:', error);
+                showError('Failed to load product');
+            }
+        }
+
+        // Get product data from static Wix data (no server needed)
+        async function getProductData(productId) {
+            try {
+                console.log(`🔄 Loading static Wix product data for: ${productId}`);
+                
+                // Load Wix products data
+                const response = await fetch('/wix_products_export.json');
+                const wixProducts = await response.json();
+                
+                // Find the product by ID
+                const product = wixProducts.find(p => p.handleId === productId);
+                
+                if (product) {
+                    console.log('✅ Found product in Wix data:', product);
+                    return transformWixProduct(product);
+                } else {
+                    console.log('❌ Product not found in Wix data');
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error loading static product data:', error);
+                return null;
+            }
+        }
+
+        // Transform ETL product data to our format (working version)
+        function transformETLProduct(product) {
+            return {
+                id: product.id,
+                name: product.name,
+                sku: `ETL-${product.id.toUpperCase()}`,
+                price: 1500, // Fixed price for display
+                category: product.category || 'Energy Products',
+                brand: product.brand || 'Unknown',
+                power: `${product.power}kW`,
+                modelNumber: product.modelNumber || product.id,
+                energyRating: product.energyRating || 'A',
+                efficiency: product.efficiency || 'High',
+                imageUrl: product.image_url || `https://via.placeholder.com/600x400/2d7a5f/ffffff?text=${encodeURIComponent(product.name)}`,
+                images: getSampleImages(product.name),
+                videos: getSampleVideos(product.name),
+                descriptionShort: `Professional ${product.category || 'Energy Product'} - ${product.brand || 'High-quality'} ${product.name}. Energy-efficient design with ${product.power}kW power rating.`,
+                descriptionFull: `The ${product.name} is a professional-grade ${product.category || 'energy product'} designed for maximum efficiency and performance. This ${product.brand || 'high-quality'} product delivers exceptional performance while maintaining low operating costs.`,
+                additionalInfo: [
+                    `Power Rating: ${product.power}kW`,
+                    `Energy Rating: ${product.energyRating || 'A'}`,
+                    `Efficiency: ${product.efficiency || 'High'}`,
+                    `Brand: ${product.brand || 'Professional'}`,
+                    `Category: ${product.category || 'Energy Products'}`,
+                    `Model: ${product.modelNumber || product.id}`,
+                    'Professional installation recommended',
+                    'Comprehensive warranty included'
+                ],
+                additionalTechInfo: {
+                    'Running Cost (Annual)': product.runningCostPerYear ? `€${product.runningCostPerYear.toLocaleString()}` : 'Not specified',
+                    'Water per Cycle': product.water_per_cycle_liters ? `${product.water_per_cycle_liters}L` : 'N/A',
+                    'Water per Year': product.water_per_year_liters ? `${product.water_per_year_liters}L` : 'N/A',
+                    'Capacity': product.capacity_kg ? `${product.capacity_kg}kg` : 'N/A',
+                    'Place Settings': product.place_settings ? `${product.place_settings} settings` : 'N/A',
+                    'Source': product.source || 'ETL',
+                    'Subcategory': product.subcategory || 'General',
+                    'Installation Type': 'Professional installation recommended',
+                    'Warranty Period': '2 years comprehensive warranty',
+                    'Certification': 'ETL certified, CE marked',
+                    'Maintenance': 'Annual maintenance recommended',
+                    'Compatibility': 'Universal compatibility',
+                    'Dimensions': 'Standard industry dimensions',
+                    'Weight': 'Varies by model',
+                    'Operating Temperature': '-10°C to +40°C',
+                    'Humidity Range': 'Up to 95% RH',
+                    'Noise Level': 'Low noise operation',
+                    'Safety Features': 'Multiple safety systems included'
+                },
+                marketingInfo: {
+                    'Product Benefits': 'High efficiency design reduces energy costs',
+                    'Customer Value': 'Professional-grade equipment for commercial use',
+                    'Usage Tips': 'Regular maintenance ensures optimal performance',
+                    'Energy Savings': 'Up to 30% reduction in energy consumption',
+                    'ROI Information': 'Payback period typically 2-3 years',
+                    'Support': 'Comprehensive technical support available',
+                    'Delivery': 'Fast delivery and professional installation',
+                    'Financing': 'Flexible payment options available'
+                }
+            };
+        }
+
+        // Sample data functions for demonstration
+        function getSampleImages(productName) {
+            const name = productName.toLowerCase();
+            
+            // Air Fury Hand Dryer - Multiple angles
+            if (name.includes('air fury') || name.includes('hand dryer')) {
+                return [
+                    'https://images.unsplash.com/photo-1581578731548-c6a0c3f2f2c0?w=600&h=400&fit=crop',
+                    'https://images.unsplash.com/photo-1581578731548-c6a0c3f2f2c0?w=600&h=400&fit=crop&crop=face',
+                    'https://images.unsplash.com/photo-1581578731548-c6a0c3f2f2c0?w=600&h=400&fit=crop&crop=top',
+                    'https://images.unsplash.com/photo-1581578731548-c6a0c3f2f2c0?w=600&h=400&fit=crop&crop=bottom',
+                    'https://images.unsplash.com/photo-1581578731548-c6a0c3f2f2c0?w=600&h=400&fit=crop&crop=left'
+                ];
+            }
+            
+            // Motors - Industrial equipment
+            if (name.includes('motor') || name.includes('asynchronous')) {
+                return [
+                    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=400&fit=crop',
+                    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=400&fit=crop&crop=face',
+                    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=400&fit=crop&crop=top',
+                    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=400&fit=crop&crop=bottom'
+                ];
+            }
+            
+            // Default - Multiple generic product images
+            return [
+                'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop&crop=face',
+                'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop&crop=top',
+                'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop&crop=bottom'
+            ];
+        }
+
+        function getSampleVideos(productName) {
+            const name = productName.toLowerCase();
+            
+            // Motors - Technical video
+            if (name.includes('motor') || name.includes('asynchronous')) {
+                return ['https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4'];
+            }
+            
+            // Air Fury Hand Dryer - Demo video
+            if (name.includes('air fury') || name.includes('hand dryer')) {
+                return ['https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4'];
+            }
+            
+            // Default - No videos
+            return [];
+        }
+
+        // Transform Wix product data to our format (static version)
+        function transformWixProduct(product) {
+            return {
+                id: product.handleId,
+                name: product.name,
+                sku: product.sku || `WIX-${product.handleId}`,
+                price: product.price || 0,
+                category: product.collection || 'Energy Products',
+                brand: extractBrand(product.name),
+                power: extractPower(product.description),
+                modelNumber: product.sku || product.handleId,
+                energyRating: extractEnergyRating(product.description),
+                efficiency: 'High',
+                imageUrl: product.productImageUrl ? `https://static.wixstatic.com/media/${product.productImageUrl}` : `https://via.placeholder.com/600x400/2d7a5f/ffffff?text=${encodeURIComponent(product.name)}`,
+                images: getRealImages(product),
+                videos: getRealVideos(product),
+                descriptionShort: product.description ? product.description.split('\n')[0] : `Professional ${product.collection || 'Energy Product'} - ${product.name}`,
+                descriptionFull: product.description || `The ${product.name} is a professional-grade ${product.collection || 'energy product'} designed for maximum efficiency and performance.`,
+                additionalInfo: [
+                    `Price: €${(product.price || 0).toLocaleString()}`,
+                    `SKU: ${product.sku || 'N/A'}`,
+                    `Collection: ${product.collection || 'Energy Products'}`,
+                    `Inventory: ${product.inventory || 'In Stock'}`,
+                    `Visible: ${product.visible ? 'Yes' : 'No'}`,
+                    'Professional installation recommended',
+                    'Comprehensive warranty included'
+                ],
+                additionalTechInfo: {
+                    'Price': product.price ? `€${product.price.toLocaleString()}` : 'Contact for pricing',
+                    'SKU': product.sku || 'N/A',
+                    'Collection': product.collection || 'Energy Products',
+                    'Inventory Status': product.inventory || 'In Stock',
+                    'Discount Mode': product.discountMode || 'None',
+                    'Discount Value': product.discountValue ? `${product.discountValue}%` : 'None',
+                    'Source': 'Wix Store',
+                    'Field Type': product.fieldType || 'Product',
+                    'Installation Type': 'Professional installation recommended',
+                    'Warranty Period': '2 years comprehensive warranty',
+                    'Certification': 'ETL certified, CE marked',
+                    'Maintenance': 'Annual maintenance recommended',
+                    'Compatibility': 'Universal compatibility'
+                },
+                marketingInfo: {
+                    'Product Benefits': 'High-efficiency design for maximum energy savings',
+                    'Key Features': 'Professional-grade construction and reliability',
+                    'Applications': 'Ideal for commercial and residential use',
+                    'Energy Savings': 'Significant reduction in operating costs',
+                    'Quality Assurance': 'ETL certified and CE marked',
+                    'Support': 'Comprehensive technical support available',
+                    'Installation': 'Professional installation services available',
+                    'Maintenance': 'Easy maintenance and service access'
+                }
+            };
+        }
+
+        // Helper functions to extract data from Wix product descriptions
+        function extractBrand(name) {
+            const brands = ['Daikin', 'Mitsubishi', 'Panasonic', 'Hitachi', 'Carrier', 'Trane', 'York', 'Lennox'];
+            for (const brand of brands) {
+                if (name.toLowerCase().includes(brand.toLowerCase())) {
+                    return brand;
+                }
+            }
+            return 'Professional';
+        }
+
+        function extractPower(description) {
+            const powerMatch = description.match(/(\d+(?:\.\d+)?)\s*kW/i);
+            return powerMatch ? `${powerMatch[1]}kW` : '1.5kW';
+        }
+
+        function extractEnergyRating(description) {
+            const ratingMatch = description.match(/Energy Rating:\s*(\d+)/i);
+            return ratingMatch ? ratingMatch[1] : 'A';
+        }
+
+        function getRealImages(product) {
+            const images = [];
+            
+            // Add main image if available
+            if (product.productImageUrl) {
+                images.push(`https://static.wixstatic.com/media/${product.productImageUrl}`);
+            }
+            
+            // Add sample images based on product type
+            const name = product.name.toLowerCase();
+            
+            if (name.includes('heat recovery') || name.includes('ventilation')) {
+                images.push(
+                    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=400&fit=crop',
+                    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=400&fit=crop&crop=face'
+                );
+            } else if (name.includes('heat pump')) {
+                images.push(
+                    'https://images.unsplash.com/photo-1581578731548-c6a0c3f2f2c0?w=600&h=400&fit=crop',
+                    'https://images.unsplash.com/photo-1581578731548-c6a0c3f2f2c0?w=600&h=400&fit=crop&crop=left'
+                );
+            } else {
+                images.push(
+                    'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop',
+                    'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop&crop=face'
+                );
+            }
+            
+            return images;
+        }
+
+        function getRealVideos(product) {
+            const name = product.name.toLowerCase();
+            
+            // Add sample videos based on product type
+            if (name.includes('heat recovery') || name.includes('ventilation')) {
+                return ['https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4'];
+            } else if (name.includes('heat pump')) {
+                return ['https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4'];
+            }
+            
+            return [];
+        }
+
+        // Update product display
+        function updateProductDisplay() {
+            if (!currentProduct) return;
+
+            // Basic info
+            document.getElementById('product-title').textContent = currentProduct.name;
+            document.getElementById('product-sku').textContent = `SKU: ${currentProduct.sku}`;
+            document.getElementById('product-price').textContent = `€${currentProduct.price.toLocaleString()}`;
+            
+            // Breadcrumb
+            document.getElementById('breadcrumb-category').textContent = currentProduct.category;
+            document.getElementById('breadcrumb-product').textContent = currentProduct.name;
+
+            // Description
+            document.getElementById('description-short').textContent = currentProduct.descriptionShort;
+            document.getElementById('description-full').textContent = currentProduct.descriptionFull;
+            
+            // Show read more button if there's additional content
+            if (currentProduct.descriptionFull && currentProduct.descriptionFull !== currentProduct.descriptionShort) {
+                document.getElementById('read-more-btn').style.display = 'inline-block';
+            }
+
+            // Simple image display
+            const mainImage = document.getElementById('main-media');
+            if (mainImage && currentProduct.imageUrl) {
+                mainImage.src = currentProduct.imageUrl;
+                mainImage.style.display = 'block';
+                document.getElementById('media-placeholder').style.display = 'none';
+            }
+
+            // Tech info
+            document.getElementById('tech-power').textContent = currentProduct.power;
+            document.getElementById('tech-brand').textContent = currentProduct.brand;
+            document.getElementById('tech-category').textContent = currentProduct.category;
+            document.getElementById('tech-model').textContent = currentProduct.modelNumber;
+            document.getElementById('tech-energy-rating').textContent = currentProduct.energyRating;
+            document.getElementById('tech-efficiency').textContent = currentProduct.efficiency;
+
+            // Additional info
+            const additionalList = document.getElementById('additional-info-list');
+            additionalList.innerHTML = '';
+            currentProduct.additionalInfo.forEach(info => {
+                const li = document.createElement('li');
+                li.textContent = info;
+                additionalList.appendChild(li);
+            });
+
+            // Additional technical information
+            const additionalTechGrid = document.getElementById('additional-tech-grid');
+            additionalTechGrid.innerHTML = '';
+            
+            Object.entries(currentProduct.additionalTechInfo).forEach(([key, value]) => {
+                if (value && value !== 'N/A' && value !== 'Not specified') {
+                    const techItem = document.createElement('div');
+                    techItem.className = 'additional-tech-item';
+                    techItem.innerHTML = `
+                        <div class="additional-tech-item-title">${key}</div>
+                        <div class="additional-tech-item-value">${value}</div>
+                    `;
+                    additionalTechGrid.appendChild(techItem);
+                }
+            });
+
+            // Additional information (marketing)
+            const additionalInfoGrid = document.getElementById('additional-info-grid');
+            additionalInfoGrid.innerHTML = '';
+            
+            Object.entries(currentProduct.marketingInfo).forEach(([key, value]) => {
+                if (value && value !== 'N/A' && value !== 'Not specified') {
+                    const infoItem = document.createElement('div');
+                    infoItem.className = 'additional-tech-item';
+                    infoItem.innerHTML = `
+                        <div class="additional-tech-item-title">${key}</div>
+                        <div class="additional-tech-item-value">${value}</div>
+                    `;
+                    additionalInfoGrid.appendChild(infoItem);
+                }
+            });
+        }
+
+        // Media Gallery Functions
+        let currentMediaIndex = 0;
+        let mediaItems = [];
+
+        function updateMediaGallery(product) {
+            // Create media items array
+            mediaItems = [];
+            
+            // Add main image if available
+            if (product.imageUrl) {
+                mediaItems.push({
+                    type: 'image',
+                    url: product.imageUrl,
+                    thumbnail: product.imageUrl
+                });
+            }
+            
+            // Add additional images if available
+            if (product.images && product.images.length > 0) {
+                product.images.forEach(imgUrl => {
+                    if (imgUrl !== product.imageUrl) { // Avoid duplicates
+                        mediaItems.push({
+                            type: 'image',
+                            url: imgUrl,
+                            thumbnail: imgUrl
+                        });
+                    }
+                });
+            }
+            
+            // Add videos if available
+            if (product.videos && product.videos.length > 0) {
+                product.videos.forEach(videoUrl => {
+                    mediaItems.push({
+                        type: 'video',
+                        url: videoUrl,
+                        thumbnail: videoUrl.replace('.mp4', '_thumb.jpg') // Assume thumbnail naming convention
+                    });
+                });
+            }
+            
+            // If no media, show placeholder
+            if (mediaItems.length === 0) {
+                showMediaPlaceholder();
+                return;
+            }
+            
+            // Update media display
+            updateMainMedia();
+            updateThumbnails();
+            updateDots();
+            updateMediaCounter();
+        }
+
+        function updateMainMedia() {
+            const mainImage = document.getElementById('main-media');
+            const mainVideo = document.getElementById('main-media-video');
+            const placeholder = document.getElementById('media-placeholder');
+            
+            // Hide all media elements
+            mainImage.style.display = 'none';
+            mainVideo.style.display = 'none';
+            placeholder.style.display = 'none';
+            
+            if (mediaItems.length === 0) {
+                placeholder.style.display = 'flex';
+                return;
+            }
+            
+            const currentMedia = mediaItems[currentMediaIndex];
+            
+            if (currentMedia.type === 'video') {
+                mainVideo.src = currentMedia.url;
+                mainVideo.style.display = 'block';
+                document.getElementById('play-pause-btn').style.display = 'flex';
+            } else {
+                mainImage.src = currentMedia.url;
+                mainImage.style.display = 'block';
+                document.getElementById('play-pause-btn').style.display = 'none';
+            }
+        }
+
+        function updateThumbnails() {
+            const thumbnailsContainer = document.getElementById('media-thumbnails');
+            thumbnailsContainer.innerHTML = '';
+            
+            mediaItems.forEach((media, index) => {
+                const thumbnail = document.createElement('div');
+                thumbnail.className = `media-thumbnail ${media.type === 'video' ? 'video' : ''} ${index === currentMediaIndex ? 'active' : ''}`;
+                thumbnail.onclick = () => selectMedia(index);
+                
+                const img = document.createElement('img');
+                img.src = media.thumbnail;
+                img.alt = `Thumbnail ${index + 1}`;
+                
+                thumbnail.appendChild(img);
+                thumbnailsContainer.appendChild(thumbnail);
+            });
+        }
+
+        function updateDots() {
+            const dotsContainer = document.getElementById('media-dots');
+            dotsContainer.innerHTML = '';
+            
+            mediaItems.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = `media-dot ${index === currentMediaIndex ? 'active' : ''}`;
+                dot.onclick = () => selectMedia(index);
+                dotsContainer.appendChild(dot);
+            });
+        }
+
+        function updateMediaCounter() {
+            document.getElementById('current-media').textContent = currentMediaIndex + 1;
+            document.getElementById('total-media').textContent = mediaItems.length;
+        }
+
+        function selectMedia(index) {
+            currentMediaIndex = index;
+            updateMainMedia();
+            updateThumbnails();
+            updateDots();
+            updateMediaCounter();
+        }
+
+        function nextMedia() {
+            currentMediaIndex = (currentMediaIndex + 1) % mediaItems.length;
+            updateMainMedia();
+            updateThumbnails();
+            updateDots();
+            updateMediaCounter();
+        }
+
+        function previousMedia() {
+            currentMediaIndex = (currentMediaIndex - 1 + mediaItems.length) % mediaItems.length;
+            updateMainMedia();
+            updateThumbnails();
+            updateDots();
+            updateMediaCounter();
+        }
+
+        function showMediaPlaceholder() {
+            const placeholder = document.getElementById('media-placeholder');
+            placeholder.style.display = 'flex';
+            placeholder.textContent = 'No media available';
+            
+            // Hide other elements
+            document.getElementById('main-media').style.display = 'none';
+            document.getElementById('main-media-video').style.display = 'none';
+            document.getElementById('media-thumbnails').innerHTML = '';
+            document.getElementById('media-dots').innerHTML = '';
+        }
+
+        // Update calculator widget (working version)
+        function updateCalculatorWidget() {
+            if (!currentProduct) {
+                console.log('❌ No current product for calculator');
+                return;
+            }
+
+            console.log('🔄 Updating calculator widget with product:', currentProduct);
+            const iframe = document.getElementById('calculator-iframe');
+            
+            if (!iframe) {
+                console.log('❌ Calculator iframe not found');
+                return;
+            }
+
+            const baseUrl = 'http://localhost:4000/product-energy-widget.html';
+            const params = new URLSearchParams({
+                productId: currentProduct.id,
+                productName: currentProduct.name,
+                productPower: currentProduct.power ? currentProduct.power.replace('kW', '') : '0.12',
+                productBrand: currentProduct.brand,
+                productCategory: currentProduct.category,
+                productImage: currentProduct.imageUrl
+            });
+
+            const finalUrl = `${baseUrl}?${params.toString()}`;
+            console.log('🔄 Setting calculator iframe src:', finalUrl);
+            iframe.src = finalUrl;
+        }
+
+        // Toggle description
+        function toggleDescription() {
+            const shortDesc = document.getElementById('description-short');
+            const fullDesc = document.getElementById('description-full');
+            const readMoreBtn = document.getElementById('read-more-btn');
+            
+            if (isDescriptionExpanded) {
+                shortDesc.style.display = 'block';
+                fullDesc.style.display = 'none';
+                readMoreBtn.textContent = 'Read more';
+                isDescriptionExpanded = false;
+            } else {
+                shortDesc.style.display = 'none';
+                fullDesc.style.display = 'block';
+                readMoreBtn.textContent = 'Read less';
+                isDescriptionExpanded = true;
+            }
+        }
+
+        // Toggle additional technical information
+        function toggleAdditionalTech() {
+            const panel = document.getElementById('additional-tech-panel');
+            const btn = document.getElementById('additional-tech-btn');
+            const text = document.getElementById('additional-tech-text');
+            const icon = document.getElementById('additional-tech-icon');
+            
+            if (isAdditionalTechExpanded) {
+                panel.classList.remove('show');
+                btn.classList.remove('expanded');
+                text.textContent = 'Additional Technical Information';
+                icon.textContent = '▼';
+                isAdditionalTechExpanded = false;
+            } else {
+                panel.classList.add('show');
+                btn.classList.add('expanded');
+                text.textContent = 'Hide Technical Information';
+                icon.textContent = '▲';
+                isAdditionalTechExpanded = true;
+            }
+        }
+
+        // Toggle additional information
+        function toggleAdditionalInfo() {
+            const panel = document.getElementById('additional-info-panel');
+            const btn = document.getElementById('additional-info-btn');
+            const text = document.getElementById('additional-info-text');
+            const icon = document.getElementById('additional-info-icon');
+            
+            if (isAdditionalInfoExpanded) {
+                panel.classList.remove('show');
+                btn.classList.remove('expanded');
+                text.textContent = 'Additional Information';
+                icon.textContent = '▼';
+                isAdditionalInfoExpanded = false;
+            } else {
+                panel.classList.add('show');
+                btn.classList.add('expanded');
+                text.textContent = 'Hide Additional Information';
+                icon.textContent = '▲';
+                isAdditionalInfoExpanded = true;
+            }
+        }
+
+        // Quantity controls
+        function increaseQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            quantityInput.value = parseInt(quantityInput.value) + 1;
+        }
+
+        function decreaseQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            if (parseInt(quantityInput.value) > 1) {
+                quantityInput.value = parseInt(quantityInput.value) - 1;
+            }
+        }
+
+        // Add to cart
+        function addToCart() {
+            const quantity = document.getElementById('quantity').value;
+            console.log(`Adding ${quantity} x ${currentProduct.name} to cart`);
+            // Implement cart functionality
+            alert(`Added ${quantity} x ${currentProduct.name} to cart!`);
+        }
+
+        // Social sharing
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+        }
+
+        function shareOnWhatsApp() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent(`Check out this product: ${currentProduct.name}`);
+            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
+        }
+
+        function shareGeneric() {
+            if (navigator.share) {
+                navigator.share({
+                    title: currentProduct.name,
+                    text: currentProduct.descriptionShort,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback to copying URL
+                navigator.clipboard.writeText(window.location.href);
+                alert('URL copied to clipboard!');
+            }
+        }
+
+        // Toggle additional technical information
+        function toggleAdditionalTech() {
+            const panel = document.getElementById('additional-tech-panel');
+            const btn = document.getElementById('additional-tech-btn');
+            const text = document.getElementById('additional-tech-text');
+            const icon = document.getElementById('additional-tech-icon');
+            
+            if (isAdditionalTechExpanded) {
+                panel.classList.remove('show');
+                btn.classList.remove('expanded');
+                text.textContent = 'Additional Technical Information';
+                icon.textContent = '▼';
+                isAdditionalTechExpanded = false;
+            } else {
+                panel.classList.add('show');
+                btn.classList.add('expanded');
+                text.textContent = 'Hide Technical Information';
+                icon.textContent = '▲';
+                isAdditionalTechExpanded = true;
+            }
+        }
+
+        // Toggle additional information
+        function toggleAdditionalInfo() {
+            const panel = document.getElementById('additional-info-panel');
+            const btn = document.getElementById('additional-info-btn');
+            const text = document.getElementById('additional-info-text');
+            const icon = document.getElementById('additional-info-icon');
+            
+            if (isAdditionalInfoExpanded) {
+                panel.classList.remove('show');
+                btn.classList.remove('expanded');
+                text.textContent = 'Additional Information';
+                icon.textContent = '▼';
+                isAdditionalInfoExpanded = false;
+            } else {
+                panel.classList.add('show');
+                btn.classList.add('expanded');
+                text.textContent = 'Hide Additional Information';
+                icon.textContent = '▲';
+                isAdditionalInfoExpanded = true;
+            }
+        }
+
+        // Quantity controls
+        function increaseQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            quantityInput.value = parseInt(quantityInput.value) + 1;
+        }
+
+        function decreaseQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            if (parseInt(quantityInput.value) > 1) {
+                quantityInput.value = parseInt(quantityInput.value) - 1;
+            }
+        }
+
+        // Add to cart
+        function addToCart() {
+            const quantity = document.getElementById('quantity').value;
+            console.log(`Adding ${quantity} x ${currentProduct.name} to cart`);
+            // Implement cart functionality
+            alert(`Added ${quantity} x ${currentProduct.name} to cart!`);
+        }
+
+        // Social sharing
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+        }
+
+        function shareOnWhatsApp() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent(`Check out this product: ${currentProduct.name}`);
+            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
+        }
+
+        function shareGeneric() {
+            if (navigator.share) {
+                navigator.share({
+                    title: currentProduct.name,
+                    text: currentProduct.descriptionShort,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback to copying URL
+                navigator.clipboard.writeText(window.location.href);
+                alert('URL copied to clipboard!');
+            }
+        }
+
+        function togglePlayPause() {
+            const video = document.getElementById('main-media-video');
+            const playIcon = document.getElementById('play-icon');
+            
+            if (video.paused) {
+                video.play();
+                playIcon.textContent = '⏸';
+            } else {
+                video.pause();
+                playIcon.textContent = '▶';
+            }
+        }
+
+        // Error handling
+        function showError(message) {
+            document.getElementById('product-title').textContent = 'Error';
+            document.getElementById('product-sku').textContent = message;
+            console.error(message);
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Dynamic Product Page v2 initialized');
+            
+            // Get product ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('product') || urlParams.get('id');
+            
+            if (productId) {
+                console.log('🔄 Loading product:', productId);
+                loadProduct(productId);
+            } else {
+                showError('No product ID provided in URL');
+            }
+        });
+    </script>
+</body>
+</html>

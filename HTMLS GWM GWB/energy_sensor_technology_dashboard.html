@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Sensor Technology Dashboard</title>
+    <!-- No Scrolling Settings -->
+    <meta name="scrolling" content="no">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+            overflow-y: hidden;
+        }
+        
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: rgba(44, 62, 80, 0.9);
+            padding: 30px 0;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 30px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-item:hover, .sidebar-item.active {
+            color: #52c4b0;
+            background: rgba(82, 196, 176, 0.1);
+            border-left-color: #52c4b0;
+        }
+        
+        .sidebar-icon {
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 30px;
+        }
+        
+        .top-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+            height: 400px;
+        }
+        
+        .world-map-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .world-map {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .map-marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #52c4b0;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .map-marker:hover {
+            transform: scale(1.5);
+            background: #f39c12;
+        }
+        
+        .map-marker::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+        }
+        
+        .marker-netherlands { top: 40%; left: 50%; animation-delay: 0s; }
+        .marker-uk { top: 35%; left: 45%; animation-delay: 0.5s; }
+        .marker-portugal { top: 60%; left: 40%; animation-delay: 1s; }
+        .marker-spain { top: 55%; left: 45%; animation-delay: 1.5s; }
+        
+        .summary-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .summary-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #52c4b0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .summary-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid #52c4b0;
+        }
+        
+        .summary-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+        
+        .summary-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #f39c12;
+            animation: countUp 2s ease-out;
+        }
+        
+        .chart-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .locations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+        
+        .location-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            animation: slideInUp 0.8s ease-out;
+        }
+        
+        .location-card:nth-child(1) { animation-delay: 0.1s; }
+        .location-card:nth-child(2) { animation-delay: 0.2s; }
+        .location-card:nth-child(3) { animation-delay: 0.3s; }
+        
+        .location-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .location-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(82, 196, 176, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        .location-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #52c4b0;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .location-types {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .type-badge {
+            padding: 8px 15px;
+            background: rgba(82, 196, 176, 0.2);
+            color: #52c4b0;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid rgba(82, 196, 176, 0.3);
+        }
+        
+        .chart-area {
+            height: 120px;
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .bar-chart {
+            display: flex;
+            align-items: end;
+            height: 100%;
+            gap: 8px;
+            padding: 10px 0;
+        }
+        
+        .bar {
+            flex: 1;
+            background: linear-gradient(to top, #52c4b0, #f39c12);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            animation: growUp 1.5s ease-out;
+            transition: all 0.3s ease;
+        }
+        
+        .bar:hover {
+            transform: scaleY(1.1);
+            box-shadow: 0 0 15px rgba(82, 196, 176, 0.5);
+        }
+        
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .metric {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        .metric-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #f39c12;
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+        
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(82, 196, 176, 0.3);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            border: 2px solid #52c4b0;
+            box-shadow: 0 5px 20px rgba(82, 196, 176, 0.3);
+            backdrop-filter: blur(5px);
+            max-width: 250px;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 0.7;
+            }
+        }
+        
+        @keyframes slideInUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        @keyframes growUp {
+            from {
+                transform: scaleY(0);
+            }
+            to {
+                transform: scaleY(1);
+            }
+        }
+        
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            33% {
+                transform: translateY(-30px) rotate(120deg);
+            }
+            66% {
+                transform: translateY(-15px) rotate(240deg);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            
+            .main-content {
+                margin-left: 200px;
+                padding: 20px;
+            }
+            
+            .top-section {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .locations-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-particles">
+        <div class="particle" style="top: 10%; left: 5%; animation-delay: 0s;"></div>
+        <div class="particle" style="top: 20%; right: 10%; animation-delay: 2s;"></div>
+        <div class="particle" style="top: 70%; left: 15%; animation-delay: 4s;"></div>
+        <div class="particle" style="top: 80%; right: 20%; animation-delay: 1s;"></div>
+        <div class="particle" style="top: 40%; left: 80%; animation-delay: 3s;"></div>
+    </div>
+
+    <div class="dashboard">
+        <div class="sidebar">
+            <a href="#" class="sidebar-item active">
+                <div class="sidebar-icon">🏠</div>
+                <div>Dashboard</div>
+            </a>
+            <a href="#" class="sidebar-item">
+                <div class="sidebar-icon">🏢</div>
+                <div>Properties</div>
+            </a>
+            <a href="#" class="sidebar-item">
+                <div class="sidebar-icon">📊</div>
+                <div>Analytics</div>
+            </a>
+            <a href="#" class="sidebar-item">
+                <div class="sidebar-icon">⚙️</div>
+                <div>Sensors</div>
+            </a>
+            <a href="#" class="sidebar-item">
+                <div class="sidebar-icon">🌍</div>
+                <div>Locations</div>
+            </a>
+            <a href="#" class="sidebar-item">
+                <div class="sidebar-icon">📈</div>
+                <div>Reports</div>
+            </a>
+        </div>
+
+        <div class="main-content">
+            <div class="top-section">
+                <div class="world-map-container">
+                    <div class="world-map">
+                        <!-- Use your clearer Wix map image -->
+                        <img src="https://static.wixstatic.com/media/c123de_fa7bcf7aa1f34528a65ceeb0dabefdb8~mv2.jpg" 
+                             alt="Europe Map" 
+                             style="width: 100%; height: 100%; object-fit: contain; opacity: 0.8;">
+                        
+                        <!-- Location Markers with Project Details -->
+                        <div class="map-marker marker-netherlands" 
+                             data-country="Netherlands" 
+                             data-project="New Dish washer and Cooker to be replaced to low energy equipment"
+                             data-reduction="20%"
+                             data-type="Equipment Upgrade"></div>
+                        
+                        <div class="map-marker marker-uk" 
+                             data-country="United Kingdom" 
+                             data-project="Service all equipment for energy remeasuring"
+                             data-reduction="15%"
+                             data-type="Maintenance"></div>
+                        
+                        <div class="map-marker marker-portugal" 
+                             data-country="Portugal" 
+                             data-project="New HVAC monitoring system to be installed for Portugal Buildings"
+                             data-reduction="40%"
+                             data-type="HVAC System"></div>
+                        
+                        <div class="map-marker marker-spain" 
+                             data-country="Spain" 
+                             data-project="Replace all water faucets for Portugal hub"
+                             data-reduction="30%"
+                             data-type="Water Systems"></div>
+                    </div>
+                </div>
+
+                <div class="summary-panel">
+                    <div class="summary-title">Energy Overview</div>
+                    <div class="summary-stats">
+                        <div class="summary-item">
+                            <div class="summary-label">Total Properties</div>
+                            <div class="summary-value" data-target="47">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Active Sensors</div>
+                            <div class="summary-value" data-target="284">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Daily Savings €</div>
+                            <div class="summary-value" data-target="1247">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Avg kWh Reduction</div>
+                            <div class="summary-value" data-target="32">0%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="locations-grid">
+                <div class="location-card">
+                    <div class="location-title">Netherlands Hub</div>
+                    <div class="location-types">
+                        <span class="type-badge">🏠 Home</span>
+                        <span class="type-badge">🍽️ Restaurant</span>
+                        <span class="type-badge">🏢 Business</span>
+                    </div>
+                    <div class="chart-area">
+                        <div class="bar-chart">
+                            <div class="bar" style="height: 85%;">
+                                <div class="bar-label">Daily</div>
+                            </div>
+                            <div class="bar" style="height: 92%;">
+                                <div class="bar-label">Monthly</div>
+                            </div>
+                            <div class="bar" style="height: 78%;">
+                                <div class="bar-label">Yearly</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-value">12,450</div>
+                            <div class="metric-label">kWh Saved</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">€2,340</div>
+                            <div class="metric-label">Monthly</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">89</div>
+                            <div class="metric-label">Sensors</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="location-card">
+                    <div class="location-title">UK Operations</div>
+                    <div class="location-types">
+                        <span class="type-badge">🏠 Home</span>
+                        <span class="type-badge">🍽️ Restaurant</span>
+                        <span class="type-badge">🏢 Business</span>
+                    </div>
+                    <div class="chart-area">
+                        <div class="bar-chart">
+                            <div class="bar" style="height: 76%;">
+                                <div class="bar-label">Daily</div>
+                            </div>
+                            <div class="bar" style="height: 88%;">
+                                <div class="bar-label">Monthly</div>
+                            </div>
+                            <div class="bar" style="height: 95%;">
+                                <div class="bar-label">Yearly</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-value">9,830</div>
+                            <div class="metric-label">kWh Saved</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">€1,890</div>
+                            <div class="metric-label">Monthly</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">67</div>
+                            <div class="metric-label">Sensors</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="location-card">
+                    <div class="location-title">Portugal & Spain Market</div>
+                    <div class="location-types">
+                        <span class="type-badge">🏠 Home</span>
+                        <span class="type-badge">🍽️ Restaurant</span>
+                        <span class="type-badge">🏢 Business</span>
+                    </div>
+                    <div class="chart-area">
+                        <div class="bar-chart">
+                            <div class="bar" style="height: 82%;">
+                                <div class="bar-label">Daily</div>
+                            </div>
+                            <div class="bar" style="height: 74%;">
+                                <div class="bar-label">Monthly</div>
+                            </div>
+                            <div class="bar" style="height: 90%;">
+                                <div class="bar-label">Yearly</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-value">15,220</div>
+                            <div class="metric-label">kWh Saved</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">€2,760</div>
+                            <div class="metric-label">Monthly</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">128</div>
+                            <div class="metric-label">Sensors</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Copyright © 2024 Powered by Sensor Energy Solutions | All rights reserved</p>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // Counter animation
+        function animateCounters() {
+            const counters = document.querySelectorAll('.summary-value');
+            
+            counters.forEach(counter => {
+                const target = parseInt(counter.dataset.target);
+                const isPercentage = counter.textContent.includes('%');
+                let current = 0;
+                const increment = target / 100;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        counter.textContent = isPercentage ? target + '%' : target;
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = isPercentage ? Math.ceil(current) + '%' : Math.ceil(current);
+                    }
+                }, 30);
+            });
+        }
+
+        // Enhanced Tooltip functionality
+        function setupTooltips() {
+            const markers = document.querySelectorAll('.map-marker');
+            const tooltip = document.getElementById('tooltip');
+
+            markers.forEach(marker => {
+                marker.addEventListener('mouseenter', (e) => {
+                    const country = e.target.dataset.country;
+                    const project = e.target.dataset.project;
+                    const reduction = e.target.dataset.reduction;
+                    const type = e.target.dataset.type;
+                    
+                    tooltip.innerHTML = `
+                        <div style="text-align: center; padding: 5px;">
+                            <strong style="color: #52c4b0; font-size: 14px;">${country}</strong><br>
+                            <div style="color: #f39c12; font-size: 12px; margin: 5px 0;">${type}</div>
+                            <div style="font-size: 11px; line-height: 1.3; margin: 5px 0;">${project}</div>
+                            <div style="color: #2ecc71; font-size: 12px; font-weight: bold; margin: 5px 0;">
+                                ⬇️ ${reduction} reduction predicted
+                            </div>
+                        </div>
+                    `;
+                    tooltip.style.opacity = '1';
+                });
+
+                marker.addEventListener('mousemove', (e) => {
+                    tooltip.style.left = e.pageX + 15 + 'px';
+                    tooltip.style.top = e.pageY - 15 + 'px';
+                });
+
+                marker.addEventListener('mouseleave', () => {
+                    tooltip.style.opacity = '0';
+                });
+            });
+        }
+
+        // Add hover effects to cards
+        function setupCardEffects() {
+            const cards = document.querySelectorAll('.location-card');
+            
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        }
+
+        // Bar animation on hover
+        function setupBarAnimations() {
+            const bars = document.querySelectorAll('.bar');
+            
+            bars.forEach(bar => {
+                bar.addEventListener('mouseenter', function() {
+                    this.style.background = 'linear-gradient(to top, #f39c12, #52c4b0)';
+                });
+                
+                bar.addEventListener('mouseleave', function() {
+                    this.style.background = 'linear-gradient(to top, #52c4b0, #f39c12)';
+                });
+            });
+        }
+
+        // Initialize all animations when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(animateCounters, 500);
+            setupTooltips();
+            setupCardEffects();
+            setupBarAnimations();
+        });
+
+        // Parallax effect for floating particles
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const rate = scrolled * -0.5;
+            
+            document.querySelectorAll('.particle').forEach((particle, index) => {
+                particle.style.transform = `translateY(${rate * (index + 1) * 0.1}px) rotate(${rate * 0.1}deg)`;
+            });
+        });
+    </script>
+</body>
+</html>

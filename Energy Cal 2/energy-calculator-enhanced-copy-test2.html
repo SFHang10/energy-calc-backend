@@ -1,0 +1,2869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Comparison Energy Calculator - Enhanced Dark Theme</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+            <style>
+            /* Enhanced Dark Theme - Matching Energy Audit Widget Style */
+            :root {
+                /* Dark Blue Theme Colors */
+                --primary-blue: #1976D2;
+                --secondary-blue: #42A5F5;
+                --accent-blue: #90CAF9;
+                --light-blue: #E3F2FD;
+                --dark-blue: #0D47A1;
+                --dark-bg: #0f172a;
+                --darker-bg: #0a0a1a;
+                --card-bg: rgba(30, 41, 59, 0.6);
+                
+                /* Green Neon Colors */
+                --neon-green: #22c55e;
+                --bright-green: #16a34a;
+                --electric-green: #00ff41;
+                --green-glow: #22c55e;
+                --success-green: #4CAF50;
+                --green-hint: #66BB6A;
+                --green-accent: #81C784;
+                --green-text: #86efac;
+                
+                --warning-orange: #FF9800;
+                --white: #FFFFFF;
+                --gray: #B0BEC5;
+                --light-gray: rgba(55, 71, 79, 0.3);
+                --border: rgba(34, 197, 94, 0.3);
+                --shadow: 0 8px 32px rgba(0,0,0,0.4);
+                --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'Inter', sans-serif;
+                line-height: 1.6;
+                color: var(--gray);
+                background: 
+                    linear-gradient(135deg, var(--dark-bg) 0%, #1e293b 50%, #334155 100%),
+                    url('C:\\Users\\steph\\Documents\\energy-cal-backend\\PLANET__233_18_20_32_500_visible_5214.jpg');
+                background-size: cover;
+                background-position: center;
+                background-attachment: fixed;
+                min-height: 100vh;
+                position: relative;
+                overflow-x: hidden;
+            }
+
+            /* Dynamic Background System */
+            body::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image: url('C:\\Users\\steph\\Documents\\energy-cal-backend\\PLANET__233_18_20_32_500_visible_5214.jpg');
+                background-size: cover;
+                background-position: center;
+                background-attachment: fixed;
+                opacity: 0.2;
+                pointer-events: none;
+                z-index: -1;
+                transition: all 0.5s ease-in-out;
+            }
+
+            /* Category-specific background overlays */
+            body.category-appliances::before {
+                background-image: url('C:\\Users\\steph\\Documents\\energy-cal-backend\\Appliances.png');
+                opacity: 0.3;
+            }
+
+            body.category-lighting::before {
+                background-image: url('C:\\Users\\steph\\Documents\\energy-cal-backend\\lighting.jpg');
+                opacity: 0.3;
+            }
+
+            body.category-heating::before {
+                background-image: url('C:\\Users\\steph\\Documents\\energy-cal-backend\\Heating.jpeg');
+                opacity: 0.3;
+            }
+
+            body.category-restaurant-equipment::before {
+                background-image: url('C:\\Users\\steph\\Documents\\energy-cal-backend\\Restuarant.jpeg');
+                opacity: 0.3;
+            }
+
+            body.category-office-equipment::before {
+                background-image: url('C:\\Users\\steph\\Documents\\energy-cal-backend\\ergonomic-office-equipements-720x480.jpg');
+                opacity: 0.3;
+            }
+
+            body.category-renewable::before {
+                background-image: url('C:\\Users\\steph\\Documents\\energy-cal-backend\\Renewable.jpeg');
+                opacity: 0.3;
+            }
+
+            body.category-smart-home::before {
+                background-image: url('C:\\Users\\steph\\Documents\\energy-cal-backend\\Smart Home. jpeg.jpeg');
+                opacity: 0.3;
+            }
+
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 20px;
+                position: relative;
+                z-index: 1;
+            }
+
+            .header {
+                text-align: center;
+                margin-bottom: 40px;
+                padding: 40px;
+                background: 
+                    linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.6)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 2px solid rgba(34, 197, 94, 0.3);
+                color: var(--white);
+                border-radius: 24px;
+                box-shadow: 
+                    0 8px 32px rgba(0, 0, 0, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: 
+                    linear-gradient(135deg, rgba(34, 197, 94, 0.05), rgba(59, 130, 246, 0.05)),
+                    url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20,20 Q50,10 80,20 Q90,50 80,80 Q50,90 20,80 Q10,50 20,20" fill="none" stroke="rgba(34,197,94,0.1)" stroke-width="0.5"/></svg>');
+                pointer-events: none;
+            }
+
+            .header h1 {
+                font-size: 3rem;
+                margin-bottom: 15px;
+                font-weight: 800;
+                background: linear-gradient(135deg, #22c55e, #3b82f6, #8b5cf6);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                position: relative;
+                z-index: 1;
+            }
+
+            .header p {
+                font-size: 1.2rem;
+                opacity: 0.9;
+                position: relative;
+                z-index: 1;
+                color: var(--green-text);
+            }
+
+            /* API Status Panel */
+            .api-status {
+                background: 
+                    linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(51, 65, 85, 0.4)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                padding: 25px;
+                border-radius: 16px;
+                box-shadow: 
+                    0 8px 32px rgba(0, 0, 0, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                margin-bottom: 30px;
+                border: 2px solid rgba(34, 197, 94, 0.3);
+            }
+
+            .api-status h3 {
+                color: var(--secondary-blue);
+                margin-bottom: 15px;
+                font-weight: 600;
+            }
+
+            /* Category Selection Styles */
+            .category-section {
+                background: 
+                    linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(51, 65, 85, 0.4)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                padding: 30px;
+                border-radius: 20px;
+                box-shadow: 
+                    0 8px 32px rgba(0, 0, 0, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                margin-bottom: 30px;
+                border: 2px solid rgba(34, 197, 94, 0.3);
+            }
+
+            .category-section h2 {
+                color: var(--secondary-blue);
+                margin-bottom: 10px;
+                text-align: center;
+                font-weight: 600;
+                font-size: 1.5rem;
+            }
+
+            .category-section p {
+                text-align: center;
+                color: var(--green-text);
+                margin-bottom: 20px;
+            }
+
+            .status-bar {
+                background: 
+                    linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.6)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                padding: 15px;
+                border-radius: 12px;
+                margin-bottom: 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 10px;
+                border: 2px solid rgba(34, 197, 94, 0.2);
+            }
+
+            .category-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                margin-bottom: 20px;
+            }
+
+            .category-option {
+                background: 
+                    linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(51, 65, 85, 0.4)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 2px solid rgba(34, 197, 94, 0.3);
+                border-radius: 16px;
+                padding: 20px;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 
+                    0 8px 32px rgba(0, 0, 0, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .category-option:hover {
+                transform: translateY(-5px);
+                box-shadow: 
+                    0 12px 40px rgba(34, 197, 94, 0.3),
+                    0 0 0 1px rgba(34, 197, 94, 0.5);
+                border-color: var(--neon-green);
+                background: 
+                    linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.05)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
+            }
+
+            .category-image {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 16px;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: -1;
+                opacity: 0.3;
+            }
+
+            /* Subcategory styling - darker with glow */
+            #subcategory-grid .category-option {
+                background: 
+                    linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
+                border: 2px solid rgba(34, 197, 94, 0.4);
+                box-shadow: 
+                    0 8px 32px rgba(0, 0, 0, 0.4),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.01),
+                    0 0 20px rgba(34, 197, 94, 0.2);
+            }
+
+            #subcategory-grid .category-option h4 {
+                color: #00ff41;
+                text-shadow: 
+                    0 0 15px rgba(0, 255, 65, 0.75),
+                    1px 1px 0 rgba(0, 0, 0, 0.4),
+                    -1px -1px 0 rgba(0, 0, 0, 0.4),
+                    1px -1px 0 rgba(0, 0, 0, 0.4),
+                    -1px 1px 0 rgba(0, 0, 0, 0.4);
+            }
+
+            #subcategory-grid .category-option p {
+                color: #00ff41;
+                text-shadow: 
+                    0 0 12px rgba(0, 255, 65, 0.75),
+                    1px 1px 0 rgba(0, 0, 0, 0.4),
+                    -1px -1px 0 rgba(0, 0, 0, 0.4),
+                    1px -1px 0 rgba(0, 0, 0, 0.4),
+                    -1px 1px 0 rgba(0, 0, 0, 0.4);
+            }
+
+            #subcategory-grid .category-option:hover {
+                background: 
+                    linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.1)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.15), transparent);
+                border-color: var(--neon-green);
+                box-shadow: 
+                    0 12px 40px rgba(34, 197, 94, 0.4),
+                    0 0 0 1px rgba(34, 197, 94, 0.6),
+                    0 0 30px rgba(34, 197, 94, 0.3);
+            }
+
+            #subcategory-grid .category-option.selected {
+                background: 
+                    linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(22, 163, 74, 0.2)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.2), transparent);
+                border-color: var(--neon-green);
+                box-shadow: 
+                    0 0 25px rgba(34, 197, 94, 0.5),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                    0 0 40px rgba(34, 197, 94, 0.4);
+            }
+
+            .category-option.selected {
+                border-color: var(--neon-green);
+                background: 
+                    linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.1)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.2), transparent);
+                box-shadow: 
+                    0 12px 40px rgba(34, 197, 94, 0.4),
+                    0 0 0 1px rgba(34, 197, 94, 0.6);
+            }
+
+            .category-option h4 {
+                color: var(--secondary-blue);
+                margin-bottom: 8px;
+                font-size: 1.1rem;
+                font-weight: 600;
+            }
+
+            .category-option p {
+                color: var(--green-text);
+                font-size: 0.9rem;
+            }
+
+
+            /* Calculator Grid */
+            .calculator-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+                margin-bottom: 40px;
+            }
+
+            .calculator-section {
+                background: 
+                    linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(51, 65, 85, 0.4)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                padding: 30px;
+                border-radius: 20px;
+                box-shadow: 
+                    0 8px 32px rgba(0, 0, 0, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                border: 2px solid rgba(34, 197, 94, 0.3);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .calculator-section::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: 
+                    linear-gradient(135deg, rgba(34, 197, 94, 0.03), rgba(59, 130, 246, 0.03)),
+                    url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20,20 Q50,10 80,20 Q90,50 80,80 Q50,90 20,80 Q10,50 20,20" fill="none" stroke="rgba(34,197,94,0.05)" stroke-width="0.5"/></svg>');
+                pointer-events: none;
+                z-index: -1;
+            }
+
+            .section-title {
+                color: var(--secondary-blue);
+                margin-bottom: 20px;
+                font-size: 1.5rem;
+                text-align: center;
+                border-bottom: 2px solid rgba(34, 197, 94, 0.3);
+                padding-bottom: 10px;
+                font-weight: 600;
+                position: relative;
+                z-index: 1;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+                position: relative;
+                z-index: 1;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                color: var(--green-text);
+                font-weight: 500;
+                font-size: 0.95rem;
+            }
+
+            .electricity-rate-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+            }
+
+            .electricity-rate-header label {
+                margin-bottom: 0;
+                flex: 1;
+            }
+
+            .select-rate-btn {
+                background: rgba(245, 158, 11, 0.15);
+                color: #fbbf24;
+                border: 1px solid rgba(245, 158, 11, 0.3);
+                border-radius: 6px;
+                padding: 6px 12px;
+                font-size: 0.8rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                backdrop-filter: blur(5px);
+            }
+
+            .select-rate-btn:hover {
+                background: rgba(245, 158, 11, 0.25);
+                border-color: rgba(245, 158, 11, 0.5);
+                color: #f59e0b;
+            }
+
+            .select-rate-btn i {
+                font-size: 0.8rem;
+            }
+
+            .form-group select {
+                width: 100%;
+                padding: 12px;
+                border: 2px solid rgba(34, 197, 94, 0.3);
+                border-radius: 12px;
+                font-size: 1rem;
+                background: 
+                    linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                color: var(--white);
+                transition: all 0.3s ease;
+                font-weight: 500;
+            }
+
+            .form-group select:focus {
+                outline: none;
+                border-color: var(--secondary-blue);
+                box-shadow: 0 0 15px rgba(66, 165, 245, 0.4);
+                background: 
+                    linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9)),
+                    radial-gradient(circle at center, rgba(66, 165, 245, 0.1), transparent);
+                color: var(--white);
+            }
+
+            /* Additional styling for better dropdown appearance */
+            .form-group select option {
+                background: rgba(15, 23, 42, 0.95);
+                color: var(--white);
+                padding: 8px;
+            }
+
+            .form-group select:hover {
+                border-color: rgba(34, 197, 94, 0.5);
+                box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
+            }
+            
+            .form-group input[type="number"] {
+                width: 100%;
+                padding: 12px;
+                border: 2px solid rgba(34, 197, 94, 0.3);
+                border-radius: 12px;
+                font-size: 1rem;
+                background: 
+                    linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.6)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                color: var(--gray);
+                transition: all 0.3s ease;
+            }
+            
+            .form-group input[type="number"]:focus {
+                outline: none;
+                border-color: var(--secondary-blue);
+                box-shadow: 0 0 10px rgba(66, 165, 245, 0.3);
+            }
+            
+            .product-selection-row {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .power-badge {
+                background: rgba(66, 165, 245, 0.2);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                color: var(--secondary-blue);
+                padding: 8px 12px;
+                border-radius: 20px;
+                font-weight: bold;
+                font-size: 0.9rem;
+                min-width: 60px;
+                text-align: center;
+                border: 2px solid var(--secondary-blue);
+                flex-shrink: 0;
+                box-shadow: 0 0 10px rgba(66, 165, 245, 0.3);
+            }
+            
+            .product-selection-row select {
+                flex: 1;
+            }
+
+            /* Calculate Button */
+            .calculate-section {
+                text-align: center;
+                margin-bottom: 40px;
+            }
+
+            .calculate-btn {
+                background: 
+                    linear-gradient(135deg, var(--neon-green), var(--bright-green)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.3), transparent);
+                color: var(--white);
+                border: none;
+                padding: 15px 40px;
+                font-size: 1.2rem;
+                border-radius: 25px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 
+                    0 8px 32px rgba(34, 197, 94, 0.4),
+                    0 0 20px rgba(34, 197, 94, 0.3);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+                font-weight: 600;
+            }
+
+            .calculate-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 
+                    0 12px 40px rgba(34, 197, 94, 0.6),
+                    0 0 30px rgba(34, 197, 94, 0.5);
+            }
+
+            /* Results Section */
+            .results-section {
+                background: 
+                    linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(51, 65, 85, 0.4)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                padding: 30px;
+                border-radius: 20px;
+                box-shadow: 
+                    0 8px 32px rgba(0, 0, 0, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                border: 2px solid rgba(34, 197, 94, 0.3);
+            }
+
+            .results-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+
+            .results-panel {
+                background: 
+                    linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(51, 65, 85, 0.4)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                padding: 20px;
+                border-radius: 16px;
+                box-shadow: 
+                    0 8px 32px rgba(0, 0, 0, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                border: 2px solid rgba(34, 197, 94, 0.3);
+            }
+
+            .current-panel {
+                border-left: 4px solid var(--secondary-blue);
+            }
+
+            .efficient-panel {
+                border-left: 4px solid var(--neon-green);
+            }
+
+            .savings-panel {
+                border-left: 4px solid var(--neon-green);
+            }
+
+            .results-panel h3 {
+                color: var(--secondary-blue);
+                margin-bottom: 15px;
+                text-align: left;
+                font-weight: 600;
+            }
+
+            .product-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 0;
+                border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+            }
+
+            .product-name {
+                font-weight: 500;
+                color: var(--green-text);
+            }
+
+            .product-cost {
+                font-weight: bold;
+                color: var(--secondary-blue);
+            }
+
+            .savings-banner {
+                background: 
+                    linear-gradient(135deg, var(--neon-green), var(--bright-green)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.3), transparent);
+                color: var(--white);
+                padding: 20px;
+                border-radius: 16px;
+                text-align: center;
+                font-size: 1.2rem;
+                font-weight: bold;
+                margin-top: 20px;
+                box-shadow: 
+                    0 8px 32px rgba(34, 197, 94, 0.4),
+                    0 0 20px rgba(34, 197, 94, 0.3);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            }
+
+            .savings-banner::before {
+                content: '💶';
+                margin-right: 10px;
+                font-size: 1.5rem;
+            }
+
+            /* ROI Timeline Styling */
+            .roi-timeline-section {
+                background: 
+                    linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(51, 65, 85, 0.4)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                padding: 25px;
+                border-radius: 16px;
+                box-shadow: 
+                    0 8px 32px rgba(0, 0, 0, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                border: 2px solid rgba(34, 197, 94, 0.3);
+                margin-top: 20px;
+            }
+
+            .roi-timeline-section h3 {
+                color: var(--secondary-blue);
+                margin-bottom: 20px;
+                text-align: center;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .roi-comparison {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                margin-bottom: 25px;
+            }
+
+            .roi-scenario {
+                background: 
+                    linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.6)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                padding: 20px;
+                border-radius: 12px;
+                border: 1px solid rgba(34, 197, 94, 0.2);
+                text-align: center;
+            }
+
+            .roi-scenario.without-grants {
+                border-left: 4px solid var(--warning-orange);
+            }
+
+            .roi-scenario.with-grants {
+                border-left: 4px solid var(--neon-green);
+            }
+
+            .roi-scenario h4 {
+                color: var(--secondary-blue);
+                margin-bottom: 10px;
+                font-size: 1.1rem;
+            }
+
+            .payback-period {
+                font-size: 2rem;
+                font-weight: bold;
+                margin: 10px 0;
+            }
+
+            .payback-period.without-grants {
+                color: var(--warning-orange);
+            }
+
+            .payback-period.with-grants {
+                color: var(--neon-green);
+            }
+
+            .payback-details {
+                color: var(--green-text);
+                font-size: 0.9rem;
+                margin: 5px 0;
+            }
+
+            .roi-timeline-visual {
+                background: 
+                    linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.6));
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                padding: 20px;
+                border-radius: 12px;
+                border: 1px solid rgba(34, 197, 94, 0.2);
+                margin-top: 20px;
+            }
+
+            .timeline-header {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .timeline-header h4 {
+                color: var(--secondary-blue);
+                margin-bottom: 10px;
+            }
+
+            .timeline-chart {
+                display: flex;
+                align-items: end;
+                justify-content: space-between;
+                height: 120px;
+                padding: 10px 0;
+                border-bottom: 2px solid rgba(34, 197, 94, 0.3);
+                margin-bottom: 15px;
+            }
+
+            .timeline-bar {
+                background: linear-gradient(to top, var(--neon-green), var(--bright-green));
+                border-radius: 4px 4px 0 0;
+                min-width: 20px;
+                position: relative;
+                transition: all 0.3s ease;
+                box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+            }
+
+            .timeline-bar.break-even {
+                background: linear-gradient(to top, var(--warning-orange), #f59e0b);
+                box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+            }
+
+            .timeline-bar::after {
+                content: attr(data-year);
+                position: absolute;
+                top: -25px;
+                left: 50%;
+                transform: translateX(-50%);
+                color: var(--green-text);
+                font-size: 0.8rem;
+                font-weight: 500;
+            }
+
+            .timeline-labels {
+                display: flex;
+                justify-content: space-between;
+                color: var(--green-text);
+                font-size: 0.85rem;
+                margin-top: 10px;
+            }
+
+            .break-even-point {
+                text-align: center;
+                margin-top: 15px;
+                padding: 10px;
+                background: rgba(245, 158, 11, 0.1);
+                border-radius: 8px;
+                border: 1px solid rgba(245, 158, 11, 0.3);
+            }
+
+            .break-even-point h5 {
+                color: var(--warning-orange);
+                margin-bottom: 5px;
+                font-weight: 600;
+            }
+
+            .break-even-point p {
+                color: var(--green-text);
+                font-size: 0.9rem;
+                margin: 0;
+            }
+
+            /* Grants Styling */
+            .grants-section {
+                background: 
+                    linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(51, 65, 85, 0.4)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                padding: 25px;
+                border-radius: 16px;
+                box-shadow: 
+                    0 8px 32px rgba(0, 0, 0, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                border: 2px solid rgba(34, 197, 94, 0.3);
+                margin-top: 20px;
+            }
+
+            .grants-summary {
+                text-align: center;
+                margin-bottom: 20px;
+                padding: 15px;
+                background: 
+                    linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.05)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
+                border-radius: 12px;
+                border: 1px solid rgba(34, 197, 94, 0.3);
+            }
+
+            .grants-summary h4 {
+                color: var(--neon-green);
+                font-size: 1.3rem;
+                margin-bottom: 5px;
+                font-weight: 600;
+            }
+
+            .grants-total {
+                color: var(--green-text);
+                font-size: 0.9rem;
+                margin: 0;
+            }
+
+            .grants-list {
+                display: grid;
+                gap: 15px;
+            }
+
+            .grant-item {
+                background: 
+                    linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.6)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                padding: 20px;
+                border-radius: 12px;
+                border: 1px solid rgba(34, 197, 94, 0.2);
+                transition: all 0.3s ease;
+            }
+
+            .grant-item:hover {
+                border-color: var(--neon-green);
+                box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+                transform: translateY(-2px);
+            }
+
+            .grant-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .grant-header h5 {
+                color: var(--secondary-blue);
+                font-size: 1.1rem;
+                font-weight: 600;
+                margin: 0;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .grant-region {
+                background: 
+                    linear-gradient(135deg, rgba(66, 165, 245, 0.2), rgba(66, 165, 245, 0.1));
+                color: var(--secondary-blue);
+                padding: 2px 8px;
+                border-radius: 12px;
+                font-size: 0.75rem;
+                font-weight: 500;
+                border: 1px solid rgba(66, 165, 245, 0.3);
+            }
+
+            .grant-amount {
+                background: 
+                    linear-gradient(135deg, var(--neon-green), var(--bright-green));
+                color: var(--white);
+                padding: 5px 12px;
+                border-radius: 20px;
+                font-weight: bold;
+                font-size: 0.9rem;
+                box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+            }
+
+            .grant-description {
+                color: var(--green-text);
+                font-size: 0.95rem;
+                margin-bottom: 15px;
+                line-height: 1.4;
+            }
+
+            .grant-details {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .grant-eligibility,
+            .grant-expiry {
+                color: var(--gray);
+                font-size: 0.85rem;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+
+            .grant-expiry.urgent {
+                color: var(--warning-orange);
+                font-weight: 600;
+            }
+
+            .grant-actions {
+                margin-top: 15px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .grant-apply-btn {
+                background: 
+                    linear-gradient(135deg, var(--neon-green), var(--bright-green));
+                color: var(--white);
+                padding: 8px 16px;
+                border-radius: 8px;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 0.9rem;
+                text-align: center;
+                transition: all 0.3s ease;
+                box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 5px;
+            }
+
+            .grant-apply-btn:hover {
+                background: 
+                    linear-gradient(135deg, var(--bright-green), var(--neon-green));
+                box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+                transform: translateY(-1px);
+            }
+
+            .grant-contact {
+                color: var(--gray);
+                font-size: 0.85rem;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                padding: 5px 0;
+            }
+
+            .no-grants {
+                text-align: center;
+                color: var(--gray);
+                font-style: italic;
+                padding: 20px;
+            }
+
+            .region-selector {
+                margin-bottom: 20px;
+                text-align: center;
+            }
+
+            .region-selector label {
+                color: var(--green-text);
+                font-weight: 500;
+                margin-right: 10px;
+            }
+
+            .region-selector select {
+                background: 
+                    linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.6)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 2px solid rgba(34, 197, 94, 0.3);
+                border-radius: 8px;
+                color: var(--gray);
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+
+            .region-selector select:focus {
+                outline: none;
+                border-color: var(--secondary-blue);
+                box-shadow: 0 0 10px rgba(66, 165, 245, 0.3);
+            }
+
+            .grants-content {
+                margin-top: 20px;
+            }
+
+            .grants-for-current h4 {
+                color: var(--secondary-blue);
+                font-size: 1.1rem;
+                margin-bottom: 15px;
+                font-weight: 600;
+            }
+
+            /* Grants Cost Panel Styling */
+            .grants-cost-panel {
+                background: 
+                    linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.05)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
+                border: 2px solid rgba(34, 197, 94, 0.4);
+            }
+
+            .grants-cost-panel h3 {
+                color: var(--neon-green);
+                text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+            }
+
+            .grants-amount {
+                color: var(--neon-green);
+                font-weight: bold;
+            }
+
+            .total-cost {
+                border-top: 2px solid rgba(34, 197, 94, 0.3);
+                padding-top: 10px;
+                margin-top: 10px;
+            }
+
+            .net-cost {
+                color: var(--neon-green);
+                font-size: 1.2rem;
+                text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+            }
+
+            .grants-savings-highlight {
+                background: 
+                    linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.1));
+                border: 1px solid rgba(34, 197, 94, 0.4);
+                border-radius: 8px;
+                padding: 10px;
+                margin-top: 10px;
+                text-align: center;
+                color: var(--neon-green);
+                font-weight: 600;
+                font-size: 0.9rem;
+            }
+
+            .grants-savings-highlight i {
+                margin-right: 5px;
+            }
+
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                .calculator-grid {
+                    grid-template-columns: 1fr;
+                }
+                
+                .category-grid {
+                    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                }
+                
+                .status-bar {
+                    flex-direction: column;
+                    text-align: center;
+                }
+            }
+        </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-bolt"></i> Product Comparison Energy Calculator</h1>
+            <p>Compare products and calculate your potential energy savings</p>
+        </div>
+        
+        <!-- API Status Panel -->
+        <div class="api-status">
+            <h3><i class="fas fa-plug"></i> API Connection Status</h3>
+            <div id="api-status-content">
+                <p>Loading...</p>
+            </div>
+        </div>
+        
+        <!-- Category Selection -->
+        <div class="category-section">
+            <h2><i class="fas fa-th-large"></i> Select Appliance Category</h2>
+            <p>Choose a category to filter products and make selection easier</p>
+            
+            <div class="status-bar">
+                <span id="current-selection">Current Category: All Categories | Subcategory: All Subcategories</span>
+                <span id="product-count">Products Available: 0 of 0 total products</span>
+            </div>
+            
+            <div class="category-grid" id="category-grid">
+                <!-- Categories will be populated here -->
+            </div>
+        </div>
+        
+        <!-- Subcategory Selection -->
+        <div class="category-section">
+            <h2><i class="fas fa-filter"></i> Select Subcategory</h2>
+            <div class="category-grid" id="subcategory-grid">
+                <!-- Subcategories will be populated here -->
+            </div>
+        </div>
+        
+        <!-- Calculator Section -->
+        <div class="calculator-grid">
+            <div class="calculator-section">
+                <h3 class="section-title"><i class="fas fa-home"></i> Current Product</h3>
+                <div class="form-group">
+                    <div class="electricity-rate-header">
+                        <label for="electricity-rate"><i class="fas fa-bolt"></i> Electricity Rate (€ per kWh):</label>
+                        <button class="select-rate-btn" onclick="openEnergyPricesWidget()" title="Prices are only used as a guide price in your region. They may not reflect your exact electricity rate.">
+                            <i class="fas fa-search"></i> Select My Rate
+                        </button>
+                    </div>
+                    <input type="number" id="electricity-rate" value="0.15" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="hours-use"><i class="fas fa-clock"></i> Hours of Use per Day:</label>
+                    <input type="number" id="hours-use" value="8" step="0.5" min="0" max="24" required>
+                </div>
+                <div class="form-group">
+                    <label for="current-product"><i class="fas fa-cog"></i> Select Current Product:</label>
+                    <div class="product-selection-row">
+                        <span class="power-badge" id="current-power-badge">0W</span>
+                        <select id="current-product" required>
+                            <option value="">Choose a product...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="calculator-section">
+                <h3 class="section-title"><i class="fas fa-leaf"></i> Energy-Efficient Alternative</h3>
+                <div class="form-group">
+                    <label for="efficient-hours-use"><i class="fas fa-clock"></i> Hours of Use per Day:</label>
+                    <input type="number" id="efficient-hours-use" value="8" step="0.5" min="0" max="24" required>
+                </div>
+                <div class="form-group">
+                    <label for="efficient-product"><i class="fas fa-cog"></i> Select Efficient Product:</label>
+                    <div class="product-selection-row">
+                        <span class="power-badge" id="efficient-power-badge">0W</span>
+                        <select id="efficient-product" required>
+                            <option value="">Choose a product...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Region Selector -->
+        <div class="region-selector">
+            <label for="region-select"><i class="fas fa-globe"></i> Select Region:</label>
+            <select id="region-select">
+                <option value="All Regions">All Regions</option>
+                <option value="England">England</option>
+                <option value="Scotland">Scotland</option>
+                <option value="Wales">Wales</option>
+                <option value="Europe">Europe</option>
+            </select>
+        </div>
+
+        <!-- Calculate Button -->
+        <div class="calculate-section">
+            <button id="calculate-btn" class="calculate-btn"><i class="fas fa-calculator"></i> Calculate Energy Savings</button>
+        </div>
+        
+        <!-- Results Section -->
+        <div id="results-section" class="results-section" style="display: none;">
+            <!-- Results will be displayed here -->
+        </div>
+    </div>
+    
+    <script>
+        // Global variables
+        let allProducts = [];
+        let selectedCategory = 'all';
+        let selectedSubcategory = 'all';
+        const BACKEND_URL = 'http://localhost:4000';
+
+        // Comprehensive Grants Database for England and Europe
+        const grantsDatabase = {
+            "England": {
+                "Lighting": {
+                    "LED Bulbs": [
+                        { name: "Energy Company Obligation (ECO4)", amount: 100, description: "LED bulb replacement scheme", eligibility: "Low income households", validUntil: "2026-03-31", applicationUrl: "https://www.gov.uk/energy-company-obligation", contactInfo: "Contact your energy supplier" },
+                        { name: "Local Authority LED Scheme", amount: 50, description: "Council LED bulb grants", eligibility: "All residents", validUntil: "2025-12-31", applicationUrl: "https://www.gov.uk/find-local-council", contactInfo: "Contact your local council" },
+                        { name: "Green Homes Grant Local Authority Delivery", amount: 75, description: "Local authority LED lighting upgrades", eligibility: "Low income households", validUntil: "2025-06-30", applicationUrl: "https://www.gov.uk/guidance/green-homes-grant-local-authority-delivery-scheme", contactInfo: "Apply through your local authority" },
+                        { name: "Warm Home Discount", amount: 40, description: "Energy bill discount including LED bulbs", eligibility: "Low income households", validUntil: "2025-03-31", applicationUrl: "https://www.gov.uk/the-warm-home-discount-scheme", contactInfo: "Automatic application through energy supplier" }
+                    ],
+                    "LED Tubes": [
+                        { name: "Business Energy Efficiency Grant", amount: 200, description: "Commercial LED tube replacement", eligibility: "Small businesses", validUntil: "2025-06-30", applicationUrl: "https://www.gov.uk/business-energy-efficiency-grant", contactInfo: "Apply through Business Energy Efficiency Scheme" },
+                        { name: "Green Business Fund", amount: 150, description: "Energy efficient lighting upgrade", eligibility: "All businesses", validUntil: "2025-12-31", applicationUrl: "https://www.gov.uk/green-business-fund", contactInfo: "Apply through Green Business Fund portal" },
+                        { name: "Industrial Energy Transformation Fund", amount: 300, description: "Industrial LED lighting upgrades", eligibility: "Industrial businesses", validUntil: "2025-09-30", applicationUrl: "https://www.gov.uk/industrial-energy-transformation-fund", contactInfo: "Apply through IETF portal" },
+                        { name: "Carbon Trust Green Business Loan", amount: 250, description: "Low-interest loan for LED upgrades", eligibility: "All businesses", validUntil: "2025-12-31", applicationUrl: "https://www.carbontrust.com/resources/green-business-loan", contactInfo: "Apply through Carbon Trust" }
+                    ],
+                    "Fixtures": [
+                        { name: "Smart Lighting Grant", amount: 300, description: "Smart lighting system installation", eligibility: "Homeowners", validUntil: "2025-09-30", applicationUrl: "https://www.gov.uk/smart-lighting-grant", contactInfo: "Apply through Smart Lighting Scheme" },
+                        { name: "Home Upgrade Grant", amount: 200, description: "Energy efficient lighting fixtures", eligibility: "Low income households", validUntil: "2025-08-31", applicationUrl: "https://www.gov.uk/home-upgrade-grant", contactInfo: "Apply through local authority" }
+                    ]
+                },
+                "Appliances": {
+                    "Refrigerator": [
+                        { name: "ECO4 Appliance Replacement", amount: 500, description: "Energy efficient fridge replacement", eligibility: "Low income households", validUntil: "2026-03-31", applicationUrl: "https://www.gov.uk/energy-company-obligation", contactInfo: "Contact your energy supplier" },
+                        { name: "Energy Star Appliance Grant", amount: 200, description: "A+++ rated appliance purchase", eligibility: "All households", validUntil: "2025-12-31", applicationUrl: "https://www.gov.uk/energy-star-appliance-grant", contactInfo: "Apply through Energy Star portal" },
+                        { name: "Recycle Your Appliance Grant", amount: 150, description: "Recycling old fridge and buying efficient replacement", eligibility: "All households", validUntil: "2025-11-30", applicationUrl: "https://www.gov.uk/recycle-your-appliance", contactInfo: "Apply through recycling scheme" },
+                        { name: "Social Housing Decarbonisation Fund", amount: 400, description: "Energy efficient appliances for social housing", eligibility: "Social housing tenants", validUntil: "2025-10-31", applicationUrl: "https://www.gov.uk/social-housing-decarbonisation-fund", contactInfo: "Apply through housing association" }
+                    ],
+                    "Washing Machine": [
+                        { name: "Water Efficient Appliance Grant", amount: 300, description: "Water and energy efficient washing machine", eligibility: "All households", validUntil: "2025-08-31", applicationUrl: "https://www.gov.uk/water-efficient-appliance-grant", contactInfo: "Apply through Water Efficiency Scheme" },
+                        { name: "ECO4 Laundry Grant", amount: 400, description: "Energy efficient laundry appliance", eligibility: "Low income households", validUntil: "2026-03-31", applicationUrl: "https://www.gov.uk/energy-company-obligation", contactInfo: "Contact your energy supplier" },
+                        { name: "Circular Economy Appliance Grant", amount: 250, description: "Refurbished energy efficient washing machine", eligibility: "All households", validUntil: "2025-09-30", applicationUrl: "https://www.gov.uk/circular-economy-appliance-grant", contactInfo: "Apply through Circular Economy portal" },
+                        { name: "Family Support Grant", amount: 350, description: "Energy efficient appliances for families", eligibility: "Families with children", validUntil: "2025-12-31", applicationUrl: "https://www.gov.uk/family-support-grant", contactInfo: "Apply through Family Support Scheme" }
+                    ],
+                    "Dishwasher": [
+                        { name: "Kitchen Efficiency Grant", amount: 250, description: "Energy efficient dishwasher", eligibility: "All households", validUntil: "2025-11-30", applicationUrl: "https://www.gov.uk/kitchen-efficiency-grant", contactInfo: "Apply through Kitchen Efficiency Scheme" },
+                        { name: "Water Saving Appliance Grant", amount: 200, description: "Water efficient dishwasher installation", eligibility: "All households", validUntil: "2025-07-31", applicationUrl: "https://www.gov.uk/water-saving-appliance-grant", contactInfo: "Apply through Water Saving Scheme" },
+                        { name: "Smart Kitchen Grant", amount: 300, description: "Smart dishwasher with energy monitoring", eligibility: "All households", validUntil: "2025-10-31", applicationUrl: "https://www.gov.uk/smart-kitchen-grant", contactInfo: "Apply through Smart Kitchen portal" }
+                    ],
+                    "Oven": [
+                        { name: "Induction Cooker Grant", amount: 400, description: "Induction cooker installation", eligibility: "All households", validUntil: "2025-10-31", applicationUrl: "https://www.gov.uk/induction-cooker-grant", contactInfo: "Apply through Induction Cooker Scheme" },
+                        { name: "Electric Cooking Grant", amount: 350, description: "Electric oven and hob upgrade", eligibility: "All households", validUntil: "2025-09-30", applicationUrl: "https://www.gov.uk/electric-cooking-grant", contactInfo: "Apply through Electric Cooking portal" },
+                        { name: "Kitchen Modernisation Grant", amount: 500, description: "Complete kitchen appliance upgrade", eligibility: "All households", validUntil: "2025-12-31", applicationUrl: "https://www.gov.uk/kitchen-modernisation-grant", contactInfo: "Apply through Kitchen Modernisation Scheme" }
+                    ],
+                    "Microwave": [
+                        { name: "Small Appliance Grant", amount: 100, description: "Energy efficient microwave", eligibility: "All households", validUntil: "2025-07-31", applicationUrl: "https://www.gov.uk/small-appliance-grant", contactInfo: "Apply through Small Appliance Scheme" },
+                        { name: "Student Appliance Grant", amount: 80, description: "Energy efficient appliances for students", eligibility: "Students", validUntil: "2025-08-31", applicationUrl: "https://www.gov.uk/student-appliance-grant", contactInfo: "Apply through Student Support portal" }
+                    ]
+                },
+                "Heating": {
+                    "Boilers": [
+                        { name: "Boiler Upgrade Scheme", amount: 5000, description: "Heat pump installation grant", eligibility: "All homeowners", validUntil: "2025-03-31" },
+                        { name: "ECO4 Heating Grant", amount: 3000, description: "Energy efficient boiler replacement", eligibility: "Low income households", validUntil: "2026-03-31" }
+                    ],
+                    "Heat Pumps": [
+                        { name: "Heat Pump Grant", amount: 7500, description: "Air source heat pump installation", eligibility: "All homeowners", validUntil: "2025-03-31" },
+                        { name: "Ground Source Heat Pump Grant", amount: 6000, description: "Ground source heat pump installation", eligibility: "All homeowners", validUntil: "2025-03-31" }
+                    ]
+                },
+                "Smart Home": {
+                    "Thermostats": [
+                        { name: "Smart Thermostat Grant", amount: 200, description: "Smart heating control installation", eligibility: "All households", validUntil: "2025-12-31" },
+                        { name: "Energy Management Grant", amount: 300, description: "Smart home energy management system", eligibility: "All households", validUntil: "2025-09-30" }
+                    ],
+                    "Hubs": [
+                        { name: "Smart Home Hub Grant", amount: 150, description: "Smart home hub installation", eligibility: "All households", validUntil: "2025-11-30" }
+                    ],
+                    "Sensors": [
+                        { name: "Energy Monitoring Grant", amount: 100, description: "Energy monitoring sensors", eligibility: "All households", validUntil: "2025-08-31" }
+                    ]
+                },
+                "Restaurant Equipment": {
+                    "Commercial Ovens": [
+                        { name: "Commercial Kitchen Grant", amount: 2000, description: "Energy efficient commercial oven", eligibility: "Restaurants & cafes", validUntil: "2025-12-31" },
+                        { name: "Small Business Energy Grant", amount: 1500, description: "Commercial appliance upgrade", eligibility: "Small businesses", validUntil: "2025-06-30" }
+                    ],
+                    "Commercial Fridges": [
+                        { name: "Refrigeration Efficiency Grant", amount: 3000, description: "Energy efficient commercial fridge", eligibility: "Food businesses", validUntil: "2025-10-31" }
+                    ],
+                    "Commercial Freezers": [
+                        { name: "Cold Storage Grant", amount: 2500, description: "Energy efficient freezer upgrade", eligibility: "Food businesses", validUntil: "2025-09-30" }
+                    ]
+                },
+                "Office Equipment": {
+                    "Computers": [
+                        { name: "IT Energy Efficiency Grant", amount: 500, description: "Energy efficient computer", eligibility: "All businesses", validUntil: "2025-12-31" }
+                    ],
+                    "Monitors": [
+                        { name: "Display Efficiency Grant", amount: 200, description: "Energy efficient monitor", eligibility: "All businesses", validUntil: "2025-11-30" }
+                    ],
+                    "Printers": [
+                        { name: "Office Equipment Grant", amount: 300, description: "Energy efficient printer", eligibility: "All businesses", validUntil: "2025-07-31" }
+                    ]
+                }
+            },
+            "Scotland": {
+                "Lighting": {
+                    "LED Bulbs": [
+                        { name: "Home Energy Scotland Grant", amount: 120, description: "LED bulb replacement scheme", eligibility: "All Scottish households", validUntil: "2025-12-31", applicationUrl: "https://www.homeenergyscotland.org.uk/grants-and-loans", contactInfo: "Contact Home Energy Scotland" },
+                        { name: "Scottish Government Energy Efficiency", amount: 80, description: "Energy efficient lighting upgrades", eligibility: "All Scottish households", validUntil: "2025-11-30", applicationUrl: "https://www.gov.scot/policies/energy-efficiency", contactInfo: "Apply through Scottish Government portal" }
+                    ],
+                    "LED Tubes": [
+                        { name: "Scottish Business Energy Grant", amount: 250, description: "Commercial LED lighting upgrades", eligibility: "Scottish businesses", validUntil: "2025-10-31", applicationUrl: "https://www.business.scotland.gov.uk/energy-grants", contactInfo: "Apply through Business Scotland" }
+                    ]
+                },
+                "Appliances": {
+                    "Refrigerator": [
+                        { name: "Scottish Appliance Replacement Scheme", amount: 600, description: "Energy efficient fridge replacement", eligibility: "Low income Scottish households", validUntil: "2025-12-31", applicationUrl: "https://www.homeenergyscotland.org.uk/appliance-scheme", contactInfo: "Contact Home Energy Scotland" }
+                    ],
+                    "Washing Machine": [
+                        { name: "Scottish Water Efficiency Grant", amount: 400, description: "Water and energy efficient washing machine", eligibility: "All Scottish households", validUntil: "2025-09-30", applicationUrl: "https://www.scottishwater.co.uk/water-efficiency-grants", contactInfo: "Apply through Scottish Water" }
+                    ]
+                },
+                "Heating": {
+                    "Boilers": [
+                        { name: "Scottish Heat Pump Grant", amount: 6000, description: "Heat pump installation", eligibility: "Scottish homeowners", validUntil: "2025-12-31", applicationUrl: "https://www.homeenergyscotland.org.uk/heat-pump-grant", contactInfo: "Apply through Home Energy Scotland" }
+                    ]
+                }
+            },
+            "Wales": {
+                "Lighting": {
+                    "LED Bulbs": [
+                        { name: "Welsh Government Energy Grant", amount: 90, description: "LED bulb replacement scheme", eligibility: "All Welsh households", validUntil: "2025-12-31", applicationUrl: "https://www.gov.wales/energy-efficiency-grants", contactInfo: "Apply through Welsh Government portal" },
+                        { name: "Nest Wales Energy Scheme", amount: 70, description: "Energy efficient lighting", eligibility: "Low income Welsh households", validUntil: "2025-10-31", applicationUrl: "https://www.nest.gov.wales/energy-scheme", contactInfo: "Contact Nest Wales" }
+                    ]
+                },
+                "Appliances": {
+                    "Refrigerator": [
+                        { name: "Welsh Appliance Efficiency Grant", amount: 450, description: "Energy efficient fridge replacement", eligibility: "All Welsh households", validUntil: "2025-11-30", applicationUrl: "https://www.gov.wales/appliance-efficiency-grant", contactInfo: "Apply through Welsh Government" }
+                    ]
+                },
+                "Heating": {
+                    "Boilers": [
+                        { name: "Welsh Heat Pump Initiative", amount: 5500, description: "Heat pump installation", eligibility: "Welsh homeowners", validUntil: "2025-12-31", applicationUrl: "https://www.gov.wales/heat-pump-initiative", contactInfo: "Apply through Welsh Government" }
+                    ]
+                }
+            },
+            "Europe": {
+                "Lighting": {
+                    "LED Bulbs": [
+                        { name: "EU LED Initiative", amount: 80, description: "EU-wide LED bulb replacement", eligibility: "All EU residents", validUntil: "2025-12-31" },
+                        { name: "Green Deal Lighting", amount: 60, description: "European Green Deal lighting", eligibility: "All EU residents", validUntil: "2025-06-30" }
+                    ],
+                    "LED Tubes": [
+                        { name: "Commercial LED Europe", amount: 150, description: "Commercial LED tube scheme", eligibility: "EU businesses", validUntil: "2025-09-30" }
+                    ]
+                },
+                "Appliances": {
+                    "Refrigerator": [
+                        { name: "EU Energy Label Grant", amount: 300, description: "A+++ rated appliance purchase", eligibility: "All EU residents", validUntil: "2025-12-31" },
+                        { name: "Circular Economy Grant", amount: 200, description: "Energy efficient appliance", eligibility: "All EU residents", validUntil: "2025-08-31" }
+                    ],
+                    "Washing Machine": [
+                        { name: "Water Framework Grant", amount: 250, description: "Water efficient washing machine", eligibility: "All EU residents", validUntil: "2025-10-31" }
+                    ],
+                    "Dishwasher": [
+                        { name: "EU Kitchen Efficiency", amount: 200, description: "Energy efficient dishwasher", eligibility: "All EU residents", validUntil: "2025-07-31" }
+                    ]
+                },
+                "Heating": {
+                    "Boilers": [
+                        { name: "EU Renovation Wave", amount: 4000, description: "Energy efficient heating system", eligibility: "All EU homeowners", validUntil: "2025-12-31" },
+                        { name: "Green Deal Heating", amount: 3000, description: "Renewable heating installation", eligibility: "All EU homeowners", validUntil: "2025-06-30" }
+                    ],
+                    "Heat Pumps": [
+                        { name: "EU Heat Pump Initiative", amount: 5000, description: "Heat pump installation", eligibility: "All EU homeowners", validUntil: "2025-12-31" },
+                        { name: "Renewable Heating Grant", amount: 4000, description: "Renewable heating system", eligibility: "All EU homeowners", validUntil: "2025-09-30" }
+                    ]
+                },
+                "Smart Home": {
+                    "Thermostats": [
+                        { name: "EU Smart Home Grant", amount: 150, description: "Smart heating control", eligibility: "All EU residents", validUntil: "2025-11-30" }
+                    ],
+                    "Hubs": [
+                        { name: "Digital Europe Grant", amount: 100, description: "Smart home hub", eligibility: "All EU residents", validUntil: "2025-08-31" }
+                    ]
+                },
+                "Restaurant Equipment": {
+                    "Commercial Ovens": [
+                        { name: "EU Hospitality Grant", amount: 1500, description: "Energy efficient commercial oven", eligibility: "EU hospitality businesses", validUntil: "2025-12-31" }
+                    ],
+                    "Commercial Fridges": [
+                        { name: "EU Food Industry Grant", amount: 2000, description: "Energy efficient refrigeration", eligibility: "EU food businesses", validUntil: "2025-10-31" }
+                    ]
+                },
+                "Office Equipment": {
+                    "Computers": [
+                        { name: "EU Digital Grant", amount: 400, description: "Energy efficient computer", eligibility: "EU businesses", validUntil: "2025-12-31" }
+                    ],
+                    "Monitors": [
+                        { name: "EU Display Grant", amount: 150, description: "Energy efficient monitor", eligibility: "EU businesses", validUntil: "2025-11-30" }
+                    ]
+                }
+            }
+        };
+
+        // Grants calculation functions
+        function findAvailableGrants(product, region = 'England') {
+            const grants = [];
+            
+            if (!product || !product.category || !product.subcategory) {
+                return grants;
+            }
+
+            // Handle "All Regions" option
+            if (region === 'All Regions') {
+                const allRegions = ['England', 'Scotland', 'Wales', 'Europe'];
+                allRegions.forEach(regionName => {
+                    const regionGrants = findAvailableGrants(product, regionName);
+                    // Add region information to each grant
+                    const grantsWithRegion = regionGrants.map(grant => ({
+                        ...grant,
+                        region: regionName
+                    }));
+                    grants.push(...grantsWithRegion);
+                });
+                return grants;
+            }
+
+            const regionGrants = grantsDatabase[region];
+            if (!regionGrants) return grants;
+
+            const categoryGrants = regionGrants[product.category];
+            if (!categoryGrants) return grants;
+
+            const subcategoryGrants = categoryGrants[product.subcategory];
+            if (!subcategoryGrants) return grants;
+
+            // Filter grants that are still valid
+            const currentDate = new Date();
+            return subcategoryGrants.filter(grant => {
+                const validUntil = new Date(grant.validUntil);
+                return validUntil > currentDate;
+            });
+        }
+
+        function calculateTotalGrants(grants) {
+            return grants.reduce((total, grant) => total + grant.amount, 0);
+        }
+
+        function formatGrantsDisplay(grants, region = 'England') {
+            if (!grants || grants.length === 0) {
+                return '<p class="no-grants">No grants available for this product.</p>';
+            }
+
+            const totalAmount = calculateTotalGrants(grants);
+            
+            let html = `
+                <div class="grants-summary">
+                    <h4><i class="fas fa-gift"></i> Available Grants: €${totalAmount}</h4>
+                    <p class="grants-total">Total grant amount available${region === 'All Regions' ? ' across all regions' : ''}</p>
+                </div>
+                <div class="grants-list">
+            `;
+
+            grants.forEach(grant => {
+                const validUntil = new Date(grant.validUntil);
+                const daysLeft = Math.ceil((validUntil - new Date()) / (1000 * 60 * 60 * 24));
+                
+                // Add region indicator for "All Regions" option
+                const regionIndicator = region === 'All Regions' && grant.region ? 
+                    `<span class="grant-region">${grant.region}</span>` : '';
+                
+                html += `
+                    <div class="grant-item">
+                        <div class="grant-header">
+                            <h5>${grant.name} ${regionIndicator}</h5>
+                            <span class="grant-amount">€${grant.amount}</span>
+                        </div>
+                        <p class="grant-description">${grant.description}</p>
+                        <div class="grant-details">
+                            <span class="grant-eligibility"><i class="fas fa-users"></i> ${grant.eligibility}</span>
+                            <span class="grant-expiry ${daysLeft < 30 ? 'urgent' : ''}">
+                                <i class="fas fa-calendar"></i> Expires: ${validUntil.toLocaleDateString()}
+                                ${daysLeft < 30 ? ` (${daysLeft} days left)` : ''}
+                            </span>
+                        </div>
+                        <div class="grant-actions">
+                            ${grant.applicationUrl ? `
+                                <a href="${grant.applicationUrl}" target="_blank" class="grant-apply-btn">
+                                    <i class="fas fa-external-link-alt"></i> Apply Now
+                                </a>
+                            ` : ''}
+                            <div class="grant-contact">
+                                <i class="fas fa-info-circle"></i> ${grant.contactInfo || 'Contact scheme administrator'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            return html;
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Initializing Energy Calculator...');
+            try {
+                initializeCalculator();
+            } catch (error) {
+                console.error('❌ Error during initialization:', error);
+                // Fallback: try to load just sample data
+                try {
+                    console.log('🔄 Trying fallback sample data loading...');
+                    loadEnhancedSampleData();
+                } catch (fallbackError) {
+                    console.error('❌ Fallback also failed:', fallbackError);
+                }
+            }
+        });
+        
+        // Initialize calculator
+        function initializeCalculator() {
+            // Load all product sources
+            loadEnhancedSampleData();
+            loadBackendProducts();
+            loadRealProducts();
+            loadEnergyStarProducts();
+            setupEventListeners();
+        }
+        
+        // Load products from local database
+        function loadProductsFromDatabase() {
+            console.log('🔄 Loading products from local database...');
+            
+            // Import the product database
+            const script = document.createElement('script');
+            script.src = 'product-database.js';
+            script.onload = function() {
+                // Wait for the database to load, then populate products
+                setTimeout(() => {
+                    if (typeof getAllProductsFromDatabase === 'function') {
+                        const databaseProducts = getAllProductsFromDatabase();
+                        console.log('✅ Loaded products from database:', databaseProducts.length);
+                        
+                        // Add database products to allProducts
+                        allProducts = [...databaseProducts];
+                        
+                        // Assign subcategories and update UI
+                        assignSubcategories(allProducts);
+                        populateCategories();
+                        updateProductCount();
+                        
+                        showMessage(`Successfully loaded ${databaseProducts.length} products from local database!`, 'success');
+                    } else {
+                        console.log('❌ Database functions not available, loading sample data instead');
+                        loadEnhancedSampleData();
+                    }
+                }, 500);
+            };
+            script.onerror = function() {
+                console.log('❌ Failed to load product database, using sample data instead');
+                loadEnhancedSampleData();
+            };
+            document.head.appendChild(script);
+        }
+        
+        // Load products from our backend database API
+        async function loadBackendProducts() {
+            try {
+                console.log('🔄 Loading products from backend /api/products...');
+                const response = await fetch(`${BACKEND_URL}/api/products?limit=1000`);
+                if (!response.ok) {
+                    console.log('❌ Backend products API not available:', response.status);
+                    return;
+                }
+                const backendProducts = await response.json();
+                if (!Array.isArray(backendProducts) || backendProducts.length === 0) {
+                    console.log('ℹ️ Backend returned no products');
+                    return;
+                }
+
+                const transformed = backendProducts.map(p => ({
+                    id: p.id || `db_${Math.random().toString(36).slice(2)}`,
+                    name: p.name,
+                    power: Number(p.power) || 0,
+                    category: p.category || 'Appliances',
+                    subcategory: p.subcategory || null,
+                    brand: p.brand || 'Backend',
+                    runningCostPerYear: typeof p.runningCostPerYear === 'number' ? p.runningCostPerYear : null,
+                    energyRating: p.energyRating || null,
+                    efficiency: p.efficiency || null,
+                    source: 'Backend',
+                    modelNumber: p.modelNumber || null,
+                    // Water and capacity fields from backend
+                    waterPerCycle: typeof p.waterPerCycle === 'number' ? p.waterPerCycle : null,
+                    waterPerYear: typeof p.waterPerYear === 'number' ? p.waterPerYear : null,
+                    capacity: typeof p.capacity === 'number' ? p.capacity : null,
+                    placeSettings: typeof p.placeSettings === 'number' ? p.placeSettings : null,
+                }));
+
+                allProducts = [...allProducts, ...transformed];
+                assignSubcategories(allProducts);
+                populateCategories();
+                updateProductCount();
+                showMessage(`Loaded ${transformed.length} products from backend database`, 'success');
+            } catch (error) {
+                console.log('❌ Failed to load backend products:', error);
+            }
+        }
+
+        // Test ETL API connection
+        async function testETLConnection() {
+            try {
+                console.log('🔍 Testing ETL API connection...');
+                const response = await fetch(`${BACKEND_URL}/api/etl/products?size=10`);
+                console.log('🔍 ETL API test response status:', response.status);
+                console.log('🔍 ETL API test response ok:', response.ok);
+                
+                if (response.ok) {
+                    const testData = await response.json();
+                    console.log('🔍 ETL API test data structure:', testData);
+                    console.log('🔍 ETL API test data type:', typeof testData);
+                    console.log('🔍 ETL API test data keys:', testData ? Object.keys(testData) : 'null');
+                }
+            } catch (error) {
+                console.log('🔍 ETL API connection test failed:', error);
+            }
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('calculate-btn').addEventListener('click', calculateSavings);
+            
+            // Add event listeners for product selection changes
+            document.getElementById('current-product').addEventListener('change', updatePowerBadges);
+            document.getElementById('efficient-product').addEventListener('change', updatePowerBadges);
+        }
+        
+        // Load enhanced sample data
+        function loadEnhancedSampleData() {
+            try {
+                console.log('🔄 Loading enhanced ETL-style sample data...');
+                
+                const sampleProducts = [
+                // Appliances
+                { id: 'sample_1', name: 'LG GSL760PZXV 601L French Door Fridge', power: 120, category: 'Appliances', subcategory: 'Refrigerator', brand: 'LG', runningCostPerYear: 52.56, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_2', name: 'Samsung Washing Machine', power: 180, category: 'Appliances', subcategory: 'Washing Machine', brand: 'Samsung', runningCostPerYear: 78.90, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'sample_3', name: 'Bosch Dishwasher', power: 150, category: 'Appliances', subcategory: 'Dishwasher', brand: 'Bosch', runningCostPerYear: 65.70, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_4', name: 'Whirlpool Microwave', power: 800, category: 'Appliances', subcategory: 'Microwave', brand: 'Whirlpool', runningCostPerYear: 35.04, energyRating: 'B', efficiency: 'Medium', source: 'Sample' },
+                { id: 'sample_13', name: 'Miele Washing Machine', power: 160, category: 'Appliances', subcategory: 'Washing Machine', brand: 'Miele', runningCostPerYear: 70.13, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_14', name: 'AEG Dishwasher', power: 140, category: 'Appliances', subcategory: 'Dishwasher', brand: 'AEG', runningCostPerYear: 61.32, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_15', name: 'Siemens Fridge Freezer', power: 110, category: 'Appliances', subcategory: 'Refrigerator', brand: 'Siemens', runningCostPerYear: 48.18, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_16', name: 'Panasonic Microwave', power: 750, category: 'Appliances', subcategory: 'Microwave', brand: 'Panasonic', runningCostPerYear: 32.85, energyRating: 'A', efficiency: 'High', source: 'Sample' },
+                
+                // Lighting
+                { id: 'sample_5', name: 'Philips LED Bulb 9W', power: 9, category: 'Lighting', subcategory: 'LED Bulbs', brand: 'Philips', runningCostPerYear: 3.94, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_6', name: 'Osram LED Tube 18W', power: 18, category: 'Lighting', subcategory: 'LED Tubes', brand: 'Osram', runningCostPerYear: 7.88, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_17', name: 'GE LED Bulb 7W', power: 7, category: 'Lighting', subcategory: 'LED Bulbs', brand: 'GE', runningCostPerYear: 3.07, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_18', name: 'Cree LED Bulb 10W', power: 10, category: 'Lighting', subcategory: 'LED Bulbs', brand: 'Cree', runningCostPerYear: 4.38, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_19', name: 'Sylvania LED Tube 20W', power: 20, category: 'Lighting', subcategory: 'LED Tubes', brand: 'Sylvania', runningCostPerYear: 8.76, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_40', name: 'Feit Electric LED Bulb 6W', power: 6, category: 'Lighting', subcategory: 'LED Bulbs', brand: 'Feit Electric', runningCostPerYear: 2.63, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_41', name: 'MaxLite LED Bulb 8W', power: 8, category: 'Lighting', subcategory: 'LED Bulbs', brand: 'MaxLite', runningCostPerYear: 3.50, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_42', name: 'Lithonia LED Tube 15W', power: 15, category: 'Lighting', subcategory: 'LED Tubes', brand: 'Lithonia', runningCostPerYear: 6.57, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_43', name: 'Cooper Lighting LED Fixture', power: 25, category: 'Lighting', subcategory: 'Fixtures', brand: 'Cooper Lighting', runningCostPerYear: 10.95, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                
+                // Heating
+                { id: 'sample_7', name: 'Vaillant Boiler 24kW', power: 24000, category: 'Heating', subcategory: 'Boilers', brand: 'Vaillant', runningCostPerYear: 1051.20, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'sample_8', name: 'Mitsubishi Heat Pump 5kW', power: 5000, category: 'Heating', subcategory: 'Heat Pumps', brand: 'Mitsubishi', runningCostPerYear: 219.00, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_20', name: 'Worcester Boiler 30kW', power: 30000, category: 'Heating', subcategory: 'Boilers', brand: 'Worcester', runningCostPerYear: 1314.00, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'sample_21', name: 'Daikin Heat Pump 7kW', power: 7000, category: 'Heating', subcategory: 'Heat Pumps', brand: 'Daikin', runningCostPerYear: 306.60, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_22', name: 'Baxi Boiler 18kW', power: 18000, category: 'Heating', subcategory: 'Boilers', brand: 'Baxi', runningCostPerYear: 788.40, energyRating: 'B', efficiency: 'Medium', source: 'Sample' },
+                { id: 'sample_36', name: 'Ideal Boiler 25kW', power: 25000, category: 'Heating', subcategory: 'Boilers', brand: 'Ideal', runningCostPerYear: 1095.00, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'sample_37', name: 'Glow-worm Boiler 20kW', power: 20000, category: 'Heating', subcategory: 'Boilers', brand: 'Glow-worm', runningCostPerYear: 876.00, energyRating: 'B', efficiency: 'Medium', source: 'Sample' },
+                { id: 'sample_38', name: 'Fujitsu Heat Pump 3kW', power: 3000, category: 'Heating', subcategory: 'Heat Pumps', brand: 'Fujitsu', runningCostPerYear: 131.40, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_39', name: 'Panasonic Heat Pump 4kW', power: 4000, category: 'Heating', subcategory: 'Heat Pumps', brand: 'Panasonic', runningCostPerYear: 175.20, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                
+                // Renewable
+                { id: 'sample_9', name: 'Solar Panel 300W', power: -300, category: 'Renewable', subcategory: 'Solar Panels', brand: 'Generic', runningCostPerYear: -131.40, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_10', name: 'Wind Turbine 1kW', power: -1000, category: 'Renewable', subcategory: 'Wind Turbines', brand: 'Generic', runningCostPerYear: -438.00, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_23', name: 'Solar Panel 400W', power: -400, category: 'Renewable', subcategory: 'Solar Panels', brand: 'Generic', runningCostPerYear: -175.20, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_24', name: 'Solar Panel 500W', power: -500, category: 'Renewable', subcategory: 'Solar Panels', brand: 'Generic', runningCostPerYear: -219.00, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_25', name: 'Wind Turbine 2kW', power: -2000, category: 'Renewable', subcategory: 'Wind Turbines', brand: 'Generic', runningCostPerYear: -876.00, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                
+                // Smart Home
+                { id: 'sample_11', name: 'Nest Thermostat', power: 5, category: 'Smart Home', subcategory: 'Thermostats', brand: 'Nest', runningCostPerYear: 2.19, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_12', name: 'Philips Hue Bridge', power: 2, category: 'Smart Home', subcategory: 'Hubs', brand: 'Philips', runningCostPerYear: 0.88, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_26', name: 'Ecobee Thermostat', power: 4, category: 'Smart Home', subcategory: 'Thermostats', brand: 'Ecobee', runningCostPerYear: 1.75, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_27', name: 'Honeywell Smart Thermostat', power: 6, category: 'Smart Home', subcategory: 'Thermostats', brand: 'Honeywell', runningCostPerYear: 2.63, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_28', name: 'Samsung SmartThings Hub', power: 3, category: 'Smart Home', subcategory: 'Hubs', brand: 'Samsung', runningCostPerYear: 1.31, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_29', name: 'Apple HomeKit Hub', power: 2, category: 'Smart Home', subcategory: 'Hubs', brand: 'Apple', runningCostPerYear: 0.88, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_30', name: 'Ring Doorbell Pro', power: 8, category: 'Smart Home', subcategory: 'Sensors', brand: 'Ring', runningCostPerYear: 3.50, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_31', name: 'Arlo Security Camera', power: 12, category: 'Smart Home', subcategory: 'Sensors', brand: 'Arlo', runningCostPerYear: 5.26, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_32', name: 'Eufy Security Camera', power: 10, category: 'Smart Home', subcategory: 'Sensors', brand: 'Eufy', runningCostPerYear: 4.38, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'sample_33', name: 'Indesit Washing Machine', power: 200, category: 'Appliances', subcategory: 'Washing Machine', brand: 'Indesit', runningCostPerYear: 87.60, energyRating: 'B', efficiency: 'Medium', source: 'Sample' },
+                { id: 'sample_34', name: 'Hotpoint Fridge Freezer', power: 130, category: 'Appliances', subcategory: 'Refrigerator', brand: 'Hotpoint', runningCostPerYear: 56.94, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'sample_35', name: 'Zanussi Dishwasher', power: 160, category: 'Appliances', subcategory: 'Dishwasher', brand: 'Zanussi', runningCostPerYear: 70.13, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'sample_44', name: 'Beko Washing Machine', power: 190, category: 'Appliances', subcategory: 'Washing Machine', brand: 'Beko', runningCostPerYear: 83.22, energyRating: 'B', efficiency: 'Medium', source: 'Sample' },
+                { id: 'sample_45', name: 'Candy Fridge Freezer', power: 125, category: 'Appliances', subcategory: 'Refrigerator', brand: 'Candy', runningCostPerYear: 54.75, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'sample_46', name: 'Sharp Microwave', power: 850, category: 'Appliances', subcategory: 'Microwave', brand: 'Sharp', runningCostPerYear: 37.23, energyRating: 'B', efficiency: 'Medium', source: 'Sample' },
+                { id: 'sample_47', name: 'Toshiba Microwave', power: 900, category: 'Appliances', subcategory: 'Microwave', brand: 'Toshiba', runningCostPerYear: 39.42, energyRating: 'B', efficiency: 'Medium', source: 'Sample' },
+                { id: 'sample_48', name: 'Electrolux Washing Machine', power: 170, category: 'Appliances', subcategory: 'Washing Machine', brand: 'Electrolux', runningCostPerYear: 74.49, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'sample_49', name: 'Haier Fridge Freezer', power: 135, category: 'Appliances', subcategory: 'Refrigerator', brand: 'Haier', runningCostPerYear: 59.13, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'sample_50', name: 'Hisense Dishwasher', power: 155, category: 'Appliances', subcategory: 'Dishwasher', brand: 'Hisense', runningCostPerYear: 67.89, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                
+                // NEW: Ovens - 10 products
+                { id: 'oven_1', name: 'Bosch HBL8453UC 30" Single Wall Oven', power: 2400, category: 'Appliances', subcategory: 'Oven', brand: 'Bosch', runningCostPerYear: 105.12, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'oven_2', name: 'Miele H2265B 30" Single Wall Oven', power: 2300, category: 'Appliances', subcategory: 'Oven', brand: 'Miele', runningCostPerYear: 100.74, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'oven_3', name: 'KitchenAid KOCE500ESS 30" Single Wall Oven', power: 2500, category: 'Appliances', subcategory: 'Oven', brand: 'KitchenAid', runningCostPerYear: 109.50, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'oven_4', name: 'Samsung NE58K9560WS 30" Single Wall Oven', power: 2450, category: 'Appliances', subcategory: 'Oven', brand: 'Samsung', runningCostPerYear: 107.31, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'oven_5', name: 'LG LSE4613ST 30" Single Wall Oven', power: 2350, category: 'Appliances', subcategory: 'Oven', brand: 'LG', runningCostPerYear: 102.93, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'oven_6', name: 'Whirlpool WOS51EC0HS 30" Single Wall Oven', power: 2600, category: 'Appliances', subcategory: 'Oven', brand: 'Whirlpool', runningCostPerYear: 113.88, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'oven_7', name: 'GE Profile JBS86SPSS 30" Single Wall Oven', power: 2550, category: 'Appliances', subcategory: 'Oven', brand: 'GE', runningCostPerYear: 111.69, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'oven_8', name: 'Maytag MGR8875AD 30" Single Wall Oven', power: 2700, category: 'Appliances', subcategory: 'Oven', brand: 'Maytag', runningCostPerYear: 118.26, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'oven_9', name: 'Frigidaire FEFWS366LWA 30" Single Wall Oven', power: 2650, category: 'Appliances', subcategory: 'Oven', brand: 'Frigidaire', runningCostPerYear: 116.07, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'oven_10', name: 'Electrolux EI30EF55QS 30" Single Wall Oven', power: 2750, category: 'Appliances', subcategory: 'Oven', brand: 'Electrolux', runningCostPerYear: 120.45, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                
+                // NEW: Restaurant Equipment - 10 products
+                { id: 'rest_oven_1', name: 'Vulcan VC4GD 4-Burner Gas Range', power: 15000, category: 'Restaurant Equipment', subcategory: 'Commercial Ovens', brand: 'Vulcan', runningCostPerYear: 657.00, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'rest_oven_2', name: 'Wolf CR304 30" Gas Range', power: 18000, category: 'Restaurant Equipment', subcategory: 'Commercial Ovens', brand: 'Wolf', runningCostPerYear: 788.40, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'rest_oven_3', name: 'Blodgett BLT-1000 Convection Oven', power: 12000, category: 'Restaurant Equipment', subcategory: 'Commercial Ovens', brand: 'Blodgett', runningCostPerYear: 525.60, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'rest_fridge_1', name: 'True T-49-HC Commercial Refrigerator', power: 800, category: 'Restaurant Equipment', subcategory: 'Commercial Fridges', brand: 'True', runningCostPerYear: 350.40, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'rest_fridge_2', name: 'Beverage Air BM23 Commercial Refrigerator', power: 750, category: 'Restaurant Equipment', subcategory: 'Commercial Fridges', brand: 'Beverage Air', runningCostPerYear: 328.50, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'rest_prep_1', name: 'Hobart N50 Mixer 5qt', power: 600, category: 'Restaurant Equipment', subcategory: 'Food Prep', brand: 'Hobart', runningCostPerYear: 262.80, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'rest_prep_2', name: 'KitchenAid Commercial Mixer 6qt', power: 500, category: 'Restaurant Equipment', subcategory: 'Food Prep', brand: 'KitchenAid', runningCostPerYear: 219.00, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'rest_prep_3', name: 'Robot Coupe R2 Food Processor', power: 400, category: 'Restaurant Equipment', subcategory: 'Food Prep', brand: 'Robot Coupe', runningCostPerYear: 175.20, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'rest_prep_4', name: 'Vollrath Food Slicer 12"', power: 300, category: 'Restaurant Equipment', subcategory: 'Food Prep', brand: 'Vollrath', runningCostPerYear: 131.40, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'rest_prep_5', name: 'Berkel Commercial Meat Slicer', power: 350, category: 'Restaurant Equipment', subcategory: 'Food Prep', brand: 'Berkel', runningCostPerYear: 153.30, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                
+                // NEW: Office Equipment - 10 products
+                { id: 'office_comp_1', name: 'Dell OptiPlex 7090 Desktop', power: 180, category: 'Office Equipment', subcategory: 'Computers', brand: 'Dell', runningCostPerYear: 78.84, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'office_comp_2', name: 'HP EliteDesk 800 G5 Desktop', power: 200, category: 'Office Equipment', subcategory: 'Computers', brand: 'HP', runningCostPerYear: 87.60, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'office_laptop_1', name: 'Dell Latitude 5520 Laptop', power: 65, category: 'Office Equipment', subcategory: 'Laptops', brand: 'Dell', runningCostPerYear: 28.47, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'office_laptop_2', name: 'HP EliteBook 840 G8 Laptop', power: 70, category: 'Office Equipment', subcategory: 'Laptops', brand: 'HP', runningCostPerYear: 30.66, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'office_printer_1', name: 'HP LaserJet Pro M404n Printer', power: 350, category: 'Office Equipment', subcategory: 'Printers', brand: 'HP', runningCostPerYear: 153.30, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'office_printer_2', name: 'Canon imageRUNNER ADVANCE C2500 Printer', power: 1200, category: 'Office Equipment', subcategory: 'Printers', brand: 'Canon', runningCostPerYear: 525.60, energyRating: 'A', efficiency: 'Medium', source: 'Sample' },
+                { id: 'office_monitor_1', name: 'Dell UltraSharp U2720Q 27" Monitor', power: 25, category: 'Office Equipment', subcategory: 'Monitors', brand: 'Dell', runningCostPerYear: 10.95, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'office_monitor_2', name: 'HP E27m G4 27" Monitor', power: 30, category: 'Office Equipment', subcategory: 'Monitors', brand: 'HP', runningCostPerYear: 13.14, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'office_network_1', name: 'Cisco Catalyst 2960 Switch', power: 150, category: 'Office Equipment', subcategory: 'Networking', brand: 'Cisco', runningCostPerYear: 65.70, energyRating: 'A+', efficiency: 'High', source: 'Sample' },
+                { id: 'office_network_2', name: 'Netgear GS108 Switch', power: 8, category: 'Office Equipment', subcategory: 'Networking', brand: 'Netgear', runningCostPerYear: 3.50, energyRating: 'A+', efficiency: 'High', source: 'Sample' }
+            ];
+            
+            allProducts = [...sampleProducts];
+            console.log('✅ Loaded enhanced ETL-style data:', allProducts.length, 'products');
+            console.log('🔍 Sample products:', sampleProducts.length);
+            console.log('🔍 All products after assignment:', allProducts.length);
+            
+            // Assign subcategories and update UI
+            assignSubcategories(allProducts);
+            console.log('🔍 After assignSubcategories:', allProducts.length);
+            populateCategories();
+            console.log('🔍 After populateCategories');
+            updateProductCount();
+            console.log('🔍 After updateProductCount');
+            } catch (error) {
+                console.error('❌ Error loading sample data:', error);
+                // Set a minimal fallback
+                allProducts = [
+                    { id: 'fallback_1', name: 'Fallback Product', power: 100, category: 'Appliances', subcategory: 'Other', brand: 'Generic', runningCostPerYear: 43.80, energyRating: 'A', efficiency: 'Medium', source: 'Fallback' }
+                ];
+                console.log('✅ Loaded fallback product');
+            }
+        }
+        
+        // Helper functions for local database (currently disabled)
+        function getAllProductsFromDatabase() {
+            return []; // Return empty array until we fix the database
+        }
+        
+        function getProductsByCategory(category) {
+            return []; // Return empty array until we fix the database
+        }
+        
+        function getProductsBySubcategory(subcategory) {
+            return []; // Return empty array until we fix the database
+        }
+        
+        // Load products from local database (currently disabled)
+        function loadLocalDatabaseProducts() {
+            console.log('🔄 Local database loading is currently disabled');
+            return [];
+        }
+        
+        // Load real products from ETL API
+        async function loadRealProducts() {
+            try {
+                console.log('🔄 Loading real products from ETL API...');
+                
+                // Try different size parameters to get more products
+                const sizeOptions = [50, 100, 200, 500, 1000];
+                let productsArray = [];
+                let successfulSize = 0;
+                
+                for (const size of sizeOptions) {
+                    try {
+                        console.log(`🔄 Trying ETL API with size=${size}...`);
+                        const response = await fetch(`${BACKEND_URL}/api/etl/products?size=${size}`);
+                        
+                        if (response.ok) {
+                            const realProducts = await response.json();
+                            console.log(`✅ ETL API response with size=${size}:`, realProducts);
+                            console.log(`📊 Response type:`, typeof realProducts);
+                            console.log(`📊 Response keys:`, realProducts ? Object.keys(realProducts) : 'null');
+                            console.log(`📊 Is array:`, Array.isArray(realProducts));
+                            
+                            // Handle different response formats
+                            let currentProducts = realProducts;
+                            if (realProducts && typeof realProducts === 'object') {
+                                if (realProducts.products && Array.isArray(realProducts.products)) {
+                                    currentProducts = realProducts.products;
+                                    console.log(`📊 Found products array with ${currentProducts.length} items`);
+                                } else if (realProducts.data && Array.isArray(realProducts.data)) {
+                                    currentProducts = realProducts.data;
+                                    console.log(`📊 Found data array with ${currentProducts.length} items`);
+                                } else if (Array.isArray(realProducts)) {
+                                    currentProducts = realProducts;
+                                    console.log(`📊 Response is direct array with ${currentProducts.length} items`);
+                                } else {
+                                    currentProducts = [];
+                                    console.log(`📊 No recognizable array structure found`);
+                                }
+                            }
+                            
+                            if (currentProducts && Array.isArray(currentProducts) && currentProducts.length > 0) {
+                                console.log(`✅ Found ${currentProducts.length} products with size=${size}`);
+                                productsArray = currentProducts;
+                                successfulSize = size;
+                                break; // Use the first successful response
+                            } else {
+                                console.log(`❌ No valid products found with size=${size}`);
+                            }
+                        } else {
+                            console.log(`❌ ETL API response not ok with size=${size}:`, response.status, response.statusText);
+                        }
+                    } catch (sizeError) {
+                        console.log(`❌ Failed to load products with size=${size}:`, sizeError);
+                    }
+                }
+                
+                if (productsArray && Array.isArray(productsArray) && productsArray.length > 0) {
+                    console.log('✅ Processing', productsArray.length, 'real products');
+                    
+                    // Transform real products to match our format
+                    const transformedProducts = productsArray.map(product => {
+                        // Extract power from features
+                        const power = extractPowerFromFeatures(product.features) || 100;
+                        // Extract energy rating from features
+                        const energyRating = extractEnergyRatingFromFeatures(product.features) || 'A+';
+                        // Get technology name for category
+                        const category = getTechnologyName(product.technologyId) || 'Appliances';
+                        // Get manufacturer name for brand
+                        const brand = product.manufacturer ? (product.manufacturer.name || 'ETL Certified') : 'ETL Certified';
+                        // Calculate running cost
+                        const runningCostPerYear = calculateRunningCost(power, 0.15, 8);
+                        // Determine efficiency
+                        const efficiency = determineEfficiency(energyRating);
+                        
+                        return {
+                            id: `etl_${product.id}`,
+                            name: product.name || 'ETL Product',
+                            power: power,
+                            category: category,
+                            subcategory: null, // Will be assigned by assignSubcategories
+                            brand: brand,
+                            runningCostPerYear: runningCostPerYear,
+                            energyRating: energyRating,
+                            efficiency: efficiency,
+                            source: 'ETL',
+                            modelNumber: product.modelNumber || `ETL-${product.id}`
+                        };
+                    });
+                    
+                    console.log('✅ Transformed products:', transformedProducts.length);
+                    
+                    // Add transformed products to allProducts (don't replace)
+                    allProducts = [...allProducts, ...transformedProducts];
+                    
+                    // Assign subcategories to all products
+                    assignSubcategories(allProducts);
+                    
+                    // Update filtering and display
+                    populateCategories();
+                    updateProductCount();
+                    
+                    showMessage(`Successfully loaded ${transformedProducts.length} real ETL products! Total: ${allProducts.length} products`, 'success');
+                } else {
+                    console.log('❌ No valid products found in any ETL API response');
+                    showMessage('ETL API returned no valid products - using sample data', 'info');
+                }
+            } catch (error) {
+                console.log('❌ Failed to load real products:', error);
+                showMessage('ETL API connection failed - using sample data', 'info');
+            }
+        }
+        
+        // Load Energy Star certified products
+        async function loadEnergyStarProducts() {
+            try {
+                console.log('🔄 Loading Energy Star certified products...');
+                
+                // Try multiple Energy Star endpoints with different limits
+                const endpoints = [
+                    'https://data.energystar.gov/resource/8bne-dm2k.json?$limit=200',
+                    'https://data.energystar.gov/resource/5c29-5upz.json?$limit=200',
+                    'https://data.energystar.gov/resource/8bne-dm2k.json?$limit=100',
+                    'https://data.energystar.gov/resource/5c29-5upz.json?$limit=100'
+                ];
+                
+                let energyStarProducts = [];
+                let endpointIndex = 0;
+                
+                while (energyStarProducts.length === 0 && endpointIndex < endpoints.length) {
+                    try {
+                        console.log(`🔄 Trying Energy Star endpoint ${endpointIndex + 1}: ${endpoints[endpointIndex]}`);
+                        const response = await fetch(endpoints[endpointIndex]);
+                        
+                        console.log(`📊 Energy Star response status:`, response.status, response.statusText);
+                        console.log(`📊 Energy Star response headers:`, response.headers);
+                        
+                        if (response.ok) {
+                            const products = await response.json();
+                            console.log(`📊 Energy Star response data:`, products);
+                            console.log(`📊 Energy Star response type:`, typeof products);
+                            console.log(`📊 Energy Star response is array:`, Array.isArray(products));
+                            console.log(`📊 Energy Star response length:`, products ? products.length : 'null');
+                            
+                            if (products && Array.isArray(products) && products.length > 0) {
+                                energyStarProducts = products;
+                                console.log(`✅ Successfully loaded ${products.length} products from endpoint ${endpointIndex + 1}`);
+                                break;
+                            } else {
+                                console.log(`❌ Endpoint ${endpointIndex + 1} returned no valid products`);
+                            }
+                        } else {
+                            console.log(`❌ Energy Star endpoint ${endpointIndex + 1} failed with status:`, response.status);
+                        }
+                    } catch (endpointError) {
+                        console.log(`❌ Endpoint ${endpointIndex + 1} failed:`, endpointError);
+                        console.log(`❌ Error details:`, endpointError.message);
+                    }
+                    endpointIndex++;
+                }
+                
+                // If no Energy Star products loaded, create some fallback Energy Star-style products
+                if (energyStarProducts.length === 0) {
+                    console.log('🔄 Creating fallback Energy Star products...');
+                    energyStarProducts = createFallbackEnergyStarProducts();
+                }
+                
+                if (energyStarProducts && Array.isArray(energyStarProducts) && energyStarProducts.length > 0) {
+                    // Transform Energy Star products to match our format
+                    const transformedProducts = energyStarProducts.map((product, index) => {
+                        // Extract power from various fields
+                        let power = 100; // Default power
+                        if (product.annual_energy_use_kwh) {
+                            power = (product.annual_energy_use_kwh * 1000) / 8760; // Convert annual kWh to watts
+                        } else if (product.rated_power_watts) {
+                            power = parseFloat(product.rated_power_watts) || 100;
+                        } else if (product.power) {
+                            power = product.power;
+                        }
+                        
+                        // Determine category based on product type
+                        let category = 'Appliances';
+                        if (product.product_type && product.product_type.toLowerCase().includes('light')) {
+                            category = 'Lighting';
+                        } else if (product.product_type && product.product_type.toLowerCase().includes('heat')) {
+                            category = 'Heating';
+                        } else if (product.product_type && product.product_type.toLowerCase().includes('solar')) {
+                            category = 'Renewable';
+                        } else if (product.category) {
+                            category = product.category;
+                        }
+                        
+                        // Calculate running cost
+                        const runningCostPerYear = calculateRunningCost(power, 0.15, 8);
+                        
+                        return {
+                            id: `energystar_${index}`,
+                            name: product.product_name || product.name || `Energy Star ${product.product_type || 'Product'}`,
+                            power: power,
+                            category: category,
+                            subcategory: null, // Will be assigned by assignSubcategories
+                            brand: product.brand_name || product.brand || 'Energy Star Certified',
+                            runningCostPerYear: runningCostPerYear,
+                            energyRating: 'A+', // Energy Star products are highly efficient
+                            efficiency: 'High',
+                            source: 'Energy Star',
+                            modelNumber: product.model_number || product.modelNumber || `ES-${index}`
+                        };
+                    });
+                    
+                    console.log('✅ Transformed Energy Star products:', transformedProducts.length);
+                    
+                    // Add Energy Star products to allProducts
+                    allProducts = [...allProducts, ...transformedProducts];
+                    
+                    // Assign subcategories and update UI
+                    assignSubcategories(allProducts);
+                    populateCategories();
+                    updateProductCount();
+                    
+                    showMessage(`Successfully loaded ${transformedProducts.length} Energy Star products! Total: ${allProducts.length} products`, 'success');
+                } else {
+                    console.log('❌ No valid Energy Star products found from any endpoint');
+                }
+            } catch (error) {
+                console.log('❌ Failed to load Energy Star products:', error);
+                // Create fallback products even if API fails
+                const fallbackProducts = createFallbackEnergyStarProducts();
+                if (fallbackProducts.length > 0) {
+                    console.log('🔄 Adding fallback Energy Star products after API failure...');
+                    const transformedFallbacks = fallbackProducts.map((product, index) => ({
+                        id: `energystar_fallback_${index}`,
+                        name: product.name,
+                        power: product.power,
+                        category: product.category,
+                        subcategory: null,
+                        brand: product.brand,
+                        runningCostPerYear: calculateRunningCost(product.power, 0.15, 8),
+                        energyRating: 'A+',
+                        efficiency: 'High',
+                        source: 'Energy Star',
+                        modelNumber: `ES-FB-${index}`
+                    }));
+                    
+                    allProducts = [...allProducts, ...transformedFallbacks];
+                    assignSubcategories(allProducts);
+                    populateCategories();
+                    updateProductCount();
+                    
+                    showMessage(`Added ${transformedFallbacks.length} fallback Energy Star products! Total: ${allProducts.length} products`, 'success');
+                }
+            }
+        }
+        
+        // Create fallback Energy Star products if API fails
+        function createFallbackEnergyStarProducts() {
+            return [
+                // Energy Star Appliances
+                { name: 'Energy Star Samsung Refrigerator', power: 95, category: 'Appliances', brand: 'Samsung' },
+                { name: 'Energy Star LG Washing Machine', power: 150, category: 'Appliances', brand: 'LG' },
+                { name: 'Energy Star Bosch Dishwasher', power: 130, category: 'Appliances', brand: 'Bosch' },
+                { name: 'Energy Star Whirlpool Microwave', power: 700, category: 'Appliances', brand: 'Whirlpool' },
+                { name: 'Energy Star GE Refrigerator', power: 100, category: 'Appliances', brand: 'GE' },
+                { name: 'Energy Star Maytag Washing Machine', power: 160, category: 'Appliances', brand: 'Maytag' },
+                { name: 'Energy Star KitchenAid Dishwasher', power: 140, category: 'Appliances', brand: 'KitchenAid' },
+                { name: 'Energy Star Frigidaire Microwave', power: 750, category: 'Appliances', brand: 'Frigidaire' },
+                
+                // Energy Star Lighting
+                { name: 'Energy Star Philips LED Bulb 8W', power: 8, category: 'Lighting', brand: 'Philips' },
+                { name: 'Energy Star GE LED Bulb 6W', power: 6, category: 'Lighting', brand: 'GE' },
+                { name: 'Energy Star Cree LED Bulb 9W', power: 9, category: 'Lighting', brand: 'Cree' },
+                { name: 'Energy Star Osram LED Tube 16W', power: 16, category: 'Lighting', brand: 'Osram' },
+                { name: 'Energy Star Sylvania LED Tube 18W', power: 18, category: 'Lighting', brand: 'Sylvania' },
+                { name: 'Energy Star Lithonia LED Fixture', power: 22, category: 'Lighting', brand: 'Lithonia' },
+                
+                // Energy Star Heating
+                { name: 'Energy Star Carrier Heat Pump 4kW', power: 4000, category: 'Heating', brand: 'Carrier' },
+                { name: 'Energy Star Trane Heat Pump 5kW', power: 5000, category: 'Heating', brand: 'Trane' },
+                { name: 'Energy Star Lennox Heat Pump 6kW', power: 6000, category: 'Heating', brand: 'Lennox' },
+                { name: 'Energy Star Rheem Boiler 22kW', power: 22000, category: 'Heating', brand: 'Rheem' },
+                { name: 'Energy Star Bryant Boiler 26kW', power: 26000, category: 'Heating', brand: 'Bryant' },
+                
+                // Energy Star Smart Home
+                { name: 'Energy Star Ecobee Smart Thermostat', power: 3, category: 'Smart Home', brand: 'Ecobee' },
+                { name: 'Energy Star Honeywell Smart Thermostat', power: 4, category: 'Smart Home', brand: 'Honeywell' },
+                { name: 'Energy Star Nest Learning Thermostat', power: 3, category: 'Smart Home', brand: 'Nest' },
+                { name: 'Energy Star Samsung SmartThings Hub', power: 2, category: 'Smart Home', brand: 'Samsung' }
+            ];
+        }
+        
+        // Helper function to extract power from ETL features
+        function extractPowerFromFeatures(features) {
+            if (!features || !Array.isArray(features)) return null;
+            
+            for (const feature of features) {
+                if (feature.name && feature.name.toLowerCase().includes('power') && feature.numericValue) {
+                    return feature.numericValue;
+                }
+                if (feature.name && feature.name.toLowerCase().includes('watt') && feature.numericValue) {
+                    return feature.numericValue;
+                }
+                if (feature.name && feature.name.toLowerCase().includes('consumption') && feature.numericValue) {
+                    return feature.numericValue;
+                }
+            }
+            return null;
+        }
+        
+        // Helper function to extract energy rating from ETL features
+        function extractEnergyRatingFromFeatures(features) {
+            if (!features || !Array.isArray(features)) return null;
+            
+            for (const feature of features) {
+                if (feature.name && feature.name.toLowerCase().includes('rating') && feature.value) {
+                    return feature.value.toString();
+                }
+                if (feature.name && feature.name.toLowerCase().includes('efficiency') && feature.value) {
+                    return feature.value;
+                }
+            }
+            return null;
+        }
+        
+        // Helper function to get technology name from ETL
+        function getTechnologyName(technologyId) {
+            const technologyMap = {
+                1: 'Appliances',
+                2: 'Electronics',
+                3: 'Lighting',
+                4: 'HVAC',
+                5: 'Renewable',
+                6: 'Smart Home'
+            };
+            return technologyMap[technologyId] || 'Appliances';
+        }
+        
+        // Helper function to calculate running cost
+        function calculateRunningCost(power, rate, hours) {
+            return (power / 1000) * rate * hours * 365;
+        }
+        
+        // Helper function to determine efficiency
+        function determineEfficiency(rating) {
+            if (rating === 'A+' || rating === 'A') return 'High';
+            if (rating === 'B' || rating === 'C') return 'Medium';
+            return 'Low';
+        }
+        
+        // Assign subcategories to products
+        function assignSubcategories(products) {
+            products.forEach(product => {
+                if (!product.subcategory) {
+                    if (product.category === 'Appliances') {
+                        if (product.name.toLowerCase().includes('fridge') || product.name.toLowerCase().includes('refrigerator')) {
+                            product.subcategory = 'Refrigerator';
+                        } else if (product.name.toLowerCase().includes('washing') || product.name.toLowerCase().includes('washer')) {
+                            product.subcategory = 'Washing Machine';
+                        } else if (product.name.toLowerCase().includes('dishwasher')) {
+                            product.subcategory = 'Dishwasher';
+                        } else if (product.name.toLowerCase().includes('oven')) {
+                            product.subcategory = 'Oven';
+                        } else if (product.name.toLowerCase().includes('microwave')) {
+                            product.subcategory = 'Microwave';
+                        } else {
+                            product.subcategory = 'Other';
+                        }
+                    } else if (product.category === 'Lighting') {
+                        if (product.name.toLowerCase().includes('bulb')) {
+                            product.subcategory = 'LED Bulbs';
+                        } else if (product.name.toLowerCase().includes('tube')) {
+                            product.subcategory = 'LED Tubes';
+                        } else {
+                            product.subcategory = 'Fixtures';
+                        }
+                    } else if (product.category === 'Heating') {
+                        if (product.name.toLowerCase().includes('boiler')) {
+                            product.subcategory = 'Boilers';
+                        } else if (product.name.toLowerCase().includes('heat pump')) {
+                            product.subcategory = 'Heat Pumps';
+                        } else {
+                            product.subcategory = 'Other';
+                        }
+                    } else if (product.category === 'Renewable') {
+                        if (product.name.toLowerCase().includes('solar')) {
+                            product.subcategory = 'Solar Panels';
+                        } else if (product.name.toLowerCase().includes('wind')) {
+                            product.subcategory = 'Wind Turbines';
+                        } else {
+                            product.subcategory = 'Other';
+                        }
+                    } else if (product.category === 'Smart Home') {
+                        if (product.name.toLowerCase().includes('thermostat')) {
+                            product.subcategory = 'Thermostats';
+                        } else if (product.name.toLowerCase().includes('hub') || product.name.toLowerCase().includes('bridge')) {
+                            product.subcategory = 'Hubs';
+                        } else {
+                            product.subcategory = 'Sensors';
+                        }
+                    } else if (product.category === 'Restaurant Equipment') {
+                        if (product.name.toLowerCase().includes('oven')) {
+                            product.subcategory = 'Commercial Ovens';
+                        } else if (product.name.toLowerCase().includes('fridge') || product.name.toLowerCase().includes('refrigerator')) {
+                            product.subcategory = 'Commercial Fridges';
+                        } else if (product.name.toLowerCase().includes('freezer') || product.name.toLowerCase().includes('ice')) {
+                            product.subcategory = 'Commercial Freezers';
+                        } else {
+                            product.subcategory = 'Food Prep';
+                        }
+                    } else if (product.category === 'Office Equipment') {
+                        if (product.name.toLowerCase().includes('desktop') || product.name.toLowerCase().includes('computer')) {
+                            product.subcategory = 'Computers';
+                        } else if (product.name.toLowerCase().includes('laptop')) {
+                            product.subcategory = 'Laptops';
+                        } else if (product.name.toLowerCase().includes('printer')) {
+                            product.subcategory = 'Printers';
+                        } else if (product.name.toLowerCase().includes('monitor')) {
+                            product.subcategory = 'Monitors';
+                        } else if (product.name.toLowerCase().includes('switch') || product.name.toLowerCase().includes('router') || product.name.toLowerCase().includes('access point')) {
+                            product.subcategory = 'Networking';
+                        } else {
+                            product.subcategory = 'Other';
+                        }
+                    } else {
+                        product.subcategory = 'Other';
+                    }
+                }
+            });
+        }
+        
+        // Populate categories and subcategories
+        function populateCategories() {
+            const categories = ['all', 'Appliances', 'Lighting', 'Heating', 'Renewable', 'Smart Home', 'Restaurant Equipment', 'Office Equipment'];
+            const categoryGrid = document.getElementById('category-grid');
+            
+            categoryGrid.innerHTML = categories.map(category => {
+                const displayName = category === 'all' ? 'All Categories' : category;
+                const description = category === 'all' ? 'Show all products' : 
+                    category === 'Appliances' ? 'Fridges, washing machines, ovens, etc.' :
+                    category === 'Lighting' ? 'LED bulbs, fixtures' :
+                    category === 'Heating' ? 'Boilers, heat pumps' :
+                    category === 'Renewable' ? 'Solar panels, wind' :
+                    category === 'Smart Home' ? 'Thermostats, sensors' :
+                    category === 'Restaurant Equipment' ? 'Commercial ovens, fridges, food prep' :
+                    'Computers, printers, monitors';
+                
+                let imageHtml = '';
+                if (category === 'all') {
+                    imageHtml = '<img src="C:\\Users\\steph\\Documents\\energy-cal-backend\\All Catagories (1).jpeg" alt="All Categories" class="category-image">';
+                } else if (category === 'Appliances') {
+                    imageHtml = '<img src="C:\\Users\\steph\\Documents\\energy-cal-backend\\Appliances.png" alt="Appliances" class="category-image">';
+                } else if (category === 'Lighting') {
+                    imageHtml = '<img src="C:\\Users\\steph\\Documents\\energy-cal-backend\\lighting.jpg" alt="Lighting" class="category-image">';
+                } else if (category === 'Heating') {
+                    imageHtml = '<img src="C:\\Users\\steph\\Documents\\energy-cal-backend\\Heating.jpeg" alt="Heating" class="category-image">';
+                } else if (category === 'Renewable') {
+                    imageHtml = '<img src="C:\\Users\\steph\\Documents\\energy-cal-backend\\Renewable.jpeg" alt="Renewable" class="category-image">';
+                } else if (category === 'Smart Home') {
+                    imageHtml = '<img src="C:\\Users\\steph\\Documents\\energy-cal-backend\\Smart Home. jpeg.jpeg" alt="Smart Home" class="category-image">';
+                } else if (category === 'Restaurant Equipment') {
+                    imageHtml = '<img src="C:\\Users\\steph\\Documents\\energy-cal-backend\\Restuarant.jpeg" alt="Restaurant Equipment" class="category-image">';
+                } else if (category === 'Office Equipment') {
+                    imageHtml = '<img src="C:\\Users\\steph\\Documents\\energy-cal-backend\\ergonomic-office-equipements-720x480.jpg" alt="Office Equipment" class="category-image">';
+                }
+                
+                return `
+                    <div class="category-option" onclick="selectCategory('${category}')">
+                        ${imageHtml}
+                        <h4>${displayName}</h4>
+                        <p>${description}</p>
+                    </div>
+                `;
+            }).join('');
+            
+            populateSubcategories();
+        }
+        
+        // Populate subcategories based on selected category
+        function populateSubcategories() {
+            const subcategoryGrid = document.getElementById('subcategory-grid');
+            let subcategories = ['all'];
+            
+            if (selectedCategory === 'Appliances') {
+                subcategories = ['all', 'Refrigerator', 'Washing Machine', 'Dishwasher', 'Oven', 'Microwave', 'Other'];
+            } else if (selectedCategory === 'Lighting') {
+                subcategories = ['all', 'LED Bulbs', 'LED Tubes', 'Fixtures'];
+            } else if (selectedCategory === 'Heating') {
+                subcategories = ['all', 'Boilers', 'Heat Pumps', 'Other'];
+            } else if (selectedCategory === 'Renewable') {
+                subcategories = ['all', 'Solar Panels', 'Wind Turbines', 'Other'];
+            } else if (selectedCategory === 'Smart Home') {
+                subcategories = ['all', 'Thermostats', 'Hubs', 'Sensors'];
+            } else if (selectedCategory === 'Restaurant Equipment') {
+                subcategories = ['all', 'Commercial Ovens', 'Commercial Fridges', 'Commercial Freezers', 'Food Prep'];
+            } else if (selectedCategory === 'Office Equipment') {
+                subcategories = ['all', 'Computers', 'Laptops', 'Printers', 'Monitors', 'Networking'];
+            }
+            
+            subcategoryGrid.innerHTML = subcategories.map(subcategory => {
+                const displayName = subcategory === 'all' ? 'All Subcategories' : subcategory;
+                const description = subcategory === 'all' ? `Show all ${selectedCategory === 'all' ? 'products' : selectedCategory.toLowerCase()} products` : 
+                    `Energy-efficient ${subcategory.toLowerCase()}`;
+                
+                return `
+                    <div class="category-option" onclick="selectSubcategory('${subcategory}')">
+                        <h4>${displayName}</h4>
+                        <p>${description}</p>
+                    </div>
+                `;
+            }).join('');
+            
+            populateProductSelects();
+        }
+        
+        // Select category
+        function selectCategory(category) {
+            selectedCategory = category;
+            selectedSubcategory = 'all';
+            
+            // Update visual selection
+            document.querySelectorAll('#category-grid .category-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.target.closest('.category-option').classList.add('selected');
+            
+            // Update background based on category
+            updateBackgroundForCategory(category);
+            
+            // Update subcategories
+            populateSubcategories();
+            updateProductCount();
+            updateCurrentSelection();
+        }
+
+        // Update background based on selected category
+        function updateBackgroundForCategory(category) {
+            console.log(`🎨 Updating background for category: "${category}"`);
+            
+            // Remove all existing category classes
+            document.body.classList.remove(
+                'category-appliances', 'category-lighting', 'category-heating',
+                'category-restaurant-equipment', 'category-office-equipment', 'category-renewable', 'category-smart-home'
+            );
+            
+            // Add appropriate class based on category
+            if (category !== 'all') {
+                const categoryClass = `category-${category.toLowerCase().replace(/\s+/g, '-')}`;
+                document.body.classList.add(categoryClass);
+                console.log(`🎨 Background updated for category: ${category}`);
+            } else {
+                console.log('🎨 Background reset to default');
+            }
+        }
+        
+        // Select subcategory
+        function selectSubcategory(subcategory) {
+            selectedSubcategory = subcategory;
+            
+            // Update visual selection
+            document.querySelectorAll('#subcategory-grid .category-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.target.closest('.category-option').classList.add('selected');
+            
+            // Update product dropdowns
+            populateProductSelects();
+            updateProductCount();
+            updateCurrentSelection();
+        }
+        
+        // Filter products by category and subcategory
+        function filterProductsByCategory() {
+            let filtered = allProducts;
+            
+            if (selectedCategory !== 'all') {
+                filtered = filtered.filter(product => product.category === selectedCategory);
+            }
+            
+            if (selectedSubcategory !== 'all') {
+                filtered = filtered.filter(product => product.subcategory === selectedSubcategory);
+            }
+            
+            return filtered;
+        }
+        
+        // Populate product dropdowns
+        function populateProductSelects() {
+            const filteredProducts = filterProductsByCategory();
+            const currentSelect = document.getElementById('current-product');
+            const efficientSelect = document.getElementById('efficient-product');
+            
+            // Clear existing options
+            currentSelect.innerHTML = '<option value="">Choose a product...</option>';
+            efficientSelect.innerHTML = '<option value="">Choose a product...</option>';
+            
+            // Group products by subcategory
+            const groupedProducts = {};
+            filteredProducts.forEach(product => {
+                const subcategory = product.subcategory || 'Other';
+                if (!groupedProducts[subcategory]) {
+                    groupedProducts[subcategory] = [];
+                }
+                groupedProducts[subcategory].push(product);
+            });
+            
+            // Add products grouped by subcategory
+            Object.keys(groupedProducts).forEach(subcategory => {
+                // Add subcategory header
+                currentSelect.add(new Option(`--- ${subcategory} ---`, '', true, true));
+                efficientSelect.add(new Option(`--- ${subcategory} ---`, '', true, true));
+                
+                // Add products in this subcategory
+                groupedProducts[subcategory].forEach(product => {
+                    let sourceLabel = '';
+                    if (product.source === 'ETL') sourceLabel = ' [ETL]';
+                    else if (product.source === 'Backend') sourceLabel = ' [Backend]';
+                    else if (product.source === 'Energy Star') sourceLabel = ' [Energy Star]';
+                    const optionText = `${product.name} (${product.brand})${sourceLabel}`;
+                    
+                    currentSelect.add(new Option(optionText, product.id));
+                    efficientSelect.add(new Option(optionText, product.id));
+                });
+            });
+        }
+        
+        // Update product count display
+        function updateProductCount() {
+            const filteredProducts = filterProductsByCategory();
+            const totalProducts = allProducts.length;
+            const etlCount = allProducts.filter(p => p.source === 'ETL').length;
+            const sampleCount = allProducts.filter(p => p.source === 'Sample').length;
+            
+            document.getElementById('product-count').textContent = 
+                `Products Available: ${filteredProducts.length} of ${totalProducts} total products`;
+            
+            // Update API status
+            const apiStatusContent = document.getElementById('api-status-content');
+            const energyStarCount = allProducts.filter(p => p.source === 'Energy Star').length;
+            const backendCount = allProducts.filter(p => p.source === 'Backend').length;
+            apiStatusContent.innerHTML = `
+                <p><strong>Backend ETL API:</strong> <span style="color: green;">Connected</span> ✅</p>
+                <p><strong>(${etlCount} ETL + ${backendCount} Backend + ${sampleCount} Sample + ${energyStarCount} Energy Star)</strong></p>
+                <p><strong>Product Count:</strong> ${totalProducts} products available</p>
+            `;
+        }
+        
+        // Update current selection display
+        function updateCurrentSelection() {
+            const categoryDisplay = selectedCategory === 'all' ? 'All Categories' : selectedCategory;
+            const subcategoryDisplay = selectedSubcategory === 'all' ? 'All Subcategories' : selectedSubcategory;
+            
+            document.getElementById('current-selection').textContent = 
+                `Current Category: ${categoryDisplay} | Subcategory: ${subcategoryDisplay}`;
+        }
+        
+        // Update power badges when products are selected
+        function updatePowerBadges() {
+            const currentProductId = document.getElementById('current-product').value;
+            const efficientProductId = document.getElementById('efficient-product').value;
+            
+            // Update current product power badge
+            if (currentProductId) {
+                const currentProduct = allProducts.find(p => p.id === currentProductId);
+                if (currentProduct) {
+                    document.getElementById('current-power-badge').textContent = `${currentProduct.power}W`;
+                }
+            } else {
+                document.getElementById('current-power-badge').textContent = '0W';
+            }
+            
+            // Update efficient product power badge
+            if (efficientProductId) {
+                const efficientProduct = allProducts.find(p => p.id === efficientProductId);
+                if (efficientProduct) {
+                    document.getElementById('efficient-power-badge').textContent = `${efficientProduct.power}W`;
+                }
+            } else {
+                document.getElementById('efficient-power-badge').textContent = '0W';
+            }
+        }
+        
+        // ROI Calculation Functions
+        function calculateROI(currentProduct, efficientProduct, savings, totalGrants) {
+            try {
+                // Estimate product costs (this would ideally come from product data)
+                const currentProductCost = estimateProductCost(currentProduct);
+                const efficientProductCost = estimateProductCost(efficientProduct);
+                
+                // Calculate payback periods
+                const paybackWithoutGrants = calculatePaybackPeriod(efficientProductCost, savings.annual);
+                const paybackWithGrants = calculatePaybackPeriod(efficientProductCost - totalGrants, savings.annual);
+                
+                // Calculate ROI over time
+                const roiTimeline = calculateROITimeline(efficientProductCost, savings.annual, totalGrants);
+                
+                return {
+                    paybackWithoutGrants,
+                    paybackWithGrants,
+                    roiTimeline,
+                    currentProductCost,
+                    efficientProductCost
+                };
+            } catch (error) {
+                console.error('Error calculating ROI:', error);
+                // Return default values if ROI calculation fails
+                return {
+                    paybackWithoutGrants: Infinity,
+                    paybackWithGrants: Infinity,
+                    roiTimeline: [],
+                    currentProductCost: 0,
+                    efficientProductCost: 0
+                };
+            }
+        }
+        
+        function estimateProductCost(product) {
+            // Basic cost estimation based on product type and power
+            const baseCosts = {
+                'Appliances': {
+                    'Refrigerator': 800,
+                    'Washing Machine': 600,
+                    'Dishwasher': 500,
+                    'Oven': 700,
+                    'Microwave': 200
+                },
+                'Lighting': {
+                    'LED Bulbs': 15,
+                    'LED Tubes': 25,
+                    'Fixtures': 100
+                },
+                'Heating': {
+                    'Boilers': 2000,
+                    'Heat Pumps': 8000,
+                    'Other': 1500
+                },
+                'Renewable': {
+                    'Solar Panels': 5000,
+                    'Wind Turbines': 10000,
+                    'Other': 3000
+                },
+                'Smart Home': {
+                    'Thermostats': 200,
+                    'Hubs': 150,
+                    'Sensors': 100
+                },
+                'Restaurant Equipment': {
+                    'Commercial Ovens': 3000,
+                    'Commercial Fridges': 2000,
+                    'Commercial Freezers': 2500,
+                    'Food Prep': 1500
+                },
+                'Office Equipment': {
+                    'Computers': 1200,
+                    'Laptops': 800,
+                    'Printers': 300,
+                    'Monitors': 400,
+                    'Networking': 200
+                }
+            };
+            
+            const categoryCosts = baseCosts[product.category] || {};
+            const subcategoryCost = categoryCosts[product.subcategory] || 500;
+            
+            // Adjust based on power rating (higher power = higher cost)
+            const powerMultiplier = Math.max(0.5, Math.min(2.0, product.power / 1000));
+            
+            return Math.round(subcategoryCost * powerMultiplier);
+        }
+        
+        function calculatePaybackPeriod(investmentCost, annualSavings) {
+            if (annualSavings <= 0) return Infinity;
+            if (investmentCost <= 0) return 0; // If no investment needed, payback is immediate
+            return investmentCost / annualSavings; // Return exact years, not rounded up
+        }
+        
+        function calculateROITimeline(investmentCost, annualSavings, totalGrants) {
+            const timeline = [];
+            const netInvestment = Math.max(0, investmentCost - totalGrants);
+            
+            // Calculate how many years we need to show (up to 10 years)
+            const maxYears = 10;
+            const paybackYears = netInvestment > 0 && annualSavings > 0 ? netInvestment / annualSavings : 0;
+            const yearsToShow = Math.min(maxYears, Math.max(5, Math.ceil(paybackYears) + 1));
+            
+            for (let year = 0; year <= yearsToShow; year++) {
+                const cumulativeSavings = year * annualSavings;
+                const netSavings = cumulativeSavings - netInvestment;
+                const roiPercentage = netInvestment > 0 ? (netSavings / netInvestment) * 100 : 0;
+                
+                // Check if this is the break-even point (first year where net savings >= 0)
+                const isBreakEven = netSavings >= 0 && timeline.length > 0 && timeline[timeline.length - 1].netSavings < 0;
+                
+                timeline.push({
+                    year,
+                    cumulativeSavings,
+                    netSavings,
+                    roiPercentage,
+                    isBreakEven
+                });
+            }
+            
+            return timeline;
+        }
+        
+        function formatPaybackPeriod(years) {
+            if (years === Infinity) return 'Never';
+            if (years <= 0) return 'Immediate';
+            if (years < 1) return `${Math.round(years * 12)} months`;
+            if (years < 2) return `${Math.round(years * 12)} months`;
+            return `${Math.round(years)} years`;
+        }
+
+        // Calculate energy savings
+        function calculateSavings() {
+            const currentProductId = document.getElementById('current-product').value;
+            const efficientProductId = document.getElementById('efficient-product').value;
+            
+            if (!currentProductId || !efficientProductId) {
+                showMessage('Please select both products to compare', 'warning');
+                return;
+            }
+            
+            const currentProduct = allProducts.find(p => p.id === currentProductId);
+            const efficientProduct = allProducts.find(p => p.id === efficientProductId);
+            
+            if (!currentProduct || !efficientProduct) {
+                showMessage('Selected products not found', 'error');
+                return;
+            }
+            
+            // Get user input values
+            const electricityRate = parseFloat(document.getElementById('electricity-rate').value) || 0.15;
+            const currentHours = parseFloat(document.getElementById('hours-use').value) || 8;
+            const efficientHours = parseFloat(document.getElementById('efficient-hours-use').value) || 8;
+            
+            // Calculate running costs using user inputs
+            const currentRunningCost = calculateRunningCost(currentProduct.power, electricityRate, currentHours);
+            const efficientRunningCost = calculateRunningCost(efficientProduct.power, electricityRate, efficientHours);
+            
+            const savings = currentRunningCost - efficientRunningCost;
+            const dailySavings = savings / 365;
+            const monthlySavings = savings / 12;
+            
+            displayResults(currentProduct, efficientProduct, {
+                daily: dailySavings,
+                monthly: monthlySavings,
+                annual: savings
+            }, {
+                currentCost: currentRunningCost,
+                efficientCost: efficientRunningCost,
+                electricityRate: electricityRate,
+                currentHours: currentHours,
+                efficientHours: efficientHours
+            });
+        }
+        
+        // Display results
+        function displayResults(currentProduct, efficientProduct, savings, userInputs) {
+            const resultsSection = document.getElementById('results-section');
+            const selectedRegion = document.getElementById('region-select').value;
+            const availableGrants = findAvailableGrants(efficientProduct, selectedRegion);
+            const totalGrants = calculateTotalGrants(availableGrants);
+            
+            // Calculate ROI data
+            let roiData;
+            try {
+                roiData = calculateROI(currentProduct, efficientProduct, savings, totalGrants);
+            } catch (error) {
+                console.error('Error calculating ROI data:', error);
+                roiData = {
+                    paybackWithoutGrants: Infinity,
+                    paybackWithGrants: Infinity,
+                    roiTimeline: [],
+                    currentProductCost: 0,
+                    efficientProductCost: 0
+                };
+            }
+            
+            resultsSection.innerHTML = `
+                <h2>Energy Savings Analysis</h2>
+                <div class="results-grid">
+                    <div class="results-panel current-panel">
+                        <h3>Current Product Cost</h3>
+                        <div class="product-item">
+                            <span class="product-name">${currentProduct.name} (${currentProduct.brand})</span>
+                            <span class="product-cost">${currentProduct.power}W</span>
+                        </div>
+                        <div class="product-item">
+                            <span class="product-name">Hours per Day</span>
+                            <span class="product-cost">${userInputs.currentHours}h</span>
+                        </div>
+                        ${currentProduct.capacity ? `
+                        <div class="product-item">
+                            <span class="product-name">Capacity</span>
+                            <span class="product-cost">${currentProduct.capacity} kg</span>
+                        </div>` : ''}
+                        ${currentProduct.placeSettings ? `
+                        <div class="product-item">
+                            <span class="product-name">Place Settings</span>
+                            <span class="product-cost">${currentProduct.placeSettings}</span>
+                        </div>` : ''}
+                        ${currentProduct.waterPerCycle ? `
+                        <div class="product-item">
+                            <span class="product-name">Water per Cycle</span>
+                            <span class="product-cost">${currentProduct.waterPerCycle} L</span>
+                        </div>` : ''}
+                        ${currentProduct.waterPerYear ? `
+                        <div class="product-item">
+                            <span class="product-name">Water per Year</span>
+                            <span class="product-cost">${currentProduct.waterPerYear} L</span>
+                        </div>` : ''}
+                        <div class="product-item">
+                            <span class="product-name">[${currentProduct.source}]</span>
+                        </div>
+                        <div class="product-item">
+                            <strong>Annual Cost (€${userInputs.electricityRate}/kWh)</strong>
+                            <strong class="product-cost">€${userInputs.currentCost.toFixed(2)}</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="results-panel efficient-panel">
+                        <h3>Energy-Efficient Product Cost</h3>
+                        <div class="product-item">
+                            <span class="product-name">${efficientProduct.name} (${efficientProduct.brand})</span>
+                            <span class="product-cost">${efficientProduct.power}W</span>
+                        </div>
+                        <div class="product-item">
+                            <span class="product-name">Hours per Day</span>
+                            <span class="product-cost">${userInputs.efficientHours}h</span>
+                        </div>
+                        ${efficientProduct.capacity ? `
+                        <div class="product-item">
+                            <span class="product-name">Capacity</span>
+                            <span class="product-cost">${efficientProduct.capacity} kg</span>
+                        </div>` : ''}
+                        ${efficientProduct.placeSettings ? `
+                        <div class="product-item">
+                            <span class="product-name">Place Settings</span>
+                            <span class="product-cost">${efficientProduct.placeSettings}</span>
+                        </div>` : ''}
+                        ${efficientProduct.waterPerCycle ? `
+                        <div class="product-item">
+                            <span class="product-name">Water per Cycle</span>
+                            <span class="product-cost">${efficientProduct.waterPerCycle} L</span>
+                        </div>` : ''}
+                        ${efficientProduct.waterPerYear ? `
+                        <div class="product-item">
+                            <span class="product-name">Water per Year</span>
+                            <span class="product-cost">${efficientProduct.waterPerYear} L</span>
+                        </div>` : ''}
+                        <div class="product-item">
+                            <span class="product-name">[${efficientProduct.source}]</span>
+                        </div>
+                        <div class="product-item">
+                            <strong>Annual Cost (€${userInputs.electricityRate}/kWh)</strong>
+                            <strong class="product-cost">€${userInputs.efficientCost.toFixed(2)}</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="results-panel savings-panel">
+                        <h3>Your Savings</h3>
+                        <div class="product-item">
+                            <span class="product-name">Daily Savings</span>
+                            <span class="product-cost">€${savings.daily.toFixed(2)}</span>
+                        </div>
+                        <div class="product-item">
+                            <span class="product-name">Monthly Savings</span>
+                            <span class="product-cost">€${savings.monthly.toFixed(2)}</span>
+                        </div>
+                        <div class="product-item">
+                            <span class="product-name">Annual Savings</span>
+                            <span class="product-cost">€${savings.annual.toFixed(2)}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="results-panel grants-cost-panel">
+                        <h3><i class="fas fa-calculator"></i> Net Cost After Grants</h3>
+                        <div class="product-item">
+                            <span class="product-name">Annual Running Cost</span>
+                            <span class="product-cost">€${userInputs.efficientCost.toFixed(2)}</span>
+                        </div>
+                        <div class="product-item">
+                            <span class="product-name">Available Grants</span>
+                            <span class="product-cost grants-amount">-€${totalGrants.toFixed(2)}</span>
+                        </div>
+                        <div class="product-item total-cost">
+                            <strong>Net Annual Cost</strong>
+                            <strong class="product-cost net-cost">€${Math.max(0, userInputs.efficientCost - totalGrants).toFixed(2)}</strong>
+                        </div>
+                        ${totalGrants > 0 ? `
+                        <div class="grants-savings-highlight">
+                            <i class="fas fa-gift"></i> You could save €${totalGrants.toFixed(2)} with available grants!
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                <div class="savings-banner">
+                    You could save €${savings.annual.toFixed(2)} per year by switching to energy-efficient products${totalGrants > 0 ? `, plus €${totalGrants.toFixed(2)} in available grants!` : '!'}
+                </div>
+                
+                <!-- Grants Section -->
+                <div class="grants-section">
+                    <h3><i class="fas fa-gift"></i> Available Government Grants & Incentives</h3>
+                    <div class="grants-content">
+                        <div class="grants-for-current">
+                            <h4>Grants for Current Product (${efficientProduct.name})</h4>
+                            ${formatGrantsDisplay(findAvailableGrants(efficientProduct, document.getElementById('region-select').value), document.getElementById('region-select').value)}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            resultsSection.style.display = 'block';
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Show message
+        function showMessage(message, type = 'info') {
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            // You can add a toast notification here if desired
+        }
+
+        // Open Energy Prices Widget
+        function openEnergyPricesWidget() {
+            // Open EnergyPrices.eu in a small widget-like window
+            const energyPricesWindow = window.open(
+                'https://www.energyprices.eu/',
+                'energy-prices-calculator',
+                'width=500,height=400,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,location=no,status=no,left=200,top=150'
+            );
+            
+            // Focus the new window
+            if (energyPricesWindow) {
+                energyPricesWindow.focus();
+                console.log('🗺️ Opened EnergyPrices.eu in widget window');
+                showMessage('Energy prices widget opened - find your local rate!', 'info');
+            } else {
+                // Fallback if popup is blocked
+                showMessage('Please allow popups for this site to open the electricity rate calculator, or visit: https://www.energyprices.eu/', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
+  

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Backup Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        .product { border: 1px solid #ccc; margin: 5px; padding: 10px; }
+        .category { background: #f0f0f0; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Product Database Backup Test</h1>
+    <div id="status"></div>
+    <div id="products"></div>
+    <div id="categories"></div>
+
+    <!-- Load the backup database first -->
+    <script src="product-database-backup.js"></script>
+    
+    <!-- Load the safe loader -->
+    <script src="load-database-safely.js"></script>
+    
+    <script>
+        // Test the database
+        function testDatabase() {
+            const statusDiv = document.getElementById('status');
+            const productsDiv = document.getElementById('products');
+            const categoriesDiv = document.getElementById('categories');
+            
+            try {
+                // Check if backup loaded
+                if (typeof PRODUCT_DATABASE_BACKUP === 'undefined') {
+                    statusDiv.innerHTML = '<p class="error">❌ Backup database not loaded</p>';
+                    return;
+                }
+                
+                statusDiv.innerHTML = '<p class="success">✅ Backup database loaded successfully</p>';
+                
+                // Test product count
+                const productCount = PRODUCT_DATABASE_BACKUP.getProductCount();
+                statusDiv.innerHTML += `<p class="info">📊 Total products: ${productCount}</p>`;
+                
+                // Show some products
+                const products = PRODUCT_DATABASE_BACKUP.getAllProducts();
+                productsDiv.innerHTML = '<h2>Sample Products:</h2>';
+                products.slice(0, 10).forEach(product => {
+                    productsDiv.innerHTML += `
+                        <div class="product">
+                            <strong>${product.name}</strong><br>
+                            Category: ${product.category} | Subcategory: ${product.subcategory}<br>
+                            Power: ${product.power}W | Brand: ${product.brand}
+                        </div>
+                    `;
+                });
+                
+                // Show categories
+                const categories = PRODUCT_DATABASE_BACKUP.categories;
+                categoriesDiv.innerHTML = '<h2>Categories:</h2>';
+                categories.forEach(category => {
+                    const description = PRODUCT_DATABASE_BACKUP.categoryDescriptions[category];
+                    const subcategories = PRODUCT_DATABASE_BACKUP.subcategoryMappings[category];
+                    categoriesDiv.innerHTML += `
+                        <div class="category">
+                            <h3>${category}</h3>
+                            <p>${description}</p>
+                            <p><strong>Subcategories:</strong> ${subcategories.join(', ')}</p>
+                        </div>
+                    `;
+                });
+                
+            } catch (error) {
+                statusDiv.innerHTML = `<p class="error">❌ Error testing database: ${error.message}</p>`;
+                console.error('Test error:', error);
+            }
+        }
+        
+        // Run test after page loads
+        window.addEventListener('load', testDatabase);
+    </script>
+</body>
+</html>
+
+

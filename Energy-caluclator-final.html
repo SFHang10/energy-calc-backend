@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Calculator - Final Version</title>
+    <style>
+        /* Energy Calculator Theme */
+        :root {
+            --primary-blue: #1976D2;
+            --secondary-blue: #42A5F5;
+            --accent-blue: #90CAF9;
+            --light-blue: #E3F2FD;
+            --dark-blue: #0D47A1;
+            --success-green: #4CAF50;
+            --warning-orange: #FF9800;
+            --white: #FFFFFF;
+            --gray: #757575;
+            --light-gray: #F5F5F5;
+            --border: #E0E0E0;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: var(--light-blue);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: var(--white);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Category Selection Styles */
+        .category-section {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .category-option {
+            background: var(--white);
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary-blue);
+        }
+
+        .category-option.selected {
+            border-color: var(--success-green);
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        }
+
+        /* Subcategory specific styling - different visual approach */
+        #subcategory-grid .category-option {
+            border: 2px solid var(--secondary-blue);
+            background: var(--light-blue);
+            position: relative;
+        }
+
+        #subcategory-grid .category-option:hover {
+            border-color: var(--primary-blue);
+            background: var(--accent-blue);
+        }
+
+        #subcategory-grid .category-option.selected {
+            border-color: var(--primary-blue);
+            background: var(--primary-blue);
+            color: var(--white);
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(25, 118, 210, 0.4);
+        }
+
+        #subcategory-grid .category-option.selected h4,
+        #subcategory-grid .category-option.selected p {
+            color: var(--white);
+        }
+
+        /* Add a checkmark indicator for selected subcategories */
+        #subcategory-grid .category-option.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: var(--success-green);
+            color: var(--white);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .category-option img {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 15px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .category-option h4 {
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .category-option p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .calculator-section {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .section-title {
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            text-align: center;
+            border-bottom: 2px solid var(--light-blue);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(25, 118, 210, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .product-selector {
+            background: var(--light-gray);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .product-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: var(--white);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        .product-power {
+            background: var(--accent-blue);
+            color: var(--white);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid var(--light-blue);
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .api-status {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: var(--light-gray);
+            border-radius: 8px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .status-indicator.success {
+            background: var(--success-green);
+        }
+
+        .status-indicator.error {
+            background: #f44336;
+        }
+
+        .status-indicator.warning {
+            background: var(--warning-orange);
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .category-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🔋 Energy Calculator</h1>
+            <p>Compare your current products with energy-efficient alternatives and calculate potential savings</p>
+        </div>
+
+        <!-- API Status -->
+        <div class="api-status">
+            <h3 style="text-align: center; color: var(--primary-blue); margin-bottom: 15px;">API Status</h3>
+            <div class="status-item">
+                <span>ETL API (Your Shop Products):</span>
+                <span id="etl-status">Checking...</span>
+            </div>
+            <div class="status-item">
+                <span>Energy Star API (Comparison Data):</span>
+                <span id="energy-star-status">Checking...</span>
+            </div>
+            <div class="status-item">
+                <span>Product Count:</span>
+                <span id="api-product-count">Loading...</span>
+            </div>
+        </div>
+
+        <!-- Category Selection -->
+        <div class="category-section">
+            <h3 style="text-align: center; color: var(--primary-blue); margin-bottom: 20px;">Select Product Category</h3>
+            <div class="category-grid">
+                <div class="category-option" onclick="selectCategory('all')">
+                    <h4>All Categories</h4>
+                    <p>Show all products</p>
+                </div>
+                <div class="category-option" onclick="selectCategory('Appliances')">
+                    <h4>Appliances</h4>
+                    <p>Kitchen & home appliances</p>
+                </div>
+                <div class="category-option" onclick="selectCategory('Electronics')">
+                    <h4>Electronics</h4>
+                    <p>Computers, TVs, devices</p>
+                </div>
+                <div class="category-option" onclick="selectCategory('Lighting')">
+                    <h4>Lighting</h4>
+                    <p>Bulbs, fixtures, systems</p>
+                </div>
+                <div class="category-option" onclick="selectCategory('HVAC')">
+                    <h4>HVAC</h4>
+                    <p>Heating, cooling, ventilation</p>
+                </div>
+                <div class="category-option" onclick="selectCategory('Renewable')">
+                    <h4>Renewable</h4>
+                    <p>Solar, wind, green energy</p>
+                </div>
+                <div class="category-option" onclick="selectCategory('Smart Home')">
+                    <h4>Smart Home</h4>
+                    <p>Thermostats, sensors</p>
+                </div>
+            </div>
+            
+            <!-- Subcategory Selection -->
+            <div id="subcategory-section" style="display: none; margin-top: 20px;">
+                <h3 style="text-align: center; color: var(--primary-blue); margin-bottom: 15px;">Select Subcategory</h3>
+                <div id="subcategory-grid" class="category-grid" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+                    <!-- Subcategories will be populated dynamically -->
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <button onclick="selectCategory('all')" class="btn" style="width: auto; padding: 10px 20px; font-size: 0.9rem;">
+                    🔄 Show All Categories
+                </button>
+            </div>
+        </div>
+
+        <!-- Calculator Interface -->
+        <div class="calculator-grid">
+            <!-- Current Products Section -->
+            <div class="calculator-section">
+                <h2 class="section-title">Current Products</h2>
+                <div class="form-group">
+                    <label for="electricity-rate">Electricity Rate (€ per kWh)</label>
+                    <input type="number" id="electricity-rate" value="0.15" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="hours-per-day">Hours of Use per Day</label>
+                    <input type="number" id="hours-per-day" value="8" min="1" max="24">
+                </div>
+                
+                <div id="current-products">
+                    <div class="product-selector">
+                        <div class="product-info">
+                            <span class="product-name">Select Current Product</span>
+                            <span class="product-power">0W</span>
+                        </div>
+                        <select class="product-select" onchange="updateProductInfo(this, 'current')">
+                            <option value="">Choose a product...</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="addCurrentProduct()">+ Add Another Product</button>
+            </div>
+
+            <!-- New Products Section -->
+            <div class="calculator-section">
+                <h2 class="section-title">Energy-Efficient Alternatives</h2>
+                <div class="form-group">
+                    <label for="efficiency-hours">Hours of Use per Day</label>
+                    <input type="number" id="efficiency-hours" value="8" min="1" max="24">
+                </div>
+                
+                <div id="efficient-products">
+                    <div class="product-selector">
+                        <div class="product-info">
+                            <span class="product-name">Select Efficient Product</span>
+                            <span class="product-power">0W</span>
+                        </div>
+                        <select class="product-select" onchange="updateProductInfo(this, 'efficient')">
+                            <option value="">Choose a product...</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="addEfficientProduct()">+ Add Another Product</button>
+            </div>
+        </div>
+
+        <!-- Calculate Button -->
+        <div style="text-align: center; margin-bottom: 30px;">
+            <button class="btn" onclick="calculateSavings()" style="max-width: 300px;">
+                🧮 Calculate Energy Savings
+            </button>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="results-section" style="display: none;">
+            <h2 class="section-title">Your Energy Savings Analysis</h2>
+            <div id="results-content">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Calculating your savings...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const BACKEND_URL = 'http://localhost:4000';
+        const ETL_API_KEY = 'de6a4b7c-771e-4f22-9721-11f39763d794';
+        
+        // Global variables
+        let currentProducts = [];
+        let efficientProducts = [];
+        let allProducts = [];
+        let energyStarProducts = [];
+        let selectedCategory = 'all';
+        let selectedSubcategory = 'all';
+        let filteredProducts = [];
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Energy Calculator initializing...');
+            
+            // Initialize category system
+            selectCategory('all');
+            
+            // Check API status
+            checkAPIs();
+            
+            // Load sample data first
+            loadEnhancedSampleData();
+            
+            // Try to load real products after a delay
+            setTimeout(() => {
+                loadRealProducts();
+            }, 1000);
+        });
+
+        // Check API connectivity
+        async function checkAPIs() {
+            console.log('🔍 Checking API connectivity...');
+            
+            // Check ETL API (backend)
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/etl/products?size=5`);
+                if (response.ok) {
+                    document.getElementById('etl-status').innerHTML = '<span class="status-indicator success"></span>Connected ✅';
+                } else {
+                    document.getElementById('etl-status').innerHTML = '<span class="status-indicator error"></span>Error ❌';
+                }
+            } catch (error) {
+                document.getElementById('etl-status').innerHTML = '<span class="status-indicator error"></span>Not Connected ❌';
+            }
+            
+            // Check Energy Star API
+            try {
+                const response = await fetch('https://data.energystar.gov/resource/5c29-5upz.json?$limit=5');
+                if (response.ok) {
+                    document.getElementById('energy-star-status').innerHTML = '<span class="status-indicator success"></span>Connected ✅';
+                } else {
+                    document.getElementById('energy-star-status').innerHTML = '<span class="status-indicator error"></span>Not Found ❌';
+                }
+            } catch (error) {
+                document.getElementById('energy-star-status').innerHTML = '<span class="status-indicator error"></span>Not Connected ❌';
+            }
+        }
+
+        // Category selection function
+        function selectCategory(category) {
+            console.log('Category selected:', category);
+            selectedCategory = category;
+            selectedSubcategory = 'all'; // Reset subcategory
+            
+            // Update visual selection
+            document.querySelectorAll('.category-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            const selectedElement = document.querySelector(`[onclick="selectCategory('${category}')"]`);
+            if (selectedElement) {
+                selectedElement.classList.add('selected');
+            }
+            
+            // Show/hide subcategory section
+            const subcategorySection = document.getElementById('subcategory-section');
+            if (category === 'all') {
+                subcategorySection.style.display = 'none';
+            } else {
+                subcategorySection.style.display = 'block';
+                populateSubcategories(category);
+            }
+            
+            // Filter products based on category
+            filterProductsByCategory();
+            
+            // Repopulate all product selects
+            populateProductSelects();
+            
+            // Show success message
+            showMessage(`Showing products in ${category === 'all' ? 'all categories' : category} category`, 'success');
+        }
+        
+        // Subcategory selection function
+        function selectSubcategory(subcategory) {
+            console.log('Subcategory selected:', subcategory);
+            selectedSubcategory = subcategory;
+            
+            // Update visual selection
+            document.querySelectorAll('#subcategory-grid .category-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            const selectedElement = document.querySelector(`[onclick="selectSubcategory('${subcategory}')"]`);
+            if (selectedElement) {
+                selectedElement.classList.add('selected');
+            }
+            
+            // Filter products based on category and subcategory
+            filterProductsByCategory();
+            
+            // Repopulate all product selects
+            populateProductSelects();
+            
+            // Show success message
+            showMessage(`Showing products in ${selectedCategory} > ${subcategory === 'all' ? 'all subcategories' : subcategory}`, 'success');
+        }
+        
+        // Populate subcategories based on selected category
+        function populateSubcategories(category) {
+            const subcategoryGrid = document.getElementById('subcategory-grid');
+            subcategoryGrid.innerHTML = '';
+            
+            // Get all subcategories for the selected category
+            const subcategories = new Set();
+            allProducts.forEach(product => {
+                if (product.category && product.category.toLowerCase() === category.toLowerCase() && product.subcategory) {
+                    subcategories.add(product.subcategory);
+                }
+            });
+            
+            // Add "All Subcategories" option
+            const allOption = document.createElement('div');
+            allOption.className = 'category-option';
+            allOption.onclick = () => selectSubcategory('all');
+            allOption.innerHTML = `
+                <h4>All Subcategories</h4>
+                <p>Show all ${category} products</p>
+            `;
+            subcategoryGrid.appendChild(allOption);
+            
+            // Add specific subcategory options
+            subcategories.forEach(subcategory => {
+                const subcategoryOption = document.createElement('div');
+                subcategoryOption.className = 'category-option';
+                subcategoryOption.onclick = () => selectSubcategory(subcategory);
+                subcategoryOption.innerHTML = `
+                    <h4>${subcategory}</h4>
+                    <p>${getSubcategoryDescription(subcategory)}</p>
+                `;
+                subcategoryGrid.appendChild(subcategoryOption);
+            });
+            
+            // Select "All Subcategories" by default
+            selectSubcategory('all');
+        }
+        
+        // Get description for subcategories
+        function getSubcategoryDescription(subcategory) {
+            const descriptions = {
+                'Refrigerator': 'Fridges, freezers, coolers',
+                'Washing Machine': 'Washers, dryers, laundry',
+                'Dishwasher': 'Dishwashers, sanitizers',
+                'TV': 'Televisions, monitors, displays',
+                'Computer': 'Laptops, desktops, tablets',
+                'Light Bulb': 'LED bulbs, lamps, fixtures',
+                'Heat Pump': 'Heating, cooling systems',
+                'Solar Panel': 'Solar energy systems',
+                'Thermostat': 'Smart controls, sensors',
+                'Microwave': 'Microwaves, ovens, cooking',
+                'Air Conditioner': 'AC units, cooling systems',
+                'Water Heater': 'Hot water systems',
+                'Ceiling Fan': 'Fans, ventilation',
+                'Gaming Console': 'Gaming devices, entertainment',
+                'Printer': 'Printers, scanners, office',
+                'Router': 'Internet, networking devices',
+                'Speaker': 'Audio systems, speakers',
+                'Camera': 'Security cameras, monitoring',
+                'Smartphone': 'Mobile devices, phones',
+                'Tablet': 'Tablets, mobile computing'
+            };
+            
+            return descriptions[subcategory] || 'Energy-efficient products';
+        }
+        
+        // Auto-assign subcategories based on product names and categories
+        function assignSubcategories(products) {
+            products.forEach(product => {
+                if (!product.subcategory) {
+                    const name = product.name.toLowerCase();
+                    const category = product.category ? product.category.toLowerCase() : '';
+                    
+                    // Specific subcategory assignments
+                    if (name.includes('dishwasher') || name.includes('dish washer')) {
+                        product.subcategory = 'Dishwasher';
+                    } else if (name.includes('washing machine') || name.includes('washer') || name.includes('dryer')) {
+                        product.subcategory = 'Washing Machine';
+                    } else if (name.includes('refrigerator') || name.includes('fridge') || name.includes('freezer')) {
+                        product.subcategory = 'Refrigerator';
+                    } else if (name.includes('tv') || name.includes('television') || name.includes('monitor')) {
+                        product.subcategory = 'TV';
+                    } else if (name.includes('laptop') || name.includes('computer') || name.includes('desktop')) {
+                        product.subcategory = 'Computer';
+                    } else if (name.includes('bulb') || name.includes('lamp') || name.includes('light')) {
+                        product.subcategory = 'Light Bulb';
+                    } else if (name.includes('heat pump') || name.includes('heating')) {
+                        product.subcategory = 'Heat Pump';
+                    } else if (name.includes('solar') || name.includes('panel')) {
+                        product.subcategory = 'Solar Panel';
+                    } else if (name.includes('thermostat') || name.includes('sensor')) {
+                        product.subcategory = 'Thermostat';
+                    } else if (name.includes('microwave') || name.includes('oven')) {
+                        product.subcategory = 'Microwave';
+                    } else if (name.includes('air conditioner') || name.includes('ac')) {
+                        product.subcategory = 'Air Conditioner';
+                    } else if (name.includes('water heater') || name.includes('boiler')) {
+                        product.subcategory = 'Water Heater';
+                    } else if (name.includes('fan') || name.includes('ventilation')) {
+                        product.subcategory = 'Ceiling Fan';
+                    } else if (name.includes('gaming') || name.includes('console')) {
+                        product.subcategory = 'Gaming Console';
+                    } else if (name.includes('printer') || name.includes('scanner')) {
+                        product.subcategory = 'Printer';
+                    } else if (name.includes('router') || name.includes('network')) {
+                        product.subcategory = 'Router';
+                    } else if (name.includes('speaker') || name.includes('audio')) {
+                        product.subcategory = 'Speaker';
+                    } else if (name.includes('camera') || name.includes('security')) {
+                        product.subcategory = 'Camera';
+                    } else if (name.includes('smartphone') || name.includes('phone')) {
+                        product.subcategory = 'Smartphone';
+                    } else if (name.includes('tablet')) {
+                        product.subcategory = 'Tablet';
+                    } else {
+                        // Default subcategory based on category
+                        if (category.includes('appliance')) {
+                            product.subcategory = 'Other Appliance';
+                        } else if (category.includes('electronic')) {
+                            product.subcategory = 'Other Electronic';
+                        } else if (category.includes('lighting')) {
+                            product.subcategory = 'Other Lighting';
+                        } else if (category.includes('hvac')) {
+                            product.subcategory = 'Other HVAC';
+                        } else if (category.includes('renewable')) {
+                            product.subcategory = 'Other Renewable';
+                        } else if (category.includes('smart')) {
+                            product.subcategory = 'Other Smart Home';
+                        } else {
+                            product.subcategory = 'Other';
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Filter products based on selected category and subcategory
+        function filterProductsByCategory() {
+            console.log('   Filtering products...');
+            console.log('🔍 Selected category:', selectedCategory);
+            console.log('🔍 Selected subcategory:', selectedSubcategory);
+            
+            if (selectedCategory === 'all') {
+                filteredProducts = [...allProducts];
+            } else {
+                filteredProducts = allProducts.filter(product => {
+                    const categoryMatch = product.category && 
+                        (product.category.toLowerCase() === selectedCategory.toLowerCase() ||
+                         product.category.toLowerCase().includes(selectedCategory.toLowerCase()) ||
+                         selectedCategory.toLowerCase().includes(product.category.toLowerCase()));
+                    
+                    if (selectedSubcategory === 'all') {
+                        return categoryMatch;
+                    } else {
+                        return categoryMatch && product.subcategory === selectedSubcategory;
+                    }
+                });
+            }
+            
+            console.log('🔍 Filtered products count:', filteredProducts.length);
+            updateProductCount();
+        }
+        
+        // Update product count display
+        function updateProductCount() {
+            const apiCount = document.getElementById('api-product-count');
+            const categoryTotal = document.getElementById('category-total-count');
+            
+            if (apiCount) {
+                apiCount.innerHTML = `<span class="status-indicator success"></span>${filteredProducts.length} of ${allProducts.length} products in ${selectedCategory === 'all' ? 'all categories' : selectedCategory}${selectedSubcategory !== 'all' ? ' > ' + selectedSubcategory : ''}`;
+            }
+            
+            if (categoryTotal) {
+                categoryTotal.innerHTML = `${filteredProducts.length} of ${allProducts.length} total products available`;
+            }
+        }
+                // Load real products from ETL API via backend
+        async function loadRealProducts() {
+            try {
+                console.log('🔄 Loading real products from ETL API...');
+                const response = await fetch(`${BACKEND_URL}/api/etl/products?size=100`);
+                
+                if (response.ok) {
+                    const realProducts = await response.json();
+                    console.log('✅ Loaded real products:', realProducts);
+                    
+                    // Handle different response formats
+                    let productsArray = realProducts;
+
+                    if (realProducts && typeof realProducts === 'object') {
+                        if (realProducts.products && Array.isArray(realProducts.products)) {
+                            productsArray = realProducts.products;
+                        } else if (realProducts.data && Array.isArray(realProducts.data)) {
+                            productsArray = realProducts.data;
+                        } else if (Array.isArray(realProducts)) {
+                            productsArray = realProducts;
+                        } else {
+                            productsArray = [];
+                        }
+                    }
+
+                    if (productsArray && Array.isArray(productsArray) && productsArray.length > 0) {
+                        console.log('✅ Processing', productsArray.length, 'real products');
+                        
+                        // Transform real products to match our format
+                        const transformedProducts = productsArray.map(product => {
+                            // Extract power from features
+                            const power = extractPowerFromFeatures(product.features) || 100;
+                            
+                            // Extract energy rating from features
+                            const energyRating = extractEnergyRatingFromFeatures(product.features) || 'A+';
+                            
+                            // Get technology name for category
+                            const category = getTechnologyName(product.technologyId) || 'Appliances';
+                            
+                            // Get manufacturer name for brand
+                            const brand = product.manufacturer ? 
+                                (product.manufacturer.name || 'ETL Certified') : 'ETL Certified';
+                            
+                            // Calculate running cost
+                            const runningCostPerYear = calculateRunningCost(power, 0.15, 8);
+                            
+                            // Determine efficiency
+                            const efficiency = determineEfficiency(energyRating);
+                            
+                            return {
+                                id: `etl_${product.id}`,
+                                name: product.name || 'ETL Product',
+                                power: power,
+                                category: category,
+                                subcategory: null, // Will be assigned by assignSubcategories
+                                brand: brand,
+                                runningCostPerYear: runningCostPerYear,
+                                energyRating: energyRating,
+                                efficiency: efficiency,
+                                source: 'ETL',
+                                modelNumber: product.modelNumber || `ETL-${product.id}`
+                            };
+                        });
+                        
+                        console.log('✅ Transformed products:', transformedProducts.length);
+                        
+                        // Add transformed products to allProducts (don't replace)
+                        allProducts = [...allProducts, ...transformedProducts];
+                        
+                        // Assign subcategories to all products
+                        assignSubcategories(allProducts);
+                        
+                        // Update filtering and display
+                        filterProductsByCategory();
+                        populateProductSelects();
+                        
+                        showMessage(`Successfully loaded ${transformedProducts.length} real ETL products! Total: ${allProducts.length} products`, 'success');
+                    } else {
+                        console.log('❌ No valid products found in response:', realProducts);
+                        showMessage('ETL API returned no valid products - using sample data', 'info');
+                    }
+                } else {
+                    console.log('❌ ETL API response not ok:', response.status);
+                    showMessage('ETL API connection failed - using sample data', 'info');
+                }
+            } catch (error) {
+                console.log('❌ Failed to load real products:', error);
+                showMessage('ETL API connection failed - using sample data', 'info');
+            }
+        }
+        
+        // Helper function to determine efficiency
+        function determineEfficiency(rating) {
+            if (rating.includes('A+') || rating.includes('A++')) return 'very high';
+            if (rating.includes('A')) return 'high';
+            if (rating.includes('B')) return 'medium';
+            if (rating.includes('C')) return 'low';
+            return 'medium';
+        }        
+        // Load enhanced sample data
+        function loadEnhancedSampleData() {
+            console.log('📦 Loading enhanced sample data...');
+            
+            // Comprehensive sample products (100+ products)
+            const sampleProducts = getSampleProducts();
+            
+            // Add to allProducts
+            allProducts = [...sampleProducts];
+            
+            // Assign subcategories
+            assignSubcategories(allProducts);
+            
+            // Initial filtering and population
+            filterProductsByCategory();
+            populateProductSelects();
+            
+            console.log('✅ Loaded', allProducts.length, 'sample products');
+            showMessage(`Loaded ${allProducts.length} sample products for testing`, 'info');
+        }
+        
+        // Get comprehensive sample products
+        function getSampleProducts() {
+            return [
+                // Appliances - Refrigerators
+                { id: 'fridge_1', name: 'Standard Refrigerator', power: 150, category: 'Appliances', subcategory: 'Refrigerator', brand: 'CoolTech', runningCostPerYear: 0, energyRating: 'C', efficiency: 'medium', source: 'Sample' },
+                { id: 'fridge_2', name: 'Energy Star Fridge', power: 80, category: 'Appliances', subcategory: 'Refrigerator', brand: 'EcoCool', runningCostPerYear: 0, energyRating: 'A+', efficiency: 'very high', source: 'Sample' },
+                { id: 'fridge_3', name: 'Smart Refrigerator', power: 120, category: 'Appliances', subcategory: 'Refrigerator', brand: 'SmartFridge', runningCostPerYear: 0, energyRating: 'A', efficiency: 'high', source: 'Sample' },
+                { id: 'fridge_4', name: 'Compact Fridge', power: 60, category: 'Appliances', subcategory: 'Refrigerator', brand: 'MiniCool', runningCostPerYear: 0, energyRating: 'A+', efficiency: 'very high', source: 'Sample' },
+                { id: 'fridge_5', name: 'Commercial Fridge', power: 300, category: 'Appliances', subcategory: 'Refrigerator', brand: 'ProCool', runningCostPerYear: 0, energyRating: 'B', efficiency: 'medium', source: 'Sample' },
+                
+                // Appliances - Washing Machines
+                { id: 'washer_1', name: 'Standard Washer', power: 500, category: 'Appliances', subcategory: 'Washing Machine', brand: 'WashPro', runningCostPerYear: 0, energyRating: 'C', efficiency: 'medium', source: 'Sample' },
+                { id: 'washer_2', name: 'Energy Efficient Washer', power: 300, category: 'Appliances', subcategory: 'Washing Machine', brand: 'EcoWash', runningCostPerYear: 0, energyRating: 'A+', efficiency: 'very high', source: 'Sample' },
+                { id: 'washer_3', name: 'Smart Washer', power: 350, category: 'Appliances', subcategory: 'Washing Machine', brand: 'SmartWash', runningCostPerYear: 0, energyRating: 'A', efficiency: 'high', source: 'Sample' },
+                { id: 'washer_4', name: 'Compact Washer', power: 200, category: 'Appliances', subcategory: 'Washing Machine', brand: 'MiniWash', runningCostPerYear: 0, energyRating: 'A+', efficiency: 'very high', source: 'Sample' },
+                { id: 'washer_5', name: 'Commercial Washer', power: 800, category: 'Appliances', subcategory: 'Washing Machine', brand: 'ProWash', runningCostPerYear: 0, energyRating: 'B', efficiency: 'medium', source: 'Sample' },
+                
+                // Appliances - Dishwashers
+                { id: 'dishwasher_1', name: 'Standard Dishwasher', power: 1800, category: 'Appliances', subcategory: 'Dishwasher', brand: 'DishPro', runningCostPerYear: 0, energyRating: 'C', efficiency: 'medium', source: 'Sample' },
+                { id: 'dishwasher_2', name: 'Energy Star Dishwasher', power: 1200, category: 'Appliances', subcategory: 'Dishwasher', brand: 'EcoDish', runningCostPerYear: 0, energyRating: 'A+', efficiency: 'very high', source: 'Sample' },
+                { id: 'dishwasher_3', name: 'Smart Dishwasher', power: 1400, category: 'Appliances', subcategory: 'Dishwasher', brand: 'SmartDish', runningCostPerYear: 0, energyRating: 'A', efficiency: 'high', source: 'Sample' },
+                { id: 'dishwasher_4', name: 'Compact Dishwasher', power: 1000, category: 'Appliances', subcategory: 'Dishwasher', brand: 'MiniDish', runningCostPerYear: 0, energyRating: 'A+', efficiency: 'very high', source: 'Sample' },
+                { id: 'dishwasher_5', name: 'Commercial Dishwasher', power: 2500, category: 'Appliances', subcategory: 'Dishwasher', brand: 'ProDish', runningCostPerYear: 0, energyRating: 'B', efficiency: 'medium', source: 'Sample' },
+                
+                // Electronics - TVs
+                { id: 'tv_1', name: 'Standard TV 55"', power: 120, category: 'Electronics', subcategory: 'TV', brand: 'ViewTech', runningCostPerYear: 0, energyRating: 'C', efficiency: 'medium', source: 'Sample' },
+                { id: 'tv_2', name: 'LED Smart TV 55"', power: 80, category: 'Electronics', subcategory: 'TV', brand: 'SmartView', runningCostPerYear: 0, energyRating: 'A+', efficiency: 'very high', source: 'Sample' },
+                { id: 'tv_3', name: 'OLED TV 65"', power: 100, category: 'Electronics', subcategory: 'TV', brand: 'UltraView', runningCostPerYear: 0, energyRating: 'A', efficiency: 'high', source: 'Sample' },
+                { id: 'tv_4', name: '4K Gaming TV 75"', power: 150, category: 'Electronics', subcategory: 'TV', brand: 'GameView', runningCostPerYear: 0, energyRating: 'B', efficiency: 'medium', source: 'Sample' },
+                { id: 'tv_5', name: 'Mini TV 32"', power: 40, category: 'Electronics', subcategory: 'TV', brand: 'MiniView', runningCostPerYear: 0, energyRating: 'A+', efficiency: 'very high', source: 'Sample' },
+                
+                // Electronics - Computers
+                { id: 'computer_1', name: 'Gaming Desktop', power: 400, category: 'Electronics', subcategory: 'Computer', brand: 'GameTech', runningCostPerYear: 0, energyRating: 'C', efficiency: 'medium', source: 'Sample' },
+                { id: 'computer_2', name: 'Energy Efficient Laptop', power: 45, category: 'Electronics', subcategory: 'Computer', brand: 'EcoLap', runningCostPerYear: 0, energyRating: 'A+', efficiency: 'very high', source: 'Sample' },
+                { id: 'computer_3', name: 'Workstation Desktop', power: 300, category: 'Electronics', subcategory: 'Computer', brand: 'WorkTech', runningCostPerYear: 0, energyRating: 'A', efficiency: 'high', source: 'Sample' },
+                { id: 'computer_4', name: 'Ultrabook Laptop', power: 35, category: 'Electronics', subcategory: 'Computer', brand: 'UltraLap', runningCostPerYear: 0, energyRating: 'A+', efficiency: 'very high', source: 'Sample' },
+                { id: 'computer_5', name: 'Server Desktop', power: 500, category: 'Electronics', subcategory: 'Computer', brand: 'ServerTech', runningCostPerYear: 0, energyRating: 'B', efficiency: 'medium', source: 'Sample' },
+                
+                // Lighting - Light Bulbs
+                { id: 'bulb_1', name: 'Incandescent Bulb 60W', power: 60, category: 'Lighting', subcategory: 'Light Bulb', brand: 'OldLight', runningCostPerYear: 0, energyRating: 'F', efficiency: 'very low', source: 'Sample' },
+                { id: 'bulb_2', name: 'LED Bulb 9W', power: 9, category: 'Lighting', subcategory: 'Light Bulb', brand: 'EcoLight', runningCostPerYear: 0, energyRating: 'A+', efficiency: 'very high', source: 'Sample' },
+                { id: 'bulb_3', name: 'Smart LED Bulb 12W', power: 12, category: 'Lighting', subcategory: 'Light Bulb', brand: 'SmartLight', runningCostPerYear: 0, energyRating: 'A+', efficiency: 'very high', source: 'Sample' },
+                { id: 'bulb_4', name: 'CFL Bulb 15W', power: 15, category: 'Lighting', subcategory: 'Light Bulb', brand: 'CompactLight', runningCostPerYear: 0, energyRating: 'B', efficiency: 'medium', source: 'Sample' },
+                { id: 'bulb_5', name: 'Halogen Bulb 40W', power: 40, category: 'Lighting', subcategory: 'Light Bulb', brand: 'HaloLight', runningCostPerYear: 0, energyRating: 'D', efficiency: 'low', source: 'Sample' },
+                
+                // HVAC - Heat Pumps
+                { id: 'heatpump_1', name: 'Standard Heat Pump', power: 3000, category: 'HVAC', subcategory: 'Heat Pump', brand: 'WarmTech', runningCostPerYear: 0, energyRating: 'C', efficiency: 'medium', source: 'Sample' },
+                { id: 'heatpump_2', name: 'High Efficiency Heat Pump', power: 2000, category: 'HVAC', subcategory: 'Heat Pump', brand: 'EcoWarm', runningCostPerYear: 0, energyRating: 'A+', efficiency: 'very high', source: 'Sample' },
+                { id: 'heatpump_3', name: 'Smart Heat Pump', power: 2500, category: 'HVAC', subcategory: 'Heat Pump', brand: 'SmartWarm', runningCostPerYear: 0, energyRating: 'A', efficiency: 'high', source: 'Sample' },
+                { id: 'heatpump_4', name: 'Mini Split Heat Pump', power: 1500, category: 'HVAC', subcategory: 'Heat Pump', brand: 'MiniWarm', runningCostPerYear: 0, energyRating: 'A+', efficiency: 'very high', source: 'Sample' },
+                { id: 'heatpump_5', name: 'Commercial Heat Pump', power: 5000, category: 'HVAC', subcategory: 'Heat Pump', brand: 'ProWarm', runningCostPerYear: 0, energyRating: 'B', efficiency: 'medium', source: 'Sample' },
+                
+                // Renewable - Solar Panels
+                { id: 'solar_1', name: 'Standard Solar Panel', power: 300, category: 'Renewable', subcategory: 'Solar Panel', brand: 'SunTech', runningCostPerYear: 0, energyRating: 'A', efficiency: 'high', source: 'Sample' },
+                { id: 'solar_2', name: 'High Efficiency Solar Panel', power: 400, category: 'Renewable', subcategory: 'Solar Panel', brand: 'EcoSun', runningCostPerYear: 0, energyRating: 'A+', efficiency: 'very high', source: 'Sample' },
+                { id: 'solar_3', name: 'Smart Solar Panel', power: 350, category: 'Renewable', subcategory: 'Solar Panel', brand: 'SmartSun', runningCostPerYear: 0, energyRating: 'A+', efficiency: 'very high', source: 'Sample' },
+                { id: 'solar_4', name: 'Thin Film Solar Panel', power: 200, category: 'Renewable', subcategory: 'Solar Panel', brand: 'ThinSun', runningCostPerYear: 0, energyRating: 'B', efficiency: 'medium', source: 'Sample' },
+                { id: 'solar_5', name: 'Commercial Solar Panel', power: 500, category: 'Renewable', subcategory: 'Solar Panel', brand: 'ProSun', runningCostPerYear: 0, energyRating: 'A', efficiency: 'high', source: 'Sample' },
+                
+                // Smart Home - Thermostats
+                { id: 'thermostat_1', name: 'Standard Thermostat', power: 5, category: 'Smart Home', subcategory: 'Thermostat', brand: 'TempTech', runningCostPerYear: 0, energyRating: 'C', efficiency: 'medium', source: 'Sample' },
+                { id: 'thermostat_2', name: 'Smart Thermostat', power: 3, category: 'Smart Home', subcategory: 'Thermostat', brand: 'EcoTemp', runningCostPerYear: 0, energyRating: 'A+', efficiency: 'very high', source: 'Sample' },
+                { id: 'thermostat_3', name: 'Learning Thermostat', power: 4, category: 'Smart Home', subcategory: 'Thermostat', brand: 'LearnTemp', runningCostPerYear: 0, energyRating: 'A+', efficiency: 'very high', source: 'Sample' },
+                { id: 'thermostat_4', name: 'WiFi Thermostat', power: 3, category: 'Smart Home', subcategory: 'Thermostat', brand: 'WiFiTemp', runningCostPerYear: 0, energyRating: 'A', efficiency: 'high', source: 'Sample' },
+                { id: 'thermostat_5', name: 'Commercial Thermostat', power: 8, category: 'Smart Home', subcategory: 'Thermostat', brand: 'ProTemp', runningCostPerYear: 0, energyRating: 'B', efficiency: 'medium', source: 'Sample' }
+            ];
+        }
+        
+        // Populate product select dropdowns with grouped organization
+        function populateProductSelects() {
+            console.log('   Populating product selects...');
+            console.log('🔍 Selected category:', selectedCategory);
+            console.log('🔍 Filtered products:', filteredProducts.length);
+            console.log('🔍 All products:', allProducts.length);
+            
+            const selects = document.querySelectorAll('.product-select');
+            console.log('🔍 Found selects:', selects.length);
+            
+            selects.forEach((select, index) => {
+                console.log(`🔍 Populating select ${index + 1}`);
+                select.innerHTML = '<option value="">Choose a product...</option>';
+                
+                // Always use filtered products based on selected category
+                const productsToShow = filteredProducts;
+                
+                if (productsToShow && productsToShow.length > 0) {
+                    console.log(`🔍 Adding ${productsToShow.length} products to select ${index + 1}`);
+                    
+                    // Group products by subcategory for better organization
+                    const groupedProducts = groupProductsBySubcategory(productsToShow);
+                    
+                    // Add grouped options to dropdown
+                    Object.keys(groupedProducts).forEach(subcategory => {
+                        const products = groupedProducts[subcategory];
+                        
+                        // Add subcategory header (disabled option)
+                        const headerOption = document.createElement('option');
+                        headerOption.value = "";
+                        headerOption.textContent = `━━━ ${subcategory} ━━━`;
+                        headerOption.disabled = true;
+                        headerOption.style.fontWeight = 'bold';
+                        headerOption.style.backgroundColor = '#f0f0f0';
+                        select.appendChild(headerOption);
+                        
+                        // Add products under this subcategory
+                        products.forEach(product => {
+                            const option = document.createElement('option');
+                            option.value = product.id;
+                            const sourceLabel = product.source === 'ETL' ? '**[ETL]**' : '[Sample]';
+                            option.textContent = `  ${sourceLabel} ${product.name} (${product.power}W) - ${product.brand}`;
+                            option.dataset.power = product.power;
+                            option.dataset.source = product.source;
+                            select.appendChild(option);
+                        });
+                    });
+                } else {
+                    console.log(`🔍 No products to show for select ${index + 1}`);
+                    // If no products in selected category, show appropriate message
+                    const option = document.createElement('option');
+                    option.value = "";
+                    if (selectedCategory === 'all') {
+                        option.textContent = "Loading products...";
+                    } else {
+                        option.textContent = `No products found in ${selectedCategory} category`;
+                    }
+                    option.disabled = true;
+                    select.appendChild(option);
+                }
+            });
+        }
+        
+        // Helper function to group products by subcategory
+        function groupProductsBySubcategory(products) {
+            const grouped = {};
+            
+            products.forEach(product => {
+                const subcategory = product.subcategory || 'Other';
+                if (!grouped[subcategory]) {
+                    grouped[subcategory] = [];
+                }
+                grouped[subcategory].push(product);
+            });
+            
+            // Sort subcategories alphabetically
+            const sortedGrouped = {};
+            Object.keys(grouped).sort().forEach(key => {
+                sortedGrouped[key] = grouped[key];
+            });
+            
+            return sortedGrouped;
+        }
+        
+        // Update product information display
+        function updateProductInfo(select, type) {
+            const productId = select.value;
+            // Check both ETL and Energy Star products
+            let product = allProducts.find(p => p.id === productId);
+            if (!product) {
+                product = energyStarProducts.find(p => p.id === productId);
+            }
+            
+            if (product) {
+                const powerSpan = select.parentElement.querySelector('.product-power');
+                powerSpan.textContent = `${product.power}W`;
+            }
+        }
+        
+        // Add current product
+        function addCurrentProduct() {
+            const container = document.getElementById('current-products');
+            const productDiv = document.createElement('div');
+            productDiv.className = 'product-selector';
+            productDiv.innerHTML = `
+                <div class="product-info">
+                    <span class="product-name">Select Current Product</span>
+                    <span class="product-power">0W</span>
+                </div>
+                <select class="product-select" onchange="updateProductInfo(this, 'current')">
+                    <option value="">Choose a product...</option>
+                    ${filteredProducts.length > 0 ? filteredProducts.map(product => 
+                        `<option value="${product.id}" data-power="${product.power}">${product.source === 'ETL' ? '**[ETL]**' : `[${product.source}]`} ${product.name} (${product.power}W) - ${product.brand}</option>`
+                    ).join('') : '<option value="" disabled>No products in selected category</option>'}
+                </select>
+                <button onclick="removeProduct(this, 'current')" style="margin-top: 10px; padding: 5px 10px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Remove</button>
+            `;
+            container.appendChild(productDiv);
+        }
+        
+        // Add efficient product
+        function addEfficientProduct() {
+            const container = document.getElementById('efficient-products');
+            const productDiv = document.createElement('div');
+            productDiv.className = 'product-selector';
+            productDiv.innerHTML = `
+                <div class="product-info">
+                    <span class="product-name">Select Efficient Product</span>
+                    <span class="product-power">0W</span>
+                </div>
+                <select class="product-select" onchange="updateProductInfo(this, 'efficient')">
+                    <option value="">Choose a product...</option>
+                    ${filteredProducts.length > 0 ? filteredProducts.map(product => 
+                        `<option value="${product.id}" data-power="${product.power}">${product.source === 'ETL' ? '**[ETL]**' : `[${product.source}]`} ${product.name} (${product.power}W) - ${product.brand}</option>`
+                    ).join('') : '<option value="" disabled>No products in selected category</option>'}
+                </select>
+                <button onclick="removeProduct(this, 'current')" style="margin-top: 10px; padding: 5px 10px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Remove</button>
+            `;
+            container.appendChild(productDiv);
+        }
+        
+        // Remove product
+        function removeProduct(button, type) {
+            button.parentElement.remove();
+        }
+        
+        // Calculate energy savings
+        function calculateSavings() {
+            const currentProducts = [];
+            const efficientProducts = [];
+            
+            // Get current products
+            document.querySelectorAll('#current-products .product-select').forEach(select => {
+                if (select.value) {
+                    const product = allProducts.find(p => p.id === select.value);
+                    if (product) {
+                        currentProducts.push(product);
+                    }
+                }
+            });
+            
+            // Get efficient products
+            document.querySelectorAll('#efficient-products .product-select').forEach(select => {
+                if (select.value) {
+                    const product = allProducts.find(p => p.id === select.value);
+                    if (product) {
+                        efficientProducts.push(product);
+                    }
+                }
+            });
+            
+            if (currentProducts.length === 0 || efficientProducts.length === 0) {
+                showMessage('Please select at least one current product and one efficient alternative', 'error');
+                return;
+            }
+            
+            // Get electricity rate and hours
+            const electricityRate = parseFloat(document.getElementById('electricity-rate').value) || 0.15;
+            const currentHours = parseFloat(document.getElementById('hours-per-day').value) || 8;
+            const efficientHours = parseFloat(document.getElementById('efficiency-hours').value) || 8;
+            
+            // Calculate costs
+            let currentTotalCost = 0;
+            let efficientTotalCost = 0;
+            
+            currentProducts.forEach(product => {
+                currentTotalCost += (product.power / 1000) * electricityRate * currentHours * 365;
+            });
+            
+            efficientProducts.forEach(product => {
+                efficientTotalCost += (product.power / 1000) * electricityRate * efficientHours * 365;
+            });
+            
+            const annualSavings = currentTotalCost - efficientTotalCost;
+            const monthlySavings = annualSavings / 12;
+            
+            // Display results
+            displayResults(currentTotalCost, efficientTotalCost, annualSavings, monthlySavings);
+        }
+        
+        // Display calculation results
+        function displayResults(currentCost, efficientCost, annualSavings, monthlySavings) {
+            const resultsSection = document.getElementById('results-section');
+            const resultsContent = document.getElementById('results-content');
+            
+            resultsContent.innerHTML = `
+                <div style="text-align: center;">
+                    <h3 style="color: var(--primary-blue); margin-bottom: 20px;">Your Energy Savings Results</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                        <div style="background: var(--light-gray); padding: 20px; border-radius: 10px; border: 1px solid var(--border);">
+                            <h4 style="color: var(--gray); margin-bottom: 10px;">Current Annual Cost</h4>
+                            <p style="font-size: 1.5rem; font-weight: bold; color: var(--warning-orange);">€${currentCost.toFixed(2)}</p>
+                        </div>
+                        
+                        <div style="background: var(--light-gray); padding: 20px; border-radius: 10px; border: 1px solid var(--border);">
+                            <h4 style="color: var(--gray); margin-bottom: 10px;">Efficient Annual Cost</h4>
+                            <p style="font-size: 1.5rem; font-weight: bold; color: var(--success-green);">€${efficientCost.toFixed(2)}</p>
+                        </div>
+                        
+                        <div style="background: var(--light-gray); padding: 20px; border-radius: 10px; border: 1px solid var(--border);">
+                            <h4 style="color: var(--gray); margin-bottom: 10px;">Annual Savings</h4>
+                            <p style="font-size: 1.5rem; font-weight: bold; color: var(--success-green);">€${annualSavings.toFixed(2)}</p>
+                        </div>
+                        
+                        <div style="background: var(--light-gray); padding: 20px; border-radius: 10px; border: 1px solid var(--border);">
+                            <h4 style="color: var(--gray); margin-bottom: 10px;">Monthly Savings</h4>
+                            <p style="font-size: 1.5rem; font-weight: bold; color: var(--success-green);">€${monthlySavings.toFixed(2)}</p>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--light-blue); padding: 20px; border-radius: 10px; border: 1px solid var(--border);">
+                        <h4 style="color: var(--primary-blue); margin-bottom: 15px;">   What This Means</h4>
+                        <p style="color: var(--gray); line-height: 1.6;">
+                            By switching to energy-efficient alternatives, you could save <strong>€${annualSavings.toFixed(2)} per year</strong> on your electricity bills. 
+                            That's <strong>€${monthlySavings.toFixed(2)} per month</strong> that you can put towards other expenses or savings!
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            resultsSection.style.display = 'block';
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Show message function
+        function showMessage(message, type = 'info') {
+            // Remove existing messages
+            const existingMessages = document.querySelectorAll('.message');
+            existingMessages.forEach(msg => msg.remove());
+            
+            // Create new message
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            
+            // Insert after header
+            const header = document.querySelector('.header');
+            header.parentNode.insertBefore(messageDiv, header.nextSibling);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

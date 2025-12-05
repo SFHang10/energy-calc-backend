@@ -1,0 +1,457 @@
+const fs = require('fs');
+const path = require('path');
+
+// ============================================
+// ENRICH HAND DRYERS WITH MCP DATA
+// ============================================
+// This script accepts Wix product data (from MCP or API)
+// and enriches the database with ALL Wix data:
+// - Images (all gallery images)
+// - Videos (all videos)
+// - Descriptions (descriptionShort, descriptionFull, description, additionalInfo)
+// - Prices, specs, and all other metadata
+// ============================================
+
+// Configuration
+const WIX_SITE_ID = 'cfa82ec2-a075-4152-9799-6a1dd5c01ef4';
+const DATABASE_PATH = path.join(__dirname, 'FULL-DATABASE-5554.json');
+const WIX_DATA_FILE = path.join(__dirname, 'wix-hand-dryers.json'); // Optional: Wix data from MCP
+const TEST_MODE = process.argv.includes('--test');
+const TEST_LIMIT = 2;
+
+console.log('='.repeat(70));
+console.log('🛡️  ENRICH HAND DRYERS WITH MCP DATA');
+console.log('='.repeat(70));
+console.log('');
+
+// Load database
+console.log('📂 Loading database...');
+let database;
+try {
+    const data = fs.readFileSync(DATABASE_PATH, 'utf8');
+    database = JSON.parse(data);
+    console.log(`✅ Loaded ${database.products.length} products from database`);
+} catch (error) {
+    console.error('❌ Error loading database:', error.message);
+    process.exit(1);
+}
+
+// Create backup
+console.log('\n💾 Creating backup...');
+const timestamp = Date.now();
+const backupPath = path.join(__dirname, `FULL-DATABASE-5554-BACKUP-${timestamp}.json`);
+try {
+    fs.copyFileSync(DATABASE_PATH, backupPath);
+    console.log(`✅ Backup created: ${path.basename(backupPath)}`);
+} catch (error) {
+    console.error('❌ Error creating backup:', error.message);
+    process.exit(1);
+}
+
+// Extract media from Wix product
+function extractWixMedia(wixProduct) {
+    if (!wixProduct || !wixProduct.media) {
+        return { images: [], videos: [] };
+    }
+
+    const images = [];
+    const videos = [];
+
+    if (wixProduct.media.mainMedia) {
+        const mainMedia = wixProduct.media.mainMedia;
+        if (mainMedia.mediaType === 'image' && mainMedia.image?.url) {
+            images.push(mainMedia.image.url);
+        } else if (mainMedia.mediaType === 'video' && mainMedia.video?.files?.[0]?.url) {
+            videos.push(mainMedia.video.files[0].url);
+        }
+    }
+
+    if (wixProduct.media.items && Array.isArray(wixProduct.media.items)) {
+        wixProduct.media.items.forEach(item => {
+            if (item.mediaType === 'image' && item.image?.url) {
+                images.push(item.image.url);
+            } else if (item.mediaType === 'video' && item.video?.files?.[0]?.url) {
+                videos.push(item.video.files[0].url);
+            }
+        });
+    }
+
+    return { images, videos };
+}
+
+// Extract descriptions from Wix product
+function extractWixDescriptions(wixProduct) {
+    const descriptions = {
+        descriptionShort: null,
+        descriptionFull: null,
+        description: null,
+        additionalInfo: null,
+        specifications: null
+    };
+
+    if (wixProduct.description) {
+        descriptions.descriptionFull = wixProduct.description;
+        descriptions.description = wixProduct.description;
+        
+        if (wixProduct.description.length > 200) {
+            descriptions.descriptionShort = wixProduct.description.substring(0, 200) + '...';
+        } else {
+            descriptions.descriptionShort = wixProduct.description;
+        }
+    }
+
+    if (wixProduct.additionalInfo) {
+        descriptions.additionalInfo = wixProduct.additionalInfo;
+    }
+
+    if (wixProduct.customFields && Array.isArray(wixProduct.customFields)) {
+        wixProduct.customFields.forEach(field => {
+            if (field.name === 'descriptionShort' && field.value) {
+                descriptions.descriptionShort = field.value;
+            }
+            if (field.name === 'descriptionFull' && field.value) {
+                descriptions.descriptionFull = field.value;
+            }
+            if (field.name === 'description' && field.value) {
+                descriptions.description = field.value;
+            }
+            if (field.name === 'additionalInfo' && field.value) {
+                descriptions.additionalInfo = field.value;
+            }
+            if (field.name === 'specifications' && field.value) {
+                descriptions.specifications = field.value;
+            }
+        });
+    }
+
+    return descriptions;
+}
+
+// Match Wix product to database products
+function findMatches(wixName, databaseProducts) {
+    const normalized = wixName.toLowerCase().trim();
+    
+    return databaseProducts.filter(p => {
+        const localName = (p.name || '').toLowerCase().trim();
+        
+        if (localName === normalized) return true;
+        if (localName.includes(normalized) || normalized.includes(localName)) return true;
+        
+        const wixKeywords = normalized.split(/\s+/).filter(w => w.length > 3);
+        const localKeywords = localName.split(/\s+/).filter(w => w.length > 3);
+        const commonKeywords = wixKeywords.filter(w => localKeywords.includes(w));
+        
+        return commonKeywords.length >= 3;
+    });
+}
+
+// Enrich product (SAFE - only adds, never overwrites)
+function enrichProduct(dbProduct, wixProduct, wixMedia, wixDescriptions) {
+    let enriched = false;
+    const changes = [];
+
+    if (!dbProduct.wixId && wixProduct.id) {
+        dbProduct.wixId = wixProduct.id;
+        enriched = true;
+        changes.push('wixId');
+    }
+
+    if (!dbProduct.wixProductUrl && wixProduct.productPageUrl) {
+        dbProduct.wixProductUrl = wixProduct.productPageUrl;
+        enriched = true;
+        changes.push('wixProductUrl');
+    }
+
+    if (wixMedia.images && wixMedia.images.length > 0) {
+        try {
+            const existing = dbProduct.images ? JSON.parse(dbProduct.images) : [];
+            const allImages = [...new Set([...existing, ...wixMedia.images])];
+            
+            if (allImages.length > existing.length) {
+                dbProduct.images = JSON.stringify(allImages);
+                enriched = true;
+                changes.push(`images (+${allImages.length - existing.length})`);
+            }
+        } catch (e) {
+            dbProduct.images = JSON.stringify(wixMedia.images);
+            enriched = true;
+            changes.push('images (new)');
+        }
+    }
+
+    if (wixMedia.videos && wixMedia.videos.length > 0) {
+        try {
+            const existing = dbProduct.videos ? JSON.parse(dbProduct.videos) : [];
+            const allVideos = [...new Set([...existing, ...wixMedia.videos])];
+            
+            if (allVideos.length > existing.length) {
+                dbProduct.videos = JSON.stringify(allVideos);
+                enriched = true;
+                changes.push(`videos (+${allVideos.length - existing.length})`);
+            }
+        } catch (e) {
+            dbProduct.videos = JSON.stringify(wixMedia.videos);
+            enriched = true;
+            changes.push('videos (new)');
+        }
+    }
+
+    if (wixDescriptions.descriptionFull) {
+        const existingFull = dbProduct.descriptionFull || '';
+        if (wixDescriptions.descriptionFull.length > existingFull.length) {
+            dbProduct.descriptionFull = wixDescriptions.descriptionFull;
+            enriched = true;
+            changes.push('descriptionFull (enhanced)');
+        }
+    }
+
+    if (wixDescriptions.descriptionShort) {
+        const existingShort = dbProduct.descriptionShort || '';
+        if (wixDescriptions.descriptionShort.length > existingShort.length) {
+            dbProduct.descriptionShort = wixDescriptions.descriptionShort;
+            enriched = true;
+            changes.push('descriptionShort (enhanced)');
+        }
+    }
+
+    if (wixDescriptions.description) {
+        const existingDesc = dbProduct.description || '';
+        if (wixDescriptions.description.length > existingDesc.length) {
+            dbProduct.description = wixDescriptions.description;
+            enriched = true;
+            changes.push('description (enhanced)');
+        }
+    }
+
+    if (wixDescriptions.additionalInfo) {
+        if (!dbProduct.additionalInfo) {
+            dbProduct.additionalInfo = wixDescriptions.additionalInfo;
+            enriched = true;
+            changes.push('additionalInfo');
+        } else {
+            const existing = dbProduct.additionalInfo || '';
+            const combined = existing + '\n\n' + wixDescriptions.additionalInfo;
+            if (combined.length > existing.length) {
+                dbProduct.additionalInfo = combined;
+                enriched = true;
+                changes.push('additionalInfo (enhanced)');
+            }
+        }
+    }
+
+    if (wixDescriptions.specifications) {
+        if (!dbProduct.specifications) {
+            dbProduct.specifications = wixDescriptions.specifications;
+            enriched = true;
+            changes.push('specifications');
+        }
+    }
+
+    if (!dbProduct.price && wixProduct.price) {
+        dbProduct.price = wixProduct.price;
+        enriched = true;
+        changes.push('price');
+    }
+
+    if (enriched) {
+        dbProduct.updatedAt = new Date().toISOString();
+        dbProduct.enrichedFromWix = true;
+        dbProduct.enrichedDate = new Date().toISOString();
+    }
+
+    return { enriched, changes };
+}
+
+// Process Wix products and enrich database
+async function processWixProducts(wixProducts) {
+    console.log('\n' + '='.repeat(70));
+    console.log('🔄 Processing Wix products and enriching database...');
+    console.log('='.repeat(70));
+
+    const handDryers = database.products.filter(p => 
+        p.name && (
+            p.name.toLowerCase().includes('hand dryer') || 
+            p.name.toLowerCase().includes('handdryer')
+        )
+    );
+
+    console.log(`\n📊 Found ${handDryers.length} hand dryers in database`);
+    console.log(`📦 Processing ${wixProducts.length} Wix products`);
+
+    if (TEST_MODE && handDryers.length > TEST_LIMIT) {
+        console.log(`🧪 TEST MODE: Processing only first ${TEST_LIMIT} products`);
+        handDryers.splice(TEST_LIMIT);
+    }
+
+    let enriched = 0;
+    let totalChanges = 0;
+    let totalImagesAdded = 0;
+    let totalVideosAdded = 0;
+    const results = [];
+
+    for (const wixProduct of wixProducts) {
+        console.log(`\n📦 Processing: ${wixProduct.name || wixProduct.id}`);
+        
+        const wixMedia = extractWixMedia(wixProduct);
+        console.log(`   📸 Images: ${wixMedia.images.length}, 🎥 Videos: ${wixMedia.videos.length}`);
+
+        const wixDescriptions = extractWixDescriptions(wixProduct);
+        console.log(`   📝 Description: ${wixDescriptions.descriptionFull ? 'Yes (' + wixDescriptions.descriptionFull.length + ' chars)' : 'No'}`);
+
+        const wixName = wixProduct.name || '';
+        const matches = findMatches(wixName, handDryers);
+        console.log(`   🔍 Found ${matches.length} matching product(s) in database`);
+
+        for (const dbProduct of matches) {
+            const { enriched: wasEnriched, changes } = enrichProduct(dbProduct, wixProduct, wixMedia, wixDescriptions);
+            
+            if (wasEnriched) {
+                enriched++;
+                totalChanges += changes.length;
+                
+                const imageChange = changes.find(c => c.includes('images'));
+                const videoChange = changes.find(c => c.includes('videos'));
+                if (imageChange) {
+                    const match = imageChange.match(/\+(\d+)/);
+                    if (match) totalImagesAdded += parseInt(match[1]);
+                }
+                if (videoChange) {
+                    const match = videoChange.match(/\+(\d+)/);
+                    if (match) totalVideosAdded += parseInt(match[1]);
+                }
+                
+                console.log(`   ✅ Enriched: ${dbProduct.name}`);
+                console.log(`      Changes: ${changes.join(', ')}`);
+                
+                results.push({
+                    dbProduct: dbProduct.name,
+                    wixProduct: wixName,
+                    changes: changes
+                });
+            } else {
+                console.log(`   ℹ️  No changes needed: ${dbProduct.name}`);
+            }
+        }
+    }
+
+    if (enriched > 0) {
+        console.log('\n' + '='.repeat(70));
+        console.log('💾 Saving enriched database...');
+        console.log('='.repeat(70));
+        
+        try {
+            fs.writeFileSync(DATABASE_PATH, JSON.stringify(database, null, 2));
+            console.log(`✅ Database saved successfully!`);
+        } catch (error) {
+            console.error('❌ Error saving database:', error.message);
+            console.error('   You can restore from backup:', path.basename(backupPath));
+            process.exit(1);
+        }
+    }
+
+    console.log('\n' + '='.repeat(70));
+    console.log('📊 ENRICHMENT SUMMARY');
+    console.log('='.repeat(70));
+    console.log(`Wix products processed: ${wixProducts.length}`);
+    console.log(`Database products enriched: ${enriched}`);
+    console.log(`Total changes made: ${totalChanges}`);
+    console.log(`Total images added: ${totalImagesAdded}`);
+    console.log(`Total videos added: ${totalVideosAdded}`);
+    console.log(`\n💾 Backup available: ${path.basename(backupPath)}`);
+    
+    if (TEST_MODE) {
+        console.log('\n🧪 TEST MODE COMPLETE');
+        console.log('   Review the results above.');
+        console.log('   If everything looks good, run without --test flag to process all products.');
+    }
+
+    console.log('\n✅ Enrichment complete!');
+    
+    return { enriched, totalChanges, totalImagesAdded, totalVideosAdded, results };
+}
+
+// Load Wix data from file or use provided data
+async function loadWixData() {
+    // Check if Wix data file exists
+    if (fs.existsSync(WIX_DATA_FILE)) {
+        console.log(`\n📂 Loading Wix data from file: ${path.basename(WIX_DATA_FILE)}`);
+        try {
+            const data = fs.readFileSync(WIX_DATA_FILE, 'utf8');
+            const json = JSON.parse(data);
+            
+            // Handle different JSON structures
+            if (Array.isArray(json)) {
+                return json;
+            } else if (json.products && Array.isArray(json.products)) {
+                return json.products;
+            } else if (json.data && Array.isArray(json.data)) {
+                return json.data;
+            } else {
+                console.log('⚠️  Unexpected JSON structure, trying to extract products...');
+                return [];
+            }
+        } catch (error) {
+            console.error(`❌ Error loading Wix data file: ${error.message}`);
+            return [];
+        }
+    } else {
+        console.log(`\n📂 No Wix data file found: ${path.basename(WIX_DATA_FILE)}`);
+        console.log('   To use this script with MCP data:');
+        console.log('   1. Use MCP tools to fetch hand dryers from Wix');
+        console.log('   2. Save the data to: wix-hand-dryers.json');
+        console.log('   3. Run this script again');
+        return [];
+    }
+}
+
+// Main function
+async function main() {
+    // Load Wix data
+    const wixProducts = await loadWixData();
+    
+    if (wixProducts.length === 0) {
+        console.log('\n⚠️  No Wix products found.');
+        console.log('\n📋 To use this script:');
+        console.log('   1. Use MCP tools in Cursor to fetch hand dryers from Wix');
+        console.log('   2. Save the Wix product data to: wix-hand-dryers.json');
+        console.log('   3. Run this script again: node enrich-hand-dryers-WITH-MCP-DATA.js');
+        console.log('\n💡 Or pass Wix products directly to processWixProducts() function');
+        return;
+    }
+
+    // Filter for hand dryers if needed
+    const handDryers = wixProducts.filter(p => {
+        const name = (p.name || '').toLowerCase();
+        return name.includes('hand dryer') || name.includes('handdryer');
+    });
+
+    if (handDryers.length === 0) {
+        console.log('\n⚠️  No hand dryers found in Wix data.');
+        console.log('   Make sure the Wix products contain "hand dryer" in the name.');
+        return;
+    }
+
+    console.log(`\n✅ Found ${handDryers.length} hand dryers in Wix data`);
+
+    // Process and enrich
+    await processWixProducts(handDryers);
+}
+
+// Export for use with MCP
+module.exports = {
+    processWixProducts,
+    enrichProduct,
+    findMatches,
+    extractWixMedia,
+    extractWixDescriptions
+};
+
+// Run if called directly
+if (require.main === module) {
+    main().catch(error => {
+        console.error('\n❌ Error during enrichment:', error);
+        console.error('   You can restore from backup:', path.basename(backupPath));
+        process.exit(1);
+    });
+}
+

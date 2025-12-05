@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Permanent Database</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Test Permanent Database</h1>
+    <div id="status"></div>
+    <div id="products"></div>
+
+    <!-- Load the permanent database -->
+    <script src="product-database-backup.js"></script>
+    <script src="load-permanent-database.js"></script>
+    
+    <script>
+        // Test the database
+        function testDatabase() {
+            const statusDiv = document.getElementById('status');
+            const productsDiv = document.getElementById('products');
+            
+            try {
+                if (typeof PRODUCT_DATABASE_BACKUP === 'undefined') {
+                    statusDiv.innerHTML = '<p class="error">❌ Database not loaded</p>';
+                    return;
+                }
+                
+                const productCount = PRODUCT_DATABASE_BACKUP.getProductCount();
+                statusDiv.innerHTML = '<p class="success">✅ Database loaded successfully!</p>';
+                statusDiv.innerHTML += `<p class="info">📊 Total products: ${productCount}</p>`;
+                
+                // Show some products
+                const products = PRODUCT_DATABASE_BACKUP.getAllProducts();
+                productsDiv.innerHTML = '<h2>Sample Products:</h2>';
+                products.slice(0, 5).forEach(product => {
+                    productsDiv.innerHTML += `
+                        <div style="border: 1px solid #ccc; margin: 5px; padding: 10px;">
+                            <strong>${product.name}</strong><br>
+                            Category: ${product.category} | Power: ${product.power}W
+                        </div>
+                    `;
+                });
+                
+            } catch (error) {
+                statusDiv.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+            }
+        }
+        
+        window.addEventListener('load', testDatabase);
+    </script>
+</body>
+</html>
+
+

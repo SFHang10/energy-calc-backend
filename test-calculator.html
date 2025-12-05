@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        iframe { width: 100%; height: 600px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <h1>Calculator Widget Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Direct Calculator Widget</h2>
+        <iframe src="http://localhost:4000/product-energy-widget-glassmorphism.html" width="100%" height="600"></iframe>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Calculator with Product Parameters</h2>
+        <iframe src="http://localhost:4000/product-energy-widget-glassmorphism.html?productId=etl_11_86407&productName=Test%20Motor&productPower=0.12&productBrand=NORD&productCategory=ETL%20Technology" width="100%" height="600"></iframe>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: API Test</h2>
+        <button onclick="testAPI()">Test API</button>
+        <div id="api-result"></div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            try {
+                console.log('Testing API...');
+                const response = await fetch('/api/product-widget/etl_11_86407');
+                const data = await response.json();
+                console.log('API Response:', data);
+                document.getElementById('api-result').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            } catch (error) {
+                console.error('API Error:', error);
+                document.getElementById('api-result').innerHTML = 'Error: ' + error.message;
+            }
+        }
+        
+        console.log('Test page loaded');
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

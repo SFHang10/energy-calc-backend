@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greenways Restaurants - Energy Efficiency Benefits</title>
+    <!-- No Scrolling Settings -->
+    <meta name="scrolling" content="no">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: white;
+            padding: 20px;
+            overflow-y: hidden; /* Prevents vertical scrolling */
+        }
+        
+        .infographic {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='rgba(255,255,255,0.05)'%3E%3Ccircle cx='20' cy='20' r='2'/%3E%3C/g%3E%3C/svg%3E") repeat;
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            animation: slideInDown 1s ease-out;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+        
+        .main-content {
+            padding: 60px 40px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideInUp 0.8s ease-out forwards;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #4a7c59 0%, #2c5530 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2c5530;
+            margin-bottom: 10px;
+            counter-reset: number;
+            animation: countUp 2s ease-out forwards;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .benefits-section {
+            margin-top: 50px;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #2c5530;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(135deg, #4a7c59 0%, #2c5530 100%);
+            border-radius: 2px;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        
+        .benefit-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            border-left: 5px solid #4a7c59;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .benefit-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+        }
+        
+        .benefit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, rgba(74, 124, 89, 0.1) 0%, transparent 70%);
+            border-radius: 0 0 0 100px;
+        }
+        
+        .benefit-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .benefit-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #4a7c59 0%, #2c5530 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            margin-right: 15px;
+            animation: rotate 4s linear infinite;
+        }
+        
+        .benefit-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c5530;
+        }
+        
+        .benefit-description {
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .benefit-highlight {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 3px solid #0ea5e9;
+            font-weight: 500;
+            color: #0c4a6e;
+        }
+        
+        .energy-wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 1200 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,60 C150,120 300,0 450,60 C600,120 750,0 900,60 C1050,120 1200,0 1200,60 L1200,120 L0,120 Z' fill='%234a7c59'/%3E%3C/svg%3E") repeat-x;
+            animation: wave 4s ease-in-out infinite;
+        }
+        
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .floating-element {
+            position: absolute;
+            background: rgba(74, 124, 89, 0.1);
+            border-radius: 50%;
+            animation: floatRandom 6s ease-in-out infinite;
+        }
+        
+        .cta-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 40px;
+            text-align: center;
+            margin-top: 50px;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #2c5530;
+            margin-bottom: 15px;
+        }
+        
+        .cta-text {
+            color: #64748b;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideInUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+        
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes wave {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            50% {
+                transform: translateX(-50px);
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+        
+        @keyframes floatRandom {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            33% {
+                transform: translateY(-30px) rotate(120deg);
+            }
+            66% {
+                transform: translateY(-15px) rotate(240deg);
+            }
+        }
+        
+        @keyframes countUp {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .main-content {
+                padding: 40px 20px;
+            }
+            
+            .stats-grid, .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="infographic">
+        <div class="floating-elements">
+            <div class="floating-element" style="width: 20px; height: 20px; top: 10%; left: 10%; animation-delay: 0s;"></div>
+            <div class="floating-element" style="width: 15px; height: 15px; top: 20%; right: 15%; animation-delay: 2s;"></div>
+            <div class="floating-element" style="width: 25px; height: 25px; top: 70%; left: 5%; animation-delay: 4s;"></div>
+            <div class="floating-element" style="width: 18px; height: 18px; top: 80%; right: 10%; animation-delay: 1s;"></div>
+            <div class="floating-element" style="width: 22px; height: 22px; top: 40%; right: 20%; animation-delay: 3s;"></div>
+        </div>
+
+        <div class="header">
+            <h1>🌿 Restaurant Solutions</h1>
+            <p>Sustainable Energy Solutions for Restaurants & Hotels</p>
+        </div>
+
+        <div class="main-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">💶</div>
+                    <div class="stat-number">10-70%</div>
+                    <div class="stat-label">Energy Cost Savings</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-number">30%</div>
+                    <div class="stat-label">Potential Energy Reduction</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">🏨</div>
+                    <div class="stat-number">15-25%</div>
+                    <div class="stat-label">Operating Cost Reduction</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">🌍</div>
+                    <div class="stat-number">75%</div>
+                    <div class="stat-label">Lighting Efficiency Improvement</div>
+                </div>
+            </div>
+
+            <div class="benefits-section">
+                <h2 class="section-title">Key Benefits of Low Energy Products</h2>
+                
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-header">
+                            <div class="benefit-icon">💵</div>
+                            <div class="benefit-title">Significant Cost Savings</div>
+                        </div>
+                        <div class="benefit-description">
+                            Restaurants can reduce energy consumption and save thousands annually through efficient equipment upgrades. Energy costs typically represent 6% of total operating expenses.
+                        </div>
+                        <div class="benefit-highlight">
+                            Real Example: Royal Vista Golf Club saved $2,000 annually with just one efficient oven upgrade
+                        </div>
+                    </div>
+
+                    <div class="benefit-card">
+                        <div class="benefit-header">
+                            <div class="benefit-icon">🌱</div>
+                            <div class="benefit-title">Environmental Impact</div>
+                        </div>
+                        <div class="benefit-description">
+                            Energy-efficient equipment significantly reduces greenhouse gas emissions and supports sustainability goals while improving your brand's environmental reputation.
+                        </div>
+                        <div class="benefit-highlight">
+                            Hotels can achieve up to 41% reduction in gas consumption with smart energy management
+                        </div>
+                    </div>
+
+                    <div class="benefit-card">
+                        <div class="benefit-header">
+                            <div class="benefit-icon">🔧</div>
+                            <div class="benefit-title">Enhanced Equipment Performance</div>
+                        </div>
+                        <div class="benefit-description">
+                            Energy-efficient appliances often have longer lifespans, require less maintenance, and provide more consistent performance compared to conventional equipment.
+                        </div>
+                        <div class="benefit-highlight">
+                            Energy Star & ETL certified equipment delivers superior reliability and extended operational life
+                        </div>
+                    </div>
+
+                    <div class="benefit-card">
+                        <div class="benefit-header">
+                            <div class="benefit-icon">⭐</div>
+                            <div class="benefit-title">Guest Comfort & Satisfaction</div>
+                        </div>
+                        <div class="benefit-description">
+                            Modern energy-efficient HVAC and lighting systems provide better climate control and ambiance, directly improving guest experience and comfort levels.
+                        </div>
+                        <div class="benefit-highlight">
+                            Smart HVAC systems can reduce energy costs by 5% while maintaining optimal guest comfort
+                        </div>
+                    </div>
+
+                    <div class="benefit-card">
+                        <div class="benefit-header">
+                            <div class="benefit-icon">📊</div>
+                            <div class="benefit-title">Operational Efficiency</div>
+                        </div>
+                        <div class="benefit-description">
+                            Energy management systems provide real-time monitoring and automated controls, enabling better resource allocation and operational optimization.
+                        </div>
+                        <div class="benefit-highlight">
+                            Advanced monitoring systems help identify inefficiencies and optimize energy usage patterns
+                        </div>
+                    </div>
+
+                    <div class="benefit-card">
+                        <div class="benefit-header">
+                            <div class="benefit-icon">🏆</div>
+                            <div class="benefit-title">Competitive Advantage</div>
+                        </div>
+                        <div class="benefit-description">
+                            Energy-efficient operations demonstrate corporate responsibility, attract eco-conscious customers, and can qualify for various incentives and certifications.
+                        </div>
+                        <div class="benefit-highlight">
+                            Energy Star certification and green building ratings enhance market positioning
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <h3 class="cta-title">Ready to Transform Your Energy Efficiency?</h3>
+                <p class="cta-text">
+                    Join the growing number of restaurants and hotels that are reducing costs, improving guest satisfaction, 
+                    and contributing to a sustainable future through smart energy choices. The initial investment in 
+                    energy-efficient equipment pays for itself through reduced utility bills and enhanced operational performance.
+                </p>
+            </div>
+        </div>
+        
+        <div class="energy-wave"></div>
+    </div>
+
+    <script>
+        // Counter animation for statistics
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stat-number');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const counter = entry.target;
+                        const target = counter.textContent;
+                        let current = 0;
+                        const increment = target.match(/\d+/)[0] / 100;
+                        const timer = setInterval(() => {
+                            current += increment;
+                            if (current >= target.match(/\d+/)[0]) {
+                                counter.textContent = target;
+                                clearInterval(timer);
+                            } else {
+                                if (target.includes('%')) {
+                                    counter.textContent = Math.ceil(current) + '%';
+                                } else if (target.includes('€')) {
+                                    counter.textContent = '€' + current.toFixed(2);
+                                } else {
+                                    counter.textContent = Math.ceil(current) + target.replace(/\d+/, '').replace('-', '');
+                                }
+                            }
+                        }, 50);
+                        observer.unobserve(counter);
+                    }
+                });
+            });
+            
+            counters.forEach(counter => observer.observe(counter));
+        }
+
+        // Add hover effects to cards
+        function addCardEffects() {
+            const cards = document.querySelectorAll('.benefit-card, .stat-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        }
+
+        // Initialize animations when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            animateCounters();
+            addCardEffects();
+            
+            // Add stagger animation to benefit cards
+            const benefitCards = document.querySelectorAll('.benefit-card');
+            benefitCards.forEach((card, index) => {
+                card.style.animationDelay = `${0.1 * index}s`;
+                card.style.animation = 'slideInUp 0.8s ease-out forwards';
+            });
+        });
+    </script>
+</body>
+</html>

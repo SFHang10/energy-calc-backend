@@ -1,0 +1,83 @@
+<!-- Wix Dynamic Product Page Integration -->
+<!-- Copy this entire code block into an HTML element in Wix -->
+
+<div id="dynamic-product-container" style="width: 100%; min-height: 1200px;">
+    <iframe 
+        id="product-page-iframe"
+        src="http://localhost:4000/product-page-v2.html?product={{wixStores.currentProduct.id}}"
+        width="100%" 
+        height="1200" 
+        frameborder="0"
+        style="border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);"
+        onload="adjustIframeHeight()">
+    </iframe>
+</div>
+
+<script>
+// Auto-resize iframe based on content
+function adjustIframeHeight() {
+    const iframe = document.getElementById('product-page-iframe');
+    
+    // Set initial height
+    iframe.style.height = '1200px';
+    
+    // Listen for resize messages from iframe
+    window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'resize') {
+            iframe.style.height = event.data.height + 'px';
+        }
+    });
+    
+    // Fallback: adjust height after a delay
+    setTimeout(function() {
+        try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            if (iframeDoc.body) {
+                const height = iframeDoc.body.scrollHeight;
+                if (height > 0) {
+                    iframe.style.height = height + 'px';
+                }
+            }
+        } catch (e) {
+            // Cross-origin restrictions - use default height
+            console.log('Using default iframe height due to cross-origin restrictions');
+        }
+    }, 2000);
+}
+
+// Ensure function is available globally
+window.adjustIframeHeight = adjustIframeHeight;
+</script>
+
+<!-- Alternative: Direct Product Page (if iframe doesn't work) -->
+<!-- 
+<div id="fallback-container" style="display: none;">
+    <h1>{{wixStores.currentProduct.name}}</h1>
+    <p>Price: {{wixStores.currentProduct.price}}</p>
+    <p>Category: {{wixStores.currentProduct.customFields.category}}</p>
+    <p>Brand: {{wixStores.currentProduct.customFields.brand}}</p>
+    <p>Power Rating: {{wixStores.currentProduct.customFields.powerRating}}</p>
+    <p>Energy Rating: {{wixStores.currentProduct.customFields.energyRating}}</p>
+    <p>Model Number: {{wixStores.currentProduct.customFields.modelNumber}}</p>
+    <p>Description: {{wixStores.currentProduct.customFields.descriptionShort}}</p>
+    
+    <div id="calculator-widget">
+        <iframe src="http://localhost:4000/product-energy-widget.html?productId={{wixStores.currentProduct.id}}&productName={{wixStores.currentProduct.name}}&productPower={{wixStores.currentProduct.customFields.powerRating}}&productBrand={{wixStores.currentProduct.customFields.brand}}&productCategory={{wixStores.currentProduct.customFields.category}}" 
+                width="100%" height="800" frameborder="0">
+        </iframe>
+    </div>
+</div>
+
+<script>
+// Show fallback if iframe fails to load
+setTimeout(function() {
+    const iframe = document.getElementById('product-page-iframe');
+    const fallback = document.getElementById('fallback-container');
+    
+    if (!iframe.contentDocument || iframe.contentDocument.body.innerHTML.trim() === '') {
+        iframe.style.display = 'none';
+        fallback.style.display = 'block';
+    }
+}, 5000);
+</script>
+-->

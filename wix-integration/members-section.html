@@ -1577,7 +1577,7 @@
             // Check auth status if token exists
             if (authToken) {
                 // Check if we have a recent auth check (within 5 minutes)
-                const lastAuthCheck = sessionStorage.getItem('lastAuthCheck');
+                const lastAuthCheck = localStorage.getItem('lastAuthCheck');
                 const lastAuthTime = lastAuthCheck ? parseInt(lastAuthCheck) : 0;
                 const now = Date.now();
                 const fiveMinutes = 5 * 60 * 1000;
@@ -1587,7 +1587,7 @@
                 if (lastAuthCheck && (now - lastAuthTime < fiveMinutes)) {
                     console.log('Recent auth check found, trusting session without API call');
                     // Try to restore user from sessionStorage
-                    const cachedUser = sessionStorage.getItem('cachedUser');
+                    const cachedUser = localStorage.getItem('cachedUser');
                     if (cachedUser) {
                         try {
                             currentUser = JSON.parse(cachedUser);
@@ -2027,9 +2027,9 @@
                 
                 // Cache auth status and user data to avoid unnecessary checks when navigating back
                 const now = Date.now();
-                sessionStorage.setItem('lastAuthCheck', now.toString());
+                localStorage.setItem('lastAuthCheck', now.toString());
                 if (currentUser) {
-                    sessionStorage.setItem('cachedUser', JSON.stringify(currentUser));
+                    localStorage.setItem('cachedUser', JSON.stringify(currentUser));
                 }
                 showMemberDashboard();
                 e.target.reset();
@@ -2070,9 +2070,9 @@
                 currentUser = response.user;
                 // Cache auth status and user data to avoid unnecessary checks when navigating back
                 const now = Date.now();
-                sessionStorage.setItem('lastAuthCheck', now.toString());
+                localStorage.setItem('lastAuthCheck', now.toString());
                 if (currentUser) {
-                    sessionStorage.setItem('cachedUser', JSON.stringify(currentUser));
+                    localStorage.setItem('cachedUser', JSON.stringify(currentUser));
                 }
                 showMemberDashboard();
                 e.target.reset();
@@ -2146,7 +2146,7 @@
             }
             
             // Check if we've validated recently (within last 5 minutes) to avoid unnecessary API calls
-            const lastAuthCheck = sessionStorage.getItem('lastAuthCheck');
+            const lastAuthCheck = localStorage.getItem('lastAuthCheck');
             const lastAuthTime = lastAuthCheck ? parseInt(lastAuthCheck) : 0;
             const now = Date.now();
             const fiveMinutes = 5 * 60 * 1000;
@@ -2155,7 +2155,7 @@
             if (lastAuthCheck && (now - lastAuthTime < fiveMinutes)) {
                 console.log('Recent auth check found, trusting session');
                 // Try to restore user from cache
-                const cachedUser = sessionStorage.getItem('cachedUser');
+                const cachedUser = localStorage.getItem('cachedUser');
                 if (cachedUser) {
                     try {
                         currentUser = JSON.parse(cachedUser);
@@ -2184,7 +2184,7 @@
                 if (response.status === 401 || response.status === 403) {
                     // Only log out on authentication errors
                     localStorage.removeItem('energy_calc_membership_token');
-                    sessionStorage.removeItem('lastAuthCheck');
+                    localStorage.removeItem('lastAuthCheck');
                     authToken = null;
                     showMessage('Session expired. Please login again.', 'info');
                     return;
@@ -2203,9 +2203,9 @@
                 const data = await response.json();
                 currentUser = data.user || data.member;
                 // Store successful auth check time and cache user data
-                sessionStorage.setItem('lastAuthCheck', now.toString());
+                localStorage.setItem('lastAuthCheck', now.toString());
                 if (currentUser) {
-                    sessionStorage.setItem('cachedUser', JSON.stringify(currentUser));
+                    localStorage.setItem('cachedUser', JSON.stringify(currentUser));
                 }
                 showMemberDashboard();
             } catch (error) {
@@ -2218,7 +2218,7 @@
                     // Only log out if it's clearly an authentication error AND we have no cached user
                     if (error.message && (error.message.includes('401') || error.message.includes('403') || error.message.includes('Unauthorized'))) {
                         localStorage.removeItem('energy_calc_membership_token');
-                        sessionStorage.removeItem('lastAuthCheck');
+                        localStorage.removeItem('lastAuthCheck');
                         authToken = null;
                         showMessage('Session expired. Please login again.', 'info');
                     }
@@ -2242,9 +2242,9 @@
                     const data = await response.json();
                     currentUser = data.user || data.member;
                     // Update cache
-                    sessionStorage.setItem('lastAuthCheck', Date.now().toString());
+                    localStorage.setItem('lastAuthCheck', Date.now().toString());
                     if (currentUser) {
-                        sessionStorage.setItem('cachedUser', JSON.stringify(currentUser));
+                        localStorage.setItem('cachedUser', JSON.stringify(currentUser));
                         // Update dashboard with fresh data if it's visible
                         if (document.getElementById('member-dashboard') && document.getElementById('member-dashboard').style.display === 'block') {
                             document.getElementById('user-name').textContent = `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() || 'Member';

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Membership Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            background: #e9ecef;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Simple Membership System Test</h1>
+        
+        <h3>Step 1: Test Basic Connection</h3>
+        <button onclick="testConnection()">Test Backend Connection</button>
+        <div id="connectionResult" class="result"></div>
+        
+        <h3>Step 2: Test Subscription Tiers</h3>
+        <button onclick="testTiers()">Get Subscription Tiers</button>
+        <div id="tiersResult" class="result"></div>
+        
+        <h3>Step 3: Test User Registration</h3>
+        <input type="email" id="email" placeholder="Enter email (e.g., test@example.com)">
+        <input type="password" id="password" placeholder="Enter password (e.g., password123)">
+        <button onclick="testRegister()">Test Registration</button>
+        <div id="registerResult" class="result"></div>
+        
+        <h3>Step 4: Test User Login</h3>
+        <button onclick="testLogin()">Test Login</button>
+        <div id="loginResult" class="result"></div>
+        
+        <h3>Step 5: Test Member Content</h3>
+        <button onclick="testContent()">Get Member Content</button>
+        <div id="contentResult" class="result"></div>
+        
+        <div id="status" style="margin-top: 20px; padding: 10px; background: #e7f3ff; border-radius: 5px;">
+            <strong>Status:</strong> Ready to test
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:4000/api';
+        let currentToken = '';
+
+        function updateStatus(message, isError = false) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = `Status: ${message}`;
+            statusDiv.style.background = isError ? '#ffe6e6' : '#e7f3ff';
+        }
+
+        function showResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.className = `result ${isError ? 'error' : 'success'}`;
+            element.textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function testConnection() {
+            updateStatus('Testing connection...');
+            try {
+                const response = await fetch(`${API_BASE}/members/subscription-tiers`);
+                if (response.ok) {
+                    showResult('connectionResult', { status: 'Connected!', message: 'Backend is responding' });
+                    updateStatus('Backend connected successfully');
+                } else {
+                    showResult('connectionResult', { status: 'Error', message: `HTTP ${response.status}` }, true);
+                    updateStatus('Backend error', true);
+                }
+            } catch (error) {
+                showResult('connectionResult', { status: 'Failed', error: error.message }, true);
+                updateStatus('Cannot connect to backend', true);
+            }
+        }
+
+        async function testTiers() {
+            updateStatus('Loading subscription tiers...');
+            try {
+                const response = await fetch(`${API_BASE}/members/subscription-tiers`);
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResult('tiersResult', { 
+                        status: 'Success', 
+                        count: result.tiers ? result.tiers.length : 0,
+                        tiers: result.tiers 
+                    });
+                    updateStatus(`Found ${result.tiers ? result.tiers.length : 0} subscription tiers`);
+                } else {
+                    showResult('tiersResult', result, true);
+                    updateStatus('Failed to load tiers', true);
+                }
+            } catch (error) {
+                showResult('tiersResult', { error: error.message }, true);
+                updateStatus('Error loading tiers', true);
+            }
+        }
+
+        async function testRegister() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showResult('registerResult', { error: 'Please enter both email and password' }, true);
+                return;
+            }
+            
+            updateStatus('Testing registration...');
+            try {
+                const response = await fetch(`${API_BASE}/members/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        first_name: 'Test',
+                        last_name: 'User',
+                        company: 'Test Company',
+                        interests: 'Green Buildings'
+                    })
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    showResult('registerResult', { status: 'Success', user: result.user });
+                    updateStatus('User registered successfully');
+                } else {
+                    showResult('registerResult', result, true);
+                    updateStatus('Registration failed', true);
+                }
+            } catch (error) {
+                showResult('registerResult', { error: error.message }, true);
+                updateStatus('Registration error', true);
+            }
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showResult('loginResult', { error: 'Please enter both email and password' }, true);
+                return;
+            }
+            
+            updateStatus('Testing login...');
+            try {
+                const response = await fetch(`${API_BASE}/members/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const result = await response.json();
+                if (response.ok && result.token) {
+                    currentToken = result.token;
+                    showResult('loginResult', { status: 'Success', message: 'Login successful! Token saved.' });
+                    updateStatus('Login successful - token saved');
+                } else {
+                    showResult('loginResult', result, true);
+                    updateStatus('Login failed', true);
+                }
+            } catch (error) {
+                showResult('loginResult', { error: error.message }, true);
+                updateStatus('Login error', true);
+            }
+        }
+
+        async function testContent() {
+            if (!currentToken) {
+                showResult('contentResult', { error: 'Please login first to get a token' }, true);
+                return;
+            }
+            
+            updateStatus('Loading member content...');
+            try {
+                const response = await fetch(`${API_BASE}/members/content`, {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    showResult('contentResult', { 
+                        status: 'Success', 
+                        count: result.content ? result.content.length : 0,
+                        content: result.content 
+                    });
+                    updateStatus(`Found ${result.content ? result.content.length : 0} content items`);
+                } else {
+                    showResult('contentResult', result, true);
+                    updateStatus('Failed to load content', true);
+                }
+            } catch (error) {
+                showResult('contentResult', { error: error.message }, true);
+                updateStatus('Error loading content', true);
+            }
+        }
+
+        // Auto-test connection on page load
+        window.onload = function() {
+            updateStatus('Page loaded - click "Test Backend Connection" to start');
+        };
+    </script>
+</body>
+</html>

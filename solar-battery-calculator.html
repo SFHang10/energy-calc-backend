@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Panel & Battery Storage Home Value Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f1f3d 0%, #1a2f5a 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://static.wixstatic.com/media/c123de_108c608f27054f0185d3ddacc2ca712a~mv2.jpeg') center/cover no-repeat;
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            z-index: 0;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .controls {
+            padding: 40px;
+            background: #f8f9fa;
+        }
+
+        .control-section {
+            margin-bottom: 40px;
+        }
+
+        .control-section h2 {
+            color: #2a5298;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .country-selector, .house-selector, .solar-toggle, .battery-toggle {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        .country-option, .house-option, .toggle-option {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .country-option:hover, .house-option:hover, .toggle-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #2a5298;
+        }
+
+        .country-option.selected, .house-option.selected, .toggle-option.selected {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+            position: relative;
+        }
+
+        .country-option.selected::after, .house-option.selected::after, .toggle-option.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #28a745;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .country-option img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            margin-bottom: 15px;
+            display: block;
+            border-radius: 10px;
+        }
+
+        .house-option img, .toggle-option img {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .country-option h3, .toggle-option h3 {
+            color: #2a5298;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .house-option h4 {
+            color: #2a5298;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .country-option p, .house-option p, .toggle-option p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .battery-toggle {
+            opacity: 0.5;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .battery-toggle.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .results {
+            padding: 40px;
+            background: white;
+        }
+
+        .house-image {
+            width: 100%;
+            max-width: 400px;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin: 0 auto 30px;
+            display: block;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .location-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .location-info h3 {
+            color: #2a5298;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .location-info p {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        .value-display {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .value-display h3 {
+            color: #2a5298;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .value-display .amount {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+
+        .solar-benefit, .battery-benefit {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-left: 5px solid #28a745;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+        }
+
+        .battery-benefit {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left-color: #2196f3;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.2);
+        }
+
+        .solar-benefit h4, .battery-benefit h4 {
+            color: #155724;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .battery-benefit h4 {
+            color: #0d47a1;
+        }
+
+        .solar-benefit .amount, .battery-benefit .amount {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .battery-benefit .amount {
+            color: #2196f3;
+        }
+
+        .schemes {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        .schemes h3 {
+            color: #2a5298;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .scheme-item {
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .scheme-header {
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            transition: background 0.3s ease;
+        }
+
+        .scheme-header:hover {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+        }
+
+        .scheme-header h4 {
+            color: #2a5298;
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .scheme-toggle {
+            background: #2a5298;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+
+        .scheme-toggle:hover {
+            background: #1e3c72;
+        }
+
+        .scheme-content {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .scheme-content.expanded {
+            padding: 20px;
+            max-height: 200px;
+        }
+
+        .scheme-content p {
+            color: #6c757d;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .scheme-link {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .scheme-link:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .floating-element {
+            position: absolute;
+            font-size: 1.5rem;
+            opacity: 0.1;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .floating-element:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .floating-element:nth-child(2) { top: 20%; right: 15%; animation-delay: 1s; }
+        .floating-element:nth-child(3) { bottom: 30%; left: 20%; animation-delay: 2s; }
+        .floating-element:nth-child(4) { bottom: 15%; right: 10%; animation-delay: 3s; }
+        .floating-element:nth-child(5) { top: 50%; left: 5%; animation-delay: 4s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(5deg); }
+            50% { transform: translateY(-10px) rotate(-5deg); }
+            75% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .controls, .results {
+                padding: 30px 20px;
+            }
+            
+            .country-selector, .house-selector, .solar-toggle, .battery-toggle {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="floating-elements">
+            <div class="floating-element">☀️</div>
+            <div class="floating-element">🔋</div>
+            <div class="floating-element">🏠</div>
+            <div class="floating-element">💚</div>
+            <div class="floating-element">⚡</div>
+        </div>
+
+        <div class="header">
+            <h1>Solar Panel & Battery Storage Home Value Calculator</h1>
+            <p>Calculate how much value solar panels and battery storage add to your home across different regions</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-section">
+    <h2>SELECT COUNTRY</h2>
+    <div class="country-selector">
+        <div class="country-option" onclick="selectCountry('netherlands')">
+            <img src="https://static.wixstatic.com/media/c123de_1100ba2340b94c43934d35d577fa59e3~mv2.jpg" alt="Netherlands House">
+            <h3>Netherlands</h3>
+            <p>Amsterdam Region</p>
+        </div>
+        <div class="country-option" onclick="selectCountry('uk')">
+            <img src="https://static.wixstatic.com/media/c123de_af24f70c047e447da086b2007ee1c0c4~mv2.jpeg" alt="United Kingdom House">
+            <h3>United Kingdom</h3>
+            <p>London Region</p>
+        </div>
+        <div class="country-option" onclick="selectCountry('portugal')">
+            <img src="https://static.wixstatic.com/media/c123de_1358675a424a4388aa5747601c396658~mv2.jpeg" alt="Portugal House">
+            <h3>Portugal</h3>
+            <p>Lisbon Region</p>
+        </div>
+        <div class="country-option" onclick="selectCountry('spain')">
+            <img src="https://static.wixstatic.com/media/c123de_689061eaf8b149a0b4f6e0b8e726b66c~mv2.jpg" alt="Spain House">
+            <h3>Spain</h3>
+            <p>Madrid Region</p>
+        </div>
+    </div>
+</div>
+
+            <div class="control-section">
+                <h2>SELECT HOME SIZE</h2>
+                <div class="house-selector">
+                    <div class="house-option" onclick="selectSize('small')">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMwIDVMMCAyNVY1NUg2MFYyNUwzMCA1WiIgZmlsbD0iIzg4ODg4OCIvPgo8cmVjdCB4PSI1IiB5PSIyNSIgd2lkdGg9IjUwIiBoZWlnaHQ9IjMwIiBmaWxsPSIjRkZGRkZGIi8+CjxyZWN0IHg9IjE1IiB5PSIzNSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjQ0NDQ0NDIi8+CjxyZWN0IHg9IjM1IiB5PSIzNSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjQ0NDQ0NDIi8+CjxjaXJjbGUgY3g9IjE1IiBjeT0iNDUiIHI9IjIiIGZpbGw9IiM4ODg4ODgiLz4KPGNpcmNsZSBjeD0iMzUiIGN5PSI0NSIgcj0iMiIgZmlsbD0iIzg4ODg4OCIvPgo8L3N2Zz4K" alt="Small House">
+                        <h4>1-3 Bedrooms</h4>
+                        <p>Small Family Home</p>
+                    </div>
+                    <div class="house-option" onclick="selectSize('medium')">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMwIDVMMCAyNVY1NUg2MFYyNUwzMCA1WiIgZmlsbD0iIzg4ODg4OCIvPgo8cmVjdCB4PSIxMCIgeT0iMzUiIHdpZHRoPSIxMiIgaGVpZ2h0PSIyMCIgZmlsbD0iI0NDQ0NDQyIvPgo8cmVjdCB4PSIyOCIgeT0iMzUiIHdpZHRoPSIxMiIgaGVpZ2h0PSIyMCIgZmlsbD0iI0NDQ0NDQyIvPgo8cmVjdCB4PSI0NiIgeT0iMzUiIHdpZHRoPSIxMiIgaGVpZ2h0PSIyMCIgZmlsbD0iI0NDQ0NDQyIvPgo8Y2lyY2xlIGN4PSIxNiIgY3k9IjQ1IiByPSIyIiBmaWxsPSIjODg4ODg4Ii8+CjxjaXJjbGUgY3g9IjM0IiBjeT0iNDUiIHI9IjIiIGZpbGw9IiM4ODg4ODgiLz4KPGNpcmNsZSBjeD0iNTIiIGN5PSI0NSIgcj0iMiIgZmlsbD0iIzg4ODg4OCIvPgo8L3N2Zz4K" alt="Medium House">
+                        <h4>3-4 Bedrooms</h4>
+                        <p>Medium Family Home</p>
+                    </div>
+                    <div class="house-option" onclick="selectSize('large')">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMwIDVMMCAyNVY1NUg2MFYyNUwzMCA1WiIgZmlsbD0iIzg4ODg4OCIvPgo8cmVjdCB4PSI4IiB5PSIzNSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjQ0NDQ0NDIi8+CjxyZWN0IHg9IjIwIiB5PSIzNSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjQ0NDQ0NDIi8+CjxyZWN0IHg9IjMyIiB5PSIzNSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjQ0NDQ0NDIi8+CjxyZWN0IHg9IjQ0IiB5PSIzNSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjQ0NDQ0NDIi8+CjxjaXJjbGUgY3g9IjEzIiBjeT0iNDUiIHI9IjIiIGZpbGw9IiM4ODg4ODgiLz4KPGNpcmNsZSBjeD0iMjUiIGN5PSI0NSIgcj0iMiIgZmlsbD0iIzg4ODg4OCIvPgo8Y2lyY2xlIGN4PSIzNyIgY3k9IjQ1IiByPSIyIiBmaWxsPSIjODg4ODg4Ii8+CjxjaXJjbGUgY3g9IjQ5IiBjeT0iNDUiIHI9IjIiIGZpbGw9IiM4ODg4ODgiLz4KPC9zdmc+Cg==" alt="Large House">
+                        <h4>5-7 Bedrooms</h4>
+                        <p>Large Family Home</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h2>SELECT SOLAR PANEL STATUS</h2>
+                <div class="solar-toggle">
+                    <div class="toggle-option" onclick="selectSolar('no')">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMwIDVMMCAyNVY1NUg2MFYyNUwzMCA1WiIgZmlsbD0iIzg4ODg4OCIvPgo8cmVjdCB4PSI1IiB5PSIyNSIgd2lkdGg9IjUwIiBoZWlnaHQ9IjMwIiBmaWxsPSIjRkZGRkZGIi8+CjxyZWN0IHg9IjE1IiB5PSIzNSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjQ0NDQ0NDIi8+CjxyZWN0IHg9IjM1IiB5PSIzNSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjQ0NDQ0NDIi8+CjxjaXJjbGUgY3g9IjE1IiBjeT0iNDUiIHI9IjIiIGZpbGw9IiM4ODg4ODgiLz4KPGNpcmNsZSBjeD0iMzUiIGN5PSI0NSIgcj0iMiIgZmlsbD0iIzg4ODg4OCIvPgo8L3N2Zz4K" alt="No Solar">
+                        <h3>No Solar Panels</h3>
+                        <p>Standard Home</p>
+                    </div>
+                    <div class="toggle-option" onclick="selectSolar('yes')">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMwIDVMMCAyNVY1NUg2MFYyNUwzMCA1WiIgZmlsbD0iIzI4QTA3NSIvPgo8cmVjdCB4PSI1IiB5PSIyNSIgd2lkdGg9IjUwIiBoZWlnaHQ9IjMwIiBmaWxsPSIjRkZGRkZGIi8+CjxyZWN0IHg9IjE1IiB5PSIzNSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjQ0NDQ0NDIi8+CjxyZWN0IHg9IjM1IiB5PSIzNSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjQ0NDQ0NDIi8+CjxjaXJjbGUgY3g9IjE1IiBjeT0iNDUiIHI9IjIiIGZpbGw9IiM4ODg4ODgiLz4KPGNpcmNsZSBjeD0iMzUiIGN5PSI0NSIgcj0iMiIgZmlsbD0iIzg4ODg4OCIvPgo8L3N2Zz4K" alt="With Solar">
+                        <h3>With Solar Panels</h3>
+                        <p>Solar Powered Home</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h2>SELECT BATTERY STORAGE STATUS</h2>
+                <div class="battery-toggle">
+                    <div class="toggle-option" onclick="selectBattery('no')">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMwIDVMMCAyNVY1NUg2MFYyNUwzMCA1WiIgZmlsbD0iIzg4ODg4OCIvPgo8cmVjdCB4PSI1IiB5PSIyNSIgd2lkdGg9IjUwIiBoZWlnaHQ9IjMwIiBmaWxsPSIjRkZGRkZGIi8+CjxyZWN0IHg9IjE1IiB5PSIzNSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjQ0NDQ0NDIi8+CjxyZWN0IHg9IjM1IiB5PSIzNSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjQ0NDQ0NDIi8+CjxjaXJjbGUgY3g9IjE1IiBjeT0iNDUiIHI9IjIiIGZpbGw9IiM4ODg4ODgiLz4KPGNpcmNsZSBjeD0iMzUiIGN5PSI0NSIgcj0iMiIgZmlsbD0iIzg4ODg4OCIvPgo8L3N2Zz4K" alt="No Battery">
+                        <h3>No Battery Storage</h3>
+                        <p>Grid Dependent</p>
+                    </div>
+                    <div class="toggle-option" onclick="selectBattery('yes')">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMwIDVMMCAyNVY1NUg2MFYyNUwzMCA1WiIgZmlsbD0iIzIxOTZGMiIvPgo8cmVjdCB4PSI1IiB5PSIyNSIgd2lkdGg9IjUwIiBoZWlnaHQ9IjMwIiBmaWxsPSIjRkZGRkZGIi8+CjxyZWN0IHg9IjE1IiB5PSIzNSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjQ0NDQ0NDIi8+CjxyZWN0IHg9IjM1IiB5PSIzNSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjQ0NDQ0NDIi8+CjxjaXJjbGUgY3g9IjE1IiBjeT0iNDUiIHI9IjIiIGZpbGw9IiM4ODg4ODgiLz4KPGNpcmNsZSBjeD0iMzUiIGN5PSI0NSIgcj0iMiIgZmlsbD0iIzg4ODg4OCIvPgo8L3N2Zz4K" alt="With Battery">
+                        <h3>With Battery Storage</h3>
+                        <p>Energy Independent</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results">
+            <img id="houseImage" class="house-image" src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=250&fit=crop" alt="House">
+            
+            <div class="location-info">
+                <h3 id="locationName">Select a country to begin</h3>
+                <p id="locationDetails">Choose your location to see local home values</p>
+            </div>
+
+            <div class="value-display">
+                <h3>Current Home Value</h3>
+                <div class="amount" id="homeValue">€0</div>
+            </div>
+
+            <div id="solarBenefit" class="solar-benefit" style="display: none;">
+                <h4>Solar Panel Value Increase</h4>
+                <div class="amount" id="solarIncrease">€0</div>
+            </div>
+
+            <div id="batteryBenefit" class="battery-benefit" style="display: none;">
+                <h4>Battery Storage Value Increase</h4>
+                <div class="amount" id="batteryIncrease">€0</div>
+            </div>
+
+            <div class="schemes">
+                <h3>Available Solar & Battery Incentive Schemes</h3>
+                <div id="schemesContent">
+                    <p>Select a country to view available schemes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Global variables
+        let selectedCountry = null;
+        let selectedSize = null;
+        let selectedSolar = null;
+        let selectedBattery = null;
+
+        // Country data with battery storage values based on research
+        const countryData = {
+            netherlands: {
+                name: "Netherlands",
+                location: "Amsterdam Region",
+                currency: "€",
+                solarIncrease: { min: 15000, max: 25000, avg: 20000 },
+                batteryIncrease: { min: 8000, max: 15000, avg: 12000 },
+                schemes: [
+                    {
+                        name: "SDE++ Subsidy",
+                        description: "The SDE++ (Stimulation of Sustainable Energy Production and Climate Transition) is the main subsidy scheme for renewable energy projects in the Netherlands. It provides financial support for solar panel installations through a competitive bidding process.",
+                        website: "https://www.rvo.nl/onderwerpen/duurzaam-ondernemen/energie-besparen/sde"
+                    },
+                    {
+                        name: "BTW Refund",
+                        description: "Homeowners can claim back the 21% VAT (BTW) on solar panel installations and related equipment. This applies to both the panels and installation costs.",
+                        website: "https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/belastingdienst/zakelijk/btw/btw_ondernemers/btw_verleggen/btw_verleggen"
+                    },
+                    {
+                        name: "Energy Tax Reduction",
+                        description: "Solar panel owners can benefit from reduced energy taxes and may even receive payments for excess energy fed back into the grid through net metering arrangements.",
+                        website: "https://www.rijksoverheid.nl/onderwerpen/duurzame-energie-en-besparing/zonnepanelen"
+                    },
+                    {
+                        name: "Battery Storage Incentives",
+                        description: "The Netherlands offers various incentives for battery storage systems, including tax benefits and grants for energy storage solutions that complement solar installations.",
+                        website: "https://www.rvo.nl/onderwerpen/duurzaam-ondernemen/energie-besparen/energieopslag"
+                    }
+                ]
+            },
+            uk: {
+                name: "United Kingdom",
+                location: "London Region",
+                currency: "£",
+                solarIncrease: { min: 12000, max: 20000, avg: 16000 },
+                batteryIncrease: { min: 6000, max: 12000, avg: 9000 },
+                schemes: [
+                    {
+                        name: "Smart Export Guarantee (SEG)",
+                        description: "The SEG ensures that small-scale generators of renewable electricity are paid for the energy they export to the grid. Energy suppliers with over 150,000 customers must offer SEG tariffs.",
+                        website: "https://www.ofgem.gov.uk/environmental-programmes/seg"
+                    },
+                    {
+                        name: "VAT Reduction",
+                        description: "Solar panel installations benefit from a reduced VAT rate of 5% instead of the standard 20% rate, making installations more affordable for homeowners.",
+                        website: "https://www.gov.uk/vat-rates"
+                    },
+                    {
+                        name: "Green Deal",
+                        description: "While the Green Deal loan scheme has ended, the Green Deal Framework remains, allowing for energy efficiency improvements to be financed through energy bills.",
+                        website: "https://www.gov.uk/green-deal-energy-saving-measures"
+                    },
+                    {
+                        name: "Battery Storage Grants",
+                        description: "Various UK programs support battery storage installations, including grants for energy storage systems and incentives for homes with solar panels.",
+                        website: "https://www.gov.uk/guidance/energy-company-obligation-eco"
+                    }
+                ]
+            },
+            portugal: {
+                name: "Portugal",
+                location: "Lisbon Region",
+                currency: "€",
+                solarIncrease: { min: 18000, max: 28000, avg: 23000 },
+                batteryIncrease: { min: 10000, max: 18000, avg: 14000 },
+                schemes: [
+                    {
+                        name: "Fundo Ambiental",
+                        description: "The Environmental Fund provides financial support for renewable energy projects, including solar panel installations. It offers grants and low-interest loans for sustainable energy initiatives.",
+                        website: "https://www.fundoambiental.pt/"
+                    },
+                    {
+                        name: "Tax Benefits",
+                        description: "Solar panel installations benefit from various tax incentives, including deductions on income tax and property tax reductions for energy-efficient homes.",
+                        website: "https://www.portaldasfinancas.gov.pt/"
+                    },
+                    {
+                        name: "Municipal Support",
+                        description: "Many Portuguese municipalities offer additional support for solar installations, including simplified permitting processes and local grants for renewable energy projects.",
+                        website: "https://www.cm-lisboa.pt/"
+                    },
+                    {
+                        name: "Energy Storage Programs",
+                        description: "Portugal's energy policies support battery storage systems through various incentive programs and grants for renewable energy storage solutions.",
+                        website: "https://www.dgeg.gov.pt/"
+                    }
+                ]
+            },
+            spain: {
+                name: "Spain",
+                location: "Madrid Region",
+                currency: "€",
+                solarIncrease: { min: 20000, max: 32000, avg: 26000 },
+                batteryIncrease: { min: 12000, max: 20000, avg: 16000 },
+                schemes: [
+                    {
+                        name: "Next Generation EU Funds",
+                        description: "Spain is using EU recovery funds to support renewable energy projects, including solar panel installations. These funds provide significant financial support for sustainable energy initiatives.",
+                        website: "https://www.lamoncloa.gob.es/paginas/planrecuperacion.aspx"
+                    },
+                    {
+                        name: "IDAE Programs",
+                        description: "The Institute for Energy Diversification and Saving (IDAE) offers various programs and incentives for renewable energy, including solar panel installations for residential properties.",
+                        website: "https://www.idae.es/"
+                    },
+                    {
+                        name: "Regional Incentives",
+                        description: "Various Spanish regions offer additional incentives for solar installations, including grants, tax benefits, and simplified administrative procedures for renewable energy projects.",
+                        website: "https://www.boe.es/"
+                    },
+                    {
+                        name: "Battery Storage Support",
+                        description: "Spain's renewable energy strategy includes support for energy storage systems, with various programs and incentives for battery storage installations.",
+                        website: "https://www.idae.es/tecnologias/almacenamiento"
+                    }
+                ]
+            }
+        };
+
+        // House size data
+        const houseSizes = {
+            small: {
+                name: "1-3 Bedrooms",
+                baseValue: 250000
+            },
+            medium: {
+                name: "3-4 Bedrooms",
+                baseValue: 400000
+            },
+            large: {
+                name: "5-7 Bedrooms",
+                baseValue: 650000
+            }
+        };
+
+        // Country-specific house images
+        const houseImages = {
+            netherlands: {
+                small: "https://static.wixstatic.com/media/c123de_1100ba2340b94c43934d35d577fa59e3~mv2.jpg",
+                medium: "https://static.wixstatic.com/media/c123de_1100ba2340b94c43934d35d577fa59e3~mv2.jpg",
+                large: "https://static.wixstatic.com/media/c123de_b246a3b0de0b4f84993957f66f25dc2c~mv2.jpg"
+            },
+            uk: {
+                small: "https://static.wixstatic.com/media/c123de_8c962c1837164bc39ac10a1eb2f95be1~mv2.jpg",
+                medium: "https://static.wixstatic.com/media/c123de_af24f70c047e447da086b2007ee1c0c4~mv2.jpeg",
+                large: "https://static.wixstatic.com/media/c123de_6411858ad5654b2b94bd7ae2e83e5df1~mv2.jpeg"
+            },
+            spain: {
+                small: "https://static.wixstatic.com/media/c123de_de10f0d46ed7469ca108358ffec514e9~mv2.jpg",
+                medium: "https://static.wixstatic.com/media/c123de_689061eaf8b149a0b4f6e0b8e726b66c~mv2.jpg",
+                large: "https://static.wixstatic.com/media/c123de_bf7c2f857b01430ba5ccf0ac6b989b9a~mv2.jpeg"
+            },
+            portugal: {
+                small: "https://static.wixstatic.com/media/c123de_1af990de3ad246f598ae518b826ca888~mv2.jpg",
+                medium: "https://static.wixstatic.com/media/c123de_1358675a424a4388aa5747601c396658~mv2.jpeg",
+                large: "https://static.wixstatic.com/media/c123de_3d43490fdb2948488d097b690fe6d2cb~mv2.jpg"
+            }
+        };
+
+        // Selection functions
+        function selectCountry(country) {
+            console.log('Country selected:', country);
+            selectedCountry = country;
+            updateSelection();
+            updateDisplay();
+        }
+
+        function selectSize(size) {
+            console.log('Size selected:', size);
+            selectedSize = size;
+            updateSelection();
+            updateDisplay();
+        }
+
+                function selectSolar(solar) {
+            console.log('Solar selected:', solar);
+            selectedSolar = solar;
+            
+            // Reset battery selection if solar is removed
+            if (solar === 'no') {
+                selectedBattery = null;
+            }
+            
+            updateSelection();
+            updateDisplay();
+        }
+
+        function selectBattery(battery) {
+            console.log('Battery selected:', battery);
+            selectedBattery = battery;
+            updateSelection();
+            updateDisplay();
+        }
+
+        // Update visual selection
+        function updateSelection() {
+            // Update country selection
+            document.querySelectorAll('.country-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            if (selectedCountry) {
+                document.querySelector(`[onclick="selectCountry('${selectedCountry}')"]`).classList.add('selected');
+            }
+
+            // Update size selection
+            document.querySelectorAll('.house-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            if (selectedSize) {
+                document.querySelector(`[onclick="selectSize('${selectedSize}')"]`).classList.add('selected');
+            }
+
+            // Update solar selection
+            document.querySelectorAll('.solar-toggle .toggle-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            if (selectedSolar) {
+                document.querySelector(`[onclick="selectSolar('${selectedSolar}')"]`).classList.add('selected');
+            }
+
+            // Update battery selection
+            document.querySelectorAll('.battery-toggle .toggle-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            if (selectedBattery) {
+                document.querySelector(`[onclick="selectBattery('${selectedBattery}')"]`).classList.add('selected');
+            }
+
+            // Enable/disable battery toggle based on solar selection
+            const batteryToggle = document.querySelector('.battery-toggle');
+            if (selectedSolar === 'yes') {
+                batteryToggle.classList.add('active');
+            } else {
+                batteryToggle.classList.remove('active');
+                selectedBattery = null;
+            }
+        }
+
+        // Update display
+        function updateDisplay() {
+            console.log('Updating display with:', { selectedCountry, selectedSize, selectedSolar, selectedBattery });
+
+            if (selectedCountry && selectedSize) {
+                const country = countryData[selectedCountry];
+                const size = houseSizes[selectedSize];
+                
+                console.log('Country data:', country);
+                console.log('Size data:', size);
+                
+                // Update house image (country-specific)
+                const houseImage = houseImages[selectedCountry] && houseImages[selectedCountry][selectedSize]
+                    ? houseImages[selectedCountry][selectedSize]
+                    : "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=250&fit=crop"; // fallback
+                document.getElementById('houseImage').src = houseImage;
+                
+                // Update location info
+                document.getElementById('locationName').textContent = country.name;
+                document.getElementById('locationDetails').textContent = country.location;
+                
+                // Calculate and display home value
+                let totalValue = size.baseValue;
+                let solarValue = 0;
+                let batteryValue = 0;
+                
+                if (selectedSolar === 'yes') {
+                    solarValue = country.solarIncrease.avg;
+                    totalValue += solarValue;
+                    
+                    if (selectedBattery === 'yes') {
+                        batteryValue = country.batteryIncrease.avg;
+                        totalValue += batteryValue;
+                    }
+                }
+                
+                console.log('Total value calculated:', totalValue);
+                
+                document.getElementById('homeValue').textContent = country.currency + totalValue.toLocaleString();
+                
+                // Show/hide solar benefit
+                const solarBenefit = document.getElementById('solarBenefit');
+                if (selectedSolar === 'yes') {
+                    solarBenefit.style.display = 'block';
+                    document.getElementById('solarIncrease').textContent = country.currency + solarValue.toLocaleString();
+                } else {
+                    solarBenefit.style.display = 'none';
+                }
+                
+                // Show/hide battery benefit
+                const batteryBenefit = document.getElementById('batteryBenefit');
+                if (selectedBattery === 'yes') {
+                    batteryBenefit.style.display = 'block';
+                    document.getElementById('batteryIncrease').textContent = country.currency + batteryValue.toLocaleString();
+                } else {
+                    batteryBenefit.style.display = 'none';
+                }
+                
+                // Update schemes
+                updateSchemes(country);
+            } else {
+                // Reset display
+                document.getElementById('locationName').textContent = 'Select a country to begin';
+                document.getElementById('locationDetails').textContent = 'Choose your location to see local home values';
+                document.getElementById('homeValue').textContent = '€0';
+                document.getElementById('solarBenefit').style.display = 'none';
+                document.getElementById('batteryBenefit').style.display = 'none';
+                document.getElementById('schemesContent').innerHTML = '<p>Select a country to view available schemes</p>';
+            }
+        }
+
+        // Update schemes
+        function updateSchemes(country) {
+            const schemesContent = document.getElementById('schemesContent');
+            schemesContent.innerHTML = '';
+            
+            country.schemes.forEach(scheme => {
+                const schemeItem = document.createElement('div');
+                schemeItem.className = 'scheme-item';
+                schemeItem.innerHTML = `
+                    <div class="scheme-header" onclick="toggleScheme(this)">
+                        <h4>${scheme.name}</h4>
+                        <button class="scheme-toggle">Show Details</button>
+                    </div>
+                    <div class="scheme-content">
+                        <p>${scheme.description}</p>
+                        <a href="${scheme.website}" target="_blank" class="scheme-link">Click Here</a>
+                    </div>
+                `;
+                schemesContent.appendChild(schemeItem);
+            });
+        }
+
+        // Toggle scheme details
+        function toggleScheme(header) {
+            const content = header.nextElementSibling;
+            const button = header.querySelector('.scheme-toggle');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                button.textContent = 'Show Details';
+            } else {
+                content.classList.add('expanded');
+                button.textContent = 'Hide Details';
+            }
+        }
+
+        // Initialize when page loads
+        window.onload = function() {
+            console.log('Widget initialized');
+            updateDisplay();
+        };
+    </script>
+</body>
+</html>
+

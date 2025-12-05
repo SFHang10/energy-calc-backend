@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Calculator Widget - Static Test Version</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f4c3a 0%, #1a5f4a 25%, #2d7a5f 50%, #1a5f4a 75%, #0f4c3a 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .widget-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .product-info-card {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .product-name {
+            font-size: 1.8rem;
+            font-weight: 300;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .product-specs {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .spec-item {
+            text-align: center;
+        }
+
+        .spec-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #4ade80;
+            margin-bottom: 5px;
+        }
+
+        .spec-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .product-image {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin: 0 auto 20px;
+            display: block;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls-section {
+            margin-bottom: 30px;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-label {
+            font-size: 1rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .number-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 12px 15px;
+            color: white;
+            font-size: 1rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .number-input:focus {
+            outline: none;
+            border-color: #4ade80;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+        }
+
+        .number-input::-webkit-outer-spin-button,
+        .number-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .number-input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        /* Yellow spinner arrows */
+        .number-input::-webkit-outer-spin-button,
+        .number-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+            background: #ffd700;
+            color: #000;
+            width: 20px;
+            height: 20px;
+        }
+
+        .glass-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 12px 24px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .glass-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #4ade80;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .glass-button.primary {
+            background: rgba(74, 222, 128, 0.2);
+            border-color: #4ade80;
+        }
+
+        .glass-button.primary:hover {
+            background: rgba(74, 222, 128, 0.3);
+            box-shadow: 0 8px 25px rgba(74, 222, 128, 0.3);
+        }
+
+        .results-section {
+            margin-bottom: 30px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .result-card {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4ade80;
+            margin-bottom: 5px;
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .comparison-section {
+            margin-bottom: 30px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .comparison-card {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .comparison-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .comparison-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #4ade80;
+            margin-bottom: 10px;
+        }
+
+        .comparison-savings {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fbbf24;
+        }
+
+        .incentives-section {
+            margin-bottom: 30px;
+            background: rgba(30, 30, 30, 0.95) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(60, 60, 60, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .incentives-title {
+            font-size: 1.8rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .region-selector {
+            margin-bottom: 20px;
+        }
+
+        .region-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .region-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 8px 16px;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .region-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #4ade80;
+        }
+
+        .region-btn.active {
+            background: rgba(74, 222, 128, 0.3);
+            border-color: #4ade80;
+        }
+
+        .incentives-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .incentive-card {
+            background: rgba(50, 50, 50, 0.8);
+            border: 1px solid rgba(80, 80, 80, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .incentive-card:hover {
+            background: rgba(60, 60, 60, 0.9);
+            transform: translateY(-2px);
+            border-color: rgba(100, 100, 100, 0.5);
+        }
+
+        .incentive-header {
+            margin-bottom: 15px;
+        }
+
+        .incentive-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+
+        .incentive-type {
+            font-size: 0.9rem;
+            color: #4ade80;
+            font-weight: 500;
+        }
+
+        .incentive-description {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .incentive-details {
+            margin-bottom: 15px;
+        }
+
+        .incentive-detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .incentive-detail-label {
+            opacity: 0.8;
+        }
+
+        .incentive-detail-value {
+            color: #4ade80;
+            font-weight: 500;
+        }
+
+        .incentive-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .incentive-btn {
+            background: rgba(74, 222, 128, 0.2);
+            border: 1px solid #4ade80;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .incentive-btn:hover {
+            background: rgba(74, 222, 128, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .incentives-footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .incentives-note {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .priority-badge {
+            background: rgba(251, 191, 36, 0.2);
+            border: 1px solid #fbbf24;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            color: #fbbf24;
+            font-weight: 500;
+        }
+
+        .deadline-warning {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            color: #ef4444;
+            font-weight: 500;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .message.success {
+            background: rgba(74, 222, 128, 0.2);
+            border: 1px solid #4ade80;
+            color: #4ade80;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .message.info {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+        }
+
+        @media (max-width: 768px) {
+            .widget-container {
+                padding: 10px;
+            }
+
+            .glass-card {
+                padding: 20px;
+            }
+
+            .product-specs {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .region-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .incentives-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="widget-container">
+        <!-- Product Information Card -->
+        <div class="glass-card product-info-card">
+            <img id="product-image" class="product-image" src="https://via.placeholder.com/200x200/2d7a5f/ffffff?text=Loading..." alt="Loading Product Image">
+            <h2 id="product-name" class="product-name">Loading Product...</h2>
+            <div class="product-specs">
+                <div class="spec-item">
+                    <div id="product-power" class="spec-value">Loading...</div>
+                    <div class="spec-label">Power Rating</div>
+                </div>
+                <div class="spec-item">
+                    <div id="product-brand" class="spec-value">Loading...</div>
+                    <div class="spec-label">Brand</div>
+                </div>
+                <div class="spec-item">
+                    <div id="product-category" class="spec-value">Loading...</div>
+                    <div class="spec-label">Category</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls Section -->
+        <div class="glass-card controls-section">
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label class="control-label">Electricity Rate (€/kWh)</label>
+                    <input type="number" id="electricity-rate" class="number-input" value="0.25" step="0.01" min="0">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Hours per Day</label>
+                    <input type="number" id="hours-per-day" class="number-input" value="8" step="0.5" min="0" max="24">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Days per Year</label>
+                    <input type="number" id="days-per-year" class="number-input" value="365" step="1" min="1" max="365">
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="glass-button primary" onclick="calculateCosts()">
+                    ⚡ Calculate Running Costs
+                </button>
+                <button class="glass-button" onclick="showIncentives()">
+                    🏛️ View Incentives
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="glass-card results-section" id="results-section" style="display: none;">
+            <div class="results-grid">
+                <div class="result-card">
+                    <div id="daily-cost" class="result-value">€0.00</div>
+                    <div class="result-label">Daily Cost</div>
+                </div>
+                <div class="result-card">
+                    <div id="monthly-cost" class="result-value">€0.00</div>
+                    <div class="result-label">Monthly Cost</div>
+                </div>
+                <div class="result-card">
+                    <div id="yearly-cost" class="result-value">€0.00</div>
+                    <div class="result-label">Yearly Cost</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Section -->
+        <div class="glass-card comparison-section" id="comparison-section" style="display: none;">
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <div class="comparison-title">Your Product</div>
+                    <div id="your-cost" class="comparison-value">€0.00</div>
+                    <div class="comparison-savings">per year</div>
+                </div>
+                <div class="comparison-card">
+                    <div class="comparison-title">Standard Comparison</div>
+                    <div id="standard-cost" class="comparison-value">€0.00</div>
+                    <div class="comparison-savings">per year</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Government Incentives Section -->
+        <div class="glass-card incentives-section" id="incentives-section" style="display: none;">
+            <h2 class="incentives-title">🏛️ Available Government Incentives</h2>
+            
+            <div class="region-selector">
+                <div class="region-buttons">
+                    <button class="region-btn active" data-country="NL">🇳🇱 Netherlands</button>
+                    <button class="region-btn" data-country="DE">🇩🇪 Germany</button>
+                    <button class="region-btn" data-country="ES">🇪🇸 Spain</button>
+                    <button class="region-btn" data-country="PT">🇵🇹 Portugal</button>
+                </div>
+            </div>
+
+            <div class="incentives-grid" id="incentives-grid">
+                <!-- Incentives will be loaded here -->
+            </div>
+
+            <div class="incentives-footer">
+                <p class="incentives-note">
+                    💡 <strong>Greenways Membership:</strong> We can handle all government scheme applications and administration for you!
+                </p>
+                <button class="glass-button primary" onclick="showMembershipInfo()">
+                    🎯 Learn About Full Service
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:4000';
+        let currentProduct = null;
+
+        // Initialize the widget
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Widget initialized - loading real product data...');
+            setupRegionButtons();
+            loadRealProduct();
+        });
+
+        async function loadRealProduct() {
+            try {
+                console.log('🔄 Loading real product from database...');
+                const response = await fetch(`${BACKEND_URL}/api/product-widget/products/all`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.products.length > 0) {
+                        // Use the first product from the database
+                        const product = data.products[0];
+                        currentProduct = {
+                            id: product.id,
+                            name: product.name,
+                            power: product.power,
+                            brand: product.brand,
+                            category: product.category,
+                            imageUrl: product.imageUrl || 'https://via.placeholder.com/200x200/2d7a5f/ffffff?text=Product'
+                        };
+                        
+                        // Update the UI with real product data
+                        updateProductDisplay();
+                        console.log(`✅ Loaded real product: ${currentProduct.name}`);
+                    } else {
+                        console.log('❌ No products found in database');
+                        useFallbackProduct();
+                    }
+                } else {
+                    console.log('❌ Failed to fetch products from API');
+                    useFallbackProduct();
+                }
+            } catch (error) {
+                console.log('❌ Error loading product:', error);
+                useFallbackProduct();
+            }
+        }
+
+        function useFallbackProduct() {
+            currentProduct = {
+                id: 'sample_1',
+                name: 'Sample Heat Pump',
+                power: 8.5,
+                brand: 'GreenTech',
+                category: 'Heat Pumps',
+                imageUrl: 'https://via.placeholder.com/200x200/2d7a5f/ffffff?text=Heat+Pump'
+            };
+            updateProductDisplay();
+            console.log('📝 Using fallback product data');
+        }
+
+        function updateProductDisplay() {
+            if (!currentProduct) return;
+            
+            document.getElementById('product-name').textContent = currentProduct.name;
+            document.getElementById('product-power').textContent = `${currentProduct.power} kW`;
+            document.getElementById('product-brand').textContent = currentProduct.brand;
+            document.getElementById('product-category').textContent = currentProduct.category;
+            document.getElementById('product-image').src = currentProduct.imageUrl;
+            document.getElementById('product-image').alt = currentProduct.name;
+        }
+
+        function setupRegionButtons() {
+            const regionButtons = document.querySelectorAll('.region-btn');
+            regionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    regionButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    const country = this.getAttribute('data-country');
+                    loadIncentives(country);
+                });
+            });
+        }
+
+        function calculateCosts() {
+            const electricityRate = parseFloat(document.getElementById('electricity-rate').value);
+            const hoursPerDay = parseFloat(document.getElementById('hours-per-day').value);
+            const daysPerYear = parseFloat(document.getElementById('days-per-year').value);
+
+            if (!electricityRate || !hoursPerDay || !daysPerYear) {
+                showMessage('Please fill in all fields', 'error');
+                return;
+            }
+
+            // Calculate costs
+            const dailyCost = currentProduct.power * electricityRate * hoursPerDay;
+            const monthlyCost = dailyCost * 30;
+            const yearlyCost = dailyCost * daysPerYear;
+
+            // Display results
+            document.getElementById('daily-cost').textContent = `€${dailyCost.toFixed(2)}`;
+            document.getElementById('monthly-cost').textContent = `€${monthlyCost.toFixed(2)}`;
+            document.getElementById('yearly-cost').textContent = `€${yearlyCost.toFixed(2)}`;
+
+            // Show results section
+            document.getElementById('results-section').style.display = 'block';
+            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+
+            // Calculate comparison
+            calculateComparison(yearlyCost);
+        }
+
+        function calculateComparison(yearlyCost) {
+            // Standard comparison (assuming 10kW average)
+            const standardPower = 10;
+            const electricityRate = parseFloat(document.getElementById('electricity-rate').value);
+            const hoursPerDay = parseFloat(document.getElementById('hours-per-day').value);
+            const daysPerYear = parseFloat(document.getElementById('days-per-year').value);
+            
+            const standardYearlyCost = standardPower * electricityRate * hoursPerDay * daysPerYear;
+
+            document.getElementById('your-cost').textContent = `€${yearlyCost.toFixed(2)}`;
+            document.getElementById('standard-cost').textContent = `€${standardYearlyCost.toFixed(2)}`;
+
+            // Show comparison section
+            document.getElementById('comparison-section').style.display = 'block';
+        }
+
+        function showIncentives() {
+            if (!currentProduct) {
+                showMessage('Please calculate running costs first', 'error');
+                return;
+            }
+
+            document.getElementById('incentives-section').style.display = 'block';
+            document.getElementById('incentives-section').scrollIntoView({ behavior: 'smooth' });
+            
+            // Load incentives for current product
+            loadIncentives('NL'); // Default to Netherlands
+        }
+
+        async function loadIncentives(country) {
+            try {
+                console.log(`🔄 Loading incentives for ${country}...`);
+                const response = await fetch(`${BACKEND_URL}/api/product-widget/incentives/${currentProduct.id}?country=${country}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        renderIncentives(data.incentives);
+                        console.log(`✅ Loaded ${data.incentives.length} incentives for ${country}`);
+                    } else {
+                        console.log('❌ API returned error:', data.message);
+                        renderIncentives(getSampleIncentives(country));
+                    }
+                } else {
+                    console.log('❌ Failed to fetch incentives from API');
+                    renderIncentives(getSampleIncentives(country));
+                }
+            } catch (error) {
+                console.log('❌ Error loading incentives:', error);
+                renderIncentives(getSampleIncentives(country));
+            }
+        }
+
+        function renderIncentives(incentives) {
+            const grid = document.getElementById('incentives-grid');
+            grid.innerHTML = '';
+
+            if (incentives.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; opacity: 0.8;">No incentives available for this product category.</p>';
+                return;
+            }
+
+            incentives.forEach(incentive => {
+                const card = createIncentiveCard(incentive);
+                grid.appendChild(card);
+            });
+        }
+
+        function createIncentiveCard(incentive) {
+            const card = document.createElement('div');
+            card.className = 'incentive-card';
+
+            let linksHtml = '';
+            if (incentive.links && incentive.links.length > 0) {
+                linksHtml = incentive.links.map(link => 
+                    `<a href="${link.url}" target="_blank" class="incentive-btn">${link.text}</a>`
+                ).join('');
+            }
+
+            card.innerHTML = `
+                <div class="incentive-header">
+                    <div class="incentive-title">${incentive.title}</div>
+                    <div class="incentive-type">${incentive.type}</div>
+                </div>
+                <div class="incentive-description">${incentive.description}</div>
+                <div class="incentive-details">
+                    <div class="incentive-detail-item">
+                        <span class="incentive-detail-label">Relevance:</span>
+                        <span class="incentive-detail-value">${incentive.relevance}</span>
+                    </div>
+                    <div class="incentive-detail-item">
+                        <span class="incentive-detail-label">Requirements:</span>
+                        <span class="incentive-detail-value">${incentive.requirements}</span>
+                    </div>
+                    ${incentive.duration ? `
+                    <div class="incentive-detail-item">
+                        <span class="incentive-detail-label">Duration:</span>
+                        <span class="incentive-detail-value">${incentive.duration}</span>
+                    </div>
+                    ` : ''}
+                </div>
+                <div class="incentive-actions">
+                    ${linksHtml}
+                </div>
+            `;
+
+            return card;
+        }
+
+        function getSampleIncentives(country) {
+            const incentives = {
+                'NL': [
+                    {
+                        id: 'isde-nl',
+                        title: 'ISDE Scheme',
+                        type: 'subsidy',
+                        description: 'Investment subsidy for sustainable energy devices like heat pumps, solar boilers, insulation.',
+                        relevance: 'High if you sell heat pumps, solar thermal, insulation',
+                        requirements: 'KVK number, product must be on devices list',
+                        duration: 'Until end 2029',
+                        priority: false,
+                        links: [
+                            { text: '⚡ Check Device List', url: 'https://business.gov.nl/regulation/isde-sustainable-energy-investment-allowance/', type: 'apply' },
+                            { text: '📋 Requirements', url: 'https://wijgaanverduurzamen.nl', type: 'info' }
+                        ]
+                    },
+                    {
+                        id: 'eia-nl',
+                        title: 'EIA - Energy Investment Allowance',
+                        type: 'tax',
+                        description: 'Tax deduction for companies investing in energy-efficient technologies.',
+                        relevance: 'High - Reduces equipment costs',
+                        requirements: 'Choose from official "Energy List", meet investment criteria',
+                        priority: false,
+                        links: [
+                            { text: '💡 View Energy List', url: 'https://www.rvo.nl/subsidies-financiering/eia', type: 'apply' }
+                        ]
+                    }
+                ],
+                'DE': [
+                    {
+                        id: 'bafa-kfw',
+                        title: 'BAFA & KfW Programs',
+                        type: 'subsidy',
+                        description: 'Grants and loans for heat pumps, insulation, efficient boilers.',
+                        relevance: 'High for heating and cooling systems',
+                        requirements: 'German establishment, meet efficiency criteria',
+                        priority: false,
+                        links: [
+                            { text: '🏠 Apply Now', url: 'https://www.bafa.de', type: 'apply' },
+                            { text: '📋 KfW Info', url: 'https://www.kfw.de', type: 'info' }
+                        ]
+                    }
+                ],
+                'ES': [
+                    {
+                        id: 'clean-tech-es',
+                        title: 'Clean Tech Manufacturing',
+                        type: 'grant',
+                        description: '€750 million fund for solar panels, batteries, electrolyzers.',
+                        relevance: 'High for renewable energy products',
+                        requirements: 'Spanish establishment, innovative technology',
+                        priority: false,
+                        links: [
+                            { text: '🌞 Apply', url: 'https://www.idae.es', type: 'apply' }
+                        ]
+                    }
+                ],
+                'PT': [
+                    {
+                        id: 'energy-transition-pt',
+                        title: 'Energy Transition Aid',
+                        type: 'subsidy',
+                        description: '€1 billion Green Deal funding for renewables and efficiency.',
+                        relevance: 'High for energy efficiency products',
+                        requirements: 'Portuguese establishment, meet Green Deal criteria',
+                        priority: false,
+                        links: [
+                            { text: '🌱 Apply', url: 'https://www.fundoambiental.pt', type: 'apply' }
+                        ]
+                    }
+                ]
+            };
+
+            return incentives[country] || [];
+        }
+
+        function showMembershipInfo() {
+            alert('Greenways Membership provides:\n\n• Complete government scheme application handling\n• Ongoing administration and compliance\n• Expert guidance on all incentives\n• Regular updates on new opportunities\n\nContact us to learn more about our full-service approach!');
+        }
+
+        function showMessage(message, type = 'info') {
+            // Remove existing messages
+            const existingMessages = document.querySelectorAll('.message');
+            existingMessages.forEach(msg => msg.remove());
+
+            // Create new message
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+
+            // Insert at the top of the widget container
+            const container = document.querySelector('.widget-container');
+            container.insertBefore(messageDiv, container.firstChild);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

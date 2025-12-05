@@ -1,0 +1,1831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Audit Widget - Modern UI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            color: #f1f5f9;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(34, 197, 94, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            pointer-events: none;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6, #22c55e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Product Selection - Top Priority */
+        .product-selection-top {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-selection-top::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));
+            pointer-events: none;
+        }
+
+        .product-selection-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .product-selection-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .product-selection-header p {
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+
+        .product-grid-top {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Main Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+            align-items: start;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+            max-width: 350px;
+        }
+
+        .sidebar h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar h3 i {
+            color: #667eea;
+        }
+
+        /* Product Selection - Prominent at top */
+        .product-selection {
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .product-item {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .product-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .product-item:hover::before {
+            opacity: 1;
+        }
+
+        .product-item:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(59, 130, 246, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border-color: #3b82f6;
+        }
+
+        .product-item.selected {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+            border-color: #3b82f6;
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 
+                0 15px 30px rgba(59, 130, 246, 0.2),
+                0 0 0 2px rgba(59, 130, 246, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .product-item.selected::before {
+            opacity: 1;
+        }
+
+        .product-item-content {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+        }
+
+        .product-item-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            object-fit: cover;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .product-item-icon {
+            font-size: 2.5rem;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .product-item:hover .product-item-icon,
+        .product-item:hover .product-item-image {
+            transform: scale(1.1);
+            border-color: #3b82f6;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .product-item-name {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #f1f5f9;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .product-count {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border-radius: 12px;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+            white-space: nowrap;
+            min-width: 40px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .product-item:hover .product-count {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Action Buttons - Central and Prominent */
+        .action-buttons-top {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 16px 24px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 8px 25px rgba(59, 130, 246, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            min-width: 200px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 
+                0 15px 35px rgba(59, 130, 246, 0.4),
+                0 0 0 1px rgba(59, 130, 246, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+        }
+
+        .btn:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #64748b, #475569);
+            border-color: rgba(100, 116, 139, 0.3);
+            box-shadow: 
+                0 8px 25px rgba(100, 116, 139, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #475569, #334155);
+            box-shadow: 
+                0 15px 35px rgba(100, 116, 139, 0.4),
+                0 0 0 1px rgba(100, 116, 139, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border-color: rgba(34, 197, 94, 0.3);
+            box-shadow: 
+                0 8px 25px rgba(34, 197, 94, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            box-shadow: 
+                0 15px 35px rgba(34, 197, 94, 0.4),
+                0 0 0 1px rgba(34, 197, 94, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        /* Canvas Area */
+        .canvas-area {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .canvas-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));
+            pointer-events: none;
+        }
+
+        .canvas-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .canvas-header h3 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .canvas-header p {
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+
+        .canvas-container {
+            position: relative;
+            background: rgba(30, 41, 59, 0.4);
+            border: 2px dashed rgba(59, 130, 246, 0.3);
+            border-radius: 20px;
+            min-height: 500px;
+            padding: 25px;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .canvas-container.drag-over {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+            box-shadow: 
+                0 12px 30px rgba(59, 130, 246, 0.2),
+                0 0 0 1px rgba(59, 130, 246, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .canvas-title {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .canvas-container.current {
+            border-color: rgba(148, 163, 184, 0.4);
+            background: rgba(148, 163, 184, 0.05);
+        }
+
+        .canvas-container.current.drag-over {
+            border-color: #94a3b8;
+            background: rgba(148, 163, 184, 0.1);
+            box-shadow: 
+                0 12px 30px rgba(148, 163, 184, 0.2),
+                0 0 0 1px rgba(148, 163, 184, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .canvas-container.efficient {
+            border-color: rgba(34, 197, 94, 0.3);
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .canvas-container.efficient.drag-over {
+            border-color: rgba(34, 197, 94, 0.5);
+            background: rgba(34, 197, 94, 0.1);
+            box-shadow: 
+                0 12px 30px rgba(34, 197, 94, 0.2),
+                0 0 0 1px rgba(34, 197, 94, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        /* Product Icons */
+        .product-icon {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            cursor: move;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            z-index: 10;
+        }
+
+        .product-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .product-icon.dragging {
+            transform: scale(1.2) rotate(5deg);
+            z-index: 1000;
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.5);
+        }
+
+        /* Comparison Section */
+        .comparison-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 30px;
+        }
+
+        .comparison-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .comparison-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .comparison-card {
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .comparison-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.1);
+        }
+
+        .comparison-card.current {
+            border-color: #e53e3e;
+        }
+
+        .comparison-card.efficient {
+            border-color: #48bb78;
+        }
+
+        .comparison-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .comparison-title.current {
+            color: #e53e3e;
+        }
+
+        .comparison-title.efficient {
+            color: #48bb78;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .stat-item.current .stat-value {
+            color: #e53e3e;
+        }
+
+        .stat-item.efficient .stat-value {
+            color: #48bb78;
+        }
+
+        /* Modals - Dark Blue-Green Theme */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: linear-gradient(135deg, #1a365d, #2d5a87);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9) translateY(50px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-overlay.show .modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-title-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.7);
+            transition: color 0.3s ease;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .modal-close:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Search Bar */
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        .search-bar {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 15px 20px;
+            font-size: 1rem;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #4299e1;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        /* Filter Buttons */
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 8px 16px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: rgba(66, 153, 225, 0.3);
+            border-color: #4299e1;
+            color: white;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .filter-btn.active:hover {
+            background: rgba(66, 153, 225, 0.4);
+        }
+
+        /* Product List */
+        .product-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .product-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .product-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .product-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .product-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .product-list-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .product-list-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(66, 153, 225, 0.3);
+            transform: translateX(3px);
+        }
+
+        .product-list-item-icon {
+            font-size: 1.8rem;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .product-list-item-content {
+            flex: 1;
+        }
+
+        .product-list-item-name {
+            font-weight: 600;
+            color: white;
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+
+        .product-list-item-details {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 4px;
+        }
+
+        .product-list-item-specs {
+            font-size: 0.85rem;
+            color: #68d391;
+            font-weight: 600;
+        }
+
+        .product-list-item-action {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .product-list-item-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(66, 153, 225, 0.3);
+            background: linear-gradient(135deg, #3182ce, #2c5282);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .sidebar {
+                position: static;
+                max-width: none;
+            }
+
+            .canvas-layout {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .product-grid-top {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .action-buttons-top {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .btn {
+                min-width: 250px;
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .product-item {
+                padding: 12px;
+            }
+
+            .product-item-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 1.2rem;
+            }
+
+            .product-item-name {
+                font-size: 0.9rem;
+            }
+
+            .modal {
+                padding: 20px;
+                margin: 20px;
+            }
+        }
+
+        /* Animations */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .animate-slide-up {
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        /* Loading States */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success/Error Messages */
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 10001;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .message.show {
+            transform: translateX(0);
+        }
+
+        .message.success {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+        }
+
+        .message.error {
+            background: linear-gradient(135deg, #e53e3e, #c53030);
+        }
+
+        .message.info {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header animate-slide-up">
+            <h1><i class="fas fa-bolt"></i> Energy Audit Widget</h1>
+            <p>Design your space and compare energy efficiency with ETL-certified products</p>
+        </div>
+
+        <!-- Product Selection - Top Priority -->
+        <div class="product-selection-top animate-slide-up">
+            <div class="product-selection-header">
+                <h2><i class="fas fa-cube"></i> Choose Your Products</h2>
+                <p>Select a product type to get started with your energy audit</p>
+            </div>
+            <div class="product-grid-top">
+                <div class="product-item" onclick="selectProductType('oven')" data-type="oven">
+                    <div class="product-item-icon">🔥</div>
+                    <div class="product-item-content">
+                        <div class="product-item-name">Ovens</div>
+                    </div>
+                    <div class="product-count" id="oven-count">Loading...</div>
+                </div>
+                <div class="product-item" onclick="selectProductType('fridge')" data-type="fridge">
+                    <div class="product-item-icon">🧊</div>
+                    <div class="product-item-content">
+                        <div class="product-item-name">Refrigerators</div>
+                    </div>
+                    <div class="product-count" id="fridge-count">Loading...</div>
+                </div>
+                <div class="product-item" onclick="selectProductType('freezer')" data-type="freezer">
+                    <div class="product-item-icon">❄️</div>
+                    <div class="product-item-content">
+                        <div class="product-item-name">Freezers</div>
+                    </div>
+                    <div class="product-count" id="freezer-count">Loading...</div>
+                </div>
+                <div class="product-item" onclick="selectProductType('lights')" data-type="lights">
+                    <div class="product-item-icon">💡</div>
+                    <div class="product-item-content">
+                        <div class="product-item-name">Lighting</div>
+                    </div>
+                    <div class="product-count" id="lights-count">Loading...</div>
+                </div>
+                <div class="product-item" onclick="selectProductType('motor')" data-type="motor">
+                    <div class="product-item-icon">⚙️</div>
+                    <div class="product-item-content">
+                        <div class="product-item-name">Motors</div>
+                    </div>
+                    <div class="product-count" id="motor-count">Loading...</div>
+                </div>
+                <div class="product-item" onclick="selectProductType('dishwasher')" data-type="dishwasher">
+                    <div class="product-item-icon">📻</div>
+                    <div class="product-item-content">
+                        <div class="product-item-name">Dishwashers</div>
+                    </div>
+                    <div class="product-count" id="dishwasher-count">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons - Central and Prominent -->
+        <div class="action-buttons-top animate-slide-up">
+            <button class="btn btn-secondary" onclick="addStandardProduct()" title="Add a standard product to your current space">
+                <i class="fas fa-plus"></i> Add Current Product
+            </button>
+            <button class="btn btn-success" onclick="addEfficientProduct()" title="Add an energy-efficient ETL product to your efficient space">
+                <i class="fas fa-leaf"></i> Add Efficient Product
+            </button>
+            <button class="btn" onclick="analyzeEnergyUsage()" title="Analyze and compare energy usage between your current and efficient spaces">
+                <i class="fas fa-chart-line"></i> Analyze Energy Usage
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+
+            <!-- Canvas Area -->
+            <!-- Current Space Canvas -->
+            <div class="canvas-area animate-slide-up">
+                <div class="canvas-header">
+                    <h3><i class="fas fa-home"></i> Current Space</h3>
+                    <p>Design your current setup with existing products</p>
+                </div>
+                <div class="canvas-container current" id="currentLayoutCanvas">
+                    <div class="canvas-title">
+                        <i class="fas fa-home" style="color: #94a3b8;"></i> Current Space
+                        <br><small style="color: #cbd5e0;">Drag products here to design your current setup</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Efficient Space Canvas -->
+            <div class="canvas-area animate-slide-up">
+                <div class="canvas-header">
+                    <h3><i class="fas fa-leaf"></i> Efficient Space</h3>
+                    <p>Design your efficient setup with ETL-certified products</p>
+                </div>
+                <div class="canvas-container efficient" id="efficientLayoutCanvas">
+                    <div class="canvas-title">
+                        <i class="fas fa-leaf" style="color: #22c55e;"></i> Energy Efficient Space
+                        <br><small style="color: #86efac;">Drag ETL-certified products here to design your efficient setup</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Section -->
+        <div class="comparison-section animate-slide-up">
+            <div class="comparison-header">
+                <h2><i class="fas fa-balance-scale"></i> Energy Comparison</h2>
+                <p>Compare your current setup with energy-efficient alternatives</p>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="comparison-card current">
+                    <div class="comparison-title current">
+                        <i class="fas fa-home"></i> Current Space
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item current">
+                            <div class="stat-value" id="currentPower">0</div>
+                            <div class="stat-label">Total Power (kW)</div>
+                        </div>
+                        <div class="stat-item current">
+                            <div class="stat-value" id="currentCost">€0</div>
+                            <div class="stat-label">Annual Cost</div>
+                        </div>
+                        <div class="stat-item current">
+                            <div class="stat-value" id="currentProducts">0</div>
+                            <div class="stat-label">Products</div>
+                        </div>
+                        <div class="stat-item current">
+                            <div class="stat-value" id="currentEfficiency">0%</div>
+                            <div class="stat-label">Efficiency</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison-card efficient">
+                    <div class="comparison-title efficient">
+                        <i class="fas fa-leaf"></i> Efficient Space
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item efficient">
+                            <div class="stat-value" id="efficientPower">0</div>
+                            <div class="stat-label">Total Power (kW)</div>
+                        </div>
+                        <div class="stat-item efficient">
+                            <div class="stat-value" id="efficientCost">€0</div>
+                            <div class="stat-label">Annual Cost</div>
+                        </div>
+                        <div class="stat-item efficient">
+                            <div class="stat-value" id="efficientProducts">0</div>
+                            <div class="stat-label">Products</div>
+                        </div>
+                        <div class="stat-item efficient">
+                            <div class="stat-value" id="efficientEfficiency">0%</div>
+                            <div class="stat-label">Efficiency</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <div class="stat-item" style="background: linear-gradient(135deg, #48bb78, #38a169); color: white;">
+                    <div class="stat-value" style="color: white; font-size: 2rem;" id="savingsAmount">€0</div>
+                    <div class="stat-label" style="color: rgba(255,255,255,0.9);">Annual Savings</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Selection Modal -->
+    <div id="productSelectionModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <div class="modal-title-icon">•</div>
+                    <span id="modalTitle">Find Your Current Product</span>
+                </div>
+                <button class="modal-close" onclick="closeProductSelectionModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" class="search-bar" id="productSearch" placeholder="Search for your boiler, heat pump, or HVAC system..." onkeyup="filterProducts()">
+            </div>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="setFilter('all')" data-filter="all">All Products</button>
+                <button class="filter-btn" onclick="setFilter('oven')" data-filter="oven">Ovens</button>
+                <button class="filter-btn" onclick="setFilter('fridge')" data-filter="fridge">Refrigerators</button>
+                <button class="filter-btn" onclick="setFilter('motor')" data-filter="motor">Motors</button>
+                <button class="filter-btn" onclick="setFilter('lights')" data-filter="lights">Lighting</button>
+            </div>
+            
+            <div class="product-list" id="productList">
+                <!-- Products will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ETL Integration Script -->
+    <script src="safe-etl-integration.js?v=20250110003"></script>
+
+    <script>
+        // Global variables
+        let selectedProductType = null;
+        let currentSpaceProducts = [];
+        let efficientSpaceProducts = [];
+        let currentCanvas = 'current';
+        let currentFilter = 'all';
+        let allProducts = [];
+
+        // Product types configuration
+        const productTypes = {
+            'oven': { name: 'Ovens', icon: '🔥' },
+            'fridge': { name: 'Refrigerators', icon: '🧊' },
+            'freezer': { name: 'Freezers', icon: '❄️' },
+            'lights': { name: 'Lighting', icon: '💡' },
+            'motor': { name: 'Motors', icon: '⚙️' },
+            'dishwasher': { name: 'Dishwashers', icon: '📻' }
+        };
+
+        // Initialize the widget
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🏠 Energy Audit Widget v3 - Modern UI initialized');
+            initializeProductCounts();
+            updateComparisonStats();
+            
+            // Add drag and drop functionality
+            initializeDragAndDrop();
+            
+            // Add smooth animations
+            addScrollAnimations();
+        });
+
+        // Product selection
+        function selectProductType(type) {
+            console.log('🎯 Product type selected:', type);
+            
+            // Update UI
+            document.querySelectorAll('.product-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            document.querySelector(`[data-type="${type}"]`).classList.add('selected');
+            
+            selectedProductType = type;
+            showMessage(`Selected ${productTypes[type].name}`, 'info');
+        }
+
+        // Add standard product
+        function addStandardProduct() {
+            if (!selectedProductType) {
+                showMessage('Please select a product type first', 'error');
+                return;
+            }
+            
+            showProductSelectionModal('currentSpace');
+        }
+
+        // Add efficient product
+        function addEfficientProduct() {
+            if (!selectedProductType) {
+                showMessage('Please select a product type first', 'error');
+                return;
+            }
+            
+            showProductSelectionModal('efficientSpace');
+        }
+
+        // Show product selection modal
+        function showProductSelectionModal(targetSpace) {
+            console.log('🛍️ Showing product selection modal for:', targetSpace);
+            
+            const modal = document.getElementById('productSelectionModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const productList = document.getElementById('productList');
+            const searchInput = document.getElementById('productSearch');
+            
+            const spaceLabel = targetSpace === 'efficientSpace' ? 'Energy Efficient' : 'Current';
+            
+            modalTitle.textContent = `Find Your ${spaceLabel} Product`;
+            
+            // Get ETL products
+            let etlProducts = [];
+            if (window.SafeETLIntegration) {
+                etlProducts = window.SafeETLIntegration.getProductsByType(selectedProductType);
+            }
+            
+            if (!etlProducts || etlProducts.length === 0) {
+                // Fallback products
+                etlProducts = getFallbackProducts(selectedProductType);
+            }
+            
+            // Store all products for filtering
+            allProducts = etlProducts;
+            
+            // Clear search and reset filter
+            searchInput.value = '';
+            currentFilter = 'all';
+            updateFilterButtons();
+            
+            // Display products
+            displayProducts(etlProducts, targetSpace);
+            
+            modal.classList.add('show');
+        }
+
+        // Display products in the modal
+        function displayProducts(products, targetSpace) {
+            const productList = document.getElementById('productList');
+            
+            if (products.length === 0) {
+                productList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
+                        <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                        <p>No products found matching your criteria</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            productList.innerHTML = products.map(product => `
+                <div class="product-list-item" onclick="selectETLProduct('${product.id}', '${targetSpace}')">
+                    <div class="product-list-item-icon">${product.icon}</div>
+                    <div class="product-list-item-content">
+                        <div class="product-list-item-name">${product.name}</div>
+                        <div class="product-list-item-details">${product.brand} • ${product.category}</div>
+                        <div class="product-list-item-specs">
+                            Power: ${product.power}kW • Rating: ${product.energyRating} • €${product.runningCostPerYear}/year
+                        </div>
+                    </div>
+                    <button class="product-list-item-action">SELECT</button>
+                </div>
+            `).join('');
+        }
+
+        // Filter products based on search and category
+        function filterProducts() {
+            const searchTerm = document.getElementById('productSearch').value.toLowerCase();
+            const filteredProducts = allProducts.filter(product => {
+                const matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
+                                    product.brand.toLowerCase().includes(searchTerm) ||
+                                    product.category.toLowerCase().includes(searchTerm);
+                
+                const matchesFilter = currentFilter === 'all' || product.type === currentFilter;
+                
+                return matchesSearch && matchesFilter;
+            });
+            
+            // Get target space from the modal context
+            const targetSpace = document.querySelector('.product-list-item')?.onclick?.toString().includes('efficientSpace') ? 'efficientSpace' : 'currentSpace';
+            displayProducts(filteredProducts, targetSpace);
+        }
+
+        // Set filter
+        function setFilter(filter) {
+            currentFilter = filter;
+            updateFilterButtons();
+            filterProducts();
+        }
+
+        // Update filter button states
+        function updateFilterButtons() {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.filter === currentFilter) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Close product selection modal
+        function closeProductSelectionModal() {
+            const modal = document.getElementById('productSelectionModal');
+            modal.classList.remove('show');
+        }
+
+        // Select ETL product
+        function selectETLProduct(productId, targetSpace) {
+            console.log('✅ ETL product selected:', productId, 'for', targetSpace);
+            
+            // Get product details
+            let product = null;
+            if (window.SafeETLIntegration) {
+                const products = window.SafeETLIntegration.getProductsByType(selectedProductType);
+                product = products.find(p => p.id === productId);
+            }
+            
+            if (!product) {
+                product = getFallbackProduct(selectedProductType, productId);
+            }
+            
+            // Add to appropriate space
+            addProductToSpace(product, targetSpace);
+            
+            // Close modal
+            closeProductSelectionModal();
+            
+            // Show success message
+            showMessage(`${product.name} added to ${targetSpace === 'efficientSpace' ? 'efficient' : 'current'} space!`, 'success');
+        }
+
+        // Add product to space
+        function addProductToSpace(product, targetSpace) {
+            const canvas = document.getElementById(targetSpace === 'efficientSpace' ? 'efficientLayoutCanvas' : 'currentLayoutCanvas');
+            
+            // Create product icon
+            const productIcon = createProductIcon(product, targetSpace);
+            
+            // Position randomly within canvas
+            const canvasRect = canvas.getBoundingClientRect();
+            const x = Math.random() * (canvasRect.width - 100) + 50;
+            const y = Math.random() * (canvasRect.height - 100) + 50;
+            
+            productIcon.style.left = x + 'px';
+            productIcon.style.top = y + 'px';
+            
+            canvas.appendChild(productIcon);
+            
+            // Add to products array
+            if (targetSpace === 'efficientSpace') {
+                efficientSpaceProducts.push(product);
+            } else {
+                currentSpaceProducts.push(product);
+            }
+            
+            // Update comparison stats and visuals
+            updateComparisonStats();
+            updateCanvasVisuals();
+        }
+
+        // Create product icon
+        function createProductIcon(product, targetSpace) {
+            const icon = document.createElement('div');
+            icon.className = 'product-icon';
+            icon.innerHTML = product.icon;
+            icon.title = `${product.name}\nPower: ${product.power}kW\nCost: €${product.runningCostPerYear}/year`;
+            icon.dataset.productId = product.id;
+            icon.dataset.targetSpace = targetSpace;
+            
+            // Add drag functionality
+            makeDraggable(icon);
+            
+            return icon;
+        }
+
+        // Make element draggable
+        function makeDraggable(element) {
+            let isDragging = false;
+            let startX, startY, initialX, initialY;
+            
+            element.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                element.classList.add('dragging');
+                
+                startX = e.clientX;
+                startY = e.clientY;
+                initialX = element.offsetLeft;
+                initialY = element.offsetTop;
+                
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                
+                const deltaX = e.clientX - startX;
+                const deltaY = e.clientY - startY;
+                
+                element.style.left = (initialX + deltaX) + 'px';
+                element.style.top = (initialY + deltaY) + 'px';
+            });
+            
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    element.classList.remove('dragging');
+                }
+            });
+        }
+
+        // Update canvas visual feedback
+        function updateCanvasVisuals() {
+            const currentCanvas = document.getElementById('currentLayoutCanvas');
+            const efficientCanvas = document.getElementById('efficientLayoutCanvas');
+            
+            // Add visual indicators based on content
+            if (currentSpaceProducts.length > 0) {
+                currentCanvas.style.borderColor = '#94a3b8';
+                currentCanvas.style.background = 'rgba(148, 163, 184, 0.1)';
+                currentCanvas.style.boxShadow = '0 8px 25px rgba(148, 163, 184, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)';
+            } else {
+                currentCanvas.style.borderColor = 'rgba(148, 163, 184, 0.4)';
+                currentCanvas.style.background = 'rgba(148, 163, 184, 0.05)';
+                currentCanvas.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)';
+            }
+            
+            if (efficientSpaceProducts.length > 0) {
+                efficientCanvas.style.borderColor = 'rgba(34, 197, 94, 0.5)';
+                efficientCanvas.style.background = 'rgba(34, 197, 94, 0.1)';
+                efficientCanvas.style.boxShadow = '0 8px 25px rgba(34, 197, 94, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)';
+            } else {
+                efficientCanvas.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+                efficientCanvas.style.background = 'rgba(34, 197, 94, 0.05)';
+                efficientCanvas.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)';
+            }
+        }
+
+        // Analyze energy usage
+        function analyzeEnergyUsage() {
+            console.log('📊 Analyzing energy usage...');
+            
+            const currentPower = currentSpaceProducts.reduce((sum, p) => sum + (p.power || 0), 0);
+            const efficientPower = efficientSpaceProducts.reduce((sum, p) => sum + (p.power || 0), 0);
+            
+            const currentCost = currentSpaceProducts.reduce((sum, p) => sum + (p.runningCostPerYear || 0), 0);
+            const efficientCost = efficientSpaceProducts.reduce((sum, p) => sum + (p.runningCostPerYear || 0), 0);
+            
+            const savings = currentCost - efficientCost;
+            const savingsPercent = currentCost > 0 ? (savings / currentCost * 100) : 0;
+            
+            showMessage(`Analysis complete! Potential savings: €${savings.toFixed(0)}/year (${savingsPercent.toFixed(1)}%)`, 'success');
+            
+            // Update comparison stats
+            updateComparisonStats();
+        }
+
+        // Update comparison stats
+        function updateComparisonStats() {
+            const currentPower = currentSpaceProducts.reduce((sum, p) => sum + (p.power || 0), 0);
+            const efficientPower = efficientSpaceProducts.reduce((sum, p) => sum + (p.power || 0), 0);
+            
+            const currentCost = currentSpaceProducts.reduce((sum, p) => sum + (p.runningCostPerYear || 0), 0);
+            const efficientCost = efficientSpaceProducts.reduce((sum, p) => sum + (p.runningCostPerYear || 0), 0);
+            
+            const savings = currentCost - efficientCost;
+            
+            // Update current space stats
+            document.getElementById('currentPower').textContent = currentPower.toFixed(1);
+            document.getElementById('currentCost').textContent = `€${currentCost.toFixed(0)}`;
+            document.getElementById('currentProducts').textContent = currentSpaceProducts.length;
+            document.getElementById('currentEfficiency').textContent = '75%'; // Placeholder
+            
+            // Update efficient space stats
+            document.getElementById('efficientPower').textContent = efficientPower.toFixed(1);
+            document.getElementById('efficientCost').textContent = `€${efficientCost.toFixed(0)}`;
+            document.getElementById('efficientProducts').textContent = efficientSpaceProducts.length;
+            document.getElementById('efficientEfficiency').textContent = '95%'; // Placeholder
+            
+            // Update savings
+            document.getElementById('savingsAmount').textContent = `€${savings.toFixed(0)}`;
+        }
+
+        // Initialize drag and drop
+        function initializeDragAndDrop() {
+            const canvases = document.querySelectorAll('.canvas-container');
+            
+            canvases.forEach(canvas => {
+                canvas.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    canvas.classList.add('drag-over');
+                });
+                
+                canvas.addEventListener('dragleave', () => {
+                    canvas.classList.remove('drag-over');
+                });
+                
+                canvas.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    canvas.classList.remove('drag-over');
+                });
+            });
+        }
+
+        // Add scroll animations
+        function addScrollAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.comparison-card, .stat-item').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // Product count functions
+        function showProductCount(productType) {
+            if (!window.SafeETLIntegration) {
+                const fallbackTexts = {
+                    'oven': '10+ Options',
+                    'fridge': '1 Available',
+                    'freezer': '2 Models',
+                    'lights': '15+ Types',
+                    'motor': '3 Variants',
+                    'dishwasher': '2 Models'
+                };
+                
+                const countElement = document.getElementById(`${productType}-count`);
+                if (countElement) {
+                    countElement.textContent = fallbackTexts[productType] || 'Available';
+                    countElement.classList.add('show');
+                }
+                return;
+            }
+            
+            const etlProducts = window.SafeETLIntegration.getProductsByType(productType);
+            const count = etlProducts ? etlProducts.length : 0;
+            
+            const countElement = document.getElementById(`${productType}-count`);
+            if (countElement) {
+                let descriptiveText;
+                if (count === 0) {
+                    descriptiveText = 'None Available';
+                } else if (count === 1) {
+                    descriptiveText = '1 Option';
+                } else if (count < 5) {
+                    descriptiveText = `${count} Options`;
+                } else if (count < 20) {
+                    descriptiveText = `${count}+ Models`;
+                } else {
+                    descriptiveText = `${count}+ Available`;
+                }
+                
+                countElement.textContent = descriptiveText;
+                countElement.classList.add('show');
+                countElement.title = `${count} ETL-certified ${productType}s available for selection`;
+            }
+        }
+
+        function hideProductCount() {
+            document.querySelectorAll('.product-count').forEach(count => {
+                count.classList.remove('show');
+            });
+        }
+
+        // Initialize product counts
+        function initializeProductCounts() {
+            console.log('🔄 Initializing product counts...');
+            
+            if (window.SafeETLIntegration && window.SafeETLIntegration.etlProducts) {
+                const productTypes = ['oven', 'fridge', 'freezer', 'lights', 'motor', 'dishwasher'];
+                
+                productTypes.forEach(type => {
+                    const etlProducts = window.SafeETLIntegration.getProductsByType(type);
+                    const count = etlProducts ? etlProducts.length : 0;
+                    
+                    const countElement = document.getElementById(`${type}-count`);
+                    if (countElement) {
+                        let descriptiveText;
+                        if (count === 0) {
+                            descriptiveText = 'None Available';
+                        } else if (count === 1) {
+                            descriptiveText = '1 Option';
+                        } else if (count < 5) {
+                            descriptiveText = `${count} Options`;
+                        } else if (count < 20) {
+                            descriptiveText = `${count}+ Models`;
+                        } else {
+                            descriptiveText = `${count}+ Available`;
+                        }
+                        
+                        countElement.textContent = descriptiveText;
+                        countElement.title = `${count} ETL-certified ${type}s available for selection`;
+                    }
+                });
+                
+                console.log('✅ Product counts initialized with descriptive text');
+            } else {
+                console.log('⚠️ ETL products not loaded yet, using fallback descriptive text');
+            }
+        }
+
+        // Fallback products
+        function getFallbackProducts(type) {
+            const fallbackProducts = {
+                'oven': [
+                    { id: 'oven1', name: 'Commercial Oven', brand: 'Rational', power: 15, energyRating: 'A', runningCostPerYear: 1200, icon: '🔥' },
+                    { id: 'oven2', name: 'Convection Oven', brand: 'MKN', power: 12, energyRating: 'A+', runningCostPerYear: 900, icon: '🔥' }
+                ],
+                'fridge': [
+                    { id: 'fridge1', name: 'Commercial Refrigerator', brand: 'True', power: 8, energyRating: 'A', runningCostPerYear: 600, icon: '🧊' }
+                ],
+                'freezer': [
+                    { id: 'freezer1', name: 'Commercial Freezer', brand: 'Carrier', power: 10, energyRating: 'A', runningCostPerYear: 800, icon: '❄️' }
+                ],
+                'lights': [
+                    { id: 'lights1', name: 'LED Panel', brand: 'Philips', power: 0.1, energyRating: 'A++', runningCostPerYear: 50, icon: '💡' }
+                ],
+                'motor': [
+                    { id: 'motor1', name: 'High Efficiency Motor', brand: 'ABB', power: 5, energyRating: 'A', runningCostPerYear: 400, icon: '⚙️' }
+                ],
+                'dishwasher': [
+                    { id: 'dishwasher1', name: 'Commercial Dishwasher', brand: 'Hobart', power: 6, energyRating: 'A', runningCostPerYear: 500, icon: '📻' }
+                ]
+            };
+            
+            return fallbackProducts[type] || [];
+        }
+
+        function getFallbackProduct(type, id) {
+            const products = getFallbackProducts(type);
+            return products.find(p => p.id === id) || products[0];
+        }
+
+        // Message system
+        function showMessage(text, type = 'info') {
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.textContent = text;
+            
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                message.classList.remove('show');
+                setTimeout(() => {
+                    if (message.parentNode) {
+                        message.parentNode.removeChild(message);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Add hover effects to product items
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.product-item').forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    const type = this.dataset.type;
+                    showProductCount(type);
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    hideProductCount();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

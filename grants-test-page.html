@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Grants System - Test Page</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --dark-bg: #0f172a;
+            --darker-bg: #0a0a1a;
+            --card-bg: rgba(30, 41, 59, 0.6);
+            --neon-green: #22c55e;
+            --bright-green: #16a34a;
+            --white: #FFFFFF;
+            --gray: #B0BEC5;
+            --border: rgba(34, 197, 94, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: 
+                linear-gradient(135deg, var(--dark-bg) 0%, #1e293b 50%, #334155 100%),
+                radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.1) 0%, transparent 50%);
+            color: var(--gray);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: var(--neon-green);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--gray);
+            font-size: 1.1em;
+        }
+
+        .test-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        .test-section h2 {
+            color: var(--neon-green);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .product-card {
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            border-color: var(--neon-green);
+            transform: translateY(-2px);
+        }
+
+        .product-card h3 {
+            color: var(--white);
+            margin-bottom: 10px;
+        }
+
+        .product-card p {
+            color: var(--gray);
+            margin: 5px 0;
+        }
+
+        .test-button {
+            background: var(--neon-green);
+            color: var(--dark-bg);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+
+        .test-button:hover {
+            background: var(--bright-green);
+            transform: translateY(-2px);
+        }
+
+        .results-section {
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .console-output {
+            background: #000;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            color: var(--neon-green);
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: var(--gray);
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .region-selector {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .region-selector select {
+            background: var(--card-bg);
+            color: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 15px;
+            font-size: 1em;
+            margin-left: 10px;
+        }
+
+        .region-selector label {
+            color: var(--gray);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-gift"></i> Comprehensive Grants System</h1>
+            <p>UK & Europe - Test Page for Calculator Integration</p>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-chart-bar"></i> System Statistics</h2>
+            <div class="stats-grid" id="stats-grid">
+                <!-- Stats will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-globe"></i> Region Selection</h2>
+            <div class="region-selector">
+                <label for="region-select">Select Region:</label>
+                <select id="region-select" onchange="updateRegion()">
+                    <option value="uk.england">England</option>
+                    <option value="uk.scotland">Scotland</option>
+                    <option value="uk.wales">Wales</option>
+                    <option value="uk.northern_ireland">Northern Ireland</option>
+                    <option value="eu.ireland">Ireland</option>
+                    <option value="eu.germany">Germany</option>
+                    <option value="eu.france">France</option>
+                    <option value="eu.netherlands">Netherlands</option>
+                    <option value="eu.spain">Spain</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-box"></i> Test Products</h2>
+            <div id="test-products">
+                <!-- Test products will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-play"></i> Test Controls</h2>
+            <button class="test-button" onclick="runAllTests()">
+                <i class="fas fa-play"></i> Run All Tests
+            </button>
+            <button class="test-button" onclick="testBasicFunctionality()">
+                <i class="fas fa-cog"></i> Test Basic Functionality
+            </button>
+            <button class="test-button" onclick="testGrantsDisplay()">
+                <i class="fas fa-eye"></i> Test Grants Display
+            </button>
+            <button class="test-button" onclick="testCalculatorIntegration()">
+                <i class="fas fa-calculator"></i> Test Calculator Integration
+            </button>
+            <button class="test-button" onclick="clearResults()">
+                <i class="fas fa-trash"></i> Clear Results
+            </button>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-terminal"></i> Test Results</h2>
+            <div class="console-output" id="console-output">
+                <div>Grants System Test Page Ready</div>
+                <div>Click "Run All Tests" to start testing...</div>
+            </div>
+        </div>
+
+        <div class="results-section" id="results-section">
+            <h3><i class="fas fa-gift"></i> Grants Results</h3>
+            <div id="grants-results">
+                <!-- Grants results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Include the grants system scripts -->
+    <script src="comprehensive-grants-system.js"></script>
+    <script src="grants-interface-system.js"></script>
+    <script src="grants-integration-test.js"></script>
+
+    <script>
+        // Test page specific JavaScript
+        let currentRegion = 'uk.england';
+        let testProducts = [
+            {
+                id: 'test_dishwasher',
+                name: 'Zanussi Dishwasher',
+                category: 'Appliances',
+                subcategory: 'Dishwasher',
+                brand: 'Zanussi',
+                price: 899
+            },
+            {
+                id: 'test_heat_pump',
+                name: 'Bosch Heat Pump',
+                category: 'Heating',
+                subcategory: 'Heat Pumps',
+                brand: 'Bosch',
+                price: 2500
+            },
+            {
+                id: 'test_solar',
+                name: 'Solar Panel System',
+                category: 'Renewable',
+                subcategory: 'Solar Panels',
+                brand: 'Generic',
+                price: 5000
+            }
+        ];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🧪 Grants System Test Page Initialized');
+            loadStats();
+            loadTestProducts();
+            setupGrantsForCalculator('Test Page', currentRegion);
+        });
+
+        function loadStats() {
+            const stats = getGrantsStatistics();
+            const statsGrid = document.getElementById('stats-grid');
+            
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <h4>Total Grants</h4>
+                    <p>${stats.totalGrants}</p>
+                </div>
+                <div class="stat-card">
+                    <h4>Total Regions</h4>
+                    <p>${stats.totalRegions}</p>
+                </div>
+                <div class="stat-card">
+                    <h4>Total Countries</h4>
+                    <p>${stats.totalCountries}</p>
+                </div>
+                <div class="stat-card">
+                    <h4>Max Amount</h4>
+                    <p>€${stats.maxAmount.toLocaleString()}</p>
+                </div>
+            `;
+        }
+
+        function loadTestProducts() {
+            const productsContainer = document.getElementById('test-products');
+            
+            productsContainer.innerHTML = testProducts.map(product => `
+                <div class="product-card">
+                    <h3>${product.name}</h3>
+                    <p><strong>Category:</strong> ${product.category}</p>
+                    <p><strong>Subcategory:</strong> ${product.subcategory}</p>
+                    <p><strong>Brand:</strong> ${product.brand}</p>
+                    <p><strong>Price:</strong> €${product.price.toLocaleString()}</p>
+                    <button class="test-button" onclick="testProductGrants('${product.id}')">
+                        <i class="fas fa-search"></i> Find Grants
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function updateRegion() {
+            const regionSelect = document.getElementById('region-select');
+            currentRegion = regionSelect.value;
+            window.currentGrantsRegion = currentRegion;
+            logToConsole(`🌍 Region updated to: ${currentRegion}`);
+        }
+
+        function testProductGrants(productId) {
+            const product = testProducts.find(p => p.id === productId);
+            if (!product) return;
+
+            logToConsole(`\n🔍 Testing grants for: ${product.name}`);
+            
+            const grants = findAvailableGrants(product, currentRegion);
+            const total = calculateGrantsTotal(product, currentRegion);
+            
+            logToConsole(`Found ${grants.length} grants totaling €${total}`);
+            
+            if (grants.length > 0) {
+                grants.forEach(grant => {
+                    logToConsole(`  - ${grant.name}: ${grant.currency}${grant.amount}`);
+                });
+            }
+
+            // Display grants in results section
+            displayGrantsResults(product, grants);
+        }
+
+        function displayGrantsResults(product, grants) {
+            const resultsContainer = document.getElementById('grants-results');
+            
+            const grantsHtml = formatGrantsDisplay(grants, currentRegion);
+            
+            resultsContainer.innerHTML = `
+                <h4>Grants for ${product.name} (${currentRegion})</h4>
+                ${grantsHtml}
+            `;
+        }
+
+        function logToConsole(message) {
+            const consoleOutput = document.getElementById('console-output');
+            const timestamp = new Date().toLocaleTimeString();
+            consoleOutput.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('console-output').innerHTML = '<div>Console cleared...</div>';
+            document.getElementById('grants-results').innerHTML = '';
+        }
+
+        // Override console.log to also display in our console
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            logToConsole(args.join(' '));
+        };
+    </script>
+</body>
+</html>
+
+
+
+
+
+

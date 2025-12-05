@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Energy Calculator Widget - Corrected Flow</title>
+    <style>
+        /* Energy Calculator Widget Theme - Corrected Flow */
+        :root {
+            --primary-blue: #1976D2;
+            --secondary-blue: #42A5F5;
+            --accent-blue: #90CAF9;
+            --light-blue: #E3F2FD;
+            --dark-blue: #0D47A1;
+            --success-green: #4CAF50;
+            --warning-orange: #FF9800;
+            --white: #FFFFFF;
+            --gray: #757575;
+            --light-gray: #F5F5F5;
+            --border: #E0E0E0;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: var(--white);
+            padding: 20px;
+        }
+
+        .widget-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .widget-header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: var(--white);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .widget-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            font-weight: 300;
+        }
+
+        .widget-header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .widget-content {
+            padding: 25px;
+        }
+
+        .product-info {
+            background: var(--light-blue);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 5px;
+        }
+
+        .product-specs {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--gray);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--success-green), #45a049);
+            color: var(--white);
+            border: none;
+            padding: 15px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        }
+
+        .compare-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--light-gray);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .compare-btn {
+            background: var(--warning-orange);
+            color: var(--white);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .compare-btn:hover {
+            background: #F57C00;
+            transform: translateY(-2px);
+        }
+
+        .compare-description {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin: 0;
+        }
+
+        .results-section {
+            background: var(--light-gray);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .result-item {
+            background: var(--white);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .result-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+
+        .savings-highlight {
+            background: linear-gradient(135deg, var(--success-green), #45a049);
+            color: var(--white);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .comparison-section {
+            background: var(--light-gray);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .comparison-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Enhanced Comparison Images */
+        .comparison-images {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .comparison-image {
+            text-align: center;
+            flex: 1;
+            background: var(--white);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .comparison-image img {
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        .comparison-image-label {
+            font-size: 0.9rem;
+            color: var(--primary-blue);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .comparison-image-cost {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--success-green);
+            margin-bottom: 5px;
+        }
+
+        .comparison-image-power {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .comparison-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-item:last-child {
+            border-bottom: none;
+        }
+
+        .comparison-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .comparison-value {
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--gray);
+        }
+
+        .spinner {
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--primary-blue);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: var(--primary-blue);
+        }
+
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .close:hover {
+            color: var(--primary-blue);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .search-section {
+            margin-bottom: 20px;
+        }
+
+        #product-search {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        #product-search:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .category-filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            background: var(--white);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: var(--primary-blue);
+            color: var(--white);
+            border-color: var(--primary-blue);
+        }
+
+        .filter-btn:hover {
+            background: var(--light-blue);
+        }
+
+        .search-results {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .product-result {
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .product-result:hover {
+            background: var(--light-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .product-result.selected {
+            background: var(--light-blue);
+            border-color: var(--primary-blue);
+            border-width: 2px;
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: var(--light-gray);
+            border: 1px solid var(--border);
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 5px;
+        }
+
+        .product-details {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        @media (max-width: 480px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .widget-content {
+                padding: 15px;
+            }
+            
+            .comparison-images {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="widget-container">
+        <div class="widget-header">
+            <h2>⚡ Energy Calculator</h2>
+            <p>Calculate running costs and savings potential</p>
+        </div>
+        
+        <div class="widget-content">
+            <!-- Product Information Display -->
+            <div class="product-info" id="product-info">
+                <div class="product-name" id="product-name">Loading product...</div>
+                <div class="product-specs">
+                    <span id="product-power">0W</span>
+                    <span id="product-brand">Brand</span>
+                </div>
+            </div>
+
+            <!-- Message Display -->
+            <div id="message-display"></div>
+
+            <!-- Calculator Form -->
+            <div class="form-group">
+                <label for="electricity-rate">Electricity Rate (€ per kWh)</label>
+                <input type="number" id="electricity-rate" value="0.15" step="0.01" min="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="hours-per-day">Hours of Use per Day</label>
+                <input type="number" id="hours-per-day" value="8" step="0.5" min="0" max="24">
+            </div>
+            
+            <button class="calculate-btn" onclick="calculateEnergyCosts()">
+                Calculate Running Costs
+            </button>
+            
+            <div class="compare-section">
+                <button class="compare-btn" onclick="showProductSearch()">
+                    🔍 Compare to Your Own Product
+                </button>
+                <p class="compare-description">Find your current boiler, heat pump, or HVAC system to see real savings</p>
+            </div>
+
+            <!-- Results Section - Shows running costs of selected product -->
+            <div class="results-section" id="results-section">
+                <div class="results-grid">
+                    <div class="result-item">
+                        <div class="result-label">Daily Cost</div>
+                        <div class="result-value" id="daily-cost">€0.00</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Monthly Cost</div>
+                        <div class="result-value" id="monthly-cost">€0.00</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Annual Cost</div>
+                        <div class="result-value" id="annual-cost">€0.00</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Power Consumption</div>
+                        <div class="result-value" id="power-consumption">0W</div>
+                    </div>
+                </div>
+                
+                <div class="savings-highlight" id="savings-highlight">
+                    See potential savings below
+                </div>
+            </div>
+
+            <!-- Comparison Section - Only shows when user compares -->
+            <div class="comparison-section" id="comparison-section" style="display: none;">
+                <div class="comparison-title">💰 Energy Savings Comparison</div>
+                
+                <!-- Product Images with Costs -->
+                <div class="comparison-images" id="comparison-images">
+                    <div class="comparison-image">
+                        <img id="current-product-image" src="" alt="Current Product" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik02MCA0MEM2Ni42MjcgNDAgNzIgNDUuMzczIDcyIDUyQzcyIDU4LjYyNyA2Ni42MjcgNjQgNjAgNjRDNzMuMzczIDY0IDU4LjYyNyA1OC42MjcgNTIgNTJDNTEgNDUuMzczIDU3LjM3MyA0MCA2MCA0MFoiIGZpbGw9IiM5OTk5OTkiLz4KPC9zdmc+'">
+                        <div class="comparison-image-label" id="current-product-label">Your Product</div>
+                        <div class="comparison-image-cost" id="current-product-cost">€0.00/year</div>
+                        <div class="comparison-image-power" id="current-product-power">0W</div>
+                    </div>
+                    <div class="comparison-image">
+                        <img id="comparison-product-image" src="" alt="Comparison Product" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik02MCA0MEM2Ni42MjcgNDAgNzIgNDUuMzczIDcyIDUyQzcyIDU4LjYyNyA2Ni42MjcgNjQgNjAgNjRDNzMuMzczIDY0IDU4LjYyNyA1OC42MjcgNTIgNTJDNTEgNDUuMzczIDU3LjM3MyA0MCA2MCA0MFoiIGZpbGw9IiM5OTk5OTkiLz4KPC9zdmc+'">
+                        <div class="comparison-image-label" id="comparison-product-label">Comparison Product</div>
+                        <div class="comparison-image-cost" id="comparison-product-cost">€0.00/year</div>
+                        <div class="comparison-image-power" id="comparison-product-power">0W</div>
+                    </div>
+                </div>
+                
+                <!-- Savings Summary -->
+                <div class="comparison-item">
+                    <span class="comparison-label">Annual Savings</span>
+                    <span class="comparison-value" id="annual-savings">€0.00</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="comparison-label">Monthly Savings</span>
+                    <span class="comparison-value" id="monthly-savings">€0.00</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="comparison-label">Daily Savings</span>
+                    <span class="comparison-value" id="daily-savings">€0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Search Modal -->
+    <div id="product-search-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔍 Find Your Current Product</h3>
+                <span class="close" onclick="hideProductSearch()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="search-section">
+                    <input type="text" id="product-search" placeholder="Search for your boiler, heat pump, or HVAC system..." onkeyup="searchProducts()">
+                    <div class="category-filters">
+                        <button class="filter-btn active" onclick="filterByCategory('all')">All</button>
+                        <button class="filter-btn" onclick="filterByCategory('heating')">Heating</button>
+                        <button class="filter-btn" onclick="filterByCategory('heat-pumps')">Heat Pumps</button>
+                        <button class="filter-btn" onclick="filterByCategory('boilers')">Boilers</button>
+                        <button class="filter-btn" onclick="filterByCategory('hvac')">HVAC</button>
+                    </div>
+                </div>
+                <div id="search-results" class="search-results">
+                    <!-- Search results will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentProduct = null;
+        let standardProduct = null;
+        let allProducts = [];
+        let filteredProducts = [];
+        let currentCategory = 'all';
+        const BACKEND_URL = 'http://localhost:4000';
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Initializing Corrected Product Energy Calculator Widget...');
+            initializeWidget();
+        });
+
+        // Initialize widget
+        async function initializeWidget() {
+            // Get product data from URL parameters or default
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('productId') || 'baxi-auriga-40t';
+            const productName = urlParams.get('productName') || 'Baxi Auriga HP 40T Heat Pump';
+            const productPower = parseFloat(urlParams.get('productPower')) || 40000;
+            const productBrand = urlParams.get('productBrand') || 'Baxi';
+
+            // Set up current product
+            currentProduct = {
+                id: productId,
+                name: productName,
+                power: productPower,
+                brand: productBrand,
+                imageUrl: urlParams.get('productImage') || '' // Use your database images only
+            };
+
+            // Update UI with product info
+            updateProductDisplay();
+            
+            console.log('✅ Corrected Widget initialized successfully');
+        }
+
+        // Update product display
+        function updateProductDisplay() {
+            if (currentProduct) {
+                document.getElementById('product-name').textContent = currentProduct.name;
+                document.getElementById('product-power').textContent = `${currentProduct.power}W`;
+                document.getElementById('product-brand').textContent = currentProduct.brand;
+            }
+        }
+
+        // Calculate energy costs - CORRECTED FLOW
+        function calculateEnergyCosts() {
+            if (!currentProduct) {
+                showMessage('Product information not loaded', 'error');
+                return;
+            }
+
+            const electricityRate = parseFloat(document.getElementById('electricity-rate').value);
+            const hoursPerDay = parseFloat(document.getElementById('hours-per-day').value);
+
+            if (!electricityRate || !hoursPerDay) {
+                showMessage('Please fill in all required fields', 'error');
+                return;
+            }
+
+            // Show loading
+            showLoading();
+
+            // Calculate costs for the selected product
+            const dailyCost = (currentProduct.power / 1000) * hoursPerDay * electricityRate;
+            const monthlyCost = dailyCost * 30;
+            const annualCost = dailyCost * 365;
+
+            // Update results display
+            document.getElementById('daily-cost').textContent = `€${dailyCost.toFixed(2)}`;
+            document.getElementById('monthly-cost').textContent = `€${monthlyCost.toFixed(2)}`;
+            document.getElementById('annual-cost').textContent = `€${annualCost.toFixed(2)}`;
+            document.getElementById('power-consumption').textContent = `${currentProduct.power}W`;
+
+            // Show results section (this is the FIRST display - just the selected product)
+            document.getElementById('results-section').style.display = 'block';
+            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+
+            // Hide comparison section initially (only show if user compares)
+            document.getElementById('comparison-section').style.display = 'none';
+            document.getElementById('savings-highlight').style.display = 'none';
+
+            showMessage('Calculation completed successfully!', 'success');
+        }
+
+        // Show loading state
+        function showLoading() {
+            showMessage('Calculating energy costs...', 'info');
+        }
+
+        // Show message
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.getElementById('message-display');
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => messageDiv.style.display = 'none', 5000);
+        }
+
+        // Product Search Functions
+        function showProductSearch() {
+            document.getElementById('product-search-modal').style.display = 'flex';
+            loadAllProducts();
+        }
+
+        function hideProductSearch() {
+            document.getElementById('product-search-modal').style.display = 'none';
+        }
+
+        async function loadAllProducts() {
+            try {
+                // Try to load from your existing API
+                const response = await fetch(`${BACKEND_URL}/api/products`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const apiProducts = data.products || data || [];
+                    
+                    // Enhance API products with missing fields - PRIORITIZE YOUR DATABASE IMAGES
+                    allProducts = apiProducts.map(product => ({
+                        id: product.id.toString(),
+                        name: product.name || 'Unknown Product',
+                        power: product.power || 1000,
+                        brand: product.brand || 'Generic',
+                        category: product.category || 'heating',
+                        imageUrl: product.imageUrl || product.image || product.imageUrl || '' // Use your database images only
+                    }));
+                    
+                    console.log('✅ Loaded products from YOUR DATABASE:', allProducts.length);
+                    console.log('📸 Products with images:', allProducts.filter(p => p.imageUrl).length);
+                } else {
+                    // Fallback to sample data
+                    allProducts = getSampleProducts();
+                    console.log('⚠️ API failed, using sample products');
+                }
+            } catch (error) {
+                console.log('⚠️ API error, using sample products:', error.message);
+                allProducts = getSampleProducts();
+            }
+            
+            // Always add our comprehensive sample data for better comparison
+            const sampleProducts = getSampleProducts();
+            const existingIds = allProducts.map(p => p.id);
+            const newSamples = sampleProducts.filter(p => !existingIds.includes(p.id));
+            allProducts = [...allProducts, ...newSamples];
+            
+            filteredProducts = [...allProducts];
+            displaySearchResults();
+        }
+
+        function getSampleProducts() {
+            return [
+                // Heat Pumps (Efficient) - NO IMAGES - Let API provide them
+                { id: 'baxi-auriga-40t', name: 'Baxi Auriga HP 40T Heat Pump', power: 40000, brand: 'Baxi', category: 'heat-pumps', imageUrl: '' },
+                { id: 'baxi-auriga-33t', name: 'Baxi Auriga HP 33T Heat Pump', power: 33000, brand: 'Baxi', category: 'heat-pumps', imageUrl: '' },
+                { id: 'baxi-auriga-26t', name: 'Baxi Auriga HP 26T Heat Pump', power: 26000, brand: 'Baxi', category: 'heat-pumps', imageUrl: '' },
+                { id: 'baxi-auriga-20t', name: 'Baxi Auriga HP 20T Heat Pump', power: 20000, brand: 'Baxi', category: 'heat-pumps', imageUrl: '' },
+                { id: 'baxi-quinta-115', name: 'Baxi Quinta Ace 115kW Heat Pump', power: 115000, brand: 'Baxi', category: 'heat-pumps', imageUrl: '' },
+                
+                // Boilers (Standard/Old) - NO IMAGES - Let API provide them
+                { id: 'standard-boiler-40', name: 'Standard Gas Boiler 40kW', power: 50000, brand: 'Generic', category: 'boilers', imageUrl: '' },
+                { id: 'standard-boiler-30', name: 'Standard Gas Boiler 30kW', power: 40000, brand: 'Generic', category: 'boilers', imageUrl: '' },
+                { id: 'old-boiler-50', name: 'Old Boiler 50kW', power: 70000, brand: 'OldBrand', category: 'boilers', imageUrl: '' },
+                { id: 'old-boiler-40', name: 'Old Boiler 40kW', power: 60000, brand: 'OldBrand', category: 'boilers', imageUrl: '' },
+                { id: 'oil-boiler-35', name: 'Oil Boiler 35kW', power: 55000, brand: 'OilBrand', category: 'boilers', imageUrl: '' },
+                
+                // HVAC Systems - NO IMAGES - Let API provide them
+                { id: 'standard-hvac', name: 'Standard HVAC System', power: 60000, brand: 'Generic', category: 'hvac', imageUrl: '' },
+                { id: 'old-hvac', name: 'Old HVAC System', power: 80000, brand: 'OldBrand', category: 'hvac', imageUrl: '' },
+                { id: 'central-ac', name: 'Central Air Conditioning', power: 75000, brand: 'ACBrand', category: 'hvac', imageUrl: '' },
+                
+                // Motors - NO IMAGES - Let API provide them
+                { id: 'nord-ie4-4kw', name: 'NORD Asynchronous IE4 Motor (400V) - 4kW', power: 4000, brand: 'NORD', category: 'motors', imageUrl: '' },
+                { id: 'nord-ie4-3kw', name: 'NORD Asynchronous IE4 Motor (400V) - 3kW', power: 3000, brand: 'NORD', category: 'motors', imageUrl: '' },
+                { id: 'standard-motor-4kw', name: 'Standard IE3 Motor 4kW', power: 4500, brand: 'Generic', category: 'motors', imageUrl: '' },
+                { id: 'old-motor-5kw', name: 'Old IE2 Motor 5kW', power: 6000, brand: 'OldBrand', category: 'motors', imageUrl: '' },
+                
+                // Cooling - NO IMAGES - Let API provide them
+                { id: 'breezair-exs220', name: 'Breezair EXS220 Evaporative Cooler', power: 220, brand: 'Breezair', category: 'cooling', imageUrl: '' },
+                { id: 'standard-ac', name: 'Standard Air Conditioner', power: 1500, brand: 'Generic', category: 'cooling', imageUrl: '' },
+                { id: 'old-ac', name: 'Old Air Conditioner', power: 2000, brand: 'OldBrand', category: 'cooling', imageUrl: '' },
+                
+                // Common Customer Products - NO IMAGES - Let API provide them
+                { id: 'customer-boiler-1', name: 'Worcester Bosch 30kW Boiler', power: 35000, brand: 'Worcester', category: 'boilers', imageUrl: '' },
+                { id: 'customer-boiler-2', name: 'Vaillant 35kW Boiler', power: 40000, brand: 'Vaillant', category: 'boilers', imageUrl: '' },
+                { id: 'customer-hp-1', name: 'Daikin Heat Pump 8kW', power: 8000, brand: 'Daikin', category: 'heat-pumps', imageUrl: '' },
+                { id: 'customer-hp-2', name: 'Mitsubishi Heat Pump 12kW', power: 12000, brand: 'Mitsubishi', category: 'heat-pumps', imageUrl: '' }
+            ];
+        }
+
+        function searchProducts() {
+            const searchTerm = document.getElementById('product-search').value.toLowerCase();
+            filteredProducts = allProducts.filter(product => {
+                const matchesSearch = product.name.toLowerCase().includes(searchTerm) || 
+                                    product.brand.toLowerCase().includes(searchTerm);
+                const matchesCategory = currentCategory === 'all' || product.category === currentCategory;
+                return matchesSearch && matchesCategory;
+            });
+            displaySearchResults();
+        }
+
+        function filterByCategory(category) {
+            currentCategory = category;
+            
+            // Update active filter button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            searchProducts(); // This will apply both search and category filter
+        }
+
+        function displaySearchResults() {
+            const resultsContainer = document.getElementById('search-results');
+            
+            if (filteredProducts.length === 0) {
+                resultsContainer.innerHTML = '<p style="text-align: center; color: var(--gray); padding: 20px;">No products found. Try a different search term.</p>';
+                return;
+            }
+            
+            resultsContainer.innerHTML = filteredProducts.map(product => `
+                <div class="product-result" onclick="selectProduct('${product.id}')">
+                    <img class="product-image" src="${product.imageUrl || ''}" alt="${product.name}" onerror="this.style.display='none'">
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-details">
+                            ${product.brand} • ${product.power}W • ${product.category}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectProduct(productId) {
+            const selectedProduct = allProducts.find(p => p.id === productId);
+            if (selectedProduct) {
+                // Update the standard product for comparison
+                standardProduct = {
+                    name: selectedProduct.name,
+                    power: selectedProduct.power,
+                    brand: selectedProduct.brand,
+                    imageUrl: selectedProduct.imageUrl
+                };
+                
+                // Close modal
+                hideProductSearch();
+                
+                // Show success message
+                showMessage(`Now comparing to: ${selectedProduct.name}`, 'success');
+                
+                // NOW show the comparison section with side-by-side results
+                showComparisonResults();
+            }
+        }
+
+        // NEW FUNCTION: Show comparison results side-by-side
+        function showComparisonResults() {
+            if (!currentProduct || !standardProduct) {
+                showMessage('Missing product data for comparison', 'error');
+                return;
+            }
+
+            const electricityRate = parseFloat(document.getElementById('electricity-rate').value);
+            const hoursPerDay = parseFloat(document.getElementById('hours-per-day').value);
+
+            // Calculate costs for both products
+            const currentDailyCost = (currentProduct.power / 1000) * hoursPerDay * electricityRate;
+            const currentAnnualCost = currentDailyCost * 365;
+            
+            const standardDailyCost = (standardProduct.power / 1000) * hoursPerDay * electricityRate;
+            const standardAnnualCost = standardDailyCost * 365;
+            
+            const annualSavings = standardAnnualCost - currentAnnualCost;
+            const monthlySavings = annualSavings / 12;
+
+            // Update comparison images and costs directly under each product
+            const currentProductImage = document.getElementById('current-product-image');
+            const comparisonProductImage = document.getElementById('comparison-product-image');
+            const currentProductLabel = document.getElementById('current-product-label');
+            const comparisonProductLabel = document.getElementById('comparison-product-label');
+            const currentProductCost = document.getElementById('current-product-cost');
+            const comparisonProductCost = document.getElementById('comparison-product-cost');
+            const currentProductPower = document.getElementById('current-product-power');
+            const comparisonProductPower = document.getElementById('comparison-product-power');
+            
+            // Set current product image and details - USE DYNAMIC IMAGE FROM CURRENT PRODUCT
+            const currentImageUrl = getProductImage(currentProduct.id) || currentProduct.imageUrl || getProductComparisonImage(currentProduct.id);
+            currentProductImage.src = currentImageUrl;
+            currentProductLabel.textContent = currentProduct.name;
+            currentProductCost.textContent = `€${currentAnnualCost.toFixed(2)}/year`;
+            currentProductPower.textContent = `${currentProduct.power}W`;
+            
+            // Set comparison product image and details - USE YOUR SAMPLE IMAGE AS FALLBACK
+            const comparisonImageUrl = getProductImage(standardProduct.id) || standardProduct.imageUrl || getProductComparisonImage(standardProduct.id);
+            comparisonProductImage.src = comparisonImageUrl;
+            // Shorten "Old Inefficient Boiler" to "Old Boiler"
+            const shortName = standardProduct.name.replace('Old Inefficient', 'Old');
+            comparisonProductLabel.textContent = shortName;
+            comparisonProductCost.textContent = `€${standardAnnualCost.toFixed(2)}/year`;
+            comparisonProductPower.textContent = `${standardProduct.power}W`;
+
+            // Update savings summary
+            const dailySavings = annualSavings / 365;
+            document.getElementById('annual-savings').textContent = `€${annualSavings.toFixed(2)}`;
+            document.getElementById('monthly-savings').textContent = `€${monthlySavings.toFixed(2)}`;
+            document.getElementById('daily-savings').textContent = `€${dailySavings.toFixed(2)}`;
+
+            // Show comparison section
+            document.getElementById('comparison-section').style.display = 'block';
+            document.getElementById('comparison-section').scrollIntoView({ behavior: 'smooth' });
+
+            // Update savings highlight
+            if (annualSavings > 0) {
+                document.getElementById('savings-highlight').innerHTML = 
+                    `💰 You could save €${annualSavings.toFixed(2)} per year vs ${shortName}!`;
+                document.getElementById('savings-highlight').style.display = 'block';
+            } else {
+                document.getElementById('savings-highlight').innerHTML = 
+                    `This product costs €${Math.abs(annualSavings).toFixed(2)} more per year than ${shortName}`;
+                document.getElementById('savings-highlight').style.display = 'block';
+            }
+        }
+
+        // Function to load real product images from your database
+        async function loadRealProductImage(productId) {
+            try {
+                // Try to get product image from your main products API
+                const response = await fetch(`${BACKEND_URL}/api/products/${productId}`);
+                if (response.ok) {
+                    const product = await response.json();
+                    return product.imageUrl || product.image || null;
+                }
+            } catch (error) {
+                console.log('Could not load real product image for:', productId);
+            }
+            return null;
+        }
+
+        // Function to enhance products with real images
+        async function enhanceProductsWithRealImages(products) {
+            const enhancedProducts = [];
+            for (const product of products) {
+                const realImage = await loadRealProductImage(product.id);
+                enhancedProducts.push({
+                    ...product,
+                    imageUrl: realImage || product.imageUrl || 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=300&h=300&fit=crop'
+                });
+            }
+            return enhancedProducts;
+        }
+
+        // ROBUST IMAGE HANDLING FUNCTIONS
+        function getProductImage(productId) {
+            // Try to get image from your database first
+            const product = allProducts.find(p => p.id === productId);
+            if (product && product.imageUrl) {
+                return product.imageUrl;
+            }
+            return null;
+        }
+
+        function getFallbackImage() {
+            // YOUR CHOSEN SAMPLE IMAGE - Replace this URL with your preferred fallback image
+            return 'https://via.placeholder.com/300x300/4CAF50/FFFFFF?text=Product+Image';
+        }
+
+        function getProductComparisonImage(productId) {
+            // Hard-coded mapping for reliable comparison images
+            const comparisonImages = {
+                'baxi-auriga-40t': 'https://via.placeholder.com/300x300/1976D2/FFFFFF?text=Baxi+Heat+Pump',
+                'baxi-auriga-33t': 'https://via.placeholder.com/300x300/1976D2/FFFFFF?text=Baxi+Heat+Pump',
+                'baxi-auriga-26t': 'https://via.placeholder.com/300x300/1976D2/FFFFFF?text=Baxi+Heat+Pump',
+                'baxi-auriga-20t': 'https://via.placeholder.com/300x300/1976D2/FFFFFF?text=Baxi+Heat+Pump',
+                'baxi-quinta-115': 'https://via.placeholder.com/300x300/1976D2/FFFFFF?text=Baxi+Heat+Pump',
+                'nord-ie4-4kw': 'https://via.placeholder.com/300x300/FF9800/FFFFFF?text=NORD+Motor',
+                'nord-ie4-3kw': 'https://via.placeholder.com/300x300/FF9800/FFFFFF?text=NORD+Motor',
+                'breezair-exs220': 'https://via.placeholder.com/300x300/2196F3/FFFFFF?text=Breezair+Cooler',
+                'standard-boiler-40': 'https://via.placeholder.com/300x300/757575/FFFFFF?text=Standard+Boiler',
+                'old-boiler-50': 'https://via.placeholder.com/300x300/757575/FFFFFF?text=Old+Boiler',
+                'oil-boiler-35': 'https://via.placeholder.com/300x300/757575/FFFFFF?text=Oil+Boiler'
+            };
+            
+            return comparisonImages[productId] || getFallbackImage();
+        }
+    </script>
+</body>
+</html>

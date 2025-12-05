@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V2 Product Page - Real Database Product</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        h1 { color: #333; margin-bottom: 20px; }
+        h2 { color: #666; margin-top: 30px; margin-bottom: 15px; }
+
+        .product-display {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 30px;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .product-image-container {
+            text-align: center;
+        }
+
+        .product-image {
+            max-width: 100%;
+            height: 300px;
+            object-fit: contain;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .info-item {
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border-left: 4px solid #28a745;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .info-value {
+            color: #666;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+
+        .has-image {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .no-image {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .raw-data {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ V2 Product Page - Real Database Product</h1>
+        <p>This loads an ACTUAL product from your database with your newly added images!</p>
+
+        <div id="loading" class="loading">Loading real products from database...</div>
+        <div id="error" style="display: none;"></div>
+        <div id="content"></div>
+
+        <div id="stats" style="margin-top: 40px;"></div>
+    </div>
+
+    <script>
+        async function loadRealProducts() {
+            try {
+                console.log('🔄 Loading products from API...');
+                
+                const response = await fetch('http://localhost:4000/api/products?limit=10');
+                const data = await response.json();
+                
+                console.log('✅ API Response:', data);
+                
+                const loadingDiv = document.getElementById('loading');
+                loadingDiv.style.display = 'none';
+                
+                if (!data.products || data.products.length === 0) {
+                    document.getElementById('error').innerHTML = `
+                        <div class="error">
+                            <h3>❌ No products found</h3>
+                            <p>Check if API server is running on port 4000</p>
+                        </div>
+                    `;
+                    document.getElementById('error').style.display = 'block';
+                    return;
+                }
+
+                // Show first product with image
+                let displayedProduct = null;
+                let stats = {
+                    total: data.products.length,
+                    withImages: 0,
+                    withoutImages: 0
+                };
+
+                // Count images
+                data.products.forEach(p => {
+                    const hasImage = p.imageUrl || p.image_url || p.image;
+                    if (hasImage) stats.withImages++;
+                    else stats.withoutImages++;
+                });
+
+                // Find a product with image to display
+                displayedProduct = data.products.find(p => {
+                    const hasImage = p.imageUrl || p.image_url || p.image;
+                    return hasImage && hasImage.includes('Product Placement');
+                });
+
+                if (!displayedProduct) {
+                    displayedProduct = data.products[0];
+                }
+
+                console.log('📦 Selected product:', displayedProduct);
+
+                // Display the product
+                displayProduct(displayedProduct);
+
+                // Show stats
+                document.getElementById('stats').innerHTML = `
+                    <h2>📊 Database Statistics</h2>
+                    <div class="success">
+                        <strong>Products Loaded:</strong> ${stats.total}<br>
+                        <strong>✅ With Images:</strong> ${stats.withImages}<br>
+                        <strong>⚠️ Without Images:</strong> ${stats.withoutImages}<br>
+                        <strong>Coverage:</strong> ${((stats.withImages / stats.total) * 100).toFixed(1)}%
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('❌ Error:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').innerHTML = `
+                    <div class="error">
+                        <h3>❌ Error Loading Products</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p>Make sure API server is running on port 4000</p>
+                    </div>
+                `;
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+
+        function displayProduct(product) {
+            const hasImage = product.imageUrl || product.image_url || product.image;
+            const imageUrl = hasImage || 'https://via.placeholder.com/400x300/cccccc/666666?text=No+Image';
+            
+            const html = `
+                <div class="success">
+                    ✅ Successfully loaded real product from database!
+                </div>
+
+                <div class="product-display">
+                    <div class="product-image-container">
+                        <span class="status-badge ${hasImage ? 'has-image' : 'no-image'}">
+                            ${hasImage ? '✅ Has Image' : '⚠️ No Image'}
+                        </span>
+                        <img src="${imageUrl}" alt="${product.name}" class="product-image" 
+                             onerror="this.src='https://via.placeholder.com/400x300/cccccc/666666?text=Image+Not+Found'">
+                    </div>
+                    
+                    <div class="product-info">
+                        <div class="info-item">
+                            <div class="info-label">Product Name</div>
+                            <div class="info-value">${product.name}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Category</div>
+                            <div class="info-value">${product.category || 'N/A'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Brand/Manufacturer</div>
+                            <div class="info-value">${product.brand || product.manufacturer || 'N/A'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Subcategory</div>
+                            <div class="info-value">${product.subcategory || 'N/A'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Image URL</div>
+                            <div class="info-value" style="word-break: break-all;">${hasImage || 'N/A'}</div>
+                        </div>
+                        ${hasImage ? `
+                            <div class="success">
+                                ✅ This product will show your database image on the product page!
+                            </div>
+                        ` : `
+                            <div class="error">
+                                ⚠️ This product needs an image assigned from your database.
+                            </div>
+                        `}
+                    </div>
+                </div>
+
+                <h2>🔍 Raw Product Data</h2>
+                <div class="raw-data">${JSON.stringify(product, null, 2)}</div>
+            `;
+
+            document.getElementById('content').innerHTML = html;
+        }
+
+        // Load on page load
+        loadRealProducts();
+    </script>
+</body>
+</html>
+
+
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V2 Product Page - Real Database Product</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        h1 { color: #333; margin-bottom: 20px; }
+        h2 { color: #666; margin-top: 30px; margin-bottom: 15px; }
+
+        .product-display {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 30px;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .product-image-container {
+            text-align: center;
+        }
+
+        .product-image {
+            max-width: 100%;
+            height: 300px;
+            object-fit: contain;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .info-item {
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border-left: 4px solid #28a745;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .info-value {
+            color: #666;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+
+        .has-image {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .no-image {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .raw-data {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ V2 Product Page - Real Database Product</h1>
+        <p>This loads an ACTUAL product from your database with your newly added images!</p>
+
+        <div id="loading" class="loading">Loading real products from database...</div>
+        <div id="error" style="display: none;"></div>
+        <div id="content"></div>
+
+        <div id="stats" style="margin-top: 40px;"></div>
+    </div>
+
+    <script>
+        async function loadRealProducts() {
+            try {
+                console.log('🔄 Loading products from API...');
+                
+                const response = await fetch('http://localhost:4000/api/products?limit=10');
+                const data = await response.json();
+                
+                console.log('✅ API Response:', data);
+                
+                const loadingDiv = document.getElementById('loading');
+                loadingDiv.style.display = 'none';
+                
+                if (!data.products || data.products.length === 0) {
+                    document.getElementById('error').innerHTML = `
+                        <div class="error">
+                            <h3>❌ No products found</h3>
+                            <p>Check if API server is running on port 4000</p>
+                        </div>
+                    `;
+                    document.getElementById('error').style.display = 'block';
+                    return;
+                }
+
+                // Show first product with image
+                let displayedProduct = null;
+                let stats = {
+                    total: data.products.length,
+                    withImages: 0,
+                    withoutImages: 0
+                };
+
+                // Count images
+                data.products.forEach(p => {
+                    const hasImage = p.imageUrl || p.image_url || p.image;
+                    if (hasImage) stats.withImages++;
+                    else stats.withoutImages++;
+                });
+
+                // Find a product with image to display
+                displayedProduct = data.products.find(p => {
+                    const hasImage = p.imageUrl || p.image_url || p.image;
+                    return hasImage && hasImage.includes('Product Placement');
+                });
+
+                if (!displayedProduct) {
+                    displayedProduct = data.products[0];
+                }
+
+                console.log('📦 Selected product:', displayedProduct);
+
+                // Display the product
+                displayProduct(displayedProduct);
+
+                // Show stats
+                document.getElementById('stats').innerHTML = `
+                    <h2>📊 Database Statistics</h2>
+                    <div class="success">
+                        <strong>Products Loaded:</strong> ${stats.total}<br>
+                        <strong>✅ With Images:</strong> ${stats.withImages}<br>
+                        <strong>⚠️ Without Images:</strong> ${stats.withoutImages}<br>
+                        <strong>Coverage:</strong> ${((stats.withImages / stats.total) * 100).toFixed(1)}%
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('❌ Error:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').innerHTML = `
+                    <div class="error">
+                        <h3>❌ Error Loading Products</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p>Make sure API server is running on port 4000</p>
+                    </div>
+                `;
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+
+        function displayProduct(product) {
+            const hasImage = product.imageUrl || product.image_url || product.image;
+            const imageUrl = hasImage || 'https://via.placeholder.com/400x300/cccccc/666666?text=No+Image';
+            
+            const html = `
+                <div class="success">
+                    ✅ Successfully loaded real product from database!
+                </div>
+
+                <div class="product-display">
+                    <div class="product-image-container">
+                        <span class="status-badge ${hasImage ? 'has-image' : 'no-image'}">
+                            ${hasImage ? '✅ Has Image' : '⚠️ No Image'}
+                        </span>
+                        <img src="${imageUrl}" alt="${product.name}" class="product-image" 
+                             onerror="this.src='https://via.placeholder.com/400x300/cccccc/666666?text=Image+Not+Found'">
+                    </div>
+                    
+                    <div class="product-info">
+                        <div class="info-item">
+                            <div class="info-label">Product Name</div>
+                            <div class="info-value">${product.name}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Category</div>
+                            <div class="info-value">${product.category || 'N/A'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Brand/Manufacturer</div>
+                            <div class="info-value">${product.brand || product.manufacturer || 'N/A'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Subcategory</div>
+                            <div class="info-value">${product.subcategory || 'N/A'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Image URL</div>
+                            <div class="info-value" style="word-break: break-all;">${hasImage || 'N/A'}</div>
+                        </div>
+                        ${hasImage ? `
+                            <div class="success">
+                                ✅ This product will show your database image on the product page!
+                            </div>
+                        ` : `
+                            <div class="error">
+                                ⚠️ This product needs an image assigned from your database.
+                            </div>
+                        `}
+                    </div>
+                </div>
+
+                <h2>🔍 Raw Product Data</h2>
+                <div class="raw-data">${JSON.stringify(product, null, 2)}</div>
+            `;
+
+            document.getElementById('content').innerHTML = html;
+        }
+
+        // Load on page load
+        loadRealProducts();
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

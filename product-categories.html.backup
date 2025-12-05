@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Categories - Energy Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            color: #333333;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .container {
+            max-width: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            letter-spacing: -1px;
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        .header h1::after {
+            content: '';
+            display: block;
+            width: 120px;
+            height: 3px;
+            background: #28a745;
+            margin: 10px auto 0;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #666666;
+            font-weight: 400;
+            margin-top: 0;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .category-card {
+            background: #ffffff;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 0;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            min-height: 480px;
+            max-height: 480px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(40, 167, 69, 0.15);
+            border-color: #28a745;
+        }
+
+        .category-card:hover .category-image {
+            transform: scale(1.05);
+            transition: transform 0.3s ease;
+        }
+
+        .category-card.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .category-card.loading::after {
+            content: "Loading...";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .category-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            background: #f5f5f5;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .category-card-content {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: space-between;
+        }
+
+        .category-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            display: inline-block;
+            opacity: 0.8;
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .category-description {
+            font-size: 0.95rem;
+            color: #666666;
+            line-height: 1.4;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            text-align: center;
+            flex: 0 0 auto;
+            max-height: 60px;
+            overflow: hidden;
+        }
+
+        .category-link {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 1px solid #28a745;
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+        }
+
+        .category-link:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+
+        .product-preview {
+            margin-top: 8px;
+            padding: 10px 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            flex: 0 0 auto;
+            min-height: 50px;
+            max-height: 50px;
+            overflow: visible;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .product-preview h4 {
+            font-size: 0.85rem;
+            color: #2c3e50;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .product-item {
+            padding: 2px 0;
+            border-bottom: none;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .product-item:last-child {
+            border-bottom: none;
+        }
+
+        .quick-links {
+            background: #ced4da;
+            border: 1px solid #adb5bd;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .quick-links:hover {
+            border-color: #28a745;
+            border-width: 2px;
+        }
+
+        .quick-links h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: 300;
+            color: #2c3e50;
+        }
+
+        .quick-links a {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .quick-links a:hover {
+            background: #218838;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                margin-bottom: 30px;
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .categories-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .category-card {
+                padding: 0;
+                height: auto;
+                min-height: 400px;
+            }
+
+            .category-image {
+                height: 180px;
+            }
+
+            .category-card-content {
+                padding: 15px;
+            }
+            
+            .category-icon {
+                font-size: 1.8rem;
+                margin-bottom: 8px;
+            }
+            
+            .category-title {
+                font-size: 1.3rem;
+                margin-bottom: 10px;
+            }
+            
+            .category-description {
+                font-size: 0.9rem;
+                line-height: 1.4;
+                margin-bottom: 15px;
+            }
+            
+            .category-link {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+            
+            .quick-links {
+                padding: 20px;
+            }
+            
+            .quick-links h3 {
+                font-size: 1.2rem;
+            }
+            
+            .quick-links a {
+                display: block;
+                margin: 8px 0;
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Browse Our Product Categories</h1>
+            <p>Browse our energy-efficient products by category</p>
+        </div>
+
+        <div class="categories-grid">
+            <div class="category-card" data-category="Heat Pumps" onclick="loadCategoryProducts('Heat Pumps', this)">
+                <img src="Product Placement/HeatPump.Jpeg" alt="Heat Pumps" class="category-image">
+                <div class="category-card-content">
+                    <div>
+                        <span class="category-icon">🔥</span>
+                        <h2 class="category-title">Heat Pumps</h2>
+                        <p class="category-description">
+                            High-efficiency heat pumps for residential and commercial applications. 
+                            Includes Baxi Auriga, Daikin Altherma and more.
+                        </p>
+                        <a href="#" class="category-link" onclick="event.stopPropagation(); loadCategoryProducts('Heat Pumps', this.closest('.category-card'))">
+                            View Heat Pumps
+                        </a>
+                    </div>
+                    <div class="product-preview" id="preview-heat-pumps">
+                        <h4>Sample Products:</h4>
+                        <div class="product-item">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-card" data-category="Motor Drives" onclick="loadCategoryProducts('Motor Drives', this)">
+                <img src="Product Placement/Motor.jpg" alt="Motor Drives" class="category-image" style="object-fit: contain; background: #f0f0f0;">
+                <div class="category-card-content">
+                    <div>
+                        <span class="category-icon">⚡</span>
+                        <h2 class="category-title">Motor Drives</h2>
+                        <p class="category-description">
+                            High-efficiency IE4 and IE3 motors for industrial applications. 
+                            Includes NORD Gear, ABB motors and more.
+                        </p>
+                        <a href="#" class="category-link" onclick="event.stopPropagation(); loadCategoryProducts('Motor Drives', this.closest('.category-card'))">
+                            View Motor Drives
+                        </a>
+                    </div>
+                    <div class="product-preview" id="preview-motor-drives">
+                        <h4>Sample Products:</h4>
+                        <div class="product-item">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-card" data-category="HVAC Equipment" onclick="loadCategoryProducts('HVAC Equipment', this)">
+                <img src="Product Placement/HVAC.jpeg" alt="HVAC Equipment" class="category-image" style="object-fit: contain; background: #f0f0f0;">
+                <div class="category-card-content">
+                    <div>
+                        <span class="category-icon">🏭</span>
+                        <h2 class="category-title">HVAC Equipment</h2>
+                        <p class="category-description">
+                            Professional HVAC drives, controls, and systems. 
+                            Includes Danfoss VLT, Fuji Electric and more.
+                        </p>
+                        <a href="#" class="category-link" onclick="event.stopPropagation(); loadCategoryProducts('HVAC Equipment', this.closest('.category-card'))">
+                            View HVAC Equipment
+                        </a>
+                    </div>
+                    <div class="product-preview" id="preview-hvac-equipment">
+                        <h4>Sample Products:</h4>
+                        <div class="product-item">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-card" data-category="Heating Equipment" onclick="loadCategoryProducts('Heating Equipment', this)">
+                <img src="Product Placement/Smart Warm Home. jpeg.jpeg" alt="Heating Equipment" class="category-image" style="object-fit: contain; background: #f0f0f0;">
+                <div class="category-card-content">
+                    <div>
+                        <span class="category-icon">🌡️</span>
+                        <h2 class="category-title">Heating Equipment</h2>
+                        <p class="category-description">
+                            Commercial heating systems, boilers, and water heaters. 
+                            Energy-efficient heating solutions for all applications.
+                        </p>
+                        <a href="#" class="category-link" onclick="event.stopPropagation(); loadCategoryProducts('Heating Equipment', this.closest('.category-card'))">
+                            View Heating Equipment
+                        </a>
+                    </div>
+                    <div class="product-preview" id="preview-heating-equipment">
+                        <h4>Sample Products:</h4>
+                        <div class="product-item">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-card" data-category="Lighting" onclick="loadCategoryProducts('Lighting', this)">
+                <img src="Product Placement/Light.jpeg" alt="Lighting" class="category-image" style="object-fit: contain; background: #f0f0f0;">
+                <div class="category-card-content">
+                    <div>
+                        <span class="category-icon">💡</span>
+                        <h2 class="category-title">Lighting</h2>
+                        <p class="category-description">
+                            Energy-efficient LED lighting systems and controls. 
+                            Professional lighting solutions for all needs.
+                        </p>
+                        <a href="#" class="category-link" onclick="event.stopPropagation(); loadCategoryProducts('Lighting', this.closest('.category-card'))">
+                            View Lighting
+                        </a>
+                    </div>
+                    <div class="product-preview" id="preview-lighting">
+                        <h4>Sample Products:</h4>
+                        <div class="product-item">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-card" onclick="loadAllProducts(this)">
+                <img src="Product Placement/Appliances.jpg" alt="All Products" class="category-image" style="object-fit: contain; background: #f0f0f0; transform: scale(0.95);">
+                <div class="category-card-content">
+                    <div>
+                        <span class="category-icon">🛍️</span>
+                        <h2 class="category-title">All Products</h2>
+                        <p class="category-description">
+                            Complete range of energy-efficient products from all categories. 
+                            Browse our entire catalog of sustainable solutions.
+                        </p>
+                        <a href="#" class="category-link" onclick="event.stopPropagation(); loadAllProducts(this.closest('.category-card'))">
+                            View All Products
+                        </a>
+                    </div>
+                    <div class="product-preview" id="preview-all-products">
+                        <h4>Total Products:</h4>
+                        <div class="product-item">Loading count...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-links">
+            <h3>Quick Links</h3>
+            <a href="/product-page-v2.html?product=etl_11_86407">Sample Product Page</a>
+            <a href="#" onclick="loadCategoryProducts('Heat Pumps')">Heat Pumps</a>
+            <a href="#" onclick="loadCategoryProducts('HVAC Equipment')">HVAC Equipment</a>
+            <a href="#" onclick="loadCategoryProducts('Motor Drives')">Motor Drives</a>
+            <a href="#" onclick="loadAllProducts()">All Products</a>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let categoryCache = {};
+        let isLoading = false;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Optimized Product Categories initialized');
+            loadCategoryCounts();
+        });
+
+        // Load product counts for each category
+        async function loadCategoryCounts() {
+            try {
+                console.log('📊 Loading category counts...');
+                
+                // Load total count for "All Products"
+                try {
+                    const response = await fetch('/api/products?limit=1');
+                    const data = await response.json();
+                    const previewElement = document.getElementById('preview-all-products');
+                    if (previewElement && Array.isArray(data) && data.length > 0) {
+                        // Get total count by fetching more products
+                        const countResponse = await fetch('/api/products?limit=10000');
+                        const allData = await countResponse.json();
+                        const count = Array.isArray(allData) ? allData.length : 'Many';
+                        previewElement.innerHTML = `
+                            <h4>${count} Total Products</h4>
+                            <div class="product-item">Complete catalog available</div>
+                        `;
+                    } else if (previewElement) {
+                        previewElement.innerHTML = `
+                            <h4>Products Available</h4>
+                            <div class="product-item">Click to view products</div>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('Error loading total count:', error);
+                    const previewElement = document.getElementById('preview-all-products');
+                    if (previewElement) {
+                        previewElement.innerHTML = `
+                            <h4>Products Available</h4>
+                            <div class="product-item">Click to view products</div>
+                        `;
+                    }
+                }
+
+                // Set default preview text for category cards
+                const categories = ['Heat Pumps', 'Motor Drives', 'HVAC Equipment', 'Heating Equipment', 'Lighting'];
+                categories.forEach(category => {
+                    const previewId = `preview-${category.toLowerCase().replace(/\s+/g, '-')}`;
+                    const previewElement = document.getElementById(previewId);
+                    if (previewElement && previewElement.innerHTML.includes('Loading...')) {
+                        previewElement.innerHTML = `
+                            <h4>Products Available</h4>
+                            <div class="product-item">Click to view products</div>
+                        `;
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error loading category counts:', error);
+            }
+        }
+
+        // Load products for specific category
+        async function loadCategoryProducts(category, cardElement = null) {
+            if (isLoading) {
+                console.log('⏳ Already loading, please wait...');
+                return;
+            }
+
+            isLoading = true;
+            
+            try {
+                console.log(`🛍️ Opening category page: ${category}`);
+                
+                // Show loading state
+                if (cardElement) {
+                    cardElement.classList.add('loading');
+                }
+
+                // Open category page directly - it will load and filter products client-side
+                // No need to pre-fetch products, the category page handles this
+                openCategoryPage(category);
+
+            } catch (error) {
+                console.error('Error opening category page:', error);
+                alert(`Failed to open category page: ${error.message}`);
+            } finally {
+                isLoading = false;
+                if (cardElement) {
+                    setTimeout(() => {
+                        cardElement.classList.remove('loading');
+                    }, 300);
+                }
+            }
+        }
+
+        // Load all products
+        async function loadAllProducts(cardElement = null) {
+            if (isLoading) {
+                console.log('⏳ Already loading, please wait...');
+                return;
+            }
+
+            isLoading = true;
+            
+            try {
+                console.log('🛍️ Opening all products page...');
+                
+                // Show loading state
+                if (cardElement) {
+                    cardElement.classList.add('loading');
+                }
+
+                // Open category page with "all" - it will load all products client-side
+                openCategoryPage('all');
+
+            } catch (error) {
+                console.error('Error opening all products page:', error);
+                alert(`Failed to open products page: ${error.message}`);
+            } finally {
+                isLoading = false;
+                if (cardElement) {
+                    setTimeout(() => {
+                        cardElement.classList.remove('loading');
+                    }, 300);
+                }
+            }
+        }
+
+        // Open category page - it will load and filter products client-side
+        function openCategoryPage(category) {
+            // Encode category name for URL (handles spaces like "Heat Pumps" -> "Heat%20Pumps")
+            const encodedCategory = encodeURIComponent(category);
+            const url = `/category-product-page.html?category=${encodedCategory}`;
+            console.log(`📂 Opening: ${url}`);
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>

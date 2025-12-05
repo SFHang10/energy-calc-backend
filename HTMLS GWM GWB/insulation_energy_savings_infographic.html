@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insulation Energy Savings Guide</title>
+    <!-- No Scrolling Settings -->
+    <meta name="scrolling" content="no">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', 'Open Sans', Arial, sans-serif;
+            overflow-x: hidden;
+            overflow-y: hidden;
+        }
+        
+        .insulation-infographic {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            font-family: 'Montserrat', 'Open Sans', Arial, sans-serif;
+            color: #333;
+            position: relative;
+        }
+        
+        .insulation-header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .insulation-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 6s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+        
+        .insulation-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .insulation-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .insulation-types {
+            padding: 30px 20px;
+            background: #f8f9fa;
+            position: relative;
+        }
+        
+        .insulation-types h2 {
+            text-align: center;
+            color: #ff6b35;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+        
+        .insulation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .insulation-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #ff6b35;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .insulation-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+        
+        .insulation-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,107,53,0.1) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .insulation-card:hover::before {
+            opacity: 1;
+        }
+        
+        .insulation-card h3 {
+            margin: 0 0 10px 0;
+            color: #ff6b35;
+            font-size: 18px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .r-value {
+            background: #ff6b35;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .insulation-benefits {
+            padding: 30px 20px;
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .insulation-benefits h2 {
+            text-align: center;
+            color: #ff6b35;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+        
+        .benefit-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+        
+        .benefit-item:hover {
+            transform: translateY(-5px);
+            background: #f0f0f0;
+        }
+        
+        .benefit-icon {
+            font-size: 24px;
+            margin-right: 0;
+            margin-bottom: 10px;
+            min-width: 30px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .benefit-text {
+            flex: 1;
+        }
+        
+        .benefit-text h4 {
+            margin: 0 0 5px 0;
+            color: #ff6b35;
+        }
+        
+        .benefit-text p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .savings-section {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .savings-section::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff6b35, #f7931e, #ff8f00, #ff9800);
+            z-index: -1;
+            animation: rotate-border 4s linear infinite;
+        }
+        
+        @keyframes rotate-border {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .savings-section h2 {
+            margin: 0 0 25px 0;
+            color: #ff6b35;
+            font-size: 24px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .savings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .savings-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .savings-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .savings-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .savings-type {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ff6b35;
+        }
+        
+        .savings-percent {
+            color: #4caf50;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .cost-benefit {
+            background: #e8f5e8;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .cost-benefit h2 {
+            margin: 0 0 25px 0;
+            color: #2e7d32;
+            font-size: 24px;
+        }
+        
+        .cost-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .cost-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .cost-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        
+        .cost-card h4 {
+            margin: 0 0 15px 0;
+            color: #2e7d32;
+        }
+        
+        .cost-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+        
+        .payback {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .tips-section {
+            padding: 30px 20px;
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .tips-section h2 {
+            text-align: center;
+            color: #ff6b35;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+        
+        .tip-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+        
+        .tip-item:hover {
+            transform: translateY(-5px);
+            background: #f0f0f0;
+        }
+        
+        .tip-icon {
+            font-size: 20px;
+            margin-right: 15px;
+            min-width: 25px;
+            margin-top: 2px;
+            animation: rotate 3s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .tip-text {
+            flex: 1;
+            font-size: 14px;
+        }
+        
+        .insulation-footer {
+            background: linear-gradient(135deg, #37474f 0%, #546e7a 100%);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .insulation-footer::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+            animation: shimmer 8s ease-in-out infinite reverse;
+        }
+        
+        .insulation-cta {
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .insulation-eco-icons {
+            font-size: 24px;
+            opacity: 0.8;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .floating-element {
+            position: absolute;
+            font-size: 1.5rem;
+            opacity: 0.1;
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        .floating-element:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .floating-element:nth-child(2) { top: 20%; right: 15%; animation-delay: 1s; }
+        .floating-element:nth-child(3) { bottom: 30%; left: 20%; animation-delay: 2s; }
+        .floating-element:nth-child(4) { bottom: 15%; right: 10%; animation-delay: 3s; }
+        .floating-element:nth-child(5) { top: 50%; left: 5%; animation-delay: 4s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(5deg); }
+            50% { transform: translateY(-10px) rotate(-5deg); }
+            75% { transform: translateY(-15px) rotate(3deg); }
+        }
+        
+        @media (max-width: 600px) {
+            .insulation-grid,
+            .savings-grid,
+            .cost-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .benefit-item,
+            .tip-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .benefit-icon,
+            .tip-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="insulation-infographic">
+        <div class="floating-elements">
+            <div class="floating-element">🏠</div>
+            <div class="floating-element">🌡️</div>
+            <div class="floating-element">⚡</div>
+        </div>
+
+        <!-- Header Section -->
+        <div class="insulation-header">
+            <h1>Insulation Energy Savings Guide</h1>
+            <div class="insulation-subtitle">Cut heating & cooling costs by up to 50% with proper insulation</div>
+        </div>
+
+        <!-- Insulation Types Section -->
+        <div class="insulation-types">
+            <h2>Types of Insulation & R-Values</h2>
+            <div class="insulation-grid">
+                <div class="insulation-card">
+                    <div class="r-value">R-13 to R-21</div>
+                    <h3>Fiberglass Batts</h3>
+                    <p>Most common wall insulation. Easy to install, cost-effective, and provides good thermal resistance.</p>
+                </div>
+                <div class="insulation-card">
+                    <div class="r-value">R-30 to R-60</div>
+                    <h3>Blown-In Cellulose</h3>
+                    <p>Eco-friendly option made from recycled paper. Great for attics and hard-to-reach areas.</p>
+                </div>
+                <div class="insulation-card">
+                    <div class="r-value">R-20 to R-40</div>
+                    <h3>Spray Foam</h3>
+                    <p>Expands to fill gaps completely. Excellent air sealing and moisture resistance.</p>
+                </div>
+                <div class="insulation-card">
+                    <div class="r-value">R-25 to R-45</div>
+                    <h3>Rigid Foam Board</h3>
+                    <p>High R-value per inch. Perfect for exterior walls and foundation insulation.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Benefits Section -->
+        <div class="insulation-benefits">
+            <h2>Key Benefits of Proper Insulation</h2>
+            <div class="benefit-item">
+                <div class="benefit-icon">💰</div>
+                <div class="benefit-text">
+                    <h4>Lower Energy Bills</h4>
+                    <p>Reduce heating and cooling costs by 20-50% annually</p>
+                </div>
+            </div>
+            <div class="benefit-item">
+                <div class="benefit-icon">🌡️</div>
+                <div class="benefit-text">
+                    <h4>Better Temperature Control</h4>
+                    <p>Maintain consistent indoor temperatures year-round</p>
+                </div>
+            </div>
+            <div class="benefit-item">
+                <div class="benefit-icon">🔇</div>
+                <div class="benefit-text">
+                    <h4>Noise Reduction</h4>
+                    <p>Insulation also acts as a sound barrier</p>
+                </div>
+            </div>
+            <div class="benefit-item">
+                <div class="benefit-icon">🌱</div>
+                <div class="benefit-text">
+                    <h4>Environmental Impact</h4>
+                    <p>Reduce carbon footprint by using less energy</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Savings Section -->
+        <div class="savings-section">
+            <h2>Annual Energy Savings by Insulation Level</h2>
+            <div class="savings-grid">
+                <div class="savings-card">
+                    <div class="savings-icon">🏠</div>
+                    <div class="savings-type">Basic Insulation</div>
+                    <div class="savings-percent">15-25% Savings</div>
+                </div>
+                <div class="savings-card">
+                    <div class="savings-icon">🏡</div>
+                    <div class="savings-type">Recommended Level</div>
+                    <div class="savings-percent">30-40% Savings</div>
+                </div>
+                <div class="savings-card">
+                    <div class="savings-icon">🏘️</div>
+                    <div class="savings-type">High Performance</div>
+                    <div class="savings-percent">40-50% Savings</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cost-Benefit Section -->
+        <div class="cost-benefit">
+            <h2>Cost vs. Savings Analysis</h2>
+            <div class="cost-grid">
+                <div class="cost-card">
+                    <h4>Typical Installation Cost</h4>
+                    <div class="cost-amount">€1,400 - €3,200</div>
+                    <div class="payback">For average home (1,500 sq ft)</div>
+                </div>
+                <div class="cost-card">
+                    <h4>Annual Energy Savings</h4>
+                    <div class="cost-amount">€370 - €740</div>
+                    <div class="payback">Based on current energy rates</div>
+                </div>
+                <div class="cost-card">
+                    <h4>Payback Period</h4>
+                    <div class="cost-amount">3-7 Years</div>
+                    <div class="payback">Return on investment timeline</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips Section -->
+        <div class="tips-section">
+            <h2>Insulation Best Practices</h2>
+            <div class="tip-item">
+                <div class="tip-icon">📍</div>
+                <div class="tip-text">Focus on attics first - heat rises and this is where most energy is lost</div>
+            </div>
+            <div class="tip-item">
+                <div class="tip-icon">🔍</div>
+                <div class="tip-text">Check for air leaks around windows, doors, and electrical outlets</div>
+            </div>
+            <div class="tip-item">
+                <div class="tip-icon">📏</div>
+                <div class="tip-text">Aim for R-38 to R-60 in attics, R-13 to R-21 in walls</div>
+            </div>
+            <div class="tip-item">
+                <div class="tip-icon">🛠️</div>
+                <div class="tip-text">Consider professional installation for best results and warranty</div>
+            </div>
+            <div class="tip-item">
+                <div class="tip-icon">📊</div>
+                <div class="tip-text">Get an energy audit to identify your home's specific needs</div>
+            </div>
+        </div>
+
+        <!-- Footer Section -->
+        <div class="insulation-footer">
+            <div class="insulation-cta">Ready to save on energy costs? Get a free insulation assessment today!</div>
+            <div class="insulation-eco-icons">🌍 💨 🔥 ❄️</div>
+        </div>
+    </div>
+</body>
+</html>
+

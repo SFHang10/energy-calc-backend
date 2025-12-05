@@ -1,0 +1,2051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="wix-html-scroll" content="no-scroll">
+    <title>Product Qualification Search - Grants & Schemes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            overflow-x: hidden;
+            height: auto;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #6B7280 0%, #4B5563 50%, #065F46 100%);
+            height: auto;
+            min-height: auto;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            height: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-section {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            font-size: 1.5rem;
+            color: #065F46;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 18px 20px 18px 60px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #065F46;
+            box-shadow: 0 4px 20px rgba(6, 95, 70, 0.3);
+        }
+
+        .search-btn {
+            padding: 18px 40px;
+            background: linear-gradient(45deg, #065F46, #047857);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(6, 95, 70, 0.4);
+            white-space: nowrap;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(6, 95, 70, 0.6);
+        }
+
+        .search-btn:active {
+            transform: translateY(0);
+        }
+
+        .suggestions {
+            background: white;
+            border-radius: 15px;
+            margin-top: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-height: 300px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: absolute;
+            width: 100%;
+            z-index: 100;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s ease;
+        }
+
+        .suggestion-item:hover {
+            background: #f8f9ff;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .results-section {
+            display: none;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .results-summary {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .qualification-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            border-left: 5px solid #065F46;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .qualification-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #065F46, #4B5563, #92400E);
+        }
+
+        .qualification-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .match-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #065F46;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .scheme-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .scheme-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .scheme-type {
+            background: #065F46;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .scheme-type.subsidy { background: #4B5563; }
+        .scheme-type.grant { background: #065F46; }
+        .scheme-type.tax { background: #92400E; }
+        .scheme-type.certification { background: #374151; }
+
+        .scheme-description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .qualification-reason {
+            background: #ECFDF5;
+            border-left: 4px solid #065F46;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .qualification-reason strong {
+            color: #065F46;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .scheme-details {
+            margin-bottom: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: flex-start;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #333;
+            min-width: 120px;
+            margin-right: 10px;
+        }
+
+        .detail-value {
+            color: #666;
+            flex: 1;
+        }
+
+        .scheme-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .apply-btn {
+            background: linear-gradient(45deg, #065F46, #047857);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .apply-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(6, 95, 70, 0.4);
+        }
+
+        .info-btn {
+            background: #4B5563;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-btn:hover {
+            background: #374151;
+            transform: translateY(-2px);
+        }
+
+        .no-results {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 60px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .no-results-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .no-results h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .no-results p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .filter-tab {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .filter-tab:hover, .filter-tab.active {
+            background: rgba(255,255,255,0.9);
+            color: #065F46;
+            transform: translateY(-2px);
+        }
+
+        .deadline-warning {
+            background: #FFF3E0;
+            border-left: 4px solid #FF9800;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .deadline-text {
+            color: #E65100;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .priority-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #FF5722;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+                width: 100%;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .search-section {
+                padding: 25px 20px;
+            }
+            
+            .search-input-wrapper {
+                flex-direction: column;
+            }
+
+            .search-input {
+                font-size: 1rem;
+            }
+
+            .search-btn {
+                width: 100%;
+            }
+
+            .filter-tabs {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .filter-tab {
+                font-size: 0.85rem;
+                padding: 10px 18px;
+            }
+            
+            .qualification-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Product Qualification Search</h1>
+            <p>Search for any green or sustainable product to see if it qualifies for grants, schemes, and subsidies across Europe</p>
+        </div>
+
+        <div class="search-section">
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" 
+                           id="productSearch" 
+                           class="search-input" 
+                           placeholder="Enter product name, category, or keyword... (e.g., heat pump, LED lighting, solar panel)"
+                           autocomplete="off">
+                    <button class="search-btn" onclick="searchProduct()">Search Qualifications</button>
+                </div>
+                <div class="suggestions" id="suggestions"></div>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results-summary" id="resultsSummary"></div>
+
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">All Qualifications</button>
+                <button class="filter-tab" data-filter="high">High Priority</button>
+                <button class="filter-tab" data-filter="subsidy">Subsidies</button>
+                <button class="filter-tab" data-filter="grant">Grants</button>
+                <button class="filter-tab" data-filter="tax">Tax Benefits</button>
+                <button class="filter-tab" data-filter="certification">Certifications</button>
+            </div>
+
+            <div class="results-grid" id="resultsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // ALL SCHEMES DATA EMBEDDED - No external files needed!
+        const ALL_SCHEMES = [
+  {
+    "id": "eu-ecolabel",
+    "title": "EU Ecolabel",
+    "type": "certification",
+    "categories": ["certification"],
+    "keywords": ["ecolabel", "eco-friendly", "environmental", "green certification", "sustainable products", "eco products"],
+    "description": "Voluntary EU environmental label showing your products meet strict environmental criteria across their lifecycle. Builds customer trust and opens green procurement opportunities.",
+    "relevance": "High - Credibility & marketing boost",
+    "requirements": "Apply via SMK (NL), meet criteria for product category, annual fees",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "🌍 Apply via SMK", "url": "https://eu-ecolabel.nl", "type": "apply"},
+      {"text": "📋 Requirements", "url": "https://business.gov.nl/regulation/eu-ecolabel/", "type": "info"}
+    ]
+  },
+  {
+    "id": "spvo",
+    "title": "SPVO - Responsible Business",
+    "type": "subsidy",
+    "categories": ["subsidy", "urgent"],
+    "keywords": ["supply chain", "sustainability", "responsible business", "international", "social", "ethical sourcing"],
+    "description": "Helps Dutch companies improve social sustainability AND environmental impact in their international supply chains. Up to 70% funding available.",
+    "relevance": "Medium-High if you have international suppliers",
+    "requirements": "NL establishment, partnership with local producers & NGO",
+    "maxFunding": "€500,000 (70% of costs)",
+    "deadline": "October 6, 2025",
+    "priority": true,
+    "links": [
+      {"text": "💰 Apply Now", "url": "https://www.rvo.nl/subsidies-financiering/spvo", "type": "apply"}
+    ]
+  },
+  {
+    "id": "isde",
+    "title": "ISDE - Sustainable Energy Investment",
+    "type": "subsidy",
+    "categories": ["subsidy"],
+    "keywords": ["heat pump", "solar thermal", "solar boiler", "insulation", "energy saving", "sustainable energy", "renewable heating", "solar heating"],
+    "description": "Investment subsidy for sustainable energy devices like heat pumps, solar boilers, insulation. Great for marketing products as \"subsidy-eligible\".",
+    "relevance": "High if you sell heat pumps, solar thermal, insulation",
+    "requirements": "KVK number, product must be on devices list",
+    "duration": "Until end 2029",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "⚡ Check Device List", "url": "https://business.gov.nl/regulation/isde-sustainable-energy-investment-allowance/", "type": "apply"},
+      {"text": "📋 Requirements", "url": "https://wijgaanverduurzamen.nl", "type": "info"}
+    ]
+  },
+  {
+    "id": "eia",
+    "title": "EIA - Energy Investment Allowance",
+    "type": "tax",
+    "categories": ["tax"],
+    "keywords": ["energy efficient", "LED", "lighting", "energy saving", "efficiency", "equipment", "LED bulb", "LED lights", "energy star"],
+    "description": "Tax deduction for companies investing in energy-efficient technologies. Reduces your taxable income when buying efficient equipment.",
+    "relevance": "High - Reduces equipment costs",
+    "requirements": "Choose from official \"Energy List\", meet investment criteria",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "💡 View Energy List", "url": "https://www.rvo.nl/subsidies-financiering/eia", "type": "apply"}
+    ]
+  },
+  {
+    "id": "circular-plastics",
+    "title": "Circular Plastics NL",
+    "type": "grant",
+    "categories": ["grant"],
+    "keywords": ["plastics", "recycling", "circular", "packaging", "waste reduction", "sustainable packaging", "bioplastic"],
+    "description": "Funding for innovations in plastic recycling and circular plastics. Perfect if you want to improve packaging or reduce plastic waste.",
+    "relevance": "Medium - Good for packaging innovation",
+    "requirements": "Partnership required, innovative approach, NL establishment",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "♻️ Learn More", "url": "https://www.circulairplatform.nl", "type": "apply"},
+      {"text": "📋 RVO Info", "url": "https://www.rvo.nl/onderwerpen/circulaire-economie", "type": "info"}
+    ]
+  },
+  {
+    "id": "tse-industry",
+    "title": "TSE Industry Sustainability",
+    "type": "grant",
+    "categories": ["grant"],
+    "keywords": ["sustainability study", "CO2 reduction", "sustainable operations", "supply chain optimization", "feasibility study"],
+    "description": "Grants for feasibility studies to assess how to make operations more sustainable and reduce CO₂. 50-70% subsidy for studies.",
+    "relevance": "Medium - Good for supply chain optimization",
+    "requirements": null,
+    "subsidyRate": "50-70% of study costs",
+    "started": "May 1, 2025",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "🔬 Apply for Study", "url": "https://www.topsectorenergie.nl", "type": "apply"}
+    ]
+  },
+  {
+    "id": "trade-relations",
+    "title": "Trade Relations Programme",
+    "type": "grant",
+    "categories": ["grant", "urgent"],
+    "keywords": ["export", "international", "trade", "expansion", "international collaboration", "global market"],
+    "description": "Helps Dutch businesses with export and international collaboration. Perfect for scaling beyond NL/EU markets.",
+    "relevance": "High for international expansion",
+    "requirements": null,
+    "budget": "€1,000,000 available",
+    "deadline": "September 30, 2025",
+    "priority": false,
+    "links": [
+      {"text": "🌍 Apply Now", "url": "https://www.rvo.nl/subsidies-financiering/trp", "type": "apply"}
+    ]
+  },
+  {
+    "id": "dhi-subsidy",
+    "title": "DHI - Tech Demonstration",
+    "type": "grant",
+    "categories": ["grant"],
+    "keywords": ["technology", "demonstration", "innovation", "SME", "international", "tech demo", "feasibility"],
+    "description": "Support for SMEs with international ambitions to demonstrate technology, conduct feasibility studies, or prepare international investments.",
+    "relevance": "Medium - Good for tech innovation",
+    "requirements": null,
+    "deadline": "December 31, 2025",
+    "priority": false,
+    "links": [
+      {"text": "🚀 Apply", "url": "https://www.rvo.nl/subsidies-financiering/dhi", "type": "apply"}
+    ]
+  },
+  {
+    "id": "energy-labelling",
+    "title": "EU Energy Labelling & Ecodesign",
+    "type": "compliance",
+    "categories": ["certification"],
+    "keywords": ["energy label", "energy rating", "appliance", "energy efficient", "ecodesign", "compliance"],
+    "description": "Mandatory energy labels and ecodesign requirements for electrical appliances. Essential for legal sales and builds customer trust.",
+    "relevance": "Critical - Legal requirement",
+    "requirements": "CE marking, correct labelling, meet ecodesign standards",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "🏷️ Compliance Guide", "url": "https://business.gov.nl/regulation/energy-labelling/", "type": "apply"},
+      {"text": "⚙️ Ecodesign Rules", "url": "https://business.gov.nl/regulation/ecodesign/", "type": "info"}
+    ]
+  },
+  {
+    "id": "sol-energy",
+    "title": "Solar Energy Subsidy (Nederland)",
+    "type": "subsidy",
+    "categories": ["subsidy"],
+    "keywords": ["solar panel", "photovoltaic", "solar energy", "PV system", "solar power", "renewable", "clean energy"],
+    "description": "Subsidy for solar panel installations and photovoltaic systems for homes and businesses in the Netherlands.",
+    "relevance": "High for solar energy products",
+    "requirements": "Professional installation, NL-based project",
+    "subsidyRate": "Up to 30% of costs",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "☀️ Apply for Solar", "url": "https://www.rvo.nl/onderwerpen/subsidies-regelingen/nieuwe-investeringssubsidie-duurzame-energie", "type": "apply"}
+    ]
+  },
+  {
+    "id": "wind-energy",
+    "title": "Wind Energy Funding Programme",
+    "type": "grant",
+    "categories": ["grant"],
+    "keywords": ["wind turbine", "wind energy", "renewable", "wind power", "wind farm"],
+    "description": "Funding support for wind energy projects including small turbines for businesses and farms.",
+    "relevance": "High for wind energy products",
+    "requirements": "Project must be in NL, environmental assessment",
+    "maxFunding": "€200,000 per project",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "💨 Wind Energy Info", "url": "https://www.rvo.nl/onderwerpen/duurzame-energie-opwekken/windenergie", "type": "info"}
+    ]
+  },
+  {
+    "id": "ev-charging",
+    "title": "EV Charging Infrastructure Subsidy",
+    "type": "subsidy",
+    "categories": ["subsidy"],
+    "keywords": ["EV charger", "electric vehicle", "charging station", "electric car", "EV infrastructure", "plug-in hybrid"],
+    "description": "Subsidy for installation of electric vehicle charging infrastructure for public and private use.",
+    "relevance": "High for EV charging products",
+    "requirements": "Public charging: operator license required",
+    "subsidyRate": "Up to 40% for private, 50% for public",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "🔌 EV Charging Info", "url": "https://www.rvo.nl/onderwerpen/duurzame-energie-opwekken/elektrische-voertuigen", "type": "apply"}
+    ]
+  },
+  {
+    "id": "geothermal",
+    "title": "Geothermal Heating Grant",
+    "type": "grant",
+    "categories": ["grant"],
+    "keywords": ["geothermal", "ground source", "heat pump", "geothermal heat", "geothermal energy", "underground heating"],
+    "description": "Grant support for geothermal heat pump systems that use ground-source energy for heating and cooling.",
+    "relevance": "High for geothermal products",
+    "requirements": "Professional installation, soil analysis",
+    "maxFunding": "€15,000 per installation",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "🌍 Geothermal Grant", "url": "https://www.rvo.nl/onderwerpen/duurzame-energie/thermische-energie", "type": "apply"}
+    ]
+  },
+  {
+    "id": "smart-grid",
+    "title": "Smart Grid Technology Fund",
+    "type": "grant",
+    "categories": ["grant"],
+    "keywords": ["smart grid", "energy management", "smart home", "automation", "smart thermostat", "energy monitor"],
+    "description": "Funding for smart grid technologies and energy management systems that optimize energy consumption.",
+    "relevance": "Medium-High for smart energy products",
+    "requirements": "Innovative technology, pilot project",
+    "maxFunding": "€500,000",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "🔋 Smart Grid Info", "url": "https://www.rvo.nl/onderwerpen/duurzame-energie", "type": "apply"}
+    ]
+  },
+  {
+    "id": "water-efficiency",
+    "title": "Water Efficiency & Conservation Grants",
+    "type": "grant",
+    "categories": ["grant"],
+    "keywords": ["water saving", "low flow", "water efficient", "faucet", "shower", "irrigation", "water conservation"],
+    "description": "Grants for water-efficient fixtures and systems including low-flow fixtures, rain water collection, and efficient irrigation.",
+    "relevance": "High for water-efficient products",
+    "requirements": "Certified water efficiency standards",
+    "subsidyRate": "30-50% of costs",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "💧 Water Efficiency", "url": "https://www.rijkswaterstaat.nl", "type": "info"}
+    ]
+  },
+  {
+    "id": "refurbishment",
+    "title": "Building Energy Refurbishment Grant",
+    "type": "grant",
+    "categories": ["grant"],
+    "keywords": ["refurbishment", "renovation", "building upgrade", "energy retrofit", "building efficiency"],
+    "description": "Grants for major energy-efficient building renovations including insulation, windows, heating system upgrades.",
+    "relevance": "High for building efficiency products",
+    "requirements": "Minimum 15% energy reduction, professional assessment",
+    "maxFunding": "€25,000 per building",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "🏠 Building Grants", "url": "https://www.rvo.nl/onderwerpen/gebouwen-en-energie", "type": "apply"}
+    ]
+  }
+];
+
+        class ProductQualificationSearch {
+            constructor() {
+                this.schemes = ALL_SCHEMES;
+                this.products = [
+                    { name: "Heat Pump", keywords: ["heat pump", "energy efficient", "heating", "cooling", "sustainable energy"] },
+                    { name: "Solar Panel", keywords: ["solar", "renewable", "photovoltaic", "solar energy", "clean energy"] },
+                    { name: "LED Light Bulb", keywords: ["LED", "lighting", "energy efficient", "light bulb", "energy saving"] },
+                    { name: "Solar Thermal System", keywords: ["solar thermal", "solar water", "renewable", "solar heating"] },
+                    { name: "Insulation Material", keywords: ["insulation", "energy saving", "thermal", "building efficiency"] },
+                    { name: "Energy Efficient Refrigerator", keywords: ["refrigerator", "energy efficient", "appliance", "energy star"] },
+                    { name: "Electric Vehicle Charger", keywords: ["EV charger", "electric vehicle", "charging station", "electric car"] },
+                    { name: "Wind Turbine", keywords: ["wind energy", "renewable", "turbine", "wind power"] },
+                    { name: "Geothermal Heat Pump", keywords: ["geothermal", "heat pump", "ground source", "sustainable"] },
+                    { name: "Smart Thermostat", keywords: ["thermostat", "smart home", "energy saving", "automation"] }
+                ];
+                this.searchResults = [];
+                this.currentFilter = 'all';
+                this.init();
+            }
+
+            async init() {
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                const searchInput = document.getElementById('productSearch');
+                const filterTabs = document.querySelectorAll('.filter-tab');
+
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.searchProduct();
+                    }
+                });
+
+                searchInput.addEventListener('input', (e) => {
+                    this.showSuggestions(e.target.value);
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.search-container')) {
+                        document.getElementById('suggestions').style.display = 'none';
+                    }
+                });
+
+                filterTabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        filterTabs.forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        this.currentFilter = tab.getAttribute('data-filter');
+                        this.renderResults();
+                    });
+                });
+            }
+
+            showSuggestions(query) {
+                const suggestions = document.getElementById('suggestions');
+                if (!query || query.length < 2) {
+                    suggestions.style.display = 'none';
+                    return;
+                }
+
+                const matches = this.products.filter(product => 
+                    product.name.toLowerCase().includes(query.toLowerCase()) ||
+                    product.keywords.some(kw => kw.toLowerCase().includes(query.toLowerCase()))
+                );
+
+                if (matches.length === 0) {
+                    suggestions.style.display = 'none';
+                    return;
+                }
+
+                suggestions.innerHTML = matches.slice(0, 5).map(product => 
+                    `<div class="suggestion-item" onclick="selectSuggestion('${product.name}')">${product.name}</div>`
+                ).join('');
+                suggestions.style.display = 'block';
+            }
+
+            searchProduct() {
+                const query = document.getElementById('productSearch').value.trim();
+                if (!query) {
+                    alert('Please enter a product name or keyword to search');
+                    return;
+                }
+
+                this.searchResults = this.schemes.filter(scheme => 
+                    this.isProductQualified(query, scheme)
+                );
+
+                this.displayResults(query);
+            }
+
+            isProductQualified(productName, scheme) {
+                const productLower = productName.toLowerCase();
+                const keywords = scheme.keywords || [];
+                return keywords.some(keyword => 
+                    productLower.includes(keyword.toLowerCase()) ||
+                    keyword.toLowerCase().includes(productLower)
+                );
+            }
+
+            displayResults(productName) {
+                const resultsSection = document.getElementById('resultsSection');
+                const summary = document.getElementById('resultsSummary');
+                const container = document.getElementById('resultsContainer');
+
+                resultsSection.style.display = 'block';
+
+                const count = this.searchResults.length;
+                summary.innerHTML = `
+                    <h2>🔍 Found <strong>${count}</strong> qualification${count !== 1 ? 's' : ''} for "${productName}"</h2>
+                    <p>Click on any scheme below to learn more and apply</p>
+                `;
+
+                this.renderResults();
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            renderResults() {
+                const container = document.getElementById('resultsContainer');
+                
+                let filteredResults = this.searchResults;
+                
+                if (this.currentFilter !== 'all') {
+                    if (this.currentFilter === 'high') {
+                        filteredResults = filteredResults.filter(s => s.priority);
+                    } else {
+                        filteredResults = filteredResults.filter(s => 
+                            s.categories.includes(this.currentFilter) || s.type === this.currentFilter
+                        );
+                    }
+                }
+
+                container.innerHTML = '';
+
+                if (filteredResults.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-results">
+                            <div class="no-results-icon">🔍</div>
+                            <h2>No qualifications found</h2>
+                            <p>Try searching with different keywords or product categories.</p>
+                            <p>Example searches: "heat pump", "LED lighting", "solar panel", "energy efficient appliance"</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                filteredResults.forEach((scheme, index) => {
+                    const card = this.createQualificationCard(scheme, index);
+                    container.appendChild(card);
+                });
+            }
+
+            createQualificationCard(scheme, index) {
+                const card = document.createElement('div');
+                card.className = 'qualification-card';
+
+                let html = '';
+                html += '<div class="match-badge">✓ QUALIFIED</div>';
+
+                if (scheme.priority) {
+                    html += '<div class="priority-badge">HIGH PRIORITY</div>';
+                }
+
+                if (scheme.deadline) {
+                    html += `
+                        <div class="deadline-warning">
+                            <div class="deadline-text">⏰ Deadline: ${scheme.deadline}</div>
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="scheme-header">
+                        <div>
+                            <div class="scheme-title">${scheme.title}</div>
+                        </div>
+                        <div class="scheme-type ${scheme.type}">${this.capitalizeFirst(scheme.type)}</div>
+                    </div>
+                    <div class="scheme-description">${scheme.description}</div>
+                    <div class="qualification-reason">
+                        <strong>✓ Why this product qualifies:</strong>
+                        Your product matches keywords: ${(scheme.keywords || []).slice(0, 3).join(', ')}
+                    </div>
+                    <div class="scheme-details">`;
+
+                if (scheme.relevance) {
+                    html += `
+                        <div class="detail-item">
+                            <div class="detail-label">Relevance:</div>
+                            <div class="detail-value">${scheme.relevance}</div>
+                        </div>
+                    `;
+                }
+
+                const detailFields = ['maxFunding', 'budget', 'subsidyRate', 'duration', 'requirements'];
+                detailFields.forEach(field => {
+                    if (scheme[field]) {
+                        const label = this.formatFieldName(field);
+                        html += `
+                            <div class="detail-item">
+                                <div class="detail-label">${label}:</div>
+                                <div class="detail-value">${scheme[field]}</div>
+                            </div>
+                        `;
+                    }
+                });
+
+                html += '</div><div class="scheme-actions">';
+
+                if (scheme.links && scheme.links.length > 0) {
+                    scheme.links.forEach(link => {
+                        const btnClass = link.type === 'apply' ? 'apply-btn' : 'info-btn';
+                        html += `<a href="${link.url}" class="${btnClass}" target="_blank">${link.text}</a>`;
+                    });
+                }
+
+                html += '</div>';
+                card.innerHTML = html;
+                return card;
+            }
+
+            capitalizeFirst(str) {
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            }
+
+            formatFieldName(field) {
+                const fieldNames = {
+                    'maxFunding': 'Max Funding',
+                    'subsidyRate': 'Subsidy Rate',
+                    'duration': 'Duration',
+                    'requirements': 'Requirements',
+                    'budget': 'Budget'
+                };
+                return fieldNames[field] || field;
+            }
+        }
+
+        function searchProduct() {
+            if (window.searchPortal) {
+                window.searchPortal.searchProduct();
+            }
+        }
+
+        function selectSuggestion(productName) {
+            document.getElementById('productSearch').value = productName;
+            document.getElementById('suggestions').style.display = 'none';
+            searchProduct();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.searchPortal = new ProductQualificationSearch();
+        });
+    </script>
+</body>
+</html>
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="wix-html-scroll" content="no-scroll">
+    <title>Product Qualification Search - Grants & Schemes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            overflow-x: hidden;
+            height: auto;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #6B7280 0%, #4B5563 50%, #065F46 100%);
+            height: auto;
+            min-height: auto;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            height: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-section {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            font-size: 1.5rem;
+            color: #065F46;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 18px 20px 18px 60px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #065F46;
+            box-shadow: 0 4px 20px rgba(6, 95, 70, 0.3);
+        }
+
+        .search-btn {
+            padding: 18px 40px;
+            background: linear-gradient(45deg, #065F46, #047857);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(6, 95, 70, 0.4);
+            white-space: nowrap;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(6, 95, 70, 0.6);
+        }
+
+        .search-btn:active {
+            transform: translateY(0);
+        }
+
+        .suggestions {
+            background: white;
+            border-radius: 15px;
+            margin-top: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-height: 300px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: absolute;
+            width: 100%;
+            z-index: 100;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s ease;
+        }
+
+        .suggestion-item:hover {
+            background: #f8f9ff;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .results-section {
+            display: none;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .results-summary {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .qualification-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            border-left: 5px solid #065F46;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .qualification-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #065F46, #4B5563, #92400E);
+        }
+
+        .qualification-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .match-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #065F46;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .scheme-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .scheme-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .scheme-type {
+            background: #065F46;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .scheme-type.subsidy { background: #4B5563; }
+        .scheme-type.grant { background: #065F46; }
+        .scheme-type.tax { background: #92400E; }
+        .scheme-type.certification { background: #374151; }
+
+        .scheme-description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .qualification-reason {
+            background: #ECFDF5;
+            border-left: 4px solid #065F46;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .qualification-reason strong {
+            color: #065F46;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .scheme-details {
+            margin-bottom: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: flex-start;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #333;
+            min-width: 120px;
+            margin-right: 10px;
+        }
+
+        .detail-value {
+            color: #666;
+            flex: 1;
+        }
+
+        .scheme-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .apply-btn {
+            background: linear-gradient(45deg, #065F46, #047857);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .apply-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(6, 95, 70, 0.4);
+        }
+
+        .info-btn {
+            background: #4B5563;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-btn:hover {
+            background: #374151;
+            transform: translateY(-2px);
+        }
+
+        .no-results {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 60px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .no-results-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .no-results h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .no-results p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .filter-tab {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .filter-tab:hover, .filter-tab.active {
+            background: rgba(255,255,255,0.9);
+            color: #065F46;
+            transform: translateY(-2px);
+        }
+
+        .deadline-warning {
+            background: #FFF3E0;
+            border-left: 4px solid #FF9800;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .deadline-text {
+            color: #E65100;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .priority-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #FF5722;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+                width: 100%;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .search-section {
+                padding: 25px 20px;
+            }
+            
+            .search-input-wrapper {
+                flex-direction: column;
+            }
+
+            .search-input {
+                font-size: 1rem;
+            }
+
+            .search-btn {
+                width: 100%;
+            }
+
+            .filter-tabs {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .filter-tab {
+                font-size: 0.85rem;
+                padding: 10px 18px;
+            }
+            
+            .qualification-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Product Qualification Search</h1>
+            <p>Search for any green or sustainable product to see if it qualifies for grants, schemes, and subsidies across Europe</p>
+        </div>
+
+        <div class="search-section">
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" 
+                           id="productSearch" 
+                           class="search-input" 
+                           placeholder="Enter product name, category, or keyword... (e.g., heat pump, LED lighting, solar panel)"
+                           autocomplete="off">
+                    <button class="search-btn" onclick="searchProduct()">Search Qualifications</button>
+                </div>
+                <div class="suggestions" id="suggestions"></div>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results-summary" id="resultsSummary"></div>
+
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">All Qualifications</button>
+                <button class="filter-tab" data-filter="high">High Priority</button>
+                <button class="filter-tab" data-filter="subsidy">Subsidies</button>
+                <button class="filter-tab" data-filter="grant">Grants</button>
+                <button class="filter-tab" data-filter="tax">Tax Benefits</button>
+                <button class="filter-tab" data-filter="certification">Certifications</button>
+            </div>
+
+            <div class="results-grid" id="resultsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // ALL SCHEMES DATA EMBEDDED - No external files needed!
+        const ALL_SCHEMES = [
+  {
+    "id": "eu-ecolabel",
+    "title": "EU Ecolabel",
+    "type": "certification",
+    "categories": ["certification"],
+    "keywords": ["ecolabel", "eco-friendly", "environmental", "green certification", "sustainable products", "eco products"],
+    "description": "Voluntary EU environmental label showing your products meet strict environmental criteria across their lifecycle. Builds customer trust and opens green procurement opportunities.",
+    "relevance": "High - Credibility & marketing boost",
+    "requirements": "Apply via SMK (NL), meet criteria for product category, annual fees",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "🌍 Apply via SMK", "url": "https://eu-ecolabel.nl", "type": "apply"},
+      {"text": "📋 Requirements", "url": "https://business.gov.nl/regulation/eu-ecolabel/", "type": "info"}
+    ]
+  },
+  {
+    "id": "spvo",
+    "title": "SPVO - Responsible Business",
+    "type": "subsidy",
+    "categories": ["subsidy", "urgent"],
+    "keywords": ["supply chain", "sustainability", "responsible business", "international", "social", "ethical sourcing"],
+    "description": "Helps Dutch companies improve social sustainability AND environmental impact in their international supply chains. Up to 70% funding available.",
+    "relevance": "Medium-High if you have international suppliers",
+    "requirements": "NL establishment, partnership with local producers & NGO",
+    "maxFunding": "€500,000 (70% of costs)",
+    "deadline": "October 6, 2025",
+    "priority": true,
+    "links": [
+      {"text": "💰 Apply Now", "url": "https://www.rvo.nl/subsidies-financiering/spvo", "type": "apply"}
+    ]
+  },
+  {
+    "id": "isde",
+    "title": "ISDE - Sustainable Energy Investment",
+    "type": "subsidy",
+    "categories": ["subsidy"],
+    "keywords": ["heat pump", "solar thermal", "solar boiler", "insulation", "energy saving", "sustainable energy", "renewable heating", "solar heating"],
+    "description": "Investment subsidy for sustainable energy devices like heat pumps, solar boilers, insulation. Great for marketing products as \"subsidy-eligible\".",
+    "relevance": "High if you sell heat pumps, solar thermal, insulation",
+    "requirements": "KVK number, product must be on devices list",
+    "duration": "Until end 2029",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "⚡ Check Device List", "url": "https://business.gov.nl/regulation/isde-sustainable-energy-investment-allowance/", "type": "apply"},
+      {"text": "📋 Requirements", "url": "https://wijgaanverduurzamen.nl", "type": "info"}
+    ]
+  },
+  {
+    "id": "eia",
+    "title": "EIA - Energy Investment Allowance",
+    "type": "tax",
+    "categories": ["tax"],
+    "keywords": ["energy efficient", "LED", "lighting", "energy saving", "efficiency", "equipment", "LED bulb", "LED lights", "energy star"],
+    "description": "Tax deduction for companies investing in energy-efficient technologies. Reduces your taxable income when buying efficient equipment.",
+    "relevance": "High - Reduces equipment costs",
+    "requirements": "Choose from official \"Energy List\", meet investment criteria",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "💡 View Energy List", "url": "https://www.rvo.nl/subsidies-financiering/eia", "type": "apply"}
+    ]
+  },
+  {
+    "id": "circular-plastics",
+    "title": "Circular Plastics NL",
+    "type": "grant",
+    "categories": ["grant"],
+    "keywords": ["plastics", "recycling", "circular", "packaging", "waste reduction", "sustainable packaging", "bioplastic"],
+    "description": "Funding for innovations in plastic recycling and circular plastics. Perfect if you want to improve packaging or reduce plastic waste.",
+    "relevance": "Medium - Good for packaging innovation",
+    "requirements": "Partnership required, innovative approach, NL establishment",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "♻️ Learn More", "url": "https://www.circulairplatform.nl", "type": "apply"},
+      {"text": "📋 RVO Info", "url": "https://www.rvo.nl/onderwerpen/circulaire-economie", "type": "info"}
+    ]
+  },
+  {
+    "id": "tse-industry",
+    "title": "TSE Industry Sustainability",
+    "type": "grant",
+    "categories": ["grant"],
+    "keywords": ["sustainability study", "CO2 reduction", "sustainable operations", "supply chain optimization", "feasibility study"],
+    "description": "Grants for feasibility studies to assess how to make operations more sustainable and reduce CO₂. 50-70% subsidy for studies.",
+    "relevance": "Medium - Good for supply chain optimization",
+    "requirements": null,
+    "subsidyRate": "50-70% of study costs",
+    "started": "May 1, 2025",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "🔬 Apply for Study", "url": "https://www.topsectorenergie.nl", "type": "apply"}
+    ]
+  },
+  {
+    "id": "trade-relations",
+    "title": "Trade Relations Programme",
+    "type": "grant",
+    "categories": ["grant", "urgent"],
+    "keywords": ["export", "international", "trade", "expansion", "international collaboration", "global market"],
+    "description": "Helps Dutch businesses with export and international collaboration. Perfect for scaling beyond NL/EU markets.",
+    "relevance": "High for international expansion",
+    "requirements": null,
+    "budget": "€1,000,000 available",
+    "deadline": "September 30, 2025",
+    "priority": false,
+    "links": [
+      {"text": "🌍 Apply Now", "url": "https://www.rvo.nl/subsidies-financiering/trp", "type": "apply"}
+    ]
+  },
+  {
+    "id": "dhi-subsidy",
+    "title": "DHI - Tech Demonstration",
+    "type": "grant",
+    "categories": ["grant"],
+    "keywords": ["technology", "demonstration", "innovation", "SME", "international", "tech demo", "feasibility"],
+    "description": "Support for SMEs with international ambitions to demonstrate technology, conduct feasibility studies, or prepare international investments.",
+    "relevance": "Medium - Good for tech innovation",
+    "requirements": null,
+    "deadline": "December 31, 2025",
+    "priority": false,
+    "links": [
+      {"text": "🚀 Apply", "url": "https://www.rvo.nl/subsidies-financiering/dhi", "type": "apply"}
+    ]
+  },
+  {
+    "id": "energy-labelling",
+    "title": "EU Energy Labelling & Ecodesign",
+    "type": "compliance",
+    "categories": ["certification"],
+    "keywords": ["energy label", "energy rating", "appliance", "energy efficient", "ecodesign", "compliance"],
+    "description": "Mandatory energy labels and ecodesign requirements for electrical appliances. Essential for legal sales and builds customer trust.",
+    "relevance": "Critical - Legal requirement",
+    "requirements": "CE marking, correct labelling, meet ecodesign standards",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "🏷️ Compliance Guide", "url": "https://business.gov.nl/regulation/energy-labelling/", "type": "apply"},
+      {"text": "⚙️ Ecodesign Rules", "url": "https://business.gov.nl/regulation/ecodesign/", "type": "info"}
+    ]
+  },
+  {
+    "id": "sol-energy",
+    "title": "Solar Energy Subsidy (Nederland)",
+    "type": "subsidy",
+    "categories": ["subsidy"],
+    "keywords": ["solar panel", "photovoltaic", "solar energy", "PV system", "solar power", "renewable", "clean energy"],
+    "description": "Subsidy for solar panel installations and photovoltaic systems for homes and businesses in the Netherlands.",
+    "relevance": "High for solar energy products",
+    "requirements": "Professional installation, NL-based project",
+    "subsidyRate": "Up to 30% of costs",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "☀️ Apply for Solar", "url": "https://www.rvo.nl/onderwerpen/subsidies-regelingen/nieuwe-investeringssubsidie-duurzame-energie", "type": "apply"}
+    ]
+  },
+  {
+    "id": "wind-energy",
+    "title": "Wind Energy Funding Programme",
+    "type": "grant",
+    "categories": ["grant"],
+    "keywords": ["wind turbine", "wind energy", "renewable", "wind power", "wind farm"],
+    "description": "Funding support for wind energy projects including small turbines for businesses and farms.",
+    "relevance": "High for wind energy products",
+    "requirements": "Project must be in NL, environmental assessment",
+    "maxFunding": "€200,000 per project",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "💨 Wind Energy Info", "url": "https://www.rvo.nl/onderwerpen/duurzame-energie-opwekken/windenergie", "type": "info"}
+    ]
+  },
+  {
+    "id": "ev-charging",
+    "title": "EV Charging Infrastructure Subsidy",
+    "type": "subsidy",
+    "categories": ["subsidy"],
+    "keywords": ["EV charger", "electric vehicle", "charging station", "electric car", "EV infrastructure", "plug-in hybrid"],
+    "description": "Subsidy for installation of electric vehicle charging infrastructure for public and private use.",
+    "relevance": "High for EV charging products",
+    "requirements": "Public charging: operator license required",
+    "subsidyRate": "Up to 40% for private, 50% for public",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "🔌 EV Charging Info", "url": "https://www.rvo.nl/onderwerpen/duurzame-energie-opwekken/elektrische-voertuigen", "type": "apply"}
+    ]
+  },
+  {
+    "id": "geothermal",
+    "title": "Geothermal Heating Grant",
+    "type": "grant",
+    "categories": ["grant"],
+    "keywords": ["geothermal", "ground source", "heat pump", "geothermal heat", "geothermal energy", "underground heating"],
+    "description": "Grant support for geothermal heat pump systems that use ground-source energy for heating and cooling.",
+    "relevance": "High for geothermal products",
+    "requirements": "Professional installation, soil analysis",
+    "maxFunding": "€15,000 per installation",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "🌍 Geothermal Grant", "url": "https://www.rvo.nl/onderwerpen/duurzame-energie/thermische-energie", "type": "apply"}
+    ]
+  },
+  {
+    "id": "smart-grid",
+    "title": "Smart Grid Technology Fund",
+    "type": "grant",
+    "categories": ["grant"],
+    "keywords": ["smart grid", "energy management", "smart home", "automation", "smart thermostat", "energy monitor"],
+    "description": "Funding for smart grid technologies and energy management systems that optimize energy consumption.",
+    "relevance": "Medium-High for smart energy products",
+    "requirements": "Innovative technology, pilot project",
+    "maxFunding": "€500,000",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "🔋 Smart Grid Info", "url": "https://www.rvo.nl/onderwerpen/duurzame-energie", "type": "apply"}
+    ]
+  },
+  {
+    "id": "water-efficiency",
+    "title": "Water Efficiency & Conservation Grants",
+    "type": "grant",
+    "categories": ["grant"],
+    "keywords": ["water saving", "low flow", "water efficient", "faucet", "shower", "irrigation", "water conservation"],
+    "description": "Grants for water-efficient fixtures and systems including low-flow fixtures, rain water collection, and efficient irrigation.",
+    "relevance": "High for water-efficient products",
+    "requirements": "Certified water efficiency standards",
+    "subsidyRate": "30-50% of costs",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "💧 Water Efficiency", "url": "https://www.rijkswaterstaat.nl", "type": "info"}
+    ]
+  },
+  {
+    "id": "refurbishment",
+    "title": "Building Energy Refurbishment Grant",
+    "type": "grant",
+    "categories": ["grant"],
+    "keywords": ["refurbishment", "renovation", "building upgrade", "energy retrofit", "building efficiency"],
+    "description": "Grants for major energy-efficient building renovations including insulation, windows, heating system upgrades.",
+    "relevance": "High for building efficiency products",
+    "requirements": "Minimum 15% energy reduction, professional assessment",
+    "maxFunding": "€25,000 per building",
+    "deadline": null,
+    "priority": false,
+    "links": [
+      {"text": "🏠 Building Grants", "url": "https://www.rvo.nl/onderwerpen/gebouwen-en-energie", "type": "apply"}
+    ]
+  }
+];
+
+        class ProductQualificationSearch {
+            constructor() {
+                this.schemes = ALL_SCHEMES;
+                this.products = [
+                    { name: "Heat Pump", keywords: ["heat pump", "energy efficient", "heating", "cooling", "sustainable energy"] },
+                    { name: "Solar Panel", keywords: ["solar", "renewable", "photovoltaic", "solar energy", "clean energy"] },
+                    { name: "LED Light Bulb", keywords: ["LED", "lighting", "energy efficient", "light bulb", "energy saving"] },
+                    { name: "Solar Thermal System", keywords: ["solar thermal", "solar water", "renewable", "solar heating"] },
+                    { name: "Insulation Material", keywords: ["insulation", "energy saving", "thermal", "building efficiency"] },
+                    { name: "Energy Efficient Refrigerator", keywords: ["refrigerator", "energy efficient", "appliance", "energy star"] },
+                    { name: "Electric Vehicle Charger", keywords: ["EV charger", "electric vehicle", "charging station", "electric car"] },
+                    { name: "Wind Turbine", keywords: ["wind energy", "renewable", "turbine", "wind power"] },
+                    { name: "Geothermal Heat Pump", keywords: ["geothermal", "heat pump", "ground source", "sustainable"] },
+                    { name: "Smart Thermostat", keywords: ["thermostat", "smart home", "energy saving", "automation"] }
+                ];
+                this.searchResults = [];
+                this.currentFilter = 'all';
+                this.init();
+            }
+
+            async init() {
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                const searchInput = document.getElementById('productSearch');
+                const filterTabs = document.querySelectorAll('.filter-tab');
+
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.searchProduct();
+                    }
+                });
+
+                searchInput.addEventListener('input', (e) => {
+                    this.showSuggestions(e.target.value);
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.search-container')) {
+                        document.getElementById('suggestions').style.display = 'none';
+                    }
+                });
+
+                filterTabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        filterTabs.forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        this.currentFilter = tab.getAttribute('data-filter');
+                        this.renderResults();
+                    });
+                });
+            }
+
+            showSuggestions(query) {
+                const suggestions = document.getElementById('suggestions');
+                if (!query || query.length < 2) {
+                    suggestions.style.display = 'none';
+                    return;
+                }
+
+                const matches = this.products.filter(product => 
+                    product.name.toLowerCase().includes(query.toLowerCase()) ||
+                    product.keywords.some(kw => kw.toLowerCase().includes(query.toLowerCase()))
+                );
+
+                if (matches.length === 0) {
+                    suggestions.style.display = 'none';
+                    return;
+                }
+
+                suggestions.innerHTML = matches.slice(0, 5).map(product => 
+                    `<div class="suggestion-item" onclick="selectSuggestion('${product.name}')">${product.name}</div>`
+                ).join('');
+                suggestions.style.display = 'block';
+            }
+
+            searchProduct() {
+                const query = document.getElementById('productSearch').value.trim();
+                if (!query) {
+                    alert('Please enter a product name or keyword to search');
+                    return;
+                }
+
+                this.searchResults = this.schemes.filter(scheme => 
+                    this.isProductQualified(query, scheme)
+                );
+
+                this.displayResults(query);
+            }
+
+            isProductQualified(productName, scheme) {
+                const productLower = productName.toLowerCase();
+                const keywords = scheme.keywords || [];
+                return keywords.some(keyword => 
+                    productLower.includes(keyword.toLowerCase()) ||
+                    keyword.toLowerCase().includes(productLower)
+                );
+            }
+
+            displayResults(productName) {
+                const resultsSection = document.getElementById('resultsSection');
+                const summary = document.getElementById('resultsSummary');
+                const container = document.getElementById('resultsContainer');
+
+                resultsSection.style.display = 'block';
+
+                const count = this.searchResults.length;
+                summary.innerHTML = `
+                    <h2>🔍 Found <strong>${count}</strong> qualification${count !== 1 ? 's' : ''} for "${productName}"</h2>
+                    <p>Click on any scheme below to learn more and apply</p>
+                `;
+
+                this.renderResults();
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            renderResults() {
+                const container = document.getElementById('resultsContainer');
+                
+                let filteredResults = this.searchResults;
+                
+                if (this.currentFilter !== 'all') {
+                    if (this.currentFilter === 'high') {
+                        filteredResults = filteredResults.filter(s => s.priority);
+                    } else {
+                        filteredResults = filteredResults.filter(s => 
+                            s.categories.includes(this.currentFilter) || s.type === this.currentFilter
+                        );
+                    }
+                }
+
+                container.innerHTML = '';
+
+                if (filteredResults.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-results">
+                            <div class="no-results-icon">🔍</div>
+                            <h2>No qualifications found</h2>
+                            <p>Try searching with different keywords or product categories.</p>
+                            <p>Example searches: "heat pump", "LED lighting", "solar panel", "energy efficient appliance"</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                filteredResults.forEach((scheme, index) => {
+                    const card = this.createQualificationCard(scheme, index);
+                    container.appendChild(card);
+                });
+            }
+
+            createQualificationCard(scheme, index) {
+                const card = document.createElement('div');
+                card.className = 'qualification-card';
+
+                let html = '';
+                html += '<div class="match-badge">✓ QUALIFIED</div>';
+
+                if (scheme.priority) {
+                    html += '<div class="priority-badge">HIGH PRIORITY</div>';
+                }
+
+                if (scheme.deadline) {
+                    html += `
+                        <div class="deadline-warning">
+                            <div class="deadline-text">⏰ Deadline: ${scheme.deadline}</div>
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="scheme-header">
+                        <div>
+                            <div class="scheme-title">${scheme.title}</div>
+                        </div>
+                        <div class="scheme-type ${scheme.type}">${this.capitalizeFirst(scheme.type)}</div>
+                    </div>
+                    <div class="scheme-description">${scheme.description}</div>
+                    <div class="qualification-reason">
+                        <strong>✓ Why this product qualifies:</strong>
+                        Your product matches keywords: ${(scheme.keywords || []).slice(0, 3).join(', ')}
+                    </div>
+                    <div class="scheme-details">`;
+
+                if (scheme.relevance) {
+                    html += `
+                        <div class="detail-item">
+                            <div class="detail-label">Relevance:</div>
+                            <div class="detail-value">${scheme.relevance}</div>
+                        </div>
+                    `;
+                }
+
+                const detailFields = ['maxFunding', 'budget', 'subsidyRate', 'duration', 'requirements'];
+                detailFields.forEach(field => {
+                    if (scheme[field]) {
+                        const label = this.formatFieldName(field);
+                        html += `
+                            <div class="detail-item">
+                                <div class="detail-label">${label}:</div>
+                                <div class="detail-value">${scheme[field]}</div>
+                            </div>
+                        `;
+                    }
+                });
+
+                html += '</div><div class="scheme-actions">';
+
+                if (scheme.links && scheme.links.length > 0) {
+                    scheme.links.forEach(link => {
+                        const btnClass = link.type === 'apply' ? 'apply-btn' : 'info-btn';
+                        html += `<a href="${link.url}" class="${btnClass}" target="_blank">${link.text}</a>`;
+                    });
+                }
+
+                html += '</div>';
+                card.innerHTML = html;
+                return card;
+            }
+
+            capitalizeFirst(str) {
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            }
+
+            formatFieldName(field) {
+                const fieldNames = {
+                    'maxFunding': 'Max Funding',
+                    'subsidyRate': 'Subsidy Rate',
+                    'duration': 'Duration',
+                    'requirements': 'Requirements',
+                    'budget': 'Budget'
+                };
+                return fieldNames[field] || field;
+            }
+        }
+
+        function searchProduct() {
+            if (window.searchPortal) {
+                window.searchPortal.searchProduct();
+            }
+        }
+
+        function selectSuggestion(productName) {
+            document.getElementById('productSearch').value = productName;
+            document.getElementById('suggestions').style.display = 'none';
+            searchProduct();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.searchPortal = new ProductQualificationSearch();
+        });
+    </script>
+</body>
+</html>
+

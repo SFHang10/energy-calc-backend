@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Preferences - Greenways Members</title>
+    <style>
+        :root {
+            --primary-green: #2E7D32;
+            --secondary-green: #4CAF50;
+            --accent-green: #81C784;
+            --light-green: #E8F5E8;
+            --dark-green: #1B5E20;
+            --white: #FFFFFF;
+            --gray: #757575;
+            --light-gray: #F5F5F5;
+            --border: #E0E0E0;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: var(--light-green);
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Background Image Overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('images/Energy Analytics .jpeg');
+            background-size: 120%;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.7;
+            z-index: -1;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Dark overlay to make backdrop darker */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(46, 125, 50, 0.9), rgba(76, 175, 80, 0.9));
+            backdrop-filter: blur(10px);
+            color: var(--white);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--primary-green);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .preferences-card {
+            background: rgba(211, 211, 211, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .preferences-card h2 {
+            color: var(--primary-green);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .interests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .interest-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+
+        .interest-item:hover {
+            border-color: var(--accent-green);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .interest-item.selected {
+            border-color: var(--primary-green);
+            background: var(--light-green);
+        }
+
+        .interest-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+            accent-color: var(--primary-green);
+        }
+
+        .interest-item label {
+            flex: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .interest-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+
+        .interest-name {
+            flex: 1;
+        }
+
+        .interest-description {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-top: 5px;
+            display: block;
+        }
+
+        .save-button {
+            background: var(--primary-green);
+            color: var(--white);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .save-button:hover {
+            background: var(--dark-green);
+        }
+
+        .save-button:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .message.success {
+            background: var(--light-green);
+            color: var(--dark-green);
+            border: 2px solid var(--primary-green);
+        }
+
+        .message.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 2px solid #c62828;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+        .info-text {
+            background: var(--light-gray);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="members-section.html" class="back-link">← Back to Members Section</a>
+
+        <div class="header">
+            <h1>🎯 My Preferences</h1>
+            <p>Select your interests to receive personalized content and recommendations</p>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <div id="loading" class="loading">Loading your preferences...</div>
+
+        <div id="preferences-container" style="display: none;">
+            <div class="preferences-card">
+                <h2>Select Your Interests</h2>
+                <div class="info-text">
+                    Choose the topics you're interested in. We'll notify you when new content, products, or resources become available that match your interests.
+                </div>
+                <div id="interests-grid" class="interests-grid"></div>
+                <button id="save-button" class="save-button" onclick="savePreferences()">Save Preferences</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.protocol === 'file:' 
+            ? 'http://localhost:4000/api/members'
+            : '/api/members';
+
+        let allCategories = [];
+        let selectedInterests = [];
+
+        // Check authentication
+        const token = localStorage.getItem('energy_calc_membership_token');
+        if (!token) {
+            window.location.href = 'members-section.html';
+        }
+
+        // Load interest categories and user's current interests
+        async function loadPreferences() {
+            try {
+                // Load all available categories
+                const categoriesRes = await fetch(`${API_BASE_URL}/interests/categories`);
+
+                if (!categoriesRes.ok) {
+                    const errorData = await categoriesRes.json().catch(() => ({}));
+                    const errorMsg = errorData.error || errorData.details || 'Failed to load interest categories';
+                    
+                    // Check if it's a database table error
+                    if (errorMsg.includes('no such table') || errorMsg.includes('interest_categories')) {
+                        throw new Error('Database tables not initialized. Please run: node database/setup.js');
+                    }
+                    throw new Error(errorMsg);
+                }
+
+                const categoriesData = await categoriesRes.json();
+                allCategories = categoriesData.categories || [];
+
+                if (allCategories.length === 0) {
+                    throw new Error('No interest categories found. Database may need to be initialized.');
+                }
+
+                // Load user's current interests
+                const interestsRes = await fetch(`${API_BASE_URL}/interests`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (interestsRes.ok) {
+                    const interestsData = await interestsRes.json();
+                    selectedInterests = (interestsData.interests || []).map(i => i.id);
+                } else if (interestsRes.status === 401 || interestsRes.status === 403) {
+                    // Auth error - redirect to login
+                    window.location.href = 'members-section.html';
+                    return;
+                }
+
+                renderInterests();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('preferences-container').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading preferences:', error);
+                const errorMessage = error.message || 'Unknown error occurred';
+                document.getElementById('loading').innerHTML = `
+                    <div style="text-align: center;">
+                        <p style="color: #c62828; margin-bottom: 10px; font-weight: 600;">Error loading preferences</p>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 20px;">${errorMessage}</p>
+                        <button onclick="loadPreferences()" style="margin-top: 10px; padding: 10px 20px; background: var(--primary-green); color: white; border: none; border-radius: 5px; cursor: pointer;">Retry</button>
+                    </div>
+                `;
+            }
+        }
+
+        function renderInterests() {
+            const grid = document.getElementById('interests-grid');
+            grid.innerHTML = '';
+
+            allCategories.forEach(category => {
+                const isSelected = selectedInterests.includes(category.id);
+                const item = document.createElement('div');
+                item.className = `interest-item ${isSelected ? 'selected' : ''}`;
+                item.innerHTML = `
+                    <input 
+                        type="checkbox" 
+                        id="interest-${category.id}" 
+                        ${isSelected ? 'checked' : ''}
+                        onchange="toggleInterest(${category.id})"
+                    >
+                    <label for="interest-${category.id}">
+                        <span class="interest-icon">${category.icon || '📌'}</span>
+                        <span class="interest-name">
+                            ${category.name}
+                            ${category.description ? `<span class="interest-description">${category.description}</span>` : ''}
+                        </span>
+                    </label>
+                `;
+                grid.appendChild(item);
+            });
+        }
+
+        function toggleInterest(id) {
+            const index = selectedInterests.indexOf(id);
+            if (index > -1) {
+                selectedInterests.splice(index, 1);
+            } else {
+                selectedInterests.push(id);
+            }
+            renderInterests();
+        }
+
+        async function savePreferences() {
+            const saveButton = document.getElementById('save-button');
+            saveButton.disabled = true;
+            saveButton.textContent = 'Saving...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/interests`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        interestIds: selectedInterests
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to save preferences');
+                }
+
+                showMessage('Preferences saved successfully!', 'success');
+                saveButton.textContent = 'Save Preferences';
+            } catch (error) {
+                console.error('Error saving preferences:', error);
+                showMessage('Failed to save preferences. Please try again.', 'error');
+                saveButton.textContent = 'Save Preferences';
+            } finally {
+                saveButton.disabled = false;
+            }
+        }
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Load preferences on page load
+        loadPreferences();
+    </script>
+</body>
+</html>
+

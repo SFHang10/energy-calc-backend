@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Development in Europe</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: white;
+        }
+        
+        /* Main container - removed overflow: hidden to fix scrolling */
+        .main-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        /* Header section */
+        .header-section {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .header-section h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header-section p {
+            font-size: 1.2em;
+            margin: 10px 0 0;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Content section */
+        .content-section {
+            padding: 40px;
+        }
+        
+        /* Grid containers */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .grid-container.small {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+        
+        .grid-container.medium {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+        
+        /* Highlight boxes */
+        .highlight-box {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            border-left: 5px solid #2ecc71;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        
+        .highlight-box:hover {
+            transform: translateY(-5px);
+        }
+        
+        .highlight-box h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .highlight-box p {
+            margin: 0;
+        }
+        
+        /* Rotating border effect */
+        .rotating-border::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #2ecc71, #27ae60, #3498db, #2980b9);
+            border-radius: 17px;
+            z-index: -1;
+            animation: rotate-border 4s linear infinite;
+        }
+        
+        /* Success story cards */
+        .success-story {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+        }
+        
+        .success-story:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        
+        .success-story h3 {
+            margin-top: 0;
+        }
+        
+        .success-story p {
+            margin: 10px 0;
+        }
+        
+        /* Dropdown content */
+        .dropdown-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: rgba(255,255,255,0.95);
+            color: #2c3e50;
+            border-radius: 10px;
+            margin-top: 15px;
+            padding: 0 20px;
+        }
+        
+        .dropdown-content.active {
+            max-height: 200px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .dropdown-content h4 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 1.1em;
+        }
+        
+        .dropdown-content p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        
+        .dropdown-content a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .dropdown-content a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Economic benefits section */
+        .economic-section {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 30px 0;
+            position: relative;
+        }
+        
+        .economic-section h2 {
+            color: white;
+            border-bottom: 3px solid #f1c40f;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .economic-item {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .economic-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #f1c40f;
+            display: block;
+        }
+        
+        /* Animations */
+        .floating {
+            animation: float 4s ease-in-out infinite;
+            display: block;
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .pulsing {
+            animation: pulse 2s ease-in-out infinite;
+            display: block;
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .bouncing {
+            animation: bounce 2s ease-in-out infinite;
+            display: block;
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .moving-bag {
+            animation: float 4s ease-in-out infinite;
+            display: inline-block;
+        }
+        
+        .large-text {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #f1c40f;
+            display: block;
+        }
+        
+        /* Shimmer effect */
+        .shimmer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        /* Highlight text */
+        .highlight-text {
+            background: linear-gradient(120deg, #a8e6cf 0%, #88d8a3 100%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes rotate-border {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr !important;
+            }
+            .large-text {
+                font-size: 2em !important;
+            }
+            .economic-section {
+                padding: 20px;
+            }
+            .header-section h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header-section">
+            <div class="shimmer"></div>
+            <h1>🌱 Green Development in Europe</h1>
+            <p>Environmental Benefits + Long-term Cost Savings</p>
+        </div>
+        
+        <div class="content-section">
+            <div class="grid-container">
+                <div class="highlight-box rotating-border">
+                    <span class="floating">🌍</span>
+                    <h3>Environmental Impact</h3>
+                    <p>Sustainable materials reduce <span class="highlight-text">CO2 emissions by 40-60%</span> compared to traditional construction. Green buildings consume 25% less energy and 11% less water.</p>
+                </div>
+                
+                <div class="highlight-box rotating-border">
+                    <span class="pulsing">💡</span>
+                    <h3>Energy Efficiency</h3>
+                    <p>Passive house standards can reduce heating demands by <span class="highlight-text">up to 90%</span>. Smart systems optimize energy use throughout the building lifecycle.</p>
+                </div>
+                
+                <div class="highlight-box rotating-border">
+                    <span class="bouncing">💰</span>
+                    <h3>Economic Benefits</h3>
+                    <p>Green buildings have <span class="highlight-text">7% higher asset values</span> and 3% higher rents. Operational costs decrease by 8-9% annually.</p>
+                </div>
+            </div>
+            
+            <div class="economic-section">
+                <div class="shimmer"></div>
+                <h2>💸 Consumer Cost Savings Over 20 Years</h2>
+                <div class="grid-container small">
+                    <div class="economic-item">
+                        <span class="large-text moving-bag">€15,000</span>
+                        <div>Energy Bill Savings</div>
+                    </div>
+                    <div class="economic-item">
+                        <span class="large-text moving-bag">€8,000</span>
+                        <div>Maintenance Reduction</div>
+                    </div>
+                    <div class="economic-item">
+                        <span class="large-text moving-bag">€12,000</span>
+                        <div>Water Cost Savings</div>
+                    </div>
+                    <div class="economic-item">
+                        <span class="large-text moving-bag">€35,000</span>
+                        <div><strong>Total Savings</strong></div>
+                    </div>
+                </div>
+            </div>
+            
+            <h2 style="color: #2c3e50; border-bottom: 3px solid #2ecc71; padding-bottom: 10px; margin-bottom: 25px;">🏢 European Success Stories</h2>
+            <div class="grid-container medium">
+                <div class="success-story" onclick="toggleDropdown('copenhagen')">
+                    <h3>🇩🇰 Copenhagen Opera Park</h3>
+                    <p>Green roofs and renewable energy integration creating carbon-neutral districts</p>
+                    <div id="copenhagen" class="dropdown-content">
+                        <h4>🌿 Project Details</h4>
+                        <p>This innovative project combines sustainable architecture with renewable energy systems. The green roofs help regulate building temperature while the integrated solar panels provide clean energy.</p>
+                        <p><strong>Key Features:</strong></p>
+                        <ul>
+                            <li>Green roof coverage: 85%</li>
+                            <li>Solar panel capacity: 500kW</li>
+                            <li>Energy savings: 40%</li>
+                            <li>CO2 reduction: 60 tons/year</li>
+                        </ul>
+                        <a href="#" target="_blank">Learn More →</a>
+                    </div>
+                </div>
+                
+                <div class="success-story" onclick="toggleDropdown('amsterdam')">
+                    <h3>🇳🇱 Amsterdam Edge</h3>
+                    <p>World's most sustainable office building with smart energy management</p>
+                    <div id="amsterdam" class="dropdown-content">
+                        <h4>🏢 Building Features</h4>
+                        <p>The Edge sets new standards for sustainable office buildings with its innovative design and technology integration.</p>
+                        <p><strong>Sustainability Score:</strong> 98.36%</p>
+                        <ul>
+                            <li>Smart lighting system</li>
+                            <li>Rainwater harvesting</li>
+                            <li>Solar energy generation</li>
+                            <li>Green building materials</li>
+                        </ul>
+                        <a href="#" target="_blank">Explore Project →</a>
+                    </div>
+                </div>
+                
+                <div class="success-story" onclick="toggleDropdown('stockholm')">
+                    <h3>🇸🇪 Stockholm Royal Seaport</h3>
+                    <p>Carbon-neutral district with smart grid technology and sustainable transport</p>
+                    <div id="stockholm" class="dropdown-content">
+                        <h4>🌱 District Overview</h4>
+                        <p>A model for sustainable urban development with integrated smart city solutions.</p>
+                        <p><strong>Environmental Goals:</strong></p>
+                        <ul>
+                            <li>Carbon neutral by 2030</li>
+                            <li>100% renewable energy</li>
+                            <li>Zero waste to landfill</li>
+                            <li>Sustainable transport options</li>
+                        </ul>
+                        <a href="#" target="_blank">View Details →</a>
+                    </div>
+                </div>
+                
+                <div class="success-story" onclick="toggleDropdown('berlin')">
+                    <h3>🇩🇪 Berlin Energy Campus</h3>
+                    <p>Research facility demonstrating next-generation energy efficiency technologies</p>
+                    <div id="berlin" class="dropdown-content">
+                        <h4>🔬 Research Focus</h4>
+                        <p>Cutting-edge research facility showcasing the future of sustainable building technology.</p>
+                        <p><strong>Innovation Areas:</strong></p>
+                        <ul>
+                            <li>Smart grid integration</li>
+                            <li>Energy storage solutions</li>
+                            <li>Building automation</li>
+                            <li>Renewable energy systems</li>
+                        </ul>
+                        <a href="#" target="_blank">Research Projects →</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: linear-gradient(45deg, #e74c3c, #c0392b); color: white; padding: 30px; border-radius: 15px; text-align: center; margin-top: 40px;">
+                <h2 style="margin-bottom: 20px;">🚀 Ready to Go Green?</h2>
+                <p style="font-size: 1.1em; margin-bottom: 20px;">Join thousands of European businesses already saving money while protecting the environment.</p>
+                <button style="background: #f1c40f; color: #2c3e50; border: none; padding: 15px 30px; border-radius: 25px; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    Start Your Green Journey Today
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(id);
+            const allDropdowns = document.querySelectorAll('.dropdown-content');
+            
+            // Close all other dropdowns
+            allDropdowns.forEach(dd => {
+                if (dd.id !== id) {
+                    dd.classList.remove('active');
+                }
+            });
+            
+            // Toggle current dropdown
+            dropdown.classList.toggle('active');
+        }
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.success-story')) {
+                const allDropdowns = document.querySelectorAll('.dropdown-content');
+                allDropdowns.forEach(dd => dd.classList.remove('active'));
+            }
+        });
+    </script>
+</body>
+</html>
+

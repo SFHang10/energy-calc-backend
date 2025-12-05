@@ -1,0 +1,2255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Energy Audit Widget - Interactive Layout Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .layout-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        /* Interactive Layout Area */
+        .layout-canvas {
+            width: 100%;
+            height: 400px;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            position: relative;
+            background: #f8f9fa;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="%23e9ecef" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
+            overflow: hidden;
+        }
+
+        .layout-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0.7;
+        }
+
+        /* Product Placement */
+        .product-icon {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #007bff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: move;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            border: 3px solid white;
+        }
+
+        .product-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .product-icon[data-type="oven"] {
+            background: #fd7e14;
+        }
+
+        .product-icon[data-type="fridge"] {
+            background: #28a745;
+        }
+
+        .product-icon[data-type="freezer"] {
+            background: #17a2b8;
+        }
+
+        .product-icon[data-type="lights"] {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .product-icon[data-type="motor"] {
+            background: #6c757d;
+        }
+
+        /* Product Counters */
+        .product-counter {
+            position: relative;
+            margin-left: 50px;
+            margin-bottom: 10px;
+        }
+
+        .counter-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .counter-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        .counter-btn:hover {
+            background: #0056b3;
+        }
+
+        .counter-value {
+            min-width: 60px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .product-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .product-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .product-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            text-align: center;
+            position: relative;
+        }
+
+        .product-item:hover {
+            background: #e9ecef;
+            border-color: #007bff;
+        }
+
+        .product-item.active {
+            background: #007bff;
+            color: white;
+            border-color: #0056b3;
+        }
+
+        .product-item-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .product-item-name {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .product-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #17a2b8;
+            color: white;
+            border-radius: 12px;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+            z-index: 10;
+            white-space: nowrap;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .product-item:hover .product-count {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .product-count.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .add-product-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .add-product-btn:hover {
+            background: #1e7e34;
+        }
+
+        .add-product-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        /* Layout Options */
+        .layout-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .layout-btn {
+            background: white;
+            border: 2px solid #dee2e6;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .layout-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        /* Summary Section */
+        .summary-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+
+        .summary-item-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .summary-item-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .summary-item.money {
+            border-left-color: #28a745;
+        }
+
+        .summary-item.savings {
+            border-left-color: #fd7e14;
+        }
+
+        .analyze-btn {
+            background: #fd7e14;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .analyze-btn:hover {
+            background: #e8590c;
+        }
+
+        /* Space Status */
+        .space-status {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .status-indicator {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status-indicator.current {
+            color: #dc3545;
+        }
+
+        .status-indicator.efficient {
+            color: #28a745;
+        }
+
+        /* Side-by-Side Comparison Layout */
+        .comparison-layout {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .space-layout-side {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .space-layout-side .layout-canvas {
+            height: 350px;
+            border: 2px dashed #dee2e6;
+            background: #f8f9fa;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .space-layout-side .layout-canvas.current-space {
+            border-color: #dc3545;
+            background: linear-gradient(135deg, #fff5f5, #ffebee);
+        }
+
+        .space-layout-side .layout-canvas.efficient-space {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #f0fff4, #e8f5e8);
+        }
+
+        .vs-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+        }
+
+        .vs-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+            position: relative;
+        }
+
+        .vs-circle::before {
+            content: '';
+            position: absolute;
+            width: 120px;
+            height: 2px;
+            background: linear-gradient(to right, #dc3545, #007bff, #28a745);
+            left: -20px;
+            z-index: -1;
+        }
+
+        .vs-text {
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Button Row Layout */
+        .button-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .button-row .add-product-btn {
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .standard-step-icon {
+            background: #6c757d;
+        }
+
+        .efficient-step-icon {
+            background: #28a745;
+        }
+
+        .standard-btn {
+            background: linear-gradient(135deg, #8d9298, #6c757d);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        .standard-btn:hover {
+            background: linear-gradient(135deg, #5a6268, #495057);
+            box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
+        }
+
+        .efficient-btn {
+            background: linear-gradient(135deg, #34d058, #28a745);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .efficient-btn:hover {
+            background: linear-gradient(135deg, #2c974b, #1e7e34);
+            box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+        }
+
+        /* Product Addition Panel */
+        .product-addition-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        /* Comparison Section */
+        .comparison-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .comparison-current,
+        .comparison-efficient {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .comparison-current {
+            border-left: 5px solid #dc3545;
+        }
+
+        .comparison-efficient {
+            border-left: 5px solid #28a745;
+        }
+
+        .comparison-current h3,
+        .comparison-efficient h3 {
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .comparison-arrow {
+            text-align: center;
+        }
+
+        .arrow {
+            font-size: 48px;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .savings-label {
+            color: #007bff;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .comparison-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .comparison-stat {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .comparison-stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .comparison-stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Product Icons */
+        .product-icon {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            z-index: 10;
+        }
+
+        .product-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .product-icon:active {
+            transform: scale(0.95);
+        }
+
+        /* Product Counters */
+        .product-counter {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .counter-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .counter-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        .counter-btn:hover {
+            background: #0056b3;
+        }
+
+        .counter-value {
+            font-size: 18px;
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .product-label {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Stat Items */
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .product-selector {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .comparison-arrow {
+                order: -1;
+            }
+
+            .arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏠 Energy Audit Widget</h1>
+            <p>Interactive tool to assess your home or restaurant's energy usage and find savings opportunities</p>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <h2 class="section-title">Select Layout Type</h2>
+            <div class="layout-options">
+                <button class="layout-btn active" onclick="selectLayout('home')">🏠 Home Layout</button>
+                <button class="layout-btn" onclick="selectLayout('kitchen')">🍳 Kitchen Layout</button>
+                <button class="layout-btn" onclick="selectLayout('restaurant')">🏪 Restaurant Layout</button>
+            </div>
+
+            <h3 class="section-title">Add Products to Your Space</h3>
+            <div class="product-selector">
+                <div class="product-item" data-type="oven" onclick="selectProductType('oven')" 
+                     onmouseover="showProductCount('oven')" onmouseout="hideProductCount()">
+                    <div class="product-item-icon">🔥</div>
+                    <div class="product-item-name">Ovens</div>
+                    <div class="product-count" id="oven-count"></div>
+                </div>
+                <div class="product-item" data-type="fridge" onclick="selectProductType('fridge')"
+                     onmouseover="showProductCount('fridge')" onmouseout="hideProductCount()">
+                    <div class="product-item-icon">🧊</div>
+                    <div class="product-item-name">Refrigerators</div>
+                    <div class="product-count" id="fridge-count"></div>
+                </div>
+                <div class="product-item" data-type="freezer" onclick="selectProductType('freezer')"
+                     onmouseover="showProductCount('freezer')" onmouseout="hideProductCount()">
+                    <div class="product-item-icon">❄️</div>
+                    <div class="product-item-name">Freezers</div>
+                    <div class="product-count" id="freezer-count"></div>
+                </div>
+                <div class="product-item" data-type="lights" onclick="selectProductType('lights')"
+                     onmouseover="showProductCount('lights')" onmouseout="hideProductCount()">
+                    <div class="product-item-icon">💡</div>
+                    <div class="product-item-name">Lighting</div>
+                    <div class="product-count" id="lights-count"></div>
+                </div>
+                <div class="product-item" data-type="motor" onclick="selectProductType('motor')"
+                     onmouseover="showProductCount('motor')" onmouseout="hideProductCount()">
+                    <div class="product-item-icon">⚙️</div>
+                    <div class="product-item-name">Motors</div>
+                    <div class="product-count" id="motor-count"></div>
+                </div>
+                <div class="product-item" data-type="dishwasher" onclick="selectProductType('dishwasher')"
+                     onmouseover="showProductCount('dishwasher')" onmouseout="hideProductCount()">
+                    <div class="product-item-icon">📻</div>
+                    <div class="product-item-name">Dishwashers</div>
+                    <div class="product-count" id="dishwasher-count"></div>
+                </div>
+            </div>
+            <!-- Dual Button Layout -->
+            <div class="button-row">
+                <button class="add-product-btn standard-btn" id="addStandardBtn" onclick="addStandardProduct()" disabled
+                        title="Add your current equipment to compare energy usage">
+                    + Add Electrical Appliance
+                </button>
+                <button class="add-product-btn efficient-btn" id="addEfficientBtn" onclick="addEfficientProduct()" disabled
+                        title="Add ETL-certified energy efficient alternatives">
+                    + Add Low Energy Appliance
+                </button>
+            </div>
+        </div>
+
+        <!-- Side-by-Side Layout Comparison -->
+        <div class="comparison-layout">
+            <!-- Current Space -->
+            <div class="space-layout-side">
+                <h2 class="section-title">🔴 Current Space</h2>
+                <div class="layout-canvas" id="currentLayoutCanvas">
+                    <!-- Current space layout -->
+                </div>
+                
+                <!-- Current Space Counters -->
+                <div id="currentProductCounters"></div>
+                
+                <!-- Status Indicator -->
+                <div class="space-status">
+                    <span class="status-indicator current">🔴 Electrical Appliances</span>
+                </div>
+            </div>
+
+            <!-- VS Divider -->
+            <div class="vs-divider">
+                <div class="vs-circle">
+                    <span class="vs-text">VS</span>
+                </div>
+            </div>
+
+            <!-- Energy Efficient Space -->
+            <div class="space-layout-side">
+                <h2 class="section-title">🟢 Energy Efficient Space</h2>
+                <div class="layout-canvas" id="efficientLayoutCanvas">
+                    <!-- Energy efficient space layout -->
+                </div>
+                
+                    <!-- Efficient Space Counters -->
+                    <div id="efficientProductCounters"></div>
+                    
+                    <!-- Status Indicator -->
+                    <div class="space-status">
+                        <span class="status-indicator efficient">🟢 Low Energy Appliances</span>
+                    </div>
+            </div>
+        </div>
+
+        <!-- Product Addition Panel -->
+        <div class="product-addition-panel">
+            <h2 class="section-title">🛠️ Add Energy Efficient Products</h2>
+            <p style="color: #666; text-align: center; margin-bottom: 20px;">
+                Select energy-efficient products to replace your current appliances and see the savings!
+            </p>
+            <div id="productAdditionArea">
+                <p style="color: #666; text-align: center; margin-top: 50px;">
+                    Select a product type above and click "Add Energy Efficient Product" to place it in your efficient space.
+                </p>
+            </div>
+        </div>
+
+        <!-- Comparison Section -->
+        <div class="comparison-section" id="comparisonSection" style="display: none;">
+            <div class="comparison-grid">
+                <div class="comparison-current">
+                    <h3>🔴 Current Space (Standard Products)</h3>
+                    <div class="comparison-stats" id="currentStats"></div>
+                </div>
+                <div class="comparison-arrow">
+                    <div class="arrow">→</div>
+                    <div class="savings-label">SAVINGS</div>
+                </div>
+                <div class="comparison-efficient">
+                    <h3>🟢 Energy Efficient Space</h3>
+                    <div class="comparison-stats" id="efficientStats"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="summary-section">
+            <h2 class="section-title">Energy Audit Summary</h2>
+            <div class="summary-grid" id="summaryGrid">
+                <div class="summary-item">
+                    <div class="summary-item-title">Total Products</div>
+                    <div class="summary-item-value" id="totalProducts">0</div>
+                </div>
+                <div class="summary-item money">
+                    <div class="summary-item-title">Annual Energy Cost</div>
+                    <div class="summary-item-value" id="annualCost">€0</div>
+                </div>
+                <div class="summary-item savings">
+                    <div class="summary-item-title">Potential Savings</div>
+                    <div class="summary-item-value" id="potentialSavings">€0</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-item-title">Energy Rating</div>
+                    <div class="summary-item-value" id="energyRating">D</div>
+                </div>
+            </div>
+            
+            <button class="analyze-btn" onclick="analyzeEnergyUsage()" 
+                    title="Compare energy usage and calculate savings between current and efficient equipment">
+                🔍 Analyze Energy Usage & Get Recommendations
+            </button>
+        </div>
+    </div>
+
+    <!-- Safe ETL Integration -->
+    <script src="safe-etl-integration.js?v=20250110002"></script>
+
+    <script>
+        // Global state
+        let currentLayout = 'home';
+        let selectedProductType = null;
+        let placedProducts = {};
+        let productCounter = 0;
+        let efficientProductCounter = 0;
+        let currentSpaceType = 'current'; // 'current' or 'efficient'
+        let currentSpaceData = {};
+        let efficientSpaceData = {};
+        let currentSpaceProducts = {};
+        let efficientSpaceProducts = {};
+
+        // Product type configurations
+        const productTypes = {
+            oven: {
+                icon: '🔥',
+                name: 'Oven',
+                typicalPower: 3.0,
+                defaultCount: 1,
+                color: '#fd7e14'
+            },
+            fridge: {
+                icon: '🧊',
+                name: 'Refrigerator',
+                typicalPower: 0.2,
+                defaultCount: 1,
+                color: '#28a745'
+            },
+            freezer: {
+                icon: '❄️',
+                name: 'Freezer',
+                typicalPower: 0.3,
+                defaultCount: 1,
+                color: '#17a2b8'
+            },
+            lights: {
+                icon: '💡',
+                name: 'Light Fixtures',
+                typicalPower: 0.05,
+                defaultCount: 10,
+                color: '#ffc107'
+            },
+            motor: {
+                icon: '⚙️',
+                name: 'Motor',
+                typicalPower: 0.12,
+                defaultCount: 1,
+                color: '#6c757d'
+            },
+            dishwasher: {
+                icon: '📻',
+                name: 'Dishwasher',
+                typicalPower: 1.5,
+                defaultCount: 1,
+                color: '#6f42c1'
+            }
+        };
+
+        // Layout configurations
+        const layouts = {
+            home: {
+                name: 'Home Layout',
+                image: null, // Would load actual layout image
+                description: 'Typical residential layout'
+            },
+            kitchen: {
+                name: 'Kitchen Layout',
+                image: null, // Would load kitchen layout image
+                description: 'Commercial or residential kitchen'
+            },
+            restaurant: {
+                name: 'Restaurant Layout',
+                image: null, // Would load restaurant layout image
+                description: 'Commercial restaurant/kitchen setup'
+            }
+        };
+
+        // Product count functions
+        function showProductCount(productType) {
+            console.log('🔍 Showing product count for:', productType);
+            
+            if (!window.SafeETLIntegration) {
+                // Use fallback counts with descriptive text
+                const fallbackTexts = {
+                    'oven': '10+ Options',
+                    'fridge': '1 Available',
+                    'freezer': '2 Models',
+                    'lights': '15+ Types',
+                    'motor': '3 Variants',
+                    'dishwasher': '2 Models'
+                };
+                
+                const countElement = document.getElementById(`${productType}-count`);
+                if (countElement) {
+                    countElement.textContent = fallbackTexts[productType] || 'Available';
+                    countElement.classList.add('show');
+                }
+                return;
+            }
+            
+            const etlProducts = window.SafeETLIntegration.getProductsByType(productType);
+            const count = etlProducts ? etlProducts.length : 0;
+            
+            const countElement = document.getElementById(`${productType}-count`);
+            if (countElement) {
+                // Create descriptive text based on count
+                let descriptiveText;
+                if (count === 0) {
+                    descriptiveText = 'None Available';
+                } else if (count === 1) {
+                    descriptiveText = '1 Option';
+                } else if (count < 5) {
+                    descriptiveText = `${count} Options`;
+                } else if (count < 20) {
+                    descriptiveText = `${count}+ Models`;
+                } else {
+                    descriptiveText = `${count}+ Available`;
+                }
+                
+                countElement.textContent = descriptiveText;
+                countElement.classList.add('show');
+                
+                // Add tooltip with more info
+                countElement.title = `${count} ETL-certified ${productType}s available for selection`;
+            }
+            
+            console.log(`📊 ${productType}: ${count} products available`);
+        }
+
+        function hideProductCount() {
+            document.querySelectorAll('.product-count').forEach(count => {
+                count.classList.remove('show');
+            });
+        }
+
+        // Initialize product counts on load
+        function initializeProductCounts() {
+            console.log('🔄 Initializing product counts...');
+            
+            if (window.SafeETLIntegration && window.SafeETLIntegration.etlProducts) {
+                const productTypes = ['oven', 'fridge', 'freezer', 'lights', 'motor', 'dishwasher'];
+                
+                productTypes.forEach(type => {
+                    const etlProducts = window.SafeETLIntegration.getProductsByType(type);
+                    const count = etlProducts ? etlProducts.length : 0;
+                    
+                    const countElement = document.getElementById(`${type}-count`);
+                    if (countElement) {
+                        // Create descriptive text based on count
+                        let descriptiveText;
+                        if (count === 0) {
+                            descriptiveText = 'None Available';
+                        } else if (count === 1) {
+                            descriptiveText = '1 Option';
+                        } else if (count < 5) {
+                            descriptiveText = `${count} Options`;
+                        } else if (count < 20) {
+                            descriptiveText = `${count}+ Models`;
+                        } else {
+                            descriptiveText = `${count}+ Available`;
+                        }
+                        
+                        countElement.textContent = descriptiveText;
+                        countElement.title = `${count} ETL-certified ${type}s available for selection`;
+                    }
+                });
+                
+                console.log('✅ Product counts initialized with descriptive text');
+            } else {
+                console.log('⚠️ ETL products not loaded yet, using fallback descriptive text');
+            }
+        }
+
+        // Initialize the widget
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🏠 Energy Audit Widget initialized');
+            updateCurrentSpaceDisplay();
+            updateEfficientSpaceDisplay();
+            updateComparisonStats();
+            
+            // Initialize product counts
+            initializeProductCounts();
+        });
+
+        // Layout selection
+        function selectLayout(layoutType) {
+            currentLayout = layoutType;
+            
+            // Update active button
+            document.querySelectorAll('.layout-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[onclick="selectLayout('${layoutType}')"]`).classList.add('active');
+            
+            // Update layout canvas
+            updateLayoutDisplay();
+            console.log(`📐 Layout changed to: ${layouts[layoutType].name}`);
+        }
+
+        // Product type selection
+        function selectProductType(type) {
+            selectedProductType = type;
+            
+            // Update visual selection
+            document.querySelectorAll('.product-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-type="${type}"]`).classList.add('active');
+            
+            // Enable both add buttons
+            const standardBtn = document.getElementById('addStandardBtn');
+            const efficientBtn = document.getElementById('addEfficientBtn');
+            
+            if (standardBtn) standardBtn.disabled = false;
+            if (efficientBtn) efficientBtn.disabled = false;
+            
+            console.log(`🔧 Selected product type: ${productTypes[type].name}`);
+            console.log(`🔧 Buttons enabled: Standard=${!standardBtn?.disabled}, Efficient=${!efficientBtn?.disabled}`);
+        }
+
+        // Add product to current space (for initial setup)
+        function addProduct() {
+            if (!selectedProductType) return;
+            
+            productCounter++;
+            const productId = `${selectedProductType}_${productCounter}`;
+            const productConfig = productTypes[selectedProductType];
+            
+            // Add to current space products
+            if (!currentSpaceProducts[selectedProductType]) {
+                currentSpaceProducts[selectedProductType] = {
+                    count: 0,
+                    totalPower: 0,
+                    products: []
+                };
+            }
+            
+            currentSpaceProducts[selectedProductType].count++;
+            currentSpaceProducts[selectedProductType].totalPower += productConfig.typicalPower;
+            currentSpaceProducts[selectedProductType].products.push(productId);
+            
+            // Create product icon in current space canvas
+            createProductIcon(productId, selectedProductType, 'currentSpace');
+            
+            // Update current space display
+            updateCurrentSpaceDisplay();
+            
+            console.log(`➕ Added ${productConfig.name} to current space`);
+        }
+
+        // Add electrical appliance to current space
+        function addStandardProduct() {
+            console.log('🔴 Add Standard Product clicked');
+            console.log('🔴 Selected product type:', selectedProductType);
+            
+            if (!selectedProductType) {
+                console.log('❌ No product type selected');
+                alert('Please select a product type first!');
+                return;
+            }
+            
+            // Show product selection modal for current space
+            showProductSelectionModal('currentSpace');
+            
+            console.log(`➕ Added electrical appliance: ${productConfig.name} to current space`);
+        }
+
+        // Add energy efficient product to efficient space
+        function addEfficientProduct() {
+            console.log('🟢 Add Efficient Product clicked');
+            console.log('🟢 Selected product type:', selectedProductType);
+            
+            if (!selectedProductType) {
+                console.log('❌ No product type selected');
+                alert('Please select a product type first!');
+                return;
+            }
+            
+            // Show product selection modal for efficient space
+            showProductSelectionModal('efficientSpace');
+        }
+
+        // Show product selection modal
+        function showProductSelectionModal(targetSpace) {
+            console.log('🛍️ Showing product selection modal for:', targetSpace);
+            
+            // Get ETL products for the selected type
+            console.log('🔍 Getting products for type:', selectedProductType);
+            console.log('🔍 SafeETLIntegration available:', !!window.SafeETLIntegration);
+            
+            if (!window.SafeETLIntegration) {
+                console.error('❌ SafeETLIntegration not available!');
+                return;
+            }
+            
+            const etlProducts = window.SafeETLIntegration.getProductsByType(selectedProductType);
+            console.log('🛍️ Available ETL products:', etlProducts);
+            console.log('📊 Product count:', etlProducts ? etlProducts.length : 'undefined');
+            
+            // Create modal
+            const modal = document.createElement('div');
+            modal.className = 'product-selection-modal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+
+            const spaceLabel = targetSpace === 'efficientSpace' ? 'Energy Efficient' : 'Current';
+            const spaceColor = targetSpace === 'efficientSpace' ? '#28a745' : '#dc3545';
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    border-radius: 12px;
+                    padding: 30px;
+                    max-width: 600px;
+                    width: 90%;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+                ">
+                    <div style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 20px;
+                        border-bottom: 2px solid #e9ecef;
+                        padding-bottom: 15px;
+                    ">
+                        <h3 style="margin: 0; color: ${spaceColor};">
+                            🛍️ Select ${spaceLabel} Product
+                        </h3>
+                        <button onclick="closeProductSelectionModal()" style="
+                            background: none;
+                            border: none;
+                            font-size: 24px;
+                            cursor: pointer;
+                            color: #6c757d;
+                        ">✕</button>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 10px 0; color: #212529;">
+                            ${productTypes[selectedProductType].icon} ${productTypes[selectedProductType].name}
+                        </h4>
+                        <p style="margin: 0; color: #6c757d; font-size: 14px;">
+                            Choose a specific product to add to your ${spaceLabel.toLowerCase()} space
+                        </p>
+                    </div>
+                    
+                    <div class="product-list" style="max-height: 400px; overflow-y: auto;">
+                        ${etlProducts.map(product => `
+                            <div class="product-item" onclick="selectETLProduct('${product.id}', '${targetSpace}')" style="
+                                display: flex;
+                                align-items: center;
+                                gap: 15px;
+                                padding: 15px;
+                                border: 2px solid #e9ecef;
+                                border-radius: 8px;
+                                margin-bottom: 10px;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                            " onmouseover="this.style.borderColor='${spaceColor}'; this.style.backgroundColor='#f8f9fa';" 
+                               onmouseout="this.style.borderColor='#e9ecef'; this.style.backgroundColor='transparent';">
+                                <div style="font-size: 24px;">${product.icon}</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: #212529; margin-bottom: 5px;">
+                                        ${product.name}
+                                    </div>
+                                    <div style="font-size: 14px; color: #6c757d; margin-bottom: 5px;">
+                                        ${product.brand} • ${product.category}
+                                    </div>
+                                    <div style="font-size: 12px; color: #28a745; font-weight: 600;">
+                                        Power: ${product.power}kW • Rating: ${product.energyRating} • €${product.runningCostPerYear}/year
+                                    </div>
+                                </div>
+                                <div style="
+                                    background: ${spaceColor};
+                                    color: white;
+                                    padding: 8px 12px;
+                                    border-radius: 6px;
+                                    font-size: 12px;
+                                    font-weight: 600;
+                                ">
+                                    SELECT
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button onclick="closeProductSelectionModal()" style="
+                            background: #6c757d;
+                            color: white;
+                            border: none;
+                            padding: 10px 20px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            margin-right: 10px;
+                        ">Cancel</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+            
+            // Close modal when clicking overlay
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    closeProductSelectionModal();
+                }
+            };
+        }
+
+        // Close product selection modal
+        function closeProductSelectionModal() {
+            const modal = document.querySelector('.product-selection-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Select ETL product and add to space
+        function selectETLProduct(productId, targetSpace) {
+            console.log('✅ ETL Product selected:', productId, 'for space:', targetSpace);
+            
+            // Get the selected ETL product
+            const etlProducts = window.SafeETLIntegration.getProductsByType(selectedProductType);
+            const selectedProduct = etlProducts.find(p => p.id === productId);
+            
+            if (!selectedProduct) {
+                console.error('❌ Selected ETL product not found:', productId);
+                return;
+            }
+            
+            // Generate unique product ID
+            const uniqueId = `${targetSpace}_${productId}_${Date.now()}`;
+            
+            // Add to appropriate space
+            if (targetSpace === 'currentSpace') {
+            if (!currentSpaceProducts[selectedProductType]) {
+                currentSpaceProducts[selectedProductType] = {
+                    count: 0,
+                    totalPower: 0,
+                    products: []
+                };
+            }
+            
+            currentSpaceProducts[selectedProductType].count++;
+                currentSpaceProducts[selectedProductType].totalPower += selectedProduct.power;
+                currentSpaceProducts[selectedProductType].products.push(uniqueId);
+            
+                // Create product icon
+                createProductIcon(uniqueId, selectedProductType, targetSpace, selectedProduct.power);
+            
+                // Update display
+            updateCurrentSpaceDisplay();
+            
+                console.log(`➕ Added ${selectedProduct.name} to current space`);
+                
+            } else if (targetSpace === 'efficientSpace') {
+            if (!efficientSpaceProducts[selectedProductType]) {
+                efficientSpaceProducts[selectedProductType] = {
+                    count: 0,
+                    totalPower: 0,
+                    products: []
+                };
+            }
+            
+            efficientSpaceProducts[selectedProductType].count++;
+                efficientSpaceProducts[selectedProductType].totalPower += selectedProduct.power;
+                efficientSpaceProducts[selectedProductType].products.push(uniqueId);
+            
+                // Create product icon
+                createProductIcon(uniqueId, selectedProductType, targetSpace, selectedProduct.power);
+            
+                // Update display
+            updateEfficientSpaceDisplay();
+            
+                console.log(`➕ Added ${selectedProduct.name} to efficient space`);
+            }
+            
+            // Update comparison stats
+            updateComparisonStats();
+            
+            // Close modal
+            closeProductSelectionModal();
+            
+            // Show success message
+            showProductAddedMessage(selectedProduct.name, targetSpace);
+        }
+
+        // Show product added message
+        function showProductAddedMessage(productName, targetSpace) {
+            const spaceLabel = targetSpace === 'efficientSpace' ? 'Energy Efficient' : 'Current';
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #28a745;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10001;
+                font-weight: 600;
+            `;
+            message.textContent = `✅ Added ${productName} to ${spaceLabel} Space`;
+            
+            document.body.appendChild(message);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (message.parentNode) {
+                    message.parentNode.removeChild(message);
+                }
+            }, 3000);
+        }
+
+        // Create product icon on canvas
+        function createProductIcon(productId, productType, targetSpace, customPower = null) {
+            console.log('🎨 Creating product icon:', productId, productType, targetSpace);
+            
+            const canvasId = targetSpace === 'efficientSpace' ? 'efficientLayoutCanvas' : 'currentLayoutCanvas';
+            const canvas = document.getElementById(canvasId);
+            
+            console.log('🎨 Canvas ID:', canvasId);
+            console.log('🎨 Canvas element:', canvas);
+            
+            if (!canvas) {
+                console.error('❌ Canvas not found:', canvasId);
+                return;
+            }
+            
+            const productConfig = productTypes[productType];
+            console.log('🎨 Product config:', productConfig);
+            
+            const icon = document.createElement('div');
+            icon.className = 'product-icon';
+            icon.dataset.type = productType;
+            icon.dataset.productId = productId;
+            icon.dataset.space = targetSpace;
+            
+            // Different styling for efficient products
+            if (targetSpace === 'efficientSpace') {
+                icon.style.backgroundColor = '#28a745';
+                icon.style.border = '3px solid #1e7e34';
+                icon.title = `Efficient ${productConfig.name}: ${(customPower || productConfig.typicalPower)}kW`;
+            } else {
+                icon.style.backgroundColor = productConfig.color;
+                icon.title = `${productConfig.name}: ${productConfig.typicalPower}kW`;
+            }
+            
+            icon.innerHTML = productConfig.icon;
+            
+            // Random position within canvas
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.random() * (rect.width - 40);
+            const y = Math.random() * (rect.height - 40);
+            
+            icon.style.left = `${x}px`;
+            icon.style.top = `${y}px`;
+            
+            // Make draggable
+            icon.draggable = true;
+            icon.addEventListener('dragstart', handleDragStart);
+            icon.addEventListener('dragend', handleDragEnd);
+            
+            // Click to show product details
+            icon.addEventListener('click', () => showProductDetails(productId, productType, targetSpace));
+            
+            canvas.appendChild(icon);
+            console.log('✅ Product icon added to canvas:', icon);
+        }
+
+        // Drag and drop handlers
+        let draggedElement = null;
+
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.style.opacity = '0.5';
+        }
+
+        function handleDragEnd(e) {
+            e.target.style.opacity = '1';
+            draggedElement = null;
+        }
+
+        // Update layout display
+        function updateLayoutDisplay() {
+            const canvas = document.getElementById('layoutCanvas');
+            const layoutName = layouts[currentLayout].name;
+            
+            // Clear existing products
+            canvas.innerHTML = '';
+            
+            // Add layout-specific styling
+            canvas.style.background = currentLayout === 'home' 
+                ? 'linear-gradient(135deg, #8e44ad, #3498db)' 
+                : currentLayout === 'kitchen'
+                    ? 'linear-gradient(135deg, #e67e22, #d35400)'
+                    : 'linear-gradient(135deg, #27ae60, #2ecc71)';
+            
+            // Re-add existing products
+            Object.keys(placedProducts).forEach(productType => {
+                placedProducts[productType].products.forEach(productId => {
+                    createProductIcon(productId, productType);
+                });
+            });
+        }
+
+        // Update product counters display
+        function updateProductCounters() {
+            const container = document.getElementById('productCounters');
+            container.innerHTML = '';
+            
+            Object.keys(placedProducts).forEach(productType => {
+                const productData = placedProducts[productType];
+                const productConfig = productTypes[productType];
+                
+                const counterDiv = document.createElement('div');
+                counterDiv.className = 'product-counter';
+                counterDiv.innerHTML = `
+                    <div class="counter-controls">
+                        <button class="counter-btn" onclick="decreaseCount('${productType}')">-</button>
+                        <span class="counter-value">${productData.count}</span>
+                        <button class="counter-btn" onclick="increaseCount('${productType}')">+</button>
+                    </div>
+                    <div class="product-label">${productConfig.icon} ${productData.count}x ${productConfig.name}</div>
+                `;
+                
+                container.appendChild(counterDiv);
+            });
+        }
+
+        // Increase/decrease product count
+        function increaseCount(productType) {
+            const productData = placedProducts[productType];
+            const productConfig = productTypes[productType];
+            
+            productCounter++;
+            const productId = `${productType}_${productCounter}`;
+            
+            productData.count++;
+            productData.totalPower += productConfig.typicalPower;
+            productData.products.push(productId);
+            
+            createProductIcon(productId, productType);
+            updateDisplay();
+        }
+
+        function decreaseCount(productType) {
+            const productData = placedProducts[productType];
+            if (productData.count <= 0) return;
+            
+            productData.count--;
+            productData.totalPower -= productTypes[productType].typicalPower;
+            const removedProduct = productData.products.pop();
+            
+            // Remove from canvas
+            const element = document.querySelector(`[data-product-id="${removedProduct}"]`);
+            if (element) element.remove();
+            
+            updateDisplay();
+        }
+
+        // Update current space display
+        function updateCurrentSpaceDisplay() {
+            const container = document.getElementById('currentProductCounters');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            Object.keys(currentSpaceProducts).forEach(productType => {
+                const productData = currentSpaceProducts[productType];
+                const productConfig = productTypes[productType];
+                
+                const counterDiv = document.createElement('div');
+                counterDiv.className = 'product-counter';
+                counterDiv.innerHTML = `
+                    <div class="counter-controls">
+                        <button class="counter-btn" onclick="decreaseCurrentCount('${productType}')">-</button>
+                        <span class="counter-value">${productData.count}</span>
+                        <button class="counter-btn" onclick="increaseCurrentCount('${productType}')">+</button>
+                    </div>
+                    <div class="product-label">${productConfig.icon} ${productData.count}x ${productConfig.name}</div>
+                `;
+                
+                container.appendChild(counterDiv);
+            });
+        }
+
+        // Update efficient space display
+        function updateEfficientSpaceDisplay() {
+            const container = document.getElementById('efficientProductCounters');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            Object.keys(efficientSpaceProducts).forEach(productType => {
+                const productData = efficientSpaceProducts[productType];
+                const productConfig = productTypes[productType];
+                
+                const counterDiv = document.createElement('div');
+                counterDiv.className = 'product-counter';
+                counterDiv.innerHTML = `
+                    <div class="counter-controls">
+                        <button class="counter-btn" onclick="decreaseEfficientCount('${productType}')">-</button>
+                        <span class="counter-value">${productData.count}</span>
+                        <button class="counter-btn" onclick="increaseEfficientCount('${productType}')">+</button>
+                    </div>
+                    <div class="product-label">${productConfig.icon} ${productData.count}x ${productConfig.name}</div>
+                `;
+                
+                container.appendChild(counterDiv);
+            });
+        }
+
+        // Increase/decrease functions for current space
+        function increaseCurrentCount(productType) {
+            if (!currentSpaceProducts[productType]) {
+                currentSpaceProducts[productType] = {
+                    count: 0,
+                    totalPower: 0,
+                    products: []
+                };
+            }
+            
+            const productData = currentSpaceProducts[productType];
+            const productConfig = productTypes[productType];
+            
+            productCounter++;
+            const productId = `current_${productType}_${productCounter}`;
+            
+            productData.count++;
+            productData.totalPower += productConfig.typicalPower;
+            productData.products.push(productId);
+            
+            createProductIcon(productId, productType, 'currentSpace');
+            updateCurrentSpaceDisplay();
+        }
+
+        function decreaseCurrentCount(productType) {
+            const productData = currentSpaceProducts[productType];
+            if (!productData || productData.count <= 0) return;
+            
+            productData.count--;
+            productData.totalPower -= productTypes[productType].typicalPower;
+            const removedProduct = productData.products.pop();
+            
+            // Remove from canvas
+            const element = document.querySelector(`[data-product-id="${removedProduct}"]`);
+            if (element) element.remove();
+            
+            updateCurrentSpaceDisplay();
+        }
+
+        // Increase/decrease functions for efficient space
+        function increaseEfficientCount(productType) {
+            if (!efficientSpaceProducts[productType]) {
+                efficientSpaceProducts[productType] = {
+                    count: 0,
+                    totalPower: 0,
+                    products: []
+                };
+            }
+            
+            const productData = efficientSpaceProducts[productType];
+            const productConfig = productTypes[productType];
+            
+            efficientProductCounter++;
+            const productId = `efficient_${productType}_${efficientProductCounter}`;
+            
+            productData.count++;
+            productData.totalPower += productConfig.typicalPower * 0.7; // 30% more efficient
+            productData.products.push(productId);
+            
+            createProductIcon(productId, productType, 'efficientSpace');
+            updateEfficientSpaceDisplay();
+        }
+
+        function decreaseEfficientCount(productType) {
+            const productData = efficientSpaceProducts[productType];
+            if (!productData || productData.count <= 0) return;
+            
+            productData.count--;
+            productData.totalPower -= productTypes[productType].typicalPower * 0.7;
+            const removedProduct = productData.products.pop();
+            
+            // Remove from canvas
+            const element = document.querySelector(`[data-product-id="${removedProduct}"]`);
+            if (element) element.remove();
+            
+            updateEfficientSpaceDisplay();
+        }
+
+        // Update comparison stats
+        function updateComparisonStats() {
+            const currentStats = document.getElementById('currentStats');
+            const efficientStats = document.getElementById('efficientStats');
+            
+            if (currentStats) {
+                const currentTotal = Object.values(currentSpaceProducts).reduce((sum, data) => sum + data.totalPower, 0);
+                const currentCount = Object.values(currentSpaceProducts).reduce((sum, data) => sum + data.count, 0);
+                currentStats.innerHTML = `
+                    <div class="stat-item">
+                        <span class="stat-label">Total Power:</span>
+                        <span class="stat-value">${currentTotal.toFixed(1)}kW</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Products:</span>
+                        <span class="stat-value">${currentCount}</span>
+                    </div>
+                `;
+            }
+            
+            if (efficientStats) {
+                const efficientTotal = Object.values(efficientSpaceProducts).reduce((sum, data) => sum + data.totalPower, 0);
+                const efficientCount = Object.values(efficientSpaceProducts).reduce((sum, data) => sum + data.count, 0);
+                efficientStats.innerHTML = `
+                    <div class="stat-item">
+                        <span class="stat-label">Total Power:</span>
+                        <span class="stat-value">${efficientTotal.toFixed(1)}kW</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Products:</span>
+                        <span class="stat-value">${efficientCount}</span>
+                    </div>
+                `;
+            }
+        }
+
+        // Update summary calculations
+        function updateSummary() {
+            let totalProducts = 0;
+            let totalAnnualCost = 0;
+            
+            Object.keys(placedProducts).forEach(productType => {
+                const productData = placedProducts[productType];
+                totalProducts += productData.count;
+                
+                // Calculate annual cost (simplified: power * hours * days * rate)
+                const annualHours = 8760; // Full year
+                const electricityRate = 0.15; // €/kWh
+                totalAnnualCost += productData.totalPower * annualHours * electricityRate;
+            });
+            
+            // Update summary display
+            document.getElementById('totalProducts').textContent = totalProducts;
+            document.getElementById('annualCost').textContent = `€${Math.round(totalAnnualCost)}`;
+            
+            // Calculate potential savings (simplified - assume 30% savings with efficient appliances)
+            const potentialSavings = totalAnnualCost * 0.3;
+            document.getElementById('potentialSavings').textContent = `€${Math.round(potentialSavings)}`;
+            
+            // Calculate energy rating
+            let energyRating = 'A';
+            if (totalAnnualCost > 2000) energyRating = 'D';
+            else if (totalAnnualCost > 1500) energyRating = 'C';
+            else if (totalAnnualCost > 1000) energyRating = 'B';
+            
+            document.getElementById('energyRating').textContent = energyRating;
+        }
+
+        // Show product details (placeholder)
+        function showProductDetails(productId, productType, targetSpace = 'currentSpace') {
+            const productConfig = productTypes[productType];
+            const power = targetSpace === 'efficientSpace' ? (productConfig.typicalPower * 0.7).toFixed(1) : productConfig.typicalPower;
+            const spaceLabel = targetSpace === 'efficientSpace' ? 'Efficient' : 'Current';
+            
+            alert(`Product Details:\n\nType: ${productConfig.name}\nSpace: ${spaceLabel}\nPower: ${power}kW\nID: ${productId}`);
+        }
+
+        // Analyze energy usage with ETL integration
+        function analyzeEnergyUsage() {
+            const currentTotalProducts = Object.values(currentSpaceProducts).reduce((sum, data) => sum + data.count, 0);
+            const efficientTotalProducts = Object.values(efficientSpaceProducts).reduce((sum, data) => sum + data.count, 0);
+            
+            if (currentTotalProducts === 0 && efficientTotalProducts === 0) {
+                alert('Please add some products to your spaces before analyzing energy usage.');
+                return;
+            }
+            
+            // Use safe ETL integration for enhanced analysis
+            try {
+                const auditResults = {
+                    layout: currentLayout,
+                    currentSpace: currentSpaceProducts,
+                    efficientSpace: efficientSpaceProducts
+                };
+                
+                // Get ETL recommendations
+                const recommendations = window.SafeETLIntegration.generateRecommendations(auditResults);
+                const summary = window.SafeETLIntegration.calculateSummary(auditResults);
+                
+                // Show enhanced analysis
+                showETLAnalysis(summary, recommendations);
+                
+            } catch (error) {
+                console.log('ETL integration failed, using basic analysis:', error);
+                showBasicAnalysis();
+            }
+        }
+
+        // Show ETL-enhanced analysis
+        function showETLAnalysis(summary, recommendations) {
+            let message = `🏠 Energy Analysis Complete!\n\n`;
+            message += `📊 Current Space: ${summary.currentTotalPower}kW (€${summary.currentAnnualCost}/year)\n`;
+            message += `🟢 Efficient Space: ${summary.efficientTotalPower}kW (€${summary.efficientAnnualCost}/year)\n`;
+            message += `💰 Annual Savings: €${summary.annualSavings} (€${summary.monthlySavings}/month)\n`;
+            message += `📈 Efficiency Improvement: ${summary.efficiencyImprovement}%\n\n`;
+            
+            if (recommendations.length > 0) {
+                message += `🌟 Top Recommendations:\n`;
+                recommendations.slice(0, 3).forEach((rec, index) => {
+                    message += `${index + 1}. ${rec.recommendedProduct.name}\n`;
+                    message += `   Save €${rec.savings.annualSavings}/year\n`;
+                });
+            }
+            
+            alert(message);
+        }
+
+        // Fallback basic analysis
+        function showBasicAnalysis() {
+            const currentTotalProducts = Object.values(currentSpaceProducts).reduce((sum, data) => sum + data.count, 0);
+            const efficientTotalProducts = Object.values(efficientSpaceProducts).reduce((sum, data) => sum + data.count, 0);
+            
+            alert(`Energy Analysis Complete!\n\nCurrent Space: ${currentTotalProducts} products\nEfficient Space: ${efficientTotalProducts} products\n\n🌟 Open calculator for detailed recommendations!`);
+        }
+
+        // Export configuration (for integration)
+        function exportConfiguration() {
+            return {
+                layout: currentLayout,
+                products: Object.keys(placedProducts).map(type => ({
+                    type: type,
+                    count: placedProducts[type].count,
+                    totalPower: placedProducts[type].totalPower
+                })),
+                summary: {
+                    totalProducts: Object.values(placedProducts).reduce((sum, data) => sum + data.count, 0),
+                    totalPower: Object.values(placedProducts).reduce((sum, data) => sum + data.totalPower, 0),
+                    annualCost: Object.values(placedProducts).reduce((sum, data) => sum + data.totalPower * 8760 * 0.15, 0)
+                }
+            };
+        }
+
+        // Toggle between current and efficient space
+        function toggleSpaceType(spaceType) {
+            currentSpaceType = spaceType;
+            
+            // Save current space data when switching
+            if (spaceType === 'efficient') {
+                currentSpaceData = {...placedProducts};
+                clearCurrentSpace();
+            } else if (spaceType === 'current') {
+                efficientSpaceData = {...placedProducts};
+                loadSpace(currentSpaceData);
+            }
+            
+            // Update UI
+            updateSpaceUI();
+            
+            console.log(`🔄 Switched to ${spaceType} space configuration`);
+        }
+
+        // Update space UI elements
+        function updateSpaceUI() {
+            const spaceTitle = document.getElementById('spaceTitle');
+            const productTitle = document.getElementById('productTitle');
+            const statusIndicator = document.querySelector('.status-indicator');
+            
+            if (currentSpaceType === 'current') {
+                spaceTitle.textContent = 'Your Current Space';
+                productTitle.textContent = 'Add Standard Products';
+                statusIndicator.innerHTML = '🔴 Current Space - Standard Products';
+                statusIndicator.className = 'status-indicator current';
+            } else {
+                spaceTitle.textContent = 'Your Energy Efficient Space';
+                productTitle.textContent = 'Add Energy Efficient Products';
+                statusIndicator.innerHTML = '🟢 Energy Efficient Space - Low Energy Products';
+                statusIndicator.className = 'status-indicator efficient';
+            }
+            
+            // Update active button
+            document.querySelectorAll('.layout-options .layout-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (currentSpaceType === 'current') {
+                document.querySelector('[onclick="toggleSpaceType(\'current\')"]').classList.add('active');
+            } else {
+                document.querySelector('[onclick="toggleSpaceType(\'efficient\')"]').classList.add('active');
+            }
+        }
+
+        // Clear current space for switching
+        function clearCurrentSpace() {
+            const canvas = document.getElementById('currentLayoutCanvas');
+            if (canvas) {
+            canvas.innerHTML = '';
+            }
+            currentSpaceProducts = {};
+            updateCurrentSpaceDisplay();
+        }
+
+        // Load space data
+        function loadSpace(spaceData) {
+            clearCurrentSpace();
+            
+            Object.keys(spaceData).forEach(productType => {
+                const productData = spaceData[productType];
+                
+                placedProducts[productType] = {
+                    count: productData.count,
+                    totalPower: productData.totalPower,
+                    products: []
+                };
+                
+                // Recreate product icons
+                for (let i = 0; i < productData.count; i++) {
+                    productCounter++;
+                    const productId = `${productType}_${productCounter}`;
+                    placedProducts[productType].products.push(productId);
+                    createProductIcon(productId, productType);
+                }
+            });
+            
+            updateDisplay();
+        }
+
+        // Show comparison between current and efficient spaces
+        function showComparison() {
+            if (Object.keys(currentSpaceData).length === 0 || Object.keys(efficientSpaceData).length === 0) {
+                alert('Please configure both Current Space and Energy Efficient Space before comparing.');
+                return;
+            }
+            
+            const comparisonSection = document.getElementById('comparisonSection');
+            const currentStats = document.getElementById('currentStats');
+            const efficientStats = document.getElementById('efficientStats');
+            
+            // Calculate current space stats
+            const currentTotalProducts = Object.values(currentSpaceData).reduce((sum, data) => sum + data.count, 0);
+            const currentTotalPower = Object.values(currentSpaceData).reduce((sum, data) => sum + data.totalPower, 0);
+            const currentAnnualCost = currentTotalPower * 8760 * 0.15;
+            
+            // Calculate efficient space stats
+            const efficientTotalProducts = Object.values(efficientSpaceData).reduce((sum, data) => sum + data.count, 0);
+            const efficientTotalPower = Object.values(efficientSpaceData).reduce((sum, data) => sum + data.totalPower, 0);
+            const efficientAnnualCost = efficientTotalPower * 8760 * 0.15;
+            
+            // Calculate savings
+            const annualSavings = currentAnnualCost - efficientAnnualCost;
+            const monthlySavings = annualSavings / 12;
+            const paybackPeriod = currentAnnualCost > efficientAnnualCost ? 
+                (currentAnnualCost * 0.3) / annualSavings : 'N/A'; // Simplified payback calculation
+            
+            // Update current space stats
+            currentStats.innerHTML = `
+                <div class="comparison-stat">
+                    <div class="comparison-stat-value">${currentTotalProducts}</div>
+                    <div class="comparison-stat-label">Total Products</div>
+                </div>
+                <div class="comparison-stat">
+                    <div class="comparison-stat-value">${currentTotalPower.toFixed(1)}kW</div>
+                    <div class="comparison-stat-label">Total Power</div>
+                </div>
+                <div class="comparison-stat">
+                    <div class="comparison-stat-value">€${Math.round(currentAnnualCost)}</div>
+                    <div class="comparison-stat-label">Annual Cost</div>
+                </div>
+                <div class="comparison-stat">
+                    <div class="comparison-stat-value">D</div>
+                    <div class="comparison-stat-label">Efficiency Rating</div>
+                </div>
+            `;
+            
+            // Update efficient space stats
+            efficientStats.innerHTML = `
+                <div class="comparison-stat">
+                    <div class="comparison-stat-value">${efficientTotalProducts}</div>
+                    <div class="comparison-stat-label">Total Products</div>
+                </div>
+                <div class="comparison-stat">
+                    <div class="comparison-stat-value">${efficientTotalPower.toFixed(1)}kW</div>
+                    <div class="comparison-stat-label">Total Power</div>
+                </div>
+                <div class="comparison-stat">
+                    <div class="comparison-stat-value">€${Math.round(efficientAnnualCost)}</div>
+                    <div class="comparison-stat-label">Annual Cost</div>
+                </div>
+                <div class="comparison-stat">
+                    <div class="comparison-stat-value">A+</div>
+                    <div class="comparison-stat-label">Efficiency Rating</div>
+                </div>
+            `;
+            
+            // Show comparison section
+            comparisonSection.style.display = 'block';
+            
+            // Update savings in arrow
+            const savingsLabel = document.querySelector('.savings-label');
+            savingsLabel.innerHTML = `
+                <div style="font-size: 18px; font-weight: bold; color: #28a745;">
+                    €${Math.round(annualSavings)}/year
+                </div>
+                <div style="font-size: 12px; margin-top: 5px;">
+                    €${Math.round(monthlySavings)}/month
+                </div>
+                <div style="font-size: 10px; margin-top: 5px;">
+                    ${paybackPeriod !== 'N/A' ? paybackPeriod.toFixed(1) + ' year payback' : 'Immediate savings'}
+                </div>
+            `;
+            
+            // Scroll to comparison
+            comparisonSection.scrollIntoView({ behavior: 'smooth' });
+            
+            console.log(`📊 Comparison created - Annual savings: €${annualSavings}`);
+        }
+
+        // Initialize UI state
+        function initializeUI() {
+            updateSpaceUI();
+        }
+
+        // Update current space display
+        function updateCurrentSpaceDisplay() {
+            const container = document.getElementById('currentProductCounters');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            Object.keys(currentSpaceProducts).forEach(productType => {
+                const productData = currentSpaceProducts[productType];
+                const productConfig = productTypes[productType];
+                
+                const counterDiv = document.createElement('div');
+                counterDiv.className = 'product-counter';
+                counterDiv.innerHTML = `
+                    <div class="counter-controls">
+                        <button class="counter-btn" onclick="decreaseCurrentCount('${productType}')">-</button>
+                        <span class="counter-value">${productData.count}</span>
+                        <button class="counter-btn" onclick="increaseCurrentCount('${productType}')">+</button>
+                    </div>
+                    <div class="product-label">${productConfig.icon} ${productData.count}x ${productConfig.name}</div>
+                `;
+                
+                container.appendChild(counterDiv);
+            });
+        }
+
+        // Update efficient space display
+        function updateEfficientSpaceDisplay() {
+            const container = document.getElementById('efficientProductCounters');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            Object.keys(efficientSpaceProducts).forEach(productType => {
+                const productData = efficientSpaceProducts[productType];
+                const productConfig = productTypes[productType];
+                
+                const counterDiv = document.createElement('div');
+                counterDiv.className = 'product-counter';
+                counterDiv.innerHTML = `
+                    <div class="counter-controls">
+                        <button class="counter-btn" onclick="decreaseEfficientCount('${productType}')">-</button>
+                        <span class="counter-value">${productData.count}</span>
+                        <button class="counter-btn" onclick="increaseEfficientCount('${productType}')">+</button>
+                    </div>
+                    <div class="product-label">${productConfig.icon} ${productData.count}x ${productConfig.name}</div>
+                `;
+                
+                container.appendChild(counterDiv);
+            });
+        }
+
+        // Increase/decrease current space product count
+        function increaseCurrentCount(productType) {
+            if (!currentSpaceProducts[productType]) {
+                currentSpaceProducts[productType] = {
+                    count: 0,
+                    totalPower: 0,
+                    products: []
+                };
+            }
+            
+            const productData = currentSpaceProducts[productType];
+            const productConfig = productTypes[productType];
+            
+            productCounter++;
+            const productId = `current_${productType}_${productCounter}`;
+            
+            productData.count++;
+            productData.totalPower += productConfig.typicalPower;
+            productData.products.push(productId);
+            
+            createProductIcon(productId, productType, 'currentSpace');
+            updateCurrentSpaceDisplay();
+        }
+
+        function decreaseCurrentCount(productType) {
+            const productData = currentSpaceProducts[productType];
+            if (!productData || productData.count <= 0) return;
+            
+            productData.count--;
+            productData.totalPower -= productTypes[productType].typicalPower;
+            const removedProduct = productData.products.pop();
+            
+            // Remove from canvas
+            const element = document.querySelector(`[data-product-id="${removedProduct}"]`);
+            if (element) element.remove();
+            
+            updateCurrentSpaceDisplay();
+        }
+
+        // Increase/decrease efficient space product count
+        function increaseEfficientCount(productType) {
+            if (!efficientSpaceProducts[productType]) {
+                efficientSpaceProducts[productType] = {
+                    count: 0,
+                    totalPower: 0,
+                    products: []
+                };
+            }
+            
+            const productData = efficientSpaceProducts[productType];
+            const productConfig = productTypes[productType];
+            const efficientPower = productConfig.typicalPower * 0.6; // 40% less power
+            
+            efficientProductCounter++;
+            const productId = `efficient_${productType}_${efficientProductCounter}`;
+            
+            productData.count++;
+            productData.totalPower += efficientPower;
+            productData.products.push(productId);
+            
+            createProductIcon(productId, productType, 'efficientSpace', efficientPower);
+            updateEfficientSpaceDisplay();
+        }
+
+        function decreaseEfficientCount(productType) {
+            const productData = efficientSpaceProducts[productType];
+            if (!productData || productData.count <= 0) return;
+            
+            const efficientPower = productTypes[productType].typicalPower * 0.6;
+            productData.count--;
+            productData.totalPower -= efficientPower;
+            const removedProduct = productData.products.pop();
+            
+            // Remove from canvas
+            const element = document.querySelector(`[data-product-id="${removedProduct}"]`);
+            if (element) element.remove();
+            
+            updateEfficientSpaceDisplay();
+        }
+
+        // Update comparison stats
+        function updateComparisonStats() {
+            const currentTotalProducts = Object.values(currentSpaceProducts).reduce((sum, data) => sum + data.count, 0);
+            const efficientTotalProducts = Object.values(efficientSpaceProducts).reduce((sum, data) => sum + data.count, 0);
+            
+            if (currentTotalProducts > 0 && efficientTotalProducts > 0) {
+                const comparisonSection = document.getElementById('comparisonSection');
+                if (comparisonSection) {
+                    comparisonSection.style.display = 'block';
+                }
+            }
+        }
+
+        // Initialize the widget
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🏠 Energy Audit Widget with side-by-side comparison initialized');
+            
+            // Debug: Check if SafeETLIntegration is available
+            console.log('🔍 Checking SafeETLIntegration availability...');
+            console.log('window.SafeETLIntegration:', window.SafeETLIntegration);
+            
+            if (window.SafeETLIntegration) {
+                console.log('✅ SafeETLIntegration found, loading products...');
+                window.SafeETLIntegration.loadETLProducts().then(() => {
+                    console.log('✅ ETL products loaded successfully');
+                    console.log('📊 Available product types:', window.SafeETLIntegration.getAvailableTypes());
+                }).catch(error => {
+                    console.error('❌ Failed to load ETL products:', error);
+                });
+            } else {
+                console.error('❌ SafeETLIntegration not found!');
+            }
+            
+            // Set up canvas styles
+            const currentCanvas = document.getElementById('currentLayoutCanvas');
+            const efficientCanvas = document.getElementById('efficientLayoutCanvas');
+            
+            if (currentCanvas) currentCanvas.classList.add('current-space');
+            if (efficientCanvas) efficientCanvas.classList.add('efficient-space');
+            
+            // Add sample current space products
+            initializeSampleCurrentSpace();
+            
+            // Update displays
+            updateCurrentSpaceDisplay();
+            updateEfficientSpaceDisplay();
+        });
+
+        // Initialize widget with sample current space
+        function initializeSampleCurrentSpace() {
+            const sampleProducts = [
+                {type: 'oven', count: 1},
+                {type: 'fridge', count: 1},
+                {type: 'freezer', count: 1},
+                {type: 'lights', count: 8},
+                {type: 'dishwasher', count: 1}
+            ];
+
+            sampleProducts.forEach(sample => {
+                for (let i = 0; i < sample.count; i++) {
+                    addProductToSpace(sample.type, 'current');
+                }
+            });
+        }
+
+        // Add product to specified space (for initialization)
+        function addProductToSpace(productType, space) {
+            const products = space === 'current' ? currentSpaceProducts : efficientSpaceProducts;
+            const power = space === 'current' ? 
+                productTypes[productType].typicalPower : 
+                productTypes[productType].typicalPower * 0.6;
+            
+            if (!products[productType]) {
+                products[productType] = {
+                    count: 0,
+                    totalPower: 0,
+                    products: []
+                };
+            }
+            
+            const productId = `${space}_${productType}_${space === 'current' ? ++productCounter : ++efficientProductCounter}`;
+            
+            products[productType].count++;
+            products[productType].totalPower += power;
+            products[productType].products.push(productId);
+            
+            createProductIcon(productId, productType, space === 'current' ? 'currentSpace' : 'efficientSpace', space === 'efficient' ? power : null);
+        }
+
+        // Import configuration (for integration)
+        function importConfiguration(config) {
+            placedProducts = {};
+            
+            config.products.forEach(product => {
+                placedProducts[product.type] = {
+                    count: product.count,
+                    totalPower: product.totalPower,
+                    products: []
+                };
+                
+                // Generate product IDs
+                for (let i = 0; i < product.count; i++) {
+                    productCounter++;
+                    const productId = `${product.type}_${productCounter}`;
+                    placedProducts[product.type].products.push(productId);
+                    createProductIcon(productId, product.type);
+                }
+            });
+            
+            updateDisplay();
+        }
+    </script>
+</body>
+</html>

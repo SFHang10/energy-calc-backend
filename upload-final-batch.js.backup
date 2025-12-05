@@ -1,0 +1,116 @@
+/**
+ * Upload FINAL BATCH - Remaining 13 images
+ */
+
+const fs = require('fs');
+const path = require('path');
+const https = require('https');
+
+function uploadFileToWix(filePath, uploadUrl) {
+    return new Promise((resolve, reject) => {
+        const fileData = fs.readFileSync(filePath);
+        const url = new URL(uploadUrl);
+        
+        const boundary = '----WebKitFormBoundary' + Date.now();
+        const filename = path.basename(filePath);
+        
+        let body = '';
+        body += `--${boundary}\r\n`;
+        body += `Content-Disposition: form-data; name="file"; filename="${filename}"\r\n`;
+        body += `Content-Type: image/jpeg\r\n\r\n`;
+        
+        const bodyStart = Buffer.from(body, 'utf8');
+        const bodyEnd = Buffer.from(`\r\n--${boundary}--\r\n`, 'utf8');
+        const totalLength = bodyStart.length + fileData.length + bodyEnd.length;
+        
+        const options = {
+            hostname: url.hostname,
+            path: url.pathname + url.search,
+            method: 'POST',
+            headers: {
+                'Content-Type': `multipart/form-data; boundary=${boundary}`,
+                'Content-Length': totalLength
+            }
+        };
+
+        const req = https.request(options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => { data += chunk; });
+            res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                    try {
+                        resolve(JSON.parse(data));
+                    } catch (e) {
+                        resolve({ raw: data, statusCode: res.statusCode });
+                    }
+                } else {
+                    reject(new Error(`Upload failed: ${res.statusCode} - ${data}`));
+                }
+            });
+        });
+
+        req.on('error', (error) => reject(error));
+        req.write(bodyStart);
+        req.write(fileData);
+        req.write(bodyEnd);
+        req.end();
+    });
+}
+
+const uploadUrls = [
+    "https://upload.wixmp.com/upload/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyYzA2ZjEwOC03YzZhLTQ5OTQtYmI1NS0zN2YwYzE2ZDM5MTQiLCJhdWQiOiJ1cm46c2VydmljZTp1cGxvYWQiLCJpc3MiOiJ1cm46c2VydmljZTp1cGxvYWQiLCJleHAiOjE3NjE4NDg5MzEsImlhdCI6MTc2MTc2MjUyMSwiYnVja2V0IjoidXBsb2FkLXRtcC13aXhtcC1jZGZjMzg0ZjE1ODQxYWFhNWVhYjE2YjEiLCJwYXRoIjoibWVkaWEvYzEyM2RlXzMyNzhiODE5ZGRhMTQ1YjI4OTI0Yjg5MTliNzIyZDVjfm12Mi5qcGciLCJjYWxsYmFja1VybCI6Imh0dHBzOi8vd2l4bXAtY2RmYzM4NGYxNTg0MWFhYTVlYWIxNmIxLmFwcHNwb3QuY29tL19hcGkvdjMvdXBsb2FkL2NhbGxiYWNrP3VwbG9hZFRva2VuPWV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpwYzNNaU9pSjFjbTQ2YzJWeWRtbGpaVHBtYVd4bExuVndiRzloWkNJc0ltRjFaQ0k2SW5WeWJqcHpaWEoyYVdObE9tWnBiR1V1ZFhCc2IyRmtJaXdpYzNWaUlqb2lkWEp1T21Gd2NEcGxOalkyTXpCbE56RTBaakEwT1RCaFlXVmhNV1l4TkRsaU0ySTJPV1V6TWlJc0ltbGhkQ0k2TVRjMk1UYzJNalV5TVN3aVpYaHdJam94TnpZeE9EQTFOekl4TENKcWRHa2lPaUpoYkdjaU9pSklVekkxTmlJc0luUjVjQ0k2SWtwWFZDSjkuZXlKcGMzTWlPaUoxY200NmMyVnlkbWxqWlRwbWFXeGxMblZ3Ykc5aFpDSXNJbUYxWkNJNkluVnlianB6WlhKMmFXTmxPbVpwYkdVdWRYQnNiMkZrSWl3aWMzVmlJam9pZFhKdU9tRndjRHBsTmpZMk16QmxOekUwWmpBME9UQmhZV1ZoTVdZeE5EbGlNMkkyT1dVek1pSXNJbWxoZENJNk1UYzJNVGMyTWpVeU1Td2laWGh3SWpveE56WXhPREExTnpJeExDSnFkR2tpT2lKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKMWNtNDZjMlZ5ZG1salpUcG1hV3hsTG5Wd2JHOWhaQ0lzSW1GMVpDSTZJblZ5YmpwemNISmxNVE15T0RJMU9URTJaR0ZoWWpsa1pqTTNNakptTmpFME9UVXpOak01WWpWak16RmhZalZqWWpGbE56UTNaR0ppTm1JMVltUTBaREpsWlRRME1qY3pOemt3TmpkbU1ERTFZalEzWmpRM09EQmlaR0kyTXpJeE4yUTFPRFJsWkdJM05qVTBPRGN3TWpFNE9UUTBOVGhoTm1ZM1pHVmtOemN5Tm1NNVpHWTBNek00WkRZNE5EQWlMQ0ppYTNRaU9pSnpkR0YwYVdNdWQybDRjM1JoZEdsakxtTnZiU0lzSW5CMGFDSTZJaTl0WldScFlTOWpNVEl6WkdWZk16STNPR0k0TVRsa1pHRXhORFZpTWpnNU1qUmlPRGt4T1dJM01qSmtOV04tYlhZeUxtcHdaV2NpTENKaFkyd2lPaUp3ZFdKc2FXTWlMQ0pzWm1NaU9tNTFiR3dzSW1Oc1lpSTZleUoxY213aU9pSm9kSFJ3Y3pvdkwzQnlhWFpoZEdVdGJXVmthV0V0ZFhBdE5IZDZiV0UyYzI0MllTMTFZeTVoTG5KMWJpNWhjSEF2ZGpNdmJYQXZabWxzWlhNdmRYQnNiMkZrTDIxbFpHbGhMMk14TWpOa1pWODVaREUyTVRJMk56WTFNalUwWTJKa09HWmtNVFl4TTJKaU1XTTNNMlk1Tlg1dGRqSXVhbkJsWnlJc0ltRjBkR0ZqYUcxbGJuUWlPbnNpY0dGMGFDSTZJaTl0WldScFlTOWpNVEl6WkdWZk16STNPR0k0TVRsa1pHRXhORFZpTWpnNU1qUmlPRGt4T1dJM01qSmtOV04tYlhZeUxtcHdaV2NpTENKMWNHeHZZV1JmZEc5clpXNGlPaUpDVEd4V2JVZ3RkRlZPTjJsb1IwSXpUMnhIU2twNlZGWmxjbFl3ZERsMmIyeHhOM042VlVaeGNtb3pTRzVLU2xwT2JUTkdRa014WXpsZmFYcHZWeTFhVW5rNGR6TllkR2RzZW5SVk5Hd3RVSFJXZEdrMU1IbDFNMkpaVDBSelpUSk5kMVUzVkdsUllWaDRSbE0zTmxCSk9WRjNVM2xoZUdwVFkzTk9WMmhzT0U1R2EwWlViMHd5UVVwUk5EVnliMlpCVWs0dFYzSkNjR2hqU1hkWGFFd3lkVE5YTlhnelNsUXlUazl6VGxkb2JtdGxla0l5VWpFNFIwTlJObE5FWms1VVpYWkxhSGxUUVc5aE1VVTVUVWx4ZWpSNVZIQktZbkkzUzFVeVVYRjNZWEI2UjBwc1lsWkdRV281U0VFdFlscFpUamRuV1Y5U1ZGSkVjak10YWpCUFpFSjViVkoyWkRBelNUWjNiR3RZWlVWV1VVMWpTREkyWjIxa1ozTjZlRGxTZVhoRlJXeFZlVFZDV0VJMFduY3dUVmhUUzFKeU1tOUdNM0pRUVdOb1VVNU9VME55UkROQ1lqUjJNMWN6WTNWbUxVbHVTekl5VFVJdFlXZHlSell5ZWprdFgwdFJiVzVPTFV4emRUUTBWMFZFY0dOVWEwODJkWEpVYVhCSVZFaFBlRGhZWHpWVFpVRmpXSEJ2ZVRNNVJrVjRPRE00V1c1SVUydFNNRTlJTWpKWmMzRm9Sa3BqTm1acVJGRm9WVTlSWTBwMGRFOUlRWFJETUdaSmFIUlVOalIxTlV4UU9XdHZaVTU2U25kWFZHdENlVEJQYTB0SGNVcHFSRXRtWVc4emQycHZiRTlzUlZKT1drRnhWV3AyUzNGUVVuWndWSHB3VDFBdE1HUk5lbkZ1T1RCbFpYRjFWVU5vYUd4aVdrYzNiRmxFY0U5blQzSnJTMnBRWm1zM2JWVXRNazF4TlV0TlRFbGhUbTlvUjNoT1MySjZSRGxaYVhkMFJ6aDViVEpUVGtOaFIxZEdWR1JSWlRsSVdVWklSWEF4YlRacE0wODFhbTFhTkVOUlJXWXdSRjluWDNwNldHOVlSMmhFUzNaVU9IbFRaMDVaV1hRMFRUVTJlamt4SW4wc0ltaGxZV1JsY25NaU9tNTFiR3dzSW5CaGMzTjBhSEp2ZFdkb0lqcDBjblZsZlgwLkN2d0p1QjZDRUJTWllsd28yM1poNGlYSS1uOTNiM0xJZ19yQXlndEFQaEUiLCJhY2wiOiJwdWJsaWMiLCJtaW1lVHlwZSI6ImltYWdlL2pwZWciLCJkYXRhUmVzdHJpY3Rpb25zIjp7fSwiYXNwZWN0cyI6eyJwcm9qZWN0SWQiOiJ3aXhtcC1jZGZjMzg0ZjE1ODQxYWFhNWVhYjE2YjEiLCJyZXF1ZXN0SWQiOiIxNzYxNzYyNTQ4LjAwMjEwNDg0NjIyOTIxMjc3NjUxNyIsInNvdXJjZUlkIjoiY2ZhODJlYzItYTA3NS00MTUyLTk3OTktNmExZGQ1YzAxZWY0Iiwic3BhbklkIjoiMzRrZlp0WVA1MzFRTzlkQzA0WGVLY2p3QkpnIn19.pf0xPzgrI3sTIRhm1hrBEOrc-cXprU9VBTwJg2AEgDI"
+];
+
+const imageNames = [
+    "KitchenAid KODE500ESS 30 Double Wall Ovenjpg.jpg",
+    "LG LDE4413ST 30 Double Wall Oven.jpeg",
+    "Light.jpeg",
+    "Maytag MWO5105BZ 30 Single Wall Ovenjpg.jpg",
+    "microwavemainhp.jpg",
+    "Motor.jpeg",
+    "Motor.jpg",
+    "Samsung NE58K9430WS 30 Wall Oven.jpg",
+    "Savings.jpg",
+    "Smart Home. jpeg.jpeg",
+    "Smart Warm Home. jpeg.jpeg",
+    "Whirlpool WOD51HZES 30 Double Wall Oven.jpg",
+    "Appliances.jpg"
+];
+
+async function uploadBatch() {
+    console.log('\n📤 Uploading FINAL BATCH of 13 remaining images...\n');
+    const results = [];
+    
+    for (let i = 0; i < uploadUrls.length; i++) {
+        const imagePath = path.join(__dirname, 'Product Placement', imageNames[i]);
+        const uploadUrl = uploadUrls[i];
+        
+        console.log(`${i + 1}. Uploading: ${imageNames[i]}`);
+        
+        try {
+            const result = await uploadFileToWix(imagePath, uploadUrl);
+            const wixUrl = result.file?.url || result.raw;
+            console.log(`   ✅ Success! URL: ${wixUrl}`);
+            results.push({
+                filename: imageNames[i],
+                localPath: `Product Placement/${imageNames[i]}`,
+                wixUrl: wixUrl
+            });
+        } catch (error) {
+            console.log(`   ❌ Failed: ${error.message}`);
+            results.push({
+                filename: imageNames[i],
+                error: error.message
+            });
+        }
+        console.log('');
+    }
+    
+    return results;
+}
+
+uploadBatch().then(results => {
+    console.log('📊 FINAL BATCH Results:');
+    console.log(JSON.stringify(results, null, 2));
+});
+

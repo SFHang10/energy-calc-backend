@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Efficiency Basics - Greenways Members</title>
+    <style>
+        /* Greenways Buildings Theme - Matching Restaurant Design Page */
+        :root {
+            --primary-green: #2E7D32;
+            --secondary-green: #4CAF50;
+            --accent-green: #81C784;
+            --light-green: #E8F5E8;
+            --dark-green: #1B5E20;
+            --white: #FFFFFF;
+            --gray: #757575;
+            --light-gray: #F5F5F5;
+            --border: #E0E0E0;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: var(--white);
+        }
+
+        /* Navigation Bar - Matching Greenways Buildings Style */
+        .navbar {
+            background-color: var(--white);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 15px 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-green);
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-menu a:hover {
+            color: var(--primary-green);
+        }
+
+        .nav-login {
+            background-color: var(--primary-green);
+            color: var(--white);
+            padding: 8px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-login:hover {
+            background-color: var(--dark-green);
+        }
+
+        /* Hero Section */
+        .hero {
+            background-image: url('../../product-placement/Eco-Friendly-Lifestyle-Practices.webp');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: var(--white);
+            padding: 80px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Breadcrumb Navigation */
+        .breadcrumb {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .breadcrumb a {
+            color: var(--primary-green);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        /* Main Content */
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .content-section {
+            background: var(--white);
+            padding: 40px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .content-section h2 {
+            color: var(--primary-green);
+            font-size: 2rem;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-green);
+        }
+
+        .content-section h3 {
+            color: var(--dark-green);
+            font-size: 1.5rem;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .content-section p {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .content-section ul, .content-section ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        .content-section li {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        /* Image Gallery - Matching Restaurant Design Style */
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            transition: transform 0.3s;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .gallery-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            color: var(--white);
+            padding: 15px;
+            font-size: 0.9rem;
+            display: block;
+        }
+
+        /* Info Cards */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .info-card {
+            background: var(--light-green);
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary-green);
+        }
+
+        .info-card h4 {
+            color: var(--primary-green);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .info-card p {
+            color: var(--gray);
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        /* Back Button */
+        .back-button {
+            display: inline-block;
+            margin: 30px 0;
+            padding: 12px 30px;
+            background-color: var(--primary-green);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .back-button:hover {
+            background-color: var(--dark-green);
+        }
+
+        .back-button::before {
+            content: "← ";
+            margin-right: 5px;
+        }
+
+        /* Footer - Matching Greenways Buildings Style */
+        .footer {
+            background-color: #f8f8f8;
+            padding: 40px 20px;
+            text-align: center;
+            margin-top: 60px;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--gray);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-green);
+        }
+
+        .footer-copyright {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-menu {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            .image-gallery {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Member Access Warning */
+        .access-warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .access-warning h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../members-section.html" class="nav-logo">Greenways Buildings</a>
+            <ul class="nav-menu">
+                <li><a href="../members-section.html">Home</a></li>
+                <li><a href="unified-membership-dashboard.html">Dashboard</a></li>
+                <li><a href="#resources">Resources</a></li>
+                <li><a href="#programmes">Programmes</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="../members-section.html" class="nav-login">Members Area</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Energy Efficiency Basics</h1>
+            <p>Essential guide to understanding energy consumption and reduction strategies for sustainable building management</p>
+        </div>
+    </div>
+
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb">
+        <a href="../members-section.html">Home</a> > 
+        <a href="../members-section.html#content-section">Member Content</a> > 
+        <span>Energy Efficiency Basics</span>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-container">
+        <!-- Access Check Section (Hidden if authenticated) -->
+        <div id="access-warning" class="access-warning" style="display: none;">
+            <h3>🔒 Member Access Required</h3>
+            <p>Please <a href="../members-section.html">login</a> to access this premium content.</p>
+        </div>
+
+        <!-- Main Content (Shown if authenticated) -->
+        <div id="main-content">
+            <!-- Introduction Section -->
+            <div class="content-section">
+                <h2>Understanding Energy Efficiency</h2>
+                <p>Energy efficiency is the practice of using less energy to achieve the same or better results. In building management, this means reducing energy consumption while maintaining comfort, productivity, and functionality. Understanding the fundamentals of energy efficiency is crucial for making informed decisions about building improvements and sustainability initiatives.</p>
+                
+                <!-- Image Gallery -->
+                <div class="image-gallery" style="margin: 30px 0;">
+                    <div class="gallery-item">
+                        <img src="../images/OIP.jpeg" alt="Energy efficient building and lighting solutions" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="gallery-caption">Energy Efficient Solutions</div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="../images/pngtree-lighting-.jpg" alt="Modern LED lighting installation" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="gallery-caption">LED Lighting Technology</div>
+                    </div>
+                </div>
+                
+                <div class="info-cards">
+                    <div class="info-card">
+                        <h4>💶 Cost Savings</h4>
+                        <p>Reduce energy bills by up to 30% through efficient practices and technologies.</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>🌱 Environmental Impact</h4>
+                        <p>Lower carbon footprint and contribute to climate change mitigation efforts.</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>📈 Property Value</h4>
+                        <p>Energy-efficient buildings often have higher market values and rental rates.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Concepts Section -->
+            <div class="content-section">
+                <h2>Key Energy Efficiency Concepts</h2>
+                
+                <h3>1. Energy Consumption Patterns</h3>
+                <p>Understanding when and how energy is used in your building is the first step toward efficiency. Most buildings have peak usage times that can be optimized:</p>
+                <ul>
+                    <li><strong>Peak Hours:</strong> Typically 8 AM - 6 PM on weekdays when occupancy is highest</li>
+                    <li><strong>Base Load:</strong> Minimum energy required to keep systems operational</li>
+                    <li><strong>Seasonal Variations:</strong> Heating in winter, cooling in summer create different usage patterns</li>
+                </ul>
+
+                <h3>2. Energy Rating Systems</h3>
+                <p>Energy ratings help you understand the efficiency of appliances and systems:</p>
+                
+                <!-- Energy Rating Systems Image -->
+                <div class="image-gallery" style="margin: 20px 0; grid-template-columns: 1fr; max-width: 512px; margin-left: 0; margin-right: auto;">
+                    <div class="gallery-item">
+                        <img src="../images/Types-of-Rating-Systems.jpg" alt="Energy rating systems and efficiency labels" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="gallery-caption">Energy Rating Systems Guide</div>
+                    </div>
+                </div>
+                
+                <ul>
+                    <li><strong>Energy Star:</strong> Certification for energy-efficient products</li>
+                    <li><strong>EPC Ratings:</strong> Energy Performance Certificates for buildings (A-G scale)</li>
+                    <li><strong>SEER/EER:</strong> Seasonal Energy Efficiency Ratio for HVAC systems</li>
+                </ul>
+
+                <h3>3. Power vs. Energy</h3>
+                <p>Understanding the difference between power (kW) and energy (kWh) is fundamental:</p>
+                <ul>
+                    <li><strong>Power (kW):</strong> The rate at which energy is used (like speed)</li>
+                    <li><strong>Energy (kWh):</strong> The total amount of energy consumed over time (like distance)</li>
+                    <li><strong>Example:</strong> A 1kW device running for 10 hours uses 10 kWh of energy</li>
+                </ul>
+            </div>
+
+            <!-- Practical Strategies Section -->
+            <div class="content-section">
+                <h2>Practical Energy Reduction Strategies</h2>
+                
+                <h3>Lighting Efficiency</h3>
+                <p>Lighting typically accounts for 15-20% of a building's energy consumption. Here are proven strategies:</p>
+                
+                <!-- Lighting Images -->
+                <div class="image-gallery" style="margin: 20px 0; grid-template-columns: 1fr; max-width: 520px;">
+                    <div class="gallery-item" style="height: auto;">
+                        <img src="../images/2019-lighting-graphic.png" alt="2019 lighting efficiency graphic" style="width: 100%; height: auto; object-fit: contain; display: block;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="gallery-caption">Lighting Efficiency Guide</div>
+                    </div>
+                </div>
+                
+                <ul>
+                    <li><strong>LED Retrofitting:</strong> Replace incandescent and fluorescent bulbs with LEDs (up to 80% energy savings)</li>
+                    <li><strong>Smart Controls:</strong> Install occupancy sensors and daylight harvesting systems</li>
+                    <li><strong>Task Lighting:</strong> Use focused lighting instead of illuminating entire spaces</li>
+                    <li><strong>Maintenance:</strong> Regular cleaning of fixtures and replacement of old bulbs</li>
+                </ul>
+
+                <h3>HVAC Optimization</h3>
+                <p>Heating, ventilation, and air conditioning systems are often the largest energy consumers:</p>
+                
+                <!-- HVAC Images -->
+                <div class="image-gallery" style="margin: 20px 0;">
+                    <div class="gallery-item">
+                        <img src="../images/member-content/energy-efficiency-basics/hvac-system.jpg" alt="Modern HVAC system" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="gallery-caption" style="display: none;">Efficient HVAC System</div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="../images/member-content/energy-efficiency-basics/thermostat-control.jpg" alt="Programmable thermostat" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="gallery-caption" style="display: none;">Programmable Thermostat</div>
+                    </div>
+                </div>
+                
+                <ul>
+                    <li><strong>Programmable Thermostats:</strong> Set temperatures based on occupancy schedules</li>
+                    <li><strong>Regular Maintenance:</strong> Clean filters, check ductwork, service equipment quarterly</li>
+                    <li><strong>Zoning:</strong> Control different areas independently based on usage</li>
+                    <li><strong>Insulation:</strong> Proper insulation reduces heating and cooling loads by 20-30%</li>
+                </ul>
+
+                <h3>Building Envelope Improvements</h3>
+                <p>The building envelope (walls, roof, windows, doors) significantly impacts energy efficiency:</p>
+                <ul>
+                    <li><strong>Window Upgrades:</strong> Double or triple glazing, low-E coatings, proper sealing</li>
+                    <li><strong>Wall Insulation:</strong> Add or improve insulation in walls and attics</li>
+                    <li><strong>Air Sealing:</strong> Seal gaps and cracks to prevent air leakage</li>
+                    <li><strong>Roof Improvements:</strong> Cool roofs, additional insulation, reflective materials</li>
+                </ul>
+            </div>
+
+            <!-- Measurement and Monitoring Section -->
+            <div class="content-section">
+                <h2>Measuring and Monitoring Energy Use</h2>
+                
+                <!-- Smart Buildings Image -->
+                <div class="image-gallery" style="margin: 20px 0; grid-template-columns: 1fr; max-width: 400px;">
+                    <div class="gallery-item" style="height: auto;">
+                        <img src="../images/visual_smart_buildings_0.jpg" alt="Visual smart buildings and energy monitoring" style="width: 100%; height: auto; object-fit: contain; display: block;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="gallery-caption">Smart Buildings & Energy Monitoring</div>
+                    </div>
+                </div>
+                
+                <h3>Energy Audits</h3>
+                <p>Regular energy audits help identify opportunities for improvement:</p>
+                <ul>
+                    <li><strong>Walk-Through Audit:</strong> Visual inspection of building systems and operations</li>
+                    <li><strong>Energy Analysis:</strong> Review of utility bills and energy consumption patterns</li>
+                    <li><strong>Comprehensive Audit:</strong> Detailed analysis with professional equipment and recommendations</li>
+                </ul>
+
+                <h3>Monitoring Tools</h3>
+                <p>Modern technology makes energy monitoring easier and more effective:</p>
+                <ul>
+                    <li><strong>Smart Meters:</strong> Real-time energy consumption data</li>
+                    <li><strong>Energy Management Systems:</strong> Software platforms for tracking and analyzing usage</li>
+                    <li><strong>Sub-Metering:</strong> Monitor specific systems or areas separately</li>
+                    <li><strong>IoT Sensors:</strong> Internet-connected devices for comprehensive monitoring</li>
+                </ul>
+            </div>
+
+            <!-- Financial Considerations Section -->
+            <div class="content-section">
+                <h2>Financial Benefits and ROI</h2>
+                
+                <h3>Calculating Return on Investment</h3>
+                <p>Understanding the financial benefits of energy efficiency improvements:</p>
+                <ul>
+                    <li><strong>Simple Payback:</strong> Initial cost ÷ Annual savings = Payback period</li>
+                    <li><strong>Lifecycle Cost:</strong> Consider total cost over equipment lifetime, not just purchase price</li>
+                    <li><strong>Energy Savings:</strong> Calculate based on usage reduction and energy rates</li>
+                    <li><strong>Maintenance Savings:</strong> Efficient equipment often requires less maintenance</li>
+                </ul>
+
+                <h3>Available Incentives</h3>
+                <p>Many governments and utilities offer incentives for energy efficiency:</p>
+                <ul>
+                    <li><strong>Grants:</strong> Direct funding for energy efficiency projects</li>
+                    <li><strong>Tax Credits:</strong> Reductions in tax liability for qualifying improvements</li>
+                    <li><strong>Rebates:</strong> Cash back for purchasing efficient equipment</li>
+                    <li><strong>Low-Interest Loans:</strong> Financing options for energy projects</li>
+                </ul>
+            </div>
+
+            <!-- Restaurant Design Section -->
+            <div class="content-section" style="background: linear-gradient(135deg, var(--primary-green), var(--secondary-green)); color: var(--white);">
+                <h2 style="color: var(--white); border-bottom-color: rgba(255,255,255,0.3);">Restaurant Design That Improves Profitability</h2>
+                <p style="text-align: center; font-size: 1.3rem; margin-bottom: 40px; opacity: 0.95;">
+                    How Smart Design Reduces Costs by 30% While Boosting Sustainability & Profitability
+                </p>
+
+                <!-- Statistics Banner -->
+                <div class="info-cards" style="margin: 40px 0;">
+                    <div class="info-card" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: none; color: var(--white);">
+                        <h4 style="color: var(--white); font-size: 2.5rem; margin-bottom: 10px;">5-7x</h4>
+                        <p style="color: rgba(255,255,255,0.95);">More Energy Use Than Other Buildings</p>
+                    </div>
+                    <div class="info-card" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: none; color: var(--white);">
+                        <h4 style="color: var(--white); font-size: 2.5rem; margin-bottom: 10px;">30%</h4>
+                        <p style="color: rgba(255,255,255,0.95);">Potential Energy Cost Reduction</p>
+                    </div>
+                    <div class="info-card" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: none; color: var(--white);">
+                        <h4 style="color: var(--white); font-size: 2.5rem; margin-bottom: 10px;">20%</h4>
+                        <p style="color: rgba(255,255,255,0.95);">Kitchen Efficiency Gain Through Design</p>
+                    </div>
+                    <div class="info-card" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: none; color: var(--white);">
+                        <h4 style="color: var(--white); font-size: 2.5rem; margin-bottom: 10px;">5-8yrs</h4>
+                        <p style="color: rgba(255,255,255,0.95);">Average ROI on Green Upgrades</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strategic Kitchen Layout -->
+            <div class="content-section">
+                <h2>Strategic Kitchen Layout Design</h2>
+                <p style="text-align: center; font-size: 1.2rem; color: var(--gray); margin-bottom: 40px;">
+                    Optimizing kitchen workflow reduces energy waste, speeds up service, and cuts labor costs
+                </p>
+
+                <div class="info-cards">
+                    <div class="info-card">
+                        <h4>🔥 Zone-Based Kitchen Design</h4>
+                        <p>Separate hot and cold zones to minimize HVAC strain. Position refrigeration away from cooking equipment to reduce compressor workload by up to 25%.</p>
+                        <div style="background: var(--light-green); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid var(--primary-green);">
+                            <strong style="color: var(--primary-green); font-size: 1.3rem; display: block; margin-bottom: 5px;">💶 Save €2,500-4,000/year</strong>
+                            <span style="color: var(--gray); font-size: 0.95rem;">Reduced cooling costs and equipment strain</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>⚡ Energy-Efficient Equipment Placement</h4>
+                        <p>Strategic appliance positioning reduces food prep time by 30% and minimizes unnecessary equipment running during off-peak hours.</p>
+                        <div style="background: var(--light-green); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid var(--primary-green);">
+                            <strong style="color: var(--primary-green); font-size: 1.3rem; display: block; margin-bottom: 5px;">💶 Save €3,500-6,000/year</strong>
+                            <span style="color: var(--gray); font-size: 0.95rem;">Lower energy bills and improved workflow</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>💨 Smart Ventilation Systems</h4>
+                        <p>ENERGY STAR certified ventilation fans use 70% less energy than standard models, while demand-controlled ventilation adjusts based on cooking activity.</p>
+                        <div style="background: var(--light-green); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid var(--primary-green);">
+                            <strong style="color: var(--primary-green); font-size: 1.3rem; display: block; margin-bottom: 5px;">💶 Save €1,800-3,200/year</strong>
+                            <span style="color: var(--gray); font-size: 0.95rem;">Energy-efficient air quality management</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurant Lighting -->
+            <div class="content-section">
+                <h2>Restaurant Lighting & Atmosphere Design</h2>
+                <div class="info-cards">
+                    <div class="info-card">
+                        <h4>💡 LED Lighting Systems</h4>
+                        <p>LED bulbs use 75% less energy than incandescent bulbs and last 25 times longer, dramatically reducing replacement costs and energy consumption.</p>
+                        <div style="background: var(--light-green); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid var(--primary-green);">
+                            <strong style="color: var(--primary-green); font-size: 1.3rem; display: block; margin-bottom: 5px;">💶 Save €1,200-2,400/year</strong>
+                            <span style="color: var(--gray); font-size: 0.95rem;">Lower electricity and maintenance costs</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>☀️ Natural Light Integration</h4>
+                        <p>Strategic window placement and skylights reduce daytime lighting needs by up to 40%, creating an inviting atmosphere while cutting costs.</p>
+                        <div style="background: var(--light-green); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid var(--primary-green);">
+                            <strong style="color: var(--primary-green); font-size: 1.3rem; display: block; margin-bottom: 5px;">💶 Save €900-1,800/year</strong>
+                            <span style="color: var(--gray); font-size: 0.95rem;">Reduced lighting costs plus enhanced ambiance</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>🎛️ Smart Lighting Controls</h4>
+                        <p>Occupancy sensors and dimming systems ensure lights are only on when needed, preventing energy waste in storage areas and restrooms.</p>
+                        <div style="background: var(--light-green); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid var(--primary-green);">
+                            <strong style="color: var(--primary-green); font-size: 1.3rem; display: block; margin-bottom: 5px;">💶 Save €600-1,200/year</strong>
+                            <span style="color: var(--gray); font-size: 0.95rem;">Automated energy optimization</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROI Section -->
+            <div class="content-section" style="background: linear-gradient(135deg, var(--primary-green), var(--dark-green)); color: var(--white);">
+                <h2 style="color: var(--white); border-bottom-color: rgba(255,255,255,0.3); text-align: center;">Return on Investment: Real Numbers</h2>
+                <p style="text-align: center; font-size: 1.2rem; margin-bottom: 40px; opacity: 0.95;">
+                    Energy-efficient design upgrades typically pay for themselves within 5-8 years, then continue saving money for decades
+                </p>
+
+                <div class="info-cards">
+                    <div class="info-card" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: none; color: var(--white); text-align: center;">
+                        <h4 style="color: var(--white); font-size: 2.5rem; margin-bottom: 10px;">15-30%</h4>
+                        <p style="color: rgba(255,255,255,0.95);">Energy Cost Reduction with ENERGY STAR Equipment</p>
+                    </div>
+                    <div class="info-card" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: none; color: var(--white); text-align: center;">
+                        <h4 style="color: var(--white); font-size: 2.5rem; margin-bottom: 10px;">💶 €1,500</h4>
+                        <p style="color: rgba(255,255,255,0.95);">Annual Savings from Energy-Efficient Dishwashers</p>
+                    </div>
+                    <div class="info-card" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: none; color: var(--white); text-align: center;">
+                        <h4 style="color: var(--white); font-size: 2.5rem; margin-bottom: 10px;">5-7%</h4>
+                        <p style="color: rgba(255,255,255,0.95);">Total Operational Cost Reduction</p>
+                    </div>
+                    <div class="info-card" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: none; color: var(--white); text-align: center;">
+                        <h4 style="color: var(--white); font-size: 2.5rem; margin-bottom: 10px;">43%</h4>
+                        <p style="color: rgba(255,255,255,0.95);">Energy Reduction Achieved by Leading Restaurant Chains (2024)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HVAC for Restaurants -->
+            <div class="content-section">
+                <h2>Restaurant HVAC & Climate Control Design</h2>
+                <div class="info-cards">
+                    <div class="info-card">
+                        <h4>🌡️ Programmable Thermostats</h4>
+                        <p>Schedule temperature adjustments based on peak dining hours and kitchen activity, avoiding energy waste during closed periods.</p>
+                        <div style="background: var(--light-green); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid var(--primary-green);">
+                            <strong style="color: var(--primary-green); font-size: 1.3rem; display: block; margin-bottom: 5px;">💶 Save €1,500-3,000/year</strong>
+                            <span style="color: var(--gray); font-size: 0.95rem;">Optimized heating and cooling cycles</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>🏗️ Insulation & Sealing</h4>
+                        <p>Proper insulation and weatherstripping prevent conditioned air loss, reducing HVAC workload by 20-30% year-round.</p>
+                        <div style="background: var(--light-green); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid var(--primary-green);">
+                            <strong style="color: var(--primary-green); font-size: 1.3rem; display: block; margin-bottom: 5px;">💶 Save €2,000-4,500/year</strong>
+                            <span style="color: var(--gray); font-size: 0.95rem;">Reduced heating and cooling expenses</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>❄️ High-Efficiency Refrigeration</h4>
+                        <p>Modern refrigeration with door sensors and efficient compressors prevents cold air loss and reduces energy consumption significantly.</p>
+                        <div style="background: var(--light-green); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid var(--primary-green);">
+                            <strong style="color: var(--primary-green); font-size: 1.3rem; display: block; margin-bottom: 5px;">💶 Save €2,500-5,000/year</strong>
+                            <span style="color: var(--gray); font-size: 0.95rem;">Lower electricity costs for cold storage</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case Study -->
+            <div class="content-section" style="background: linear-gradient(135deg, var(--secondary-green), var(--accent-green)); color: var(--white);">
+                <h2 style="color: var(--white); border-bottom-color: rgba(255,255,255,0.3);">Real-World Success: Restaurant Chain Energy Transformation</h2>
+                <p style="font-size: 1.2rem; margin-bottom: 30px; opacity: 0.95;">
+                    A major restaurant chain partnered with energy management systems in 2024 to redesign their operations across 7,000 locations
+                </p>
+
+                <div class="info-cards">
+                    <div class="info-card" style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: none; color: var(--white); text-align: center;">
+                        <h4 style="color: var(--white); font-size: 2.5rem; margin-bottom: 10px;">43%</h4>
+                        <p style="color: rgba(255,255,255,0.95);">Reduction in Energy Consumption</p>
+                    </div>
+                    <div class="info-card" style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: none; color: var(--white); text-align: center;">
+                        <h4 style="color: var(--white); font-size: 2.5rem; margin-bottom: 10px;">219,100</h4>
+                        <p style="color: rgba(255,255,255,0.95);">Metric Tons of CO₂ Avoided</p>
+                    </div>
+                    <div class="info-card" style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: none; color: var(--white); text-align: center;">
+                        <h4 style="color: var(--white); font-size: 2.5rem; margin-bottom: 10px;">💶 €18,000</h4>
+                        <p style="color: rgba(255,255,255,0.95);">Annual Energy Savings per Location</p>
+                    </div>
+                    <div class="info-card" style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: none; color: var(--white); text-align: center;">
+                        <h4 style="color: var(--white); font-size: 2.5rem; margin-bottom: 10px;">4.2 years</h4>
+                        <p style="color: rgba(255,255,255,0.95);">Payback Period for Upgrades</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- European Success Stories -->
+            <div class="content-section">
+                <h2>🌍 European Success Stories: Real Restaurants, Real Results</h2>
+                <p style="text-align: center; font-size: 1.2rem; color: var(--gray); margin-bottom: 40px;">
+                    These European restaurants transformed their design and achieved remarkable energy savings
+                </p>
+
+                <div class="info-cards">
+                    <div class="info-card">
+                        <h4>🍔 McDonald's Market Drayton, UK</h4>
+                        <p>The UK's first Net Zero Carbon restaurant featuring heat recovery systems, 92 sqm solar panels, two wind turbines, and British sheep's wool insulation. Strategic kitchen design with advanced heat recovery captures waste heat to warm dining areas.</p>
+                        <div style="background: var(--light-green); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid var(--primary-green);">
+                            <strong style="color: var(--primary-green); font-size: 1.2rem; display: block; margin-bottom: 5px;">60,000 KWh/year</strong>
+                            <span style="color: var(--gray); font-size: 0.95rem;">Generated from renewable sources • First UKGBC Net Zero Standard restaurant</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>🍟 Burger King Network, Europe</h4>
+                        <p>Across 7,000 European locations, strategic energy management system implementation optimized kitchen layouts, HVAC placement, and equipment scheduling to reduce waste and operational costs significantly.</p>
+                        <div style="background: var(--light-green); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid var(--primary-green);">
+                            <strong style="color: var(--primary-green); font-size: 1.2rem; display: block; margin-bottom: 5px;">43% Energy Reduction</strong>
+                            <span style="color: var(--gray); font-size: 0.95rem;">219,100 metric tons CO₂ avoided annually • €18,000 average savings per location</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>☕ Chipotle Renewable Energy, Europe</h4>
+                        <p>All-electric kitchens with optimized layout design, smaller more efficient cooklines with better exhaust systems, and complete renewable energy integration through solar and wind power.</p>
+                        <div style="background: var(--light-green); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid var(--primary-green);">
+                            <strong style="color: var(--primary-green); font-size: 1.2rem; display: block; margin-bottom: 5px;">100% Renewable</strong>
+                            <span style="color: var(--gray); font-size: 0.95rem;">Zero fossil fuel consumption • Compact kitchen design reduces energy load by 30%</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>🌱 European Chain Restaurants</h4>
+                        <p>ENERGY STAR certified equipment deployment, LED lighting retrofits, smart HVAC controls, and zone-based kitchen designs across multiple European restaurant chains achieved consistent 15-30% energy reductions.</p>
+                        <div style="background: var(--light-green); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid var(--primary-green);">
+                            <strong style="color: var(--primary-green); font-size: 1.2rem; display: block; margin-bottom: 5px;">15-30% Average</strong>
+                            <span style="color: var(--gray); font-size: 0.95rem;">Energy cost reduction • 5-8 year ROI on sustainable design upgrades</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation Timeline -->
+            <div class="content-section">
+                <h2>Implementation Timeline</h2>
+                <p style="text-align: center; font-size: 1.2rem; color: var(--gray); margin-bottom: 50px;">
+                    From design to profitability: Your roadmap to sustainable restaurant operations
+                </p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; margin: 40px 0;">
+                    <div style="text-align: center;">
+                        <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-green), var(--secondary-green)); color: var(--white); display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 2rem; font-weight: 700; box-shadow: var(--shadow);">1</div>
+                        <div style="font-weight: 600; color: var(--primary-green); font-size: 1.1rem; margin-bottom: 10px;">Energy Audit</div>
+                        <p style="color: var(--gray);">Identify opportunities (Week 1-2)</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-green), var(--secondary-green)); color: var(--white); display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 2rem; font-weight: 700; box-shadow: var(--shadow);">2</div>
+                        <div style="font-weight: 600; color: var(--primary-green); font-size: 1.1rem; margin-bottom: 10px;">Design Planning</div>
+                        <p style="color: var(--gray);">Create efficiency blueprint (Month 1)</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-green), var(--secondary-green)); color: var(--white); display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 2rem; font-weight: 700; box-shadow: var(--shadow);">3</div>
+                        <div style="font-weight: 600; color: var(--primary-green); font-size: 1.1rem; margin-bottom: 10px;">Installation</div>
+                        <p style="color: var(--gray);">Implement upgrades (Month 2-3)</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-green), var(--secondary-green)); color: var(--white); display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 2rem; font-weight: 700; box-shadow: var(--shadow);">4</div>
+                        <div style="font-weight: 600; color: var(--primary-green); font-size: 1.1rem; margin-bottom: 10px;">Savings Begin</div>
+                        <p style="color: var(--gray);">Immediate cost reduction (Month 4+)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Steps Section -->
+            <div class="content-section">
+                <h2>Getting Started</h2>
+                <p>Ready to improve your building's energy efficiency? Follow these steps:</p>
+                <ol>
+                    <li><strong>Assess Current Usage:</strong> Review your energy bills and conduct a basic audit</li>
+                    <li><strong>Set Goals:</strong> Establish realistic targets for energy reduction (e.g., 20% in 2 years)</li>
+                    <li><strong>Prioritize Actions:</strong> Focus on low-cost, high-impact improvements first</li>
+                    <li><strong>Create a Plan:</strong> Develop a comprehensive energy management plan</li>
+                    <li><strong>Implement Changes:</strong> Start with quick wins, then tackle larger projects</li>
+                    <li><strong>Monitor Progress:</strong> Track energy use and adjust strategies as needed</li>
+                </ol>
+            </div>
+
+            <!-- Back Button -->
+            <a href="../members-section.html#content-section" class="back-button" onclick="
+                if (window.opener) { 
+                    // If opened in new window, close it
+                    window.close(); 
+                    return false; 
+                }
+                // Otherwise navigate normally
+                return true;
+            ">Back to Member Content</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="../members-section.html">Home</a>
+                <a href="#about">About Us</a>
+                <a href="#resources">Resources</a>
+                <a href="#programmes">Programmes</a>
+                <a href="#stories">Sustainable Community Stories</a>
+                <a href="#contact">Contact Us</a>
+            </div>
+            <div class="footer-copyright">
+                © 2025 by Rococo Executive
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Check member authentication
+        // Auto-detect production vs development
+        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:4000/api'
+            : window.location.origin + '/api';
+        
+        // Check if user is logged in (using same token key as members-section)
+        let authToken = localStorage.getItem('energy_calc_membership_token');
+        let currentUser = null;
+
+        // Check access on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            if (!authToken) {
+                // Not logged in - show warning, hide content
+                document.getElementById('access-warning').style.display = 'block';
+                document.getElementById('main-content').style.display = 'none';
+                return;
+            }
+
+            // Check if we have a recent auth check (within 5 minutes) to avoid unnecessary API calls
+            const lastAuthCheck = localStorage.getItem('lastAuthCheck');
+            const lastAuthTime = lastAuthCheck ? parseInt(lastAuthCheck) : 0;
+            const now = Date.now();
+            const fiveMinutes = 5 * 60 * 1000;
+
+            // If we checked recently, trust the session and show content
+            if (lastAuthCheck && (now - lastAuthTime < fiveMinutes)) {
+                console.log('Recent auth check found, trusting session');
+                document.getElementById('access-warning').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                return;
+            }
+
+            // Verify token is still valid by checking user profile
+            try {
+                const response = await fetch(`${API_BASE_URL}/members/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.user || data.member;
+                    // Cache successful auth check
+                    localStorage.setItem('lastAuthCheck', now.toString());
+                    if (currentUser) {
+                        localStorage.setItem('cachedUser', JSON.stringify(currentUser));
+                    }
+                    // Logged in - hide warning, show content
+                    document.getElementById('access-warning').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
+                } else if (response.status === 401 || response.status === 403) {
+                    // Only remove token on actual authentication errors
+                    document.getElementById('access-warning').style.display = 'block';
+                    document.getElementById('main-content').style.display = 'none';
+                    localStorage.removeItem('energy_calc_membership_token');
+                    localStorage.removeItem('lastAuthCheck');
+                    localStorage.removeItem('cachedUser');
+                } else {
+                    // For other errors (network, server errors), keep session active
+                    console.warn('Auth check failed but keeping session:', response.status);
+                    // Cache the check time anyway to avoid repeated calls
+                    localStorage.setItem('lastAuthCheck', now.toString());
+                    // Show content if we have a token
+                    document.getElementById('access-warning').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
+                }
+            } catch (error) {
+                console.warn('Auth check error (keeping session):', error.message);
+                // On error, keep session active if token exists
+                // Only clear token if it's clearly an authentication error
+                if (error.message && (error.message.includes('401') || error.message.includes('403') || error.message.includes('Unauthorized'))) {
+                    localStorage.removeItem('energy_calc_membership_token');
+                    localStorage.removeItem('lastAuthCheck');
+                    localStorage.removeItem('cachedUser');
+                    document.getElementById('access-warning').style.display = 'block';
+                    document.getElementById('main-content').style.display = 'none';
+                } else {
+                    // Network errors or other issues - keep session
+                    // Cache the check time to avoid repeated calls
+                    localStorage.setItem('lastAuthCheck', now.toString());
+                    document.getElementById('access-warning').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+

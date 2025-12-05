@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="wix-html-scroll" content="no-scroll">
+    <title>Comprehensive Grants & Incentives Portal - Europe Wide</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #B0BEC5;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #22c55e, #16a34a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #22c55e;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #22c55e;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #B0BEC5;
+            font-size: 0.9rem;
+        }
+
+        .filter-container {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: #22c55e;
+            color: #0f172a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.4);
+        }
+
+        .region-selector {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .region-selector select {
+            background: rgba(30, 41, 59, 0.8);
+            color: #B0BEC5;
+            border: 2px solid rgba(34, 197, 94, 0.4);
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 1.1em;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .region-selector select:hover {
+            border-color: #22c55e;
+        }
+
+        .region-selector label {
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .search-row {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .search-box {
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid rgba(34, 197, 94, 0.4);
+            border-radius: 25px;
+            padding: 15px 25px;
+            color: white;
+            font-size: 1em;
+            width: 100%;
+            max-width: 500px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box::placeholder {
+            color: #6B7280;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+        }
+
+        .grants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+        }
+
+        .grant-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grant-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #22c55e, #16a34a, #4CAF50);
+        }
+
+        .grant-card:hover {
+            transform: translateY(-5px);
+            border-color: #22c55e;
+            box-shadow: 0 20px 40px rgba(34, 197, 94, 0.2);
+        }
+
+        .grant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .grant-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .grant-region {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #0f172a;
+            padding: 8px 16px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .grant-type-badge {
+            background: rgba(107, 114, 128, 0.3);
+            color: #B0BEC5;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 10px;
+        }
+
+        .grant-description {
+            color: #B0BEC5;
+            margin-bottom: 20px;
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+
+        .grant-details {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 8px;
+            border-left: 3px solid #22c55e;
+        }
+
+        .detail-item {
+            display: flex;
+            margin-bottom: 12px;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: white;
+            min-width: 130px;
+        }
+
+        .detail-value {
+            color: #B0BEC5;
+            flex: 1;
+        }
+
+        .grant-keywords {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .keyword-tag {
+            display: inline-block;
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin: 4px;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .grant-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .apply-btn {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #0f172a;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            flex: 1;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .apply-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
+            background: linear-gradient(135deg, #16a34a, #047857);
+        }
+
+        .info-btn {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            padding: 12px 24px;
+            border: 2px solid rgba(34, 197, 94, 0.4);
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .info-btn:hover {
+            background: rgba(34, 197, 94, 0.3);
+            transform: translateY(-2px);
+            border-color: #22c55e;
+        }
+
+        .priority-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #FF5722, #F4511E);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(255, 87, 34, 0.4);
+            z-index: 10;
+        }
+
+        .deadline-warning {
+            background: rgba(255, 152, 0, 0.15);
+            border-left: 4px solid #FF9800;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .deadline-text {
+            color: #FF9800;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .urgent-badge {
+            background: rgba(255, 87, 34, 0.2);
+            border-left: 4px solid #FF5722;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+
+        .urgent-text {
+            color: #FF5722;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #B0BEC5;
+            font-size: 1.2rem;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px;
+            color: #B0BEC5;
+            font-size: 1.1rem;
+        }
+
+        .results-count {
+            text-align: center;
+            margin-bottom: 20px;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .type-subsidy { 
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+        }
+        .type-grant { 
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+        .type-tax { 
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+        .type-certification { 
+            background: linear-gradient(135deg, #374151, #1F2937);
+            color: white;
+        }
+        .type-compliance {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .grants-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .filter-row {
+                justify-content: center;
+            }
+            
+            .grant-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .grant-actions {
+                flex-direction: column;
+            }
+
+            .apply-btn, .info-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-gift"></i> Comprehensive Grants & Incentives Portal</h1>
+            <p>Find and apply to relevant government schemes across Europe</p>
+        </div>
+
+        <div class="stats-bar" id="stats-bar">
+            <div class="loading">Loading statistics...</div>
+        </div>
+
+        <div class="filter-container">
+            <div class="filter-row">
+                <button class="filter-btn active" data-filter="all">All Schemes</button>
+                <button class="filter-btn" data-filter="Heating">Heating</button>
+                <button class="filter-btn" data-filter="Renewable">Renewable</button>
+                <button class="filter-btn" data-filter="Appliances">Appliances</button>
+                <button class="filter-btn" data-filter="Insulation">Insulation</button>
+                <button class="filter-btn" data-filter="Smart Home">Smart Home</button>
+                <button class="filter-btn" data-filter="subsidy">Subsidies</button>
+                <button class="filter-btn" data-filter="grant">Grants</button>
+                <button class="filter-btn" data-filter="tax">Tax Benefits</button>
+                <button class="filter-btn" data-filter="certification">Certifications</button>
+                <button class="filter-btn" data-filter="compliance">Compliance</button>
+            </div>
+            
+            <div class="region-selector">
+                <label for="region-select"><i class="fas fa-globe-europe"></i> Filter by Region:</label>
+                <select id="region-select" onchange="updateRegion()">
+                    <option value="all">All Regions</option>
+                    <option value="nl">Netherlands (NL)</option>
+                    <option value="uk">United Kingdom</option>
+                    <option value="de">Germany</option>
+                    <option value="be">Belgium</option>
+                    <option value="ie">Ireland</option>
+                    <option value="fr">France</option>
+                    <option value="es">Spain</option>
+                    <option value="eu">EU Wide</option>
+                </select>
+            </div>
+            
+            <div class="search-row">
+                <input type="text" id="search-box" class="search-box" placeholder="Search by scheme name, keywords, or description..." onkeyup="searchGrants()">
+            </div>
+        </div>
+
+        <div class="results-count" id="results-count"></div>
+
+        <div class="grants-grid" id="grants-container">
+            <div class="loading">Loading grants...</div>
+        </div>
+    </div>
+
+    <script>
+        class GrantsPortal {
+            constructor() {
+                this.currentFilter = 'all';
+                this.currentRegion = 'all';
+                this.searchTerm = '';
+                this.allSchemes = [];
+                this.filteredSchemes = [];
+                this.init();
+            }
+
+            async init() {
+                await this.loadSchemes();
+                this.renderStats();
+                this.renderGrants();
+                this.setupFilters();
+            }
+
+            async loadSchemes() {
+                try {
+                    const response = await fetch('schemes.json?v=' + Date.now());
+                    if (response.ok) {
+                        this.allSchemes = await response.json();
+                        console.log(`✅ Loaded ${this.allSchemes.length} schemes from schemes.json`);
+                    } else {
+                        console.log('Using embedded schemes data');
+                        this.allSchemes = this.getDefaultSchemes();
+                    }
+                } catch (error) {
+                    console.log('Using embedded schemes data');
+                    this.allSchemes = this.getDefaultSchemes();
+                }
+
+                // Normalize schemes - add region if missing
+                this.allSchemes = this.allSchemes.map(scheme => ({
+                    ...scheme,
+                    region: scheme.region || 'nl',
+                    regionName: this.getRegionName(scheme.region || 'nl')
+                }));
+            }
+
+            getRegionName(code) {
+                const regions = {
+                    'nl': 'Netherlands',
+                    'uk': 'United Kingdom',
+                    'de': 'Germany',
+                    'be': 'Belgium',
+                    'ie': 'Ireland',
+                    'fr': 'France',
+                    'es': 'Spain',
+                    'eu': 'EU Wide'
+                };
+                return regions[code] || code;
+            }
+
+            renderStats() {
+                const statsBar = document.getElementById('stats-bar');
+                const totalSchemes = this.allSchemes.length;
+                const totalRegions = new Set(this.allSchemes.map(s => s.region)).size;
+                const totalSubsidies = this.allSchemes.filter(s => s.type === 'subsidy').length;
+                const totalGrants = this.allSchemes.filter(s => s.type === 'grant').length;
+                
+                statsBar.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${totalSchemes}</div>
+                        <div class="stat-label">Total Schemes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${totalRegions}</div>
+                        <div class="stat-label">Countries/Regions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${totalSubsidies}</div>
+                        <div class="stat-label">Subsidies</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${totalGrants}</div>
+                        <div class="stat-label">Grants</div>
+                    </div>
+                `;
+            }
+
+            renderGrants() {
+                const container = document.getElementById('grants-container');
+                container.innerHTML = '';
+
+                this.filterGrants();
+
+                if (this.filteredSchemes.length === 0) {
+                    container.innerHTML = '<div class="no-results">No schemes match your current filters. Try adjusting your search criteria.</div>';
+                    document.getElementById('results-count').textContent = '';
+                    return;
+                }
+
+                document.getElementById('results-count').textContent = 
+                    `Showing ${this.filteredSchemes.length} scheme${this.filteredSchemes.length !== 1 ? 's' : ''}`;
+
+                this.filteredSchemes.forEach((scheme, index) => {
+                    const card = this.createSchemeCard(scheme);
+                    container.appendChild(card);
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(20px)';
+                        requestAnimationFrame(() => {
+                            card.style.transition = 'all 0.6s ease';
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        });
+                    }, index * 50);
+                });
+            }
+
+            createSchemeCard(scheme) {
+                const card = document.createElement('div');
+                card.className = 'grant-card';
+
+                let html = '';
+
+                if (scheme.priority || scheme.categories?.includes('urgent')) {
+                    html += '<div class="priority-badge">URGENT</div>';
+                }
+
+                if (scheme.deadline) {
+                    const deadline = new Date(scheme.deadline);
+                    const now = new Date();
+                    const daysUntil = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysUntil > 0 && daysUntil < 120) {
+                        html += `
+                            <div class="deadline-warning">
+                                <i class="fas fa-clock"></i>
+                                <div class="deadline-text">Deadline: ${deadline.toLocaleDateString()} (${daysUntil} days)</div>
+                            </div>
+                        `;
+                    }
+                }
+
+                if (scheme.categories?.includes('urgent')) {
+                    html += `
+                        <div class="urgent-badge">
+                            <div class="urgent-text">⚡ Limited Availability - Apply Soon</div>
+                        </div>
+                    `;
+                }
+
+                const typeClass = scheme.type || 'grant';
+                html += `
+                    <div class="grant-header">
+                        <div>
+                            <div class="grant-title">${scheme.title}
+                                <span class="grant-type-badge type-${typeClass}">${typeClass}</span>
+                            </div>
+                        </div>
+                        <div class="grant-region">${scheme.regionName || 'EU'}</div>
+                    </div>
+                `;
+
+                html += `<div class="grant-description">${scheme.description}</div>`;
+
+                html += '<div class="grant-details">';
+                
+                if (scheme.relevance) {
+                    html += `
+                        <div class="detail-item">
+                            <div class="detail-label">Relevance:</div>
+                            <div class="detail-value">${scheme.relevance}</div>
+                        </div>
+                    `;
+                }
+
+                if (scheme.requirements) {
+                    html += `
+                        <div class="detail-item">
+                            <div class="detail-label">Requirements:</div>
+                            <div class="detail-value">${scheme.requirements}</div>
+                        </div>
+                    `;
+                }
+
+                if (scheme.maxFunding) {
+                    html += `
+                        <div class="detail-item">
+                            <div class="detail-label">Funding:</div>
+                            <div class="detail-value">${scheme.maxFunding}</div>
+                        </div>
+                    `;
+                } else if (scheme.subsidyRate) {
+                    html += `
+                        <div class="detail-item">
+                            <div class="detail-label">Subsidy Rate:</div>
+                            <div class="detail-value">${scheme.subsidyRate}</div>
+                        </div>
+                    `;
+                }
+
+                if (scheme.duration) {
+                    html += `
+                        <div class="detail-item">
+                            <div class="detail-label">Duration:</div>
+                            <div class="detail-value">${scheme.duration}</div>
+                        </div>
+                    `;
+                }
+
+                if (scheme.budget) {
+                    html += `
+                        <div class="detail-item">
+                            <div class="detail-label">Budget:</div>
+                            <div class="detail-value">${scheme.budget}</div>
+                        </div>
+                    `;
+                }
+
+                html += '</div>';
+
+                if (scheme.keywords && scheme.keywords.length > 0) {
+                    html += '<div class="grant-keywords">';
+                    html += '<strong style="color: white; font-size: 0.9rem;">Keywords: </strong>';
+                    scheme.keywords.slice(0, 8).forEach(keyword => {
+                        html += `<span class="keyword-tag">${keyword}</span>`;
+                    });
+                    if (scheme.keywords.length > 8) {
+                        html += `<span class="keyword-tag">+${scheme.keywords.length - 8} more</span>`;
+                    }
+                    html += '</div>';
+                }
+
+                html += '<div class="grant-actions">';
+                if (scheme.links && scheme.links.length > 0) {
+                    scheme.links.forEach(link => {
+                        const isApply = link.type === 'apply';
+                        const btnClass = isApply ? 'apply-btn' : 'info-btn';
+                        const icon = isApply ? 'fas fa-external-link-alt' : 'fas fa-info-circle';
+                        html += `<a href="${link.url}" class="${btnClass}" target="_blank"><i class="${icon}"></i> ${link.text}</a>`;
+                    });
+                }
+                html += '</div>';
+
+                card.innerHTML = html;
+                return card;
+            }
+
+            filterGrants() {
+                let filtered = this.allSchemes;
+
+                if (this.currentRegion !== 'all') {
+                    filtered = filtered.filter(scheme => scheme.region === this.currentRegion);
+                }
+
+                if (this.currentFilter !== 'all') {
+                    filtered = filtered.filter(scheme => {
+                        if (scheme.type === this.currentFilter) return true;
+                        if (scheme.categories && scheme.categories.includes(this.currentFilter)) return true;
+                        return false;
+                    });
+                }
+
+                if (this.searchTerm) {
+                    const term = this.searchTerm.toLowerCase();
+                    filtered = filtered.filter(scheme => {
+                        if (scheme.title?.toLowerCase().includes(term)) return true;
+                        if (scheme.description?.toLowerCase().includes(term)) return true;
+                        if (scheme.keywords?.some(kw => kw.toLowerCase().includes(term))) return true;
+                        if (scheme.requirements?.toLowerCase().includes(term)) return true;
+                        return false;
+                    });
+                }
+
+                this.filteredSchemes = filtered;
+            }
+
+            setupFilters() {
+                const filterButtons = document.querySelectorAll('.filter-btn');
+                filterButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        filterButtons.forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                        this.currentFilter = button.getAttribute('data-filter');
+                        this.renderGrants();
+                    });
+                });
+            }
+
+            searchGrants() {
+                this.searchTerm = document.getElementById('search-box').value;
+                this.renderGrants();
+            }
+
+            updateRegion() {
+                const regionSelect = document.getElementById('region-select');
+                this.currentRegion = regionSelect.value;
+                this.renderGrants();
+            }
+
+            getDefaultSchemes() {
+                return [];
+            }
+        }
+
+        function updateRegion() {
+            if (window.grantsPortal) {
+                window.grantsPortal.updateRegion();
+            }
+        }
+
+        function searchGrants() {
+            if (window.grantsPortal) {
+                window.grantsPortal.searchGrants();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.grantsPortal = new GrantsPortal();
+        });
+    </script>
+</body>
+</html>
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="wix-html-scroll" content="no-scroll">
+    <title>Comprehensive Grants & Incentives Portal - Europe Wide</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #B0BEC5;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #22c55e, #16a34a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #22c55e;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #22c55e;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #B0BEC5;
+            font-size: 0.9rem;
+        }
+
+        .filter-container {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: #22c55e;
+            color: #0f172a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.4);
+        }
+
+        .region-selector {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .region-selector select {
+            background: rgba(30, 41, 59, 0.8);
+            color: #B0BEC5;
+            border: 2px solid rgba(34, 197, 94, 0.4);
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 1.1em;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .region-selector select:hover {
+            border-color: #22c55e;
+        }
+
+        .region-selector label {
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .search-row {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .search-box {
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid rgba(34, 197, 94, 0.4);
+            border-radius: 25px;
+            padding: 15px 25px;
+            color: white;
+            font-size: 1em;
+            width: 100%;
+            max-width: 500px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box::placeholder {
+            color: #6B7280;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+        }
+
+        .grants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+        }
+
+        .grant-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grant-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #22c55e, #16a34a, #4CAF50);
+        }
+
+        .grant-card:hover {
+            transform: translateY(-5px);
+            border-color: #22c55e;
+            box-shadow: 0 20px 40px rgba(34, 197, 94, 0.2);
+        }
+
+        .grant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .grant-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .grant-region {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #0f172a;
+            padding: 8px 16px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .grant-type-badge {
+            background: rgba(107, 114, 128, 0.3);
+            color: #B0BEC5;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 10px;
+        }
+
+        .grant-description {
+            color: #B0BEC5;
+            margin-bottom: 20px;
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+
+        .grant-details {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 8px;
+            border-left: 3px solid #22c55e;
+        }
+
+        .detail-item {
+            display: flex;
+            margin-bottom: 12px;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: white;
+            min-width: 130px;
+        }
+
+        .detail-value {
+            color: #B0BEC5;
+            flex: 1;
+        }
+
+        .grant-keywords {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .keyword-tag {
+            display: inline-block;
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin: 4px;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .grant-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .apply-btn {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #0f172a;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            flex: 1;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .apply-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
+            background: linear-gradient(135deg, #16a34a, #047857);
+        }
+
+        .info-btn {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            padding: 12px 24px;
+            border: 2px solid rgba(34, 197, 94, 0.4);
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .info-btn:hover {
+            background: rgba(34, 197, 94, 0.3);
+            transform: translateY(-2px);
+            border-color: #22c55e;
+        }
+
+        .priority-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #FF5722, #F4511E);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(255, 87, 34, 0.4);
+            z-index: 10;
+        }
+
+        .deadline-warning {
+            background: rgba(255, 152, 0, 0.15);
+            border-left: 4px solid #FF9800;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .deadline-text {
+            color: #FF9800;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .urgent-badge {
+            background: rgba(255, 87, 34, 0.2);
+            border-left: 4px solid #FF5722;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+
+        .urgent-text {
+            color: #FF5722;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #B0BEC5;
+            font-size: 1.2rem;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px;
+            color: #B0BEC5;
+            font-size: 1.1rem;
+        }
+
+        .results-count {
+            text-align: center;
+            margin-bottom: 20px;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .type-subsidy { 
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+        }
+        .type-grant { 
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+        .type-tax { 
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+        .type-certification { 
+            background: linear-gradient(135deg, #374151, #1F2937);
+            color: white;
+        }
+        .type-compliance {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .grants-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .filter-row {
+                justify-content: center;
+            }
+            
+            .grant-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .grant-actions {
+                flex-direction: column;
+            }
+
+            .apply-btn, .info-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-gift"></i> Comprehensive Grants & Incentives Portal</h1>
+            <p>Find and apply to relevant government schemes across Europe</p>
+        </div>
+
+        <div class="stats-bar" id="stats-bar">
+            <div class="loading">Loading statistics...</div>
+        </div>
+
+        <div class="filter-container">
+            <div class="filter-row">
+                <button class="filter-btn active" data-filter="all">All Schemes</button>
+                <button class="filter-btn" data-filter="Heating">Heating</button>
+                <button class="filter-btn" data-filter="Renewable">Renewable</button>
+                <button class="filter-btn" data-filter="Appliances">Appliances</button>
+                <button class="filter-btn" data-filter="Insulation">Insulation</button>
+                <button class="filter-btn" data-filter="Smart Home">Smart Home</button>
+                <button class="filter-btn" data-filter="subsidy">Subsidies</button>
+                <button class="filter-btn" data-filter="grant">Grants</button>
+                <button class="filter-btn" data-filter="tax">Tax Benefits</button>
+                <button class="filter-btn" data-filter="certification">Certifications</button>
+                <button class="filter-btn" data-filter="compliance">Compliance</button>
+            </div>
+            
+            <div class="region-selector">
+                <label for="region-select"><i class="fas fa-globe-europe"></i> Filter by Region:</label>
+                <select id="region-select" onchange="updateRegion()">
+                    <option value="all">All Regions</option>
+                    <option value="nl">Netherlands (NL)</option>
+                    <option value="uk">United Kingdom</option>
+                    <option value="de">Germany</option>
+                    <option value="be">Belgium</option>
+                    <option value="ie">Ireland</option>
+                    <option value="fr">France</option>
+                    <option value="es">Spain</option>
+                    <option value="eu">EU Wide</option>
+                </select>
+            </div>
+            
+            <div class="search-row">
+                <input type="text" id="search-box" class="search-box" placeholder="Search by scheme name, keywords, or description..." onkeyup="searchGrants()">
+            </div>
+        </div>
+
+        <div class="results-count" id="results-count"></div>
+
+        <div class="grants-grid" id="grants-container">
+            <div class="loading">Loading grants...</div>
+        </div>
+    </div>
+
+    <script>
+        class GrantsPortal {
+            constructor() {
+                this.currentFilter = 'all';
+                this.currentRegion = 'all';
+                this.searchTerm = '';
+                this.allSchemes = [];
+                this.filteredSchemes = [];
+                this.init();
+            }
+
+            async init() {
+                await this.loadSchemes();
+                this.renderStats();
+                this.renderGrants();
+                this.setupFilters();
+            }
+
+            async loadSchemes() {
+                try {
+                    const response = await fetch('schemes.json?v=' + Date.now());
+                    if (response.ok) {
+                        this.allSchemes = await response.json();
+                        console.log(`✅ Loaded ${this.allSchemes.length} schemes from schemes.json`);
+                    } else {
+                        console.log('Using embedded schemes data');
+                        this.allSchemes = this.getDefaultSchemes();
+                    }
+                } catch (error) {
+                    console.log('Using embedded schemes data');
+                    this.allSchemes = this.getDefaultSchemes();
+                }
+
+                // Normalize schemes - add region if missing
+                this.allSchemes = this.allSchemes.map(scheme => ({
+                    ...scheme,
+                    region: scheme.region || 'nl',
+                    regionName: this.getRegionName(scheme.region || 'nl')
+                }));
+            }
+
+            getRegionName(code) {
+                const regions = {
+                    'nl': 'Netherlands',
+                    'uk': 'United Kingdom',
+                    'de': 'Germany',
+                    'be': 'Belgium',
+                    'ie': 'Ireland',
+                    'fr': 'France',
+                    'es': 'Spain',
+                    'eu': 'EU Wide'
+                };
+                return regions[code] || code;
+            }
+
+            renderStats() {
+                const statsBar = document.getElementById('stats-bar');
+                const totalSchemes = this.allSchemes.length;
+                const totalRegions = new Set(this.allSchemes.map(s => s.region)).size;
+                const totalSubsidies = this.allSchemes.filter(s => s.type === 'subsidy').length;
+                const totalGrants = this.allSchemes.filter(s => s.type === 'grant').length;
+                
+                statsBar.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${totalSchemes}</div>
+                        <div class="stat-label">Total Schemes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${totalRegions}</div>
+                        <div class="stat-label">Countries/Regions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${totalSubsidies}</div>
+                        <div class="stat-label">Subsidies</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${totalGrants}</div>
+                        <div class="stat-label">Grants</div>
+                    </div>
+                `;
+            }
+
+            renderGrants() {
+                const container = document.getElementById('grants-container');
+                container.innerHTML = '';
+
+                this.filterGrants();
+
+                if (this.filteredSchemes.length === 0) {
+                    container.innerHTML = '<div class="no-results">No schemes match your current filters. Try adjusting your search criteria.</div>';
+                    document.getElementById('results-count').textContent = '';
+                    return;
+                }
+
+                document.getElementById('results-count').textContent = 
+                    `Showing ${this.filteredSchemes.length} scheme${this.filteredSchemes.length !== 1 ? 's' : ''}`;
+
+                this.filteredSchemes.forEach((scheme, index) => {
+                    const card = this.createSchemeCard(scheme);
+                    container.appendChild(card);
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(20px)';
+                        requestAnimationFrame(() => {
+                            card.style.transition = 'all 0.6s ease';
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        });
+                    }, index * 50);
+                });
+            }
+
+            createSchemeCard(scheme) {
+                const card = document.createElement('div');
+                card.className = 'grant-card';
+
+                let html = '';
+
+                if (scheme.priority || scheme.categories?.includes('urgent')) {
+                    html += '<div class="priority-badge">URGENT</div>';
+                }
+
+                if (scheme.deadline) {
+                    const deadline = new Date(scheme.deadline);
+                    const now = new Date();
+                    const daysUntil = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysUntil > 0 && daysUntil < 120) {
+                        html += `
+                            <div class="deadline-warning">
+                                <i class="fas fa-clock"></i>
+                                <div class="deadline-text">Deadline: ${deadline.toLocaleDateString()} (${daysUntil} days)</div>
+                            </div>
+                        `;
+                    }
+                }
+
+                if (scheme.categories?.includes('urgent')) {
+                    html += `
+                        <div class="urgent-badge">
+                            <div class="urgent-text">⚡ Limited Availability - Apply Soon</div>
+                        </div>
+                    `;
+                }
+
+                const typeClass = scheme.type || 'grant';
+                html += `
+                    <div class="grant-header">
+                        <div>
+                            <div class="grant-title">${scheme.title}
+                                <span class="grant-type-badge type-${typeClass}">${typeClass}</span>
+                            </div>
+                        </div>
+                        <div class="grant-region">${scheme.regionName || 'EU'}</div>
+                    </div>
+                `;
+
+                html += `<div class="grant-description">${scheme.description}</div>`;
+
+                html += '<div class="grant-details">';
+                
+                if (scheme.relevance) {
+                    html += `
+                        <div class="detail-item">
+                            <div class="detail-label">Relevance:</div>
+                            <div class="detail-value">${scheme.relevance}</div>
+                        </div>
+                    `;
+                }
+
+                if (scheme.requirements) {
+                    html += `
+                        <div class="detail-item">
+                            <div class="detail-label">Requirements:</div>
+                            <div class="detail-value">${scheme.requirements}</div>
+                        </div>
+                    `;
+                }
+
+                if (scheme.maxFunding) {
+                    html += `
+                        <div class="detail-item">
+                            <div class="detail-label">Funding:</div>
+                            <div class="detail-value">${scheme.maxFunding}</div>
+                        </div>
+                    `;
+                } else if (scheme.subsidyRate) {
+                    html += `
+                        <div class="detail-item">
+                            <div class="detail-label">Subsidy Rate:</div>
+                            <div class="detail-value">${scheme.subsidyRate}</div>
+                        </div>
+                    `;
+                }
+
+                if (scheme.duration) {
+                    html += `
+                        <div class="detail-item">
+                            <div class="detail-label">Duration:</div>
+                            <div class="detail-value">${scheme.duration}</div>
+                        </div>
+                    `;
+                }
+
+                if (scheme.budget) {
+                    html += `
+                        <div class="detail-item">
+                            <div class="detail-label">Budget:</div>
+                            <div class="detail-value">${scheme.budget}</div>
+                        </div>
+                    `;
+                }
+
+                html += '</div>';
+
+                if (scheme.keywords && scheme.keywords.length > 0) {
+                    html += '<div class="grant-keywords">';
+                    html += '<strong style="color: white; font-size: 0.9rem;">Keywords: </strong>';
+                    scheme.keywords.slice(0, 8).forEach(keyword => {
+                        html += `<span class="keyword-tag">${keyword}</span>`;
+                    });
+                    if (scheme.keywords.length > 8) {
+                        html += `<span class="keyword-tag">+${scheme.keywords.length - 8} more</span>`;
+                    }
+                    html += '</div>';
+                }
+
+                html += '<div class="grant-actions">';
+                if (scheme.links && scheme.links.length > 0) {
+                    scheme.links.forEach(link => {
+                        const isApply = link.type === 'apply';
+                        const btnClass = isApply ? 'apply-btn' : 'info-btn';
+                        const icon = isApply ? 'fas fa-external-link-alt' : 'fas fa-info-circle';
+                        html += `<a href="${link.url}" class="${btnClass}" target="_blank"><i class="${icon}"></i> ${link.text}</a>`;
+                    });
+                }
+                html += '</div>';
+
+                card.innerHTML = html;
+                return card;
+            }
+
+            filterGrants() {
+                let filtered = this.allSchemes;
+
+                if (this.currentRegion !== 'all') {
+                    filtered = filtered.filter(scheme => scheme.region === this.currentRegion);
+                }
+
+                if (this.currentFilter !== 'all') {
+                    filtered = filtered.filter(scheme => {
+                        if (scheme.type === this.currentFilter) return true;
+                        if (scheme.categories && scheme.categories.includes(this.currentFilter)) return true;
+                        return false;
+                    });
+                }
+
+                if (this.searchTerm) {
+                    const term = this.searchTerm.toLowerCase();
+                    filtered = filtered.filter(scheme => {
+                        if (scheme.title?.toLowerCase().includes(term)) return true;
+                        if (scheme.description?.toLowerCase().includes(term)) return true;
+                        if (scheme.keywords?.some(kw => kw.toLowerCase().includes(term))) return true;
+                        if (scheme.requirements?.toLowerCase().includes(term)) return true;
+                        return false;
+                    });
+                }
+
+                this.filteredSchemes = filtered;
+            }
+
+            setupFilters() {
+                const filterButtons = document.querySelectorAll('.filter-btn');
+                filterButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        filterButtons.forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                        this.currentFilter = button.getAttribute('data-filter');
+                        this.renderGrants();
+                    });
+                });
+            }
+
+            searchGrants() {
+                this.searchTerm = document.getElementById('search-box').value;
+                this.renderGrants();
+            }
+
+            updateRegion() {
+                const regionSelect = document.getElementById('region-select');
+                this.currentRegion = regionSelect.value;
+                this.renderGrants();
+            }
+
+            getDefaultSchemes() {
+                return [];
+            }
+        }
+
+        function updateRegion() {
+            if (window.grantsPortal) {
+                window.grantsPortal.updateRegion();
+            }
+        }
+
+        function searchGrants() {
+            if (window.grantsPortal) {
+                window.grantsPortal.searchGrants();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.grantsPortal = new GrantsPortal();
+        });
+    </script>
+</body>
+</html>
+

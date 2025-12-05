@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Product Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        iframe { width: 100%; height: 600px; border: 1px solid #ddd; }
+        .product-info { background: #f8f9fa; padding: 15px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Minimal Product Test</h1>
+    
+    <div class="test-section">
+        <h2>Product Data Test</h2>
+        <button onclick="loadProduct()">Load ETL Product</button>
+        <div id="product-info" class="product-info">Click button to load product...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Calculator Widget</h2>
+        <iframe id="calculator-iframe" src="" width="100%" height="600"></iframe>
+    </div>
+
+    <script>
+        async function loadProduct() {
+            try {
+                console.log('Loading product...');
+                const response = await fetch('/api/product-widget/etl_11_86407');
+                const data = await response.json();
+                
+                console.log('Product data:', data);
+                
+                if (data.success && data.product) {
+                    const product = data.product;
+                    document.getElementById('product-info').innerHTML = `
+                        <h3>${product.name}</h3>
+                        <p><strong>Power:</strong> ${product.power}kW</p>
+                        <p><strong>Brand:</strong> ${product.brand}</p>
+                        <p><strong>Category:</strong> ${product.category}</p>
+                        <p><strong>Energy Rating:</strong> ${product.energyRating}</p>
+                    `;
+                    
+                    // Update calculator
+                    updateCalculator(product);
+                } else {
+                    document.getElementById('product-info').innerHTML = 'Product not found';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('product-info').innerHTML = 'Error: ' + error.message;
+            }
+        }
+        
+        function updateCalculator(product) {
+            console.log('Updating calculator with:', product);
+            const iframe = document.getElementById('calculator-iframe');
+            const baseUrl = 'http://localhost:4000/product-energy-widget-glassmorphism.html';
+            const params = new URLSearchParams({
+                productId: product.id,
+                productName: product.name,
+                productPower: product.power.toString(),
+                productBrand: product.brand,
+                productCategory: product.category,
+                productImage: product.image_url || ''
+            });
+            
+            const finalUrl = `${baseUrl}?${params.toString()}`;
+            console.log('Setting iframe src:', finalUrl);
+            iframe.src = finalUrl;
+        }
+        
+        console.log('Minimal test page loaded');
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Energy Members Section</title>
+    <style>
+        /* Green Energy Theme CSS */
+        :root {
+            --primary-green: #2E7D32;
+            --secondary-green: #4CAF50;
+            --accent-green: #81C784;
+            --light-green: #E8F5E8;
+            --dark-green: #1B5E20;
+            --white: #FFFFFF;
+            --gray: #757575;
+            --light-gray: #F5F5F5;
+            --border: #E0E0E0;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: var(--light-green);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            color: var(--white);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .auth-container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .auth-form {
+            flex: 1;
+            min-width: 300px;
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .form-title {
+            color: var(--primary-green);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--secondary-green);
+        }
+
+        .btn {
+            background: var(--primary-green);
+            color: var(--white);
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: var(--dark-green);
+        }
+
+        .btn-secondary {
+            background: var(--gray);
+        }
+
+        .btn-secondary:hover {
+            background: #555;
+        }
+
+        .toggle-form {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .toggle-form a {
+            color: var(--secondary-green);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .toggle-form a:hover {
+            text-decoration: underline;
+        }
+
+        .member-dashboard {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--light-green);
+        }
+
+        .member-info h3 {
+            color: var(--primary-green);
+            margin-bottom: 5px;
+        }
+
+        .subscription-badge {
+            background: var(--accent-green);
+            color: var(--white);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .content-card {
+            background: var(--white);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .content-card h4 {
+            color: var(--primary-green);
+            margin-bottom: 10px;
+        }
+
+        .content-card p {
+            color: var(--gray);
+            margin-bottom: 15px;
+        }
+
+        .content-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .tier-required {
+            background: var(--light-green);
+            color: var(--primary-green);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .subscription-tiers {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .tiers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .tier-card {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            transition: border-color 0.3s ease;
+        }
+
+        .tier-card.featured {
+            border-color: var(--secondary-green);
+            background: var(--light-green);
+        }
+
+        .tier-name {
+            color: var(--primary-green);
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .tier-price {
+            font-size: 2rem;
+            color: var(--dark-green);
+            margin-bottom: 15px;
+        }
+
+        .tier-price .period {
+            font-size: 1rem;
+            color: var(--gray);
+        }
+
+        .tier-features {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .tier-features li {
+            padding: 5px 0;
+            color: var(--gray);
+        }
+
+        .tier-features li:before {
+            content: "✓";
+            color: var(--secondary-green);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c62828;
+        }
+
+        .success-message {
+            background: #e8f5e8;
+            color: var(--primary-green);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary-green);
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .auth-container {
+                flex-direction: column;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🌱 Green Energy Community</h1>
+            <p>Join our sustainable community and discover the latest in green technology</p>
+        </div>
+
+        <!-- Authentication Forms -->
+        <div id="auth-container" class="auth-container">
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form">
+                <h2 class="form-title">Welcome Back</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="btn">Sign In</button>
+                </form>
+                <div class="toggle-form">
+                    <a onclick="toggleForms()">Don't have an account? Sign up</a>
+                </div>
+            </div>
+
+            <!-- Registration Form -->
+            <div id="register-form" class="auth-form hidden">
+                <h2 class="form-title">Join Our Community</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="reg-firstname">First Name</label>
+                        <input type="text" id="reg-firstname" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-lastname">Last Name</label>
+                        <input type="text" id="reg-lastname" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-email">Email</label>
+                        <input type="email" id="reg-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-password">Password</label>
+                        <input type="password" id="reg-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-company">Company (Optional)</label>
+                        <input type="text" id="reg-company">
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-interests">What interests you? (Select multiple)</label>
+                        <select id="reg-interests" multiple>
+                            <option value="Green Buildings">Green Buildings</option>
+                            <option value="Green Electronics">Green Electronics</option>
+                            <option value="Restaurants & Hospitality">Restaurants & Hospitality</option>
+                            <option value="Natural Paints">Natural Paints</option>
+                            <option value="Solar Energy">Solar Energy</option>
+                            <option value="Wind Energy">Wind Energy</option>
+                            <option value="Sustainable Materials">Sustainable Materials</option>
+                            <option value="Energy Efficiency">Energy Efficiency</option>
+                            <option value="Water Conservation">Water Conservation</option>
+                            <option value="Waste Management">Waste Management</option>
+                            <option value="Electric Vehicles">Electric Vehicles</option>
+                            <option value="Smart Home Technology">Smart Home Technology</option>
+                            <option value="Organic Gardening">Organic Gardening</option>
+                            <option value="Sustainable Fashion">Sustainable Fashion</option>
+                            <option value="Green Transportation">Green Transportation</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Create Account</button>
+                </form>
+                <div class="toggle-form">
+                    <a onclick="toggleForms()">Already have an account? Sign in</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Member Dashboard (Hidden by default) -->
+        <div id="member-dashboard" class="member-dashboard hidden">
+            <div class="dashboard-header">
+                <div class="member-info">
+                    <h3 id="member-name">Welcome, Member!</h3>
+                    <p id="member-email">member@example.com</p>
+                </div>
+                <div class="subscription-badge" id="subscription-tier">Free</div>
+            </div>
+
+            <div class="content-grid" id="content-grid">
+                <!-- Content will be loaded here -->
+            </div>
+
+            <button class="btn btn-secondary" onclick="logout()">Sign Out</button>
+        </div>
+
+        <!-- Subscription Tiers -->
+        <div id="subscription-tiers" class="subscription-tiers hidden">
+            <h2 style="text-align: center; color: var(--primary-green); margin-bottom: 20px;">Choose Your Plan</h2>
+            <div class="tiers-grid" id="tiers-grid">
+                <!-- Subscription tiers will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'http://localhost:4000/api'; // Change this to your server URL
+        let currentUser = null;
+        let authToken = localStorage.getItem('authToken');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (authToken) {
+                checkAuthStatus();
+            }
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('registerForm').addEventListener('submit', handleRegister);
+        }
+
+        function toggleForms() {
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            
+            loginForm.classList.toggle('hidden');
+            registerForm.classList.toggle('hidden');
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/members/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    authToken = data.token;
+                    currentUser = data.member;
+                    localStorage.setItem('authToken', authToken);
+                    showMemberDashboard();
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('Login failed. Please try again.');
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            
+            const formData = {
+                firstName: document.getElementById('reg-firstname').value,
+                lastName: document.getElementById('reg-lastname').value,
+                email: document.getElementById('reg-email').value,
+                password: document.getElementById('reg-password').value,
+                company: document.getElementById('reg-company').value,
+                interests: Array.from(document.getElementById('reg-interests').selectedOptions).map(option => option.value)
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/members/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('Account created successfully! Please sign in.');
+                    toggleForms();
+                    document.getElementById('registerForm').reset();
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('Registration failed. Please try again.');
+            }
+        }
+
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/members/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    currentUser = userData;
+                    showMemberDashboard();
+                } else {
+                    localStorage.removeItem('authToken');
+                    authToken = null;
+                }
+            } catch (error) {
+                localStorage.removeItem('authToken');
+                authToken = null;
+            }
+        }
+
+        function showMemberDashboard() {
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('member-dashboard').classList.remove('hidden');
+            document.getElementById('subscription-tiers').classList.remove('hidden');
+            
+            updateMemberInfo();
+            loadContent();
+            loadSubscriptionTiers();
+        }
+
+        function updateMemberInfo() {
+            if (currentUser) {
+                document.getElementById('member-name').textContent = `Welcome, ${currentUser.firstName}!`;
+                document.getElementById('member-email').textContent = currentUser.email;
+                document.getElementById('subscription-tier').textContent = currentUser.subscriptionTier;
+            }
+        }
+
+        async function loadContent() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/members/content`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const content = await response.json();
+                    displayContent(content);
+                }
+            } catch (error) {
+                showError('Failed to load content');
+            }
+        }
+
+        function displayContent(content) {
+            const contentGrid = document.getElementById('content-grid');
+            contentGrid.innerHTML = '';
+
+            content.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'content-card';
+                card.innerHTML = `
+                    <h4>${item.title}</h4>
+                    <p>${item.description}</p>
+                    <div class="content-meta">
+                        <span class="tier-required">${item.required_tier}</span>
+                        <span>${item.category}</span>
+                    </div>
+                `;
+                contentGrid.appendChild(card);
+            });
+        }
+
+        async function loadSubscriptionTiers() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/members/subscription-tiers`);
+                
+                if (response.ok) {
+                    const tiers = await response.json();
+                    displaySubscriptionTiers(tiers);
+                }
+            } catch (error) {
+                showError('Failed to load subscription tiers');
+            }
+        }
+
+        function displaySubscriptionTiers(tiers) {
+            const tiersGrid = document.getElementById('tiers-grid');
+            tiersGrid.innerHTML = '';
+
+            tiers.forEach(tier => {
+                const card = document.createElement('div');
+                card.className = `tier-card ${tier.name === 'Green Member' ? 'featured' : ''}`;
+                card.innerHTML = `
+                    <div class="tier-name">${tier.name}</div>
+                    <div class="tier-price">
+                        €${tier.price_monthly}<span class="period">/month</span>
+                    </div>
+                    <ul class="tier-features">
+                        ${tier.features.split(',').map(feature => `<li>${feature.trim()}</li>`).join('')}
+                    </ul>
+                    <button class="btn" onclick="upgradeSubscription('${tier.name}')">
+                        ${tier.name === 'Free' ? 'Current Plan' : 'Upgrade'}
+                    </button>
+                `;
+                tiersGrid.appendChild(card);
+            });
+        }
+
+        async function upgradeSubscription(tierName) {
+            if (tierName === 'Free') return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/subscriptions/create-checkout-session`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        tierName: tierName,
+                        billingCycle: 'monthly'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    window.location.href = data.url;
+                } else {
+                    showError('Failed to create checkout session');
+                }
+            } catch (error) {
+                showError('Upgrade failed. Please try again.');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            authToken = null;
+            currentUser = null;
+            
+            document.getElementById('auth-container').classList.remove('hidden');
+            document.getElementById('member-dashboard').classList.add('hidden');
+            document.getElementById('subscription-tiers').classList.add('hidden');
+            
+            document.getElementById('loginForm').reset();
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            
+            const container = document.querySelector('.container');
+            container.insertBefore(errorDiv, container.firstChild);
+            
+            setTimeout(() => errorDiv.remove(), 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            
+            const container = document.querySelector('.container');
+            container.insertBefore(successDiv, container.firstChild);
+            
+            setTimeout(() => successDiv.remove(), 5000);
+        }
+    </script>
+</body>
+</html>

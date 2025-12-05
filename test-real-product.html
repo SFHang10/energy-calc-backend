@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Real Product with Database Images</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .product { background: white; padding: 20px; margin: 20px 0; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .product-image { max-width: 400px; margin: 20px 0; border: 2px solid #ddd; border-radius: 8px; }
+        .info { margin: 10px 0; padding: 10px; background: #f0f0f0; border-radius: 5px; }
+        .with-image { border: 3px solid #28a745; }
+        .no-image { border: 3px solid #ffc107; }
+        h1 { color: #333; }
+        h2 { color: #666; margin-top: 40px; }
+        .stats { background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>🖼️ Test Real Products from Database</h1>
+    <p>This loads ACTUAL products from your database with your new images!</p>
+
+    <div class="stats" id="stats">
+        Loading products...
+    </div>
+
+    <div id="products"></div>
+
+    <script>
+        async function loadRealProducts() {
+            try {
+                console.log('🔄 Loading real products from database...');
+                
+                const response = await fetch('http://localhost:4000/api/products?limit=10');
+                const data = await response.json();
+                
+                console.log('✅ Loaded products:', data);
+                
+                let html = '';
+                let withImages = 0;
+                let withoutImages = 0;
+                
+                if (data.products && data.products.length > 0) {
+                    data.products.forEach(product => {
+                        const hasImage = product.imageUrl || product.image_url;
+                        if (hasImage) withImages++;
+                        else withoutImages++;
+                        
+                        html += `
+                            <div class="product ${hasImage ? 'with-image' : 'no-image'}">
+                                <h3>${product.name}</h3>
+                                <div class="info"><strong>Category:</strong> ${product.category || 'N/A'}</div>
+                                <div class="info"><strong>Brand:</strong> ${product.brand || product.manufacturer || 'N/A'}</div>
+                                
+                                ${hasImage ? `
+                                    <div class="info"><strong>Image URL:</strong> ${hasImage}</div>
+                                    <img src="${hasImage}" alt="${product.name}" class="product-image" onerror="this.src='https://via.placeholder.com/400x300/cccccc/666666?text=Image+Not+Found'">
+                                ` : `
+                                    <div class="info"><strong style="color: orange;">⚠️ No image assigned</strong></div>
+                                `}
+                            </div>
+                        `;
+                    });
+                }
+                
+                document.getElementById('products').innerHTML = html;
+                document.getElementById('stats').innerHTML = `
+                    <strong>Total Products Tested: ${data.products.length}</strong><br>
+                    ✅ With Images: ${withImages}<br>
+                    ⚠️ Without Images: ${withoutImages}
+                `;
+                
+                console.log(`✅ Displayed ${data.products.length} products`);
+                console.log(`📊 With images: ${withImages}, Without: ${withoutImages}`);
+                
+            } catch (error) {
+                console.error('❌ Error loading products:', error);
+                document.getElementById('products').innerHTML = `
+                    <div class="product" style="border-color: #dc3545;">
+                        <h3>❌ Error Loading Products</h3>
+                        <p>${error.message}</p>
+                        <p>Make sure the API server is running on port 4000.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Load on page load
+        loadRealProducts();
+    </script>
+</body>
+</html>
+
+
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Real Product with Database Images</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .product { background: white; padding: 20px; margin: 20px 0; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .product-image { max-width: 400px; margin: 20px 0; border: 2px solid #ddd; border-radius: 8px; }
+        .info { margin: 10px 0; padding: 10px; background: #f0f0f0; border-radius: 5px; }
+        .with-image { border: 3px solid #28a745; }
+        .no-image { border: 3px solid #ffc107; }
+        h1 { color: #333; }
+        h2 { color: #666; margin-top: 40px; }
+        .stats { background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>🖼️ Test Real Products from Database</h1>
+    <p>This loads ACTUAL products from your database with your new images!</p>
+
+    <div class="stats" id="stats">
+        Loading products...
+    </div>
+
+    <div id="products"></div>
+
+    <script>
+        async function loadRealProducts() {
+            try {
+                console.log('🔄 Loading real products from database...');
+                
+                const response = await fetch('http://localhost:4000/api/products?limit=10');
+                const data = await response.json();
+                
+                console.log('✅ Loaded products:', data);
+                
+                let html = '';
+                let withImages = 0;
+                let withoutImages = 0;
+                
+                if (data.products && data.products.length > 0) {
+                    data.products.forEach(product => {
+                        const hasImage = product.imageUrl || product.image_url;
+                        if (hasImage) withImages++;
+                        else withoutImages++;
+                        
+                        html += `
+                            <div class="product ${hasImage ? 'with-image' : 'no-image'}">
+                                <h3>${product.name}</h3>
+                                <div class="info"><strong>Category:</strong> ${product.category || 'N/A'}</div>
+                                <div class="info"><strong>Brand:</strong> ${product.brand || product.manufacturer || 'N/A'}</div>
+                                
+                                ${hasImage ? `
+                                    <div class="info"><strong>Image URL:</strong> ${hasImage}</div>
+                                    <img src="${hasImage}" alt="${product.name}" class="product-image" onerror="this.src='https://via.placeholder.com/400x300/cccccc/666666?text=Image+Not+Found'">
+                                ` : `
+                                    <div class="info"><strong style="color: orange;">⚠️ No image assigned</strong></div>
+                                `}
+                            </div>
+                        `;
+                    });
+                }
+                
+                document.getElementById('products').innerHTML = html;
+                document.getElementById('stats').innerHTML = `
+                    <strong>Total Products Tested: ${data.products.length}</strong><br>
+                    ✅ With Images: ${withImages}<br>
+                    ⚠️ Without Images: ${withoutImages}
+                `;
+                
+                console.log(`✅ Displayed ${data.products.length} products`);
+                console.log(`📊 With images: ${withImages}, Without: ${withoutImages}`);
+                
+            } catch (error) {
+                console.error('❌ Error loading products:', error);
+                document.getElementById('products').innerHTML = `
+                    <div class="product" style="border-color: #dc3545;">
+                        <h3>❌ Error Loading Products</h3>
+                        <p>${error.message}</p>
+                        <p>Make sure the API server is running on port 4000.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Load on page load
+        loadRealProducts();
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
