@@ -1,112 +1,174 @@
-# Wix Product Sync Progress
+# Wix Product Sync - Progress & TODO
 
 **Last Updated:** December 5, 2025
-**Status:** Phase 2A Complete, Gallery Added, Phase 2B Pending
+**Status:** Phase 2A & 2B Complete, Remaining Products Listed
 
 ---
 
-## What We're Doing
+## Summary
 
-Syncing images and videos from **Wix Store** (greenwaysmarket.com) to the **local database** (FULL-DATABASE-5554.json) so that the HTML product pages show the rich media you manually uploaded to Wix.
-
----
-
-## Why This Is Safe
-
-- Only adding image/video URLs to existing products
-- NOT changing: product names, prices, calculator data, or any other fields
-- Calculator will NOT break - we're only adding to `images` and `videos` arrays
-- Backup created before any changes
+Syncing images and videos from **Wix Store** (greenwaysmarket.com) to the **local ETL database** (FULL-DATABASE-5554.json) so that the HTML product pages show rich media.
 
 ---
 
-## Phase 2A - COMPLETED ✅
+## What Was Done (December 5, 2025)
 
-**Date:** December 5, 2025
-**Commit:** 29cb499
+### 1. API Bug Fixes ✅
 
-### Products Synced (6 total):
+**Problem:** Images/videos weren't displaying on product pages.
 
-| Product | Local ID | Images | Videos |
-|---------|----------|--------|--------|
-| Electrolux Professional Skyline 10 GN1/1 | etl_22_86257 | 2 | 0 |
-| Air Fury High Speed Hand Dryer | etl_9_75495 | 3 | 1 |
-| Turbo Force Branded Polished Fast Dry | etl_9_69850 | 4 | 0 |
-| Turbo Force Branded White Fast Dry | etl_9_69848 | 4 | 0 |
-| JOKER | etl_22_86431 | 5 | 2 |
-| Baxi Auriga HP 26T | etl_7_86302 | 1 | 1 |
+**Fixes Applied:**
+- Fixed `routes/product-widget.js` to handle both array and JSON string formats
+- Fixed filter that was blocking relative paths (only allowing http URLs)
+- Now accepts: full URLs, relative paths, and properly filters corrupted data
 
-**Backup file:** `FULL-DATABASE-5554_backup_before_sync.json`
+**Commits:**
+- `40537b0` - Handle images/videos as both array and JSON string
+- `e142423` - Allow relative paths for images
 
 ---
 
-## Phase 2B - PENDING ⏳
+### 2. Product Page Updates ✅
 
-### Medium Confidence Matches (17 products)
+**File:** `product-page-v2-marketplace.html` (renamed from `-test`)
 
-These are product variants that map to generic ETL products:
+**Changes:**
+- Image sizing: Changed `object-fit: cover` to `contain` (shows full image)
+- Thumbnail sizing: Same change for consistency
+- Removed zoom-on-hover effect
 
-#### Zanussi Magistar Variants (8 products)
-All map to: `Zanussi Magistar 10 GN1/1 Electric 2-glass`
-- ZC0E101BA21, ZC0E101T2A1, ZC0E101B2A2, ZCOE101T2A0
-- ZCOE101BA2, ZCOE101BA20, ZCOE101T2A2
-- Zanussi Magistar Combi TS Natural Gas (Model ZCOE101B2AL)
-
-#### Air Fury Color Variants (3 products)
-All map to: `Air Fury High Speed Hand Dryer`
-- Air Fury High Speed Dryer (C) - Chrome
-- Air Fury High Speed Dryer (W) - White
-- Air Fury High Speed Dryer (CS) - Satin
-
-#### Invoq Model Variants (5 products)
-All map to: `Invoq`
-- Invoq Combi 10-1/1 GN
-- Invoq Combi 6-1/1GN
-- Invoq Bake 6-400×600 EN PassThrough
-- LQB9 - Invoq Bake 9-400×600
-- Invoq Bake 6-400×600
-
-#### Other (1 product)
-- Turboforce® Hand Dryer → Turbo Force Branded Polished Fast Dry
-
-### Decision Needed for Phase 2B:
-Since multiple Wix variants map to ONE ETL product, we need to decide:
-1. **Add all variant images** to the single ETL product (product page shows ALL images)
-2. **Pick best variant** and only sync that one
-3. **Skip** and focus on other work
+**Commits:**
+- `ac56590` - Rename product-page-v2-marketplace-test.html
+- `06f1363` - Fix image sizing with object-fit contain
 
 ---
 
-## API Bug Fix - COMPLETED ✅
+### 3. Gallery Implementation ✅
 
-**Date:** December 5, 2025
-**Commit:** 40537b0
+**File:** `wix-integration/member-product-deep-dive.html`
 
-**Problem:** API expected `images` and `videos` to be JSON strings, but they were stored as actual arrays.
-
-**Fix:** Updated `routes/product-widget.js` to handle both formats:
-- If array → use directly
-- If JSON string → parse first
-- Also filters out invalid URLs (non-http strings)
-
----
-
-## Gallery Implementation - COMPLETED ✅
-
-**Date:** December 5, 2025
-**Commit:** d1484c4
-
-**What was added to `member-product-deep-dive.html`:**
-- Thumbnail row below main image (click to change)
+Added simple image gallery:
+- Thumbnail row below main image
+- Click thumbnail to change main image  
 - Video buttons for products with videos
 - Pure CSS + vanilla JS (no external libraries)
-- Small, incremental changes to avoid crashes
 
-**How it works:**
-1. If product has multiple images → shows thumbnails below main image
-2. Click thumbnail → changes main image
-3. If product has videos → shows "▶ Video 1", "▶ Video 2" buttons
-4. Click video button → plays that video
+**Commit:** `d1484c4`
+
+---
+
+### 4. Category Fix ✅
+
+**Product:** JOKER (both variants)
+
+**Change:** Moved from "Professional Foodservice Equipment" → "Commercial Ovens"
+
+**Commit:** `7773196`
+
+---
+
+### 5. Wix Media Sync ✅
+
+**Phase 2A - High Confidence (6 products):**
+
+| Product | ETL ID | Images | Videos |
+|---------|--------|--------|--------|
+| JOKER | etl_22_86431 | 5 | 2 |
+| Air Fury High Speed Hand Dryer | etl_9_75495 | 3→10 | 1→3 |
+| Turbo Force Branded Polished Fast Dry | etl_9_69850 | 4→8 | 0 |
+| Turbo Force Branded White Fast Dry | etl_9_69848 | 4 | 0 |
+| Electrolux Professional Skyline 10 GN1/1 | etl_22_86257 | 2 | 0 |
+| Baxi Auriga HP 26T | etl_7_86302 | 1 | 1 |
+
+**Phase 2B - Medium Confidence (2 new products + updates):**
+
+| Product | ETL ID | Images | Videos |
+|---------|--------|--------|--------|
+| Zanussi Magistar 10 GN1/1 Electric 2-glass | etl_22_86278 | 4 | 1 |
+| Invoq | etl_22_86201 | 12 | 2 |
+
+**Final Commit:** `315e342`
+
+---
+
+## Current Status
+
+| Metric | Count |
+|--------|-------|
+| ETL Database Products | 5,556 |
+| Wix Store Products | 151 |
+| Successfully Synced | 8 |
+| Remaining (No ETL Match) | ~143 |
+
+---
+
+## TODO: Remaining Wix Products to Sync
+
+These Wix products need manual matching or don't have ETL equivalents:
+
+### Heat Pumps & HVAC (Need Manual Match)
+- [ ] Daikin VAM-J VAM800J Heat Recovery Ventilation Unit
+- [ ] Daikin VAM-J VAM650J Heat Recovery Ventilation Unit
+- [ ] Daikin VAM-J VAM500J Heat Recovery Ventilation Unit
+- [ ] Daikin VAM-J VAM350J Heat Recovery Ventilation Unit
+- [ ] Daikin VAM-J VAM250J Heat Recovery Ventilation Unit
+- [ ] Daikin VAM-J VAM150J Heat Recovery Ventilation Unit
+- [ ] (Check Wix for full list of Daikin products)
+
+### Baxi Products (Partial Match)
+- [ ] Baxi Solarflo (In-Roof) - May match etl_15_46852
+- [ ] Other Baxi products in Wix store
+
+### Commercial Kitchen Equipment
+- [ ] Magistar 218733 Combi TS (Low confidence match)
+- [ ] Additional oven variants
+- [ ] Dishwasher products
+
+### Hand Dryers (Check for more variants)
+- [ ] Any remaining hand dryer colors/models
+
+### To Get Full List:
+Run this to see all Wix products:
+```javascript
+// Use Wix MCP to query all products
+// CallWixSiteAPI with siteId: cfa82ec2-a075-4152-9799-6a1dd5c01ef4
+// POST to: https://www.wixapis.com/stores/v1/products/query
+// Body: {"query":{"paging":{"limit":100}}}
+```
+
+---
+
+## How to Continue Syncing
+
+### Option 1: Manual Matching
+For each Wix product, find the matching ETL product by:
+1. Search ETL database by brand/name
+2. Match by specifications (power, category)
+3. Add Wix images/videos to the ETL product
+
+### Option 2: Create New ETL Entries
+If Wix product doesn't exist in ETL:
+1. Create new product entry in database
+2. Copy all Wix media URLs
+3. Add calculator data if available
+
+### Sync Script Template:
+```javascript
+// Add to FULL-DATABASE-5554.json
+const product = db.products.find(p => p.id === 'etl_xxx');
+product.images = product.images || [];
+product.videos = product.videos || [];
+product.images.push('https://static.wixstatic.com/...');
+product.videos.push('https://video.wixstatic.com/...');
+product.wixSynced = true;
+```
+
+---
+
+## Backup Files
+
+- `FULL-DATABASE-5554_backup_before_sync.json` - Before Phase 2A
+- Use `git log` to see all changes
 
 ---
 
@@ -115,53 +177,37 @@ Since multiple Wix variants map to ONE ETL product, we need to decide:
 | File | Purpose |
 |------|---------|
 | `improved-sync-analysis.js` | Analyzes and matches Wix → ETL products |
-| `execute-sync.js` | Executes the sync for approved products |
+| `execute-sync.js` | Phase 2A sync execution |
+| `execute-full-phase2b-sync.js` | Phase 2B sync execution |
 | `sync-plan.json` | Saved matching results |
-| `analyze-matches.js` | Brand search analysis |
-| `check-missing.js` | Checks for "missing" products |
 
 ---
 
-## Key Finding
+## Rollback Instructions
 
-The "missing" Wix products (JOKER, Invoq) **ARE in the ETL database** - they just have shorter generic names:
-- Wix: "JOKER by Eloma GmbH" → ETL: "JOKER"
-- Wix: "Invoq Bake 6-400×600" → ETL: "Invoq"
-
-This is a **name matching issue**, not missing products.
-
----
-
-## Wix Site Details
-
-- **Site:** Greenways Market
-- **Site ID:** cfa82ec2-a075-4152-9799-6a1dd5c01ef4
-- **URL:** https://www.greenwaysmarket.com
-- **Total Wix Products:** 151
-
----
-
-## How to Resume
-
-If chat is lost, run these commands to see status:
-
+If needed, restore from backup:
 ```powershell
-# Check which products have been synced
-node -e "const db=JSON.parse(require('fs').readFileSync('FULL-DATABASE-5554.json'));const synced=db.products.filter(p=>p.wixSynced);console.log('Synced products:',synced.length);synced.forEach(p=>console.log('-',p.name));"
-
-# Run the analysis again
-node improved-sync-analysis.js
-```
-
----
-
-## Rollback If Needed
-
-```powershell
-# Restore from backup
 copy FULL-DATABASE-5554_backup_before_sync.json FULL-DATABASE-5554.json
 git add FULL-DATABASE-5554.json
 git commit -m "Rollback: Restore database before Wix sync"
 git push origin main
 ```
 
+---
+
+## Key Learnings
+
+1. **Images array format:** Store as actual arrays, not JSON strings
+2. **Relative paths:** API must handle both `/product-placement/x.jpg` and full URLs
+3. **Object-fit:** Use `contain` not `cover` for product images
+4. **Multiple variants:** Many Wix products map to one ETL product (consolidate images)
+5. **Test thoroughly:** Gallery code caused crashes before - keep changes small
+
+---
+
+## Contact / Resume
+
+If chat history is lost, this document contains all context needed to continue work.
+
+**Wix Site:** Greenways Market (cfa82ec2-a075-4152-9799-6a1dd5c01ef4)
+**Backend:** https://energy-calc-backend.onrender.com
