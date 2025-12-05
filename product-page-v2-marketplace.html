@@ -2849,6 +2849,9 @@
             // Track chat interaction
             trackMarketplaceClick('Live Chat', 'Support Request');
             
+            // Scroll to top so modal is visible
+            window.scrollTo({ top: 0, behavior: 'instant' });
+            
             // Show chat modal
             const modal = document.createElement('div');
             modal.className = 'chat-modal';
@@ -2861,84 +2864,244 @@
                 background: rgba(0,0,0,0.8);
                 z-index: 10001;
                 display: flex;
-                align-items: center;
+                align-items: flex-start;
                 justify-content: center;
+                padding-top: 30px;
+                overflow-y: auto;
             `;
 
+            const productName = currentProduct ? currentProduct.name : 'This Product';
+            const productImage = currentProduct ? currentProduct.imageUrl : '';
+            const productCategory = currentProduct ? (currentProduct.category || 'Energy Product') : 'Energy Product';
+            const productBrand = currentProduct ? (currentProduct.brand || '') : '';
+            
             modal.innerHTML = `
                 <div style="
                     background: white;
-                    border-radius: 12px;
-                    padding: 30px;
-                    max-width: 500px;
-                    width: 90%;
-                    max-height: 80vh;
+                    border-radius: 16px;
+                    max-width: 520px;
+                    width: 95%;
+                    max-height: calc(100vh - 80px);
                     overflow-y: auto;
+                    box-shadow: 0 25px 50px rgba(0,0,0,0.3);
                 ">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h3 style="margin: 0; color: #17a2b8;">💬 Live Chat Support</h3>
-                        <button onclick="closeChatModal()" style="background: none; border: none; font-size: 24px; cursor: pointer;">✕</button>
-                    </div>
-                    
-                    <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-                        <h4 style="margin: 0 0 10px 0; color: #212529;">Product: ${currentProduct ? currentProduct.name : 'Bosch Professional Dishwasher'}</h4>
-                        <p style="margin: 0; color: #6c757d; font-size: 14px;">
-                            Our ETL experts are here to help with any questions about this product, installation, energy savings, or financing options.
-                        </p>
-                    </div>
-                    
-                    <div style="margin-bottom: 20px;">
-                        <h5 style="margin: 0 0 10px 0; color: #212529;">Quick Questions:</h5>
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <button onclick="askQuickQuestion('installation')" style="
-                                background: #e9ecef;
-                                border: 1px solid #dee2e6;
-                                border-radius: 6px;
-                                padding: 10px;
-                                cursor: pointer;
-                                text-align: left;
-                            ">🔧 Installation requirements?</button>
-                            <button onclick="askQuickQuestion('energy')" style="
-                                background: #e9ecef;
-                                border: 1px solid #dee2e6;
-                                border-radius: 6px;
-                                padding: 10px;
-                                cursor: pointer;
-                                text-align: left;
-                            ">⚡ Energy savings calculation?</button>
-                            <button onclick="askQuickQuestion('financing')" style="
-                                background: #e9ecef;
-                                border: 1px solid #dee2e6;
-                                border-radius: 6px;
-                                padding: 10px;
-                                cursor: pointer;
-                                text-align: left;
-                            ">💳 Financing options?</button>
-                            <button onclick="askQuickQuestion('warranty')" style="
-                                background: #e9ecef;
-                                border: 1px solid #dee2e6;
-                                border-radius: 6px;
-                                padding: 10px;
-                                cursor: pointer;
-                                text-align: left;
-                            ">🛡️ Warranty coverage?</button>
-                        </div>
-                    </div>
-                    
-                    <div style="text-align: center;">
-                        <p style="margin: 0 0 15px 0; color: #6c757d; font-size: 14px;">
-                            Or start a live chat with our ETL specialists:
-                        </p>
-                        <button onclick="startLiveChat()" style="
-                            background: #17a2b8;
-                            color: white;
+                    <!-- Header with gradient -->
+                    <div style="
+                        background: linear-gradient(135deg, #1a5f2a 0%, #2E7D32 50%, #43A047 100%);
+                        padding: 25px;
+                        border-radius: 16px 16px 0 0;
+                        color: white;
+                        position: relative;
+                    ">
+                        <button onclick="closeChatModal()" style="
+                            position: absolute;
+                            top: 15px;
+                            right: 15px;
+                            background: rgba(255,255,255,0.2);
                             border: none;
-                            padding: 12px 24px;
-                            border-radius: 8px;
+                            font-size: 18px;
                             cursor: pointer;
-                            font-size: 16px;
-                            font-weight: 600;
-                        ">Start Live Chat</button>
+                            color: white;
+                            width: 32px;
+                            height: 32px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        ">✕</button>
+                        <h3 style="margin: 0 0 8px 0; font-size: 1.4rem;">💬 Product Support</h3>
+                        <p style="margin: 0; opacity: 0.9; font-size: 14px;">Get expert help from our ETL specialists</p>
+                    </div>
+                    
+                    <div style="padding: 25px;">
+                        <!-- Product Summary Card -->
+                        <div style="
+                            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                            border-radius: 12px;
+                            padding: 15px;
+                            margin-bottom: 20px;
+                            display: flex;
+                            gap: 15px;
+                            align-items: center;
+                            border: 1px solid #dee2e6;
+                        ">
+                            ${productImage ? `
+                                <img src="${productImage}" alt="${productName}" style="
+                                    width: 70px;
+                                    height: 70px;
+                                    object-fit: contain;
+                                    border-radius: 8px;
+                                    background: white;
+                                    padding: 5px;
+                                ">
+                            ` : `
+                                <div style="
+                                    width: 70px;
+                                    height: 70px;
+                                    background: white;
+                                    border-radius: 8px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-size: 28px;
+                                ">📦</div>
+                            `}
+                            <div style="flex: 1; min-width: 0;">
+                                <h4 style="margin: 0 0 4px 0; color: #212529; font-size: 15px; line-height: 1.3;">${productName}</h4>
+                                <p style="margin: 0; color: #6c757d; font-size: 12px;">
+                                    ${productBrand ? productBrand + ' • ' : ''}${productCategory}
+                                </p>
+                                <span style="
+                                    display: inline-block;
+                                    margin-top: 6px;
+                                    background: #2E7D32;
+                                    color: white;
+                                    padding: 2px 8px;
+                                    border-radius: 4px;
+                                    font-size: 10px;
+                                    font-weight: 600;
+                                ">ETL CERTIFIED</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Questions -->
+                        <h5 style="margin: 0 0 12px 0; color: #333; font-size: 14px; font-weight: 600;">
+                            ⚡ Quick Answers
+                        </h5>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                            <button onclick="askQuickQuestion('installation')" style="
+                                background: white;
+                                border: 2px solid #e9ecef;
+                                border-radius: 10px;
+                                padding: 12px 10px;
+                                cursor: pointer;
+                                text-align: center;
+                                transition: all 0.2s ease;
+                                font-size: 13px;
+                            " onmouseover="this.style.borderColor='#2E7D32'; this.style.background='#f8fff8';"
+                               onmouseout="this.style.borderColor='#e9ecef'; this.style.background='white';">
+                                <div style="font-size: 20px; margin-bottom: 5px;">🔧</div>
+                                Installation
+                            </button>
+                            <button onclick="askQuickQuestion('energy')" style="
+                                background: white;
+                                border: 2px solid #e9ecef;
+                                border-radius: 10px;
+                                padding: 12px 10px;
+                                cursor: pointer;
+                                text-align: center;
+                                transition: all 0.2s ease;
+                                font-size: 13px;
+                            " onmouseover="this.style.borderColor='#2E7D32'; this.style.background='#f8fff8';"
+                               onmouseout="this.style.borderColor='#e9ecef'; this.style.background='white';">
+                                <div style="font-size: 20px; margin-bottom: 5px;">⚡</div>
+                                Energy Savings
+                            </button>
+                            <button onclick="askQuickQuestion('financing')" style="
+                                background: white;
+                                border: 2px solid #e9ecef;
+                                border-radius: 10px;
+                                padding: 12px 10px;
+                                cursor: pointer;
+                                text-align: center;
+                                transition: all 0.2s ease;
+                                font-size: 13px;
+                            " onmouseover="this.style.borderColor='#2E7D32'; this.style.background='#f8fff8';"
+                               onmouseout="this.style.borderColor='#e9ecef'; this.style.background='white';">
+                                <div style="font-size: 20px; margin-bottom: 5px;">💳</div>
+                                Financing
+                            </button>
+                            <button onclick="askQuickQuestion('warranty')" style="
+                                background: white;
+                                border: 2px solid #e9ecef;
+                                border-radius: 10px;
+                                padding: 12px 10px;
+                                cursor: pointer;
+                                text-align: center;
+                                transition: all 0.2s ease;
+                                font-size: 13px;
+                            " onmouseover="this.style.borderColor='#2E7D32'; this.style.background='#f8fff8';"
+                               onmouseout="this.style.borderColor='#e9ecef'; this.style.background='white';">
+                                <div style="font-size: 20px; margin-bottom: 5px;">🛡️</div>
+                                Warranty
+                            </button>
+                        </div>
+                        
+                        <!-- Divider -->
+                        <div style="
+                            border-top: 1px solid #e9ecef;
+                            margin: 20px 0;
+                            position: relative;
+                        ">
+                            <span style="
+                                position: absolute;
+                                top: -10px;
+                                left: 50%;
+                                transform: translateX(-50%);
+                                background: white;
+                                padding: 0 12px;
+                                color: #6c757d;
+                                font-size: 12px;
+                            ">or</span>
+                        </div>
+                        
+                        <!-- Contact Options -->
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="startLiveChat()" style="
+                                flex: 1;
+                                background: linear-gradient(135deg, #2E7D32 0%, #43A047 100%);
+                                color: white;
+                                border: none;
+                                padding: 14px 20px;
+                                border-radius: 10px;
+                                cursor: pointer;
+                                font-size: 14px;
+                                font-weight: 600;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                gap: 8px;
+                                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(46,125,50,0.3)';"
+                               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                                💬 Live Chat
+                            </button>
+                            <button onclick="emailSupport()" style="
+                                flex: 1;
+                                background: white;
+                                color: #2E7D32;
+                                border: 2px solid #2E7D32;
+                                padding: 14px 20px;
+                                border-radius: 10px;
+                                cursor: pointer;
+                                font-size: 14px;
+                                font-weight: 600;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                gap: 8px;
+                                transition: all 0.2s ease;
+                            " onmouseover="this.style.background='#f8fff8';"
+                               onmouseout="this.style.background='white';">
+                                ✉️ Email Us
+                            </button>
+                        </div>
+                        
+                        <!-- Trust badges -->
+                        <div style="
+                            margin-top: 20px;
+                            padding-top: 15px;
+                            border-top: 1px solid #e9ecef;
+                            display: flex;
+                            justify-content: center;
+                            gap: 20px;
+                            color: #6c757d;
+                            font-size: 11px;
+                        ">
+                            <span>✓ Expert Advice</span>
+                            <span>✓ Fast Response</span>
+                            <span>✓ No Obligation</span>
+                        </div>
                     </div>
                 </div>
             `;
@@ -2980,6 +3143,14 @@
             setTimeout(() => {
                 showMarketplaceMessage('Live chat is now active! Our ETL expert will assist you shortly.', 'success');
             }, 2000);
+        }
+
+        function emailSupport() {
+            closeChatModal();
+            const productName = currentProduct ? currentProduct.name : 'Product Inquiry';
+            const subject = encodeURIComponent(`Product Inquiry: ${productName}`);
+            const body = encodeURIComponent(`Hi,\n\nI have a question about: ${productName}\n\nMy question is:\n\n`);
+            window.location.href = `mailto:support@greenwaysmarket.com?subject=${subject}&body=${body}`;
         }
 
         function trackMarketplaceClick(productName, clickType) {
