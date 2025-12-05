@@ -77,6 +77,20 @@ Since multiple Wix variants map to ONE ETL product, we need to decide:
 
 ---
 
+## API Bug Fix - COMPLETED ✅
+
+**Date:** December 5, 2025
+**Commit:** 40537b0
+
+**Problem:** API expected `images` and `videos` to be JSON strings, but they were stored as actual arrays.
+
+**Fix:** Updated `routes/product-widget.js` to handle both formats:
+- If array → use directly
+- If JSON string → parse first
+- Also filters out invalid URLs (non-http strings)
+
+---
+
 ## Gallery Implementation - COMPLETED ✅
 
 **Date:** December 5, 2025
