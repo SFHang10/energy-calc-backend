@@ -2464,47 +2464,10 @@
                     
                     <!-- C. Related Products -->
                     <div class="related-products" style="margin-top: 20px;">
-                        <h5 style="margin: 0 0 15px 0; color: #212529;">🛍️ Customers who bought this also looked at</h5>
-                        <div style="display: flex; gap: 10px; overflow-x: auto;">
-                            <div class="related-product" style="
-                                min-width: 120px;
-                                text-align: center;
-                                cursor: pointer;
-                                padding: 10px;
-                                border: 1px solid #e9ecef;
-                                border-radius: 8px;
-                                transition: border-color 0.3s ease;
-                            " onclick="showRelatedProduct('Siemens iQ500 Oven')">
-                                <div style="width: 60px; height: 60px; background: #f8f9fa; border-radius: 4px; margin: 0 auto 8px;"></div>
-                                <div style="font-size: 12px; font-weight: 600;">Siemens Oven</div>
-                                <div style="font-size: 11px; color: #28a745;">€899</div>
-                            </div>
-                            <div class="related-product" style="
-                                min-width: 120px;
-                                text-align: center;
-                                cursor: pointer;
-                                padding: 10px;
-                                border: 1px solid #e9ecef;
-                                border-radius: 8px;
-                                transition: border-color 0.3s ease;
-                            " onclick="showRelatedProduct('Hobart Combi Oven')">
-                                <div style="width: 60px; height: 60px; background: #f8f9fa; border-radius: 4px; margin: 0 auto 8px;"></div>
-                                <div style="font-size: 12px; font-weight: 600;">Hobart Combi</div>
-                                <div style="font-size: 11px; color: #28a745;">€2,199</div>
-                            </div>
-                            <div class="related-product" style="
-                                min-width: 120px;
-                                text-align: center;
-                                cursor: pointer;
-                                padding: 10px;
-                                border: 1px solid #e9ecef;
-                                border-radius: 8px;
-                                transition: border-color 0.3s ease;
-                            " onclick="showRelatedProduct('Adande Refrigerated Drawer')">
-                                <div style="width: 60px; height: 60px; background: #f8f9fa; border-radius: 4px; margin: 0 auto 8px;"></div>
-                                <div style="font-size: 12px; font-weight: 600;">Adande Drawer</div>
-                                <div style="font-size: 11px; color: #28a745;">€1,599</div>
-                            </div>
+                        <h5 style="margin: 0 0 15px 0; color: #212529;">👀 People who viewed this also viewed</h5>
+                        <div id="related-products-container" style="display: flex; gap: 10px; overflow-x: auto;">
+                            <!-- Products will be loaded dynamically -->
+                            <div style="color: #6c757d; font-size: 12px; padding: 20px;">Loading recommendations...</div>
                         </div>
                     </div>
 
@@ -2560,6 +2523,13 @@
             `;
 
             document.body.appendChild(modal);
+            
+            // Load related products dynamically
+            if (currentProduct && currentProduct.category) {
+                loadRelatedProducts(currentProduct.id, currentProduct.category);
+            } else if (currentProduct && currentProduct.subcategory) {
+                loadRelatedProducts(currentProduct.id, currentProduct.subcategory);
+            }
             
             // Close modal when clicking overlay
             modal.onclick = (e) => {
@@ -2738,6 +2708,127 @@
                 window.open(affiliateLink, '_blank');
                 showMarketplaceMessage(`Opening ${productName}...`, 'success');
             }
+        }
+
+        // Load related products dynamically from database
+        async function loadRelatedProducts(currentProductId, currentCategory) {
+            const container = document.getElementById('related-products-container');
+            if (!container) return;
+            
+            try {
+                console.log('🔍 Loading related products for category:', currentCategory);
+                
+                // Fetch products from the same category
+                const response = await fetch(`${API_BASE}/api/product-widget/products/search?category=${encodeURIComponent(currentCategory)}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch related products');
+                }
+                
+                const data = await response.json();
+                let products = data.products || [];
+                
+                // Filter out the current product and limit to 6
+                products = products
+                    .filter(p => p.id !== currentProductId)
+                    .slice(0, 6);
+                
+                if (products.length === 0) {
+                    container.innerHTML = '<div style="color: #6c757d; font-size: 12px; padding: 20px;">No related products found</div>';
+                    return;
+                }
+                
+                // Render the products
+                container.innerHTML = products.map(product => {
+                    const imageUrl = getRelatedProductImage(product);
+                    const displayPrice = product.price ? `€${product.price.toLocaleString()}` : '';
+                    
+                    return `
+                        <div class="related-product" style="
+                            min-width: 120px;
+                            max-width: 140px;
+                            text-align: center;
+                            cursor: pointer;
+                            padding: 10px;
+                            border: 1px solid #e9ecef;
+                            border-radius: 8px;
+                            transition: border-color 0.3s ease, transform 0.2s ease;
+                            flex-shrink: 0;
+                        " onclick="navigateToProduct('${product.id}')"
+                           onmouseover="this.style.borderColor='#28a745'; this.style.transform='translateY(-2px)';"
+                           onmouseout="this.style.borderColor='#e9ecef'; this.style.transform='translateY(0)';">
+                            <div style="
+                                width: 70px; 
+                                height: 70px; 
+                                background: #f8f9fa; 
+                                border-radius: 4px; 
+                                margin: 0 auto 8px;
+                                overflow: hidden;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                            ">
+                                <img src="${imageUrl}" 
+                                     alt="${product.name}" 
+                                     style="max-width: 100%; max-height: 100%; object-fit: contain;"
+                                     onerror="this.style.display='none'; this.parentElement.innerHTML='📦';">
+                            </div>
+                            <div style="font-size: 11px; font-weight: 600; color: #212529; 
+                                        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                                 title="${product.name}">
+                                ${truncateName(product.name, 15)}
+                            </div>
+                            ${displayPrice ? `<div style="font-size: 11px; color: #28a745; margin-top: 2px;">${displayPrice}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+                
+                console.log(`✅ Loaded ${products.length} related products`);
+                
+            } catch (error) {
+                console.error('❌ Error loading related products:', error);
+                container.innerHTML = '<div style="color: #6c757d; font-size: 12px; padding: 20px;">Unable to load recommendations</div>';
+            }
+        }
+        
+        // Helper: Get image URL for related product
+        function getRelatedProductImage(product) {
+            // Check various image fields
+            if (product.imageUrl && product.imageUrl.length > 5) {
+                if (product.imageUrl.startsWith('http')) return product.imageUrl;
+                return `${API_BASE}/${product.imageUrl}`;
+            }
+            if (product.image_url && product.image_url.length > 5) {
+                if (product.image_url.startsWith('http')) return product.image_url;
+                return `${API_BASE}/${product.image_url}`;
+            }
+            if (product.images && product.images.length > 0) {
+                const firstImage = product.images[0];
+                if (firstImage.startsWith('http')) return firstImage;
+                return `${API_BASE}/${firstImage}`;
+            }
+            // Return placeholder
+            return 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="70" height="70"><rect fill="%23f8f9fa" width="70" height="70"/><text x="35" y="40" text-anchor="middle" fill="%236c757d" font-size="24">📦</text></svg>';
+        }
+        
+        // Helper: Truncate product name
+        function truncateName(name, maxLength) {
+            if (!name) return 'Product';
+            if (name.length <= maxLength) return name;
+            return name.substring(0, maxLength) + '...';
+        }
+        
+        // Navigate to a product page
+        function navigateToProduct(productId) {
+            console.log('🔗 Navigating to product:', productId);
+            closeCartModal();
+            
+            // Build the URL with the product ID
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('product', productId);
+            
+            // Navigate to the product page
+            window.location.href = currentUrl.toString();
         }
 
         // D. Live Chat Functions
