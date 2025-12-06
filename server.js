@@ -19,7 +19,7 @@ const productWidgetRouter = require('./routes/product-widget');
 const wixProductsRouter = require('./routes/wix-products-local');
 const wixIntegrationRouter = require('./routes/wix-integration');
 const shopProductsRouter = require('./routes/shop-products');
-const membersRouter = require('./routes/members');
+const membersRouter = require('./routes/members-mongodb');
 
 // Mount routes with proper prefixes
 app.use('/api/products', productsRouter);
