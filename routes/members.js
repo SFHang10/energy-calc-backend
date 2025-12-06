@@ -525,6 +525,39 @@ const WIX_SITES = {
   MARKETPLACE: 'cfa82ec2-a075-4152-9799-6a1dd5c01ef4' // Greenways Market
 };
 
+// TEMPORARY: Admin password reset (remove after use)
+router.post('/admin-reset-password', async (req, res) => {
+  const { email, newPassword, adminKey } = req.body;
+  
+  // Simple admin key check (remove this endpoint after use)
+  if (adminKey !== 'greenways-admin-2025') {
+    return res.status(403).json({ error: 'Invalid admin key' });
+  }
+  
+  if (!email || !newPassword) {
+    return res.status(400).json({ error: 'Email and new password required' });
+  }
+  
+  try {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    db.run('UPDATE members SET password_hash = ? WHERE email = ?', [hashedPassword, email], function(err) {
+      if (err) {
+        return res.status(500).json({ error: 'Database error', details: err.message });
+      }
+      
+      if (this.changes === 0) {
+        return res.status(404).json({ error: 'Email not found' });
+      }
+      
+      console.log(`✅ Admin password reset for: ${email}`);
+      res.json({ success: true, message: 'Password reset successfully' });
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to reset password', details: error.message });
+  }
+});
+
 // Sync member with Wix (link local member to Wix member)
 router.post('/sync-wix', authenticateToken, async (req, res) => {
   try {
