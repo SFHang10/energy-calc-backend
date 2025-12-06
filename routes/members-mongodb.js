@@ -56,23 +56,39 @@ router.get('/test-db', async (req, res) => {
 
 // Member registration
 router.post('/register', async (req, res) => {
+  console.log('📝 Registration request received:', req.body);
+  
   const { email, password, first_name, last_name, company, phone, interests } = req.body;
 
   if (!email || !password) {
+    console.log('❌ Missing email or password');
     return res.status(400).json({ error: 'Email and password are required' });
+  }
+
+  // Check MongoDB connection
+  if (!isMongoDBConnected()) {
+    console.log('❌ MongoDB not connected, attempting reconnect...');
+    const connected = await connectMongoDB();
+    if (!connected) {
+      return res.status(500).json({ error: 'Database connection failed. Please try again.' });
+    }
   }
 
   try {
     // Check if email already exists
+    console.log('🔍 Checking if email exists:', email);
     const existingMember = await Member.findOne({ email: email.toLowerCase() });
     if (existingMember) {
+      console.log('❌ Email already registered');
       return res.status(400).json({ error: 'Email already registered' });
     }
 
     // Hash password
+    console.log('🔐 Hashing password...');
     const passwordHash = await bcrypt.hash(password, 10);
 
     // Create new member
+    console.log('👤 Creating new member...');
     const member = new Member({
       email: email.toLowerCase(),
       passwordHash,
@@ -82,12 +98,14 @@ router.post('/register', async (req, res) => {
       },
       company,
       phone,
-      interests: interests ? interests.split(',').map(i => i.trim()) : [],
+      interests: interests ? (typeof interests === 'string' ? interests.split(',').map(i => i.trim()) : interests) : [],
       subscriptionTier: 'Free',
       subscriptionStatus: 'active'
     });
 
+    console.log('💾 Saving member to MongoDB...');
     await member.save();
+    console.log('✅ Member saved successfully');
 
     // Generate JWT token
     const token = jwt.sign({ id: member._id, email: member.email }, JWT_SECRET, { expiresIn: '30d' });
