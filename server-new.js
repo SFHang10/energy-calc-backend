@@ -95,9 +95,24 @@ console.log('Loading ETL router...');
 const etlWixRouter = require('./routes/etl-wix');
 console.log('ETL router loaded successfully');
 
+// Load members router - use MongoDB if configured, otherwise SQLite
 console.log('Loading members router...');
-const membersRouter = require('./routes/members');
-console.log('Members router loaded successfully');
+let membersRouter;
+if (process.env.USE_MONGODB === 'true' && process.env.MONGODB_URI) {
+  console.log('🍃 Using MongoDB for members...');
+  try {
+    membersRouter = require('./routes/members-mongodb');
+    console.log('✅ MongoDB members router loaded successfully');
+  } catch (error) {
+    console.error('❌ Failed to load MongoDB members router:', error.message);
+    console.log('⚠️ Falling back to SQLite members router...');
+    membersRouter = require('./routes/members');
+  }
+} else {
+  console.log('📁 Using SQLite for members...');
+  membersRouter = require('./routes/members');
+  console.log('✅ SQLite members router loaded successfully');
+}
 
 console.log('Loading subscriptions router...');
 const subscriptionsRouter = require('./routes/subscriptions-simple');
