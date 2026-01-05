@@ -1306,16 +1306,33 @@
 
         // ==================== PRODUCT MODAL FUNCTIONS ====================
         
-        // Open product in modal overlay
+        // Check if we're inside an iframe (e.g., embedded in Wix)
+        function isInIframe() {
+            try {
+                return window.self !== window.top;
+            } catch (e) {
+                return true; // If we can't access parent, we're likely in an iframe
+            }
+        }
+        
+        // Open product in modal overlay (or new tab if in iframe)
         function openProductModal(productId) {
-            const modal = document.getElementById('product-modal-overlay');
-            const iframe = document.getElementById('product-modal-iframe');
-            const loading = document.getElementById('product-modal-loading');
-            
             // Build product URL
             const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             const baseUrl = isLocalhost ? 'http://localhost:4000' : window.location.origin;
             const productUrl = `${baseUrl}/product-page-v2-marketplace.html?product=${encodeURIComponent(productId)}`;
+            
+            // If we're inside an iframe (Wix), open in new tab for full viewport
+            if (isInIframe()) {
+                console.log('📦 Inside iframe - opening product in new tab:', productUrl);
+                window.open(productUrl, '_blank');
+                return;
+            }
+            
+            // Otherwise, use modal (direct access to backend)
+            const modal = document.getElementById('product-modal-overlay');
+            const iframe = document.getElementById('product-modal-iframe');
+            const loading = document.getElementById('product-modal-loading');
             
             console.log('🔲 Opening product modal:', productUrl);
             
