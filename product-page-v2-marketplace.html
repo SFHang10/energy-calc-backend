@@ -46,6 +46,11 @@
             text-decoration: underline;
         }
 
+        /* Hide breadcrumb when in iframe (modal) */
+        body.in-iframe .breadcrumb {
+            display: none !important;
+        }
+
         /* Back Button */
         .back-button {
             background: #007bff;
@@ -1384,6 +1389,12 @@
         })();
         
         console.log('🔧 Backend URL configured:', BACKEND_URL);
+
+        // Detect if page is inside an iframe (modal) and hide breadcrumb
+        if (window.self !== window.top) {
+            document.body.classList.add('in-iframe');
+            console.log('📦 Page loaded inside iframe - hiding breadcrumb');
+        }
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
