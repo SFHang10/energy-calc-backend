@@ -294,6 +294,137 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* ==================== PRODUCT MODAL STYLES ==================== */
+        .product-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+
+        .product-modal-overlay.active {
+            display: flex;
+        }
+
+        .product-modal-container {
+            position: relative;
+            width: 95%;
+            height: 95%;
+            max-width: 1400px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .product-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 45px;
+            height: 45px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(255, 68, 68, 0.4);
+        }
+
+        .product-modal-close:hover {
+            background: #cc0000;
+            transform: scale(1.1);
+        }
+
+        .product-modal-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .product-modal-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #666;
+        }
+
+        .product-modal-loading .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1976D2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal hint text */
+        .product-modal-hint {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            z-index: 10001;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        /* Responsive modal */
+        @media (max-width: 768px) {
+            .product-modal-container {
+                width: 100%;
+                height: 100%;
+                border-radius: 0;
+            }
+
+            .product-modal-close {
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1129,19 +1260,10 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // View product details - opens on same page (not new tab)
+        // View product details - opens in modal overlay (not new page)
         function viewProduct(productId) {
-            // Use test version (product-page-v2-marketplace.html) which has correct image handling
-            // Open on same page instead of new tab
-            const productUrl = `product-page-v2-marketplace.html?product=${encodeURIComponent(productId)}`;
-            
-            // Check if we're on localhost or production
-            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            const baseUrl = isLocalhost ? 'http://localhost:4000' : window.location.origin;
-            const fullUrl = `${baseUrl}/${productUrl}`;
-            
-            console.log('🛒 Opening product page:', fullUrl);
-            window.location.href = fullUrl;
+            console.log('🛒 Opening product in modal:', productId);
+            openProductModal(productId);
         }
 
         // Add to cart
@@ -1181,6 +1303,101 @@
                 window.location.href = '/product-categories.html';
             }
         }
+
+        // ==================== PRODUCT MODAL FUNCTIONS ====================
+        
+        // Open product in modal overlay
+        function openProductModal(productId) {
+            const modal = document.getElementById('product-modal-overlay');
+            const iframe = document.getElementById('product-modal-iframe');
+            const loading = document.getElementById('product-modal-loading');
+            
+            // Build product URL
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const baseUrl = isLocalhost ? 'http://localhost:4000' : window.location.origin;
+            const productUrl = `${baseUrl}/product-page-v2-marketplace.html?product=${encodeURIComponent(productId)}`;
+            
+            console.log('🔲 Opening product modal:', productUrl);
+            
+            // Show loading state
+            if (loading) loading.style.display = 'block';
+            
+            // Set iframe src
+            iframe.src = productUrl;
+            
+            // Show modal
+            modal.classList.add('active');
+            
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
+            
+            // Hide loading when iframe loads
+            iframe.onload = function() {
+                if (loading) loading.style.display = 'none';
+                console.log('✅ Product page loaded in modal');
+            };
+        }
+        
+        // Close product modal
+        function closeProductModal() {
+            const modal = document.getElementById('product-modal-overlay');
+            const iframe = document.getElementById('product-modal-iframe');
+            
+            console.log('❌ Closing product modal');
+            
+            // Hide modal
+            modal.classList.remove('active');
+            
+            // Clear iframe to stop any ongoing processes
+            iframe.src = 'about:blank';
+            
+            // Restore body scroll
+            document.body.style.overflow = '';
+        }
+        
+        // Close modal when clicking outside
+        document.addEventListener('DOMContentLoaded', function() {
+            const modalOverlay = document.getElementById('product-modal-overlay');
+            
+            if (modalOverlay) {
+                modalOverlay.addEventListener('click', function(e) {
+                    // Close only if clicking the overlay background, not the modal content
+                    if (e.target === modalOverlay) {
+                        closeProductModal();
+                    }
+                });
+            }
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('product-modal-overlay');
+                    if (modal && modal.classList.contains('active')) {
+                        closeProductModal();
+                    }
+                }
+            });
+        });
     </script>
+
+    <!-- ==================== PRODUCT MODAL HTML ==================== -->
+    <div id="product-modal-overlay" class="product-modal-overlay">
+        <div class="product-modal-container">
+            <!-- Close button -->
+            <button class="product-modal-close" onclick="closeProductModal()" title="Close (Esc)">✕</button>
+            
+            <!-- Loading indicator -->
+            <div id="product-modal-loading" class="product-modal-loading">
+                <div class="spinner"></div>
+                <p>Loading product...</p>
+            </div>
+            
+            <!-- Product page iframe -->
+            <iframe id="product-modal-iframe" class="product-modal-iframe" src="about:blank"></iframe>
+            
+            <!-- Hint text -->
+            <div class="product-modal-hint">Press ESC or click outside to close</div>
+        </div>
+    </div>
 </body>
 </html>
