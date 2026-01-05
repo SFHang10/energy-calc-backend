@@ -5170,8 +5170,11 @@
         function openProductModal(productUrl) {
             // If we're inside an iframe (Wix), open in new tab for full viewport
             if (isInIframe()) {
-                console.log('📦 Inside iframe - opening product in new tab:', productUrl);
-                window.open(productUrl, '_blank');
+                // Add parameter so product page knows it was opened as popup
+                const separator = productUrl.includes('?') ? '&' : '?';
+                const popupUrl = productUrl + separator + 'fromPopup=true';
+                console.log('📦 Inside iframe - opening product in new tab:', popupUrl);
+                window.open(popupUrl, '_blank');
                 return;
             }
             

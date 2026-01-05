@@ -46,9 +46,67 @@
             text-decoration: underline;
         }
 
-        /* Hide breadcrumb when in iframe (modal) */
-        body.in-iframe .breadcrumb {
+        /* Hide breadcrumb when in iframe (modal) or opened as popup */
+        body.in-iframe .breadcrumb,
+        body.from-popup .breadcrumb {
             display: none !important;
+        }
+
+        /* Popup Return Banner - shows when page opened in new tab from Wix */
+        .popup-return-banner {
+            display: none;
+            background: linear-gradient(135deg, #1976D2, #1565C0);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(25, 118, 210, 0.3);
+        }
+
+        body.from-popup .popup-return-banner {
+            display: flex !important;
+        }
+
+        .popup-return-banner .banner-text {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .popup-return-banner .banner-text i {
+            font-size: 18px;
+        }
+
+        .popup-return-banner .close-tab-btn {
+            background: white;
+            color: #1976D2;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .popup-return-banner .close-tab-btn:hover {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .popup-return-banner {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
         }
 
         /* Back Button */
@@ -802,12 +860,23 @@
 </head>
 <body>
     <div class="product-page-container">
-        <!-- Breadcrumb with Back Button -->
+        <!-- Breadcrumb with Back Button (hidden when from popup) -->
         <nav class="breadcrumb">
             <button onclick="goBack()" class="back-button" title="Go back to previous page">← Back</button>
             <a href="/product-categories.html" id="breadcrumb-category-link">Products</a> / 
             <span id="breadcrumb-product">Loading...</span>
         </nav>
+
+        <!-- Popup Return Banner (shown when page opened in new tab from Wix) -->
+        <div class="popup-return-banner">
+            <div class="banner-text">
+                <span>👈</span>
+                <span>Close this tab to return to the marketplace</span>
+            </div>
+            <button class="close-tab-btn" onclick="closeAndReturn()">
+                ✕ Close Tab
+            </button>
+        </div>
 
         <!-- Main Product Section -->
         <div class="product-main">
@@ -1394,6 +1463,24 @@
         if (window.self !== window.top) {
             document.body.classList.add('in-iframe');
             console.log('📦 Page loaded inside iframe - hiding breadcrumb');
+        }
+
+        // Detect if page was opened as popup from Wix (new tab)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('fromPopup') === 'true') {
+            document.body.classList.add('from-popup');
+            console.log('🔗 Page opened as popup - showing return banner');
+        }
+
+        // Close tab and return (for popup mode)
+        function closeAndReturn() {
+            console.log('🚪 Attempting to close tab...');
+            // Try to close the tab
+            window.close();
+            // If window.close() doesn't work (browser restrictions), show message
+            setTimeout(() => {
+                alert('Please close this tab manually to return to the marketplace.');
+            }, 100);
         }
 
         // Initialize page
