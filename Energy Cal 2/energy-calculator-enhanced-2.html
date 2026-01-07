@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
             <style>
-            /* Enhanced Dark Theme - Matching Energy Audit Widget Style */
+            /* Enhanced Dark Theme - Clear and Vibrant */
             :root {
                 /* Dark Blue Theme Colors */
                 --primary-blue: #1976D2;
@@ -15,9 +15,9 @@
                 --accent-blue: #90CAF9;
                 --light-blue: #E3F2FD;
                 --dark-blue: #0D47A1;
-                --dark-bg: #2a3448; /* Increased brightness ~30% total (10% + 20%) from #0f172a */
-                --darker-bg: #1e2330; /* Increased brightness ~30% total (10% + 20%) from #0a0a1a */
-                --card-bg: rgba(55, 70, 90, 0.65); /* Increased brightness ~30% total (10% + 20%) and slightly more opaque */
+                --dark-bg: #0a0f1c;
+                --darker-bg: #060912;
+                --card-bg: rgba(15, 25, 40, 0.92);
                 
                 /* Green Neon Colors */
                 --neon-green: #22c55e;
@@ -31,11 +31,11 @@
                 
                 --warning-orange: #FF9800;
                 --white: #FFFFFF;
-                --gray: #D4DEE5; /* Increased brightness ~30% total (10% + 20%) from #B0BEC5 */
-                --light-gray: rgba(90, 105, 115, 0.35); /* Increased brightness ~30% total (10% + 20%) */
-                --border: rgba(34, 197, 94, 0.3);
-                --shadow: 0 8px 32px rgba(0,0,0,0.3); /* Reduced shadow darkness ~20% */
-                --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+                --gray: #e2e8f0;
+                --light-gray: rgba(100, 116, 139, 0.5);
+                --border: rgba(34, 197, 94, 0.4);
+                --shadow: 0 8px 32px rgba(0,0,0,0.5);
+                --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.5);
             }
 
             * {
@@ -48,19 +48,13 @@
                 font-family: 'Inter', sans-serif;
                 line-height: 1.6;
                 color: var(--gray);
-                background: 
-                    linear-gradient(135deg, var(--dark-bg) 0%, #3a4a5e 50%, #4f5f7a 100%), /* Increased brightness ~30% total (10% + 20%) */
-                    url('../product-placement/how-to-calculate-unit-in-electricity-1-1-1024x635.png');
-                /* ROLLBACK: Old image - url('../PLANET__233_18_20_32_500_visible_5214.jpg'); */
-                background-size: cover;
-                background-position: center;
-                background-attachment: fixed;
+                background: var(--dark-bg);
                 min-height: 100vh;
                 position: relative;
                 overflow-x: hidden;
             }
 
-            /* Dynamic Background System */
+            /* Dynamic Background System - Cleaner darker overlay */
             body::before {
                 content: '';
                 position: fixed;
@@ -69,50 +63,62 @@
                 width: 100%;
                 height: 100%;
                 background-image: url('../product-placement/how-to-calculate-unit-in-electricity-1-1-1024x635.png');
-                /* ROLLBACK: Old image - url('../PLANET__233_18_20_32_500_visible_5214.jpg'); */
                 background-size: cover;
                 background-position: center;
                 background-attachment: fixed;
-                opacity: 0.12; /* Reduced from 0.2 to increase brightness ~30% total (10% + 20%) */
+                opacity: 0.35;
+                pointer-events: none;
+                z-index: -2;
+                transition: all 0.5s ease-in-out;
+            }
+
+            /* Dark overlay for better readability */
+            body::after {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, rgba(10, 15, 28, 0.85) 0%, rgba(15, 25, 45, 0.75) 100%);
                 pointer-events: none;
                 z-index: -1;
-                transition: all 0.5s ease-in-out;
             }
 
             /* Category-specific background overlays */
             body.category-appliances::before {
                 background-image: url('../Appliances.png');
-                opacity: 0.20; /* Reduced from 0.3 to increase brightness ~30% total (10% + 20%) */
+                opacity: 0.4;
             }
 
             body.category-lighting::before {
                 background-image: url('../lighting.jpg');
-                opacity: 0.20; /* Reduced from 0.3 to increase brightness ~30% total (10% + 20%) */
+                opacity: 0.4;
             }
 
             body.category-heating::before {
                 background-image: url('../Heating.jpeg');
-                opacity: 0.20; /* Reduced from 0.3 to increase brightness ~30% total (10% + 20%) */
+                opacity: 0.4;
             }
 
             body.category-restaurant-equipment::before {
                 background-image: url('../Restuarant.jpeg');
-                opacity: 0.20; /* Reduced from 0.3 to increase brightness ~30% total (10% + 20%) */
+                opacity: 0.4;
             }
 
             body.category-office-equipment::before {
                 background-image: url('../ergonomic-office-equipements-720x480.jpg');
-                opacity: 0.20; /* Reduced from 0.3 to increase brightness ~30% total (10% + 20%) */
+                opacity: 0.4;
             }
 
             body.category-renewable::before {
                 background-image: url('../Renewable.jpeg');
-                opacity: 0.20; /* Reduced from 0.3 to increase brightness ~30% total (10% + 20%) */
+                opacity: 0.4;
             }
 
             body.category-smart-home::before {
                 background-image: url('../Smart Home. jpeg.jpeg');
-                opacity: 0.20; /* Reduced from 0.3 to increase brightness ~30% total (10% + 20%) */
+                opacity: 0.4;
             }
 
             .container {
@@ -128,16 +134,16 @@
                 margin-bottom: 40px;
                 padding: 40px;
                 background: 
-                    linear-gradient(135deg, rgba(40, 50, 70, 0.75), rgba(55, 70, 90, 0.55)), /* Increased brightness ~30% total (10% + 20%) */
-                    radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
+                    linear-gradient(135deg, rgba(15, 25, 45, 0.95), rgba(20, 35, 55, 0.92)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.15), transparent);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
-                border: 2px solid rgba(34, 197, 94, 0.3);
+                border: 2px solid rgba(34, 197, 94, 0.4);
                 color: var(--white);
                 border-radius: 24px;
                 box-shadow: 
-                    0 8px 32px rgba(0, 0, 0, 0.18), /* Reduced shadow darkness ~30% total (10% + 20%) */
-                    inset 0 1px 0 rgba(255, 255, 255, 0.15); /* Brighter highlight */
+                    0 8px 32px rgba(0, 0, 0, 0.4),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
                 position: relative;
                 overflow: hidden;
             }
@@ -205,7 +211,7 @@
                 gap: 15px;
                 z-index: 0;
                 pointer-events: none;
-                opacity: 0.4;
+                opacity: 0.5;
             }
 
             .product-box {
@@ -213,12 +219,12 @@
                 border-radius: 12px;
                 overflow: hidden;
                 background: 
-                    linear-gradient(135deg, rgba(55, 70, 90, 0.6), rgba(75, 90, 110, 0.5)),
+                    linear-gradient(135deg, rgba(20, 35, 55, 0.85), rgba(25, 40, 60, 0.8)),
                     radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
-                border: 2px solid rgba(34, 197, 94, 0.2);
+                border: 2px solid rgba(34, 197, 94, 0.25);
                 box-shadow: 
-                    0 4px 12px rgba(0, 0, 0, 0.2),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                    0 4px 12px rgba(0, 0, 0, 0.4),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.08);
                 position: relative;
                 transition: all 0.3s ease;
             }
@@ -257,17 +263,17 @@
             /* API Status Panel */
             .api-status {
                 background: 
-                    linear-gradient(135deg, rgba(55, 70, 90, 0.55), rgba(75, 90, 110, 0.4)), /* Increased brightness ~30% total (10% + 20%) */
-                    radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
+                    linear-gradient(135deg, rgba(15, 25, 45, 0.95), rgba(20, 35, 55, 0.92)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
                 padding: 25px;
                 border-radius: 16px;
                 box-shadow: 
-                    0 8px 32px rgba(0, 0, 0, 0.15), /* Reduced shadow darkness ~30% total (10% + 20%) */
-                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                    0 8px 32px rgba(0, 0, 0, 0.4),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.08);
                 margin-bottom: 30px;
-                border: 2px solid rgba(34, 197, 94, 0.3);
+                border: 2px solid rgba(34, 197, 94, 0.4);
             }
 
             .api-status h3 {
@@ -279,17 +285,17 @@
             /* Category Selection Styles */
             .category-section {
                 background: 
-                    linear-gradient(135deg, rgba(55, 70, 90, 0.55), rgba(75, 90, 110, 0.4)), /* Increased brightness ~30% total (10% + 20%) */
-                    radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
+                    linear-gradient(135deg, rgba(15, 25, 45, 0.95), rgba(20, 35, 55, 0.92)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
                 padding: 30px;
                 border-radius: 20px;
                 box-shadow: 
-                    0 8px 32px rgba(0, 0, 0, 0.15), /* Reduced shadow darkness ~30% total (10% + 20%) */
-                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                    0 8px 32px rgba(0, 0, 0, 0.4),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.08);
                 margin-bottom: 30px;
-                border: 2px solid rgba(34, 197, 94, 0.3);
+                border: 2px solid rgba(34, 197, 94, 0.4);
             }
 
             .category-section h2 {
@@ -308,8 +314,8 @@
 
             .status-bar {
                 background: 
-                    linear-gradient(135deg, rgba(30, 40, 55, 0.8), rgba(45, 55, 75, 0.6)), /* Increased brightness ~30% total */
-                    radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
+                    linear-gradient(135deg, rgba(10, 18, 32, 0.95), rgba(15, 25, 45, 0.9)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.08), transparent);
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
                 padding: 15px;
@@ -320,7 +326,7 @@
                 align-items: center;
                 flex-wrap: wrap;
                 gap: 10px;
-                border: 2px solid rgba(34, 197, 94, 0.2);
+                border: 2px solid rgba(34, 197, 94, 0.3);
             }
 
             .category-grid {
@@ -332,19 +338,19 @@
 
             .category-option {
                 background: 
-                    linear-gradient(135deg, rgba(55, 70, 90, 0.55), rgba(75, 90, 110, 0.4)), /* Increased brightness ~30% total (10% + 20%) */
-                    radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
+                    linear-gradient(135deg, rgba(20, 35, 55, 0.95), rgba(25, 40, 60, 0.92)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.08), transparent);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
-                border: 2px solid rgba(34, 197, 94, 0.3);
+                border: 2px solid rgba(34, 197, 94, 0.35);
                 border-radius: 16px;
                 padding: 20px;
                 text-align: center;
                 cursor: pointer;
                 transition: all 0.3s ease;
                 box-shadow: 
-                    0 8px 32px rgba(0, 0, 0, 0.15), /* Reduced shadow darkness ~30% total (10% + 20%) */
-                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                    0 8px 32px rgba(0, 0, 0, 0.4),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.08);
                 position: relative;
                 overflow: hidden;
             }
@@ -352,12 +358,12 @@
             .category-option:hover {
                 transform: translateY(-5px);
                 box-shadow: 
-                    0 12px 40px rgba(34, 197, 94, 0.3),
-                    0 0 0 1px rgba(34, 197, 94, 0.5);
+                    0 12px 40px rgba(34, 197, 94, 0.35),
+                    0 0 0 1px rgba(34, 197, 94, 0.6);
                 border-color: var(--neon-green);
                 background: 
-                    linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.05)),
-                    radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
+                    linear-gradient(135deg, rgba(20, 45, 35, 0.95), rgba(25, 50, 40, 0.92)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.15), transparent);
             }
 
             .category-image {
@@ -369,19 +375,19 @@
                 top: 0;
                 left: 0;
                 z-index: -1;
-                opacity: 0.3;
+                opacity: 0.45;
             }
 
             /* Subcategory styling - darker with glow */
             #subcategory-grid .category-option {
                 background: 
-                    linear-gradient(135deg, rgba(30, 40, 55, 0.9), rgba(45, 55, 75, 0.8)), /* Increased brightness ~30% total */
-                    radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
-                border: 2px solid rgba(34, 197, 94, 0.4);
+                    linear-gradient(135deg, rgba(12, 20, 35, 0.97), rgba(18, 28, 45, 0.95)),
+                    radial-gradient(circle at center, rgba(34, 197, 94, 0.12), transparent);
+                border: 2px solid rgba(34, 197, 94, 0.45);
                 box-shadow: 
-                    0 8px 32px rgba(0, 0, 0, 0.3), /* Reduced shadow darkness ~20% */
-                    inset 0 1px 0 rgba(255, 255, 255, 0.01),
-                    0 0 20px rgba(34, 197, 94, 0.2);
+                    0 8px 32px rgba(0, 0, 0, 0.5),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                    0 0 20px rgba(34, 197, 94, 0.25);
             }
 
             #subcategory-grid .category-option h4 {
@@ -459,14 +465,14 @@
 
             .calculator-section {
                 background: 
-                    linear-gradient(135deg, rgba(55, 70, 90, 0.55), rgba(75, 90, 110, 0.4)), /* Increased brightness ~30% total (10% + 20%) */
+                    linear-gradient(135deg, rgba(15, 25, 45, 0.95), rgba(20, 35, 55, 0.92)), /* Increased brightness ~30% total (10% + 20%) */
                     radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
                 padding: 30px;
                 border-radius: 20px;
                 box-shadow: 
-                    0 8px 32px rgba(0, 0, 0, 0.15), /* Reduced shadow darkness ~30% total (10% + 20%) */
+                    0 8px 32px rgba(0, 0, 0, 0.4),
                     inset 0 1px 0 rgba(255, 255, 255, 0.1);
                 border: 2px solid rgba(34, 197, 94, 0.3);
                 position: relative;
@@ -558,7 +564,7 @@
                 border-radius: 12px;
                 font-size: 1rem;
                 background: 
-                    linear-gradient(135deg, rgba(30, 40, 55, 0.9), rgba(45, 55, 75, 0.8)), /* Increased brightness ~30% total */
+                    linear-gradient(135deg, rgba(12, 20, 38, 0.97), rgba(18, 28, 48, 0.95)),
                     radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
@@ -572,14 +578,14 @@
                 border-color: var(--secondary-blue);
                 box-shadow: 0 0 15px rgba(66, 165, 245, 0.4);
                 background: 
-                    linear-gradient(135deg, rgba(30, 40, 55, 0.95), rgba(45, 55, 75, 0.9)), /* Increased brightness ~30% total */
+                    linear-gradient(135deg, rgba(10, 18, 32, 0.98), rgba(15, 25, 42, 0.96)),
                     radial-gradient(circle at center, rgba(66, 165, 245, 0.1), transparent);
                 color: var(--white);
             }
 
             /* Additional styling for better dropdown appearance */
             .form-group select option {
-                background: rgba(30, 40, 55, 0.95); /* Increased brightness ~30% total */
+                background: rgba(10, 18, 32, 0.98);
                 color: var(--white);
                 padding: 8px;
             }
@@ -596,7 +602,7 @@
                 border-radius: 12px;
                 font-size: 1rem;
                 background: 
-                    linear-gradient(135deg, rgba(30, 40, 55, 0.8), rgba(45, 55, 75, 0.6)), /* Increased brightness ~30% total */
+                    linear-gradient(135deg, rgba(12, 20, 38, 0.96), rgba(18, 28, 48, 0.94)),
                     radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
@@ -644,7 +650,7 @@
                 border-radius: 12px;
                 font-size: 1rem;
                 background: 
-                    linear-gradient(135deg, rgba(30, 40, 55, 0.8), rgba(45, 55, 75, 0.6)), /* Increased brightness ~30% total */
+                    linear-gradient(135deg, rgba(12, 20, 38, 0.96), rgba(18, 28, 48, 0.94)),
                     radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
@@ -661,7 +667,7 @@
                 border-color: rgba(34, 197, 94, 0.5);
                 box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
                 background: 
-                    linear-gradient(135deg, rgba(40, 50, 70, 0.9), rgba(55, 70, 90, 0.7)), /* Increased brightness ~30% total */
+                    linear-gradient(135deg, rgba(15, 25, 45, 0.97), rgba(20, 35, 55, 0.95)),
                     radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
             }
             
@@ -690,7 +696,7 @@
             
             .product-modal {
                 background: 
-                    linear-gradient(135deg, rgba(40, 50, 70, 0.95), rgba(55, 70, 90, 0.9)), /* Increased brightness ~30% total */
+                    linear-gradient(135deg, rgba(12, 20, 38, 0.98), rgba(18, 28, 48, 0.96)),
                     radial-gradient(circle at center, rgba(34, 197, 94, 0.1), transparent);
                 border-radius: 24px;
                 padding: 30px;
@@ -765,7 +771,7 @@
                 padding: 15px 20px;
                 border: 2px solid rgba(34, 197, 94, 0.3);
                 border-radius: 12px;
-                background: rgba(30, 40, 55, 0.8); /* Increased brightness ~30% total */
+                background: rgba(12, 20, 38, 0.96);
                 color: #f1f5f9;
                 font-size: 1rem;
                 transition: all 0.3s ease;
@@ -907,7 +913,7 @@
                 border: 2px solid rgba(34, 197, 94, 0.5);
                 background: 
                     linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(22, 163, 74, 0.05)),
-                    linear-gradient(135deg, rgba(55, 70, 90, 0.55), rgba(75, 90, 110, 0.4));
+                    linear-gradient(135deg, rgba(15, 25, 45, 0.95), rgba(20, 35, 55, 0.92));
                 box-shadow: 
                     0 4px 12px rgba(0, 0, 0, 0.15),
                     0 0 0 1px rgba(34, 197, 94, 0.3),
@@ -918,7 +924,7 @@
                 border-color: #22c55e;
                 background: 
                     linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(22, 163, 74, 0.08)),
-                    linear-gradient(135deg, rgba(55, 70, 90, 0.55), rgba(75, 90, 110, 0.4));
+                    linear-gradient(135deg, rgba(15, 25, 45, 0.95), rgba(20, 35, 55, 0.92));
                 box-shadow: 
                     0 8px 20px rgba(34, 197, 94, 0.3),
                     0 0 0 2px rgba(34, 197, 94, 0.5),
@@ -1021,14 +1027,14 @@
             /* Results Section */
             .results-section {
                 background: 
-                    linear-gradient(135deg, rgba(55, 70, 90, 0.55), rgba(75, 90, 110, 0.4)), /* Increased brightness ~30% total (10% + 20%) */
+                    linear-gradient(135deg, rgba(15, 25, 45, 0.95), rgba(20, 35, 55, 0.92)), /* Increased brightness ~30% total (10% + 20%) */
                     radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
                 padding: 30px;
                 border-radius: 20px;
                 box-shadow: 
-                    0 8px 32px rgba(0, 0, 0, 0.15), /* Reduced shadow darkness ~30% total (10% + 20%) */
+                    0 8px 32px rgba(0, 0, 0, 0.4),
                     inset 0 1px 0 rgba(255, 255, 255, 0.1);
                 border: 2px solid rgba(34, 197, 94, 0.3);
             }
@@ -1042,14 +1048,14 @@
 
             .results-panel {
                 background: 
-                    linear-gradient(135deg, rgba(55, 70, 90, 0.55), rgba(75, 90, 110, 0.4)), /* Increased brightness ~30% total (10% + 20%) */
+                    linear-gradient(135deg, rgba(15, 25, 45, 0.95), rgba(20, 35, 55, 0.92)), /* Increased brightness ~30% total (10% + 20%) */
                     radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
                 padding: 20px;
                 border-radius: 16px;
                 box-shadow: 
-                    0 8px 32px rgba(0, 0, 0, 0.15), /* Reduced shadow darkness ~30% total (10% + 20%) */
+                    0 8px 32px rgba(0, 0, 0, 0.4),
                     inset 0 1px 0 rgba(255, 255, 255, 0.1);
                 border: 2px solid rgba(34, 197, 94, 0.3);
             }
@@ -1119,14 +1125,14 @@
             /* ROI Timeline Styling */
             .roi-timeline-section {
                 background: 
-                    linear-gradient(135deg, rgba(55, 70, 90, 0.55), rgba(75, 90, 110, 0.4)), /* Increased brightness ~30% total (10% + 20%) */
+                    linear-gradient(135deg, rgba(15, 25, 45, 0.95), rgba(20, 35, 55, 0.92)), /* Increased brightness ~30% total (10% + 20%) */
                     radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
                 padding: 25px;
                 border-radius: 16px;
                 box-shadow: 
-                    0 8px 32px rgba(0, 0, 0, 0.15), /* Reduced shadow darkness ~30% total (10% + 20%) */
+                    0 8px 32px rgba(0, 0, 0, 0.4),
                     inset 0 1px 0 rgba(255, 255, 255, 0.1);
                 border: 2px solid rgba(34, 197, 94, 0.3);
                 margin-top: 20px;
@@ -1152,7 +1158,7 @@
 
             .roi-scenario {
                 background: 
-                    linear-gradient(135deg, rgba(30, 40, 55, 0.8), rgba(45, 55, 75, 0.6)), /* Increased brightness ~30% total */
+                    linear-gradient(135deg, rgba(12, 20, 38, 0.96), rgba(18, 28, 48, 0.94)),
                     radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
@@ -1284,14 +1290,14 @@
             /* Grants Styling */
             .grants-section {
                 background: 
-                    linear-gradient(135deg, rgba(55, 70, 90, 0.55), rgba(75, 90, 110, 0.4)), /* Increased brightness ~30% total (10% + 20%) */
+                    linear-gradient(135deg, rgba(15, 25, 45, 0.95), rgba(20, 35, 55, 0.92)), /* Increased brightness ~30% total (10% + 20%) */
                     radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
                 padding: 25px;
                 border-radius: 16px;
                 box-shadow: 
-                    0 8px 32px rgba(0, 0, 0, 0.15), /* Reduced shadow darkness ~30% total (10% + 20%) */
+                    0 8px 32px rgba(0, 0, 0, 0.4),
                     inset 0 1px 0 rgba(255, 255, 255, 0.1);
                 border: 2px solid rgba(34, 197, 94, 0.3);
                 margin-top: 20px;
@@ -1328,7 +1334,7 @@
 
             .grant-item {
                 background: 
-                    linear-gradient(135deg, rgba(30, 40, 55, 0.8), rgba(45, 55, 75, 0.6)), /* Increased brightness ~30% total */
+                    linear-gradient(135deg, rgba(12, 20, 38, 0.96), rgba(18, 28, 48, 0.94)),
                     radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
@@ -1473,7 +1479,7 @@
 
             .region-selector select {
                 background: 
-                    linear-gradient(135deg, rgba(30, 40, 55, 0.8), rgba(45, 55, 75, 0.6)), /* Increased brightness ~30% total */
+                    linear-gradient(135deg, rgba(12, 20, 38, 0.96), rgba(18, 28, 48, 0.94)),
                     radial-gradient(circle at center, rgba(34, 197, 94, 0.05), transparent);
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
