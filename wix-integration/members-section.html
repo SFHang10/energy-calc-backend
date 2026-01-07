@@ -2329,8 +2329,14 @@
         }
         
         // Check if user has admin role and show admin section
-        async function checkAdminAccess() {
-            if (!authToken || !currentUser) return;
+        function checkAdminAccess() {
+            console.log('🔍 Checking admin access...');
+            console.log('currentUser:', currentUser);
+            
+            if (!currentUser) {
+                console.log('No currentUser found');
+                return;
+            }
             
             // Check user's email for admin access (simple check)
             const adminEmails = [
@@ -2338,17 +2344,22 @@
                 'steph.hanglan@rococo-org.com'
             ];
             
-            const userEmail = (currentUser.email || '').toLowerCase();
-            const isAdmin = adminEmails.includes(userEmail);
+            const userEmail = (currentUser.email || '').toLowerCase().trim();
+            console.log('User email:', userEmail);
             
-            if (isAdmin) {
-                const adminSection = document.getElementById('admin-section');
-                if (adminSection) {
-                    adminSection.style.display = 'block';
-                    console.log('👑 Admin access granted for:', userEmail);
-                }
-            } else {
-                console.log('Admin check: Not an admin user');
+            const isAdmin = adminEmails.includes(userEmail);
+            console.log('Is admin:', isAdmin);
+            
+            const adminSection = document.getElementById('admin-section');
+            console.log('Admin section element:', adminSection);
+            
+            if (isAdmin && adminSection) {
+                adminSection.style.display = 'block';
+                console.log('👑 Admin panel now visible!');
+            } else if (!isAdmin) {
+                console.log('Not an admin user - email not in list');
+            } else if (!adminSection) {
+                console.log('Admin section element not found in DOM');
             }
         }
 
