@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="wix-html-scroll" content="no-scroll">
+    <title>Greenways Membership Energy Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0a0f1c;
+            --accent-green: #00d26a;
+            --accent-blue: #00a8e8;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Background Image */
+        .background-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://static.wixstatic.com/media/c123de_7b0b71bddde54e5e87499297ca4cf38a~mv2.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: -2;
+        }
+
+        /* Dark Overlay */
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                135deg,
+                rgba(10, 15, 28, 0.75) 0%,
+                rgba(0, 20, 40, 0.65) 50%,
+                rgba(10, 15, 28, 0.8) 100%
+            );
+            z-index: -1;
+        }
+
+        /* Animated Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: float 15s infinite ease-in-out;
+        }
+
+        .particle:nth-child(2) { left: 20%; animation-delay: -2s; animation-duration: 18s; }
+        .particle:nth-child(3) { left: 40%; animation-delay: -4s; animation-duration: 20s; }
+        .particle:nth-child(4) { left: 60%; animation-delay: -6s; animation-duration: 16s; }
+        .particle:nth-child(5) { left: 80%; animation-delay: -8s; animation-duration: 22s; }
+        .particle:nth-child(6) { left: 10%; animation-delay: -3s; animation-duration: 19s; background: var(--accent-blue); }
+        .particle:nth-child(7) { left: 30%; animation-delay: -5s; animation-duration: 17s; background: var(--accent-blue); }
+        .particle:nth-child(8) { left: 50%; animation-delay: -7s; animation-duration: 21s; }
+        .particle:nth-child(9) { left: 70%; animation-delay: -9s; animation-duration: 14s; background: var(--accent-blue); }
+        .particle:nth-child(10) { left: 90%; animation-delay: -1s; animation-duration: 23s; }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            50% {
+                opacity: 0.4;
+            }
+            90% {
+                opacity: 0.2;
+            }
+            100% {
+                transform: translateY(-100vh) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Main Content */
+        .container {
+            text-align: center;
+            padding: 40px;
+            max-width: 800px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Logo */
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Title */
+        .title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(0, 210, 106, 0.3);
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 1.4rem;
+            color: var(--text-secondary);
+            margin-bottom: 50px;
+            font-weight: 300;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Features */
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .feature i {
+            color: var(--accent-green);
+            font-size: 1.2rem;
+        }
+
+        /* CTA Button */
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 50px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--bg-dark);
+            background: linear-gradient(135deg, var(--accent-green), #00b359);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 10px 40px rgba(0, 210, 106, 0.4),
+                0 0 0 0 rgba(0, 210, 106, 0.4);
+            animation: glow 2s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            transition: left 0.5s ease;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 
+                0 15px 50px rgba(0, 210, 106, 0.5),
+                0 0 30px rgba(0, 210, 106, 0.3);
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 
+                    0 10px 40px rgba(0, 210, 106, 0.4),
+                    0 0 0 0 rgba(0, 210, 106, 0.4);
+            }
+            50% {
+                box-shadow: 
+                    0 10px 40px rgba(0, 210, 106, 0.5),
+                    0 0 20px rgba(0, 210, 106, 0.2);
+            }
+        }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .features {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .cta-button {
+                padding: 16px 40px;
+                font-size: 1.1rem;
+            }
+
+            .logo {
+                font-size: 3rem;
+            }
+        }
+
+        /* Loading Animation */
+        .container {
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background -->
+    <div class="background-image"></div>
+    <div class="background-overlay"></div>
+
+    <!-- Animated Particles -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="logo">🌱</div>
+        
+        <h1 class="title">Welcome to The Greenways<br>Membership Energy Portal</h1>
+        
+        <p class="subtitle">
+            Access exclusive energy efficiency tools, calculators, grants information, and sustainable solutions for your business
+        </p>
+
+        <div class="features">
+            <div class="feature">
+                <i class="fas fa-calculator"></i>
+                <span>Energy Calculators</span>
+            </div>
+            <div class="feature">
+                <i class="fas fa-hand-holding-usd"></i>
+                <span>Grants & Schemes</span>
+            </div>
+            <div class="feature">
+                <i class="fas fa-chart-line"></i>
+                <span>ROI Analysis</span>
+            </div>
+            <div class="feature">
+                <i class="fas fa-leaf"></i>
+                <span>Sustainability Tools</span>
+            </div>
+        </div>
+
+        <a href="https://energy-calc-backend.onrender.com/wix-integration/members-section.html" class="cta-button">
+            <i class="fas fa-arrow-right"></i>
+            Enter Portal
+        </a>
+    </div>
+
+    <div class="footer">
+        © 2025 Greenways Energy Solutions | Sustainable Business Solutions
+    </div>
+</body>
+</html>
+
