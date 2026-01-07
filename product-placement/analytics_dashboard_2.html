@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics & Insights Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: linear-gradient(135deg, #0a1628 0%, #0d2818 50%, #051a1a 100%);
+      color: #e0f4ff;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 60px 40px;
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3rem;
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, #00fff2, #00ff88);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      animation: titleGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes titleGlow {
+      0%, 100% { filter: drop-shadow(0 0 20px rgba(0, 255, 242, 0.5)); }
+      50% { filter: drop-shadow(0 0 30px rgba(0, 255, 136, 0.8)); }
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 1.3rem;
+      color: #7dd3c0;
+      margin-bottom: 40px;
+      font-weight: 300;
+      letter-spacing: 2px;
+    }
+
+    /* Time Period Selector */
+    .period-selector {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 50px;
+      flex-wrap: wrap;
+    }
+
+    .period-btn {
+      background: rgba(0, 255, 242, 0.1);
+      border: 2px solid rgba(0, 255, 242, 0.3);
+      color: #00fff2;
+      padding: 12px 28px;
+      border-radius: 25px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .period-btn:hover {
+      background: rgba(0, 255, 242, 0.2);
+      border-color: rgba(0, 255, 242, 0.6);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(0, 255, 242, 0.3);
+    }
+
+    .period-btn.active {
+      background: linear-gradient(135deg, rgba(0, 255, 242, 0.3), rgba(0, 255, 136, 0.3));
+      border-color: #00ff88;
+      color: #00ff88;
+      box-shadow: 0 0 25px rgba(0, 255, 136, 0.5);
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    .dashboard-card {
+      background: rgba(10, 30, 45, 0.6);
+      border: 2px solid rgba(0, 255, 242, 0.2);
+      border-radius: 16px;
+      padding: 25px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .dashboard-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 242, 0.1), transparent);
+      animation: scan 4s linear infinite;
+    }
+
+    @keyframes scan {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    .dashboard-card:hover {
+      border-color: rgba(0, 255, 136, 0.6);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0, 255, 242, 0.3);
+    }
+
+    /* Card sizes */
+    .card-large { grid-column: span 6; }
+    .card-medium { grid-column: span 4; }
+    .card-small { grid-column: span 3; }
+    .card-full { grid-column: span 12; }
+    .card-xl { grid-column: span 8; }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(0, 255, 242, 0.2);
+    }
+
+    .card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #00fff2;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Trend Card */
+    .trend-card {
+      background: rgba(0, 255, 242, 0.05);
+      border: 1px solid rgba(0, 255, 242, 0.2);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .trend-icon {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      filter: drop-shadow(0 0 15px currentColor);
+    }
+
+    .trend-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: #00fff2;
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .trend-label {
+      font-size: 1rem;
+      color: #7dd3c0;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .trend-change {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .trend-change.up {
+      background: rgba(0, 255, 136, 0.2);
+      color: #00ff88;
+      border: 1px solid rgba(0, 255, 136, 0.4);
+    }
+
+    .trend-change.down {
+      background: rgba(255, 107, 107, 0.2);
+      color: #ff6b6b;
+      border: 1px solid rgba(255, 107, 107, 0.4);
+    }
+
+    /* Comparison Chart */
+    .comparison-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .comparison-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .comparison-label {
+      width: 120px;
+      font-size: 0.95rem;
+      color: #7dd3c0;
+      font-weight: 500;
+    }
+
+    .comparison-bar-container {
+      flex: 1;
+      height: 35px;
+      background: rgba(0, 255, 242, 0.05);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(0, 255, 242, 0.2);
+    }
+
+    .comparison-bar {
+      height: 100%;
+      background: linear-gradient(90deg, rgba(0, 255, 242, 0.6), rgba(0, 255, 136, 0.6));
+      border-radius: 8px;
+      position: relative;
+      animation: barGrow 1.5s ease-out forwards;
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+    }
+
+    @keyframes barGrow {
+      from { width: 0; }
+    }
+
+    .comparison-value {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #00fff2;
+    }
+
+    /* Heatmap Grid */
+    .heatmap-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .heatmap-cell {
+      aspect-ratio: 1;
+      background: rgba(0, 255, 242, 0.1);
+      border: 1px solid rgba(0, 255, 242, 0.2);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .heatmap-cell:hover {
+      transform: scale(1.05);
+      border-color: rgba(0, 255, 242, 0.6);
+      box-shadow: 0 0 20px rgba(0, 255, 242, 0.4);
+    }
+
+    .heatmap-cell.low { background: rgba(0, 255, 242, 0.15); }
+    .heatmap-cell.medium { background: rgba(0, 255, 136, 0.25); }
+    .heatmap-cell.high { background: rgba(255, 193, 7, 0.25); }
+    .heatmap-cell.critical { background: rgba(255, 107, 107, 0.25); }
+
+    .heatmap-day {
+      font-size: 0.75rem;
+      color: #7dd3c0;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .heatmap-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #00fff2;
+    }
+
+    /* Peak Hours Timeline */
+    .timeline {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      height: 150px;
+      align-items: flex-end;
+    }
+
+    .timeline-bar {
+      flex: 1;
+      background: linear-gradient(180deg, rgba(0, 255, 136, 0.6), rgba(0, 255, 242, 0.3));
+      border-radius: 6px 6px 0 0;
+      position: relative;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: 1px solid rgba(0, 255, 242, 0.3);
+      animation: barRise 1s ease-out forwards;
+      opacity: 0;
+    }
+
+    @keyframes barRise {
+      from {
+        height: 0;
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .timeline-bar:nth-child(1) { animation-delay: 0.1s; height: 45%; }
+    .timeline-bar:nth-child(2) { animation-delay: 0.15s; height: 35%; }
+    .timeline-bar:nth-child(3) { animation-delay: 0.2s; height: 40%; }
+    .timeline-bar:nth-child(4) { animation-delay: 0.25s; height: 55%; }
+    .timeline-bar:nth-child(5) { animation-delay: 0.3s; height: 65%; }
+    .timeline-bar:nth-child(6) { animation-delay: 0.35s; height: 75%; }
+    .timeline-bar:nth-child(7) { animation-delay: 0.4s; height: 85%; }
+    .timeline-bar:nth-child(8) { animation-delay: 0.45s; height: 95%; }
+    .timeline-bar:nth-child(9) { animation-delay: 0.5s; height: 100%; }
+    .timeline-bar:nth-child(10) { animation-delay: 0.55s; height: 90%; }
+    .timeline-bar:nth-child(11) { animation-delay: 0.6s; height: 80%; }
+    .timeline-bar:nth-child(12) { animation-delay: 0.65s; height: 70%; }
+    .timeline-bar:nth-child(13) { animation-delay: 0.7s; height: 60%; }
+    .timeline-bar:nth-child(14) { animation-delay: 0.75s; height: 50%; }
+    .timeline-bar:nth-child(15) { animation-delay: 0.8s; height: 45%; }
+    .timeline-bar:nth-child(16) { animation-delay: 0.85s; height: 40%; }
+    .timeline-bar:nth-child(17) { animation-delay: 0.9s; height: 42%; }
+    .timeline-bar:nth-child(18) { animation-delay: 0.95s; height: 48%; }
+    .timeline-bar:nth-child(19) { animation-delay: 1s; height: 55%; }
+    .timeline-bar:nth-child(20) { animation-delay: 1.05s; height: 60%; }
+    .timeline-bar:nth-child(21) { animation-delay: 1.1s; height: 70%; }
+    .timeline-bar:nth-child(22) { animation-delay: 1.15s; height: 75%; }
+    .timeline-bar:nth-child(23) { animation-delay: 1.2s; height: 65%; }
+    .timeline-bar:nth-child(24) { animation-delay: 1.25s; height: 50%; }
+
+    .timeline-bar:hover {
+      background: linear-gradient(180deg, rgba(0, 255, 136, 0.9), rgba(0, 255, 242, 0.5));
+      transform: scaleY(1.05);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
+    }
+
+    .timeline-label {
+      position: absolute;
+      bottom: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      color: #7dd3c0;
+      white-space: nowrap;
+    }
+
+    /* Insights Panel */
+    .insight-card {
+      background: rgba(0, 255, 242, 0.05);
+      border-left: 4px solid #00ff88;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .insight-card:hover {
+      background: rgba(0, 255, 242, 0.1);
+      border-left-color: #00fff2;
+      transform: translateX(5px);
+    }
+
+    .insight-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .insight-icon {
+      font-size: 1.8rem;
+      filter: drop-shadow(0 0 10px currentColor);
+    }
+
+    .insight-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #00fff2;
+    }
+
+    .insight-description {
+      font-size: 0.95rem;
+      color: #b8e6d5;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .insight-impact {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: rgba(0, 255, 136, 0.15);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      border-radius: 20px;
+      font-size: 0.85rem;
+      color: #00ff88;
+      font-weight: 600;
+    }
+
+    /* Equipment Rankings */
+    .ranking-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .ranking-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: rgba(0, 255, 242, 0.05);
+      border: 1px solid rgba(0, 255, 242, 0.2);
+      border-radius: 10px;
+      padding: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .ranking-item:hover {
+      background: rgba(0, 255, 242, 0.1);
+      border-color: rgba(0, 255, 242, 0.4);
+      transform: translateX(5px);
+    }
+
+    .ranking-number {
+      width: 35px;
+      height: 35px;
+      background: linear-gradient(135deg, rgba(0, 255, 242, 0.3), rgba(0, 255, 136, 0.3));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: #00fff2;
+      border: 1px solid rgba(0, 255, 242, 0.4);
+    }
+
+    .ranking-details {
+      flex: 1;
+    }
+
+    .ranking-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      color: #00fff2;
+      margin-bottom: 3px;
+      font-weight: 600;
+    }
+
+    .ranking-metric {
+      font-size: 0.85rem;
+      color: #7dd3c0;
+    }
+
+    .ranking-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #00ff88;
+    }
+
+    /* Grid pattern background */
+    .grid-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(0, 255, 242, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 242, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .card-large, .card-medium, .card-small, .card-xl {
+        grid-column: span 12;
+      }
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 2rem; }
+      .subtitle { font-size: 1rem; }
+      .dashboard-grid { gap: 15px; }
+      .dashboard-card { padding: 20px; }
+      .comparison-label { width: 80px; font-size: 0.8rem; }
+      .heatmap-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  
+  <div class="container">
+    <h1>Analytics & Insights</h1>
+    <p class="subtitle">Historical Trends & Performance Optimization</p>
+
+    <!-- Time Period Selector -->
+    <div class="period-selector">
+      <button class="period-btn">24 Hours</button>
+      <button class="period-btn active">7 Days</button>
+      <button class="period-btn">30 Days</button>
+      <button class="period-btn">Quarter</button>
+      <button class="period-btn">Year</button>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- Trend Cards -->
+      <div class="dashboard-card card-small">
+        <div class="trend-card">
+          <div class="trend-icon">⚡</div>
+          <div class="trend-value">847</div>
+          <div class="trend-label">Total kWh</div>
+          <div class="trend-change down">↓ 12.3%</div>
+        </div>
+      </div>
+
+      <div class="dashboard-card card-small">
+        <div class="trend-card">
+          <div class="trend-icon">💶</div>
+          <div class="trend-value">€312</div>
+          <div class="trend-label">Energy Cost</div>
+          <div class="trend-change down">↓ €47</div>
+        </div>
+      </div>
+
+      <div class="dashboard-card card-small">
+        <div class="trend-card">
+          <div class="trend-icon">📊</div>
+          <div class="trend-value">89%</div>
+          <div class="trend-label">Efficiency</div>
+          <div class="trend-change up">↑ 5.2%</div>
+        </div>
+      </div>
+
+      <div class="dashboard-card card-small">
+        <div class="trend-card">
+          <div class="trend-icon">🌱</div>
+          <div class="trend-value">423</div>
+          <div class="trend-label">CO₂ Saved (kg)</div>
+          <div class="trend-change up">↑ 18%</div>
+        </div>
+      </div>
+
+      <!-- Peak Hours Analysis -->
+      <div class="dashboard-card card-xl">
+        <div class="card-header">
+          <div class="card-title">Peak Hours Analysis</div>
+        </div>
+        <div class="timeline">
+          <div class="timeline-bar"><span class="timeline-label">0h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">1h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">2h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">3h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">4h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">5h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">6h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">7h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">8h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">9h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">10h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">11h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">12h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">13h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">14h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">15h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">16h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">17h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">18h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">19h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">20h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">21h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">22h</span></div>
+          <div class="timeline-bar"><span class="timeline-label">23h</span></div>
+        </div>
+      </div>
+
+      <!-- Equipment Performance Rankings -->
+      <div class="dashboard-card card-medium">
+        <div class="card-header">
+          <div class="card-title">Top Consumers</div>
+        </div>
+        <div class="ranking-list">
+          <div class="ranking-item">
+            <div class="ranking-number">1</div>
+            <div class="ranking-details">
+              <div class="ranking-name">Gas Range</div>
+              <div class="ranking-metric">Main Kitchen</div>
+            </div>
+            <div class="ranking-value">8.2 kW</div>
+          </div>
+          <div class="ranking-item">
+            <div class="ranking-number">2</div>
+            <div class="ranking-details">
+              <div class="ranking-name">Walk-in Freezer</div>
+              <div class="ranking-metric">Storage Area</div>
+            </div>
+            <div class="ranking-value">3.7 kW</div>
+          </div>
+          <div class="ranking-item">
+            <div class="ranking-number">3</div>
+            <div class="ranking-details">
+              <div class="ranking-name">Commercial Fridge #1</div>
+              <div class="ranking-metric">Zone A</div>
+            </div>
+            <div class="ranking-value">2.4 kW</div>
+          </div>
+          <div class="ranking-item">
+            <div class="ranking-number">4</div>
+            <div class="ranking-details">
+              <div class="ranking-name">HVAC System</div>
+              <div class="ranking-metric">Main Building</div>
+            </div>
+            <div class="ranking-value">1.9 kW</div>
+          </div>
+          <div class="ranking-item">
+            <div class="ranking-number">5</div>
+            <div class="ranking-details">
+              <div class="ranking-name">Dishwasher</div>
+              <div class="ranking-metric">Zone B</div>
+            </div>
+            <div class="ranking-value">1.5 kW</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly Comparison -->
+      <div class="dashboard-card card-large">
+        <div class="card-header">
+          <div class="card-title">7-Day Consumption Pattern</div>
+        </div>
+        <div class="heatmap-grid">
+          <div class="heatmap-cell medium">
+            <div class="heatmap-day">MON</div>
+            <div class="heatmap-value">121 kWh</div>
+          </div>
+          <div class="heatmap-cell high">
+            <div class="heatmap-day">TUE</div>
+            <div class="heatmap-value">138 kWh</div>
+          </div>
+          <div class="heatmap-cell medium">
+            <div class="heatmap-day">WED</div>
+            <div class="heatmap-value">115 kWh</div>
+          </div>
+          <div class="heatmap-cell low">
+            <div class="heatmap-day">THU</div>
+            <div class="heatmap-value">98 kWh</div>
+          </div>
+          <div class="heatmap-cell critical">
+            <div class="heatmap-day">FRI</div>
+            <div class="heatmap-value">156 kWh</div>
+          </div>
+          <div class="heatmap-cell critical">
+            <div class="heatmap-day">SAT</div>
+            <div class="heatmap-value">162 kWh</div>
+          </div>
+          <div class="heatmap-cell medium">
+            <div class="heatmap-day">SUN</div>
+            <div class="heatmap-value">110 kWh</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison with Previous Period -->
+      <div class="dashboard-card card-large">
+        <div class="card-header">
+          <div class="card-title">Period Comparison</div>
+        </div>
+        <div class="comparison-chart">
+          <div class="comparison-row">
+            <div class="comparison-label">This Week</div>
+            <div class="comparison-bar-container">
+              <div class="comparison-bar" style="width: 100%;">
+                <span class="comparison-value">847 kWh</span>
+              </div>
+            </div>
+          </div>
+          <div class="comparison-row">
+            <div class="comparison-label">Last Week</div>
+            <div class="comparison-bar-container">
+              <div class="comparison-bar" style="width: 85%;">
+                <span class="comparison-value">721 kWh</span>
+              </div>
+            </div>
+          </div>
+          <div class="comparison-row">
+            <div class="comparison-label">2 Weeks Ago</div>
+            <div class="comparison-bar-container">
+              <div class="comparison-bar" style="width: 92%;">
+                <span class="comparison-value">779 kWh</span>
+              </div>
+            </div>
+          </div>
+          <div class="comparison-row">
+            <div class="comparison-label">3 Weeks Ago</div>
+            <div class="comparison-bar-container">
+              <div class="comparison-bar" style="width: 88%;">
+                <span class="comparison-value">745 kWh</span>
+              </div>
+            </div>
+          </div>
+          <div class="comparison-row">
+            <div class="comparison-label">4 Weeks Ago</div>
+            <div class="comparison-bar-container">
+              <div class="comparison-bar" style="width: 95%;">
+                <span class="comparison-value">805 kWh</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Insights & Recommendations -->
+      <div class="dashboard-card card-full">
+        <div class="card-header">
+          <div class="card-title">AI-Generated Insights</div>
+        </div>
+        
+        <div class="insight-card">
+          <div class="insight-header">
+            <div class="insight-icon">💡</div>
+            <div class="insight-title">Peak Demand Optimization</div>
+          </div>
+          <div class="insight-description">
+            Your consumption peaks between 18:00-21:00 daily. By shifting 30% of non-critical loads to off-peak hours (23:00-06:00), you could save approximately €85/month on energy costs.
+          </div>
+          <div class="insight-impact">💶 Potential Savings: €85/mo</div>
+        </div>
+
+        <div class="insight-card">
+          <div class="insight-header">
+            <div class="insight-icon">🧊</div>
+            <div class="insight-title">Freezer Efficiency Alert</div>
+          </div>
+          <div class="insight-description">
+            Walk-in Freezer consumption has increased 12% over the past 7 days. This pattern suggests door seal degradation or compressor inefficiency. Schedule maintenance to prevent further increases.
+          </div>
+          <div class="insight-impact">⚠️ Action Recommended</div>
+        </div>
+
+        <div class="insight-card">
+          <div class="insight-header">
+            <div class="insight-icon">🌡️</div>
+            <div class="insight-title">HVAC Scheduling Opportunity</div>
+          </div>
+          <div class="insight-description">
+            Pre-cooling your space during off-peak hours (05:00-07:00) instead of peak hours could reduce cooling costs by 22% while maintaining comfort levels throughout operating hours.
+          </div>
+          <div class="insight-impact">📈 Efficiency Gain: 22%</div>
+        </div>
+
+        <div class="insight-card">
+          <div class="insight-header">
+            <div class="insight-icon">✅</div>
+            <div class="insight-title">Excellent Progress</div>
+          </div>
+          <div class="insight-description">
+            Your overall energy efficiency has improved 5.2% this week compared to last week. The optimizations implemented for Commercial Fridge #1 are showing measurable results.
+          </div>
+          <div class="insight-impact">🎯 On Track</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

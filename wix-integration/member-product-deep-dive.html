@@ -274,49 +274,6 @@
                 grid-template-columns: 1fr;
             }
         }
-
-        /* Simple Image Gallery */
-        .gallery-thumbnails {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-        .gallery-thumb {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 6px;
-            cursor: pointer;
-            border: 2px solid transparent;
-            opacity: 0.7;
-        }
-        .gallery-thumb:hover {
-            opacity: 1;
-            border-color: var(--secondary-green);
-        }
-        .gallery-thumb.active {
-            opacity: 1;
-            border-color: var(--primary-green);
-        }
-        .video-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-        .video-btn {
-            background: var(--primary-green);
-            color: white;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .video-btn:hover {
-            background: var(--dark-green);
-        }
     </style>
 </head>
 <body>
@@ -346,10 +303,6 @@
                         <div id="media-placeholder" class="product-image" style="background: var(--light-gray); display: flex; align-items: center; justify-content: center; color: var(--gray);">
                             No image available
                         </div>
-                        <!-- Thumbnail gallery -->
-                        <div id="gallery-thumbnails" class="gallery-thumbnails"></div>
-                        <!-- Video buttons -->
-                        <div id="video-buttons" class="video-buttons"></div>
                     </div>
                 </div>
 
@@ -493,46 +446,21 @@
             const imageEl = document.getElementById('product-image');
             const videoEl = document.getElementById('product-video');
             const placeholder = document.getElementById('media-placeholder');
-            const thumbContainer = document.getElementById('gallery-thumbnails');
-            const videoContainer = document.getElementById('video-buttons');
 
-            // Collect all images (from images array and imageUrl)
-            let allImages = [];
             if (product.images && product.images.length > 0) {
-                allImages = product.images.filter(url => url && url.startsWith('http'));
-            }
-            if (product.imageUrl && product.imageUrl.startsWith('http') && !allImages.includes(product.imageUrl)) {
-                allImages.unshift(product.imageUrl);
-            }
-
-            // Display main image
-            if (allImages.length > 0) {
-                imageEl.src = allImages[0];
+                imageEl.src = product.images[0];
                 imageEl.style.display = 'block';
                 placeholder.style.display = 'none';
-                
-                // Show thumbnails if more than 1 image
-                if (allImages.length > 1) {
-                    thumbContainer.innerHTML = allImages.map((url, idx) => 
-                        `<img src="${url}" class="gallery-thumb ${idx === 0 ? 'active' : ''}" onclick="changeMainImage('${url}', this)" alt="Image ${idx + 1}">`
-                    ).join('');
-                }
+            } else if (product.image_url) {
+                imageEl.src = product.image_url;
+                imageEl.style.display = 'block';
+                placeholder.style.display = 'none';
             } else if (product.videos && product.videos.length > 0) {
                 videoEl.src = product.videos[0];
                 videoEl.style.display = 'block';
                 placeholder.style.display = 'none';
             } else {
                 placeholder.style.display = 'flex';
-            }
-
-            // Display video buttons if videos exist
-            if (product.videos && product.videos.length > 0) {
-                const validVideos = product.videos.filter(url => url && url.startsWith('http'));
-                if (validVideos.length > 0) {
-                    videoContainer.innerHTML = validVideos.map((url, idx) => 
-                        `<button class="video-btn" onclick="playVideo('${url}')">▶ Video ${idx + 1}</button>`
-                    ).join('');
-                }
             }
 
             // Product specifications
@@ -666,25 +594,6 @@
                     </div>
                 </div>
             `).join('');
-        }
-
-        // Gallery functions
-        function changeMainImage(url, thumbEl) {
-            document.getElementById('product-image').src = url;
-            document.getElementById('product-image').style.display = 'block';
-            document.getElementById('product-video').style.display = 'none';
-            // Update active thumbnail
-            document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
-            if (thumbEl) thumbEl.classList.add('active');
-        }
-
-        function playVideo(url) {
-            const videoEl = document.getElementById('product-video');
-            const imageEl = document.getElementById('product-image');
-            imageEl.style.display = 'none';
-            videoEl.src = url;
-            videoEl.style.display = 'block';
-            videoEl.play();
         }
     </script>
 </body>
