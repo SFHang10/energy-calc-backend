@@ -853,7 +853,8 @@
             ? 'http://localhost:4000' 
             : 'https://energy-calc-backend.onrender.com';
         
-        let authToken = localStorage.getItem('adminToken');
+        // Use same token as membership dashboard for seamless access
+        let authToken = localStorage.getItem('energy_calc_membership_token') || localStorage.getItem('adminToken');
         let currentUser = null;
         let allSchemes = [];
 
@@ -888,6 +889,8 @@
                 
                 authToken = data.token;
                 currentUser = data.user;
+                // Store in both keys for compatibility
+                localStorage.setItem('energy_calc_membership_token', authToken);
                 localStorage.setItem('adminToken', authToken);
                 
                 // Check admin status
@@ -955,6 +958,7 @@
 
         function logout() {
             localStorage.removeItem('adminToken');
+            localStorage.removeItem('energy_calc_membership_token');
             authToken = null;
             currentUser = null;
             document.getElementById('loginPage').style.display = 'flex';
