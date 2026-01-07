@@ -410,6 +410,35 @@
                 </div>
             </div>
 
+            <!-- Admin Section (only visible to admins) -->
+            <div class="content-section admin-section" id="admin-section" style="display: none; border: 2px solid #9C27B0; background: linear-gradient(135deg, #F3E5F5, #E1BEE7);">
+                <h3 style="color: #7B1FA2; margin-bottom: 20px;">👑 Admin Panel</h3>
+                <p style="color: #666; margin-bottom: 20px;">
+                    You have admin access. Manage schemes, view analytics, and more.
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <a href="/schemes-admin.html" class="admin-link-card" style="background: white; padding: 20px; border-radius: 12px; text-decoration: none; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">📋</div>
+                        <div style="font-weight: 600; color: #7B1FA2;">Manage Schemes</div>
+                        <div style="font-size: 0.85rem; color: #666; margin-top: 5px;">Add, edit, delete grants & schemes</div>
+                    </a>
+                    <a href="/eu-energy-schemes.html" target="_blank" class="admin-link-card" style="background: white; padding: 20px; border-radius: 12px; text-decoration: none; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">🌍</div>
+                        <div style="font-weight: 600; color: #2E7D32;">View Public Portal</div>
+                        <div style="font-size: 0.85rem; color: #666; margin-top: 5px;">See what users see</div>
+                    </a>
+                    <a href="/api/schemes/admin/export" target="_blank" class="admin-link-card" style="background: white; padding: 20px; border-radius: 12px; text-decoration: none; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">💾</div>
+                        <div style="font-weight: 600; color: #1976D2;">Export Data</div>
+                        <div style="font-size: 0.85rem; color: #666; margin-top: 5px;">Download schemes JSON backup</div>
+                    </a>
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(156, 39, 176, 0.1); border-radius: 8px;">
+                    <strong style="color: #7B1FA2;">💡 Quick Tip:</strong>
+                    <span style="color: #666;">Click "Manage Schemes" to update grants at the end of each month.</span>
+                </div>
+            </div>
+
             <!-- Content Section -->
             <div class="content-section">
                 <h3 style="color: var(--primary-green); margin-bottom: 20px;">📚 Your Content</h3>
@@ -564,6 +593,30 @@
 
             // Load content
             loadContent('all');
+            
+            // Check if user is admin and show admin section
+            checkAdminAccess();
+        }
+        
+        // Check if user has admin role
+        async function checkAdminAccess() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/schemes/admin/stats`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (response.ok) {
+                    // User is admin - show admin section
+                    document.getElementById('admin-section').style.display = 'block';
+                    console.log('👑 Admin access granted');
+                } else {
+                    // Not admin - keep section hidden
+                    document.getElementById('admin-section').style.display = 'none';
+                }
+            } catch (error) {
+                // Error checking - keep section hidden
+                document.getElementById('admin-section').style.display = 'none';
+            }
         }
 
         // Sync membership
