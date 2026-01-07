@@ -234,33 +234,28 @@ schemeSchema.statics.findExpiring = function(days = 30) {
 };
 
 // Static method to update status based on dates
+// IMPORTANT: Only checks endDate field (Date type), NOT deadline field (which is a string like "Ongoing", "2025", etc.)
 schemeSchema.statics.updateStatuses = async function() {
   const now = new Date();
   const thirtyDaysFromNow = new Date();
   thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
   
-  // Mark expired schemes (check both endDate and deadline fields)
+  // Mark expired schemes - ONLY check endDate (must exist and be a valid date)
   const expiredResult = await this.updateMany(
     { 
-      $or: [
-        { endDate: { $lt: now } },
-        { deadline: { $lt: now } }
-      ],
+      endDate: { $exists: true, $ne: null, $lt: now },
       status: { $nin: ['expired', 'paused', 'draft'] }
     },
-    { status: 'expired' }
+    { $set: { status: 'expired' } }
   );
   
-  // Mark expiring-soon schemes
+  // Mark expiring-soon schemes - ONLY check endDate (must exist and be within 30 days)
   const expiringSoonResult = await this.updateMany(
     { 
-      $or: [
-        { endDate: { $gte: now, $lte: thirtyDaysFromNow } },
-        { deadline: { $gte: now, $lte: thirtyDaysFromNow } }
-      ],
+      endDate: { $exists: true, $ne: null, $gte: now, $lte: thirtyDaysFromNow },
       status: 'active'
     },
-    { status: 'expiring-soon' }
+    { $set: { status: 'expiring-soon' } }
   );
   
   return { 
