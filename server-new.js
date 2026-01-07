@@ -146,6 +146,17 @@ try {
   wixIntegrationRouter = null;
 }
 
+console.log('Loading schemes router...');
+let schemesRouter;
+try {
+  schemesRouter = require('./routes/schemes');
+  console.log('Schemes router loaded successfully');
+} catch (error) {
+  console.error('❌ Failed to load schemes router:', error.message);
+  console.error('Error details:', error);
+  schemesRouter = null;
+}
+
 // Mount routes with proper prefixes
 console.log('Mounting routes...');
 app.use('/api/products', productsRouter);
@@ -176,6 +187,14 @@ if (wixIntegrationRouter) {
   console.log('✅ Wix integration routes mounted successfully');
 } else {
   console.log('⚠️ Wix integration routes not mounted due to loading error');
+}
+
+// Mount schemes router only if it loaded successfully
+if (schemesRouter) {
+  app.use('/api/schemes', schemesRouter);
+  console.log('✅ /api/schemes route mounted');
+} else {
+  console.log('⚠️ Schemes routes not mounted due to loading error');
 }
 
 console.log('All routes mounted successfully');
@@ -487,6 +506,36 @@ app.get('/category-product-page.html', (req, res) => {
     res.status(404).json({
       error: 'File not found',
       message: 'category-product-page.html not found in deployment'
+    });
+  }
+});
+
+// Serve schemes admin dashboard
+app.get('/schemes-admin.html', (req, res) => {
+  console.log('📂 Serving schemes-admin.html');
+  const filePath = __dirname + '/schemes-admin.html';
+  const fs = require('fs');
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({
+      error: 'File not found',
+      message: 'schemes-admin.html not found in deployment'
+    });
+  }
+});
+
+// Serve EU energy schemes portal
+app.get('/eu-energy-schemes.html', (req, res) => {
+  console.log('📂 Serving eu-energy-schemes.html');
+  const filePath = __dirname + '/eu-energy-schemes.html';
+  const fs = require('fs');
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({
+      error: 'File not found',
+      message: 'eu-energy-schemes.html not found in deployment'
     });
   }
 });

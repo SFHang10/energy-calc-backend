@@ -59,6 +59,18 @@ const memberSchema = new mongoose.Schema({
     enum: ['active', 'cancelled', 'expired', 'suspended']
   },
   
+  // Role/Permissions
+  role: {
+    type: String,
+    default: 'member',
+    index: true,
+    enum: ['member', 'admin', 'superadmin']
+  },
+  permissions: [{
+    type: String,
+    enum: ['manage_schemes', 'manage_members', 'manage_products', 'view_analytics', 'manage_content']
+  }],
+  
   // Wix Integration
   wixUserId: {
     type: String,
