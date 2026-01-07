@@ -2330,26 +2330,24 @@
         
         // Check if user has admin role and show admin section
         async function checkAdminAccess() {
-            if (!authToken) return;
+            if (!authToken || !currentUser) return;
             
-            try {
-                const response = await fetch(`${API_BASE_URL}/schemes/admin/stats`, {
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}` 
-                    }
-                });
-                
-                if (response.ok) {
-                    // User is admin - show admin section
-                    const adminSection = document.getElementById('admin-section');
-                    if (adminSection) {
-                        adminSection.style.display = 'block';
-                        console.log('👑 Admin access granted - showing admin panel');
-                    }
+            // Check user's email for admin access (simple check)
+            const adminEmails = [
+                'stephen.hanglan@gmail.com',
+                'steph.hanglan@rococo-org.com'
+            ];
+            
+            const userEmail = (currentUser.email || '').toLowerCase();
+            const isAdmin = adminEmails.includes(userEmail);
+            
+            if (isAdmin) {
+                const adminSection = document.getElementById('admin-section');
+                if (adminSection) {
+                    adminSection.style.display = 'block';
+                    console.log('👑 Admin access granted for:', userEmail);
                 }
-            } catch (error) {
-                // Not admin or error - keep section hidden
+            } else {
                 console.log('Admin check: Not an admin user');
             }
         }
