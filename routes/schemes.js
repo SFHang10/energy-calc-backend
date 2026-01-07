@@ -100,31 +100,13 @@ const requirePermission = (permission) => {
 };
 
 // ============================================
-// AUTOMATIC STATUS UPDATE (runs once per day)
+// AUTOMATIC STATUS UPDATE - DISABLED
+// Status updates should be done manually via JSON import
 // ============================================
 
-let lastAutoUpdate = null;
-const AUTO_UPDATE_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
-async function autoUpdateStatusesIfNeeded() {
-  const now = Date.now();
-  
-  // Skip if updated recently
-  if (lastAutoUpdate && (now - lastAutoUpdate) < AUTO_UPDATE_INTERVAL) {
-    return null;
-  }
-  
-  try {
-    console.log('🔄 Running automatic daily status update...');
-    const result = await Scheme.updateStatuses();
-    lastAutoUpdate = now;
-    console.log(`✅ Auto-update completed: ${result.expiredCount} expired, ${result.expiringSoonCount} expiring soon`);
-    return result;
-  } catch (error) {
-    console.error('⚠️ Auto-update failed (non-blocking):', error.message);
-    return null;
-  }
-}
+// let lastAutoUpdate = null;
+// const AUTO_UPDATE_INTERVAL = 24 * 60 * 60 * 1000;
+// async function autoUpdateStatusesIfNeeded() { ... } - DISABLED
 
 // ============================================
 // PUBLIC ENDPOINTS (No auth required)
@@ -133,8 +115,8 @@ async function autoUpdateStatusesIfNeeded() {
 // GET /api/schemes - Get all active schemes (public)
 router.get('/', async (req, res) => {
   try {
-    // Run automatic status update if 24 hours have passed (non-blocking)
-    autoUpdateStatusesIfNeeded();
+    // Automatic status update DISABLED - manage manually via JSON import
+    // autoUpdateStatusesIfNeeded();
     
     const { region, type, search, limit = 100 } = req.query;
     
