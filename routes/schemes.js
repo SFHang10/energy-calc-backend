@@ -100,12 +100,42 @@ const requirePermission = (permission) => {
 };
 
 // ============================================
+// AUTOMATIC STATUS UPDATE (runs once per day)
+// ============================================
+
+let lastAutoUpdate = null;
+const AUTO_UPDATE_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+async function autoUpdateStatusesIfNeeded() {
+  const now = Date.now();
+  
+  // Skip if updated recently
+  if (lastAutoUpdate && (now - lastAutoUpdate) < AUTO_UPDATE_INTERVAL) {
+    return null;
+  }
+  
+  try {
+    console.log('🔄 Running automatic daily status update...');
+    const result = await Scheme.updateStatuses();
+    lastAutoUpdate = now;
+    console.log(`✅ Auto-update completed: ${result.expiredCount} expired, ${result.expiringSoonCount} expiring soon`);
+    return result;
+  } catch (error) {
+    console.error('⚠️ Auto-update failed (non-blocking):', error.message);
+    return null;
+  }
+}
+
+// ============================================
 // PUBLIC ENDPOINTS (No auth required)
 // ============================================
 
 // GET /api/schemes - Get all active schemes (public)
 router.get('/', async (req, res) => {
   try {
+    // Run automatic status update if 24 hours have passed (non-blocking)
+    autoUpdateStatusesIfNeeded();
+    
     const { region, type, search, limit = 100 } = req.query;
     
     const query = { status: { $in: ['active', 'expiring-soon'] } };

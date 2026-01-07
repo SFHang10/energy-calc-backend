@@ -239,22 +239,36 @@ schemeSchema.statics.updateStatuses = async function() {
   const thirtyDaysFromNow = new Date();
   thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
   
-  // Mark expired schemes
-  await this.updateMany(
-    { endDate: { $lt: now }, status: { $ne: 'expired' } },
+  // Mark expired schemes (check both endDate and deadline fields)
+  const expiredResult = await this.updateMany(
+    { 
+      $or: [
+        { endDate: { $lt: now } },
+        { deadline: { $lt: now } }
+      ],
+      status: { $nin: ['expired', 'paused', 'draft'] }
+    },
     { status: 'expired' }
   );
   
   // Mark expiring-soon schemes
-  await this.updateMany(
+  const expiringSoonResult = await this.updateMany(
     { 
-      endDate: { $gte: now, $lte: thirtyDaysFromNow },
+      $or: [
+        { endDate: { $gte: now, $lte: thirtyDaysFromNow } },
+        { deadline: { $gte: now, $lte: thirtyDaysFromNow } }
+      ],
       status: 'active'
     },
     { status: 'expiring-soon' }
   );
   
-  return { updated: true, timestamp: now };
+  return { 
+    updated: true, 
+    timestamp: now,
+    expiredCount: expiredResult.modifiedCount || 0,
+    expiringSoonCount: expiringSoonResult.modifiedCount || 0
+  };
 };
 
 // Static method for search
