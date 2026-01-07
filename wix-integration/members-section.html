@@ -1504,6 +1504,37 @@
                 <button class="action-btn danger" onclick="handleLogout()">Logout</button>
             </div>
 
+            <!-- Admin Panel Section (only visible to admins) -->
+            <div class="admin-panel" id="admin-section" style="display: none; margin-top: 25px; padding: 25px; background: linear-gradient(135deg, rgba(147, 51, 234, 0.2), rgba(79, 70, 229, 0.2)); border: 2px solid rgba(147, 51, 234, 0.5); border-radius: 16px;">
+                <h3 style="color: #a78bfa; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.5rem;">👑</span> Admin Panel
+                </h3>
+                <p style="color: var(--gray); margin-bottom: 20px; font-size: 0.95rem;">
+                    You have admin access. Manage schemes, view analytics, and more.
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
+                    <a href="/schemes-admin.html" style="background: rgba(34, 197, 94, 0.15); padding: 20px; border-radius: 12px; text-decoration: none; color: #f1f5f9; border: 1px solid rgba(34, 197, 94, 0.3); transition: all 0.3s ease; display: block; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 8px;">📋</div>
+                        <div style="font-weight: 600; color: var(--primary-green);">Manage Schemes</div>
+                        <div style="font-size: 0.8rem; color: var(--gray); margin-top: 5px;">Add, edit, delete grants</div>
+                    </a>
+                    <a href="/eu-energy-schemes.html" target="_blank" style="background: rgba(34, 197, 94, 0.15); padding: 20px; border-radius: 12px; text-decoration: none; color: #f1f5f9; border: 1px solid rgba(34, 197, 94, 0.3); transition: all 0.3s ease; display: block; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 8px;">🌍</div>
+                        <div style="font-weight: 600; color: var(--primary-green);">View Portal</div>
+                        <div style="font-size: 0.8rem; color: var(--gray); margin-top: 5px;">See public view</div>
+                    </a>
+                    <a href="/api/schemes/admin/export" target="_blank" style="background: rgba(34, 197, 94, 0.15); padding: 20px; border-radius: 12px; text-decoration: none; color: #f1f5f9; border: 1px solid rgba(34, 197, 94, 0.3); transition: all 0.3s ease; display: block; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 8px;">💾</div>
+                        <div style="font-weight: 600; color: var(--primary-green);">Export Data</div>
+                        <div style="font-size: 0.8rem; color: var(--gray); margin-top: 5px;">Download JSON backup</div>
+                    </a>
+                </div>
+                <div style="margin-top: 15px; padding: 12px; background: rgba(147, 51, 234, 0.1); border-radius: 8px; font-size: 0.9rem;">
+                    <strong style="color: #a78bfa;">💡 Tip:</strong>
+                    <span style="color: var(--gray);">Click "Manage Schemes" to update grants at the end of each month.</span>
+                </div>
+            </div>
+
             <!-- Notifications Section -->
             <div class="notifications-section" id="notifications-section" style="margin-top: 30px; display: none;">
                 <h3 style="color: var(--primary-green); margin-bottom: 15px;">
@@ -2292,6 +2323,35 @@
             
             // Load videos
             loadVideos();
+            
+            // Check if user is admin
+            checkAdminAccess();
+        }
+        
+        // Check if user has admin role and show admin section
+        async function checkAdminAccess() {
+            if (!authToken) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/schemes/admin/stats`, {
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}` 
+                    }
+                });
+                
+                if (response.ok) {
+                    // User is admin - show admin section
+                    const adminSection = document.getElementById('admin-section');
+                    if (adminSection) {
+                        adminSection.style.display = 'block';
+                        console.log('👑 Admin access granted - showing admin panel');
+                    }
+                }
+            } catch (error) {
+                // Not admin or error - keep section hidden
+                console.log('Admin check: Not an admin user');
+            }
         }
 
         // Load and display notifications
