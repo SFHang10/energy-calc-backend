@@ -374,6 +374,27 @@ router.get('/subscription-tiers', (req, res) => {
   });
 });
 
+// Get interest categories (public endpoint)
+router.get('/interests/categories', (req, res) => {
+  // Return predefined interest categories for energy efficiency
+  const categories = [
+    { id: 1, name: 'Solar Power', description: 'Solar panels, inverters, and solar energy solutions', icon: '☀️' },
+    { id: 2, name: 'Heat Pumps', description: 'Air source and ground source heat pump systems', icon: '🌡️' },
+    { id: 3, name: 'LED Lighting', description: 'Energy-efficient lighting solutions', icon: '💡' },
+    { id: 4, name: 'Smart Home', description: 'Smart thermostats, automation, and energy monitoring', icon: '🏠' },
+    { id: 5, name: 'Insulation', description: 'Home insulation and draft proofing', icon: '🧱' },
+    { id: 6, name: 'Electric Vehicles', description: 'EV charging and electric transportation', icon: '🚗' },
+    { id: 7, name: 'Wind Energy', description: 'Small-scale wind turbines and wind power', icon: '🌬️' },
+    { id: 8, name: 'Battery Storage', description: 'Home battery systems and energy storage', icon: '🔋' },
+    { id: 9, name: 'Water Heating', description: 'Efficient water heating and hot water systems', icon: '🚿' },
+    { id: 10, name: 'Building Efficiency', description: 'Commercial and residential building improvements', icon: '🏢' },
+    { id: 11, name: 'Grants & Funding', description: 'Energy efficiency grants and financial incentives', icon: '💰' },
+    { id: 12, name: 'Renewable Certifications', description: 'Green certifications and standards', icon: '✅' }
+  ];
+  
+  res.json({ categories });
+});
+
 // Get member interests
 router.get('/interests', authenticateToken, async (req, res) => {
   try {
@@ -389,7 +410,9 @@ router.get('/interests', authenticateToken, async (req, res) => {
 
 // Update member interests
 router.put('/interests', authenticateToken, async (req, res) => {
-  const { interests } = req.body;
+  // Accept both 'interests' and 'interestIds' for compatibility
+  const { interests, interestIds } = req.body;
+  const interestData = interests || interestIds || [];
 
   try {
     const member = await Member.findById(req.user.id);
@@ -397,7 +420,10 @@ router.put('/interests', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    member.interests = Array.isArray(interests) ? interests : [];
+    // Store as array of interest objects with id
+    member.interests = Array.isArray(interestData) 
+      ? interestData.map(id => typeof id === 'object' ? id : { id })
+      : [];
     await member.save();
 
     res.json({ message: 'Interests updated', interests: member.interests });
