@@ -12,16 +12,23 @@
             box-sizing: border-box;
         }
         
-        html {
+        html, body {
             scroll-behavior: smooth;
+            height: auto;
+            min-height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto !important;
         }
         
         body {
             font-family: 'Outfit', sans-serif;
             background: #0a0a0a;
             color: #e0e0e0;
-            overflow-x: hidden;
-            min-height: 100vh;
+        }
+        
+        /* Fix for Wix iframe embedding */
+        html {
+            -webkit-overflow-scrolling: touch;
         }
         
         /* ===== HEADER SECTION ===== */
@@ -106,8 +113,7 @@
         .tab-navigation {
             background: linear-gradient(180deg, #141414 0%, #1a1a1a 100%);
             padding: 0;
-            position: sticky;
-            top: 0;
+            position: relative; /* Changed from sticky for better iframe compatibility */
             z-index: 100;
             border-bottom: 1px solid #2d2d2d;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
@@ -1623,6 +1629,29 @@
             if (e.target === e.currentTarget) {
                 closeModal();
             }
+        });
+        
+        // Send height to parent for iframe resizing (Wix compatibility)
+        function sendHeightToParent() {
+            const height = document.documentElement.scrollHeight;
+            window.parent.postMessage({ type: 'setHeight', height: height }, '*');
+        }
+        
+        // Send height on load and resize
+        window.addEventListener('load', () => {
+            sendHeightToParent();
+            // Also send after a delay to account for images loading
+            setTimeout(sendHeightToParent, 1000);
+            setTimeout(sendHeightToParent, 3000);
+        });
+        
+        window.addEventListener('resize', sendHeightToParent);
+        
+        // Send height when tab changes
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                setTimeout(sendHeightToParent, 100);
+            });
         });
     </script>
 </body>
