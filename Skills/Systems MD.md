@@ -18,6 +18,66 @@ This skill provides comprehensive system health checks for the Greenways ecosyst
 
 ---
 
+## 🚀 Server Startup
+
+### Start Local Server
+
+**Batch File Location:**
+```
+C:\Users\steph\Documents\energy-cal-backend\start-server.bat
+```
+
+**What it does:**
+1. Changes to the energy-cal-backend directory
+2. Runs `node server-new.js`
+3. Starts the Express server on port 4000
+
+### Trigger Phrases for Starting Server:
+```
+"start the server"
+"start server"
+"run the server"
+"launch server"
+"start local server"
+"start backend"
+"run backend server"
+"node server"
+```
+
+### How to Start:
+
+**Option 1: Run Batch File**
+```bash
+cd C:\Users\steph\Documents\energy-cal-backend
+start-server.bat
+```
+
+**Option 2: Direct Command**
+```bash
+cd C:\Users\steph\Documents\energy-cal-backend
+node server-new.js
+```
+
+**Option 3: PowerShell**
+```powershell
+cd C:\Users\steph\Documents\energy-cal-backend
+node server-new.js
+```
+
+### After Starting Server:
+- Server runs on `http://localhost:4000`
+- Health check: `http://localhost:4000/health`
+- Products API: `http://localhost:4000/api/products`
+
+### Server Files:
+| File | Purpose |
+|------|---------|
+| `start-server.bat` | Batch file to start server |
+| `server-new.js` | Main Express server |
+| `server.js` | Legacy server (backup) |
+
+---
+
 ## 🏗️ System Architecture Reference
 
 ### **Core Components**

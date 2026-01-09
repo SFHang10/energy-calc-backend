@@ -47,6 +47,14 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 "API not responding"
 "diagnose issue"
 "troubleshoot connection"
+"start the server"
+"start server"
+"run the server"
+"launch server"
+"start local server"
+"start backend"
+"run backend server"
+"node server"
 ```
 
 **Routes to:** `Systems MD.md`
@@ -57,6 +65,7 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 - Backend health status
 - Product count verification
 - Missing products report
+- **Start local server** (via start-server.bat)
 
 ---
 

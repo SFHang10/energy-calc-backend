@@ -30,7 +30,7 @@ Skills/
 │                    SKILL QUICK REFERENCE                       │
 ├────────────────────────────────────────────────────────────────┤
 │                                                                │
-│  🔧 SYSTEMS        → "check systems", "MCP", "health check"   │
+│  🔧 SYSTEMS        → "check systems", "MCP", "start server"   │
 │  🛒 MARKET         → "product", "store", "category", "images" │
 │  🖼️ MEDIA          → "find image", "blurry", "photo"          │
 │  🌍 GRANTS         → "grants", "schemes", "funding"           │
@@ -77,6 +77,12 @@ Skills/
 "API not responding"
 "diagnose issue"
 "troubleshoot connection"
+"start the server"
+"start server"
+"run the server"
+"launch server"
+"start local server"
+"start backend"
 ```
 
 **What it does:**
@@ -85,6 +91,7 @@ Skills/
 - Backend health status
 - Product count verification
 - Missing products report
+- **Start local server** (via start-server.bat)
 
 ---
 
