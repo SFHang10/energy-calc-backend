@@ -1,0 +1,340 @@
+# Data Sources Reference
+
+This document provides detailed information about the search strategies and data sources used by the Sustainable Product Finder skill.
+
+## Primary Search Strategy: Comprehensive Web Search
+
+The skill's primary approach is to search broadly across the web to find European and UK suppliers, products, pricing, and reviews. This ensures the most current and comprehensive results.
+
+### General Web Search Approach
+
+**Product Discovery Searches:**
+```
+"sustainable [product category] Europe"
+"energy efficient [product type] UK suppliers"
+"low energy [product] manufacturers Europe"
+"[product category] distributors UK"
+"eco-friendly [product] commercial grade"
+"green technology [product type] Europe"
+```
+
+**Supplier and Contact Searches:**
+```
+"[product] supplier UK contact information"
+"[manufacturer name] distributor Europe"
+"where to buy [product] UK business"
+"[product category] wholesaler Europe"
+"[product] installer UK phone number"
+```
+
+**Pricing and Availability Searches:**
+```
+"[product name] price UK"
+"[product] cost Europe"
+"[manufacturer] [model] buy online"
+"[product] delivery UK"
+"[product category] bulk pricing Europe"
+```
+
+**Reviews and Performance Searches:**
+```
+"[product] energy savings review"
+"[product] customer reviews UK"
+"[product] performance test results"
+"[product] vs [competitor] comparison"
+"[product] real world energy consumption"
+```
+
+### Effective Web Search Techniques
+
+**Multi-Stage Search Process:**
+1. Start with broad category searches to identify options
+2. Narrow to specific products and manufacturers
+3. Find supplier contact information and pricing
+4. Verify with reviews and performance data
+5. Cross-reference with specialized databases (ETL, Accio)
+
+**Geographic Targeting:**
+- Include "UK" or "Europe" in searches for regional results
+- Search specific countries when needed: "Germany", "France", "Netherlands", etc.
+- Look for ".uk" or ".eu" domains in results
+- Search for "delivery to UK" or "ships to Europe" for availability
+
+**Finding Current Information:**
+- Include current year "2024" or "2025" for recent products
+- Search for "new" or "latest" for current models
+- Look for recent reviews and comparisons
+- Check manufacturer websites for current specifications
+
+**Extracting Contact Information:**
+- Fetch supplier websites directly with web_fetch
+- Look for "Contact Us", "About", or "Sales" pages
+- Extract phone numbers, emails, and contact forms
+- Note business hours and response times
+
+## UK Energy Technology List (ETL)
+
+### Overview
+The Energy Technology List (ETL) is a UK government scheme that identifies energy-efficient plant and machinery that qualifies for Enhanced Capital Allowances (ECAs). It's a trusted source for verified energy-efficient products and should be used alongside general web searches.
+
+### Access Information
+- **Base URL**: https://etl.energysecurity.gov.uk/products
+- **Authentication**: Not required
+- **Coverage**: UK and European products
+- **Update Frequency**: Regularly updated by UK government
+- **Value**: Government verification, tax benefit eligibility
+
+### Product Categories
+The ETL organizes products into major categories:
+- **Air to Air Energy Recovery**: Ventilation systems with heat recovery
+- **Boilers**: High-efficiency heating boilers
+- **Combined Heat and Power (CHP)**: Cogeneration systems
+- **Compressed Air Equipment**: Energy-efficient compressors
+- **Heat Pumps**: Ground source and air source heat pumps
+- **Lighting**: LED and other efficient lighting systems
+- **Motors and Drives**: Variable speed drives and efficient motors
+- **Pipework Insulation**: Thermal insulation products
+- **Refrigeration Equipment**: Efficient cooling systems
+- **Solar Thermal Systems**: Hot water and heating systems
+- **Uninterruptible Power Supplies**: Efficient UPS systems
+- **Warm Air and Radiant Heaters**: Space heating equipment
+
+### Search Strategies
+
+**Broad Category Search:**
+```
+web_search: "site:etl.energysecurity.gov.uk LED lighting"
+web_search: "site:etl.energysecurity.gov.uk heat pumps"
+```
+
+**Specific Product Search:**
+```
+web_search: "site:etl.energysecurity.gov.uk [manufacturer] [product model]"
+```
+
+**After finding products:**
+```
+web_fetch: [specific product page URL from ETL]
+```
+
+### Data Available per Product
+- Product name and manufacturer
+- Model number and specifications
+- Energy efficiency ratings
+- Performance metrics
+- Certification status
+- Date added to list
+- Qualifying criteria
+
+### When to Use ETL
+- To verify government-approved energy-efficient products
+- To find products eligible for Enhanced Capital Allowances
+- To get official efficiency ratings and specifications
+- As a quality benchmark for products found via web search
+
+## Accio.com Supplier Database
+
+### Overview
+Accio.com is a supplier intelligence platform that provides detailed information about companies, including contact information, product lines, and marketing positioning. Use alongside general web searches for additional supplier intelligence.
+
+### Access Information
+- **Base URL**: https://www.accio.com/c/a1cc1f0f-44c5-4c0c-bd68-9bfe090becf0
+- **Authentication**: Can search without login (user has credentials if needed)
+- **Coverage**: European and global suppliers
+- **Focus**: B2B supplier discovery with contact data
+
+### Key Features
+- Supplier company profiles
+- Contact information (email, phone, address)
+- Product and service categories
+- Marketing positioning and messaging
+- Company size and geographic reach
+- Industry certifications
+
+### Search Strategies
+
+**Category-Based Search:**
+```
+web_search: "site:accio.com sustainable lighting suppliers"
+web_search: "site:accio.com water saving equipment"
+```
+
+**Geographic Search:**
+```
+web_search: "site:accio.com energy efficient appliances UK suppliers"
+web_search: "site:accio.com LED manufacturers Europe"
+```
+
+**After finding supplier profiles:**
+```
+web_fetch: [specific supplier profile URL from Accio]
+```
+
+### Data Available per Supplier
+- Company name and overview
+- Primary contact information
+- Website and social media
+- Product/service categories
+- Geographic markets served
+- Company size indicators
+- Key certifications
+- Marketing descriptions
+
+### When to Use Accio
+- To find supplier contact information not available via general search
+- To discover B2B suppliers and distributors
+- To get marketing positioning and company background
+- As a supplement to direct web searches for suppliers
+
+## Common European Supplier Sources
+
+When searching the web, these types of sources often provide valuable information:
+
+### Manufacturer Websites
+- Direct product specifications and pricing
+- Official distributor lists
+- Technical documentation
+- Warranty and support information
+- Contact details for sales teams
+
+### Distributor and Retailer Sites
+- **UK**: Screwfix, Toolstation, City Plumbing, Electrical Wholesale
+- **Europe**: Conrad, RS Components, Farnell
+- Current pricing and availability
+- Delivery options and lead times
+- Bulk purchasing options
+
+### B2B Marketplaces
+- Alibaba, ThomasNet, Europages
+- Multiple supplier comparisons
+- International shipping options
+- Wholesale pricing
+
+### Review and Comparison Sites
+- Trustpilot, Which?, Consumer Reports
+- Real-world performance data
+- User experiences and issues
+- Long-term reliability information
+
+### Industry Publications and Forums
+- Building Services journals
+- HVAC and electrical trade publications
+- Professional installer forums
+- Technical specifications and standards
+
+### Government and Certification Sites
+- Energy Saving Trust (UK)
+- EU Ecolabel database
+- Energy Star international
+- National energy efficiency programs
+
+## Search Best Practices
+
+### Web-First Search Process
+1. **Start with broad web searches** to identify current market options
+2. **Narrow to specific products and suppliers** based on requirements
+3. **Cross-reference with ETL** for government-verified options
+4. **Use Accio** for additional supplier intelligence
+5. **Validate** with reviews, pricing, and availability
+
+### Efficient Search Techniques
+- Cast a wide net initially with broad searches
+- Use specific product names and models once identified
+- Fetch complete pages when snippets lack detail
+- Search multiple variations of product terms
+- Include both technical and common names
+- Look for recent content (2024-2025) for current products
+
+### Quality Indicators
+When evaluating products and suppliers:
+- Government certifications (ETL listing, Energy Star, EU Ecolabel)
+- Energy efficiency ratings (A+++, SEER, COP, lumens/watt)
+- Manufacturer warranty terms (longer = more confidence)
+- Independent test results and certifications
+- Customer reviews and case studies (look for verified purchases)
+- Industry certifications (ISO 9001, ISO 14001, etc.)
+- Established company presence (years in business)
+- Professional website and documentation
+
+### Geographic Considerations for Europe
+- **UK**: Strong focus on Energy Saving Trust, ETL, and UK retailers
+- **EU**: Look for EU Ecolabel, ErP directives, CE marking
+- **Distribution**: Many UK suppliers serve all of Europe
+- **Language**: Search in English but note local language resources
+- **Standards**: Be aware of different electrical standards (UK vs EU plugs)
+- **Pricing**: Consider VAT, customs, and shipping costs
+- **Warranties**: Check if warranties are valid across regions
+
+## Energy Savings Calculations
+
+### Typical Savings Ranges by Category
+
+**Lighting (LED vs Traditional):**
+- Energy savings: 75-90%
+- Lifespan increase: 15-25x longer
+- Payback period: 1-3 years
+
+**Heat Pumps vs Gas Boilers:**
+- Energy savings: 30-50%
+- Running cost savings: £300-800/year (typical home)
+- Payback period: 5-10 years
+
+**Water-Saving Devices:**
+- Water consumption reduction: 20-40%
+- Water cost savings: £50-200/year (typical restaurant)
+- Payback period: 1-2 years
+
+**Efficient Appliances:**
+- Energy savings: 20-50% vs standard models
+- Annual savings: £30-150 per appliance
+- Payback period: 3-7 years
+
+### Cost Context for Europe
+- UK average electricity price: ~£0.24-0.34/kWh (2024)
+- UK average gas price: ~£0.07-0.10/kWh (2024)
+- UK average water/sewage: ~£2-3/m³ (2024)
+- VAT: 20% on equipment (UK), varies by EU country
+
+### Carbon Savings Context
+- UK grid carbon intensity: ~200-250 gCO2/kWh (2024, decreasing)
+- 1 kWh saved ≈ 0.2-0.25 kg CO2 avoided
+- Natural gas: ~0.18 kg CO2/kWh
+
+## Response Format Guidelines
+
+### Conversational Structure
+Present findings in a natural, professional tone:
+
+1. **Opening**: Brief summary of what was found
+2. **Product Details**: 2-4 top options with key specs
+3. **Supplier Information**: Contact details and availability
+4. **Savings Analysis**: Expected energy/cost savings
+5. **Recommendations**: Best fit for user's needs
+6. **Next Steps**: How to proceed with procurement
+
+### Example Response Structure
+```
+I found [X] excellent options for [product category] that would work well for [target market]:
+
+**Option 1: [Product Name]**
+[2-3 sentences with key specs, efficiency, and benefits]
+- Supplier: [Name] - [Contact info]
+- Estimated savings: [£X/year or Y%]
+- Price range: [if available]
+
+**Option 2: [Product Name]**
+[Similar format]
+
+Based on your needs for [specific requirement], I'd recommend [Product] because [specific reasons]. The payback period should be around [timeframe], and you'd see [specific benefit].
+
+To move forward, you can contact [Supplier] directly at [contact info].
+```
+
+## Limitations and Caveats
+
+- ETL listings may not include all available products
+- Pricing information often requires direct supplier contact
+- Energy savings are estimates based on typical usage
+- Actual savings vary by usage patterns and local energy prices
+- Product availability may vary by region
+- Accio information may not be current for all suppliers
