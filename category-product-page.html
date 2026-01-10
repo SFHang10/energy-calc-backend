@@ -27,21 +27,30 @@
         .header {
             text-align: center;
             margin-bottom: 40px;
-            padding: 30px;
+            padding: 40px 30px;
             background: linear-gradient(135deg, #1976D2, #42A5F5); /* Fallback gradient */
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             color: white;
             border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 6px 30px rgba(0,0,0,0.2);
             position: relative;
             overflow: hidden;
             transition: background-image 0.8s ease-in-out;
+            /* Make images more vibrant */
+            filter: saturate(1.15) contrast(1.05);
+        }
+        
+        /* Reset filter for the overlay and text */
+        .header::before,
+        .header h1,
+        .header p {
+            filter: none;
         }
 
 
-        /* Dark overlay for text readability */
+        /* Lighter overlay - MORE VIBRANT images, gradient darker at bottom for text */
         .header::before {
             content: '';
             position: absolute;
@@ -49,12 +58,17 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5));
+            background: linear-gradient(
+                to bottom,
+                rgba(0,0,0,0.15) 0%,
+                rgba(0,0,0,0.25) 50%,
+                rgba(0,0,0,0.45) 100%
+            );
             z-index: 1;
             border-radius: 15px;
         }
 
-        /* Ensure text is above overlay */
+        /* Ensure text is above overlay with strong shadows for readability */
         .header h1,
         .header p {
             position: relative;
@@ -64,12 +78,20 @@
         .header h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
-            font-weight: 300;
+            font-weight: 400;
+            text-shadow: 
+                0 2px 4px rgba(0,0,0,0.8),
+                0 4px 12px rgba(0,0,0,0.6),
+                0 0 30px rgba(0,0,0,0.4);
+            letter-spacing: 1px;
         }
 
         .header p {
             font-size: 1.1rem;
-            opacity: 0.9;
+            opacity: 1;
+            text-shadow: 
+                0 1px 3px rgba(0,0,0,0.8),
+                0 2px 8px rgba(0,0,0,0.5);
         }
 
         .filters {
