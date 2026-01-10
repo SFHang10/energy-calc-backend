@@ -34,23 +34,28 @@
             background-repeat: no-repeat;
             color: white;
             border-radius: 15px;
-            box-shadow: 0 6px 30px rgba(0,0,0,0.2);
+            /* Glossy box shadow with highlight */
+            box-shadow: 
+                0 8px 32px rgba(0,0,0,0.25),
+                inset 0 1px 0 rgba(255,255,255,0.2),
+                0 1px 0 rgba(255,255,255,0.1);
             position: relative;
             overflow: hidden;
             transition: background-image 0.8s ease-in-out;
-            /* Make images more vibrant */
-            filter: saturate(1.15) contrast(1.05);
+            /* Vibrant glossy look - higher contrast and saturation */
+            filter: saturate(1.2) contrast(1.1) brightness(1.05);
         }
         
         /* Reset filter for the overlay and text */
         .header::before,
+        .header::after,
         .header h1,
         .header p {
             filter: none;
         }
 
 
-        /* Lighter overlay - MORE VIBRANT images, gradient darker at bottom for text */
+        /* GLOSSY FINISH - Shine overlay with vibrant image */
         .header::before {
             content: '';
             position: absolute;
@@ -58,14 +63,36 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(
-                to bottom,
-                rgba(0,0,0,0.15) 0%,
-                rgba(0,0,0,0.25) 50%,
-                rgba(0,0,0,0.45) 100%
-            );
+            /* Glossy shine gradient - light reflection at top */
+            background: 
+                linear-gradient(
+                    180deg,
+                    rgba(255,255,255,0.25) 0%,
+                    rgba(255,255,255,0.08) 15%,
+                    rgba(0,0,0,0.05) 40%,
+                    rgba(0,0,0,0.35) 100%
+                );
             z-index: 1;
             border-radius: 15px;
+        }
+        
+        /* Additional glossy shine highlight */
+        .header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(
+                180deg,
+                rgba(255,255,255,0.15) 0%,
+                rgba(255,255,255,0.05) 50%,
+                transparent 100%
+            );
+            z-index: 1;
+            border-radius: 15px 15px 0 0;
+            pointer-events: none;
         }
 
         /* Ensure text is above overlay with strong shadows for readability */
