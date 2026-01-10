@@ -483,8 +483,8 @@ Use these consistent emojis across all HTML pages and blog content:
 
 | Context | Emoji | Avoid |
 |---------|-------|-------|
-| Money/Cost | 💷 (Pound Sterling) | 💰 💵 (Dollar-based) |
-| Savings | 💷 or 📈 | 💰 |
+| Money/Cost | 💶 (Euro) primary, 💷 (Pound) if space allows | 💰 💵 (Dollar-based) |
+| Savings | 💶💷 or 📈 | 💰 💵 |
 | Environment | 🌱 🌍 ♻️ | |
 | Energy | ⚡ ☀️ 🔋 | |
 | Certified/Verified | ✓ ✅ | |
@@ -555,7 +555,7 @@ html, body {
 
 | Date | Change | Reason |
 |------|--------|--------|
-| Jan 2026 | Added emoji standardization | Use 💷 instead of 💰 for UK context |
+| Jan 2026 | Added emoji standardization | Use 💶 (Euro) + 💷 (Pound) - avoid 💰💵 (Dollar) |
 | Jan 2026 | Added tab glow effect | Make tabs more visible to users |
 | Jan 2026 | Added product modal feature | Link HTML products to Marketplace |
 | Jan 2026 | Added Wix bottom space fix | Remove extra space in iframe |
