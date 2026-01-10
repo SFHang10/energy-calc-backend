@@ -588,10 +588,35 @@ function openProductPage(productKey) {
 </button>
 ```
 
-**Finding Product IDs:**
-- Check the ETL API response for `product_id` fields
-- Format is typically: `etl_[category]_[number]`
-- Test URL in browser before adding to HTML
+**Finding Real Product IDs:**
+
+1. **Query the API to find products:**
+```powershell
+# Search all products
+Invoke-RestMethod -Uri "https://energy-calc-backend.onrender.com/api/product-widget/products/all"
+
+# Filter by name
+$response.products | Where-Object { $_.name -like "*LED*" }
+```
+
+2. **Product ID Format:**
+   - ETL products: `etl_[category]_[number]` (e.g., `etl_21_29475`)
+   - Sample products: `sample_[number]` (e.g., `sample_4`)
+   - Custom products: `oven_1`, `dishwasher_3`, etc.
+
+3. **Current Working Product IDs:**
+   | Category | Product ID | Product Name |
+   |----------|------------|--------------|
+   | Economiser | `etl_21_29475` | Economiser |
+   | Burner | `etl_21_10776` | TA Series Burners |
+   | HVAC | `etl_14_74938` | Airsys Metrocool 10kw |
+   | Refrigeration | `etl_14_65836` | Carrier Refrigeration Glass Door |
+   | LED | `sample_4` | Philips LED Bulb 9W |
+
+4. **Test URL in browser before adding to HTML:**
+```
+https://energy-calc-backend.onrender.com/product-page-v2-marketplace.html?product=etl_21_29475&fromPopup=true
+```
 
 ### Prevent Independent Scrolling in Wix Iframe
 
