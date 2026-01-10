@@ -353,6 +353,29 @@ html, body {
 }
 ```
 
+#### 5. Product Links Not Working (Modal vs Direct Link)
+
+**Problem:** Product modal/search didn't link to actual products.
+
+**Cause:** Using search parameters instead of direct product IDs.
+
+**Solution:** Use direct product URLs with specific product IDs:
+
+❌ **Wrong (Search/Modal approach):**
+```javascript
+// Opens generic search - doesn't show specific product
+const searchUrl = `${BASE}?search=${productName}`;
+```
+
+✅ **Correct (Direct Product Link):**
+```javascript
+// Opens specific product page directly
+const productUrl = `${BASE}?product=etl_8_83032&fromPopup=true`;
+window.open(productUrl, '_blank');
+```
+
+**Key Lesson:** Always use the actual product ID (e.g., `etl_8_83032`) from the ETL database, not product names or search terms.
+
 ---
 
 ## 🔄 Step 5: Fallback Options
@@ -522,12 +545,53 @@ Make tabs noticeable with pulse animation:
 ```
 
 ### Marketplace Product Links
-Add shop buttons that open product modal:
+
+**URL Format for Direct Product Links:**
+```
+https://energy-calc-backend.onrender.com/product-page-v2-marketplace.html?product=[PRODUCT_ID]&fromPopup=true
+```
+
+**Example:**
+```
+https://energy-calc-backend.onrender.com/product-page-v2-marketplace.html?product=etl_8_83032&fromPopup=true
+```
+
+**Implementation in HTML:**
+
+1. **Define Product ID Mapping in JavaScript:**
+```javascript
+const PRODUCT_LINKS = {
+    'economiser': {
+        id: 'etl_8_83032',  // Actual ETL product ID
+        name: 'Condensing Economiser'
+    },
+    'led': {
+        id: 'etl_lighting_12345',
+        name: 'LED Retrofit Kit'
+    }
+};
+```
+
+2. **Add Function to Open Product Page:**
+```javascript
+function openProductPage(productKey) {
+    const product = PRODUCT_LINKS[productKey];
+    const productUrl = `${MARKETPLACE_BASE_URL}?product=${product.id}&fromPopup=true`;
+    window.open(productUrl, '_blank');
+}
+```
+
+3. **Add Button in HTML:**
 ```html
-<button class="product-search-btn" onclick="openProductModal('Product Name', 'Category')">
-    <span class="icon">🛒</span> Shop on Marketplace
+<button class="product-search-btn" onclick="openProductPage('economiser')">
+    <span class="icon">🛒</span> View Product on Marketplace
 </button>
 ```
+
+**Finding Product IDs:**
+- Check the ETL API response for `product_id` fields
+- Format is typically: `etl_[category]_[number]`
+- Test URL in browser before adding to HTML
 
 ### Fix Bottom Space in Wix Iframe
 Prevent extra space at the end of HTML:
@@ -557,7 +621,7 @@ html, body {
 |------|--------|--------|
 | Jan 2026 | Added emoji standardization | Use 💶 (Euro) + 💷 (Pound) - avoid 💰💵 (Dollar) |
 | Jan 2026 | Added tab glow effect | Make tabs more visible to users |
-| Jan 2026 | Added product modal feature | Link HTML products to Marketplace |
+| Jan 2026 | Changed to direct product links | Modal didn't work - use ?product=ID instead |
 | Jan 2026 | Added Wix bottom space fix | Remove extra space in iframe |
 | Jan 2026 | Added blur fix CSS | Images were appearing blurry in HTML |
 | Jan 2026 | Added Wix iframe fixes | Content was being cut off |

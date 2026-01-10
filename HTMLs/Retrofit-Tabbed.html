@@ -885,69 +885,6 @@
             font-size: 1.2em;
         }
         
-        /* Product Modal */
-        .product-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 1001;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .product-modal.active {
-            display: flex;
-        }
-        
-        .product-modal-content {
-            width: 95%;
-            max-width: 1200px;
-            height: 85vh;
-            background: #0a0a0a;
-            border-radius: 20px;
-            border: 2px solid #c9a961;
-            overflow: hidden;
-            position: relative;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
-        }
-        
-        .product-modal-header {
-            background: linear-gradient(135deg, #1a1a1a, #242424);
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #2d2d2d;
-        }
-        
-        .product-modal-title {
-            color: #c9a961;
-            font-size: 1.2em;
-            font-weight: 700;
-        }
-        
-        .product-modal-close {
-            color: #c9a961;
-            font-size: 1.8em;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-            line-height: 1;
-        }
-        
-        .product-modal-close:hover {
-            transform: scale(1.2);
-        }
-        
-        .product-modal-iframe {
-            width: 100%;
-            height: calc(100% - 60px);
-            border: none;
-        }
         
         /* Image Modal */
         .modal {
@@ -1194,8 +1131,8 @@
                 
                 <div class="savings-badge">Annual Fuel Savings: ~£8,100</div>
                 
-                <button class="product-search-btn" onclick="openProductModal('Economiser', 'Heating')">
-                    <span class="icon">🛒</span> Shop Economisers on Marketplace
+                <button class="product-search-btn" onclick="openProductPage('economiser')">
+                    <span class="icon">🛒</span> View Product on Marketplace
                 </button>
             </div>
         </div>
@@ -1304,8 +1241,8 @@
                 
                 <div class="savings-badge">Annual Savings: £10,000-£14,000</div>
                 
-                <button class="product-search-btn" onclick="openProductModal('Burner Control', 'Heating')">
-                    <span class="icon">🛒</span> Shop Burner Controls on Marketplace
+                <button class="product-search-btn" onclick="openProductPage('burner')">
+                    <span class="icon">🛒</span> View Product on Marketplace
                 </button>
             </div>
         </div>
@@ -1414,8 +1351,8 @@
                 
                 <div class="savings-badge">Annual Energy Saved: 34,500 kWh</div>
                 
-                <button class="product-search-btn" onclick="openProductModal('HVAC Controls', 'HVAC')">
-                    <span class="icon">🛒</span> Shop HVAC Controls on Marketplace
+                <button class="product-search-btn" onclick="openProductPage('hvac')">
+                    <span class="icon">🛒</span> View Product on Marketplace
                 </button>
             </div>
         </div>
@@ -1524,8 +1461,8 @@
                 
                 <div class="savings-badge">Payback: Often under 7 months</div>
                 
-                <button class="product-search-btn" onclick="openProductModal('Refrigeration', 'Refrigeration')">
-                    <span class="icon">🛒</span> Shop Refrigeration on Marketplace
+                <button class="product-search-btn" onclick="openProductPage('refrigeration')">
+                    <span class="icon">🛒</span> View Product on Marketplace
                 </button>
             </div>
         </div>
@@ -1640,8 +1577,8 @@
                 
                 <div class="savings-badge">Reduced Maintenance + 15-25x Longer Life</div>
                 
-                <button class="product-search-btn" onclick="openProductModal('LED Lighting', 'Lighting')">
-                    <span class="icon">🛒</span> Shop LED Lighting on Marketplace
+                <button class="product-search-btn" onclick="openProductPage('led')">
+                    <span class="icon">🛒</span> View Product on Marketplace
                 </button>
             </div>
         </div>
@@ -1757,16 +1694,6 @@
         <img id="modalImage" src="" alt="Enlarged view">
     </div>
     
-    <!-- Product Search Modal -->
-    <div class="product-modal" id="productModal">
-        <div class="product-modal-content">
-            <div class="product-modal-header">
-                <span class="product-modal-title" id="productModalTitle">🛒 Greenways Marketplace</span>
-                <span class="product-modal-close" onclick="closeProductModal()">&times;</span>
-            </div>
-            <iframe class="product-modal-iframe" id="productModalIframe" src="" title="Greenways Marketplace"></iframe>
-        </div>
-    </div>
     
     <script>
         // Tab functionality
@@ -1845,48 +1772,57 @@
             });
         });
         
-        // ====== PRODUCT MODAL FUNCTIONALITY ======
-        // Product search URL base (Greenways Marketplace product page)
+        // ====== PRODUCT LINK FUNCTIONALITY ======
+        // Greenways Marketplace product page base URL
         const MARKETPLACE_BASE_URL = 'https://energy-calc-backend.onrender.com/product-page-v2-marketplace.html';
         
-        // Open product modal with search term
-        function openProductModal(productName, category) {
-            const modal = document.getElementById('productModal');
-            const iframe = document.getElementById('productModalIframe');
-            const title = document.getElementById('productModalTitle');
-            
-            // Build URL with search parameter
-            const searchUrl = `${MARKETPLACE_BASE_URL}?search=${encodeURIComponent(productName)}&category=${encodeURIComponent(category || '')}`;
-            
-            title.textContent = `🛒 ${productName} - Greenways Marketplace`;
-            iframe.src = searchUrl;
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
+        // Product ID mappings - Add specific ETL product IDs here
+        // Format: product=etl_[category]_[id] or product=[custom_id]
+        const PRODUCT_LINKS = {
+            // Economisers - Heat recovery products
+            'economiser': {
+                id: 'etl_8_83032',  // Example economiser product
+                name: 'Condensing Economiser'
+            },
+            // Burner Controls
+            'burner': {
+                id: 'etl_heating_burner',  // Update with actual product ID
+                name: 'Burner Control System'
+            },
+            // HVAC Controls
+            'hvac': {
+                id: 'etl_hvac_controls',  // Update with actual product ID
+                name: 'HVAC Building Controls'
+            },
+            // Refrigeration
+            'refrigeration': {
+                id: 'etl_refrig_doors',  // Update with actual product ID
+                name: 'Refrigeration Cabinet Doors'
+            },
+            // LED Lighting
+            'led': {
+                id: 'etl_led_retrofit',  // Update with actual product ID
+                name: 'LED Lighting Retrofit Kit'
+            }
+        };
+        
+        // Open product page directly in new tab
+        function openProductPage(productKey) {
+            const product = PRODUCT_LINKS[productKey];
+            if (product && product.id) {
+                const productUrl = `${MARKETPLACE_BASE_URL}?product=${product.id}&fromPopup=true`;
+                window.open(productUrl, '_blank');
+            } else {
+                // Fallback: open marketplace main page
+                window.open(MARKETPLACE_BASE_URL, '_blank');
+            }
         }
         
-        // Close product modal
-        function closeProductModal() {
-            const modal = document.getElementById('productModal');
-            const iframe = document.getElementById('productModalIframe');
-            
-            modal.classList.remove('active');
-            iframe.src = ''; // Clear iframe
-            document.body.style.overflow = 'auto';
+        // Alternative: Open with specific product ID (for future use)
+        function openProductById(productId, productName) {
+            const productUrl = `${MARKETPLACE_BASE_URL}?product=${productId}&fromPopup=true`;
+            window.open(productUrl, '_blank');
         }
-        
-        // Close product modal on background click
-        document.getElementById('productModal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                closeProductModal();
-            }
-        });
-        
-        // Close product modal on escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeProductModal();
-            }
-        });
     </script>
 </body>
 </html>
