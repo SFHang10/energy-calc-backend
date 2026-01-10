@@ -376,6 +376,35 @@ window.open(productUrl, '_blank');
 
 **Key Lesson:** Always use the actual product ID (e.g., `etl_8_83032`) from the ETL database, not product names or search terms.
 
+#### 6. Verifying Product Links Work
+
+**Before adding product links to HTML, always verify:**
+
+**Step 1: Check product exists in API**
+```powershell
+Invoke-RestMethod -Uri "https://energy-calc-backend.onrender.com/api/product-widget/etl_21_29475"
+```
+Should return `success: true` and product data.
+
+**Step 2: Test the actual product page URL**
+```
+https://energy-calc-backend.onrender.com/product-page-v2-marketplace.html?product=etl_21_29475&fromPopup=true
+```
+Open in browser - should show product with:
+- ✅ Product name and image
+- ✅ Price and description
+- ✅ Technical information
+- ✅ Energy Calculator at bottom
+
+**Step 3: If product page shows "Error - Product not found"**
+- Wait for Render deployment (2-3 minutes after git push)
+- Clear browser cache
+- Verify product ID is correct
+- Check API response for that product ID
+
+**Working Product Page Example:**
+The Breezair product (`etl_8_83032`) shows a complete page with the energy calculator embedded at the bottom.
+
 ---
 
 ## 🔄 Step 5: Fallback Options
