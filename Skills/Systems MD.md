@@ -607,6 +607,61 @@ img {
 
 ---
 
+### Issue: Category Page Headers Look Washed Out
+
+**Date:** January 2026  
+**Problem:** Header background images appear dull and muted.
+
+**Root Cause:** Dark overlay gradient obscuring images too much.
+
+**Solution:**
+1. Lighten the gradient overlay (0.15 → 0.45 instead of 0.5 → 0.8)
+2. Add `filter: saturate(1.15) contrast(1.05)` to header
+3. Apply glossy finish with `::after` radial gradient + `backdrop-filter: blur(1px)`
+4. Increase text shadows for readability
+
+**Files Changed:** `category-product-page.html`
+
+**Prevention:** Use lighter overlays for vibrant images, stronger text shadows
+
+---
+
+### Issue: Product Card Doesn't Look "Raised"
+
+**Date:** January 2026  
+**Problem:** Main product card looks flat, not elevated enough.
+
+**Root Cause:** Single-layer box-shadow isn't prominent enough.
+
+**Solution:**
+1. Use 3-layer box-shadow: `0 12px 40px rgba(0,0,0,0.25), 0 6px 16px rgba(0,0,0,0.15), 0 2px 6px rgba(0,0,0,0.1)`
+2. Add `transform: translateY(-2px)` for subtle lift
+3. Add light border: `1px solid rgba(0,0,0,0.05)`
+
+**Files Changed:** `product-page-v2-marketplace.html`
+
+**Prevention:** Multi-layer shadows create better depth perception
+
+---
+
+### Issue: Technical Info Section Not Clearly Grouped
+
+**Date:** January 2026  
+**Problem:** Technical Information and Product Benefits sections blend together.
+
+**Root Cause:** Both dropdown panels had same neutral border color.
+
+**Solution:**
+1. Green border (3px) for Technical Information panel: `border: 3px solid #28a745`
+2. Blue border (3px) for Product Benefits panel: `border: 3px solid #007bff`
+3. Match inner item borders to panel color
+
+**Files Changed:** `product-page-v2-marketplace.html`
+
+**Prevention:** Use consistent color coding for related information
+
+---
+
 ## 🔄 Add New Lessons Learned
 
 When encountering new issues, add entries following this format:

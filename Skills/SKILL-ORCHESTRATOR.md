@@ -102,7 +102,7 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 
 ---
 
-### 🖼️ Media Skill (Product Images)
+### 🖼️ Media Skill (Product Images & UI Styling)
 
 **Activate when user says:**
 ```
@@ -117,6 +117,17 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 "get image for [product]"
 "need product photo"
 "find manufacturer image"
+"make card raised"
+"add shadow to card"
+"make header vibrant"
+"add glossy finish"
+"green border"
+"blue border"
+"section styling"
+"product page styling"
+"category page styling"
+"washed out"
+"make prominent"
 ```
 
 **Routes to:** `Media Skill MD.md`
@@ -127,6 +138,10 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 - Upload to Wix Media Manager
 - Fix image quality issues
 - Apply CSS fixes for blurry images
+- **Apply raised card shadows**
+- **Add section border colors (green/blue)**
+- **Create glossy header finishes**
+- **Make background images more vibrant**
 
 ---
 

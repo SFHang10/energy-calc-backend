@@ -573,6 +573,81 @@ Make tabs noticeable with pulse animation:
 }
 ```
 
+### Product Page Styling Patterns
+
+#### Raised Card Effect (More Prominent Shadow)
+Make a card appear more "raised" with layered shadows:
+```css
+.product-main {
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25), 0 6px 16px rgba(0,0,0,0.15), 0 2px 6px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+```
+
+#### Section Border Colors (Green & Blue)
+Group information sections with colored borders:
+```css
+/* Green border for Technical Information */
+#additional-tech-panel {
+    border: 3px solid #28a745;
+    box-shadow: 0 4px 20px rgba(40, 167, 69, 0.15), inset 0 0 0 1px rgba(40, 167, 69, 0.1);
+}
+
+/* Blue border for Product Information & Benefits */
+#additional-info-panel {
+    border: 3px solid #007bff;
+    box-shadow: 0 4px 20px rgba(0, 123, 255, 0.15), inset 0 0 0 1px rgba(0, 123, 255, 0.1);
+}
+
+/* Matching item border colors */
+#additional-info-panel .additional-tech-item {
+    border-left: 4px solid #007bff;
+}
+```
+
+#### Category Page Glossy Header Finish
+Make header images more vibrant with glossy overlay:
+```css
+/* Lighter gradient overlay (more vibrant background) */
+.header::before {
+    background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.15) 0%,
+        rgba(0,0,0,0.25) 50%,
+        rgba(0,0,0,0.45) 100%
+    );
+    z-index: 1;
+}
+
+/* Image saturation boost */
+.header {
+    filter: saturate(1.15) contrast(1.05);
+}
+
+/* Glossy shine overlay */
+.header::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at top left, rgba(255,255,255,0.15) 0%, transparent 60%);
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* Strong text shadows for readability */
+.header h1 {
+    text-shadow: 
+        0 2px 4px rgba(0,0,0,0.8),
+        0 4px 12px rgba(0,0,0,0.6),
+        0 0 30px rgba(0,0,0,0.4);
+}
+```
+
+---
+
 ### Marketplace Product Links
 
 **URL Format for Direct Product Links:**
@@ -757,6 +832,11 @@ window.addEventListener('load', sendHeightToParent);
 
 | Date | Change | Reason |
 |------|--------|--------|
+| Jan 2026 | **Product Page: Raised card effect** | More prominent shadow for main product card |
+| Jan 2026 | **Product Page: Green border for Technical Info** | Clear section identification with 3px green border |
+| Jan 2026 | **Product Page: Blue border for Product Benefits** | Clear section identification with 3px blue border |
+| Jan 2026 | **Category Page: Glossy finish headers** | Added shine overlay with radial gradient + backdrop-filter |
+| Jan 2026 | **Category Page: Vibrant background images** | Lighter overlay gradient + saturate/contrast filters |
 | Jan 2026 | Added emoji standardization | Use 💶 (Euro) + 💷 (Pound) - avoid 💰💵 (Dollar) |
 | Jan 2026 | Added tab glow effect | Make tabs more visible to users |
 | Jan 2026 | Changed to direct product links | Modal didn't work - use ?product=ID instead |

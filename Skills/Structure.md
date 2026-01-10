@@ -32,7 +32,8 @@ Skills/
 │                                                                │
 │  🔧 SYSTEMS        → "check systems", "MCP", "start server"   │
 │  🛒 MARKET         → "product", "store", "category", "images" │
-│  🖼️ MEDIA          → "find image", "blurry", "photo"          │
+│  🖼️ MEDIA          → "find image", "blurry", "raised card",   │
+│                      "glossy finish", "vibrant headers"       │
 │  🌍 GRANTS         → "grants", "schemes", "funding"           │
 │  🎬 VIDEOS         → "videos", "YouTube", "sustainability"    │
 │  ✍️ BLOG           → "write", "blog", "ESG", "article"        │
@@ -126,7 +127,7 @@ Skills/
 
 ---
 
-### 🖼️ Media Skill (Product Images)
+### 🖼️ Media Skill (Product Images & UI Styling)
 
 **Activate when user says:**
 ```
@@ -141,6 +142,15 @@ Skills/
 "get image for [product]"
 "need product photo"
 "find manufacturer image"
+"make card raised"
+"add shadow to card"
+"make header vibrant"
+"add glossy finish"
+"green border"
+"blue border"
+"section styling"
+"product page styling"
+"category page styling"
 ```
 
 **What it does:**
@@ -149,6 +159,10 @@ Skills/
 - Upload to Wix Media Manager
 - Fix image quality issues
 - Apply CSS fixes for blurry images
+- **NEW:** Apply raised card shadows
+- **NEW:** Add section border colors (green/blue)
+- **NEW:** Create glossy header finishes
+- **NEW:** Make background images more vibrant
 
 ---
 
