@@ -475,6 +475,77 @@ When adding products without images:
 
 ---
 
+## 🎨 Emoji Standardization for HTMLs & Blogs
+
+### Standard Emojis to Use
+
+Use these consistent emojis across all HTML pages and blog content:
+
+| Context | Emoji | Avoid |
+|---------|-------|-------|
+| Money/Cost | 💷 (Pound Sterling) | 💰 💵 (Dollar-based) |
+| Savings | 💷 or 📈 | 💰 |
+| Environment | 🌱 🌍 ♻️ | |
+| Energy | ⚡ ☀️ 🔋 | |
+| Certified/Verified | ✓ ✅ | |
+| Data/Stats | 📊 📈 | |
+| Buildings | 🏢 🏠 🏭 | |
+| Shopping | 🛒 🛍️ | |
+| Warning | ⚠️ ❌ | |
+| Success | ✅ ✓ | |
+
+### Emoji Method for HTML
+Always use Unicode emojis directly in HTML (not image-based icons):
+```html
+<!-- GOOD - Unicode emoji -->
+<span class="icon">💷</span>
+
+<!-- AVOID - Image-based icons that may not load -->
+<img src="money-icon.png">
+```
+
+---
+
+## 🖥️ HTML Development Best Practices
+
+### Tab Navigation with Glow Effect
+Make tabs noticeable with pulse animation:
+```css
+.tab-btn {
+    animation: tabPulse 3s ease-in-out infinite;
+}
+
+@keyframes tabPulse {
+    0%, 100% { box-shadow: 0 0 5px rgba(201, 169, 97, 0.2); }
+    50% { box-shadow: 0 0 15px rgba(201, 169, 97, 0.4); }
+}
+```
+
+### Marketplace Product Links
+Add shop buttons that open product modal:
+```html
+<button class="product-search-btn" onclick="openProductModal('Product Name', 'Category')">
+    <span class="icon">🛒</span> Shop on Marketplace
+</button>
+```
+
+### Fix Bottom Space in Wix Iframe
+Prevent extra space at the end of HTML:
+```css
+html, body {
+    margin: 0;
+    padding: 0;
+    margin-bottom: 0 !important;
+}
+
+.main-container, .cta-section {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+```
+
+---
+
 **Last Updated:** January 2026  
 **Maintained By:** Energy Calculator Backend System  
 
@@ -484,6 +555,10 @@ When adding products without images:
 
 | Date | Change | Reason |
 |------|--------|--------|
+| Jan 2026 | Added emoji standardization | Use 💷 instead of 💰 for UK context |
+| Jan 2026 | Added tab glow effect | Make tabs more visible to users |
+| Jan 2026 | Added product modal feature | Link HTML products to Marketplace |
+| Jan 2026 | Added Wix bottom space fix | Remove extra space in iframe |
 | Jan 2026 | Added blur fix CSS | Images were appearing blurry in HTML |
 | Jan 2026 | Added Wix iframe fixes | Content was being cut off |
 | Jan 2026 | Created skill | Standardize product image workflow |

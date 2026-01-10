@@ -25,12 +25,31 @@
             min-height: 100%;
             overflow-x: hidden;
             overflow-y: auto !important;
+            margin: 0;
+            padding: 0;
         }
         
         body {
             font-family: 'Outfit', sans-serif;
             background: #0a0a0a;
             color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            /* Prevent extra space at bottom in iframe */
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        
+        /* Remove any trailing space for Wix iframe */
+        .main-container {
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .tab-content:last-child,
+        .cta-section {
+            margin-bottom: 0 !important;
+            padding-bottom: 60px;
         }
         
         /* Fix for Wix iframe embedding */
@@ -165,6 +184,30 @@
         .tab-btn.active {
             color: #c9a961;
             background: rgba(201,169,97,0.1);
+        }
+        
+        /* Glowing effect for tabs to attract attention */
+        .tab-btn {
+            animation: tabPulse 3s ease-in-out infinite;
+        }
+        
+        .tab-btn:not(.active):hover {
+            animation: none;
+            box-shadow: 0 0 20px rgba(201, 169, 97, 0.4), inset 0 0 10px rgba(201, 169, 97, 0.1);
+        }
+        
+        @keyframes tabPulse {
+            0%, 100% { 
+                box-shadow: 0 0 5px rgba(201, 169, 97, 0.2);
+            }
+            50% { 
+                box-shadow: 0 0 15px rgba(201, 169, 97, 0.4), 0 0 25px rgba(201, 169, 97, 0.2);
+            }
+        }
+        
+        .tab-btn.active {
+            animation: none;
+            box-shadow: 0 0 20px rgba(201, 169, 97, 0.5), inset 0 0 15px rgba(201, 169, 97, 0.15);
         }
         
         .tab-btn::after {
@@ -812,6 +855,100 @@
             }
         }
 
+        /* Product Search Button */
+        .product-search-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-size: 1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 25px;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 5px 20px rgba(34, 197, 94, 0.3);
+        }
+        
+        .product-search-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
+        }
+        
+        .product-search-btn .icon {
+            font-size: 1.2em;
+        }
+        
+        /* Product Modal */
+        .product-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .product-modal.active {
+            display: flex;
+        }
+        
+        .product-modal-content {
+            width: 95%;
+            max-width: 1200px;
+            height: 85vh;
+            background: #0a0a0a;
+            border-radius: 20px;
+            border: 2px solid #c9a961;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+        }
+        
+        .product-modal-header {
+            background: linear-gradient(135deg, #1a1a1a, #242424);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #2d2d2d;
+        }
+        
+        .product-modal-title {
+            color: #c9a961;
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+        
+        .product-modal-close {
+            color: #c9a961;
+            font-size: 1.8em;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            line-height: 1;
+        }
+        
+        .product-modal-close:hover {
+            transform: scale(1.2);
+        }
+        
+        .product-modal-iframe {
+            width: 100%;
+            height: calc(100% - 60px);
+            border: none;
+        }
+        
         /* Image Modal */
         .modal {
             display: none;
@@ -920,7 +1057,7 @@
                 
                 <div class="benefits-grid">
                     <div class="benefit-card">
-                        <div class="benefit-icon">💰</div>
+                        <div class="benefit-icon">💷</div>
                         <h4>Rapid Payback</h4>
                         <p>Most retrofit solutions pay for themselves within 1-4 years through reduced energy bills and maintenance costs.</p>
                     </div>
@@ -947,7 +1084,7 @@
                         <div class="gallery-caption">Industrial Energy Retrofit Installation</div>
                     </div>
                     <div class="gallery-item" onclick="openModal(this)">
-                        <img src="https://static.wixstatic.com/media/c123de_3293358808c54eddb631f3a4b11c7297~mv2.jpg" alt="Building Efficiency Upgrade" loading="lazy">
+                        <img src="https://static.wixstatic.com/media/c123de_2ebf1aa36e7b4169909bc7a1ab115a90~mv2.jpg" alt="Building Efficiency Upgrade" loading="lazy">
                         <div class="gallery-caption">Commercial Building Efficiency Upgrade</div>
                     </div>
                 </div>
@@ -1056,6 +1193,10 @@
                 </div>
                 
                 <div class="savings-badge">Annual Fuel Savings: ~£8,100</div>
+                
+                <button class="product-search-btn" onclick="openProductModal('Economiser', 'Heating')">
+                    <span class="icon">🛒</span> Shop Economisers on Marketplace
+                </button>
             </div>
         </div>
         
@@ -1162,6 +1303,10 @@
                 </div>
                 
                 <div class="savings-badge">Annual Savings: £10,000-£14,000</div>
+                
+                <button class="product-search-btn" onclick="openProductModal('Burner Control', 'Heating')">
+                    <span class="icon">🛒</span> Shop Burner Controls on Marketplace
+                </button>
             </div>
         </div>
         
@@ -1268,6 +1413,10 @@
                 </div>
                 
                 <div class="savings-badge">Annual Energy Saved: 34,500 kWh</div>
+                
+                <button class="product-search-btn" onclick="openProductModal('HVAC Controls', 'HVAC')">
+                    <span class="icon">🛒</span> Shop HVAC Controls on Marketplace
+                </button>
             </div>
         </div>
         
@@ -1374,6 +1523,10 @@
                 </div>
                 
                 <div class="savings-badge">Payback: Often under 7 months</div>
+                
+                <button class="product-search-btn" onclick="openProductModal('Refrigeration', 'Refrigeration')">
+                    <span class="icon">🛒</span> Shop Refrigeration on Marketplace
+                </button>
             </div>
         </div>
         
@@ -1486,6 +1639,10 @@
                 </div>
                 
                 <div class="savings-badge">Reduced Maintenance + 15-25x Longer Life</div>
+                
+                <button class="product-search-btn" onclick="openProductModal('LED Lighting', 'Lighting')">
+                    <span class="icon">🛒</span> Shop LED Lighting on Marketplace
+                </button>
             </div>
         </div>
         
@@ -1600,6 +1757,17 @@
         <img id="modalImage" src="" alt="Enlarged view">
     </div>
     
+    <!-- Product Search Modal -->
+    <div class="product-modal" id="productModal">
+        <div class="product-modal-content">
+            <div class="product-modal-header">
+                <span class="product-modal-title" id="productModalTitle">🛒 Greenways Marketplace</span>
+                <span class="product-modal-close" onclick="closeProductModal()">&times;</span>
+            </div>
+            <iframe class="product-modal-iframe" id="productModalIframe" src="" title="Greenways Marketplace"></iframe>
+        </div>
+    </div>
+    
     <script>
         // Tab functionality
         const tabBtns = document.querySelectorAll('.tab-btn');
@@ -1675,6 +1843,49 @@
             btn.addEventListener('click', () => {
                 setTimeout(sendHeightToParent, 100);
             });
+        });
+        
+        // ====== PRODUCT MODAL FUNCTIONALITY ======
+        // Product search URL base (Greenways Marketplace product page)
+        const MARKETPLACE_BASE_URL = 'https://energy-calc-backend.onrender.com/product-page-v2-marketplace.html';
+        
+        // Open product modal with search term
+        function openProductModal(productName, category) {
+            const modal = document.getElementById('productModal');
+            const iframe = document.getElementById('productModalIframe');
+            const title = document.getElementById('productModalTitle');
+            
+            // Build URL with search parameter
+            const searchUrl = `${MARKETPLACE_BASE_URL}?search=${encodeURIComponent(productName)}&category=${encodeURIComponent(category || '')}`;
+            
+            title.textContent = `🛒 ${productName} - Greenways Marketplace`;
+            iframe.src = searchUrl;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Close product modal
+        function closeProductModal() {
+            const modal = document.getElementById('productModal');
+            const iframe = document.getElementById('productModalIframe');
+            
+            modal.classList.remove('active');
+            iframe.src = ''; // Clear iframe
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Close product modal on background click
+        document.getElementById('productModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                closeProductModal();
+            }
+        });
+        
+        // Close product modal on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeProductModal();
+            }
         });
     </script>
 </body>
