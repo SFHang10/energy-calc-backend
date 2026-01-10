@@ -858,26 +858,26 @@
             }
         }
 
-        /* Product Search Button - Navy with Green accent */
+        /* Product Search Button - Navy with Green accent (30% smaller) */
         .product-search-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 6px;
             background: linear-gradient(135deg, #1a2744, #0f1a2e);
             color: #4ade80;
-            border: 2px solid #4ade80;
-            padding: 16px 40px;
-            border-radius: 4px;
-            font-size: 1em;
+            border: 1.5px solid #4ade80;
+            padding: 10px 24px;
+            border-radius: 3px;
+            font-size: 0.75em;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 25px;
+            margin-top: 20px;
             font-family: 'Outfit', sans-serif;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1.5px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
         }
         
         .product-search-btn:hover {
@@ -885,11 +885,104 @@
             color: #86efac;
             border-color: #86efac;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(74, 222, 128, 0.2);
+            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.2);
         }
         
         .product-search-btn .icon {
+            font-size: 1em;
+        }
+        
+        /* Product Hover Card */
+        .product-hover-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .product-hover-card {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-10px);
+            background: linear-gradient(135deg, #1a2744, #0f1a2e);
+            border: 2px solid #4ade80;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 280px;
+            max-width: 320px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 100;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+        }
+        
+        .product-hover-wrapper:hover .product-hover-card {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-15px);
+            pointer-events: auto;
+        }
+        
+        .product-hover-card::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 10px solid transparent;
+            border-top-color: #4ade80;
+        }
+        
+        .hover-card-title {
+            color: #c9a961;
             font-size: 1.1em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .hover-card-features {
+            color: #b0b0b0;
+            font-size: 0.85em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .hover-card-features li {
+            margin-bottom: 5px;
+            list-style: none;
+            padding-left: 18px;
+            position: relative;
+        }
+        
+        .hover-card-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #4ade80;
+            font-weight: bold;
+        }
+        
+        .hover-card-link {
+            display: inline-block;
+            background: #4ade80;
+            color: #0f1a2e;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 700;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+        }
+        
+        .hover-card-link:hover {
+            background: #86efac;
+            transform: scale(1.05);
         }
         
         
@@ -1138,9 +1231,21 @@
                 
                 <div class="savings-badge">Annual Fuel Savings: ~£8,100</div>
                 
-                <button class="product-search-btn" onclick="openProductPage('economiser')">
-                    <span class="icon">🛒</span> View Product on Marketplace
-                </button>
+                <div class="product-hover-wrapper">
+                    <button class="product-search-btn" onclick="openProductPage('economiser')">
+                        <span class="icon">🛒</span> View Product
+                    </button>
+                    <div class="product-hover-card">
+                        <div class="hover-card-title">🔥 Condensing Economiser</div>
+                        <ul class="hover-card-features">
+                            <li>7-9% efficiency gain</li>
+                            <li>£8,100 annual savings</li>
+                            <li>3-4 year payback</li>
+                            <li>ETL Certified</li>
+                        </ul>
+                        <a href="javascript:void(0)" onclick="openProductPage('economiser')" class="hover-card-link">View in Marketplace →</a>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -1248,9 +1353,21 @@
                 
                 <div class="savings-badge">Annual Savings: £10,000-£14,000</div>
                 
-                <button class="product-search-btn" onclick="openProductPage('burner')">
-                    <span class="icon">🛒</span> View Product on Marketplace
-                </button>
+                <div class="product-hover-wrapper">
+                    <button class="product-search-btn" onclick="openProductPage('burner')">
+                        <span class="icon">🛒</span> View Product
+                    </button>
+                    <div class="product-hover-card">
+                        <div class="hover-card-title">⚙️ Burner Control System</div>
+                        <ul class="hover-card-features">
+                            <li>5-7% fuel savings</li>
+                            <li>£10,000-£14,000/year</li>
+                            <li>~2 year payback</li>
+                            <li>Microprocessor controlled</li>
+                        </ul>
+                        <a href="javascript:void(0)" onclick="openProductPage('burner')" class="hover-card-link">View in Marketplace →</a>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -1358,9 +1475,21 @@
                 
                 <div class="savings-badge">Annual Energy Saved: 34,500 kWh</div>
                 
-                <button class="product-search-btn" onclick="openProductPage('hvac')">
-                    <span class="icon">🛒</span> View Product on Marketplace
-                </button>
+                <div class="product-hover-wrapper">
+                    <button class="product-search-btn" onclick="openProductPage('hvac')">
+                        <span class="icon">🛒</span> View Product
+                    </button>
+                    <div class="product-hover-card">
+                        <div class="hover-card-title">❄️ HVAC Building Controls</div>
+                        <ul class="hover-card-features">
+                            <li>Up to 69% fan energy reduction</li>
+                            <li>£4,100 annual savings</li>
+                            <li>~2 year payback</li>
+                            <li>Demand-driven ventilation</li>
+                        </ul>
+                        <a href="javascript:void(0)" onclick="openProductPage('hvac')" class="hover-card-link">View in Marketplace →</a>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -1468,9 +1597,21 @@
                 
                 <div class="savings-badge">Payback: Often under 7 months</div>
                 
-                <button class="product-search-btn" onclick="openProductPage('refrigeration')">
-                    <span class="icon">🛒</span> View Product on Marketplace
-                </button>
+                <div class="product-hover-wrapper">
+                    <button class="product-search-btn" onclick="openProductPage('refrigeration')">
+                        <span class="icon">🛒</span> View Product
+                    </button>
+                    <div class="product-hover-card">
+                        <div class="hover-card-title">🧊 Refrigeration Cabinet Doors</div>
+                        <ul class="hover-card-features">
+                            <li>20-40% energy reduction</li>
+                            <li>£150-£300 savings/cabinet</li>
+                            <li>Under 1 year payback</li>
+                            <li>Reduces product spoilage</li>
+                        </ul>
+                        <a href="javascript:void(0)" onclick="openProductPage('refrigeration')" class="hover-card-link">View in Marketplace →</a>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -1584,9 +1725,21 @@
                 
                 <div class="savings-badge">Reduced Maintenance + 15-25x Longer Life</div>
                 
-                <button class="product-search-btn" onclick="openProductPage('led')">
-                    <span class="icon">🛒</span> View Product on Marketplace
-                </button>
+                <div class="product-hover-wrapper">
+                    <button class="product-search-btn" onclick="openProductPage('led')">
+                        <span class="icon">🛒</span> View Product
+                    </button>
+                    <div class="product-hover-card">
+                        <div class="hover-card-title">💡 LED Lighting Retrofit</div>
+                        <ul class="hover-card-features">
+                            <li>40-50% energy reduction</li>
+                            <li>£8,000 annual savings</li>
+                            <li>1-2 year payback</li>
+                            <li>50,000+ hour lifespan</li>
+                        </ul>
+                        <a href="javascript:void(0)" onclick="openProductPage('led')" class="hover-card-link">View in Marketplace →</a>
+                    </div>
+                </div>
             </div>
         </div>
         
