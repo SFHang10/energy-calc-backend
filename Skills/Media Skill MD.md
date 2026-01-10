@@ -593,20 +593,38 @@ function openProductPage(productKey) {
 - Format is typically: `etl_[category]_[number]`
 - Test URL in browser before adding to HTML
 
-### Fix Bottom Space in Wix Iframe
-Prevent extra space at the end of HTML:
+### Prevent Independent Scrolling in Wix Iframe
+
+**Problem:** HTML scrolls independently inside the Wix iframe, creating a poor user experience.
+
+**Solution:** Disable scrolling on the HTML and let the parent Wix page handle scrolling:
+
 ```css
-html, body {
+/* CRITICAL: Prevent independent scrolling in Wix iframe */
+html {
+    overflow: hidden !important;
+    height: 100%;
     margin: 0;
     padding: 0;
-    margin-bottom: 0 !important;
 }
 
+body {
+    overflow: hidden !important;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    -webkit-overflow-scrolling: auto !important;
+    touch-action: pan-y;  /* Allow vertical touch scrolling */
+}
+
+/* Remove bottom spacing */
 .main-container, .cta-section {
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
 }
 ```
+
+**Reference File:** `HTMLs/How Low Energy Saves Money.html` - Working example of this technique.
 
 ---
 
@@ -622,7 +640,7 @@ html, body {
 | Jan 2026 | Added emoji standardization | Use 💶 (Euro) + 💷 (Pound) - avoid 💰💵 (Dollar) |
 | Jan 2026 | Added tab glow effect | Make tabs more visible to users |
 | Jan 2026 | Changed to direct product links | Modal didn't work - use ?product=ID instead |
-| Jan 2026 | Added Wix bottom space fix | Remove extra space in iframe |
+| Jan 2026 | Added no-scroll iframe technique | Prevent independent scroll in Wix |
 | Jan 2026 | Added blur fix CSS | Images were appearing blurry in HTML |
 | Jan 2026 | Added Wix iframe fixes | Content was being cut off |
 | Jan 2026 | Created skill | Standardize product image workflow |
