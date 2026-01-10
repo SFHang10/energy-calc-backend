@@ -647,41 +647,40 @@ $response.products | Where-Object { $_.name -like "*LED*" }
 https://energy-calc-backend.onrender.com/product-page-v2-marketplace.html?product=etl_21_29475&fromPopup=true
 ```
 
-### Prevent Independent Scrolling in Wix Iframe
+### ✅ Prevent Independent Scrolling in Wix Iframe (WORKING SOLUTION)
 
 **Problem:** HTML scrolls independently inside the Wix iframe, showing a scrollbar.
 
-**Two Solutions Based on Content Length:**
+**Reference:** `WIX-SCROLL-FIX.md` | Working example: `HTMLs/Retrofit-Tabbed.html`
 
 ---
 
-#### Solution A: Short Single-Screen Pages (fits in one view)
-Use `overflow: hidden` - Reference: `HTMLs/How Low Energy Saves Money.html`
+#### Step 1: Add Wix Meta Tag (CRITICAL)
 
-```css
-html, body {
-    overflow: hidden !important;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-}
+Add this meta tag in the `<head>` section:
+
+```html
+<meta name="wix-html-scroll" content="no-scroll">
 ```
 
+This tells Wix to disable independent scrolling for this HTML element.
+
 ---
 
-#### Solution B: Long Multi-Tab/Scrollable Pages (RECOMMENDED)
-Hide the scrollbar but allow content to flow - Reference: `HTMLs/Retrofit-Tabbed.html`
+#### Step 2: Apply CSS Fix
 
 ```css
-/* Hide scrollbar for IE, Edge and Firefox */
+/* WIX NO-SCROLL FIX */
 html {
     margin: 0;
     padding: 0;
+    height: auto;
+    width: 100%;
+    overflow-x: hidden;
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
 html::-webkit-scrollbar,
 body::-webkit-scrollbar {
     display: none;
@@ -692,25 +691,60 @@ body::-webkit-scrollbar {
 body {
     margin: 0;
     padding: 0;
+    height: auto;
+    width: 100%;
+    overflow-x: hidden;
     -ms-overflow-style: none;
     scrollbar-width: none;
-    overflow-y: scroll; /* Allow scroll but hide the bar */
+}
+
+/* All containers - prevent overflow */
+.main-container,
+.header,
+.tab-navigation,
+.tab-content,
+.product-section,
+.cta-section {
+    width: 100%;
+    overflow-x: hidden;
+    margin: 0;
 }
 ```
 
 ---
 
-#### Wix Iframe Settings
-In Wix, set the iframe height large enough (e.g., 4000px+) or use dynamic height communication:
+#### Step 3: Wix Editor Settings
+
+1. **Click on the HTML iframe element**
+2. **Set height** to match content (~2500px) or "Fit to Content"
+3. **Don't set height larger than content** (causes black space)
+
+---
+
+#### Step 4: Height Communication (Optional)
 
 ```javascript
-// Send height to Wix parent
 function sendHeightToParent() {
-    const height = document.documentElement.scrollHeight;
+    const height = Math.max(
+        document.body.scrollHeight,
+        document.body.offsetHeight,
+        document.documentElement.scrollHeight
+    );
     window.parent.postMessage({ type: 'setHeight', height: height }, '*');
 }
 window.addEventListener('load', sendHeightToParent);
 ```
+
+---
+
+#### ✅ Checklist for No-Scroll
+
+- [ ] Meta tag: `<meta name="wix-html-scroll" content="no-scroll">`
+- [ ] CSS: `height: auto` (no fixed heights)
+- [ ] CSS: `width: 100%` on all containers
+- [ ] CSS: `overflow-x: hidden` everywhere
+- [ ] CSS: Scrollbar hidden with `-ms-overflow-style: none` and `::-webkit-scrollbar`
+- [ ] Wix: Set iframe height to match content size
 
 ---
 
@@ -726,7 +760,7 @@ window.addEventListener('load', sendHeightToParent);
 | Jan 2026 | Added emoji standardization | Use 💶 (Euro) + 💷 (Pound) - avoid 💰💵 (Dollar) |
 | Jan 2026 | Added tab glow effect | Make tabs more visible to users |
 | Jan 2026 | Changed to direct product links | Modal didn't work - use ?product=ID instead |
-| Jan 2026 | Added no-scroll iframe technique | Prevent independent scroll in Wix |
+| Jan 2026 | ✅ WORKING Wix no-scroll fix | Meta tag + CSS + height settings |
 | Jan 2026 | Added blur fix CSS | Images were appearing blurry in HTML |
 | Jan 2026 | Added Wix iframe fixes | Content was being cut off |
 | Jan 2026 | Created skill | Standardize product image workflow |
