@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="wix-html-scroll" content="no-scroll">
     <title>Retrofit Solutions - Energy Efficiency ROI Guide</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -19,10 +20,13 @@
             -ms-interpolation-mode: nearest-neighbor;
         }
         
-        /* Wix iframe integration - hide scrollbar, fit content */
+        /* WIX NO-SCROLL FIX - Critical for Wix embedding */
         html {
             margin: 0;
             padding: 0;
+            height: auto;
+            width: 100%;
+            overflow-x: hidden;
             /* Hide scrollbar */
             -ms-overflow-style: none;
             scrollbar-width: none;
@@ -42,9 +46,27 @@
             color: #e0e0e0;
             margin: 0;
             padding: 0;
+            height: auto;
+            width: 100%;
+            overflow-x: hidden;
             /* Hide scrollbar */
             -ms-overflow-style: none;
             scrollbar-width: none;
+        }
+        
+        /* All containers - prevent overflow, no fixed heights */
+        .main-container,
+        .header,
+        .tab-navigation,
+        .tab-content,
+        .product-section,
+        .summary-section,
+        .cta-section {
+            width: 100%;
+            overflow-x: hidden;
+            margin: 0;
+            padding-left: 0;
+            padding-right: 0;
         }
         
         /* Remove trailing space */
@@ -192,32 +214,43 @@
             background: rgba(201,169,97,0.1);
         }
         
-        /* Glowing effect for tabs - LINES AND TEXT */
+        /* Glowing effect for tabs - BRIGHT GLOWING TEXT */
         .tab-btn {
-            animation: tabPulse 3s ease-in-out infinite;
+            animation: tabPulse 2.5s ease-in-out infinite;
         }
         
         .tab-btn:not(.active):hover {
             animation: none;
-            box-shadow: 0 0 20px rgba(201, 169, 97, 0.4), inset 0 0 10px rgba(201, 169, 97, 0.1);
-            text-shadow: 0 0 10px rgba(201, 169, 97, 0.8), 0 0 20px rgba(201, 169, 97, 0.5);
+            box-shadow: 0 0 25px rgba(201, 169, 97, 0.5), inset 0 0 15px rgba(201, 169, 97, 0.15);
+            text-shadow: 0 0 15px #c9a961, 0 0 30px rgba(201, 169, 97, 0.8), 0 0 45px rgba(201, 169, 97, 0.5);
+            color: #e8d7ae;
         }
         
         @keyframes tabPulse {
             0%, 100% { 
-                box-shadow: 0 0 5px rgba(201, 169, 97, 0.2);
-                text-shadow: 0 0 5px rgba(201, 169, 97, 0.3);
+                box-shadow: 0 0 8px rgba(201, 169, 97, 0.3);
+                text-shadow: 0 0 8px rgba(201, 169, 97, 0.5), 0 0 15px rgba(201, 169, 97, 0.3);
             }
             50% { 
-                box-shadow: 0 0 15px rgba(201, 169, 97, 0.4), 0 0 25px rgba(201, 169, 97, 0.2);
-                text-shadow: 0 0 15px rgba(201, 169, 97, 0.7), 0 0 25px rgba(201, 169, 97, 0.4);
+                box-shadow: 0 0 20px rgba(201, 169, 97, 0.5), 0 0 35px rgba(201, 169, 97, 0.3);
+                text-shadow: 0 0 15px #c9a961, 0 0 30px rgba(201, 169, 97, 0.7), 0 0 50px rgba(201, 169, 97, 0.4);
             }
         }
         
         .tab-btn.active {
-            animation: none;
-            box-shadow: 0 0 20px rgba(201, 169, 97, 0.5), inset 0 0 15px rgba(201, 169, 97, 0.15);
-            text-shadow: 0 0 15px rgba(201, 169, 97, 0.9), 0 0 30px rgba(201, 169, 97, 0.5);
+            animation: activeGlow 2s ease-in-out infinite;
+            color: #f0e6c8;
+        }
+        
+        @keyframes activeGlow {
+            0%, 100% {
+                box-shadow: 0 0 25px rgba(201, 169, 97, 0.6), inset 0 0 15px rgba(201, 169, 97, 0.2);
+                text-shadow: 0 0 20px #c9a961, 0 0 40px rgba(201, 169, 97, 0.8), 0 0 60px rgba(201, 169, 97, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 35px rgba(201, 169, 97, 0.8), inset 0 0 20px rgba(201, 169, 97, 0.3);
+                text-shadow: 0 0 25px #e8d7ae, 0 0 50px #c9a961, 0 0 80px rgba(201, 169, 97, 0.6);
+            }
         }
         
         .tab-btn::after {
