@@ -649,36 +649,68 @@ https://energy-calc-backend.onrender.com/product-page-v2-marketplace.html?produc
 
 ### Prevent Independent Scrolling in Wix Iframe
 
-**Problem:** HTML scrolls independently inside the Wix iframe, creating a poor user experience.
+**Problem:** HTML scrolls independently inside the Wix iframe, showing a scrollbar.
 
-**Solution:** Disable scrolling on the HTML and let the parent Wix page handle scrolling:
+**Two Solutions Based on Content Length:**
+
+---
+
+#### Solution A: Short Single-Screen Pages (fits in one view)
+Use `overflow: hidden` - Reference: `HTMLs/How Low Energy Saves Money.html`
 
 ```css
-/* CRITICAL: Prevent independent scrolling in Wix iframe */
-html {
+html, body {
     overflow: hidden !important;
     height: 100%;
     margin: 0;
     padding: 0;
-}
-
-body {
-    overflow: hidden !important;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    -webkit-overflow-scrolling: auto !important;
-    touch-action: pan-y;  /* Allow vertical touch scrolling */
-}
-
-/* Remove bottom spacing */
-.main-container, .cta-section {
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
 }
 ```
 
-**Reference File:** `HTMLs/How Low Energy Saves Money.html` - Working example of this technique.
+---
+
+#### Solution B: Long Multi-Tab/Scrollable Pages (RECOMMENDED)
+Hide the scrollbar but allow content to flow - Reference: `HTMLs/Retrofit-Tabbed.html`
+
+```css
+/* Hide scrollbar for IE, Edge and Firefox */
+html {
+    margin: 0;
+    padding: 0;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    overflow-y: scroll; /* Allow scroll but hide the bar */
+}
+```
+
+---
+
+#### Wix Iframe Settings
+In Wix, set the iframe height large enough (e.g., 4000px+) or use dynamic height communication:
+
+```javascript
+// Send height to Wix parent
+function sendHeightToParent() {
+    const height = document.documentElement.scrollHeight;
+    window.parent.postMessage({ type: 'setHeight', height: height }, '*');
+}
+window.addEventListener('load', sendHeightToParent);
+```
 
 ---
 
