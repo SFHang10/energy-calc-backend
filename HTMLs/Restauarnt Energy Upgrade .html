@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Savings Flow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            overflow: hidden !important;
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2332 0%, #2d3e50 100%);
+            color: #fff;
+            overflow: hidden !important;
+            height: 100%;
+            -webkit-overflow-scrolling: auto !important;
+            touch-action: pan-y;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 2.2em;
+            font-weight: bold;
+            margin-bottom: 50px;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Three column layout */
+        .flow-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            gap: 60px;
+            position: relative;
+        }
+
+        .column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .column-title {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            animation: slideIn 0.8s ease-out backwards;
+        }
+
+        .problems-title {
+            background: linear-gradient(135deg, #ff6b6b, #c92a2a);
+            animation-delay: 0.2s;
+        }
+
+        .solutions-title {
+            background: linear-gradient(135deg, #51cf66, #2f9e44);
+            animation-delay: 0.4s;
+        }
+
+        .results-title {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            animation-delay: 0.6s;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Card styles */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            animation: cardAppear 0.8s ease-out backwards;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.4);
+        }
+
+        .problems-column .card {
+            border-left: 5px solid #ff6b6b;
+        }
+
+        .solutions-column .card {
+            border-left: 5px solid #51cf66;
+        }
+
+        .results-column .card {
+            border-left: 5px solid #ffd700;
+        }
+
+        .card:nth-child(2) { animation-delay: 0.3s; }
+        .card:nth-child(3) { animation-delay: 0.5s; }
+        .card:nth-child(4) { animation-delay: 0.7s; }
+        .card:nth-child(5) { animation-delay: 0.9s; }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-icon {
+            font-size: 3em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .card-description {
+            font-size: 0.95em;
+            color: #4a5568;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        /* Animated arrows between columns */
+        .arrow-container {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            z-index: 1;
+        }
+
+        .arrow-1 {
+            left: 32%;
+        }
+
+        .arrow-2 {
+            right: 32%;
+        }
+
+        .animated-arrow {
+            font-size: 3em;
+            color: #ffd700;
+            animation: arrowPulse 2s ease-in-out infinite;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        @keyframes arrowPulse {
+            0%, 100% {
+                transform: translateX(0) scale(1);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateX(10px) scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        .arrow-1 .animated-arrow {
+            animation-delay: 0s;
+        }
+
+        .arrow-2 .animated-arrow {
+            animation-delay: 1s;
+        }
+
+        /* Energy sparkles */
+        .sparkle {
+            position: absolute;
+            font-size: 1.5em;
+            animation: sparkle 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes sparkle {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0) rotate(0deg);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.5) rotate(180deg);
+            }
+        }
+
+        .sparkle-1 {
+            top: 20%;
+            left: 15%;
+            animation-delay: 0s;
+        }
+
+        .sparkle-2 {
+            top: 40%;
+            right: 20%;
+            animation-delay: 1s;
+        }
+
+        .sparkle-3 {
+            bottom: 30%;
+            left: 25%;
+            animation-delay: 2s;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 968px) {
+            .title {
+                font-size: 1.5em;
+                margin-bottom: 30px;
+            }
+
+            .flow-container {
+                flex-direction: column;
+                gap: 40px;
+            }
+
+            .column {
+                gap: 15px;
+            }
+
+            .column-title {
+                font-size: 1.2em;
+                padding: 12px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .card-icon {
+                font-size: 2.5em;
+            }
+
+            .card-title {
+                font-size: 1.1em;
+            }
+
+            .card-description {
+                font-size: 0.9em;
+            }
+
+            .arrow-container {
+                display: none;
+            }
+
+            body {
+                padding: 20px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="title">How Energy Upgrades Save Your Business Money</h1>
+
+        <div class="flow-container">
+            <!-- COLUMN 1: PROBLEMS -->
+            <div class="column problems-column">
+                <div class="column-title problems-title">❌ Current Problems</div>
+
+                <div class="card">
+                    <div class="card-icon">💸</div>
+                    <div class="card-title">Massive Energy Bills</div>
+                    <div class="card-description">€3,000-€8,000 per month in energy costs</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🔥</div>
+                    <div class="card-title">Old HVAC Systems</div>
+                    <div class="card-description">Running 24/7 at full speed, wasting 50-70% energy</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🌡️</div>
+                    <div class="card-title">Poor Temperature Control</div>
+                    <div class="card-description">Kitchen too hot, dining room too cold</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">⚠️</div>
+                    <div class="card-title">Frequent Breakdowns</div>
+                    <div class="card-description">High maintenance costs and disruption</div>
+                </div>
+            </div>
+
+
+            <!-- COLUMN 2: SOLUTIONS -->
+            <div class="column solutions-column">
+                <div class="column-title solutions-title">✅ Our Solutions</div>
+
+                <div class="card">
+                    <div class="card-icon">❄️</div>
+                    <div class="card-title">Smart HVAC Controls</div>
+                    <div class="card-description">Auto-adjust based on actual demand - saves 50-69%</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">♻️</div>
+                    <div class="card-title">Heat Recovery Systems</div>
+                    <div class="card-description">Capture waste heat, reduce heating costs by 60%</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">💡</div>
+                    <div class="card-title">LED Lighting Upgrade</div>
+                    <div class="card-description">75% less energy, lasts 10x longer</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🔌</div>
+                    <div class="card-title">Energy Efficient Appliances</div>
+                    <div class="card-description">A+++ rated commercial equipment</div>
+                </div>
+            </div>
+
+
+            <!-- COLUMN 3: RESULTS -->
+            <div class="column results-column">
+                <div class="column-title results-title">💶💷 Your Results</div>
+
+                <div class="card">
+                    <div class="card-icon">💶</div>
+                    <div class="card-title">Save €5,000-€15,000/Year</div>
+                    <div class="card-description">Immediate reduction in monthly energy bills</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🌱</div>
+                    <div class="card-title">Cut CO₂ by 9+ Tonnes</div>
+                    <div class="card-description">Meet sustainability targets, improve brand image</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">📈</div>
+                    <div class="card-title">ROI in 1.9 Years</div>
+                    <div class="card-description">Fast payback, then pure profit savings</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">😊</div>
+                    <div class="card-title">Better Comfort</div>
+                    <div class="card-description">Consistent temperatures, happier staff & customers</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add click effects to cards
+        const cards = document.querySelectorAll('.card');
+        
+        cards.forEach(card => {
+            card.addEventListener('click', function() {
+                // Create a pulse effect
+                this.style.transform = 'scale(1.1)';
+                this.style.boxShadow = '0 20px 60px rgba(255, 215, 0, 0.6)';
+                
+                setTimeout(() => {
+                    this.style.transform = '';
+                    this.style.boxShadow = '';
+                }, 400);
+
+                // Create temporary sparkle
+                const sparkle = document.createElement('div');
+                sparkle.textContent = '✨';
+                sparkle.style.position = 'absolute';
+                sparkle.style.fontSize = '2em';
+                sparkle.style.left = '50%';
+                sparkle.style.top = '50%';
+                sparkle.style.transform = 'translate(-50%, -50%)';
+                sparkle.style.animation = 'sparkle 1s ease-out';
+                sparkle.style.pointerEvents = 'none';
+                
+                this.appendChild(sparkle);
+                
+                setTimeout(() => {
+                    sparkle.remove();
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>
