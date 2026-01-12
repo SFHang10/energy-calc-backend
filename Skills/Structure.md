@@ -411,10 +411,67 @@ Some tasks require multiple skills. Common combinations:
 
 ---
 
+## 🧠 Continuous Learning Protocol
+
+### Automatic Documentation (MANDATORY)
+
+After **EVERY** task completion, the system automatically:
+
+1. **Identifies** new learnings, processes, or solutions discovered
+2. **Documents** them in the appropriate skill file
+3. **Commits** changes to the repository
+
+### What Gets Documented
+
+| Learning Type | Target Skill File |
+|---------------|-------------------|
+| CSS/Styling patterns | `Media Skill MD.md` |
+| Wix iframe fixes | `Media Skill MD.md` |
+| MCP/Connection fixes | `Systems MD.md` |
+| API/Backend solutions | `Systems MD.md` |
+| Product/Store fixes | `Greenways Market Manager MD.md` |
+| New trigger phrases | `SKILL-ORCHESTRATOR.md` |
+| Workflow improvements | `SKILL-ORCHESTRATOR.md` |
+
+### Documentation Format
+
+```markdown
+### Issue: [Brief Title]
+
+**Date:** [Date]  
+**Problem:** [What happened]
+
+**Root Cause:** [Why]
+
+**Solution:** [How it was fixed]
+
+**Prevention:** [How to avoid in future]
+```
+
+### Why This Matters
+
+- ✅ **Never repeat mistakes** - Solutions are permanently recorded
+- ✅ **Faster future tasks** - Patterns are instantly available
+- ✅ **Institutional knowledge** - System gets smarter over time
+- ✅ **Professional service** - Consistent, efficient deployment
+
+### Self-Improvement Cycle
+
+```
+RECEIVE → EXECUTE → COMPLETE → REFLECT → DOCUMENT → COMMIT → READY
+    ↑                                                           │
+    └───────────────────────────────────────────────────────────┘
+```
+
+---
+
 **Last Updated:** January 2026  
 **Total Skills:** 8  
-**Master Controller:** SKILL-ORCHESTRATOR.md
+**Master Controller:** SKILL-ORCHESTRATOR.md  
+**Learning Protocol:** v2.0 (Auto-documentation enabled)
 
 ---
 
 *Simply describe what you need and the orchestrator will route to the correct skill automatically.*
+
+*All learnings are automatically documented for continuous improvement.*

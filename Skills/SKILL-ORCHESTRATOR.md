@@ -433,11 +433,171 @@ If no clear skill match is found:
 ---
 
 **Last Updated:** January 2026  
-**Version:** 1.0
+**Version:** 2.0
 
 ---
 
 *This is the master skill. All task routing flows through here.*
+
+---
+
+## 🧠 CONTINUOUS LEARNING PROTOCOL (MANDATORY)
+
+### Overview
+
+This is an **AUTOMATIC** and **MANDATORY** process. After completing ANY task, the orchestrator MUST document new learnings, processes, and solutions to ensure the skill system is always growing and improving.
+
+### 📚 When to Document (ALWAYS check these triggers)
+
+**Document IMMEDIATELY when:**
+
+| Trigger | Action | Target Skill |
+|---------|--------|--------------|
+| ✅ Solved a problem with a new approach | Document the solution | Relevant skill's Lessons Learned |
+| ✅ Discovered a workaround | Document the workaround | Relevant skill's Lessons Learned |
+| ✅ Found a new CSS pattern | Add to styling patterns | Media Skill MD |
+| ✅ Fixed an API issue | Document the fix | Systems MD |
+| ✅ Created new HTML feature | Document the process | html-content-creator + Media Skill MD |
+| ✅ Found better workflow | Update the workflow | SKILL-ORCHESTRATOR |
+| ✅ User taught new process | Document immediately | Relevant skill |
+| ✅ Error resolved | Add to troubleshooting | Relevant skill |
+| ✅ New file/folder discovered | Add to file references | Relevant skill |
+| ✅ New trigger phrase used | Add to trigger phrases | SKILL-ORCHESTRATOR |
+
+### 📝 Documentation Format
+
+When adding new learnings, use this standard format:
+
+```markdown
+### Issue: [Brief Descriptive Title]
+
+**Date:** [Current Date]  
+**Problem:** [What was the challenge or task]
+
+**Root Cause:** [Why it happened or what was needed]
+
+**Solution:**
+[Step-by-step solution or code/process that worked]
+
+**Prevention/Future Use:** [How to apply this in future]
+```
+
+### 🎯 Auto-Document Checklist (Run After EVERY Task)
+
+After completing any task, mentally check:
+
+- [ ] Did I learn something new? → Document it
+- [ ] Did I solve a problem differently than before? → Document it
+- [ ] Did I discover a new file or resource? → Add to file references
+- [ ] Did I use a new CSS pattern? → Add to Media Skill MD
+- [ ] Did I fix an integration issue? → Add to Systems MD
+- [ ] Did the user teach me something? → Document immediately
+- [ ] Did I find a better way to do something? → Update the workflow
+- [ ] Would this help future similar tasks? → Document it
+
+### 🗂️ Where to Document (Routing Guide)
+
+| Learning Type | Document In |
+|---------------|-------------|
+| CSS/Styling patterns | `Media Skill MD.md` → "HTML Development Best Practices" |
+| Image handling fixes | `Media Skill MD.md` → "Lessons Learned" |
+| Wix iframe fixes | `Media Skill MD.md` → "Prevent Independent Scrolling" |
+| MCP/Connection issues | `Systems MD.md` → "Lessons Learned Log" |
+| API/Backend fixes | `Systems MD.md` → "Lessons Learned Log" |
+| Product/Store issues | `Greenways Market Manager MD.md` → "Lessons Learned Log" |
+| New trigger phrases | `SKILL-ORCHESTRATOR.md` → "Trigger Phrases" |
+| Workflow improvements | `SKILL-ORCHESTRATOR.md` → "Routing Logic" |
+| HTML creation process | `html-content-creator.md` |
+| Grant search methods | `grants-schemes-finder.md` |
+| Video curation tips | `sustainability-video-finder.md` |
+| Blog writing templates | `sustainability-blog-writer.md` |
+| Multi-skill workflows | `Structure.md` → "Skill Combinations" |
+
+### 🔄 Self-Improvement Loop
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                  CONTINUOUS LEARNING CYCLE                   │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│   1. RECEIVE TASK                                           │
+│         ↓                                                   │
+│   2. EXECUTE using current skills                           │
+│         ↓                                                   │
+│   3. COMPLETE task successfully                             │
+│         ↓                                                   │
+│   4. REFLECT: What did I learn? What was new?              │
+│         ↓                                                   │
+│   5. DOCUMENT in relevant skill file                        │
+│         ↓                                                   │
+│   6. COMMIT changes to repository                           │
+│         ↓                                                   │
+│   7. READY for next task (now smarter!)                    │
+│         ↓                                                   │
+│   [Return to Step 1]                                        │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 📊 Knowledge Categories to Capture
+
+**Technical Knowledge:**
+- CSS patterns and fixes
+- JavaScript solutions
+- API endpoints and parameters
+- Database queries
+- File paths and structures
+
+**Process Knowledge:**
+- Step-by-step workflows
+- Best practices discovered
+- Time-saving shortcuts
+- Common pitfalls to avoid
+
+**Integration Knowledge:**
+- Wix embedding techniques
+- Render deployment notes
+- MCP connection procedures
+- Cross-system data flow
+
+**User Preferences:**
+- Styling preferences (emoji choices, colors)
+- Workflow preferences
+- Communication style
+- Priority items
+
+### 🚨 IMPORTANT: Never Skip Documentation
+
+**This is not optional.** Every task is an opportunity to:
+1. **Improve** the skill system
+2. **Prevent** repeating mistakes
+3. **Build** institutional knowledge
+4. **Accelerate** future similar tasks
+
+### 📅 Documentation Triggers by Task Type
+
+| Task Type | What to Document |
+|-----------|------------------|
+| **HTML Creation** | New CSS patterns, image handling, Wix embed fixes |
+| **Product Updates** | API endpoints used, image URL formats, database changes |
+| **System Checks** | Connection methods, troubleshooting steps, health check results |
+| **Styling Changes** | CSS code blocks, color values, responsive patterns |
+| **Bug Fixes** | Root cause, solution steps, prevention methods |
+| **New Features** | Implementation approach, files changed, testing done |
+| **User Requests** | New trigger phrases, preference notes, workflow updates |
+
+### ✅ Documentation Commit Message Format
+
+When committing documentation updates:
+
+```bash
+git commit -m "📚 Update [Skill Name]: Add [brief description of learning]"
+
+# Examples:
+git commit -m "📚 Update Media Skill MD: Add glossy header CSS pattern"
+git commit -m "📚 Update Systems MD: Add ETL API timeout fix"
+git commit -m "📚 Update SKILL-ORCHESTRATOR: Add new trigger phrases for styling"
+```
 
 ---
 

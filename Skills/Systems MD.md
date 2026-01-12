@@ -488,7 +488,7 @@ node database/import-products.js
 | File | Purpose |
 |------|---------|
 | `test_etl_api_structure.js` | ETL API test script |
-| `routes/etl.js` | ETL API routes |
+| `routes/etl-wix.js` | ETL API routes (Wix integration) |
 
 ### Database Files
 | File | Purpose |
