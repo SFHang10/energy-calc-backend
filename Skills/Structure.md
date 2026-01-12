@@ -56,6 +56,7 @@ Skills/
 | 🎬 **Video Finder** | `sustainability-video-finder.md` | Find sustainability videos |
 | ✍️ **Blog Writer** | `sustainability-blog-writer.md` | Generate blog content & ESG reports |
 | 🌐 **HTML Creator** | `html-content-creator.md` | Create HTML pages with images |
+| 🤖 **Ralph** | `RALPH-INTEGRATION.md` | Autonomous multi-step feature deployment |
 
 ---
 

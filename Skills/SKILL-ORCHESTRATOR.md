@@ -25,6 +25,7 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 | 🎬 **Video Finder** | `sustainability-video-finder.md` | Find sustainability videos |
 | ✍️ **Blog Writer** | `sustainability-blog-writer.md` | Generate blog content & ESG reports |
 | 🌐 **HTML Creator** | `html-content-creator.md` | Create HTML pages with images |
+| 🤖 **Ralph** | `RALPH-INTEGRATION.md` | Autonomous multi-step feature deployment |
 
 ---
 
@@ -259,12 +260,52 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 
 ---
 
+### 🤖 Ralph Integration (Autonomous Feature Deployment)
+
+**Activate when user says:**
+```
+"use Ralph for this"
+"create a PRD for"
+"start Ralph loop"
+"autonomous deployment"
+"run Ralph"
+"multi-step feature"
+"complex implementation"
+"full feature build"
+"PRD for [feature]"
+"Ralph status"
+"continue Ralph loop"
+"next story"
+```
+
+**Routes to:** `RALPH-INTEGRATION.md`
+
+**Performs:**
+- Create PRD (Product Requirements Document)
+- Execute autonomous iteration loops
+- Implement user stories one by one
+- Track progress in progress.txt
+- Update AGENTS.md with learnings
+- Complete when all stories pass
+
+**Use For:**
+- Complex features (5+ steps)
+- Multi-file changes
+- New page builds
+- Major integrations
+- Systematic refactoring
+
+---
+
 ## 🔄 Routing Logic
 
 When receiving a request, follow this decision tree:
 
 ```
 User Request
+    │
+    ├── Contains "Ralph", "PRD", "autonomous", "multi-step", "complex feature"?
+    │   └── → RALPH-INTEGRATION.md (for large features)
     │
     ├── Contains "system", "health", "MCP", "ETL", "connection"?
     │   └── → Systems MD
