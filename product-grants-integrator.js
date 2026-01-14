@@ -2,24 +2,34 @@
  * PRODUCT GRANTS INTEGRATOR
  * Integrates hardcoded grants system with existing product database
  * Adds grants field to each product based on category, subcategory, and region
+ * 
+ * UPDATED: January 2026 - Now uses combined-grants-loader.js for 62+ grants
+ * (Previously only used 46 grants from hardcoded-grants-system.js)
  */
 
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-// Import the hardcoded grants system
+// Import the COMBINED grants system (62+ grants from schemes.json + hardcoded)
 const {
     PRODUCT_GRANTS_MAPPING,
+    getCombinedProductGrants,
+    calculateCombinedGrantTotal,
+    addCombinedGrantsToProduct,
+    getCombinedAvailableRegions,
+    getCombinedGrantsStats,
+    formatProductGrantsDisplay,
+    // Legacy functions for compatibility
     getProductGrants,
     calculateProductGrantTotal,
     addGrantsToProduct,
     addGrantsToProducts,
     getAvailableGrantRegions,
-    getGrantsSystemStats,
-    formatProductGrantsDisplay
-} = require('./hardcoded-grants-system.js');
+    getGrantsSystemStats
+} = require('./combined-grants-loader.js');
 
-console.log('🏛️ PRODUCT GRANTS INTEGRATOR - Adding Grants to Product Database\n');
+console.log('🏛️ PRODUCT GRANTS INTEGRATOR - Adding Grants to Product Database');
+console.log('📊 Using COMBINED Grants System (62+ grants)\n');
 
 // ============================================================================
 // DATABASE CONFIGURATION
@@ -173,8 +183,8 @@ async function processAllProducts(db) {
     
     for (const product of products) {
         try {
-            // Add grants to product
-            const productWithGrants = addGrantsToProduct(product, 'uk.england');
+            // Add grants to product using COMBINED system (62+ grants)
+            const productWithGrants = addCombinedGrantsToProduct(product, 'uk.england');
             
             // Update database
             await updateProductWithGrants(db, productWithGrants);
@@ -222,17 +232,17 @@ async function exportProductsWithGrants(db) {
     console.log('📤 Exporting products with grants to JSON...');
     
     const products = await getAllProducts(db);
-    const productsWithGrants = products.map(product => addGrantsToProduct(product, 'uk.england'));
+    const productsWithGrants = products.map(product => addCombinedGrantsToProduct(product, 'uk.england'));
     
     const exportData = {
         metadata: {
             exportDate: new Date().toISOString(),
             totalProducts: productsWithGrants.length,
-            grantsSystem: 'Hardcoded Product-Specific Grants',
-            version: '1.0.0'
+            grantsSystem: 'Combined Grants System (62+ grants from schemes.json + hardcoded)',
+            version: '2.0.0'
         },
-        grantsStats: getGrantsSystemStats(),
-        availableRegions: getAvailableGrantRegions(),
+        grantsStats: getCombinedGrantsStats(),
+        availableRegions: getCombinedAvailableRegions(),
         products: productsWithGrants
     };
     
@@ -302,11 +312,11 @@ async function main() {
         }
         
         // Display grants system information
-        console.log('🏛️ Grants System Information:');
-        const grantsStats = getGrantsSystemStats();
-        console.log(`   Total Grants Available: ${grantsStats.totalGrants}`);
+        console.log('🏛️ Combined Grants System Information:');
+        const grantsStats = getCombinedGrantsStats();
+        console.log(`   Total Grants Available: ${grantsStats.totalGrants} (from schemes.json)`);
+        console.log(`   + Hardcoded Product Grants: ${grantsStats.hardcodedGrants}`);
         console.log(`   Categories Covered: ${grantsStats.totalCategories}`);
-        console.log(`   Subcategories Covered: ${grantsStats.totalSubcategories}`);
         console.log(`   Regions Covered: ${grantsStats.totalRegions}`);
         console.log(`   Max Grant Amount: €${grantsStats.maxAmount.toLocaleString()}`);
         console.log(`   Min Grant Amount: €${grantsStats.minAmount.toLocaleString()}`);

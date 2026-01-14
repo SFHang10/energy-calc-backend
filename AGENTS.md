@@ -24,7 +24,9 @@
 | **Product Data** | `FULL-DATABASE-5554.json` |
 | **Products with Grants** | `energy-calculator/products-with-grants.json` |
 | **Products with Collection** | `energy-calculator/products-with-grants-and-collection.json` |
-| **Grants System** | `hardcoded-grants-system.js` |
+| **Grants System (Combined)** | `combined-grants-loader.js` ⭐ (62+ grants) |
+| **Grants System (Hardcoded)** | `hardcoded-grants-system.js` (46 grants) |
+| **Grants Database** | `schemes.json` ⭐ (62 grants - source of truth) |
 | **Product Images** | `product-placement/` |
 | **HTML Pages** | `HTMLs/` |
 | **Skills** | `Skills/` |
@@ -275,6 +277,15 @@ html, body {
   - Hardcoded grants preferred over API calls (instant loading, offline support)
   - Products-with-grants.json contains full enriched product data
   - Collection agencies added for recycling/trade-in options
+
+- **🏛️ Grants System Upgrade (Jan 14, 2026)**:
+  - **IMPORTANT**: System now uses 62+ grants (previously only 46)
+  - Source of truth: `schemes.json` (62 grants)
+  - Combined loader: `combined-grants-loader.js` (merges schemes.json + hardcoded)
+  - Old system: `hardcoded-grants-system.js` (46 grants - still works but fewer grants)
+  - Regions covered: UK, Ireland, Netherlands, Germany, France, Belgium, Spain, Portugal + EU-wide
+  - Grant types: subsidies, grants, certifications, tax incentives
+  - **Always use `combined-grants-loader.js`** for full grant coverage
 
 ---
 

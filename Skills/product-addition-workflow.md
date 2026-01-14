@@ -42,10 +42,13 @@ This skill defines the **MANDATORY** workflow for adding any new product to the 
 
 | Script | Purpose |
 |--------|---------|
-| `product-grants-integrator.js` | Main grants enrichment script |
-| `hardcoded-grants-system.js` | Grants mapping by category/subcategory |
+| `product-grants-integrator.js` | Main grants enrichment script ⭐ |
+| `combined-grants-loader.js` | **NEW** Combined 62+ grants system ⭐ |
+| `hardcoded-grants-system.js` | Legacy grants mapping (46 grants) |
 | `grants-interface-system.js` | Calculator integration interface |
 | `load-hardcoded-data.js` | Loads enriched data into calculators |
+
+> **⚠️ IMPORTANT (Jan 2026):** Use `combined-grants-loader.js` for full 62+ grant coverage!
 
 ---
 
@@ -133,13 +136,14 @@ For applicable product categories, add collection/recycling options:
 
 ### Step 4: Enrich Product Data
 
-Use the `addGrantsToProduct` function:
+Use the `addCombinedGrantsToProduct` function from the **combined loader** (62 grants):
 
 ```javascript
-const { addGrantsToProduct } = require('./hardcoded-grants-system.js');
+// ⭐ RECOMMENDED: Use combined loader for 62+ grants
+const { addCombinedGrantsToProduct } = require('./combined-grants-loader.js');
 
-// Enrich a single product
-const enrichedProduct = addGrantsToProduct(product, 'uk.england');
+// Enrich a single product with ALL 62 grants
+const enrichedProduct = addCombinedGrantsToProduct(product, 'uk.england');
 
 // Result structure:
 {
@@ -188,14 +192,21 @@ This creates/updates:
 
 ---
 
-## 🏛️ Available Grant Regions
+## 🏛️ Available Grant Regions (62 Total Grants)
 
-| Code | Region | Grants Count |
-|------|--------|--------------|
-| `uk.england` | England | 16 grants |
-| `uk.scotland` | Scotland | 5 grants |
-| `eu.ireland` | Ireland | 4 grants |
-| `eu.germany` | Germany | 2 grants |
+| Code | Region | Grants Count | Key Schemes |
+|------|--------|--------------|-------------|
+| `uk` | United Kingdom | 8 grants | BUS, ECO4, GBIS, HUG2, SEG |
+| `ie` | Ireland | 6 grants | SEAI Heat Pump, Solar, Insulation |
+| `nl` | Netherlands | 16 grants | ISDE, SPVO, DHI, EIA |
+| `de` | Germany | 6 grants | BAFA, KfW, EEG Solar |
+| `fr` | France | 6 grants | MaPrimeRénov', CEE, Éco-PTZ |
+| `be` | Belgium | 6 grants | Wallonia, Flanders, Brussels |
+| `es` | Spain | 6 grants | PREE, MOVES III, IDAE |
+| `pt` | Portugal | 6 grants | PRR, Fundo Ambiental |
+| `eu` | EU-wide | 2 grants | EU Ecolabel, Energy Labelling |
+
+> **Source:** `schemes.json` (62 grants) - Updated January 2026
 
 ---
 
@@ -280,8 +291,13 @@ node product-grants-integrator.js
 ### Option 2: Add Single Product Manually
 
 ```javascript
-const { addGrantsToProduct } = require('./hardcoded-grants-system.js');
+// ⭐ Use combined loader for 62+ grants
+const { addCombinedGrantsToProduct, getCombinedGrantsStats } = require('./combined-grants-loader.js');
 const sqlite3 = require('sqlite3').verbose();
+
+// Check grants system status
+console.log('📊 Grants System:', getCombinedGrantsStats());
+// Output: { totalGrants: 62, regions: 9, categories: 8, maxAmount: 500000 }
 
 // 1. Create product object
 const newProduct = {
@@ -296,8 +312,8 @@ const newProduct = {
   efficiency: 'High'
 };
 
-// 2. Enrich with grants
-const enrichedProduct = addGrantsToProduct(newProduct, 'uk.england');
+// 2. Enrich with grants (from ALL 62 grants)
+const enrichedProduct = addCombinedGrantsToProduct(newProduct, 'uk.england');
 console.log(`✅ Found ${enrichedProduct.grantsCount} grants`);
 console.log(`💰 Total grants available: €${enrichedProduct.grantsTotal}`);
 
@@ -462,5 +478,15 @@ This skill works with other skills:
 
 ---
 
-*Last Updated: January 2026*  
+## 📈 Version History
+
+| Date | Version | Changes |
+|------|---------|---------|
+| Jan 14, 2026 | 2.0.0 | Upgraded to 62-grant combined system |
+| Jan 2026 | 1.0.0 | Initial 46-grant hardcoded system |
+
+---
+
+*Last Updated: January 14, 2026*  
+*Grants Available: 62+ (from schemes.json)*  
 *Maintained By: Energy Calculator Backend System*
