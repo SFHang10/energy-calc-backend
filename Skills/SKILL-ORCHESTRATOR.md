@@ -26,6 +26,7 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 | ✍️ **Blog Writer** | `sustainability-blog-writer.md` | Generate blog content & ESG reports |
 | 🌐 **HTML Creator** | `html-content-creator.md` | Create HTML pages with images |
 | 🤖 **Ralph** | `RALPH-INTEGRATION.md` | Autonomous multi-step feature deployment |
+| 🛍️ **Product Workflow** | `product-addition-workflow.md` | Add products with grants/collection enrichment |
 
 ---
 
@@ -297,6 +298,46 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 
 ---
 
+### 🛍️ Product Addition Workflow (Grants Enrichment)
+
+**Activate when user says:**
+```
+"add new product"
+"add product with grants"
+"enrich product data"
+"product grants workflow"
+"add grants to product"
+"update product grants"
+"run grants integrator"
+"product needs grants"
+"ensure grants added"
+"collection agencies"
+"product collection data"
+"regenerate products json"
+"products-with-grants"
+"hardcoded grants"
+"grants mapping"
+```
+
+**Routes to:** `product-addition-workflow.md`
+
+**Performs:**
+- Validate product data structure
+- Match product to grants by category/subcategory
+- Add collection agencies for recycling/trade-in
+- Store enriched product in database
+- Export to `products-with-grants.json`
+- Export to `products-with-grants-and-collection.json`
+
+**Use For:**
+- Adding any new product to marketplace
+- Batch product imports
+- Ensuring grants data is present
+- Updating collection agencies
+- Regenerating product JSON files
+
+---
+
 ## 🔄 Routing Logic
 
 When receiving a request, follow this decision tree:
@@ -306,6 +347,9 @@ User Request
     │
     ├── Contains "Ralph", "PRD", "autonomous", "multi-step", "complex feature"?
     │   └── → RALPH-INTEGRATION.md (for large features)
+    │
+    ├── Contains "add product", "product grants", "grants to product", "enrichment"?
+    │   └── → product-addition-workflow.md (MANDATORY for new products)
     │
     ├── Contains "system", "health", "MCP", "ETL", "connection"?
     │   └── → Systems MD
@@ -329,16 +373,25 @@ User Request
         └── → html-content-creator.md
 ```
 
+**⚠️ IMPORTANT:** When "add product" is mentioned, ALWAYS route to `product-addition-workflow.md` FIRST to ensure grants enrichment, then to Market Manager for store placement.
+
 ---
 
 ## 📊 Skill Combinations
 
 Some tasks require multiple skills. Common combinations:
 
+### Adding New Product (MANDATORY WORKFLOW)
+1. **Media Skill** → Find/download product image
+2. **Product Workflow** → Enrich with grants & collection data ⚠️ MANDATORY
+3. **Market Manager** → Add to store/database
+4. **Systems** → Verify deployment
+
 ### Adding New Product with Image
 1. **Media Skill** → Find/download product image
-2. **Market Manager** → Add product to database
-3. **Systems** → Verify deployment
+2. **Product Workflow** → Add grants/collection enrichment ⚠️
+3. **Market Manager** → Add product to database
+4. **Systems** → Verify deployment
 
 ### Creating Product Page with Content
 1. **HTML Creator** → Build the page
@@ -653,9 +706,13 @@ git commit -m "📚 Update SKILL-ORCHESTRATOR: Add new trigger phrases for styli
 │  🛒 MARKET         → "product", "store", "category", "images" │
 │  🖼️ MEDIA          → "find image", "blurry", "photo"          │
 │  🌍 GRANTS         → "grants", "schemes", "funding"           │
+│  🛍️ PRODUCT        → "add product", "grants enrichment"  ⚠️   │
 │  🎬 VIDEOS         → "videos", "YouTube", "sustainability"    │
 │  ✍️ BLOG           → "write", "blog", "ESG", "article"        │
 │  🌐 HTML           → "create page", "HTML", "webpage"         │
+│  🤖 RALPH          → "PRD", "autonomous", "multi-step"        │
+│                                                                │
+│  ⚠️ = MANDATORY for new products (ensures grants data)        │
 │                                                                │
 └────────────────────────────────────────────────────────────────┘
 ```

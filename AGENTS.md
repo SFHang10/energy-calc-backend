@@ -22,6 +22,9 @@
 | **Routes** | `routes/` |
 | **Database** | `database/energy_calculator_central.db` |
 | **Product Data** | `FULL-DATABASE-5554.json` |
+| **Products with Grants** | `energy-calculator/products-with-grants.json` |
+| **Products with Collection** | `energy-calculator/products-with-grants-and-collection.json` |
+| **Grants System** | `hardcoded-grants-system.js` |
 | **Product Images** | `product-placement/` |
 | **HTML Pages** | `HTMLs/` |
 | **Skills** | `Skills/` |
@@ -211,11 +214,20 @@ html, body {
 
 ## 🔄 Workflows
 
-### Adding New Product
-1. Add to `FULL-DATABASE-5554.json`
-2. Add image to `product-placement/`
-3. Commit and push
-4. Verify on Render
+### Adding New Product (⚠️ MANDATORY WORKFLOW)
+
+**IMPORTANT:** All products MUST go through grants enrichment!
+
+1. **Validate product data** - Ensure category/subcategory match grants mapping
+2. **Run grants enrichment** - `node product-grants-integrator.js`
+   - Matches product to grants by category/subcategory
+   - Adds collection agencies for recycling/trade-in
+   - Exports to `products-with-grants.json`
+3. **Add image** to `product-placement/`
+4. **Commit and push** to GitHub
+5. **Verify on Render** - Check `/api/product-widget/:id` shows grants data
+
+**Never Skip:** Grants enrichment ensures customers see available funding!
 
 ### Creating HTML Page
 1. Upload images to Wix Media Manager
@@ -243,6 +255,9 @@ html, body {
 | `PROJECT_ARCHITECTURE_OVERVIEW.md` | System architecture |
 | `Skills/SKILL-ORCHESTRATOR.md` | Task routing |
 | `Skills/RALPH-INTEGRATION.md` | Autonomous feature deployment |
+| `Skills/product-addition-workflow.md` | ⚠️ Product grants enrichment (MANDATORY) |
+| `GRANTS_OVERLAY_SYSTEM_DOCUMENTATION.md` | Grants system details |
+| `HOW-TO-ADD-MORE-GRANTS.md` | Adding new grants |
 
 ---
 
@@ -255,6 +270,11 @@ html, body {
 - **Glossy headers**: Radial gradient + backdrop-filter
 - **Raised cards**: 3-layer box-shadow + transform
 - **Section grouping**: Color-coded borders (green/blue)
+- **⚠️ Product Grants Workflow**: ALL new products MUST go through grants enrichment
+  - Run `product-grants-integrator.js` before adding to marketplace
+  - Hardcoded grants preferred over API calls (instant loading, offline support)
+  - Products-with-grants.json contains full enriched product data
+  - Collection agencies added for recycling/trade-in options
 
 ---
 

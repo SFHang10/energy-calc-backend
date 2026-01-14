@@ -16,6 +16,8 @@ Skills/
 ├── Greenways Market Manager MD.md ← Wix Store Management
 ├── Media Skill MD.md              ← Product Images
 ├── grants-schemes-finder.md       ← Energy Grants
+├── product-addition-workflow.md   ← ⚠️ Product Grants Enrichment (MANDATORY)
+├── RALPH-INTEGRATION.md           ← Autonomous Feature Deployment
 ├── sustainability-video-finder.md ← Video Curation
 ├── sustainability-blog-writer.md  ← Blog & ESG Content
 └── html-content-creator.md        ← HTML Pages
@@ -35,9 +37,13 @@ Skills/
 │  🖼️ MEDIA          → "find image", "blurry", "raised card",   │
 │                      "glossy finish", "vibrant headers"       │
 │  🌍 GRANTS         → "grants", "schemes", "funding"           │
+│  🛍️ PRODUCT        → "add product", "grants enrichment"  ⚠️   │
 │  🎬 VIDEOS         → "videos", "YouTube", "sustainability"    │
 │  ✍️ BLOG           → "write", "blog", "ESG", "article"        │
 │  🌐 HTML           → "create page", "HTML", "webpage"         │
+│  🤖 RALPH          → "PRD", "autonomous", "multi-step"        │
+│                                                                │
+│  ⚠️ = MANDATORY for new products (ensures grants data)        │
 │                                                                │
 └────────────────────────────────────────────────────────────────┘
 ```
@@ -53,6 +59,7 @@ Skills/
 | 🛒 **Market Manager** | `Greenways Market Manager MD.md` | Wix store, products, images |
 | 🖼️ **Media** | `Media Skill MD.md` | Find/manage product images |
 | 🌍 **Grants Finder** | `grants-schemes-finder.md` | Find energy grants & schemes |
+| 🛍️ **Product Workflow** | `product-addition-workflow.md` | ⚠️ Add products with grants/collection |
 | 🎬 **Video Finder** | `sustainability-video-finder.md` | Find sustainability videos |
 | ✍️ **Blog Writer** | `sustainability-blog-writer.md` | Generate blog content & ESG reports |
 | 🌐 **HTML Creator** | `html-content-creator.md` | Create HTML pages with images |
@@ -273,12 +280,47 @@ Skills/
 
 ---
 
+### 🛍️ Product Addition Workflow (⚠️ MANDATORY for New Products)
+
+**Activate when user says:**
+```
+"add new product"
+"add product with grants"
+"enrich product data"
+"product grants workflow"
+"add grants to product"
+"update product grants"
+"run grants integrator"
+"product needs grants"
+"ensure grants added"
+"collection agencies"
+"product collection data"
+"regenerate products json"
+"products-with-grants"
+"hardcoded grants"
+```
+
+**What it does:**
+- Validate product data structure
+- Match product to grants by category/subcategory
+- Add collection agencies for recycling/trade-in
+- Store enriched product in database
+- Export to `products-with-grants.json`
+- Export to `products-with-grants-and-collection.json`
+
+**⚠️ IMPORTANT:** This skill MUST be used before Market Manager when adding any new product!
+
+---
+
 ## 🔄 Routing Logic
 
 When receiving a request, the orchestrator follows this decision tree:
 
 ```
 User Request
+    │
+    ├── Contains "add product", "product grants", "grants to product"?
+    │   └── → product-addition-workflow.md ⚠️ (MANDATORY first)
     │
     ├── Contains "system", "health", "MCP", "ETL", "connection"?
     │   └── → Systems MD
@@ -302,6 +344,8 @@ User Request
         └── → html-content-creator.md
 ```
 
+**⚠️ IMPORTANT:** When "add product" is mentioned, ALWAYS route to `product-addition-workflow.md` FIRST!
+
 ---
 
 ## 📊 Skill Combinations
@@ -310,10 +354,14 @@ Some tasks require multiple skills. Common combinations:
 
 | Task | Skills Used |
 |------|-------------|
-| **Add Product with Image** | Media → Market Manager → Systems |
+| **Add Product with Image** | Media → ⚠️ Product Workflow → Market Manager → Systems |
+| **Add New Product** | Media → ⚠️ Product Workflow → Market Manager → Systems |
 | **Create Product Page** | HTML Creator → Media → Market Manager |
 | **Weekly Content Update** | Grants Finder → Video Finder → Blog Writer |
 | **Full System Check** | Systems → Market Manager → Media |
+| **Regenerate Product Data** | ⚠️ Product Workflow → Systems |
+
+⚠️ = Product Workflow is **MANDATORY** to ensure grants/collection data is added
 
 ---
 
@@ -374,15 +422,17 @@ Some tasks require multiple skills. Common combinations:
 
 | File | Lines | Purpose |
 |------|-------|---------|
-| `SKILL-ORCHESTRATOR.md` | ~440 | Master controller |
+| `SKILL-ORCHESTRATOR.md` | ~700 | Master controller |
 | `Structure.md` | This file | Quick reference |
 | `Systems MD.md` | ~620 | Health checks, MCP, ETL |
 | `Greenways Market Manager MD.md` | ~620 | Wix store management |
 | `Media Skill MD.md` | ~490 | Product images |
 | `grants-schemes-finder.md` | ~420 | Grant research |
+| `product-addition-workflow.md` | ~500 | ⚠️ Product grants enrichment |
 | `sustainability-video-finder.md` | ~420 | Video curation |
 | `sustainability-blog-writer.md` | ~500 | Blog & ESG content |
 | `html-content-creator.md` | ~270 | HTML page creation |
+| `RALPH-INTEGRATION.md` | ~350 | Autonomous deployment |
 
 ---
 
@@ -467,9 +517,10 @@ RECEIVE → EXECUTE → COMPLETE → REFLECT → DOCUMENT → COMMIT → READY
 ---
 
 **Last Updated:** January 2026  
-**Total Skills:** 8  
+**Total Skills:** 10  
 **Master Controller:** SKILL-ORCHESTRATOR.md  
 **Learning Protocol:** v2.0 (Auto-documentation enabled)
+**Product Workflow:** ⚠️ MANDATORY for all new products
 
 ---
 
