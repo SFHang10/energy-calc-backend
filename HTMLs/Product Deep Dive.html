@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="wix-html-scroll" content="no-scroll">
+    <title>Product Deep Dive - ETL Technology</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html {
+            overflow: hidden !important;
+            height: 100%;
+        }
+
+        body {
+            overflow: hidden !important;
+            height: 100%;
+            -webkit-overflow-scrolling: auto !important;
+            touch-action: pan-y;
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .section {
+            opacity: 0;
+            animation: slideInUp 0.7s ease-out forwards;
+        }
+        
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100">
+    <div class="min-h-screen p-4 md:p-8">
+        <!-- Header -->
+        <div class="max-w-7xl mx-auto mb-12 text-center section">
+            <h1 id="dd-title" class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Product Deep Dive</h1>
+            <p id="dd-subtitle" class="text-lg text-gray-600 mb-2">Loading product...</p>
+            <div class="max-w-3xl mx-auto bg-blue-50 rounded-lg p-6 mt-6">
+                <p id="dd-overview" class="text-md text-gray-700 leading-relaxed">
+                    Loading overview...
+                </p>
+                <ul id="dd-highlights" class="mt-4 text-left text-sm text-gray-700 space-y-2 hidden"></ul>
+            </div>
+        </div>
+
+        <!-- Section 1: Technical Specifications -->
+        <div class="max-w-7xl mx-auto mb-16 section delay-1">
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-6">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">1. Technical Specifications</h2>
+                <p class="text-gray-600">Core performance metrics that define product capability</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Power Rating -->
+                <div class="bg-white rounded-lg p-6 shadow-lg transform transition-all hover:scale-105">
+                    <div class="flex items-center justify-between mb-4">
+                        <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        <span id="dd-power" class="text-2xl font-bold text-gray-800">--</span>
+                    </div>
+                    <div class="mb-2">
+                        <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div id="dd-power-bar" class="h-full bg-blue-500" style="width: 70%;"></div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 font-medium">Power Rating</p>
+                </div>
+
+                <!-- Energy Rating -->
+                <div class="bg-white rounded-lg p-6 shadow-lg transform transition-all hover:scale-105">
+                    <div class="flex items-center justify-between mb-4">
+                        <svg class="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                        </svg>
+                        <span id="dd-energy-rating" class="text-2xl font-bold text-gray-800">--</span>
+                    </div>
+                    <div class="mb-2">
+                        <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div id="dd-energy-bar" class="h-full bg-yellow-500" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 font-medium">Energy Rating</p>
+                </div>
+
+                <!-- Efficiency -->
+                <div class="bg-white rounded-lg p-6 shadow-lg transform transition-all hover:scale-105">
+                    <div class="flex items-center justify-between mb-4">
+                        <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                        </svg>
+                        <span id="dd-efficiency" class="text-2xl font-bold text-gray-800">--</span>
+                    </div>
+                    <div class="mb-2">
+                        <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div id="dd-efficiency-bar" class="h-full bg-green-500" style="width: 85%;"></div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 font-medium">Efficiency Level</p>
+                </div>
+
+                <!-- Product Details -->
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg p-6 shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                        </svg>
+                        Product Details
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 bg-indigo-600 rounded-full mt-2 mr-3"></div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Brand</p>
+                                <p id="dd-brand" class="text-sm text-gray-600">--</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 bg-indigo-600 rounded-full mt-2 mr-3"></div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Category</p>
+                                <p id="dd-category" class="text-sm text-gray-600">--</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 bg-indigo-600 rounded-full mt-2 mr-3"></div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Model</p>
+                                <p id="dd-model" class="text-sm text-gray-600 font-mono">--</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service & Support -->
+                <div class="bg-white rounded-lg p-6 shadow-lg md:col-span-2">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Service & Support</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-orange-50 rounded-lg p-4 text-center transform transition-all hover:scale-105">
+                            <svg class="w-8 h-8 text-orange-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            </svg>
+                            <p class="text-xs font-semibold text-gray-700">Professional</p>
+                            <p class="text-xs text-gray-600">Installation</p>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-4 text-center transform transition-all hover:scale-105">
+                            <svg class="w-8 h-8 text-green-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                            <p class="text-xs font-semibold text-gray-700">Comprehensive</p>
+                            <p class="text-xs text-gray-600">Warranty</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Operating Specifications -->
+        <div class="max-w-7xl mx-auto mb-16 section delay-2">
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-6">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">2. Operating Specifications</h2>
+                <p class="text-gray-600">Environmental requirements, certifications, and safety features</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Annual Cost -->
+                <div class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-lg p-6 shadow-lg md:col-span-2">
+                    <div class="flex items-center mb-4">
+                        <svg class="w-8 h-8 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <h3 class="text-xl font-bold text-gray-800">Annual Running Cost</h3>
+                    </div>
+                    <div class="text-center">
+                        <div id="dd-running-cost" class="text-5xl font-bold text-green-600 mb-2">--</div>
+                        <p id="dd-running-cost-note" class="text-sm text-gray-600">--</p>
+                        <div class="mt-4 bg-white bg-opacity-50 rounded-lg p-3">
+                            <p id="dd-usage-notes" class="text-xs text-gray-700">--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Certifications -->
+                <div class="bg-gradient-to-br from-purple-50 to-indigo-100 rounded-lg p-6 shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <svg class="w-6 h-6 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                        </svg>
+                        <h3 class="text-lg font-bold text-gray-800">Certifications</h3>
+                    </div>
+                    <div id="dd-certifications" class="flex flex-wrap justify-around items-center gap-4 py-4">
+                        <div class="text-sm text-gray-600">No certifications listed</div>
+                    </div>
+                </div>
+
+                <!-- Operating Temperature -->
+                <div class="bg-white rounded-lg p-6 shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <svg class="w-6 h-6 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        <h3 class="text-lg font-bold text-gray-800">Operating Temp</h3>
+                    </div>
+                    <div class="text-center py-2">
+                        <div id="dd-operating-temp" class="text-3xl font-bold text-gray-800">--</div>
+                        <p id="dd-operating-temp-note" class="text-sm text-gray-600 mt-2">--</p>
+                    </div>
+                </div>
+
+                <!-- Humidity Range -->
+                <div class="bg-white rounded-lg p-6 shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <svg class="w-6 h-6 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                        </svg>
+                        <h3 class="text-lg font-bold text-gray-800">Humidity Range</h3>
+                    </div>
+                    <div class="text-center py-2">
+                        <div id="dd-humidity" class="text-3xl font-bold text-gray-800">--</div>
+                        <p id="dd-humidity-note" class="text-sm text-gray-600 mt-2">--</p>
+                    </div>
+                </div>
+
+                <!-- Noise Level -->
+                <div class="bg-white rounded-lg p-6 shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <svg class="w-6 h-6 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                        </svg>
+                        <h3 class="text-lg font-bold text-gray-800">Noise Level</h3>
+                    </div>
+                    <div class="text-center py-2">
+                        <div id="dd-noise" class="text-2xl font-bold text-gray-800">--</div>
+                        <p id="dd-noise-note" class="text-sm text-gray-600 mt-2">--</p>
+                    </div>
+                </div>
+
+                <!-- Safety Features -->
+                <div class="bg-white rounded-lg p-6 shadow-lg md:col-span-2 lg:col-span-3">
+                    <div class="flex items-center mb-4">
+                        <svg class="w-6 h-6 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        <h3 class="text-lg font-bold text-gray-800">Multiple Safety Systems</h3>
+                    </div>
+                    <div id="dd-safety-features" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="p-4 rounded-lg border-2 border-gray-200 bg-gray-50 text-center">
+                            <p class="text-sm font-semibold text-gray-700">No safety features listed</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Value & Benefits -->
+        <div class="max-w-7xl mx-auto mb-16 section delay-3">
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-6">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">3. Value Proposition & Benefits</h2>
+                <p class="text-gray-600">ROI, energy savings, and customer support advantages</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Energy Savings -->
+                <div class="bg-gradient-to-br from-green-400 to-emerald-600 rounded-lg p-6 shadow-xl md:col-span-2">
+                    <div class="flex items-center mb-4">
+                        <svg class="w-8 h-8 text-white mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                        </svg>
+                        <h3 class="text-2xl font-bold text-white">Energy Savings</h3>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded-lg p-6 backdrop-blur-sm">
+                        <div class="text-center mb-4">
+                            <div id="dd-energy-savings" class="text-6xl font-bold text-white mb-2">--</div>
+                            <p id="dd-energy-savings-note" class="text-white text-lg font-semibold">--</p>
+                        </div>
+                        <div class="relative h-6 bg-white bg-opacity-30 rounded-full overflow-hidden">
+                            <div class="absolute inset-y-0 left-0 bg-yellow-300 rounded-full" style="width: 30%;"></div>
+                        </div>
+                        <div class="flex justify-between mt-2 text-white text-sm">
+                            <span>Standard</span>
+                            <span class="font-bold">High Efficiency</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROI -->
+                <div class="bg-white rounded-lg p-6 shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                        <h3 class="text-xl font-bold text-gray-800">Return on Investment</h3>
+                    </div>
+                    <div class="text-center py-4">
+                        <div id="dd-roi" class="text-4xl font-bold text-blue-600 mb-1">--</div>
+                        <p id="dd-roi-note" class="text-sm text-gray-600">--</p>
+                    </div>
+                </div>
+
+                <!-- High Efficiency -->
+                <div class="bg-white rounded-lg p-6 shadow-lg">
+                    <div class="bg-yellow-500 w-14 h-14 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                        </svg>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2">High Efficiency Design</h4>
+                    <p class="text-sm text-gray-600">Advanced technology reduces energy costs while maintaining peak performance</p>
+                </div>
+
+                <!-- Usage Tips -->
+                <div class="bg-white rounded-lg p-6 shadow-lg">
+                    <div class="bg-orange-500 w-14 h-14 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2">Usage Tips</h4>
+                    <p class="text-sm text-gray-600">Regular maintenance ensures optimal performance and extends equipment lifespan</p>
+                </div>
+
+                <!-- Technical Support -->
+                <div class="bg-white rounded-lg p-6 shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                        <h3 class="text-lg font-bold text-gray-800">Support</h3>
+                    </div>
+                    <div class="text-center py-4">
+                        <p class="text-sm font-semibold text-gray-700 mb-2">Comprehensive Technical Support Available</p>
+                        <p class="text-xs text-gray-500">Expert assistance whenever you need it</p>
+                    </div>
+                </div>
+
+                <!-- Fast Delivery -->
+                <div class="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg p-5 shadow-lg transform hover:scale-105 transition-all">
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-white mr-3 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                        </svg>
+                        <div>
+                            <h4 class="text-white font-bold text-base mb-1">Fast Delivery</h4>
+                            <p class="text-white text-sm opacity-90">Quick delivery and professional installation services available</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flexible Financing -->
+                <div class="bg-gradient-to-br from-pink-500 to-rose-600 rounded-lg p-5 shadow-lg transform hover:scale-105 transition-all">
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-white mr-3 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                        <div>
+                            <h4 class="text-white font-bold text-base mb-1">Flexible Financing</h4>
+                            <p class="text-white text-sm opacity-90">Multiple payment options to suit your business needs</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Professional Grade -->
+                <div class="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg p-6 shadow-xl md:col-span-2 lg:col-span-3">
+                    <div class="flex items-center mb-4">
+                        <svg class="w-8 h-8 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                        </svg>
+                        <h3 class="text-2xl font-bold text-white">Customer Value</h3>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded-lg p-6 backdrop-blur-sm">
+                        <div class="text-center mb-4">
+                            <h4 class="text-3xl font-bold text-white mb-3">Professional-Grade Equipment</h4>
+                            <p class="text-white text-lg mb-6">Designed for Commercial Use</p>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div class="p-3 rounded-lg bg-white bg-opacity-30 text-white text-center">
+                                <p class="font-bold text-sm">Efficiency</p>
+                            </div>
+                            <div class="p-3 rounded-lg bg-white bg-opacity-30 text-white text-center">
+                                <p class="font-bold text-sm">Reliability</p>
+                            </div>
+                            <div class="p-3 rounded-lg bg-white bg-opacity-30 text-white text-center">
+                                <p class="font-bold text-sm">Performance</p>
+                            </div>
+                            <div class="p-3 rounded-lg bg-white bg-opacity-30 text-white text-center">
+                                <p class="font-bold text-sm">Support</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Grants & Schemes -->
+        <div id="dd-grants-section" class="max-w-7xl mx-auto mb-16 section hidden">
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-6">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">4. Grants & Schemes</h2>
+                <p class="text-gray-600">All available grants and incentives for this product</p>
+            </div>
+            <div id="dd-grants-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+
+        <!-- Section 5: Eco Impact -->
+        <div id="dd-eco-section" class="max-w-7xl mx-auto mb-16 section hidden">
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-6">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">5. Eco Impact</h2>
+                <p class="text-gray-600">Environmental benefits and sustainability information</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-lg p-6 shadow-lg">
+                    <div class="text-center">
+                        <div id="dd-co2-savings" class="text-4xl font-bold text-green-600 mb-2">--</div>
+                        <p id="dd-co2-note" class="text-sm text-gray-600">--</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg p-6 shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Sustainability Notes</h3>
+                    <p id="dd-sustainability-notes" class="text-sm text-gray-600">--</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 6: Reviews -->
+        <div id="dd-reviews-section" class="max-w-7xl mx-auto mb-16 section hidden">
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-6">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">6. Reviews</h2>
+                <p class="text-gray-600">Curated review summaries and sources</p>
+            </div>
+            <div id="dd-reviews-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+
+        <!-- Section 7: Additional Information -->
+        <div id="dd-additional-section" class="max-w-7xl mx-auto mb-16 section hidden">
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-6">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">7. Additional Information</h2>
+                <p class="text-gray-600">Deals, tips, and source material</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-lg p-6 shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Usage Tips</h3>
+                    <ul id="dd-usage-tips" class="text-sm text-gray-600 space-y-2"></ul>
+                </div>
+                <div class="bg-white rounded-lg p-6 shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Deals & Promotions</h3>
+                    <p id="dd-deals" class="text-sm text-gray-600">--</p>
+                </div>
+                <div class="bg-white rounded-lg p-6 shadow-lg md:col-span-2">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Sources</h3>
+                    <ul id="dd-sources" class="text-sm text-gray-600 space-y-2"></ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conclusion Section -->
+        <div class="max-w-7xl mx-auto mb-12 section">
+            <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-2xl p-8 md:p-12 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Why Detailed Information Matters</h2>
+                <div class="max-w-4xl mx-auto text-white text-lg leading-relaxed space-y-4">
+                    <p>
+                        When purchasing electrical equipment, having comprehensive product information is crucial for making the right decision. This deep dive demonstrates how combining technical specifications, operating requirements, safety certifications, and value propositions provides buyers with the complete picture they need.
+                    </p>
+                    <p>
+                        <strong>Key Benefits of Comprehensive Product Information:</strong>
+                    </p>
+                    <div class="grid md:grid-cols-2 gap-6 mt-6 text-left">
+                        <div class="bg-white bg-opacity-20 rounded-lg p-5 backdrop-blur-sm">
+                            <h3 class="font-bold text-xl mb-2">✓ Informed Decision-Making</h3>
+                            <p class="text-sm">Understanding power ratings, efficiency levels, and operating conditions ensures the product meets your specific requirements.</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 rounded-lg p-5 backdrop-blur-sm">
+                            <h3 class="font-bold text-xl mb-2">✓ Cost Transparency</h3>
+                            <p class="text-sm">Knowing annual running costs and ROI helps budget accurately and calculate long-term value.</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 rounded-lg p-5 backdrop-blur-sm">
+                            <h3 class="font-bold text-xl mb-2">✓ Safety Assurance</h3>
+                            <p class="text-sm">Certifications and safety features provide peace of mind that the equipment meets industry standards.</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 rounded-lg p-5 backdrop-blur-sm">
+                            <h3 class="font-bold text-xl mb-2">✓ Confidence in Purchase</h3>
+                            <p class="text-sm">Comprehensive support, warranty, and financing options reduce risk and ensure ongoing success.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="max-w-7xl mx-auto text-center pb-8">
+            <p class="text-gray-500 text-sm">© 2024 The Splash Lab - ETL Technology | Professional-Grade Equipment for Commercial Use</p>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const byId = (id) => document.getElementById(id);
+            const setText = (id, value, fallback = '--') => {
+                const el = byId(id);
+                if (!el) return;
+                const text = value === undefined || value === null || value === '' ? fallback : value;
+                el.textContent = text;
+            };
+            const setList = (id, items) => {
+                const el = byId(id);
+                if (!el) return;
+                if (!items || items.length === 0) {
+                    el.classList.add('hidden');
+                    return;
+                }
+                el.innerHTML = '';
+                items.forEach((item) => {
+                    const li = document.createElement('li');
+                    li.className = 'flex items-start gap-2';
+                    const dot = document.createElement('span');
+                    dot.className = 'mt-2 h-2 w-2 rounded-full bg-blue-500 flex-shrink-0';
+                    const text = document.createElement('span');
+                    text.textContent = item;
+                    li.appendChild(dot);
+                    li.appendChild(text);
+                    el.appendChild(li);
+                });
+                el.classList.remove('hidden');
+            };
+            const setGridCards = (containerId, items, buildCard) => {
+                const container = byId(containerId);
+                if (!container) return;
+                container.innerHTML = '';
+                items.forEach((item) => container.appendChild(buildCard(item)));
+            };
+            const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+            const percentFromRange = (value, min, max) => {
+                if (typeof value !== 'number' || Number.isNaN(value)) return null;
+                const percent = ((value - min) / (max - min)) * 100;
+                return clamp(Math.round(percent), 10, 100);
+            };
+            const formatCurrency = (value) => {
+                if (typeof value !== 'number' || Number.isNaN(value)) return '--';
+                return `€${value.toFixed(2)}`;
+            };
+
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get('id');
+            if (!productId) {
+                setText('dd-subtitle', 'Missing product ID in URL');
+                setText('dd-overview', 'Add ?id=PRODUCT_ID to the URL to load a product deep dive.');
+                return;
+            }
+
+            const sources = [
+                '/products-deep-dive.json',
+                '/energy-calculator/products-deep-dive.json'
+            ];
+
+            const fetchDeepDiveData = async () => {
+                for (const url of sources) {
+                    try {
+                        const res = await fetch(url, { cache: 'no-store' });
+                        if (res.ok) {
+                            return res.json();
+                        }
+                    } catch (error) {
+                        // try next source
+                    }
+                }
+                throw new Error('Unable to load deep dive data');
+            };
+
+            fetchDeepDiveData()
+                .then((data) => {
+                    const products = data.products || [];
+                    const product = products.find((item) => item.id === productId);
+                    if (!product) {
+                        setText('dd-subtitle', `Product not found: ${productId}`);
+                        setText('dd-overview', 'No deep dive data available for this product yet.');
+                        return;
+                    }
+
+                    const deepDive = product.deepDive || {};
+                    const energyUsage = deepDive.energyUsage || {};
+                    const ecoImpact = deepDive.ecoImpact || {};
+                    const additionalInfo = deepDive.additionalInfo || {};
+
+                    setText('dd-title', product.name || 'Product Deep Dive');
+                    setText('dd-subtitle', `${product.category || 'Product'} - Model ${product.id || ''}`);
+                    setText('dd-overview', deepDive.overview || product.descriptionShort || 'No overview available.');
+                    setList('dd-highlights', deepDive.highlights || []);
+
+                    const powerDisplay = product.powerDisplay || (product.power ? `${product.power}W` : null);
+                    setText('dd-power', powerDisplay);
+                    const powerPercent = percentFromRange(product.power, 0, 5000);
+                    if (powerPercent) {
+                        const bar = byId('dd-power-bar');
+                        if (bar) bar.style.width = `${powerPercent}%`;
+                    }
+
+                    setText('dd-energy-rating', product.energyRating || additionalInfo.energyRating || '--');
+                    const energyBar = byId('dd-energy-bar');
+                    if (energyBar) energyBar.style.width = '100%';
+
+                    setText('dd-efficiency', product.efficiency || additionalInfo.efficiency || '--');
+                    const efficiencyBar = byId('dd-efficiency-bar');
+                    if (efficiencyBar) efficiencyBar.style.width = '85%';
+
+                    setText('dd-brand', product.brand || '--');
+                    setText('dd-category', product.category || '--');
+                    setText('dd-model', product.id || '--');
+
+                    const runningCost = typeof energyUsage.runningCostPerYear === 'number'
+                        ? energyUsage.runningCostPerYear
+                        : product.runningCostPerYear;
+                    setText('dd-running-cost', formatCurrency(runningCost));
+                    setText('dd-running-cost-note', energyUsage.runningCostNote || 'Typical annual running cost');
+                    setText('dd-usage-notes', energyUsage.usageNotes || 'Based on standard usage patterns');
+
+                    setText('dd-operating-temp', additionalInfo.operatingTemp || 'Not specified');
+                    setText('dd-operating-temp-note', additionalInfo.operatingTempNote || 'Operating temperature range');
+                    setText('dd-humidity', additionalInfo.humidityRange || 'Not specified');
+                    setText('dd-humidity-note', additionalInfo.humidityNote || 'Relative humidity range');
+                    setText('dd-noise', additionalInfo.noiseLevel || 'Not specified');
+                    setText('dd-noise-note', additionalInfo.noiseNote || 'Noise level');
+
+                    const certifications = additionalInfo.certifications || [];
+                    const certificationsEl = byId('dd-certifications');
+                    if (certificationsEl) {
+                        if (certifications.length === 0) {
+                            certificationsEl.innerHTML = '<div class="text-sm text-gray-600">No certifications listed</div>';
+                        } else {
+                            certificationsEl.innerHTML = '';
+                            certifications.forEach((cert, index) => {
+                                const badge = document.createElement('div');
+                                const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-yellow-500'];
+                                badge.className = `${colors[index % colors.length]} text-white rounded-full w-20 h-20 flex items-center justify-center transform hover:scale-110 transition-all`;
+                                const label = document.createElement('div');
+                                label.className = 'text-center';
+                                label.innerHTML = `<div class="text-xl font-bold">${cert}</div><div class="text-xs">Certified</div>`;
+                                badge.appendChild(label);
+                                certificationsEl.appendChild(badge);
+                            });
+                        }
+                    }
+
+                    const safetyFeatures = additionalInfo.safetyFeatures || [];
+                    const safetyEl = byId('dd-safety-features');
+                    if (safetyEl) {
+                        if (safetyFeatures.length === 0) {
+                            safetyEl.innerHTML = '<div class="p-4 rounded-lg border-2 border-gray-200 bg-gray-50 text-center"><p class="text-sm font-semibold text-gray-700">No safety features listed</p></div>';
+                        } else {
+                            safetyEl.innerHTML = '';
+                            safetyFeatures.forEach((feature) => {
+                                const card = document.createElement('div');
+                                card.className = 'p-4 rounded-lg border-2 border-gray-200 bg-gray-50 text-center hover:border-red-500 hover:bg-red-50 transition-all';
+                                card.innerHTML = `<p class="text-sm font-semibold text-gray-700">${feature}</p>`;
+                                safetyEl.appendChild(card);
+                            });
+                        }
+                    }
+
+                    const energySavings = energyUsage.energySavingsPercent;
+                    setText('dd-energy-savings', energySavings ? `${energySavings}%` : '--');
+                    setText('dd-energy-savings-note', energyUsage.energySavingsNote || 'Reduction in energy consumption');
+                    const roiYears = energyUsage.roiYears;
+                    setText('dd-roi', roiYears ? `${roiYears} Years` : '--');
+                    setText('dd-roi-note', energyUsage.roiNote || 'Typical payback period');
+
+                    const grants = product.grants || [];
+                    if (grants.length > 0) {
+                        byId('dd-grants-section')?.classList.remove('hidden');
+                        setGridCards('dd-grants-list', grants, (grant) => {
+                            const card = document.createElement('div');
+                            card.className = 'bg-white rounded-lg p-6 shadow-lg border border-gray-100';
+                            const title = grant.program || grant.name || 'Grant';
+                            const amount = grant.amount || 'Amount varies';
+                            const country = grant.country || grant.region || 'Region';
+                            const eligibility = grant.eligibility || 'Eligibility varies';
+                            const link = grant.link;
+                            card.innerHTML = `
+                                <h3 class="text-lg font-semibold text-gray-800 mb-1">${title}</h3>
+                                <p class="text-sm text-gray-600 mb-2">${country}</p>
+                                <p class="text-2xl font-bold text-green-600 mb-2">${amount}</p>
+                                <p class="text-sm text-gray-600 mb-3">${eligibility}</p>
+                                ${link ? `<a class="text-blue-600 text-sm font-semibold" href="${link}" target="_blank" rel="noopener">View details</a>` : ''}
+                            `;
+                            return card;
+                        });
+                    }
+
+                    if (ecoImpact && (ecoImpact.co2SavingsKgPerYear || ecoImpact.sustainabilityNotes)) {
+                        byId('dd-eco-section')?.classList.remove('hidden');
+                        const co2Value = ecoImpact.co2SavingsKgPerYear
+                            ? `${ecoImpact.co2SavingsKgPerYear} kg CO2/year`
+                            : '--';
+                        setText('dd-co2-savings', co2Value);
+                        setText('dd-co2-note', ecoImpact.co2Note || 'Estimated CO2 savings');
+                        setText('dd-sustainability-notes', ecoImpact.sustainabilityNotes || 'No sustainability notes available');
+                    }
+
+                    const reviews = deepDive.reviews || [];
+                    if (reviews.length > 0) {
+                        byId('dd-reviews-section')?.classList.remove('hidden');
+                        setGridCards('dd-reviews-list', reviews, (review) => {
+                            const card = document.createElement('div');
+                            card.className = 'bg-white rounded-lg p-6 shadow-lg border border-gray-100';
+                            const rating = review.rating ? `${review.rating}/5` : 'Rating varies';
+                            const summary = review.summary || 'Review summary not provided';
+                            const source = review.source || 'Source';
+                            const link = review.url;
+                            card.innerHTML = `
+                                <h3 class="text-lg font-semibold text-gray-800 mb-1">${source}</h3>
+                                <p class="text-2xl font-bold text-yellow-500 mb-2">${rating}</p>
+                                <p class="text-sm text-gray-600 mb-3">${summary}</p>
+                                ${link ? `<a class="text-blue-600 text-sm font-semibold" href="${link}" target="_blank" rel="noopener">Read full review</a>` : ''}
+                            `;
+                            return card;
+                        });
+                    }
+
+                    const usageTips = additionalInfo.usageTips || [];
+                    const sourcesList = deepDive.sources || [];
+                    const dealNotes = additionalInfo.dealNotes || 'No deals currently listed';
+                    if (usageTips.length > 0 || sourcesList.length > 0 || additionalInfo.dealNotes) {
+                        byId('dd-additional-section')?.classList.remove('hidden');
+                        setList('dd-usage-tips', usageTips);
+                        setText('dd-deals', dealNotes, 'No deals currently listed');
+
+                        const sourcesEl = byId('dd-sources');
+                        if (sourcesEl) {
+                            sourcesEl.innerHTML = '';
+                            if (sourcesList.length === 0) {
+                                const li = document.createElement('li');
+                                li.textContent = 'No sources listed';
+                                sourcesEl.appendChild(li);
+                            } else {
+                                sourcesList.forEach((source) => {
+                                    const li = document.createElement('li');
+                                    const label = source.label || source.url;
+                                    if (source.url) {
+                                        li.innerHTML = `<a class="text-blue-600" href="${source.url}" target="_blank" rel="noopener">${label}</a>`;
+                                    } else {
+                                        li.textContent = label;
+                                    }
+                                    sourcesEl.appendChild(li);
+                                });
+                            }
+                        }
+                    }
+                })
+                .catch((error) => {
+                    setText('dd-subtitle', 'Unable to load product data');
+                    setText('dd-overview', error.message || 'Please try again later.');
+                });
+        })();
+    </script>
+</body>
+</html>

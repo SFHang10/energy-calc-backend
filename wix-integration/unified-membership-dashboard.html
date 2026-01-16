@@ -346,6 +346,10 @@
                             <span class="info-value" id="member-status">-</span>
                         </div>
                     </div>
+                    <div style="margin-top: 10px;">
+                        <button class="btn btn-primary" onclick="window.location.href='member-profile.html'">My Profile</button>
+                        <button class="btn btn-secondary" onclick="window.location.href='member-preferences.html'">Preferences</button>
+                    </div>
                     <button class="btn btn-secondary" onclick="handleLogout()">Logout</button>
                 </div>
 
@@ -431,6 +435,11 @@
                         <div style="font-size: 2rem; margin-bottom: 10px;">💾</div>
                         <div style="font-weight: 600; color: #1976D2;">Export Data</div>
                         <div style="font-size: 0.85rem; color: #666; margin-top: 5px;">Download schemes JSON backup</div>
+                    </a>
+                    <a href="/wix-integration/content-catalog-admin.html" class="admin-link-card" style="background: white; padding: 20px; border-radius: 12px; text-decoration: none; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">📚</div>
+                        <div style="font-weight: 600; color: #2E7D32;">Content Catalog</div>
+                        <div style="font-size: 0.85rem; color: #666; margin-top: 5px;">Manage blogs, videos, and reports</div>
                     </a>
                 </div>
                 <div style="margin-top: 20px; padding: 15px; background: rgba(156, 39, 176, 0.1); border-radius: 8px;">
@@ -720,19 +729,80 @@
                 return;
             }
 
-            grid.innerHTML = products.slice(0, 12).map(product => `
-                <div class="content-card" style="cursor: pointer;" onclick="openProductDeepDive('${product.id}')">
+            const list = products.slice(0, 12);
+            window.marketplaceProducts = list;
+
+            grid.innerHTML = list.map(product => `
+                <div class="content-card" style="cursor: pointer;">
                     ${product.imageUrl ? `<img src="${product.imageUrl}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;" alt="${product.name}">` : ''}
                     <h4>${product.name || 'Product'}</h4>
                     <p style="color: var(--gray); font-size: 0.9rem; margin: 10px 0;">
                         ${product.brand || ''} ${product.category ? '• ' + product.category : ''}
                     </p>
                     ${product.power ? `<div style="color: var(--primary-green); font-weight: 600; margin: 10px 0;">${product.power}W</div>` : ''}
-                    <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">View Details →</button>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button class="btn btn-primary" style="flex: 1;" onclick="openProductDeepDive('${product.id}')">View Details →</button>
+                        <button class="btn btn-secondary" style="flex: 1;" onclick="saveProduct('${product.id}')">Save</button>
+                    </div>
                 </div>
             `).join('');
             
             showMessage(`Loaded ${products.length} products`, 'success');
+        }
+
+        function getSavedList(key) {
+            try {
+                const raw = localStorage.getItem(key);
+                return raw ? JSON.parse(raw) : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function saveToList(key, item) {
+            const list = getSavedList(key);
+            const exists = list.some((entry) => entry.id === item.id);
+            if (!exists) {
+                list.unshift(item);
+                localStorage.setItem(key, JSON.stringify(list.slice(0, 50)));
+            }
+            return !exists;
+        }
+
+        async function saveItemToApi(type, item) {
+            if (!authToken) return false;
+            try {
+                await fetch(`${API_BASE_URL}/members/saved-items/${type}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(item)
+                });
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        async function saveProduct(productId) {
+            const product = (window.marketplaceProducts || []).find((p) => p.id === productId);
+            if (!product) return;
+
+            const payload = {
+                id: product.id,
+                title: product.name || 'Product',
+                description: product.brand || product.category || '',
+                category: product.category || 'product',
+                imageUrl: product.imageUrl || '',
+                url: `member-product-deep-dive.html?id=${product.id}`,
+                type: 'product'
+            };
+
+            const apiSaved = await saveItemToApi('products', payload);
+            const saved = saveToList('gw_saved_products', payload);
+            showMessage(apiSaved || saved ? 'Product saved to your profile.' : 'Product already saved.', 'success');
         }
 
         // Open product deep dive page

@@ -24,6 +24,10 @@
 | **Product Data** | `FULL-DATABASE-5554.json` |
 | **Products with Grants** | `energy-calculator/products-with-grants.json` |
 | **Products with Collection** | `energy-calculator/products-with-grants-and-collection.json` |
+| **Products Deep Dive** | `energy-calculator/products-deep-dive.json` |
+| **Deep Dive Content** | `deep-dive-content.json` |
+| **Member Profile Page** | `wix-integration/member-profile.html` |
+| **Member Uploads** | `uploads/members/` |
 | **Grants System (Combined)** | `combined-grants-loader.js` ⭐ (62+ grants) |
 | **Grants System (Hardcoded)** | `hardcoded-grants-system.js` (46 grants) |
 | **Grants Database** | `schemes.json` ⭐ (62 grants - source of truth) |
@@ -278,6 +282,16 @@ html, body {
   - Products-with-grants.json contains full enriched product data
   - Collection agencies added for recycling/trade-in options
 
+- **🔍 Product Deep Dive Workflow**:
+  - Deep dive data is prebuilt and merged into products
+  - Use `deep-dive-content.json` for curated information
+  - Run `product-deep-dive-builder.js` to generate `products-deep-dive.json`
+
+- **👥 Member Profile Workflow**:
+  - Profile data stored in members DB (display name, bio, photos)
+  - Uploads stored under `uploads/members/`
+  - Profile page uses `/api/members/profile` and `/api/members/profile/upload`
+
 - **🏛️ Grants System Upgrade (Jan 14, 2026)**:
   - **IMPORTANT**: System now uses 62+ grants (previously only 46)
   - Source of truth: `schemes.json` (62 grants)
@@ -286,6 +300,11 @@ html, body {
   - Regions covered: UK, Ireland, Netherlands, Germany, France, Belgium, Spain, Portugal + EU-wide
   - Grant types: subsidies, grants, certifications, tax incentives
   - **Always use `combined-grants-loader.js`** for full grant coverage
+
+- **👥 Membership Video Integration (Jan 2026)**:
+  - MongoDB router needed Wix video integration parity with SQLite router
+  - Wix videos require Render env vars: `WIX_APP_TOKEN` (or `WIX_APP_ID`/`WIX_APP_SECRET`/`WIX_INSTANCE_ID`) + `WIX_SITE_ID`
+  - Preferences API should return interest objects `{ id, name }` for UI compatibility
 
 ---
 

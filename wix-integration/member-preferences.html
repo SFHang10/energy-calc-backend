@@ -273,6 +273,7 @@
 
         let allCategories = [];
         let selectedInterests = [];
+        let interestNameToId = {};
 
         // Check authentication
         const token = localStorage.getItem('energy_calc_membership_token');
@@ -299,6 +300,10 @@
 
                 const categoriesData = await categoriesRes.json();
                 allCategories = categoriesData.categories || [];
+                interestNameToId = {};
+                allCategories.forEach((cat) => {
+                    interestNameToId[cat.name] = cat.id;
+                });
 
                 if (allCategories.length === 0) {
                     throw new Error('No interest categories found. Database may need to be initialized.');
@@ -313,7 +318,15 @@
 
                 if (interestsRes.ok) {
                     const interestsData = await interestsRes.json();
-                    selectedInterests = (interestsData.interests || []).map(i => i.id);
+                    selectedInterests = (interestsData.interests || []).map((interest) => {
+                        if (interest && typeof interest === 'object' && interest.id) {
+                            return interest.id;
+                        }
+                        if (typeof interest === 'string') {
+                            return interestNameToId[interest] || null;
+                        }
+                        return null;
+                    }).filter(Boolean);
                 } else if (interestsRes.status === 401 || interestsRes.status === 403) {
                     // Auth error - redirect to login
                     window.location.href = 'members-section.html';

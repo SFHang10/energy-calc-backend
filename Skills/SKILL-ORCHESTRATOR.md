@@ -27,6 +27,9 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 | 🌐 **HTML Creator** | `html-content-creator.md` | Create HTML pages with images |
 | 🤖 **Ralph** | `RALPH-INTEGRATION.md` | Autonomous multi-step feature deployment |
 | 🛍️ **Product Workflow** | `product-addition-workflow.md` | Add products with grants/collection enrichment |
+| 🔍 **Product Deep Dive** | `product-deep-dive.md` | Build deep-dive product info and pages |
+| 👥 **Member Manager** | `member-manager.md` | Member profiles, uploads, and access UX |
+| 💷 **Product Deal Finder** | `product-deal-finder.md` | Deals, discounts, and price comparisons |
 
 ---
 
@@ -298,6 +301,74 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 
 ---
 
+### 🔍 Product Deep Dive (Enhanced Product Intelligence)
+
+**Activate when user says:**
+```
+"product deep dive"
+"deep dive page"
+"product details page"
+"rich product info"
+"enhanced product profile"
+"show all grants and reviews"
+"deep dive content"
+```
+
+**Routes to:** `product-deep-dive.md`
+
+**Performs:**
+- Define and maintain deep-dive data schema
+- Merge curated deep-dive data with product data
+- Generate `products-deep-dive.json` outputs
+- Ensure consistent deep-dive layout across products
+
+---
+
+### 💷 Product Deal Finder (Deals & Pricing)
+
+**Activate when user says:**
+```
+"find deals"
+"product deals"
+"best price"
+"compare prices"
+"discount code"
+"promo code"
+"special offer"
+"sale price"
+```
+
+**Routes to:** `product-deal-finder.md`
+
+**Performs:**
+- Multi-source price checks
+- Deal/code validation
+- Clear formatted deal report
+
+---
+
+### 👥 Member Manager (Profiles & Uploads)
+
+**Activate when user says:**
+```
+"member manager"
+"profile page"
+"member profile"
+"user uploads"
+"profile image"
+"cover photo"
+"member dashboard"
+```
+
+**Routes to:** `member-manager.md`
+
+**Performs:**
+- Build or update member profile pages
+- Add upload flow for avatar/cover photos
+- Maintain profile data fields and UX
+
+---
+
 ### 🛍️ Product Addition Workflow (Grants Enrichment)
 
 **Activate when user says:**
@@ -348,6 +419,12 @@ User Request
     ├── Contains "Ralph", "PRD", "autonomous", "multi-step", "complex feature"?
     │   └── → RALPH-INTEGRATION.md (for large features)
     │
+    ├── Contains "deep dive", "product details", "rich product info"?
+    │   └── → product-deep-dive.md
+    │
+    ├── Contains "member profile", "profile page", "uploads", "members manager"?
+    │   └── → member-manager.md
+    │
     ├── Contains "add product", "product grants", "grants to product", "enrichment"?
     │   └── → product-addition-workflow.md (MANDATORY for new products)
     │
@@ -397,6 +474,16 @@ Some tasks require multiple skills. Common combinations:
 1. **HTML Creator** → Build the page
 2. **Media Skill** → Get images
 3. **Market Manager** → Link to products
+
+### Building Product Deep Dives
+1. **Product Deep Dive** → Build deep-dive JSON
+2. **HTML Creator** → Present in page template
+3. **Systems** → Verify API/data is served
+
+### Managing Member Profiles
+1. **Member Manager** → Build profile + upload flow
+2. **HTML Creator** → Style profile page
+3. **Systems** → Verify API endpoints
 
 ### Weekly Content Update
 1. **Grants Finder** → Find new schemes
@@ -491,6 +578,8 @@ C:\Users\steph\Documents\energy-cal-backend\Skills\
 | `sustainability-video-finder.md` | ~420 lines | January 2025 |
 | `sustainability-blog-writer.md` | ~500 lines | January 2026 |
 | `html-content-creator.md` | ~270 lines | January 2026 |
+| `product-deep-dive.md` | New | January 2026 |
+| `member-manager.md` | New | January 2026 |
 
 ---
 
@@ -695,6 +784,19 @@ git commit -m "📚 Update SKILL-ORCHESTRATOR: Add new trigger phrases for styli
 
 ---
 
+## 🧾 Recent Learnings (Append Here)
+
+- **Membership videos (MongoDB)**: Ensure Wix video integration exists in `routes/members-mongodb.js`, not just SQLite.
+- **Preferences compatibility**: API should return `{ id, name }` interests for UI mapping.
+- **Render secrets**: Wix video feed requires `WIX_APP_TOKEN` (or `WIX_APP_ID`/`WIX_APP_SECRET`/`WIX_INSTANCE_ID`) and `WIX_SITE_ID`.
+- **Saved content hub**: Persist saved items with `/api/members/saved-items` and use local storage only as cache.
+- **Profile hub UX**: Use a quick saved-products grid + suggested blogs to make profile feel like a home feed.
+- **Content catalog**: Use `content-catalog.json` + `/api/members/recommendations` for interest-based feeds.
+- **Catalog admin**: Manage entries in `content-catalog-admin.html` and sync Wix content via `/api/members/content-catalog/sync`.
+- **Catalog ordering**: Drag-drop ordering in admin UI saves via `/api/members/content-catalog/reorder`.
+
+---
+
 ## 📌 Quick Reference Card
 
 ```
@@ -707,6 +809,8 @@ git commit -m "📚 Update SKILL-ORCHESTRATOR: Add new trigger phrases for styli
 │  🖼️ MEDIA          → "find image", "blurry", "photo"          │
 │  🌍 GRANTS         → "grants", "schemes", "funding"           │
 │  🛍️ PRODUCT        → "add product", "grants enrichment"  ⚠️   │
+│  🔍 DEEP DIVE       → "deep dive", "product details"          │
+│  👥 MEMBERS         → "profile", "member manager"             │
 │  🎬 VIDEOS         → "videos", "YouTube", "sustainability"    │
 │  ✍️ BLOG           → "write", "blog", "ESG", "article"        │
 │  🌐 HTML           → "create page", "HTML", "webpage"         │

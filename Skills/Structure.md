@@ -17,6 +17,9 @@ Skills/
 ├── Media Skill MD.md              ← Product Images
 ├── grants-schemes-finder.md       ← Energy Grants
 ├── product-addition-workflow.md   ← ⚠️ Product Grants Enrichment (MANDATORY)
+├── product-deep-dive.md           ← Product Deep Dive (Enhanced product info)
+├── member-manager.md              ← Member profiles & uploads
+├── product-deal-finder.md         ← Deals, pricing, offers
 ├── RALPH-INTEGRATION.md           ← Autonomous Feature Deployment
 ├── sustainability-video-finder.md ← Video Curation
 ├── sustainability-blog-writer.md  ← Blog & ESG Content
@@ -38,6 +41,8 @@ Skills/
 │                      "glossy finish", "vibrant headers"       │
 │  🌍 GRANTS         → "grants", "schemes", "funding"           │
 │  🛍️ PRODUCT        → "add product", "grants enrichment"  ⚠️   │
+│  🔍 DEEP DIVE       → "deep dive", "product details"          │
+│  💷 DEALS           → "deals", "discount", "best price"       │
 │  🎬 VIDEOS         → "videos", "YouTube", "sustainability"    │
 │  ✍️ BLOG           → "write", "blog", "ESG", "article"        │
 │  🌐 HTML           → "create page", "HTML", "webpage"         │
@@ -60,6 +65,9 @@ Skills/
 | 🖼️ **Media** | `Media Skill MD.md` | Find/manage product images |
 | 🌍 **Grants Finder** | `grants-schemes-finder.md` | Find energy grants & schemes |
 | 🛍️ **Product Workflow** | `product-addition-workflow.md` | ⚠️ Add products with grants/collection |
+| 🔍 **Product Deep Dive** | `product-deep-dive.md` | Build deep-dive product info and pages |
+| 👥 **Member Manager** | `member-manager.md` | Member profiles, uploads, and access UX |
+| 💷 **Product Deal Finder** | `product-deal-finder.md` | Find deals, offers, and price comparisons |
 | 🎬 **Video Finder** | `sustainability-video-finder.md` | Find sustainability videos |
 | ✍️ **Blog Writer** | `sustainability-blog-writer.md` | Generate blog content & ESG reports |
 | 🌐 **HTML Creator** | `html-content-creator.md` | Create HTML pages with images |
@@ -280,6 +288,47 @@ Skills/
 
 ---
 
+### 🔍 Product Deep Dive
+
+**Activate when user says:**
+```
+"product deep dive"
+"deep dive page"
+"product details page"
+"rich product info"
+"enhanced product profile"
+"show all grants and reviews"
+"deep dive content"
+```
+
+**What it does:**
+- Build deep-dive data schema
+- Merge curated data with products
+- Generate `products-deep-dive.json`
+- Standardize deep-dive layout
+
+---
+
+### 👥 Member Manager
+
+**Activate when user says:**
+```
+"member manager"
+"profile page"
+"member profile"
+"user uploads"
+"profile image"
+"cover photo"
+"member dashboard"
+```
+
+**What it does:**
+- Create and update member profile pages
+- Handle avatar + cover image uploads
+- Maintain profile schema and UX
+
+---
+
 ### 🛍️ Product Addition Workflow (⚠️ MANDATORY for New Products)
 
 **Activate when user says:**
@@ -357,6 +406,8 @@ Some tasks require multiple skills. Common combinations:
 | **Add Product with Image** | Media → ⚠️ Product Workflow → Market Manager → Systems |
 | **Add New Product** | Media → ⚠️ Product Workflow → Market Manager → Systems |
 | **Create Product Page** | HTML Creator → Media → Market Manager |
+| **Build Product Deep Dives** | Product Deep Dive → HTML Creator → Systems |
+| **Member Profile Build** | Member Manager → HTML Creator → Systems |
 | **Weekly Content Update** | Grants Finder → Video Finder → Blog Writer |
 | **Full System Check** | Systems → Market Manager → Media |
 | **Regenerate Product Data** | ⚠️ Product Workflow → Systems |
@@ -429,6 +480,8 @@ Some tasks require multiple skills. Common combinations:
 | `Media Skill MD.md` | ~490 | Product images |
 | `grants-schemes-finder.md` | ~420 | Grant research |
 | `product-addition-workflow.md` | ~500 | ⚠️ Product grants enrichment |
+| `product-deep-dive.md` | New | Product deep-dive workflow |
+| `member-manager.md` | New | Member profiles and uploads |
 | `sustainability-video-finder.md` | ~420 | Video curation |
 | `sustainability-blog-writer.md` | ~500 | Blog & ESG content |
 | `html-content-creator.md` | ~270 | HTML page creation |
@@ -517,7 +570,7 @@ RECEIVE → EXECUTE → COMPLETE → REFLECT → DOCUMENT → COMMIT → READY
 ---
 
 **Last Updated:** January 2026  
-**Total Skills:** 10  
+**Total Skills:** 12  
 **Master Controller:** SKILL-ORCHESTRATOR.md  
 **Learning Protocol:** v2.0 (Auto-documentation enabled)
 **Product Workflow:** ⚠️ MANDATORY for all new products

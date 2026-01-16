@@ -4,6 +4,9 @@ const jwt = require('jsonwebtoken');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
+const multer = require('multer');
+const FormData = require('form-data');
+const cron = require('node-cron');
 
 console.log('🚀 Members router loading...');
 
@@ -17,6 +20,13 @@ const dbDir = path.dirname(dbPath);
 if (!fs.existsSync(dbDir)) {
   console.log('📁 Creating database directory:', dbDir);
   fs.mkdirSync(dbDir, { recursive: true });
+}
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, '../uploads/members');
+if (!fs.existsSync(uploadsDir)) {
+  console.log('📁 Creating uploads directory:', uploadsDir);
+  fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
 console.log('🔍 Database path:', dbPath);
@@ -35,6 +45,22 @@ const db = new sqlite3.Database(dbPath, (err) => {
         email TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
         name TEXT,
+        first_name TEXT,
+        last_name TEXT,
+        display_name TEXT,
+        company TEXT,
+        phone TEXT,
+        job_title TEXT,
+        bio TEXT,
+        location TEXT,
+        profile_photo_url TEXT,
+        cover_photo_url TEXT,
+        subscription_tier TEXT DEFAULT 'Free',
+        subscription_status TEXT DEFAULT 'active',
+        wix_member_id TEXT,
+        wix_site_id TEXT,
+        wix_plan_id TEXT,
+        wix_order_id TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         last_login DATETIME,
         interests TEXT,
@@ -49,6 +75,42 @@ const db = new sqlite3.Database(dbPath, (err) => {
         features TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`);
+
+      // Add missing columns if database already existed
+      const columnsToAdd = [
+        { name: 'first_name', type: 'TEXT' },
+        { name: 'last_name', type: 'TEXT' },
+        { name: 'display_name', type: 'TEXT' },
+        { name: 'company', type: 'TEXT' },
+        { name: 'phone', type: 'TEXT' },
+        { name: 'job_title', type: 'TEXT' },
+        { name: 'bio', type: 'TEXT' },
+        { name: 'location', type: 'TEXT' },
+        { name: 'profile_photo_url', type: 'TEXT' },
+        { name: 'cover_photo_url', type: 'TEXT' },
+        { name: 'subscription_tier', type: 'TEXT' },
+        { name: 'subscription_status', type: 'TEXT' },
+        { name: 'wix_member_id', type: 'TEXT' },
+        { name: 'wix_site_id', type: 'TEXT' },
+        { name: 'wix_plan_id', type: 'TEXT' },
+        { name: 'wix_order_id', type: 'TEXT' },
+        { name: 'saved_videos', type: 'TEXT' },
+        { name: 'saved_blogs', type: 'TEXT' },
+        { name: 'saved_reports', type: 'TEXT' },
+        { name: 'saved_products', type: 'TEXT' }
+      ];
+
+      columnsToAdd.forEach((column) => {
+        db.run(`ALTER TABLE members ADD COLUMN ${column.name} ${column.type}`, (error) => {
+          if (error) {
+            if (!error.message.includes('duplicate column name')) {
+              console.error(`❌ Error adding column ${column.name}:`, error.message);
+            }
+          } else {
+            console.log(`✅ Added column ${column.name} to members table`);
+          }
+        });
+      });
     });
   }
 });
@@ -70,6 +132,23 @@ router.get('/test-db', (req, res) => {
 // JWT secret (should be in environment variables)
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
+const uploadImage = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype && file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image uploads are allowed'));
+    }
+  }
+});
+
+const uploadImport = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }
+});
+
 // Middleware to authenticate JWT tokens
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -87,6 +166,333 @@ const authenticateToken = (req, res, next) => {
     next();
   });
 };
+
+const SAVED_COLUMNS = {
+  videos: 'saved_videos',
+  blogs: 'saved_blogs',
+  reports: 'saved_reports',
+  products: 'saved_products'
+};
+
+const CATALOG_PATH = path.join(__dirname, '../wix-integration/member-content/content-catalog.json');
+const catalogCache = {
+  items: null,
+  loadedAt: 0,
+  ttl: 5 * 60 * 1000
+};
+
+const INTEREST_KEYWORDS = {
+  'energy saving': ['energy', 'efficiency', 'saving'],
+  'energy generating': ['solar', 'wind', 'renewable', 'generation'],
+  'water saving': ['water', 'conservation'],
+  'solar power': ['solar', 'pv'],
+  'heat pumps': ['heat pump', 'hvac', 'heating'],
+  'led lighting': ['led', 'lighting'],
+  'smart home': ['smart', 'automation', 'iot'],
+  'insulation': ['insulation', 'building fabric'],
+  'electric vehicles': ['ev', 'electric vehicle', 'charging'],
+  'wind energy': ['wind'],
+  'battery storage': ['battery', 'storage'],
+  'water heating': ['water heating', 'hot water'],
+  'building efficiency': ['building', 'retrofit'],
+  'grants & funding': ['grants', 'funding', 'incentive'],
+  'renewable certifications': ['certification', 'green']
+};
+
+const ADMIN_KEY = process.env.ADMIN_KEY || '';
+const CONTENT_SYNC_CRON = process.env.CONTENT_CATALOG_SYNC_CRON || '0 */6 * * *';
+const CONTENT_SYNC_ENABLED = process.env.CONTENT_CATALOG_SYNC_ENABLED !== 'false';
+const CONTENT_SYNC_ON_START = process.env.CONTENT_CATALOG_SYNC_ON_START !== 'false';
+
+function parseSavedList(raw) {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function normalizeSavedItem(item, type) {
+  if (!item || typeof item !== 'object') return null;
+  const id = String(item.id || item._id || item.videoId || item.slug || item.title || '').trim();
+  if (!id) return null;
+  return {
+    id,
+    title: String(item.title || item.name || 'Saved item'),
+    description: String(item.description || ''),
+    category: String(item.category || ''),
+    url: String(item.url || item.link || ''),
+    imageUrl: item.imageUrl ? String(item.imageUrl) : undefined,
+    thumbnail: item.thumbnail ? String(item.thumbnail) : undefined,
+    type
+  };
+}
+
+function isAdminRequest(req) {
+  if (ADMIN_KEY && req.headers['x-admin-key'] === ADMIN_KEY) {
+    return true;
+  }
+  if (!ADMIN_KEY) {
+    console.warn('⚠️ ADMIN_KEY not set. Allowing catalog admin actions.');
+    return true;
+  }
+  return false;
+}
+
+function loadCatalog() {
+  const now = Date.now();
+  if (catalogCache.items && (now - catalogCache.loadedAt) < catalogCache.ttl) {
+    return catalogCache.items;
+  }
+
+  try {
+    const raw = fs.readFileSync(CATALOG_PATH, 'utf8');
+    const data = JSON.parse(raw);
+    catalogCache.items = Array.isArray(data.items) ? data.items : [];
+    catalogCache.loadedAt = now;
+    return catalogCache.items;
+  } catch (error) {
+    console.error('❌ Failed to load content catalog:', error.message);
+    return [];
+  }
+}
+
+function writeCatalog(items) {
+  const payload = { items };
+  fs.writeFileSync(CATALOG_PATH, JSON.stringify(payload, null, 2));
+  catalogCache.items = items;
+  catalogCache.loadedAt = Date.now();
+}
+
+function buildInterestTokens(interests) {
+  const tokens = new Set();
+  (interests || []).forEach((interest) => {
+    const key = String(interest).toLowerCase();
+    tokens.add(key);
+    const mapped = INTEREST_KEYWORDS[key];
+    if (mapped) {
+      mapped.forEach((token) => tokens.add(token));
+    }
+  });
+  return Array.from(tokens);
+}
+
+function filterCatalogByInterests(items, interests, type) {
+  let filtered = items;
+  if (type) {
+    filtered = filtered.filter((item) => item.type === type);
+  }
+
+  const tokens = buildInterestTokens(interests);
+  if (tokens.length === 0) {
+    return filtered;
+  }
+
+  return filtered.filter((item) => {
+    const haystack = [
+      item.title,
+      item.description,
+      item.category,
+      ...(item.tags || [])
+    ]
+      .join(' ')
+      .toLowerCase();
+    return tokens.some((token) => haystack.includes(token));
+  });
+}
+
+async function uploadImageToWix(file) {
+  const authToken = await getWixAuthToken();
+  if (!authToken) {
+    throw new Error('Wix credentials not configured');
+  }
+
+  const filename = file.originalname || `profile-${Date.now()}.png`;
+  const mimeType = file.mimetype || 'image/png';
+
+  const uploadUrlResponse = await fetch('https://www.wixapis.com/site-media/v1/files/generate-upload-url', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': authToken
+    },
+    body: JSON.stringify({ mimeType, fileName: filename })
+  });
+
+  if (!uploadUrlResponse.ok) {
+    const errorText = await uploadUrlResponse.text();
+    throw new Error(`Wix upload URL error: ${uploadUrlResponse.status} ${errorText}`);
+  }
+
+  const uploadUrlData = await uploadUrlResponse.json();
+  const uploadUrl = uploadUrlData.uploadUrl;
+  if (!uploadUrl) {
+    throw new Error('Wix upload URL not returned');
+  }
+
+  const form = new FormData();
+  form.append('file', file.buffer, { filename, contentType: mimeType });
+
+  const uploadResponse = await fetch(uploadUrl, {
+    method: 'POST',
+    headers: form.getHeaders(),
+    body: form
+  });
+
+  const uploadText = await uploadResponse.text();
+  let uploadData = {};
+  try {
+    uploadData = JSON.parse(uploadText);
+  } catch (error) {
+    uploadData = { raw: uploadText };
+  }
+
+  if (!uploadResponse.ok) {
+    throw new Error(`Wix upload failed: ${uploadResponse.status} ${uploadText}`);
+  }
+
+  const url = uploadData?.file?.url || uploadData?.file?.media?.url || uploadData?.url;
+  if (!url) {
+    throw new Error('Wix upload response missing file URL');
+  }
+
+  return { url, raw: uploadData, uploadUrl };
+}
+
+function saveBufferToLocal(file) {
+  const ext = path.extname(file.originalname || '').toLowerCase();
+  const safeExt = ['.jpg', '.jpeg', '.png', '.webp'].includes(ext) ? ext : '.png';
+  const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+  const filename = `${unique}${safeExt}`;
+  const filePath = path.join(uploadsDir, filename);
+  fs.writeFileSync(filePath, file.buffer);
+  return `/uploads/members/${filename}`;
+}
+
+function normalizeCatalogImportItem(item, index) {
+  if (!item || typeof item !== 'object') return null;
+  const id = String(item.id || item.slug || item.title || `import-${Date.now()}-${index}`).trim();
+  const type = String(item.type || 'blog').toLowerCase();
+  const title = String(item.title || item.name || '').trim();
+  if (!title) return null;
+  const tags = Array.isArray(item.tags)
+    ? item.tags
+    : String(item.tags || item.tag || '')
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean);
+
+  return {
+    id,
+    type,
+    title,
+    description: String(item.description || item.summary || ''),
+    category: String(item.category || ''),
+    tags,
+    url: String(item.url || item.link || ''),
+    imageUrl: item.imageUrl ? String(item.imageUrl) : undefined,
+    thumbnail: item.thumbnail ? String(item.thumbnail) : undefined,
+    source: item.source || 'import'
+  };
+}
+
+async function syncCatalogFromWix() {
+  const [videos, blogs] = await Promise.all([fetchVideosFromWix(), fetchBlogsFromWix()]);
+  const items = loadCatalog();
+  const map = new Map(items.map((item) => [item.id, item]));
+
+  (videos || []).forEach((video) => {
+    const id = video.id ? `wix-video-${video.id}` : `wix-video-${video.title}`;
+    map.set(id, {
+      id,
+      type: 'video',
+      title: video.title,
+      description: video.description,
+      category: video.category || 'video',
+      tags: video.tags || [],
+      url: video.videoUrl || (video.videoId ? `https://www.youtube.com/watch?v=${video.videoId}` : ''),
+      thumbnail: video.thumbnail,
+      source: 'wix',
+      updatedAt: new Date().toISOString()
+    });
+  });
+
+  (blogs || []).forEach((blog) => {
+    map.set(blog.id, { ...blog, updatedAt: new Date().toISOString() });
+  });
+
+  const updated = Array.from(map.values());
+  writeCatalog(updated);
+  return {
+    total: updated.length,
+    syncedVideos: (videos || []).length,
+    syncedBlogs: (blogs || []).length
+  };
+}
+
+function startCatalogAutoSync() {
+  if (!CONTENT_SYNC_ENABLED) {
+    console.log('⏸️ Content catalog auto-sync disabled');
+    return;
+  }
+
+  if (!cron.validate(CONTENT_SYNC_CRON)) {
+    console.warn(`⚠️ Invalid CONTENT_CATALOG_SYNC_CRON: ${CONTENT_SYNC_CRON}`);
+    return;
+  }
+
+  cron.schedule(CONTENT_SYNC_CRON, async () => {
+    try {
+      const result = await syncCatalogFromWix();
+      console.log(`✅ Auto-sync complete: ${result.syncedVideos} videos, ${result.syncedBlogs} blogs`);
+    } catch (error) {
+      console.error('❌ Auto-sync failed:', error.message);
+    }
+  });
+
+  if (CONTENT_SYNC_ON_START) {
+    syncCatalogFromWix()
+      .then((result) => {
+        console.log(`✅ Initial catalog sync: ${result.syncedVideos} videos, ${result.syncedBlogs} blogs`);
+      })
+      .catch((error) => {
+        console.error('❌ Initial catalog sync failed:', error.message);
+      });
+  }
+}
+
+async function getWixAuthToken() {
+  const WIX_APP_TOKEN = process.env.WIX_APP_TOKEN;
+  const WIX_APP_ID = process.env.WIX_APP_ID;
+  const WIX_APP_SECRET = process.env.WIX_APP_SECRET;
+  const WIX_INSTANCE_ID = process.env.WIX_INSTANCE_ID;
+
+  if (WIX_APP_TOKEN) {
+    return WIX_APP_TOKEN.startsWith('Bearer ') ? WIX_APP_TOKEN : `Bearer ${WIX_APP_TOKEN}`;
+  }
+
+  if (WIX_APP_ID && WIX_APP_SECRET && WIX_INSTANCE_ID) {
+    const tokenResponse = await fetch('https://www.wixapis.com/oauth2/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        grant_type: 'client_credentials',
+        client_id: WIX_APP_ID,
+        client_secret: WIX_APP_SECRET,
+        instance_id: WIX_INSTANCE_ID
+      })
+    });
+
+    if (tokenResponse.ok) {
+      const tokenData = await tokenResponse.json();
+      return `Bearer ${tokenData.access_token}`;
+    }
+  }
+
+  return null;
+}
 
 // Member registration
 router.post('/register', async (req, res) => {
@@ -229,7 +635,9 @@ router.post('/refresh-token', authenticateToken, (req, res) => {
 
 // Get member profile (authenticated)
 router.get('/profile', authenticateToken, (req, res) => {
-  db.get('SELECT id, email, first_name, last_name, company, phone, interests, subscription_tier, subscription_status, created_at, last_login FROM members WHERE id = ?', [req.user.id], (err, user) => {
+  db.get(`SELECT id, email, first_name, last_name, display_name, company, phone, job_title, bio, location,
+      profile_photo_url, cover_photo_url, interests, subscription_tier, subscription_status, created_at, last_login
+    FROM members WHERE id = ?`, [req.user.id], (err, user) => {
     if (err) {
       console.error('❌ Database error in profile:', err.message);
       return res.status(500).json({ error: 'Database error', details: err.message });
@@ -240,6 +648,228 @@ router.get('/profile', authenticateToken, (req, res) => {
 
     res.json({ user });
   });
+});
+
+// Update member profile (authenticated)
+router.put('/profile', authenticateToken, (req, res) => {
+  const {
+    first_name,
+    last_name,
+    display_name,
+    company,
+    phone,
+    job_title,
+    bio,
+    location,
+    profile_photo_url,
+    cover_photo_url
+  } = req.body;
+
+  const toText = (value, max = 2000) => {
+    if (typeof value !== 'string') return null;
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    return trimmed.length > max ? trimmed.slice(0, max) : trimmed;
+  };
+
+  const params = [
+    toText(first_name, 80),
+    toText(last_name, 80),
+    toText(display_name, 120),
+    toText(company, 120),
+    toText(phone, 40),
+    toText(job_title, 120),
+    toText(bio, 2000),
+    toText(location, 120),
+    toText(profile_photo_url, 500),
+    toText(cover_photo_url, 500),
+    req.user.id
+  ];
+
+  const sql = `UPDATE members
+    SET first_name = ?, last_name = ?, display_name = ?, company = ?, phone = ?, job_title = ?, bio = ?, location = ?,
+        profile_photo_url = ?, cover_photo_url = ?
+    WHERE id = ?`;
+
+  db.run(sql, params, function(err) {
+    if (err) {
+      console.error('❌ Database error in profile update:', err.message);
+      return res.status(500).json({ error: 'Database error', details: err.message });
+    }
+
+    res.json({ success: true, message: 'Profile updated successfully' });
+  });
+});
+
+// Upload profile images (avatar/cover)
+router.post('/profile/upload', authenticateToken, (req, res) => {
+  uploadImage.single('file')(req, res, (error) => {
+    if (error) {
+      console.error('❌ Upload error:', error.message);
+      return res.status(400).json({ error: 'Upload failed', details: error.message });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const type = req.query.type === 'cover' ? 'cover_photo_url' : 'profile_photo_url';
+    uploadImageToWix(req.file)
+      .then((uploadResult) => {
+        db.run(`UPDATE members SET ${type} = ? WHERE id = ?`, [uploadResult.url, req.user.id], function(err) {
+          if (err) {
+            console.error('❌ Database error updating profile image:', err.message);
+            return res.status(500).json({ error: 'Failed to update profile image' });
+          }
+
+          res.json({
+            success: true,
+            url: uploadResult.url,
+            type: type === 'cover_photo_url' ? 'cover' : 'avatar'
+          });
+        });
+      })
+      .catch((uploadError) => {
+        console.error('❌ Wix upload failed:', uploadError.message);
+        if (process.env.ALLOW_LOCAL_PROFILE_UPLOADS === 'true') {
+          const localUrl = saveBufferToLocal(req.file);
+          db.run(`UPDATE members SET ${type} = ? WHERE id = ?`, [localUrl, req.user.id], function(err) {
+            if (err) {
+              console.error('❌ Database error updating profile image:', err.message);
+              return res.status(500).json({ error: 'Failed to update profile image' });
+            }
+
+            res.json({
+              success: true,
+              url: localUrl,
+              type: type === 'cover_photo_url' ? 'cover' : 'avatar',
+              fallback: 'local'
+            });
+          });
+          return;
+        }
+
+        res.status(500).json({ error: 'Failed to upload image to Wix', details: uploadError.message });
+      });
+  });
+});
+
+// Saved items hub
+router.get('/saved-items', authenticateToken, (req, res) => {
+  db.get(
+    'SELECT saved_videos, saved_blogs, saved_reports, saved_products FROM members WHERE id = ?',
+    [req.user.id],
+    (err, row) => {
+      if (err) {
+        console.error('❌ Database error fetching saved items:', err.message);
+        return res.status(500).json({ error: 'Database error', details: err.message });
+      }
+      if (!row) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      res.json({
+        saved: {
+          videos: parseSavedList(row.saved_videos),
+          blogs: parseSavedList(row.saved_blogs),
+          reports: parseSavedList(row.saved_reports),
+          products: parseSavedList(row.saved_products)
+        }
+      });
+    }
+  );
+});
+
+router.post('/saved-items/:type', authenticateToken, (req, res) => {
+  const column = SAVED_COLUMNS[req.params.type];
+  if (!column) {
+    return res.status(400).json({ error: 'Invalid saved item type' });
+  }
+
+  const normalized = normalizeSavedItem(req.body, req.params.type);
+  if (!normalized) {
+    return res.status(400).json({ error: 'Invalid item payload' });
+  }
+
+  db.get(`SELECT ${column} FROM members WHERE id = ?`, [req.user.id], (err, row) => {
+    if (err) {
+      console.error('❌ Database error reading saved items:', err.message);
+      return res.status(500).json({ error: 'Database error', details: err.message });
+    }
+    if (!row) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const list = parseSavedList(row[column]);
+    const exists = list.some((item) => item.id === normalized.id);
+    if (!exists) {
+      list.unshift({ ...normalized, savedAt: new Date().toISOString() });
+    }
+
+    const trimmed = list.slice(0, 50);
+    db.run(`UPDATE members SET ${column} = ? WHERE id = ?`, [JSON.stringify(trimmed), req.user.id], (updateErr) => {
+      if (updateErr) {
+        console.error('❌ Database error saving item:', updateErr.message);
+        return res.status(500).json({ error: 'Database error', details: updateErr.message });
+      }
+      res.json({ saved: trimmed, added: !exists });
+    });
+  });
+});
+
+router.put('/saved-items/:type', authenticateToken, (req, res) => {
+  const column = SAVED_COLUMNS[req.params.type];
+  if (!column) {
+    return res.status(400).json({ error: 'Invalid saved item type' });
+  }
+
+  const items = Array.isArray(req.body.items) ? req.body.items : [];
+  const normalized = items
+    .map((item) => normalizeSavedItem(item, req.params.type))
+    .filter(Boolean)
+    .slice(0, 50);
+
+  db.run(`UPDATE members SET ${column} = ? WHERE id = ?`, [JSON.stringify(normalized), req.user.id], (err) => {
+    if (err) {
+      console.error('❌ Database error saving items:', err.message);
+      return res.status(500).json({ error: 'Database error', details: err.message });
+    }
+    res.json({ saved: normalized });
+  });
+});
+
+router.delete('/saved-items/:type/:id', authenticateToken, (req, res) => {
+  const column = SAVED_COLUMNS[req.params.type];
+  if (!column) {
+    return res.status(400).json({ error: 'Invalid saved item type' });
+  }
+
+  db.get(`SELECT ${column} FROM members WHERE id = ?`, [req.user.id], (err, row) => {
+    if (err) {
+      console.error('❌ Database error reading saved items:', err.message);
+      return res.status(500).json({ error: 'Database error', details: err.message });
+    }
+    if (!row) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const list = parseSavedList(row[column]);
+    const filtered = list.filter((item) => String(item.id) !== String(req.params.id));
+    db.run(`UPDATE members SET ${column} = ? WHERE id = ?`, [JSON.stringify(filtered), req.user.id], (updateErr) => {
+      if (updateErr) {
+        console.error('❌ Database error removing item:', updateErr.message);
+        return res.status(500).json({ error: 'Database error', details: updateErr.message });
+      }
+      res.json({ saved: filtered });
+    });
+  });
+});
+
+// Blog feed (catalog-based)
+router.get('/blogs', authenticateToken, (req, res) => {
+  const items = loadCatalog();
+  const blogs = items.filter((item) => item.type === 'blog');
+  res.json({ blogs, total: blogs.length, source: 'catalog' });
 });
 
 // Get member content based on subscription tier
@@ -382,7 +1012,156 @@ router.put('/interests', authenticateToken, (req, res) => {
   });
 });
 
-// Get member recommendations based on interests
+// Content catalog
+router.get('/content-catalog', authenticateToken, (req, res) => {
+  const type = req.query.type;
+  const items = loadCatalog();
+  const filtered = type ? items.filter((item) => item.type === type) : items;
+  res.json({ items: filtered, total: filtered.length, source: 'catalog' });
+});
+
+router.post('/content-catalog', authenticateToken, (req, res) => {
+  if (!isAdminRequest(req)) {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
+
+  const items = loadCatalog();
+  const item = req.body || {};
+  if (!item.id || !item.type || !item.title) {
+    return res.status(400).json({ error: 'Missing required fields: id, type, title' });
+  }
+  if (items.some((existing) => existing.id === item.id)) {
+    return res.status(409).json({ error: 'Item ID already exists' });
+  }
+
+  const next = { ...item, source: item.source || 'manual', updatedAt: new Date().toISOString() };
+  const updated = [next, ...items];
+  writeCatalog(updated);
+  res.json({ item: next, total: updated.length });
+});
+
+router.put('/content-catalog/:id', authenticateToken, (req, res) => {
+  if (!isAdminRequest(req)) {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
+
+  const items = loadCatalog();
+  const itemId = req.params.id;
+  const index = items.findIndex((item) => item.id === itemId);
+  if (index === -1) {
+    return res.status(404).json({ error: 'Item not found' });
+  }
+
+  const updatedItem = { ...items[index], ...req.body, id: itemId, updatedAt: new Date().toISOString() };
+  const updated = [...items];
+  updated[index] = updatedItem;
+  writeCatalog(updated);
+  res.json({ item: updatedItem });
+});
+
+router.delete('/content-catalog/:id', authenticateToken, (req, res) => {
+  if (!isAdminRequest(req)) {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
+
+  const items = loadCatalog();
+  const itemId = req.params.id;
+  const updated = items.filter((item) => item.id !== itemId);
+  writeCatalog(updated);
+  res.json({ total: updated.length });
+});
+
+router.post('/content-catalog/reorder', authenticateToken, (req, res) => {
+  if (!isAdminRequest(req)) {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
+
+  const ids = Array.isArray(req.body.ids) ? req.body.ids : [];
+  if (ids.length === 0) {
+    return res.status(400).json({ error: 'No ids provided' });
+  }
+
+  const items = loadCatalog();
+  const map = new Map(items.map((item) => [item.id, item]));
+  const reordered = ids.map((id) => map.get(id)).filter(Boolean);
+  const remaining = items.filter((item) => !ids.includes(item.id));
+  const updated = [...reordered, ...remaining];
+  writeCatalog(updated);
+
+  res.json({ total: updated.length });
+});
+
+router.post('/content-catalog/import', authenticateToken, (req, res) => {
+  uploadImport.single('file')(req, res, async (error) => {
+    if (error) {
+      return res.status(400).json({ error: 'Import failed', details: error.message });
+    }
+
+    if (!isAdminRequest(req)) {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const mode = String(req.body.mode || req.query.mode || 'merge').toLowerCase();
+    const ext = path.extname(req.file.originalname || '').toLowerCase();
+    const raw = req.file.buffer.toString('utf8');
+    let importedItems = [];
+
+    try {
+      if (ext === '.json' || req.file.mimetype.includes('json')) {
+        const parsed = JSON.parse(raw);
+        const list = Array.isArray(parsed) ? parsed : parsed.items;
+        importedItems = Array.isArray(list) ? list : [];
+      } else if (ext === '.csv' || req.file.mimetype.includes('csv')) {
+        const csv = require('csvtojson');
+        importedItems = await csv().fromString(raw);
+      } else {
+        return res.status(400).json({ error: 'Unsupported file type. Use CSV or JSON.' });
+      }
+    } catch (parseError) {
+      return res.status(400).json({ error: 'Failed to parse import file', details: parseError.message });
+    }
+
+    const normalized = importedItems
+      .map((item, index) => normalizeCatalogImportItem(item, index))
+      .filter(Boolean);
+
+    if (normalized.length === 0) {
+      return res.status(400).json({ error: 'No valid catalog items found in import file' });
+    }
+
+    const existing = loadCatalog();
+    const map = new Map((mode === 'replace' ? [] : existing).map((item) => [item.id, item]));
+    const now = new Date().toISOString();
+
+    normalized.forEach((item) => {
+      map.set(item.id, { ...map.get(item.id), ...item, updatedAt: now });
+    });
+
+    const updated = Array.from(map.values());
+    writeCatalog(updated);
+
+    res.json({
+      imported: normalized.length,
+      total: updated.length,
+      mode
+    });
+  });
+});
+
+router.post('/content-catalog/sync', authenticateToken, async (req, res) => {
+  if (!isAdminRequest(req)) {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
+
+  const result = await syncCatalogFromWix();
+  res.json(result);
+});
+
+// Recommendations (catalog-based)
 router.get('/recommendations', authenticateToken, (req, res) => {
   db.get('SELECT interests FROM members WHERE id = ?', [req.user.id], (err, member) => {
     if (err) {
@@ -390,29 +1169,18 @@ router.get('/recommendations', authenticateToken, (req, res) => {
       return res.status(500).json({ error: 'Database error', details: err.message });
     }
 
-    const interests = member.interests || '';
-    const interestList = interests.split(',').map(i => i.trim()).filter(i => i);
+    const interests = member?.interests || '';
+    const interestList = interests.split(',').map((i) => i.trim()).filter((i) => i);
+    const type = req.query.type;
 
-    if (interestList.length === 0) {
-      return res.json({ recommendations: [], message: 'No interests set' });
-    }
+    const items = loadCatalog();
+    const recommendations = filterCatalogByInterests(items, interestList, type).slice(0, 12);
 
-    // Get content matching interests
-    const placeholders = interestList.map(() => '?').join(',');
-    const query = `SELECT * FROM content WHERE tags LIKE ? OR category IN (${placeholders}) ORDER BY created_at DESC LIMIT 10`;
-    const params = [`%${interestList.join('%')}%`, ...interestList];
-
-    db.all(query, params, (err, content) => {
-      if (err) {
-        console.error('❌ Database error in recommendations query:', err.message);
-        return res.status(500).json({ error: 'Database error', details: err.message });
-      }
-
-      res.json({ 
-        recommendations: content,
-        interests: interestList,
-        message: `Found ${content.length} recommendations based on your interests`
-      });
+    res.json({
+      recommendations,
+      interests: interestList,
+      total: recommendations.length,
+      source: 'catalog'
     });
   });
 });
@@ -820,49 +1588,9 @@ let videoCache = {
 
 // Fetch videos from Wix API
 async function fetchVideosFromWix() {
-  const WIX_APP_TOKEN = process.env.WIX_APP_TOKEN;
-  const WIX_APP_ID = process.env.WIX_APP_ID;
-  const WIX_APP_SECRET = process.env.WIX_APP_SECRET;
-  const WIX_INSTANCE_ID = process.env.WIX_INSTANCE_ID;
   const WIX_SITE_ID = process.env.WIX_SITE_ID || 'd9c9c6b1-f79a-49a3-8183-4c5a8e24a413'; // Greenways Buildings
-  
-  let authToken = null;
-  
-  // Method 1: Use App Token directly (if provided)
-  if (WIX_APP_TOKEN) {
-    authToken = WIX_APP_TOKEN.startsWith('Bearer ') ? WIX_APP_TOKEN : `Bearer ${WIX_APP_TOKEN}`;
-  }
-  // Method 2: Use App ID + Secret to create access token (OAuth)
-  else if (WIX_APP_ID && WIX_APP_SECRET && WIX_INSTANCE_ID) {
-    try {
-      const tokenResponse = await fetch('https://www.wixapis.com/oauth2/token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          grant_type: 'client_credentials',
-          client_id: WIX_APP_ID,
-          client_secret: WIX_APP_SECRET,
-          instance_id: WIX_INSTANCE_ID
-        })
-      });
-      
-      if (tokenResponse.ok) {
-        const tokenData = await tokenResponse.json();
-        authToken = `Bearer ${tokenData.access_token}`;
-        console.log('✅ Created access token using OAuth');
-      } else {
-        console.log('⚠️  Failed to create access token, using fallback videos');
-        return null;
-      }
-    } catch (error) {
-      console.log('⚠️  Error creating access token:', error.message);
-      return null;
-    }
-  }
-  
-  // If no authentication method available, return null to use fallback
+
+  const authToken = await getWixAuthToken();
   if (!authToken) {
     console.log('⚠️  Wix credentials not configured. Options:');
     console.log('   1. Set WIX_APP_TOKEN (direct token)');
@@ -922,6 +1650,61 @@ async function fetchVideosFromWix() {
   } catch (error) {
     console.error('❌ Error fetching videos from Wix:', error.message);
     return null; // Return null to trigger fallback
+  }
+}
+
+async function fetchBlogsFromWix() {
+  const authToken = await getWixAuthToken();
+  if (!authToken) {
+    console.log('⚠️  Wix credentials not configured. Using catalog-only blogs');
+    return null;
+  }
+
+  try {
+    const response = await fetch('https://www.wixapis.com/blog/v3/posts/query', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': authToken
+      },
+      body: JSON.stringify({ paging: { limit: 50 } })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Wix Blog API error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const posts = data.posts || data.items || data.results || [];
+    const siteUrl = process.env.WIX_SITE_URL || 'https://greenwaysbuildings.com';
+
+    return posts.map((post, index) => {
+      const title = post.title?.text || post.title || post.titlePlain || 'Blog post';
+      const excerpt = post.excerpt?.text || post.excerpt || post.summary || '';
+      const slug = post.slug?.slug || post.slug || post.url?.slug || '';
+      const url = post.url?.url || (slug ? `${siteUrl}/post/${slug}` : siteUrl);
+      const imageUrl =
+        post.featuredMedia?.url ||
+        post.coverMedia?.image?.url ||
+        post.coverMedia?.url ||
+        '';
+      const tags = (post.tags || post.categories || []).map((tag) => (tag.name || tag).toString());
+
+      return {
+        id: `wix-blog-${post.id || slug || index}`,
+        type: 'blog',
+        title,
+        description: excerpt,
+        category: post.category?.name || (tags[0] || 'Blog'),
+        tags,
+        url,
+        imageUrl,
+        source: 'wix'
+      };
+    });
+  } catch (error) {
+    console.error('❌ Error fetching blogs from Wix:', error.message);
+    return null;
   }
 }
 
@@ -1135,3 +1918,5 @@ router.get('/videos', authenticateToken, async (req, res) => {
 });
 
 module.exports = router;
+
+startCatalogAutoSync();

@@ -78,6 +78,17 @@ node server-new.js
 
 ---
 
+## 🧠 Lessons Learned Log
+
+### Issue: Wix videos not loading in membership pages
+
+**Date:** January 2026  
+**Problem:** Member videos stayed on fallback samples, Wix media never loaded.  
+**Root Cause:** Wix API credentials missing in Render environment variables.  
+**Solution:** Add `WIX_APP_TOKEN` (or `WIX_APP_ID`, `WIX_APP_SECRET`, `WIX_INSTANCE_ID`) and `WIX_SITE_ID` in Render secrets.  
+**Prevention/Future Use:** Verify required env vars on Render before debugging API logic.
+---
+
 ## 🏗️ System Architecture Reference
 
 ### **Core Components**

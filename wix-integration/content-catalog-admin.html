@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Content Catalog Admin - Greenways</title>
+  <style>
+    :root {
+      --primary-green: #2E7D32;
+      --secondary-green: #4CAF50;
+      --light-green: #E8F5E8;
+      --dark-green: #1B5E20;
+      --white: #FFFFFF;
+      --gray: #6B7280;
+      --light-gray: #F3F4F6;
+      --border: #E5E7EB;
+      --shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--light-green);
+      color: #1F2937;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+      color: var(--white);
+      padding: 24px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel h3 {
+      color: var(--dark-green);
+      margin-bottom: 12px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary-green);
+      color: var(--white);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn.secondary {
+      background: #6B7280;
+    }
+
+    .btn.danger {
+      background: #B91C1C;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      margin-bottom: 10px;
+    }
+
+    textarea { min-height: 90px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+
+    th {
+      color: #374151;
+      background: var(--light-gray);
+    }
+
+    .message {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .message.success {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .message.error {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .preview-card {
+      background: var(--light-gray);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: grab;
+      border: 1px solid var(--border);
+    }
+
+    .preview-card.dragging {
+      opacity: 0.6;
+    }
+
+    .preview-card img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .preview-body {
+      padding: 10px;
+    }
+
+    .preview-body h4 {
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+
+    .preview-meta {
+      font-size: 0.8rem;
+      color: var(--gray);
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📚 Content Catalog Admin</h1>
+      <p>Manage blogs, videos, HTML resources, and reports for member recommendations.</p>
+    </div>
+
+    <div class="panel" style="margin-bottom: 20px;">
+      <div class="actions">
+        <button class="btn" onclick="syncCatalog()">Sync from Wix</button>
+        <button class="btn secondary" onclick="loadCatalog()">Refresh Catalog</button>
+        <button class="btn secondary" onclick="window.location.href='unified-membership-dashboard.html'">Back</button>
+      </div>
+      <div style="margin-top: 12px;">
+        <label for="adminKey">Admin Key (optional)</label>
+        <input id="adminKey" type="text" placeholder="Set ADMIN_KEY in Render to enforce">
+      </div>
+      <div style="margin-top: 12px;">
+        <label for="import-file">Bulk Import (CSV or JSON)</label>
+        <input id="import-file" type="file" accept=".csv,.json">
+        <select id="import-mode">
+          <option value="merge">Merge (update existing)</option>
+          <option value="replace">Replace catalog</option>
+        </select>
+        <button class="btn secondary" onclick="importCatalog()">Import File</button>
+      </div>
+      <div id="message" class="message"></div>
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <h3>Catalog Items</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="catalog-table"></tbody>
+        </table>
+        <div style="margin-top: 12px;">
+          <button class="btn secondary" onclick="saveOrder()">Save Order</button>
+        </div>
+        <div class="preview-grid" id="preview-grid"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Add / Edit Item</h3>
+        <input id="item-id" type="text" placeholder="ID (unique)">
+        <select id="item-type">
+          <option value="blog">Blog</option>
+          <option value="video">Video</option>
+          <option value="html">HTML</option>
+          <option value="report">Report</option>
+        </select>
+        <input id="item-title" type="text" placeholder="Title">
+        <input id="item-category" type="text" placeholder="Category">
+        <input id="item-tags" type="text" placeholder="Tags (comma separated)">
+        <input id="item-url" type="text" placeholder="URL">
+        <input id="item-image" type="text" placeholder="Image URL / Thumbnail URL">
+        <textarea id="item-description" placeholder="Description"></textarea>
+        <div class="actions">
+          <button class="btn" onclick="saveItem()">Save Item</button>
+          <button class="btn secondary" onclick="clearForm()">Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE_URL = window.location.protocol === 'file:' ||
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      !window.location.hostname
+      ? 'http://localhost:4000/api'
+      : window.location.origin + '/api';
+
+    const token = localStorage.getItem('energy_calc_membership_token');
+    if (!token) {
+      window.location.href = 'members-section.html';
+    }
+
+    function getAdminHeaders() {
+      const adminKey = document.getElementById('adminKey').value.trim();
+      return adminKey ? { 'x-admin-key': adminKey } : {};
+    }
+
+    async function apiCall(endpoint, options = {}) {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          ...getAdminHeaders(),
+          ...(options.headers || {})
+        }
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || 'Request failed');
+      }
+      return data;
+    }
+
+    function showMessage(text, type) {
+      const message = document.getElementById('message');
+      message.textContent = text;
+      message.className = `message ${type}`;
+      message.style.display = 'block';
+      setTimeout(() => message.style.display = 'none', 4000);
+    }
+
+    let catalogItems = [];
+    let dragItemId = null;
+
+    async function loadCatalog() {
+      try {
+        const data = await apiCall('/members/content-catalog');
+        catalogItems = data.items || [];
+        renderCatalog(catalogItems);
+        renderPreviewGrid(catalogItems);
+      } catch (error) {
+        showMessage(error.message, 'error');
+      }
+    }
+
+    function renderCatalog(items) {
+      const table = document.getElementById('catalog-table');
+      table.innerHTML = '';
+      items.forEach((item) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${item.type}</td>
+          <td>${item.title}</td>
+          <td>${item.category || ''}</td>
+          <td>
+            <button class="btn secondary" onclick='editItem(${JSON.stringify(item).replace(/"/g, "&quot;")})'>Edit</button>
+            <button class="btn danger" onclick="deleteItem('${item.id}')">Delete</button>
+          </td>
+        `;
+        table.appendChild(row);
+      });
+    }
+
+    function renderPreviewGrid(items) {
+      const grid = document.getElementById('preview-grid');
+      grid.innerHTML = '';
+      items.forEach((item) => {
+        const card = document.createElement('div');
+        card.className = 'preview-card';
+        card.draggable = true;
+        card.dataset.id = item.id;
+        const image = item.imageUrl || item.thumbnail || '';
+        card.innerHTML = `
+          ${image ? `<img src="${image}" alt="${item.title}">` : ''}
+          <div class="preview-body">
+            <h4>${item.title}</h4>
+            <div class="preview-meta">${item.type} • ${item.category || ''}</div>
+          </div>
+        `;
+
+        card.addEventListener('dragstart', () => {
+          dragItemId = item.id;
+          card.classList.add('dragging');
+        });
+        card.addEventListener('dragend', () => {
+          card.classList.remove('dragging');
+          dragItemId = null;
+        });
+        card.addEventListener('dragover', (event) => {
+          event.preventDefault();
+        });
+        card.addEventListener('drop', (event) => {
+          event.preventDefault();
+          if (!dragItemId || dragItemId === item.id) return;
+          const fromIndex = catalogItems.findIndex((entry) => entry.id === dragItemId);
+          const toIndex = catalogItems.findIndex((entry) => entry.id === item.id);
+          if (fromIndex === -1 || toIndex === -1) return;
+          const [moved] = catalogItems.splice(fromIndex, 1);
+          catalogItems.splice(toIndex, 0, moved);
+          renderCatalog(catalogItems);
+          renderPreviewGrid(catalogItems);
+        });
+
+        grid.appendChild(card);
+      });
+    }
+
+    function editItem(item) {
+      document.getElementById('item-id').value = item.id || '';
+      document.getElementById('item-type').value = item.type || 'blog';
+      document.getElementById('item-title').value = item.title || '';
+      document.getElementById('item-category').value = item.category || '';
+      document.getElementById('item-tags').value = (item.tags || []).join(', ');
+      document.getElementById('item-url').value = item.url || '';
+      document.getElementById('item-image').value = item.imageUrl || item.thumbnail || '';
+      document.getElementById('item-description').value = item.description || '';
+    }
+
+    function clearForm() {
+      document.getElementById('item-id').value = '';
+      document.getElementById('item-title').value = '';
+      document.getElementById('item-category').value = '';
+      document.getElementById('item-tags').value = '';
+      document.getElementById('item-url').value = '';
+      document.getElementById('item-image').value = '';
+      document.getElementById('item-description').value = '';
+      document.getElementById('item-type').value = 'blog';
+    }
+
+    async function saveItem() {
+      const payload = {
+        id: document.getElementById('item-id').value.trim(),
+        type: document.getElementById('item-type').value,
+        title: document.getElementById('item-title').value.trim(),
+        category: document.getElementById('item-category').value.trim(),
+        tags: document.getElementById('item-tags').value.split(',').map(t => t.trim()).filter(Boolean),
+        url: document.getElementById('item-url').value.trim(),
+        description: document.getElementById('item-description').value.trim(),
+        imageUrl: document.getElementById('item-image').value.trim()
+      };
+
+      try {
+        await apiCall(`/members/content-catalog/${payload.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload)
+        });
+        showMessage('Content item saved', 'success');
+        clearForm();
+        loadCatalog();
+      } catch (error) {
+        if (error.message.includes('not found')) {
+          try {
+            await apiCall('/members/content-catalog', {
+              method: 'POST',
+              body: JSON.stringify(payload)
+            });
+            showMessage('Content item added', 'success');
+            clearForm();
+            loadCatalog();
+          } catch (postError) {
+            showMessage(postError.message, 'error');
+          }
+          return;
+        }
+        showMessage(error.message, 'error');
+      }
+    }
+
+    async function deleteItem(id) {
+      if (!id) return;
+      try {
+        await apiCall(`/members/content-catalog/${id}`, { method: 'DELETE' });
+        showMessage('Content item removed', 'success');
+        loadCatalog();
+      } catch (error) {
+        showMessage(error.message, 'error');
+      }
+    }
+
+    async function syncCatalog() {
+      try {
+        const data = await apiCall('/members/content-catalog/sync', { method: 'POST' });
+        showMessage(`Synced ${data.syncedVideos} videos and ${data.syncedBlogs} blogs`, 'success');
+        loadCatalog();
+      } catch (error) {
+        showMessage(error.message, 'error');
+      }
+    }
+
+    async function saveOrder() {
+      try {
+        const ids = catalogItems.map((item) => item.id);
+        await apiCall('/members/content-catalog/reorder', {
+          method: 'POST',
+          body: JSON.stringify({ ids })
+        });
+        showMessage('Catalog order saved', 'success');
+      } catch (error) {
+        showMessage(error.message, 'error');
+      }
+    }
+
+    async function importCatalog() {
+      const fileInput = document.getElementById('import-file');
+      const file = fileInput.files[0];
+      if (!file) {
+        showMessage('Select a CSV or JSON file to import.', 'error');
+        return;
+      }
+
+      const mode = document.getElementById('import-mode').value || 'merge';
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('mode', mode);
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/members/content-catalog/import`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            ...getAdminHeaders()
+          },
+          body: formData
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.error || 'Import failed');
+        }
+        showMessage(`Imported ${data.imported} items (${mode})`, 'success');
+        fileInput.value = '';
+        loadCatalog();
+      } catch (error) {
+        showMessage(error.message, 'error');
+      }
+    }
+
+    loadCatalog();
+  </script>
+</body>
+</html>

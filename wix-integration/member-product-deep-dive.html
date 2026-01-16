@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Deep Dive - Greenways Membership</title>
+    <meta name="wix-html-scroll" content="no-scroll">
     <style>
         :root {
             --primary-green: #2E7D32;
@@ -46,6 +47,16 @@
             padding: 30px;
             border-radius: 15px;
             margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .header-image {
+            width: 100%;
+            max-height: 260px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: none;
             box-shadow: var(--shadow);
         }
 
@@ -130,6 +141,59 @@
             padding: 30px;
             margin-bottom: 30px;
             box-shadow: var(--shadow);
+        }
+
+        .deep-dive-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .deep-dive-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .deep-dive-card {
+            background: var(--light-gray);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-green);
+        }
+
+        .deep-dive-card h4 {
+            color: var(--primary-green);
+            margin-bottom: 10px;
+        }
+
+        .deal-badge {
+            background: linear-gradient(135deg, #FFD54F, #FFB300);
+            color: #4E342E;
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        .review-card {
+            background: var(--light-gray);
+            padding: 18px;
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary-green);
+            margin-bottom: 15px;
+        }
+
+        .review-rating {
+            color: #F9A825;
+            font-weight: 700;
+            margin: 6px 0;
         }
 
         .section-title {
@@ -269,8 +333,24 @@
             margin-left: 10px;
         }
 
+        .fallback-badge {
+            background: #FFF3CD;
+            color: #856404;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-left: 10px;
+            border: 1px solid #FFEEBA;
+        }
+
         @media (max-width: 968px) {
             .product-grid, .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .deep-dive-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -279,12 +359,17 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔍 Product Deep Dive <span class="member-badge">Members Only</span></h1>
+            <h1>
+                🔍 Product Deep Dive
+                <span class="member-badge">Members Only</span>
+                <span id="fallback-badge" class="fallback-badge" style="display: none;">Fallback Data</span>
+            </h1>
             <div class="breadcrumb">
                 <a href="unified-membership-dashboard.html">Dashboard</a> > 
                 <a href="#" onclick="history.back()">Marketplace</a> > 
                 <span id="product-name-breadcrumb">Product Details</span>
             </div>
+            <img id="header-product-image" class="header-image" src="" alt="Product image">
         </div>
 
         <div id="loading" class="loading">
@@ -301,7 +386,7 @@
                         <img id="product-image" class="product-image" src="" alt="Product Image" style="display: none;">
                         <video id="product-video" class="product-image" controls style="display: none;"></video>
                         <div id="media-placeholder" class="product-image" style="background: var(--light-gray); display: flex; align-items: center; justify-content: center; color: var(--gray);">
-                            No image available
+                            No photo available for this product
                         </div>
                     </div>
                 </div>
@@ -311,6 +396,40 @@
                     <div class="product-specs" id="product-specs">
                         <!-- Dynamically populated -->
                     </div>
+                </div>
+            </div>
+
+            <!-- Deep Dive Overview -->
+            <div id="deep-dive-section" class="deep-dive-section" style="display: none;">
+                <h2 class="section-title">🔍 Deep Dive Insights</h2>
+                <div class="deep-dive-grid">
+                    <div class="deep-dive-card">
+                        <h4>Overview</h4>
+                        <p id="deep-dive-overview" style="color: var(--gray);">--</p>
+                        <ul id="deep-dive-highlights" style="margin-top: 12px; padding-left: 18px; color: var(--gray);"></ul>
+                    </div>
+                    <div class="deep-dive-card">
+                        <h4>Eco Impact</h4>
+                        <div id="deep-dive-co2" class="spec-value" style="margin-bottom: 6px;">--</div>
+                        <p id="deep-dive-eco-notes" style="color: var(--gray);">--</p>
+                    </div>
+                    <div class="deep-dive-card">
+                        <h4>Usage Tips</h4>
+                        <ul id="deep-dive-tips" style="padding-left: 18px; color: var(--gray);"></ul>
+                    </div>
+                    <div class="deep-dive-card">
+                        <span class="deal-badge">Deals & Promotions</span>
+                        <h4>Current Offers</h4>
+                        <p id="deep-dive-deals" style="color: var(--gray);">--</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div id="reviews-section" class="deep-dive-section" style="display: none;">
+                <h2 class="section-title">⭐ Reviews</h2>
+                <div id="reviews-list">
+                    <!-- Dynamically populated -->
                 </div>
             </div>
 
@@ -366,7 +485,9 @@
 
     <script>
         // Auto-detect production vs development
-        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        const API_BASE_URL = window.location.protocol === 'file:' ||
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1'
             ? 'http://localhost:4000/api'
             : window.location.origin + '/api';
         let authToken = localStorage.getItem('energy_calc_membership_token');
@@ -415,6 +536,17 @@
                 const data = await response.json();
 
                 if (data.success && data.product) {
+                    const deepDive = await loadDeepDiveData(productId);
+                    if (deepDive) {
+                        data.product.deepDive = deepDive;
+                    } else {
+                        const fallback = buildDeepDiveFallback(data.product);
+                        if (fallback) {
+                            data.product.deepDive = fallback;
+                            const badge = document.getElementById('fallback-badge');
+                            if (badge) badge.style.display = 'inline-block';
+                        }
+                    }
                     displayProduct(data.product);
                 } else {
                     document.getElementById('loading').innerHTML = `
@@ -431,6 +563,32 @@
             }
         }
 
+        async function loadDeepDiveData(productId) {
+            const sources = [
+                '/products-deep-dive.json',
+                '/energy-calculator/products-deep-dive.json'
+            ];
+
+            for (const source of sources) {
+                try {
+                    const response = await fetch(source, { cache: 'no-store' });
+                    if (!response.ok) {
+                        continue;
+                    }
+                    const data = await response.json();
+                    const products = Array.isArray(data.products) ? data.products : [];
+                    const match = products.find((item) => item.id === productId);
+                    if (match && match.deepDive) {
+                        return match.deepDive;
+                    }
+                } catch (error) {
+                    // Try next source
+                }
+            }
+
+            return null;
+        }
+
         function displayProduct(product) {
             // Hide loading, show content
             document.getElementById('loading').style.display = 'none';
@@ -444,16 +602,27 @@
 
             // Product media
             const imageEl = document.getElementById('product-image');
+            const headerImageEl = document.getElementById('header-product-image');
             const videoEl = document.getElementById('product-video');
             const placeholder = document.getElementById('media-placeholder');
 
             if (product.images && product.images.length > 0) {
-                imageEl.src = product.images[0];
+                const src = product.images[0];
+                imageEl.src = src;
                 imageEl.style.display = 'block';
+                if (headerImageEl) {
+                    headerImageEl.src = src;
+                    headerImageEl.style.display = 'block';
+                }
                 placeholder.style.display = 'none';
             } else if (product.image_url) {
-                imageEl.src = product.image_url;
+                const src = product.image_url;
+                imageEl.src = src;
                 imageEl.style.display = 'block';
+                if (headerImageEl) {
+                    headerImageEl.src = src;
+                    headerImageEl.style.display = 'block';
+                }
                 placeholder.style.display = 'none';
             } else if (product.videos && product.videos.length > 0) {
                 videoEl.src = product.videos[0];
@@ -496,6 +665,11 @@
             // Collection Agencies
             if (product.collectionAgencies && product.collectionAgencies.length > 0) {
                 displayCollectionAgencies(product.collectionAgencies);
+            }
+
+            // Deep Dive
+            if (product.deepDive) {
+                displayDeepDive(product.deepDive);
             }
         }
 
@@ -594,6 +768,109 @@
                     </div>
                 </div>
             `).join('');
+        }
+
+        function buildDeepDiveFallback(product) {
+            const toList = (value) => {
+                if (!value) return [];
+                if (Array.isArray(value)) return value.filter(Boolean);
+                if (typeof value === 'string') {
+                    return value
+                        .split(/\n|;|\u2022|•/)
+                        .map((item) => item.trim())
+                        .filter(Boolean);
+                }
+                return [];
+            };
+
+            const overview =
+                product.descriptionShort ||
+                product.descriptionFull ||
+                (typeof product.additionalInfo === 'string' ? product.additionalInfo : null) ||
+                null;
+
+            const highlights = toList(product.marketingInfo).slice(0, 6);
+            const usageTips = toList(product.additionalInfo?.usageTips || product.additionalInfo).slice(0, 6);
+
+            const ecoImpact = {
+                co2SavingsKgPerYear: product.co2SavingsKgPerYear || product.co2Savings || null,
+                sustainabilityNotes:
+                    product.sustainabilityNotes ||
+                    product.additionalInfo?.sustainabilityNotes ||
+                    product.marketingInfo?.sustainability ||
+                    null
+            };
+
+            const additionalInfo = {
+                usageTips,
+                dealNotes:
+                    product.affiliateInfo?.dealNotes ||
+                    product.affiliateInfo?.deal ||
+                    product.affiliateInfo?.promotion ||
+                    (typeof product.affiliateInfo === 'string' ? product.affiliateInfo : null) ||
+                    null
+            };
+
+            const hasContent =
+                overview ||
+                highlights.length > 0 ||
+                usageTips.length > 0 ||
+                ecoImpact.co2SavingsKgPerYear ||
+                ecoImpact.sustainabilityNotes ||
+                additionalInfo.dealNotes;
+
+            if (!hasContent) return null;
+
+            return {
+                overview: overview || 'No deep dive overview available.',
+                highlights,
+                ecoImpact,
+                additionalInfo,
+                reviews: []
+            };
+        }
+
+        function displayDeepDive(deepDive) {
+            const overview = deepDive.overview || 'No deep dive overview available.';
+            const highlights = deepDive.highlights || [];
+            const eco = deepDive.ecoImpact || {};
+            const energyUsage = deepDive.energyUsage || {};
+            const additionalInfo = deepDive.additionalInfo || {};
+            const reviews = deepDive.reviews || [];
+
+            document.getElementById('deep-dive-section').style.display = 'block';
+            document.getElementById('deep-dive-overview').textContent = overview;
+
+            const highlightsEl = document.getElementById('deep-dive-highlights');
+            highlightsEl.innerHTML = highlights.map((item) => `<li>${item}</li>`).join('') || '<li>No highlights listed</li>';
+
+            const co2Value = eco.co2SavingsKgPerYear ? `${eco.co2SavingsKgPerYear} kg CO2/year` : 'No CO2 data';
+            document.getElementById('deep-dive-co2').textContent = co2Value;
+            document.getElementById('deep-dive-eco-notes').textContent = eco.sustainabilityNotes || 'No sustainability notes available.';
+
+            const tips = additionalInfo.usageTips || [];
+            const tipsEl = document.getElementById('deep-dive-tips');
+            tipsEl.innerHTML = tips.map((tip) => `<li>${tip}</li>`).join('') || '<li>No usage tips listed</li>';
+
+            const deals = additionalInfo.dealNotes || 'No deals currently listed.';
+            document.getElementById('deep-dive-deals').textContent = deals;
+
+            if (reviews.length > 0) {
+                document.getElementById('reviews-section').style.display = 'block';
+                const reviewsList = document.getElementById('reviews-list');
+                reviewsList.innerHTML = reviews.map((review) => `
+                    <div class="review-card">
+                        <h4>${review.source || 'Review Source'}</h4>
+                        <div class="review-rating">${review.rating ? review.rating + '/5' : 'Rating varies'}</div>
+                        <p style="color: var(--gray); margin: 10px 0;">${review.summary || 'Review summary not available.'}</p>
+                        ${review.url ? `<a href="${review.url}" target="_blank" class="btn" style="margin-top: 8px;">Read More →</a>` : ''}
+                    </div>
+                `).join('');
+            }
+
+            if (energyUsage.runningCostPerYear || energyUsage.energySavingsPercent || energyUsage.roiYears) {
+                // Optional expansion hook for future energy widgets
+            }
         }
     </script>
 </body>

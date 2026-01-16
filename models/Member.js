@@ -40,8 +40,93 @@ const memberSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  displayName: {
+    type: String,
+    trim: true
+  },
+  jobTitle: {
+    type: String,
+    trim: true
+  },
+  bio: {
+    type: String,
+    trim: true
+  },
+  location: {
+    type: String,
+    trim: true
+  },
+  profilePhotoUrl: {
+    type: String,
+    trim: true
+  },
+  coverPhotoUrl: {
+    type: String,
+    trim: true
+  },
   interests: {
     type: [String],
+    default: []
+  },
+
+  // Saved content hub
+  savedVideos: {
+    type: [
+      {
+        id: String,
+        title: String,
+        description: String,
+        category: String,
+        url: String,
+        thumbnail: String,
+        type: { type: String, default: 'video' },
+        savedAt: { type: Date, default: Date.now }
+      }
+    ],
+    default: []
+  },
+  savedBlogs: {
+    type: [
+      {
+        id: String,
+        title: String,
+        description: String,
+        category: String,
+        url: String,
+        imageUrl: String,
+        type: { type: String, default: 'blog' },
+        savedAt: { type: Date, default: Date.now }
+      }
+    ],
+    default: []
+  },
+  savedReports: {
+    type: [
+      {
+        id: String,
+        title: String,
+        description: String,
+        category: String,
+        url: String,
+        type: { type: String, default: 'report' },
+        savedAt: { type: Date, default: Date.now }
+      }
+    ],
+    default: []
+  },
+  savedProducts: {
+    type: [
+      {
+        id: String,
+        title: String,
+        description: String,
+        category: String,
+        url: String,
+        imageUrl: String,
+        type: { type: String, default: 'product' },
+        savedAt: { type: Date, default: Date.now }
+      }
+    ],
     default: []
   },
   

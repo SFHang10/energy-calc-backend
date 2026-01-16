@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="wix-html-scroll" content="no-scroll">
+    <title>My Profile - Greenways Members</title>
+    <style>
+        :root {
+            --primary-green: #2E7D32;
+            --secondary-green: #4CAF50;
+            --accent-green: #81C784;
+            --light-green: #E8F5E8;
+            --dark-green: #1B5E20;
+            --white: #FFFFFF;
+            --gray: #6B7280;
+            --light-gray: #F3F4F6;
+            --border: #E5E7EB;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #1F2937;
+            background: var(--light-green);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            color: var(--white);
+            padding: 26px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+        }
+
+        .profile-card {
+            background: var(--white);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .cover {
+            position: relative;
+            height: 220px;
+            background: linear-gradient(135deg, #c8e6c9, #e3f2fd);
+            overflow: hidden;
+        }
+
+        .cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .cover-actions {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+        }
+
+        .avatar {
+            position: absolute;
+            left: 40px;
+            bottom: -50px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 5px solid var(--white);
+            background: var(--light-gray);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--gray);
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .profile-body {
+            padding: 70px 40px 35px 40px;
+        }
+
+        .profile-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark-green);
+        }
+
+        .profile-meta {
+            margin-top: 6px;
+            color: var(--gray);
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--accent-green);
+            color: var(--dark-green);
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            border: none;
+            background: var(--light-gray);
+            color: #374151;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--primary-green);
+            color: var(--white);
+        }
+
+        .tab-panel {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .library-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .library-card {
+            background: var(--light-gray);
+            padding: 16px;
+            border-radius: 12px;
+            min-height: 130px;
+            border-left: 4px solid var(--primary-green);
+        }
+
+        .library-card h4 {
+            color: #111827;
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+
+        .library-card p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .saved-quick-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .saved-quick-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 10px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .saved-quick-card img {
+            width: 100%;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .no-photo {
+            width: 100%;
+            border-radius: 8px;
+            background: #E5E7EB;
+            color: #6B7280;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6px;
+        }
+
+        .no-photo.small {
+            height: 90px;
+            margin-bottom: 8px;
+        }
+
+        .no-photo.medium {
+            height: 120px;
+            margin-bottom: 8px;
+        }
+
+        .no-photo.large {
+            height: 180px;
+        }
+
+        .saved-quick-card span {
+            font-size: 0.85rem;
+            color: #111827;
+            display: block;
+        }
+
+        .saved-gallery {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .saved-gallery-card {
+            position: relative;
+            border-radius: 14px;
+            overflow: hidden;
+            background: var(--light-gray);
+            cursor: pointer;
+        }
+
+        .saved-gallery-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .saved-gallery-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.75);
+            color: var(--white);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 16px;
+        }
+
+        .saved-gallery-card:hover .saved-gallery-overlay {
+            opacity: 1;
+        }
+
+        .saved-gallery-overlay h5 {
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+
+        .saved-gallery-overlay p {
+            font-size: 0.85rem;
+            color: #E5E7EB;
+        }
+
+        .saved-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .saved-item {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .saved-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .saved-item h5 {
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+            color: #111827;
+        }
+
+        .saved-item p {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .saved-item a {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: var(--primary-green);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .saved-item button,
+        .saved-quick-card button,
+        .saved-gallery-overlay button {
+            margin-top: 8px;
+        }
+
+        .library-empty {
+            text-align: center;
+            color: var(--gray);
+            padding: 30px;
+            background: var(--light-gray);
+            border-radius: 12px;
+        }
+
+        .portal-cta {
+            margin-top: 20px;
+            background: linear-gradient(135deg, #0f172a, #1f2937);
+            color: var(--white);
+            padding: 18px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .portal-cta h4 {
+            margin-bottom: 4px;
+        }
+
+        .panel {
+            background: var(--light-gray);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .gallery-card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .gallery-card img {
+            width: 100%;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            display: block;
+        }
+
+        .gallery-card span {
+            display: block;
+            margin-top: 6px;
+            font-size: 0.8rem;
+            color: var(--gray);
+            text-align: center;
+        }
+
+        .gallery-card.active {
+            border-color: var(--primary-green);
+            transform: translateY(-2px);
+        }
+
+        .preview-section {
+            margin-top: 25px;
+            background: var(--white);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .preview-header {
+            padding: 20px 30px;
+            background: var(--light-gray);
+            color: var(--dark-green);
+            font-weight: 700;
+        }
+
+        .preview-card {
+            position: relative;
+            padding-bottom: 24px;
+        }
+
+        .preview-cover {
+            height: 220px;
+            background: linear-gradient(135deg, #c8e6c9, #e3f2fd);
+        }
+
+        .preview-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .preview-avatar {
+            position: absolute;
+            top: 150px;
+            left: 40px;
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            border: 5px solid var(--white);
+            background: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--gray);
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        }
+
+        .preview-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .preview-body {
+            padding: 80px 40px 0 40px;
+        }
+
+        .preview-name {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .preview-title {
+            color: var(--gray);
+            margin-top: 6px;
+            font-size: 0.95rem;
+        }
+
+        .preview-meta {
+            margin-top: 10px;
+            color: #4B5563;
+            font-size: 0.9rem;
+        }
+
+        .preview-info-row {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            color: #4B5563;
+            font-size: 0.9rem;
+        }
+
+        .preview-info-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #F3F4F6;
+            padding: 6px 10px;
+            border-radius: 999px;
+        }
+
+        .preview-bio {
+            margin-top: 16px;
+            color: #4B5563;
+            line-height: 1.6;
+        }
+
+        .interest-badges {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .interest-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #E0F2FE;
+            color: #0F172A;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid #BAE6FD;
+        }
+
+        .panel h3 {
+            color: var(--primary-green);
+            margin-bottom: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #374151;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--primary-green);
+            color: var(--white);
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+
+        .btn.secondary {
+            background: #6B7280;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .upload-input {
+            display: none;
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .message.success {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .message.error {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .avatar {
+                left: 20px;
+            }
+
+            .profile-body {
+                padding: 70px 20px 30px 20px;
+            }
+
+            .preview-body {
+                padding: 70px 20px 0 20px;
+            }
+
+            .preview-avatar {
+                left: 20px;
+            }
+
+            .library-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .saved-list {
+                grid-template-columns: 1fr;
+            }
+
+            .saved-quick-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .saved-gallery {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👤 My Profile</h1>
+            <p>Manage your Greenways membership profile details</p>
+        </div>
+
+        <div class="profile-card">
+            <div class="cover" id="cover">
+                <img id="cover-image" src="" alt="Cover photo">
+                <div class="cover-actions">
+                    <button class="btn secondary" type="button" onclick="triggerUpload('cover')">Upload Cover</button>
+                </div>
+                <div class="avatar" id="avatar">
+                    <img id="avatar-image" src="" alt="Profile photo">
+                    <span id="avatar-placeholder">No Photo</span>
+                </div>
+            </div>
+
+            <div class="profile-body">
+                <div class="profile-name" id="profile-name">Member</div>
+                <div class="profile-meta" id="profile-meta">Membership profile</div>
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="profile-info" onclick="switchTab('profile-info')">Your Profile</button>
+                    <button class="tab-btn" data-tab="member-library" onclick="switchTab('member-library')">Your Saved Items</button>
+                </div>
+
+                <div id="profile-info" class="tab-panel active">
+                    <div class="grid">
+                    <div class="panel">
+                        <h3>Profile Details</h3>
+                        <div class="form-group">
+                            <label for="display_name">Display Name</label>
+                            <input id="display_name" type="text" placeholder="How your name appears">
+                        </div>
+                        <div class="form-group">
+                            <label for="first_name">First Name</label>
+                            <input id="first_name" type="text" placeholder="First name">
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name">Last Name</label>
+                            <input id="last_name" type="text" placeholder="Last name">
+                        </div>
+                        <div class="form-group">
+                            <label for="job_title">Job Title</label>
+                            <input id="job_title" type="text" placeholder="Role / Title">
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <h3>Company & Contact</h3>
+                        <div class="form-group">
+                            <label for="company">Company</label>
+                            <input id="company" type="text" placeholder="Company name">
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input id="location" type="text" placeholder="City / Country">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input id="phone" type="text" placeholder="Phone number">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email (read-only)</label>
+                            <input id="email" type="text" readonly>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div class="panel" style="margin-top: 20px;">
+                    <h3>About Me</h3>
+                    <div class="form-group">
+                        <label for="bio">Bio</label>
+                        <textarea id="bio" placeholder="Short introduction about you"></textarea>
+                    </div>
+                    <div class="actions">
+                        <button class="btn" type="button" onclick="saveProfile()">Save Profile</button>
+                        <button class="btn secondary" type="button" onclick="goBack()">Back to Dashboard</button>
+                        <button class="btn secondary" type="button" onclick="triggerUpload('avatar')">Upload Photo</button>
+                    </div>
+                    <div id="message" class="message"></div>
+                </div>
+
+                    <div class="panel" style="margin-top: 20px;">
+                    <h3>Cover Gallery</h3>
+                    <p style="color: var(--gray); margin-bottom: 12px;">Pick a Greenways background or upload your own cover photo.</p>
+                    <div id="cover-gallery" class="gallery-grid"></div>
+                </div>
+                </div>
+
+                <div id="member-library" class="tab-panel">
+                    <div class="panel">
+                        <h3>Saved Marketplace Picks</h3>
+                        <p style="color: var(--gray); margin-bottom: 12px;">Quick access to products you have saved.</p>
+                        <div id="saved-products-quick" class="saved-quick-grid"></div>
+                    </div>
+
+                    <div class="panel" style="margin-top: 20px;">
+                        <h3>Saved Products Gallery</h3>
+                        <p style="color: var(--gray); margin-bottom: 12px;">Hover to preview and manage your saved products.</p>
+                        <div id="saved-products-gallery" class="saved-gallery"></div>
+                    </div>
+
+                    <div class="panel" style="margin-top: 20px;">
+                        <h3>Suggested Blogs</h3>
+                        <p style="color: var(--gray); margin-bottom: 12px;">Personalized blog picks based on your interests.</p>
+                        <div id="suggested-blogs-list" class="saved-list"></div>
+                    </div>
+
+                    <div class="panel">
+                        <h3>Saved Content</h3>
+                        <p style="color: var(--gray); margin-bottom: 14px;">Your saved videos, blogs, and reports will appear here.</p>
+                        <div class="library-grid">
+                            <div class="library-card">
+                                <h4>Saved Videos</h4>
+                                <p id="saved-videos-count">0 saved videos</p>
+                                <div id="saved-videos-list" class="saved-list"></div>
+                            </div>
+                            <div class="library-card">
+                                <h4>Saved Blogs</h4>
+                                <p id="saved-blogs-count">0 saved blogs</p>
+                                <div id="saved-blogs-list" class="saved-list"></div>
+                            </div>
+                            <div class="library-card">
+                                <h4>Saved Reports</h4>
+                                <p id="saved-reports-count">0 saved reports</p>
+                                <div id="saved-reports-list" class="saved-list"></div>
+                            </div>
+                            <div class="library-card">
+                                <h4>Saved Products</h4>
+                                <p id="saved-products-count">0 saved products</p>
+                                <div id="saved-products-list" class="saved-list"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel" style="margin-top: 20px;">
+                        <h3>Activity Feed</h3>
+                        <div class="library-empty" id="saved-activity-empty">
+                            No saved activity yet. Explore the Green Portal and save items to build your personal hub.
+                        </div>
+                    </div>
+
+                    <div class="portal-cta">
+                        <div>
+                            <h4>🌱 Green Portal</h4>
+                            <p>Explore calculators, sensors, data capture, and marketplace tools.</p>
+                        </div>
+                        <button class="btn secondary" type="button" onclick="goBack()">Go to Portal</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-section">
+            <div class="preview-header">Public Profile Preview</div>
+            <div class="preview-card">
+                <div class="preview-cover">
+                    <img id="preview-cover-image" src="" alt="Cover preview">
+                </div>
+                <div class="preview-avatar">
+                    <img id="preview-avatar-image" src="" alt="Avatar preview">
+                    <span id="preview-avatar-placeholder">No Photo</span>
+                </div>
+                <div class="preview-body">
+                    <div class="preview-name" id="preview-name">Member Name</div>
+                    <div class="preview-title" id="preview-title">Job Title</div>
+                    <div class="preview-meta" id="preview-meta">Location · Company</div>
+                    <div class="preview-info-row" id="preview-info-row">
+                        <span class="preview-info-chip">📍 Location</span>
+                        <span class="preview-info-chip">🏢 Company</span>
+                        <span class="preview-info-chip">✉️ Email</span>
+                    </div>
+                    <div id="preview-interests" class="interest-badges"></div>
+                    <p class="preview-bio" id="preview-bio">Bio preview will appear here.</p>
+                </div>
+            </div>
+        </div>
+
+        <input id="upload-avatar" class="upload-input" type="file" accept="image/*">
+        <input id="upload-cover" class="upload-input" type="file" accept="image/*">
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.protocol === 'file:' ||
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1' ||
+            !window.location.hostname
+            ? 'http://localhost:4000/api'
+            : window.location.origin + '/api';
+
+        const token = localStorage.getItem('energy_calc_membership_token');
+        const state = {
+            profilePhotoUrl: null,
+            coverPhotoUrl: null,
+            interests: [],
+            coverGallery: [
+                { label: 'Mountain', url: '../product-placement/f0b477f657db94e537404fdd74b9be1a.jpg' },
+                { label: 'Solar', url: '../product-placement/Solar solutions.jpeg' },
+                { label: 'Green Light', url: '../product-placement/renewable-energy-light-bulb-with-green-energy-efficiency_956920-97376.avif' },
+                { label: 'Energy Core', url: '../product-placement/3d-glowing-green-energy-core-symbolizing-renewable-energy-sources_1093726-30448_edited.jpg' }
+            ]
+        };
+
+        if (!token) {
+            window.location.href = 'members-section.html';
+        }
+
+        document.getElementById('upload-avatar').addEventListener('change', (event) => {
+            handleUpload(event.target.files[0], 'avatar');
+        });
+
+        document.getElementById('upload-cover').addEventListener('change', (event) => {
+            handleUpload(event.target.files[0], 'cover');
+        });
+
+        document.querySelectorAll('#display_name, #first_name, #last_name, #job_title, #company, #location, #bio').forEach((input) => {
+            input.addEventListener('input', updatePreview);
+        });
+
+        async function apiCall(endpoint, options = {}) {
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    ...(options.headers || {})
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Request failed');
+            }
+            return response.json();
+        }
+
+        async function loadProfile() {
+            try {
+                const data = await apiCall('/members/profile');
+                const user = data.user || {};
+
+                const displayName = user.display_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email;
+                document.getElementById('profile-name').textContent = displayName || 'Member';
+                document.getElementById('profile-meta').textContent = user.job_title || 'Membership profile';
+
+                document.getElementById('display_name').value = user.display_name || '';
+                document.getElementById('first_name').value = user.first_name || '';
+                document.getElementById('last_name').value = user.last_name || '';
+                document.getElementById('job_title').value = user.job_title || '';
+                document.getElementById('company').value = user.company || '';
+                document.getElementById('location').value = user.location || '';
+                document.getElementById('phone').value = user.phone || '';
+                document.getElementById('email').value = user.email || '';
+                document.getElementById('bio').value = user.bio || '';
+
+                state.profilePhotoUrl = user.profile_photo_url || null;
+                state.coverPhotoUrl = user.cover_photo_url || null;
+                state.interests = parseInterests(user.interests);
+
+                setImage('avatar-image', 'avatar-placeholder', state.profilePhotoUrl);
+                setCoverImage(state.coverPhotoUrl);
+                renderCoverGallery();
+                updatePreview();
+            } catch (error) {
+                showMessage(error.message || 'Failed to load profile', 'error');
+            }
+        }
+
+        function setImage(imgId, placeholderId, url) {
+            const img = document.getElementById(imgId);
+            const placeholder = document.getElementById(placeholderId);
+            if (url) {
+                img.src = url;
+                img.style.display = 'block';
+                placeholder.style.display = 'none';
+            } else {
+                img.style.display = 'none';
+                placeholder.style.display = 'block';
+            }
+
+            if (imgId === 'avatar-image') {
+                setPreviewAvatar(url);
+            }
+        }
+
+        function setCoverImage(url) {
+            const coverImage = document.getElementById('cover-image');
+            if (url) {
+                coverImage.src = url;
+                coverImage.style.display = 'block';
+            } else {
+                coverImage.style.display = 'none';
+            }
+
+            setPreviewCover(url);
+        }
+
+        function setPreviewCover(url) {
+            const cover = document.getElementById('preview-cover-image');
+            if (url) {
+                cover.src = url;
+                cover.style.display = 'block';
+            } else {
+                cover.style.display = 'none';
+            }
+        }
+
+        function setPreviewAvatar(url) {
+            const avatar = document.getElementById('preview-avatar-image');
+            const placeholder = document.getElementById('preview-avatar-placeholder');
+            if (url) {
+                avatar.src = url;
+                avatar.style.display = 'block';
+                placeholder.style.display = 'none';
+            } else {
+                avatar.style.display = 'none';
+                placeholder.style.display = 'block';
+            }
+        }
+
+        function updatePreview() {
+            const displayName = document.getElementById('display_name').value.trim()
+                || `${document.getElementById('first_name').value.trim()} ${document.getElementById('last_name').value.trim()}`.trim()
+                || document.getElementById('email').value.trim()
+                || 'Member Name';
+            const title = document.getElementById('job_title').value.trim() || 'Job Title';
+            const company = document.getElementById('company').value.trim();
+            const location = document.getElementById('location').value.trim();
+            const metaParts = [];
+            if (location) metaParts.push(location);
+            if (company) metaParts.push(company);
+            const meta = metaParts.length > 0 ? metaParts.join(' · ') : 'Location · Company';
+            const bio = document.getElementById('bio').value.trim() || 'Bio preview will appear here.';
+
+            document.getElementById('preview-name').textContent = displayName;
+            document.getElementById('preview-title').textContent = title;
+            document.getElementById('preview-meta').textContent = meta;
+            document.getElementById('preview-bio').textContent = bio;
+            renderInfoRow(location, company, document.getElementById('email').value.trim());
+            renderInterestBadges();
+        }
+
+        function renderInfoRow(location, company, email) {
+            const container = document.getElementById('preview-info-row');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const chips = [];
+            if (location) chips.push(`📍 ${location}`);
+            if (company) chips.push(`🏢 ${company}`);
+            if (email) chips.push(`✉️ ${email}`);
+
+            if (chips.length === 0) {
+                container.innerHTML = '<span class="preview-info-chip">📍 Location</span><span class="preview-info-chip">🏢 Company</span><span class="preview-info-chip">✉️ Email</span>';
+                return;
+            }
+
+            chips.forEach((text) => {
+                const chip = document.createElement('span');
+                chip.className = 'preview-info-chip';
+                chip.textContent = text;
+                container.appendChild(chip);
+            });
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-panel').forEach((panel) => {
+                panel.classList.remove('active');
+            });
+            const selected = document.getElementById(tabId);
+            if (selected) {
+                selected.classList.add('active');
+            }
+
+            document.querySelectorAll('.tab-btn').forEach((btn) => {
+                btn.classList.toggle('active', btn.dataset.tab === tabId);
+            });
+        }
+
+        function parseInterests(raw) {
+            if (!raw) return [];
+            if (Array.isArray(raw)) {
+                return raw.map((item) => {
+                    if (typeof item === 'string') return item;
+                    if (item && typeof item === 'object') return item.name || item.label || String(item.id || '');
+                    return '';
+                }).filter(Boolean);
+            }
+            if (typeof raw === 'string') {
+                return raw.split(',').map((item) => item.trim()).filter(Boolean);
+            }
+            return [];
+        }
+
+        function getInterestIcon(label) {
+            const name = (label || '').toLowerCase();
+            if (name.includes('water')) return '💧';
+            if (name.includes('solar')) return '☀️';
+            if (name.includes('heat')) return '🌡️';
+            if (name.includes('led') || name.includes('lighting')) return '💡';
+            if (name.includes('smart')) return '🏠';
+            if (name.includes('insulation')) return '🧱';
+            if (name.includes('wind')) return '🌬️';
+            if (name.includes('battery')) return '🔋';
+            if (name.includes('vehicle') || name.includes('ev')) return '🚗';
+            if (name.includes('grant')) return '💶';
+            return '🌱';
+        }
+
+        function renderInterestBadges() {
+            const container = document.getElementById('preview-interests');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!state.interests || state.interests.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'flex';
+            state.interests.slice(0, 6).forEach((interest) => {
+                const badge = document.createElement('span');
+                badge.className = 'interest-badge';
+                const icon = getInterestIcon(interest);
+                badge.textContent = `${icon} ${interest}`;
+                container.appendChild(badge);
+            });
+        }
+
+        function renderCoverGallery() {
+            const gallery = document.getElementById('cover-gallery');
+            gallery.innerHTML = '';
+
+            state.coverGallery.forEach((item) => {
+                const card = document.createElement('div');
+                card.className = `gallery-card ${state.coverPhotoUrl === item.url ? 'active' : ''}`;
+                card.innerHTML = `
+                    <img src="${item.url}" alt="${item.label}">
+                    <span>${item.label}</span>
+                `;
+                card.addEventListener('click', () => {
+                    state.coverPhotoUrl = item.url;
+                    setCoverImage(item.url);
+                    updatePreview();
+                    renderCoverGallery();
+                    showMessage('Cover selected. Click "Save Profile" to keep it.', 'success');
+                });
+                gallery.appendChild(card);
+            });
+        }
+
+        function getSavedItems(key) {
+            try {
+                const raw = localStorage.getItem(key);
+                if (!raw) return [];
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        async function loadSavedLibrary() {
+            try {
+                const data = await apiCall('/members/saved-items');
+                const saved = data.saved || {};
+                // Cache locally for quick access and offline use
+                localStorage.setItem('gw_saved_videos', JSON.stringify(saved.videos || []));
+                localStorage.setItem('gw_saved_blogs', JSON.stringify(saved.blogs || []));
+                localStorage.setItem('gw_saved_reports', JSON.stringify(saved.reports || []));
+                localStorage.setItem('gw_saved_products', JSON.stringify(saved.products || []));
+                renderSavedLibrary(saved);
+            } catch (error) {
+                renderSavedLibrary();
+            }
+        }
+
+        async function loadSuggestedBlogs() {
+            try {
+                const data = await apiCall('/members/recommendations?type=blog');
+                const blogs = data.recommendations || [];
+                renderSuggestedBlogs(blogs);
+            } catch (error) {
+                renderSuggestedBlogs([]);
+            }
+        }
+
+        function renderSuggestedBlogs(blogs) {
+            const container = document.getElementById('suggested-blogs-list');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!blogs || blogs.length === 0) {
+                container.innerHTML = '<div class="library-empty">No blog recommendations yet.</div>';
+                return;
+            }
+
+            blogs.slice(0, 4).forEach((blog) => {
+                const card = document.createElement('div');
+                card.className = 'saved-item';
+                card.innerHTML = `
+                    ${blog.imageUrl ? `<img src="${blog.imageUrl}" alt="${blog.title}">` : ''}
+                    <h5>${blog.title}</h5>
+                    ${blog.description ? `<p>${blog.description}</p>` : ''}
+                    <a href="${blog.url}" target="_blank" rel="noopener">Read</a>
+                    <button class="btn secondary" type="button">Save</button>
+                `;
+                const saveBtn = card.querySelector('button');
+                saveBtn.addEventListener('click', () => saveSuggestedBlog(blog));
+                container.appendChild(card);
+            });
+        }
+
+        async function saveSuggestedBlog(blog) {
+            if (!blog) return;
+            try {
+                await apiCall('/members/saved-items/blogs', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        id: blog.id,
+                        title: blog.title,
+                        description: blog.description || '',
+                        category: blog.category || 'blog',
+                        url: blog.url,
+                        imageUrl: blog.imageUrl || '',
+                        type: 'blog'
+                    })
+                });
+                await loadSavedLibrary();
+                showMessage('Blog saved to your profile.', 'success');
+            } catch (error) {
+                showMessage('Failed to save blog', 'error');
+            }
+        }
+
+        function renderSavedSection(items, listId, countId, singularLabel, pluralLabel, typeKey) {
+            const list = document.getElementById(listId);
+            const count = document.getElementById(countId);
+            if (!list || !count) return;
+
+            count.textContent = `${items.length} ${items.length === 1 ? singularLabel : pluralLabel}`;
+            list.innerHTML = '';
+
+            if (items.length === 0) {
+                return;
+            }
+
+            items.slice(0, 4).forEach((item) => {
+                const card = document.createElement('div');
+                card.className = 'saved-item';
+                const title = item.title || item.name || 'Saved item';
+                const desc = item.description || item.category || item.type || '';
+                const link = item.url || item.link || '';
+                const image = item.imageUrl || item.thumbnail || '';
+                card.innerHTML = `
+                    ${image ? `<img src="${image}" alt="${title}">` : `<div class="no-photo medium">No Photo Available</div>`}
+                    <h5>${title}</h5>
+                    ${desc ? `<p>${desc}</p>` : ''}
+                    ${link ? `<a href="${link}" target="_blank" rel="noopener">Open</a>` : ''}
+                    <button class="btn secondary" type="button">Unsave</button>
+                `;
+                const removeButton = card.querySelector('button');
+                removeButton.addEventListener('click', () => removeSavedItem(typeKey, item.id));
+                list.appendChild(card);
+            });
+        }
+
+        function renderSavedLibrary(savedData) {
+            const data = savedData || {
+                videos: getSavedItems('gw_saved_videos'),
+                blogs: getSavedItems('gw_saved_blogs'),
+                reports: getSavedItems('gw_saved_reports'),
+                products: getSavedItems('gw_saved_products')
+            };
+
+            renderSavedSection(data.videos || [], 'saved-videos-list', 'saved-videos-count', 'saved video', 'saved videos', 'videos');
+            renderSavedSection(data.blogs || [], 'saved-blogs-list', 'saved-blogs-count', 'saved blog', 'saved blogs', 'blogs');
+            renderSavedSection(data.reports || [], 'saved-reports-list', 'saved-reports-count', 'saved report', 'saved reports', 'reports');
+            renderSavedSection(data.products || [], 'saved-products-list', 'saved-products-count', 'saved product', 'saved products', 'products');
+            renderSavedQuickGrid(data.products || []);
+            renderSavedProductsGallery(data.products || []);
+        }
+
+        function renderSavedQuickGrid(products) {
+            const container = document.getElementById('saved-products-quick');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!products || products.length === 0) {
+                container.innerHTML = '<div class="library-empty">No saved products yet.</div>';
+                return;
+            }
+
+            products.slice(0, 4).forEach((product) => {
+                const card = document.createElement('div');
+                card.className = 'saved-quick-card';
+                const image = product.imageUrl || product.thumbnail || '';
+                card.innerHTML = `
+                    ${image ? `<img src="${image}" alt="${product.title || 'Product'}">` : `<div class="no-photo small">No Photo Available</div>`}
+                    <span>${product.title || product.name || 'Saved product'}</span>
+                    <button class="btn secondary" type="button">Unsave</button>
+                `;
+                card.querySelector('button').addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    removeSavedItem('products', product.id);
+                });
+                card.addEventListener('click', () => {
+                    if (product.url) {
+                        window.location.href = product.url;
+                    }
+                });
+                container.appendChild(card);
+            });
+        }
+
+        function renderSavedProductsGallery(products) {
+            const container = document.getElementById('saved-products-gallery');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!products || products.length === 0) {
+                container.innerHTML = '<div class="library-empty">No saved products yet.</div>';
+                return;
+            }
+
+            products.slice(0, 6).forEach((product) => {
+                const card = document.createElement('div');
+                card.className = 'saved-gallery-card';
+                const image = product.imageUrl || product.thumbnail || '';
+                const title = product.title || product.name || 'Saved product';
+                const desc = product.description || product.category || '';
+                card.innerHTML = `
+                    ${image ? `<img src="${image}" alt="${title}">` : `<div class="no-photo large">No Photo Available</div>`}
+                    <div class="saved-gallery-overlay">
+                        <h5>${title}</h5>
+                        ${desc ? `<p>${desc}</p>` : ''}
+                        <button class="btn secondary" type="button">Unsave</button>
+                    </div>
+                `;
+                card.querySelector('button').addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    removeSavedItem('products', product.id);
+                });
+                card.addEventListener('click', () => {
+                    if (product.url) {
+                        window.location.href = product.url;
+                    }
+                });
+                container.appendChild(card);
+            });
+        }
+
+        async function removeSavedItem(typeKey, itemId) {
+            if (!typeKey || !itemId) return;
+            try {
+                await apiCall(`/members/saved-items/${typeKey}/${encodeURIComponent(itemId)}`, { method: 'DELETE' });
+                await loadSavedLibrary();
+            } catch (error) {
+                showMessage('Failed to remove item', 'error');
+            }
+        }
+
+        async function saveProfile() {
+            try {
+                const payload = {
+                    display_name: document.getElementById('display_name').value,
+                    first_name: document.getElementById('first_name').value,
+                    last_name: document.getElementById('last_name').value,
+                    job_title: document.getElementById('job_title').value,
+                    company: document.getElementById('company').value,
+                    location: document.getElementById('location').value,
+                    phone: document.getElementById('phone').value,
+                    bio: document.getElementById('bio').value,
+                    profile_photo_url: state.profilePhotoUrl,
+                    cover_photo_url: state.coverPhotoUrl
+                };
+
+                await apiCall('/members/profile', {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                });
+
+                const displayName = payload.display_name || `${payload.first_name || ''} ${payload.last_name || ''}`.trim();
+                document.getElementById('profile-name').textContent = displayName || 'Member';
+                document.getElementById('profile-meta').textContent = payload.job_title || 'Membership profile';
+                updatePreview();
+
+                showMessage('Profile saved successfully', 'success');
+            } catch (error) {
+                showMessage(error.message || 'Failed to save profile', 'error');
+            }
+        }
+
+        function triggerUpload(type) {
+            if (type === 'cover') {
+                document.getElementById('upload-cover').click();
+            } else {
+                document.getElementById('upload-avatar').click();
+            }
+        }
+
+        async function handleUpload(file, type) {
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/members/profile/upload?type=${type}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || 'Upload failed');
+                }
+
+                const data = await response.json();
+                if (type === 'cover') {
+                    state.coverPhotoUrl = data.url;
+                    setCoverImage(state.coverPhotoUrl);
+                } else {
+                    state.profilePhotoUrl = data.url;
+                    setImage('avatar-image', 'avatar-placeholder', state.profilePhotoUrl);
+                }
+
+                showMessage('Image uploaded successfully', 'success');
+            } catch (error) {
+                showMessage(error.message || 'Failed to upload image', 'error');
+            }
+        }
+
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = `message ${type}`;
+            message.style.display = 'block';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 4000);
+        }
+
+        function goBack() {
+            window.location.href = 'members-section.html';
+        }
+
+        loadProfile();
+        loadSavedLibrary();
+        loadSuggestedBlogs();
+    </script>
+</body>
+</html>
