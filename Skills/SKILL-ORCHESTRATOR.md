@@ -30,6 +30,7 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 | 🔍 **Product Deep Dive** | `product-deep-dive.md` | Build deep-dive product info and pages |
 | 👥 **Member Manager** | `member-manager.md` | Member profiles, uploads, and access UX |
 | 💷 **Product Deal Finder** | `product-deal-finder.md` | Deals, discounts, and price comparisons |
+| 📦 **Content Operations** | `content-operations.md` | Draft → review → publish workflow |
 
 ---
 
@@ -264,6 +265,28 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 
 ---
 
+### 📦 Content Operations (Draft → Review → Publish)
+
+**Activate when user says:**
+```
+"content workflow"
+"publish content"
+"content pipeline"
+"draft review publish"
+"content operations"
+"prepare content"
+"content staging"
+```
+
+**Routes to:** `content-operations.md`
+
+**Performs:**
+- Draft → review → ready workflow
+- Folder and manifest management
+- Content catalog status tracking
+
+---
+
 ### 🤖 Ralph Integration (Autonomous Feature Deployment)
 
 **Activate when user says:**
@@ -446,6 +469,9 @@ User Request
     ├── Contains "blog", "article", "ESG", "write about"?
     │   └── → sustainability-blog-writer.md
     │
+    ├── Contains "content workflow", "publish content", "content pipeline"?
+    │   └── → content-operations.md
+    │
     └── Contains "HTML", "webpage", "page", "create page"?
         └── → html-content-creator.md
 ```
@@ -489,6 +515,11 @@ Some tasks require multiple skills. Common combinations:
 1. **Grants Finder** → Find new schemes
 2. **Video Finder** → Find new videos
 3. **Blog Writer** → Create summary content
+
+### Content Publish Flow
+1. **Blog Writer / Video Finder / HTML Creator** → Produce content
+2. **Content Operations** → Draft → review → ready
+3. **Systems** → Verify deployment
 
 ### Full System Check
 1. **Systems** → Check all connections
@@ -810,6 +841,7 @@ git commit -m "📚 Update SKILL-ORCHESTRATOR: Add new trigger phrases for styli
 │  🌍 GRANTS         → "grants", "schemes", "funding"           │
 │  🛍️ PRODUCT        → "add product", "grants enrichment"  ⚠️   │
 │  🔍 DEEP DIVE       → "deep dive", "product details"          │
+│  📦 CONTENT        → "content workflow", "publish content"    │
 │  👥 MEMBERS         → "profile", "member manager"             │
 │  🎬 VIDEOS         → "videos", "YouTube", "sustainability"    │
 │  ✍️ BLOG           → "write", "blog", "ESG", "article"        │

@@ -20,6 +20,7 @@ Skills/
 ├── product-deep-dive.md           ← Product Deep Dive (Enhanced product info)
 ├── member-manager.md              ← Member profiles & uploads
 ├── product-deal-finder.md         ← Deals, pricing, offers
+├── content-operations.md          ← Content pipeline & publishing
 ├── RALPH-INTEGRATION.md           ← Autonomous Feature Deployment
 ├── sustainability-video-finder.md ← Video Curation
 ├── sustainability-blog-writer.md  ← Blog & ESG Content
@@ -42,6 +43,7 @@ Skills/
 │  🌍 GRANTS         → "grants", "schemes", "funding"           │
 │  🛍️ PRODUCT        → "add product", "grants enrichment"  ⚠️   │
 │  🔍 DEEP DIVE       → "deep dive", "product details"          │
+│  📦 CONTENT        → "content workflow", "publish content"    │
 │  💷 DEALS           → "deals", "discount", "best price"       │
 │  🎬 VIDEOS         → "videos", "YouTube", "sustainability"    │
 │  ✍️ BLOG           → "write", "blog", "ESG", "article"        │
@@ -68,6 +70,7 @@ Skills/
 | 🔍 **Product Deep Dive** | `product-deep-dive.md` | Build deep-dive product info and pages |
 | 👥 **Member Manager** | `member-manager.md` | Member profiles, uploads, and access UX |
 | 💷 **Product Deal Finder** | `product-deal-finder.md` | Find deals, offers, and price comparisons |
+| 📦 **Content Operations** | `content-operations.md` | Draft → review → publish workflow |
 | 🎬 **Video Finder** | `sustainability-video-finder.md` | Find sustainability videos |
 | ✍️ **Blog Writer** | `sustainability-blog-writer.md` | Generate blog content & ESG reports |
 | 🌐 **HTML Creator** | `html-content-creator.md` | Create HTML pages with images |
@@ -288,6 +291,26 @@ Skills/
 
 ---
 
+### 📦 Content Operations (Draft → Review → Publish)
+
+**Activate when user says:**
+```
+"content workflow"
+"publish content"
+"content pipeline"
+"draft review publish"
+"content operations"
+"prepare content"
+"content staging"
+```
+
+**What it does:**
+- Standardizes draft → review → ready flow
+- Tracks Wix image URLs in a manifest
+- Ensures catalog entries are clean and tagged
+
+---
+
 ### 🔍 Product Deep Dive
 
 **Activate when user says:**
@@ -409,6 +432,7 @@ Some tasks require multiple skills. Common combinations:
 | **Build Product Deep Dives** | Product Deep Dive → HTML Creator → Systems |
 | **Member Profile Build** | Member Manager → HTML Creator → Systems |
 | **Weekly Content Update** | Grants Finder → Video Finder → Blog Writer |
+| **Content Publish Flow** | Blog Writer/Video Finder/HTML Creator → Content Operations → Systems |
 | **Full System Check** | Systems → Market Manager → Media |
 | **Regenerate Product Data** | ⚠️ Product Workflow → Systems |
 
@@ -482,6 +506,7 @@ Some tasks require multiple skills. Common combinations:
 | `product-addition-workflow.md` | ~500 | ⚠️ Product grants enrichment |
 | `product-deep-dive.md` | New | Product deep-dive workflow |
 | `member-manager.md` | New | Member profiles and uploads |
+| `content-operations.md` | New | Content pipeline & publishing |
 | `sustainability-video-finder.md` | ~420 | Video curation |
 | `sustainability-blog-writer.md` | ~500 | Blog & ESG content |
 | `html-content-creator.md` | ~270 | HTML page creation |
@@ -570,7 +595,7 @@ RECEIVE → EXECUTE → COMPLETE → REFLECT → DOCUMENT → COMMIT → READY
 ---
 
 **Last Updated:** January 2026  
-**Total Skills:** 12  
+**Total Skills:** 13  
 **Master Controller:** SKILL-ORCHESTRATOR.md  
 **Learning Protocol:** v2.0 (Auto-documentation enabled)
 **Product Workflow:** ⚠️ MANDATORY for all new products

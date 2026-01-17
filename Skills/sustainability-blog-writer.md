@@ -631,7 +631,9 @@ Run every week (suggest: Monday):
 - [ ] **Choose blog template** for each story (Step 3)
 - [ ] **Find relevant images** (Step 4)
 - [ ] **Generate blog content** using template
-- [ ] **Copy HTML to Wix** blog editor
+- [ ] **Save draft** to `content-ops/drafts/`
+- [ ] **Move to review** in `content-ops/review/`
+- [ ] **Copy HTML to Wix** blog editor (when approved)
 - [ ] **Preview and adjust** styling if needed
 - [ ] **Schedule/publish** the post
 - [ ] **Share on social media**

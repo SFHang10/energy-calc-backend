@@ -246,6 +246,8 @@ Create a URL mapping for reference:
 | Philips LED | philips-led-master.png | https://static.wixstatic.com/media/c123de_... |
 ```
 
+Preferred location: `content-ops/manifests/wix-media-manifest.json`
+
 ### 4.4 Apply to Products
 
 **For Wix Store Products:**

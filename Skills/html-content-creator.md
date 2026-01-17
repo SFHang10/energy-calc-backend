@@ -126,6 +126,12 @@ HTMLs/
 ├── [Topic]-Single.html      # Single-page layouts
 ├── [Topic].html             # Original/source versions
 └── [Source documents].docx  # Reference materials
+
+content-ops/
+├── drafts/                   # HTML drafts and notes
+├── review/                   # QA review stage
+├── ready/                    # Approved HTML ready to publish
+└── manifests/wix-media-manifest.json
 ```
 
 ### Naming Convention

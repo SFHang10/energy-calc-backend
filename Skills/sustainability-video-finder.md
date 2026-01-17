@@ -328,6 +328,8 @@ Run every week (suggest: Wednesday):
 - [ ] **Apply quality filters** to results (Step 2)
 - [ ] **Compile video information** (Step 3)
 - [ ] **Generate weekly report** (Step 4)
+- [ ] **Save report** to `content-ops/drafts/`
+- [ ] **Move to review** in `content-ops/review/`
 - [ ] **Review and select** videos to add
 - [ ] **Add selected videos** to Wix site
 - [ ] **Archive report** for reference

@@ -72,6 +72,11 @@ cover_photo_url
 3. **Sync Wix content** via admin UI or scheduled auto-sync  
 4. **Recommendations** pull from catalog by interest  
 
+### Content Operations Handoff
+- Draft and review content in `content-ops/` before publishing.
+- Use `content-ops/manifests/wix-media-manifest.json` to track Wix image URLs.
+- Mark catalog items with `status` and `lastReviewedAt` when publishing.
+
 ---
 
 ## ⚠️ Production Notes
