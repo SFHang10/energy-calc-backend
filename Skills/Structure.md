@@ -23,6 +23,7 @@ Skills/
 ├── content-operations.md          ← Content pipeline & publishing
 ├── RALPH-INTEGRATION.md           ← Autonomous Feature Deployment
 ├── sustainability-video-finder.md ← Video Curation
+├── sustainability-news-finder.md  ← Sustainability News Reports
 ├── sustainability-blog-writer.md  ← Blog & ESG Content
 └── html-content-creator.md        ← HTML Pages
 ```
@@ -46,6 +47,7 @@ Skills/
 │  📦 CONTENT        → "content workflow", "publish content"    │
 │  💷 DEALS           → "deals", "discount", "best price"       │
 │  🎬 VIDEOS         → "videos", "YouTube", "sustainability"    │
+│  📰 NEWS           → "news roundup", "sustainability news"    │
 │  ✍️ BLOG           → "write", "blog", "ESG", "article"        │
 │  🌐 HTML           → "create page", "HTML", "webpage"         │
 │  🤖 RALPH          → "PRD", "autonomous", "multi-step"        │
@@ -72,6 +74,7 @@ Skills/
 | 💷 **Product Deal Finder** | `product-deal-finder.md` | Find deals, offers, and price comparisons |
 | 📦 **Content Operations** | `content-operations.md` | Draft → review → publish workflow |
 | 🎬 **Video Finder** | `sustainability-video-finder.md` | Find sustainability videos |
+| 📰 **News Finder** | `sustainability-news-finder.md` | Sustainability news roundups |
 | ✍️ **Blog Writer** | `sustainability-blog-writer.md` | Generate blog content & ESG reports |
 | 🌐 **HTML Creator** | `html-content-creator.md` | Create HTML pages with images |
 | 🤖 **Ralph** | `RALPH-INTEGRATION.md` | Autonomous multi-step feature deployment |

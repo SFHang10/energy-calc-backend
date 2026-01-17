@@ -23,6 +23,7 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 | 🖼️ **Media** | `Media Skill MD.md` | Find/manage product images |
 | 🌍 **Grants Finder** | `grants-schemes-finder.md` | Find energy grants & schemes |
 | 🎬 **Video Finder** | `sustainability-video-finder.md` | Find sustainability videos |
+| 📰 **News Finder** | `sustainability-news-finder.md` | Sustainability news roundups |
 | ✍️ **Blog Writer** | `sustainability-blog-writer.md` | Generate blog content & ESG reports |
 | 🌐 **HTML Creator** | `html-content-creator.md` | Create HTML pages with images |
 | 🤖 **Ralph** | `RALPH-INTEGRATION.md` | Autonomous multi-step feature deployment |
@@ -205,6 +206,29 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 - Generate curated list
 - Provide embed codes
 - Weekly video report
+
+---
+
+### 📰 Sustainability News Finder
+
+**Activate when user says:**
+```
+"sustainability news"
+"news roundup"
+"monthly sustainability report"
+"sustainability updates"
+"circular economy news"
+"EU sustainability news"
+"policy update report"
+"funding news roundup"
+```
+
+**Routes to:** `sustainability-news-finder.md`
+
+**Performs:**
+- Research sustainability news from official sources
+- Generate HTML monthly/weekly news reports
+- Output drafts to content-ops for review
 
 ---
 
@@ -466,6 +490,9 @@ User Request
     ├── Contains "video", "YouTube", "embed video"?
     │   └── → sustainability-video-finder.md
     │
+    ├── Contains "sustainability news", "news roundup", "policy update report"?
+    │   └── → sustainability-news-finder.md
+    │
     ├── Contains "blog", "article", "ESG", "write about"?
     │   └── → sustainability-blog-writer.md
     │
@@ -514,7 +541,8 @@ Some tasks require multiple skills. Common combinations:
 ### Weekly Content Update
 1. **Grants Finder** → Find new schemes
 2. **Video Finder** → Find new videos
-3. **Blog Writer** → Create summary content
+3. **News Finder** → Create news roundup
+4. **Blog Writer** → Create summary content
 
 ### Content Publish Flow
 1. **Blog Writer / Video Finder / HTML Creator** → Produce content
@@ -607,6 +635,7 @@ C:\Users\steph\Documents\energy-cal-backend\Skills\
 | `Media Skill MD.md` | ~490 lines | January 2026 |
 | `grants-schemes-finder.md` | ~420 lines | January 2025 |
 | `sustainability-video-finder.md` | ~420 lines | January 2025 |
+| `sustainability-news-finder.md` | New | January 2026 |
 | `sustainability-blog-writer.md` | ~500 lines | January 2026 |
 | `html-content-creator.md` | ~270 lines | January 2026 |
 | `product-deep-dive.md` | New | January 2026 |
@@ -844,6 +873,7 @@ git commit -m "📚 Update SKILL-ORCHESTRATOR: Add new trigger phrases for styli
 │  📦 CONTENT        → "content workflow", "publish content"    │
 │  👥 MEMBERS         → "profile", "member manager"             │
 │  🎬 VIDEOS         → "videos", "YouTube", "sustainability"    │
+│  📰 NEWS           → "news roundup", "sustainability news"    │
 │  ✍️ BLOG           → "write", "blog", "ESG", "article"        │
 │  🌐 HTML           → "create page", "HTML", "webpage"         │
 │  🤖 RALPH          → "PRD", "autonomous", "multi-step"        │
