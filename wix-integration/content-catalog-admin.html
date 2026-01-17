@@ -169,6 +169,35 @@
       color: var(--gray);
     }
 
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      background: #E5E7EB;
+      color: #374151;
+      margin-left: 6px;
+    }
+
+    .status-pill.published {
+      background: #DCFCE7;
+      color: #166534;
+    }
+
+    .status-pill.review {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
+    .status-pill.draft {
+      background: #E5E7EB;
+      color: #4B5563;
+    }
+
     @media (max-width: 900px) {
       .grid { grid-template-columns: 1fr; }
     }
@@ -212,6 +241,8 @@
               <th>Type</th>
               <th>Title</th>
               <th>Category</th>
+              <th>Status</th>
+              <th>Reviewed</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -237,6 +268,12 @@
         <input id="item-tags" type="text" placeholder="Tags (comma separated)">
         <input id="item-url" type="text" placeholder="URL">
         <input id="item-image" type="text" placeholder="Image URL / Thumbnail URL">
+        <select id="item-status">
+          <option value="draft">Draft</option>
+          <option value="review">Review</option>
+          <option value="published">Published</option>
+        </select>
+        <input id="item-reviewed" type="date" placeholder="Last Reviewed">
         <textarea id="item-description" placeholder="Description"></textarea>
         <div class="actions">
           <button class="btn" onclick="saveItem()">Save Item</button>
@@ -309,10 +346,14 @@
       table.innerHTML = '';
       items.forEach((item) => {
         const row = document.createElement('tr');
+        const status = item.status || 'draft';
+        const reviewedAt = item.lastReviewedAt || '';
         row.innerHTML = `
           <td>${item.type}</td>
           <td>${item.title}</td>
           <td>${item.category || ''}</td>
+          <td>${status}</td>
+          <td>${reviewedAt}</td>
           <td>
             <button class="btn secondary" onclick='editItem(${JSON.stringify(item).replace(/"/g, "&quot;")})'>Edit</button>
             <button class="btn danger" onclick="deleteItem('${item.id}')">Delete</button>
@@ -331,11 +372,13 @@
         card.draggable = true;
         card.dataset.id = item.id;
         const image = item.imageUrl || item.thumbnail || '';
+        const status = item.status || 'draft';
+        const reviewedAt = item.lastReviewedAt || '';
         card.innerHTML = `
           ${image ? `<img src="${image}" alt="${item.title}">` : ''}
           <div class="preview-body">
             <h4>${item.title}</h4>
-            <div class="preview-meta">${item.type} • ${item.category || ''}</div>
+            <div class="preview-meta">${item.type} • ${item.category || ''} • ${reviewedAt || 'unreviewed'} <span class="status-pill ${status}">${status}</span></div>
           </div>
         `;
 
@@ -375,6 +418,8 @@
       document.getElementById('item-url').value = item.url || '';
       document.getElementById('item-image').value = item.imageUrl || item.thumbnail || '';
       document.getElementById('item-description').value = item.description || '';
+      document.getElementById('item-status').value = item.status || 'draft';
+      document.getElementById('item-reviewed').value = item.lastReviewedAt || '';
     }
 
     function clearForm() {
@@ -386,9 +431,14 @@
       document.getElementById('item-image').value = '';
       document.getElementById('item-description').value = '';
       document.getElementById('item-type').value = 'blog';
+      document.getElementById('item-status').value = 'draft';
+      document.getElementById('item-reviewed').value = '';
     }
 
     async function saveItem() {
+      const status = document.getElementById('item-status').value || 'draft';
+      const reviewedInput = document.getElementById('item-reviewed').value;
+      const reviewedAt = reviewedInput || (status === 'published' ? new Date().toISOString().slice(0, 10) : '');
       const payload = {
         id: document.getElementById('item-id').value.trim(),
         type: document.getElementById('item-type').value,
@@ -397,7 +447,9 @@
         tags: document.getElementById('item-tags').value.split(',').map(t => t.trim()).filter(Boolean),
         url: document.getElementById('item-url').value.trim(),
         description: document.getElementById('item-description').value.trim(),
-        imageUrl: document.getElementById('item-image').value.trim()
+        imageUrl: document.getElementById('item-image').value.trim(),
+        status,
+        lastReviewedAt: reviewedAt
       };
 
       try {

@@ -20,6 +20,13 @@ This folder is the source-of-truth workspace for content before it is published.
    - Upload images to Wix and update `manifests/wix-media-manifest.json`
    - Push to GitHub (Render deploys)
 
+## Publish Checklist Script
+
+Run before publishing:
+```
+node scripts/publish-checklist.js
+```
+
 ## Publish Checklist (Quick)
 
 - Content accuracy verified

@@ -43,6 +43,15 @@ content-ops/
 
 ---
 
+## ✅ Pre-Publish Check
+
+Run the checklist script before publishing:
+```
+node scripts/publish-checklist.js
+```
+
+---
+
 ## ✅ Review Checklist
 
 - Accuracy verified (facts, links, dates)
