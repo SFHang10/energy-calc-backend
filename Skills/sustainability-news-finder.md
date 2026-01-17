@@ -73,7 +73,14 @@ Use the references list in `Skills/Sustainability News USAGE_GUIDE.md` for full 
 
 ## 🧱 Report Structure (HTML)
 
-Use a clean, responsive design and include:
+Use the template at:
+```
+content-ops/drafts/sustainability-news/TEMPLATE_Sustainability_News.html
+```
+
+Keep the **sidebar menu navigation** and overall layout. Only replace the content blocks.
+
+Sections to keep:
 1. **Header**
    - Title, date, executive summary
 2. **Top Stories (3–5)**
