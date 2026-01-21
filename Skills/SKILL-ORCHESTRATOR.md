@@ -25,13 +25,16 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 | 🎬 **Video Finder** | `sustainability-video-finder.md` | Find sustainability videos |
 | 📰 **News Finder** | `sustainability-news-finder.md` | Sustainability news roundups |
 | ✍️ **Blog Writer** | `sustainability-blog-writer.md` | Generate blog content & ESG reports |
+| ⚡ **Energy Ticker** | `energy-ticker.md` | Live energy price ticker for Europe |
 | 🌐 **HTML Creator** | `html-content-creator.md` | Create HTML pages with images |
+| ✉️ **Secretary** | `secretary-skill.md` | Professional Greenways emails |
 | 🤖 **Ralph** | `RALPH-INTEGRATION.md` | Autonomous multi-step feature deployment |
 | 🛍️ **Product Workflow** | `product-addition-workflow.md` | Add products with grants/collection enrichment |
 | 🔍 **Product Deep Dive** | `product-deep-dive.md` | Build deep-dive product info and pages |
 | 👥 **Member Manager** | `member-manager.md` | Member profiles, uploads, and access UX |
 | 💷 **Product Deal Finder** | `product-deal-finder.md` | Deals, discounts, and price comparisons |
 | 📦 **Content Operations** | `content-operations.md` | Draft → review → publish workflow |
+| 🏗️ **Renovation Planner** | `sustainable-renovation-planner.md` | Renovation project plans with grants |
 
 ---
 
@@ -209,6 +212,30 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 
 ---
 
+### 🏗️ Sustainable Renovation Planner
+
+**Activate when user says:**
+```
+"renovation plan"
+"retrofit plan"
+"project planner"
+"project plan"
+"grant strategy"
+"sustainable renovation"
+"energy retrofit"
+"upgrade roadmap"
+```
+
+**Routes to:** `sustainable-renovation-planner.md`
+
+**Performs:**
+- Build renovation project plans with grant strategy
+- Recommend low‑energy products (ETL where relevant)
+- Use template: `HTMLs/Renovation project plans.html`
+- Trigger grants/product workflows when new items are introduced
+
+---
+
 ### 📰 Sustainability News Finder
 
 **Activate when user says:**
@@ -229,6 +256,7 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 - Research sustainability news from official sources
 - Generate HTML monthly/weekly news reports
 - Output drafts to content-ops for review
+- Use supporting reference docs for sources/outreach (see News Finder skill)
 
 ---
 
@@ -259,6 +287,50 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 - Sustainability topic articles
 - Financial reporting templates
 - Content with graphs & tables
+- Use supporting reference docs for sources/outreach (see Blog Writer skill)
+
+---
+
+### ⚡ Energy Ticker (Live Energy Prices)
+
+**Activate when user says:**
+```
+"energy ticker"
+"energy price ticker"
+"live energy prices"
+"electricity prices"
+"wholesale electricity prices"
+"renewable energy ticker"
+"renewable share ticker"
+```
+
+**Routes to:** `energy-ticker.md`
+
+**Performs:**
+- Build a two-line energy ticker (All Energy + Renewables)
+- Fetch data via backend proxy (avoid CORS)
+- Provide HTML widget for Wix embed
+
+---
+
+### ✉️ Secretary (Greenways Email Writer)
+
+**Activate when user says:**
+```
+"write an email"
+"email template"
+"outreach email"
+"contact organisation"
+"press access email"
+"partnership email"
+"secretary"
+```
+
+**Routes to:** `secretary-skill.md`
+
+**Performs:**
+- Draft professional emails on behalf of Greenways
+- Uses the Email Templates reference for structure
 
 ---
 
@@ -368,6 +440,7 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 - Merge curated deep-dive data with product data
 - Generate `products-deep-dive.json` outputs
 - Ensure consistent deep-dive layout across products
+- Use supporting reference docs for technical specs (see Product Deep Dive skill)
 
 ---
 
@@ -469,6 +542,12 @@ User Request
     ├── Contains "deep dive", "product details", "rich product info"?
     │   └── → product-deep-dive.md
     │
+    ├── Contains "email", "outreach", "secretary", "contact organisation"?
+    │   └── → secretary-skill.md
+    │
+    ├── Contains "renovation", "retrofit", "project plan", "grant strategy"?
+    │   └── → sustainable-renovation-planner.md
+    │
     ├── Contains "member profile", "profile page", "uploads", "members manager"?
     │   └── → member-manager.md
     │
@@ -495,6 +574,9 @@ User Request
     │
     ├── Contains "blog", "article", "ESG", "write about"?
     │   └── → sustainability-blog-writer.md
+    │
+    ├── Contains "energy ticker", "energy prices", "electricity prices", "renewable share"?
+    │   └── → energy-ticker.md
     │
     ├── Contains "content workflow", "publish content", "content pipeline"?
     │   └── → content-operations.md
@@ -533,6 +615,16 @@ Some tasks require multiple skills. Common combinations:
 2. **HTML Creator** → Present in page template
 3. **Systems** → Verify API/data is served
 
+### Renovation Project Plan
+1. **Renovation Planner** → Build plan + grant strategy
+2. **Grants Finder** → Update schemes if new grants discovered
+3. **Product Workflow** → Add any new products referenced
+4. **HTML Creator** → Finalize HTML output
+
+### Email Outreach
+1. **Secretary** → Draft outreach email
+2. **News Finder / Grants Finder** → Provide context (if needed)
+
 ### Managing Member Profiles
 1. **Member Manager** → Build profile + upload flow
 2. **HTML Creator** → Style profile page
@@ -569,6 +661,8 @@ Copy and use these to activate specific skills:
 | Find videos | "Find sustainability videos for the website" |
 | Create HTML page | "Create a tabbed HTML page for [topic]" |
 | Find product image | "Find an image for [product name]" |
+| Plan renovation | "Create a renovation plan with grants for [property]" |
+| Draft email | "Write a professional outreach email to [organisation]" |
 
 ---
 
@@ -637,9 +731,12 @@ C:\Users\steph\Documents\energy-cal-backend\Skills\
 | `sustainability-video-finder.md` | ~420 lines | January 2025 |
 | `sustainability-news-finder.md` | New | January 2026 |
 | `sustainability-blog-writer.md` | ~500 lines | January 2026 |
+| `energy-ticker.md` | New | January 2026 |
 | `html-content-creator.md` | ~270 lines | January 2026 |
 | `product-deep-dive.md` | New | January 2026 |
 | `member-manager.md` | New | January 2026 |
+| `sustainable-renovation-planner.md` | New | January 2026 |
+| `secretary-skill.md` | New | January 2026 |
 
 ---
 
@@ -875,7 +972,10 @@ git commit -m "📚 Update SKILL-ORCHESTRATOR: Add new trigger phrases for styli
 │  🎬 VIDEOS         → "videos", "YouTube", "sustainability"    │
 │  📰 NEWS           → "news roundup", "sustainability news"    │
 │  ✍️ BLOG           → "write", "blog", "ESG", "article"        │
+│  ⚡ ENERGY TICKER  → "energy prices", "energy ticker"         │
 │  🌐 HTML           → "create page", "HTML", "webpage"         │
+│  🏗️ RENOVATION     → "renovation plan", "retrofit"           │
+│  ✉️ SECRETARY      → "write email", "outreach", "contact"     │
 │  🤖 RALPH          → "PRD", "autonomous", "multi-step"        │
 │                                                                │
 │  ⚠️ = MANDATORY for new products (ensures grants data)        │

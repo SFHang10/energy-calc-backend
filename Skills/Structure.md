@@ -25,6 +25,9 @@ Skills/
 ├── sustainability-video-finder.md ← Video Curation
 ├── sustainability-news-finder.md  ← Sustainability News Reports
 ├── sustainability-blog-writer.md  ← Blog & ESG Content
+├── energy-ticker.md               ← Live energy price ticker
+├── sustainable-renovation-planner.md ← Renovation project plans
+├── secretary-skill.md             ← Professional email writer
 └── html-content-creator.md        ← HTML Pages
 ```
 
@@ -49,7 +52,10 @@ Skills/
 │  🎬 VIDEOS         → "videos", "YouTube", "sustainability"    │
 │  📰 NEWS           → "news roundup", "sustainability news"    │
 │  ✍️ BLOG           → "write", "blog", "ESG", "article"        │
+│  ⚡ ENERGY TICKER  → "energy prices", "energy ticker"         │
 │  🌐 HTML           → "create page", "HTML", "webpage"         │
+│  🏗️ RENOVATION     → "renovation plan", "retrofit"           │
+│  ✉️ SECRETARY      → "write email", "outreach", "contact"     │
 │  🤖 RALPH          → "PRD", "autonomous", "multi-step"        │
 │                                                                │
 │  ⚠️ = MANDATORY for new products (ensures grants data)        │
@@ -76,8 +82,40 @@ Skills/
 | 🎬 **Video Finder** | `sustainability-video-finder.md` | Find sustainability videos |
 | 📰 **News Finder** | `sustainability-news-finder.md` | Sustainability news roundups |
 | ✍️ **Blog Writer** | `sustainability-blog-writer.md` | Generate blog content & ESG reports |
+| ⚡ **Energy Ticker** | `energy-ticker.md` | Live energy price ticker for Europe |
+| 🏗️ **Renovation Planner** | `sustainable-renovation-planner.md` | Renovation plans with grants |
+| ✉️ **Secretary** | `secretary-skill.md` | Professional Greenways emails |
 | 🌐 **HTML Creator** | `html-content-creator.md` | Create HTML pages with images |
 | 🤖 **Ralph** | `RALPH-INTEGRATION.md` | Autonomous multi-step feature deployment |
+
+---
+
+## 📚 Supporting Reference Docs (Non-Skill)
+
+These files are used by News/Blog skills for sourcing, outreach, and topic ideas:
+
+| File | Purpose |
+|------|---------|
+| `Email Templates for Sustainability News Organisati.md` | Outreach templates for access/newsletters |
+| `Could yet up one of these_.md` | EEB setup workflow and key sources |
+| `Could you provide me a list of 20 organisations in.md` | Org/source list + links |
+| `Could you provide a detailed News report of the cu.md` | Regional coverage outline |
+| `Top funded circular economy topics in Horizon Euro.md` | Funding themes + topic ideas |
+| `Key EU sustainability laws adopted in 2025 and tim.md` | Policy timeline reference |
+| `How will the Carbon Border Adjustment Mechanism im.md` | CBAM impacts |
+| `Major EU funding programs for circular economy pro.md` | Funding programs overview |
+
+---
+
+## 🧪 Product Deep Dive Reference Docs
+
+These files support technical-spec enrichment for deep dive entries:
+
+| File | Purpose |
+|------|---------|
+| `Provide a one-page technical spec summary for this.md` | One-page spec summary format |
+| `Summarise the product's key technical specificatio.md` | Key specs checklist |
+| `[https___etl.energysecurity.gov.uk_product-search_.md` | ETL product use + savings notes |
 
 ---
 
@@ -241,6 +279,47 @@ Skills/
 
 ---
 
+### 🏗️ Sustainable Renovation Planner
+
+**Activate when user says:**
+```
+"renovation plan"
+"retrofit plan"
+"project planner"
+"project plan"
+"grant strategy"
+"sustainable renovation"
+"energy retrofit"
+"upgrade roadmap"
+```
+
+**What it does:**
+- Build renovation project plans with grant strategy
+- Recommend low‑energy products (ETL where relevant)
+- Use template: `HTMLs/Renovation project plans.html`
+- Trigger grants/product workflows when new items are introduced
+
+---
+
+### ✉️ Secretary (Greenways Email Writer)
+
+**Activate when user says:**
+```
+"write an email"
+"email template"
+"outreach email"
+"contact organisation"
+"press access email"
+"partnership email"
+"secretary"
+```
+
+**What it does:**
+- Draft professional emails on behalf of Greenways
+- Uses the Email Templates reference for structure
+
+---
+
 ### ✍️ Sustainability Blog Writer
 
 **Activate when user says:**
@@ -266,6 +345,26 @@ Skills/
 - Sustainability topic articles
 - Financial reporting templates
 - Content with graphs & tables
+
+---
+
+### ⚡ Energy Ticker (Live Energy Prices)
+
+**Activate when user says:**
+```
+"energy ticker"
+"energy price ticker"
+"live energy prices"
+"electricity prices"
+"wholesale electricity prices"
+"renewable energy ticker"
+"renewable share ticker"
+```
+
+**What it does:**
+- Builds a two-line energy ticker (All Energy + Renewables)
+- Uses a backend proxy to avoid CORS issues
+- Outputs HTML ready for Wix embed
 
 ---
 
@@ -397,6 +496,12 @@ User Request
     ├── Contains "add product", "product grants", "grants to product"?
     │   └── → product-addition-workflow.md ⚠️ (MANDATORY first)
     │
+    ├── Contains "email", "outreach", "secretary", "contact organisation"?
+    │   └── → secretary-skill.md
+    │
+    ├── Contains "renovation", "retrofit", "project plan", "grant strategy"?
+    │   └── → sustainable-renovation-planner.md
+    │
     ├── Contains "system", "health", "MCP", "ETL", "connection"?
     │   └── → Systems MD
     │
@@ -414,6 +519,9 @@ User Request
     │
     ├── Contains "blog", "article", "ESG", "write about"?
     │   └── → sustainability-blog-writer.md
+    │
+    ├── Contains "energy ticker", "energy prices", "electricity prices", "renewable share"?
+    │   └── → energy-ticker.md
     │
     └── Contains "HTML", "webpage", "page", "create page"?
         └── → html-content-creator.md
@@ -438,6 +546,8 @@ Some tasks require multiple skills. Common combinations:
 | **Content Publish Flow** | Blog Writer/Video Finder/HTML Creator → Content Operations → Systems |
 | **Full System Check** | Systems → Market Manager → Media |
 | **Regenerate Product Data** | ⚠️ Product Workflow → Systems |
+| **Renovation Project Plan** | Renovation Planner → Grants Finder → Product Workflow → HTML Creator |
+| **Email Outreach** | Secretary → News Finder/Grants Finder |
 
 ⚠️ = Product Workflow is **MANDATORY** to ensure grants/collection data is added
 
@@ -454,6 +564,8 @@ Some tasks require multiple skills. Common combinations:
 | Find videos | "Find sustainability videos for the website" |
 | Create HTML page | "Create a tabbed HTML page for [topic]" |
 | Find product image | "Find an image for [product name]" |
+| Plan renovation | "Create a renovation plan with grants for [property]" |
+| Draft email | "Write a professional outreach email to [organisation]" |
 
 ---
 
@@ -512,6 +624,9 @@ Some tasks require multiple skills. Common combinations:
 | `content-operations.md` | New | Content pipeline & publishing |
 | `sustainability-video-finder.md` | ~420 | Video curation |
 | `sustainability-blog-writer.md` | ~500 | Blog & ESG content |
+| `energy-ticker.md` | New | Energy price ticker |
+| `sustainable-renovation-planner.md` | New | Renovation project planning |
+| `secretary-skill.md` | New | Professional email writer |
 | `html-content-creator.md` | ~270 | HTML page creation |
 | `RALPH-INTEGRATION.md` | ~350 | Autonomous deployment |
 
@@ -598,7 +713,7 @@ RECEIVE → EXECUTE → COMPLETE → REFLECT → DOCUMENT → COMMIT → READY
 ---
 
 **Last Updated:** January 2026  
-**Total Skills:** 13  
+**Total Skills:** 14  
 **Master Controller:** SKILL-ORCHESTRATOR.md  
 **Learning Protocol:** v2.0 (Auto-documentation enabled)
 **Product Workflow:** ⚠️ MANDATORY for all new products

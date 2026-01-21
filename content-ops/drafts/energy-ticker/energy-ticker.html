@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Energy Price Ticker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: transparent;
+      padding: 16px;
+    }
+
+    .ticker-container {
+      background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.25), 0 6px 16px rgba(0,0,0,0.15);
+      color: #fff;
+    }
+
+    .ticker-header {
+      background: rgba(0,0,0,0.2);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .ticker-title {
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ticker-title .icon {
+      font-size: 18px;
+    }
+
+    .live-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.18);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      color: #fff;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4ade80;
+      animation: pulse 2s infinite;
+    }
+
+    .demo-dot {
+      background: #fbbf24;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .ticker-wrapper {
+      background: rgba(255,255,255,0.96);
+      overflow: hidden;
+      position: relative;
+      height: 54px;
+    }
+
+    .ticker-content {
+      display: flex;
+      gap: 32px;
+      animation: scroll 40s linear infinite;
+      padding: 14px 0;
+      white-space: nowrap;
+    }
+
+    .ticker-content:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .price-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 16px;
+      font-size: 13px;
+      color: #0f172a;
+    }
+
+    .price-label {
+      font-weight: 600;
+    }
+
+    .price-value {
+      font-weight: 700;
+      color: #1e3a5f;
+    }
+
+    .price-change {
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .price-up { color: #e11d48; }
+    .price-down { color: #16a34a; }
+
+    .data-source {
+      font-size: 11px;
+      color: rgba(255,255,255,0.9);
+      text-align: center;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .accent-all { color: #60a5fa; }
+    .accent-renewable { color: #22c55e; }
+
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .ticker-title { font-size: 13px; }
+      .price-item { font-size: 12px; }
+      .price-value { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ticker-container" id="energyTicker" data-api-url="https://energy-calc-backend.onrender.com/api/energy-ticker">
+    <div class="ticker-header">
+      <div class="ticker-title"><span class="icon">⚡</span>All Energy Prices (Europe)</div>
+      <div class="live-indicator">
+        <div class="live-dot demo-dot" id="statusDot"></div>
+        <span id="statusText">DEMO DATA</span>
+      </div>
+    </div>
+    <div class="ticker-wrapper">
+      <div class="ticker-content" id="allEnergyTicker">
+        <div class="price-item">Loading energy prices...</div>
+      </div>
+    </div>
+
+    <div class="ticker-header">
+      <div class="ticker-title"><span class="icon">🌿</span>Renewable Share (Europe)</div>
+    </div>
+    <div class="ticker-wrapper">
+      <div class="ticker-content" id="renewableTicker">
+        <div class="price-item">Loading renewable share...</div>
+      </div>
+    </div>
+
+    <div class="data-source">
+      Last updated: <span id="lastUpdate">--</span> | Source: <span id="dataSource">demo</span>
+    </div>
+  </div>
+
+  <script>
+    const demoData = {
+      updatedAt: new Date().toISOString(),
+      isLive: false,
+      source: 'demo',
+      allEnergy: [
+        { code: 'FR', name: 'France', priceEurMwh: 101.31, changePct: -2.5 },
+        { code: 'ES', name: 'Spain', priceEurMwh: 101.54, changePct: -2.2 },
+        { code: 'PT', name: 'Portugal', priceEurMwh: 101.54, changePct: -2.1 },
+        { code: 'DE', name: 'Germany', priceEurMwh: 156.17, changePct: 1.2 },
+        { code: 'NL', name: 'Netherlands', priceEurMwh: 122.76, changePct: -1.2 },
+        { code: 'IT', name: 'Italy', priceEurMwh: 142.24, changePct: -0.3 },
+        { code: 'PL', name: 'Poland', priceEurMwh: 141.00, changePct: 0.0 }
+      ],
+      renewableShare: [
+        { code: 'FR', name: 'France', sharePct: 52.4, changePct: 0.8 },
+        { code: 'ES', name: 'Spain', sharePct: 61.1, changePct: 1.2 },
+        { code: 'PT', name: 'Portugal', sharePct: 67.3, changePct: 0.5 },
+        { code: 'DE', name: 'Germany', sharePct: 58.4, changePct: -1.2 },
+        { code: 'NL', name: 'Netherlands', sharePct: 39.8, changePct: -0.4 },
+        { code: 'IT', name: 'Italy', sharePct: 45.2, changePct: 0.1 },
+        { code: 'PL', name: 'Poland', sharePct: 27.6, changePct: 0.2 }
+      ]
+    };
+
+    function formatChange(change) {
+      if (!change || change === 0) return '';
+      const symbol = change > 0 ? '▲' : '▼';
+      return `${symbol}${Math.abs(change).toFixed(1)}%`;
+    }
+
+    function renderPriceItem(item, type) {
+      const changeText = formatChange(item.changePct);
+      const changeClass = item.changePct >= 0 ? 'price-up' : 'price-down';
+      const value = type === 'all'
+        ? `€${item.priceEurMwh.toFixed(2)}/MWh`
+        : `${item.sharePct.toFixed(1)}%`;
+
+      return `
+        <div class="price-item">
+          <span class="price-label">${item.name}:</span>
+          <span class="price-value">${value}</span>
+          ${changeText ? `<span class="price-change ${changeClass}">${changeText}</span>` : ''}
+        </div>
+      `;
+    }
+
+    function updateTicker(data) {
+      const allEnergy = document.getElementById('allEnergyTicker');
+      const renewable = document.getElementById('renewableTicker');
+
+      const allEnergyContent = data.allEnergy.map(item => renderPriceItem(item, 'all')).join('');
+      const renewableContent = data.renewableShare.map(item => renderPriceItem(item, 'renewable')).join('');
+
+      allEnergy.innerHTML = allEnergyContent + allEnergyContent;
+      renewable.innerHTML = renewableContent + renewableContent;
+
+      document.getElementById('lastUpdate').textContent = new Date(data.updatedAt).toLocaleString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      document.getElementById('dataSource').textContent = data.source || 'demo';
+
+      const dot = document.getElementById('statusDot');
+      const text = document.getElementById('statusText');
+      if (data.isLive) {
+        dot.classList.remove('demo-dot');
+        text.textContent = 'LIVE DATA';
+      } else {
+        dot.classList.add('demo-dot');
+        text.textContent = 'DEMO DATA';
+      }
+    }
+
+    async function loadTicker() {
+      const container = document.getElementById('energyTicker');
+      const apiUrl = container.dataset.apiUrl || '/api/energy-ticker';
+
+      try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error('API error');
+        const data = await response.json();
+        if (!data || !data.allEnergy || !data.renewableShare) {
+          throw new Error('Invalid data');
+        }
+        updateTicker(data);
+      } catch (error) {
+        updateTicker(demoData);
+      }
+    }
+
+    loadTicker();
+    setInterval(loadTicker, 30 * 60 * 1000);
+  </script>
+</body>
+</html>
