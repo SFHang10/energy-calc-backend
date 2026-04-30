@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Utility Intelligence Detail</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    :root{
+      --bg:#06120a;
+      --surface:#0d2015;
+      --surface-2:#122a1d;
+      --text:#e8f5ee;
+      --muted:#94b7a4;
+      --line:rgba(0,245,130,.2);
+      --green:#00f582;
+      --amber:#f5a623;
+      --blue:#22d4ff;
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+      color:var(--text);
+      background: radial-gradient(circle at top right, rgba(0,245,130,.1), transparent 40%), var(--bg);
+    }
+    .wrap{max-width:1200px;margin:0 auto;padding:18px}
+    .top{
+      display:flex;justify-content:space-between;align-items:center;gap:12px;
+      background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;
+      position:sticky;top:8px;z-index:10;
+    }
+    .btn{
+      border:1px solid var(--line);background:var(--surface-2);color:var(--text);
+      border-radius:10px;padding:8px 12px;cursor:pointer;font-size:13px;text-decoration:none;display:inline-block;
+    }
+    .utility-btn{font-weight:700}
+    .utility-btn.utility-electricity{border-color:rgba(0,245,130,.5);color:#a6ffd4;background:rgba(0,245,130,.12)}
+    .utility-btn.utility-gas{border-color:rgba(245,166,35,.5);color:#ffd79c;background:rgba(245,166,35,.12)}
+    .utility-btn.utility-water{border-color:rgba(34,212,255,.5);color:#afefff;background:rgba(34,212,255,.12)}
+    .utility-btn.active{box-shadow:0 0 0 2px rgba(255,255,255,.08) inset}
+    .hero{
+      margin-top:14px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--surface);
+      display:grid;grid-template-columns:1.2fr 1fr;
+    }
+    .hero-copy{padding:18px}
+    .hero h1{margin:0 0 8px;font-size:28px}
+    .hero p{margin:0;color:var(--muted);line-height:1.5}
+    .hero img{width:100%;height:100%;object-fit:cover;display:block;min-height:220px}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .chip{padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700}
+    .chip.green{background:rgba(0,245,130,.2);color:#a6ffd4}
+    .chip.orange{background:rgba(245,166,35,.18);color:#ffd79c}
+    .chip.blue{background:rgba(34,212,255,.18);color:#afefff}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;margin-top:12px}
+    .card{
+      background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;
+    }
+    .card h3{margin:0 0 8px;font-size:16px}
+    .sub{font-size:12px;color:var(--muted)}
+    .kpi{grid-column:span 3}
+    .kpi .val{font-size:28px;font-weight:800;margin-top:6px}
+    .main-chart{grid-column:span 8}
+    .lever-card{grid-column:span 4}
+    .split{grid-column:span 6}
+    .full{grid-column:span 12}
+    .lever{margin-top:10px}
+    .lever label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px}
+    .lever input[type=range]{width:100%}
+    .breakdown-row{display:flex;justify-content:space-between;align-items:center;margin:10px 0}
+    .bar{height:8px;background:#1a3526;border-radius:999px;overflow:hidden}
+    .bar > span{display:block;height:100%}
+    .range-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+    .range-btn{
+      border:1px solid var(--line);background:var(--surface-2);color:var(--text);border-radius:999px;padding:6px 10px;cursor:pointer;font-size:12px
+    }
+    .range-btn.active{background:var(--green);color:#04210f;border-color:transparent}
+    .compare-stat{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+    .pill{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:8px}
+    .pill strong{display:block;font-size:18px}
+    @media (max-width:960px){
+      .hero{grid-template-columns:1fr}
+      .kpi,.main-chart,.lever-card,.split{grid-column:span 12}
+      .compare-stat{grid-template-columns:repeat(2,1fr)}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div style="font-weight:700">Greenways Utility Intelligence</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <a class="btn" href="./Greenways%20Interface%20.html">← Back to Dashboard</a>
+        <a class="btn utility-btn utility-electricity" id="switchElectricity" href="./utility-detail.html?type=electricity">Electricity</a>
+        <a class="btn utility-btn utility-gas" id="switchGas" href="./utility-detail.html?type=gas">Gas</a>
+        <a class="btn utility-btn utility-water" id="switchWater" href="./utility-detail.html?type=water">Water</a>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <h1 id="titleText">Electricity Intelligence</h1>
+        <p id="heroSummary">Dedicated professional utility analysis with usage breakdown, trends, controls, and benchmark comparison.</p>
+        <div class="chips">
+          <span class="chip green" id="chipA">Live trend</span>
+          <span class="chip orange" id="chipB">Load distribution</span>
+          <span class="chip blue" id="chipC">Period comparison</span>
+        </div>
+      </div>
+      <img id="heroImage" alt="Utility visual">
+    </section>
+
+    <div class="grid">
+      <div class="card kpi">
+        <h3 id="kpi1Label">Today's Usage</h3>
+        <div class="val" id="kpi1Val">142 kWh</div>
+        <div class="sub" id="kpi1Delta">▼ 8% vs yesterday</div>
+      </div>
+      <div class="card kpi">
+        <h3 id="kpi2Label">Peak Hour</h3>
+        <div class="val" id="kpi2Val">14:00</div>
+        <div class="sub" id="kpi2Delta">Kitchen prep + HVAC</div>
+      </div>
+      <div class="card kpi">
+        <h3 id="kpi3Label">Efficiency Score</h3>
+        <div class="val" id="kpi3Val">84</div>
+        <div class="sub" id="kpi3Delta">Target ≥ 88</div>
+      </div>
+      <div class="card kpi">
+        <h3 id="kpi4Label">Estimated Cost</h3>
+        <div class="val" id="kpi4Val">€39</div>
+        <div class="sub" id="kpi4Delta">Today projection</div>
+      </div>
+
+      <div class="card main-chart">
+        <h3 id="trendTitle">Electricity Trend (24h)</h3>
+        <div class="sub">Dedicated trend view for this utility</div>
+        <canvas id="trendChart" height="120"></canvas>
+      </div>
+
+      <div class="card lever-card">
+        <h3>Controls & Levers</h3>
+        <div class="sub">Fine tune operational targets for this utility page.</div>
+        <div class="lever">
+          <label><span id="lever1Label">Alert Threshold</span><strong id="lever1Val">80%</strong></label>
+          <input type="range" id="lever1" min="40" max="100" value="80">
+        </div>
+        <div class="lever">
+          <label><span id="lever2Label">Efficiency Target</span><strong id="lever2Val">88</strong></label>
+          <input type="range" id="lever2" min="60" max="100" value="88">
+        </div>
+        <div class="lever">
+          <label><span id="lever3Label">Load Shift Intensity</span><strong id="lever3Val">35%</strong></label>
+          <input type="range" id="lever3" min="0" max="100" value="35">
+        </div>
+      </div>
+
+      <div class="card split">
+        <h3 id="breakdownTitle">Where Usage Is Coming From</h3>
+        <div class="sub" id="breakdownSub">Operational distribution by subsystem</div>
+        <canvas id="breakdownChart" height="180"></canvas>
+      </div>
+
+      <div class="card split">
+        <h3 id="breakdownBarsTitle">Breakdown Detail</h3>
+        <div id="breakdownBars"></div>
+      </div>
+
+      <div class="card full">
+        <h3 id="compareTitle">Interactive Period Comparison</h3>
+        <div class="sub" id="compareSub">Compare recent usage windows in an easy visual format</div>
+        <div class="range-tabs">
+          <button class="range-btn active" data-range="7">Last 7 days</button>
+          <button class="range-btn" data-range="14">Last 14 days</button>
+          <button class="range-btn" data-range="30">Last 1 month</button>
+          <button class="range-btn" data-range="60">Last 2 months</button>
+        </div>
+        <canvas id="rangeChart" height="110"></canvas>
+        <div class="compare-stat">
+          <div class="pill"><span class="sub">Current window</span><strong id="cmpCurrent">0</strong></div>
+          <div class="pill"><span class="sub">Previous window</span><strong id="cmpPrevious">0</strong></div>
+          <div class="pill"><span class="sub">Change</span><strong id="cmpChange">0%</strong></div>
+          <div class="pill"><span class="sub">Daily average</span><strong id="cmpAvg">0</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const utility = new URLSearchParams(window.location.search).get('type') || 'electricity';
+
+    const CONFIG = {
+      electricity: {
+        color: '#00f582',
+        unit: 'kWh',
+        title: 'Electricity Intelligence',
+        summary: 'Dedicated electricity page with load breakdown, trend analytics, and optimization controls.',
+        image: '../product-placement/Sustainability%20Round%20Up/Building%20Pic/building-a-sustainable-future-with-energy-efficient-buildings-kn-768x578.jpeg',
+        kpis: ['142 kWh', '14:00', '84', '€39'],
+        kpiDeltas: ['▼ 8% vs yesterday', 'Kitchen prep + HVAC', 'Target ≥ 88', 'Today projection'],
+        leverLabels: ['Alert Threshold', 'Efficiency Target', 'Load Shift Intensity'],
+        trend: [6,5,5,4,4,6,8,11,14,16,15,12,11,10,12,14,16,18,17,15,12,10,8,7],
+        breakdown: [['Kitchen equipment', 32], ['Refrigeration', 23], ['HVAC', 21], ['Lighting', 14], ['Other', 10]],
+        period: {
+          7: [18,20,21,19,22,24,23],
+          14: [20,19,21,20,22,24,23,22,21,20,19,22,23,24],
+          30: Array.from({length:30}, (_,i)=> 18 + Math.round(4*Math.sin(i/4)) + (i%7===0?2:0)),
+          60: Array.from({length:60}, (_,i)=> 17 + Math.round(5*Math.sin(i/6)) + (i%10===0?2:0))
+        }
+      },
+      gas: {
+        color: '#f5a623',
+        unit: 'm³',
+        title: 'Gas Intelligence',
+        summary: 'Dedicated gas page with combustion load breakdown, trend diagnostics, and efficiency controls.',
+        image: '../product-placement/Sustainability%20Round%20Up/Green%20Solutions/OIP%20(6).jpeg',
+        kpis: ['38 m³', '13:00', '79', '€31'],
+        kpiDeltas: ['▲ 3% vs yesterday', 'Cooking + hot water', 'Target ≥ 85', 'Today projection'],
+        leverLabels: ['Pressure Alert', 'Combustion Efficiency Target', 'Schedule Shift Intensity'],
+        trend: [2,2,2,2,2,3,4,5,6,7,7,6,5,5,4,5,6,7,8,7,6,5,4,3],
+        breakdown: [['Cooking line', 38], ['Water heating', 29], ['Space heating', 19], ['Laundry', 8], ['Other', 6]],
+        period: {
+          7: [35,36,37,38,39,37,38],
+          14: [34,35,36,37,38,37,38,39,38,37,36,35,36,37],
+          30: Array.from({length:30}, (_,i)=> 33 + Math.round(3*Math.sin(i/5)) + (i%9===0?1:0)),
+          60: Array.from({length:60}, (_,i)=> 31 + Math.round(4*Math.sin(i/7)) + (i%12===0?2:0))
+        }
+      },
+      water: {
+        color: '#22d4ff',
+        unit: 'm³',
+        title: 'Water Intelligence',
+        summary: 'Dedicated water page with process-level consumption split and interactive period comparison.',
+        image: '../product-placement/Sustainability%20Round%20Up/OIP%20(12).jpeg',
+        kpis: ['1.8 m³', '12:00', '82', '€12'],
+        kpiDeltas: ['▼ 5% vs yesterday', 'Dishwashing peak', 'Target ≥ 86', 'Today projection'],
+        leverLabels: ['Leak Alert Sensitivity', 'Water Efficiency Target', 'Re-use Loop Intensity'],
+        trend: [1.1,1.0,1.0,0.9,0.9,1.0,1.2,1.5,1.8,2.0,1.9,1.7,1.6,1.5,1.6,1.8,2.0,2.1,2.0,1.9,1.7,1.5,1.3,1.2],
+        breakdown: [['Dishwashing', 35], ['Prep & cleaning', 24], ['Restrooms', 18], ['Cooling/ice', 14], ['Other', 9]],
+        period: {
+          7: [1.7,1.8,1.9,1.8,2.0,1.9,1.8],
+          14: [1.6,1.7,1.8,1.7,1.9,2.0,1.9,1.8,1.7,1.8,1.9,2.0,1.9,1.8],
+          30: Array.from({length:30}, (_,i)=> Number((1.5 + 0.35*Math.sin(i/4) + (i%8===0?0.2:0)).toFixed(2))),
+          60: Array.from({length:60}, (_,i)=> Number((1.4 + 0.4*Math.sin(i/6) + (i%11===0?0.22:0)).toFixed(2)))
+        }
+      }
+    };
+
+    const cfg = CONFIG[utility] || CONFIG.electricity;
+    const fmt = (n) => (typeof n === 'number' ? n.toFixed(utility === 'water' ? 2 : 1) : n);
+
+    document.getElementById('switchElectricity').classList.toggle('active', utility === 'electricity');
+    document.getElementById('switchGas').classList.toggle('active', utility === 'gas');
+    document.getElementById('switchWater').classList.toggle('active', utility === 'water');
+
+    document.getElementById('titleText').textContent = cfg.title;
+    document.getElementById('heroSummary').textContent = cfg.summary;
+    const heroImage = document.getElementById('heroImage');
+    heroImage.onerror = () => {
+      heroImage.onerror = null;
+      heroImage.src = './Product%20Comparison/HVAC/Fig8_HTML.png';
+    };
+    heroImage.src = cfg.image;
+    document.getElementById('kpi1Val').textContent = cfg.kpis[0];
+    document.getElementById('kpi2Val').textContent = cfg.kpis[1];
+    document.getElementById('kpi3Val').textContent = cfg.kpis[2];
+    document.getElementById('kpi4Val').textContent = cfg.kpis[3];
+    document.getElementById('kpi1Delta').textContent = cfg.kpiDeltas[0];
+    document.getElementById('kpi2Delta').textContent = cfg.kpiDeltas[1];
+    document.getElementById('kpi3Delta').textContent = cfg.kpiDeltas[2];
+    document.getElementById('kpi4Delta').textContent = cfg.kpiDeltas[3];
+    document.getElementById('trendTitle').textContent = `${cfg.title.replace(' Intelligence','')} Trend (24h)`;
+    document.getElementById('breakdownTitle').textContent = `Where ${cfg.title.replace(' Intelligence','')} Is Being Used`;
+    document.getElementById('breakdownBarsTitle').textContent = `${cfg.title.replace(' Intelligence','')} Breakdown Detail`;
+    document.getElementById('compareTitle').textContent = `${cfg.title.replace(' Intelligence','')} Comparison`;
+    document.getElementById('compareSub').textContent = `Interactive view: last 7 days, 14 days, 1 month, and 2 months`;
+    document.getElementById('lever1Label').textContent = cfg.leverLabels[0];
+    document.getElementById('lever2Label').textContent = cfg.leverLabels[1];
+    document.getElementById('lever3Label').textContent = cfg.leverLabels[2];
+
+    const trendCtx = document.getElementById('trendChart');
+    new Chart(trendCtx, {
+      type: 'line',
+      data: {
+        labels: Array.from({length:24}, (_,i)=>`${String(i).padStart(2,'0')}:00`),
+        datasets: [{
+          label: cfg.title,
+          data: cfg.trend,
+          borderColor: cfg.color,
+          backgroundColor: `${cfg.color}22`,
+          fill: true,
+          tension: 0.35,
+          pointRadius: 0,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#c6dfd0' } } },
+        scales: {
+          x: { ticks: { color: '#9fc0af', maxRotation: 0, autoSkip: true }, grid: { color: '#1a3526' } },
+          y: { ticks: { color: '#9fc0af' }, grid: { color: '#1a3526' } }
+        }
+      }
+    });
+
+    const breakdownCtx = document.getElementById('breakdownChart');
+    new Chart(breakdownCtx, {
+      type: 'doughnut',
+      data: {
+        labels: cfg.breakdown.map(([n])=>n),
+        datasets: [{
+          data: cfg.breakdown.map(([,v])=>v),
+          backgroundColor: [cfg.color, '#2f8f63', '#5bbf8f', '#77dcae', '#9deccc'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        plugins: { legend: { labels: { color: '#c6dfd0' } } },
+        cutout: '62%'
+      }
+    });
+
+    document.getElementById('breakdownBars').innerHTML = cfg.breakdown.map(([name,val]) => `
+      <div class="breakdown-row">
+        <div style="min-width:130px">${name}</div>
+        <div style="flex:1">
+          <div class="bar"><span style="width:${val}%;background:${cfg.color}"></span></div>
+        </div>
+        <strong style="min-width:44px;text-align:right">${val}%</strong>
+      </div>
+    `).join('');
+
+    let rangeChart;
+    const rangeCtx = document.getElementById('rangeChart');
+    function renderRange(range){
+      const data = cfg.period[range];
+      const prev = cfg.period[range].slice().reverse();
+      const currentTotal = data.reduce((a,b)=>a+b,0);
+      const previousTotal = prev.reduce((a,b)=>a+b,0) * 0.94;
+      const pct = ((currentTotal - previousTotal) / previousTotal) * 100;
+      const avg = currentTotal / data.length;
+      document.getElementById('cmpCurrent').textContent = `${fmt(currentTotal)} ${cfg.unit}`;
+      document.getElementById('cmpPrevious').textContent = `${fmt(previousTotal)} ${cfg.unit}`;
+      document.getElementById('cmpChange').textContent = `${pct >= 0 ? '▲' : '▼'} ${Math.abs(pct).toFixed(1)}%`;
+      document.getElementById('cmpAvg').textContent = `${fmt(avg)} ${cfg.unit}/day`;
+
+      if (rangeChart) rangeChart.destroy();
+      rangeChart = new Chart(rangeCtx, {
+        type: 'bar',
+        data: {
+          labels: Array.from({length:data.length}, (_,i)=> `${i+1}`),
+          datasets: [{
+            label: `${cfg.title} usage`,
+            data,
+            backgroundColor: `${cfg.color}88`,
+            borderColor: cfg.color,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          plugins: { legend: { labels: { color:'#c6dfd0' } } },
+          scales: {
+            x: { ticks: { color:'#9fc0af' }, grid: { color:'#1a3526' } },
+            y: { ticks: { color:'#9fc0af' }, grid: { color:'#1a3526' } }
+          }
+        }
+      });
+    }
+    renderRange(7);
+
+    document.querySelectorAll('.range-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.range-btn').forEach(x => x.classList.remove('active'));
+        btn.classList.add('active');
+        renderRange(Number(btn.dataset.range));
+      });
+    });
+
+    function bindLever(id, outputId, suffix='') {
+      const input = document.getElementById(id);
+      const output = document.getElementById(outputId);
+      output.textContent = `${input.value}${suffix}`;
+      input.addEventListener('input', () => output.textContent = `${input.value}${suffix}`);
+    }
+    bindLever('lever1', 'lever1Val', '%');
+    bindLever('lever2', 'lever2Val', '');
+    bindLever('lever3', 'lever3Val', '%');
+  </script>
+</body>
+</html>

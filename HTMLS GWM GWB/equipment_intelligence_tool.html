@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Equipment Intelligence Tool</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; background: #f5f7fb; }
+    .container { max-width: 900px; margin: 0 auto; padding: 18px; }
+    .hero {
+      border: 1px solid #d1fae5;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 14px;
+      background: #0b2014;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+    }
+    .hero-copy {
+      padding: 16px;
+      color: #e8f5ee;
+      background: linear-gradient(135deg, rgba(6,24,14,.9), rgba(12,42,24,.82));
+    }
+    .hero-title { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+    .hero-sub { font-size: 14px; color: #b9d7c6; line-height: 1.5; }
+    .hero-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .hero-chip {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(0,245,130,.16);
+      color: #a6ffd4;
+      border: 1px solid rgba(0,245,130,.25);
+    }
+    .hero img { width: 100%; height: 100%; min-height: 180px; object-fit: cover; display: block; }
+    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+    .title { font-size: 24px; font-weight: 700; margin-bottom: 4px; color: #1f2937; }
+    .subtitle { font-size: 14px; color: #6b7280; margin-bottom: 10px; }
+    .grid { display: grid; gap: 10px; }
+    .grid.two { grid-template-columns: 1fr 1fr; }
+    .grid.three { grid-template-columns: 1fr 1fr 1fr; }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }
+    .field input, .field select {
+      padding: 9px 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #fff;
+    }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .btn {
+      border: 1px solid #d1d5db; border-radius: 8px; background: #fff; color: #111827;
+      padding: 9px 12px; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .btn.primary { background: #1f7a34; color: #fff; border-color: #1f7a34; }
+    .btn:hover { opacity: 0.92; }
+    .result-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .badge { font-size: 11px; border-radius: 999px; padding: 4px 8px; font-weight: 600; }
+    .badge.high { background: #dcfce7; color: #166534; }
+    .badge.medium { background: #fef3c7; color: #92400e; }
+    .badge.low { background: #fee2e2; color: #991b1b; }
+    .spec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; margin-top: 8px; }
+    .spec { background: #f9fafb; border: 1px solid #eef2f7; border-radius: 8px; padding: 10px; }
+    .spec .k { font-size: 11px; color: #6b7280; margin-bottom: 3px; }
+    .spec .v { font-size: 17px; font-weight: 700; color: #111827; }
+    .list { margin-top: 8px; }
+    .list li { margin-left: 18px; margin-bottom: 6px; font-size: 13px; color: #374151; }
+    .small { font-size: 12px; color: #6b7280; }
+    .error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; border-radius: 8px; padding: 10px; }
+    .hidden { display: none; }
+    .compare-panel { margin-top: 12px; padding: 10px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; }
+    .status-chip { display: inline-block; padding: 4px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .status-chip.ok { background: #dcfce7; color: #166534; }
+    .status-chip.warn { background: #fef3c7; color: #92400e; }
+    .status-chip.bad { background: #fee2e2; color: #991b1b; }
+    .rec-list { margin-top: 8px; display: grid; gap: 8px; }
+    .rec-item { border: 1px solid #e5e7eb; background: #fff; border-radius: 8px; padding: 8px; }
+    @media (max-width: 760px) {
+      .grid.two, .grid.three { grid-template-columns: 1fr; }
+      .hero { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="hero-title">Equipment Intelligence</div>
+        <div class="hero-sub">Restaurant equipment benchmark lookup and actual-vs-benchmark comparison with marketplace and external alternative pathways.</div>
+        <div class="hero-chips">
+          <span class="hero-chip">Benchmark Search</span>
+          <span class="hero-chip">Savings Intelligence</span>
+          <span class="hero-chip">Marketplace Ready</span>
+        </div>
+      </div>
+      <img src="../product-placement/Sustainability%20Round%20Up/Green14.jpg" alt="Sustainable equipment hero" onerror="this.onerror=null;this.src='./Product%20Comparison/Restuarants/Oven/Refrigerator/ETL.jpeg';">
+    </section>
+
+    <div class="card">
+      <div class="title">Equipment Intelligence Tool</div>
+      <div class="subtitle">Look up benchmark energy, water, and gas performance for restaurant equipment and compare against real usage.</div>
+
+      <div class="grid two">
+        <div class="field">
+          <label for="eq-name">Equipment Name</label>
+          <input id="eq-name" placeholder="e.g. Rational SelfCookingCenter">
+        </div>
+        <div class="field">
+          <label for="eq-brand">Brand / Manufacturer</label>
+          <input id="eq-brand" placeholder="e.g. Rational">
+        </div>
+      </div>
+
+      <div class="grid three" style="margin-top: 8px;">
+        <div class="field">
+          <label for="eq-model">Model / Product No.</label>
+          <input id="eq-model" placeholder="e.g. SCC WE 61">
+        </div>
+        <div class="field">
+          <label for="eq-serial">Serial No.</label>
+          <input id="eq-serial" placeholder="Optional">
+        </div>
+        <div class="field">
+          <label for="eq-type">Equipment Type</label>
+          <select id="eq-type">
+            <option value="">Any type</option>
+            <option value="combi oven">Combi oven</option>
+            <option value="dishwasher">Dishwasher</option>
+            <option value="refrigerator">Refrigerator</option>
+            <option value="fryer">Fryer</option>
+            <option value="ice machine">Ice machine</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="search-btn">Search Equipment</button>
+        <button class="btn" data-example="rational">Try Rational SCC WE 61</button>
+        <button class="btn" data-example="hobart">Try Hobart AM15</button>
+        <button class="btn" data-example="scotsman">Try Scotsman EC 86</button>
+      </div>
+      <div class="small" style="margin-top: 8px;">Module endpoints: <code>/api/equipment-intelligence/search</code> and <code>/api/equipment-intelligence/compare</code></div>
+    </div>
+
+    <div class="card hidden" id="results-card">
+      <div id="result-content"></div>
+    </div>
+  </div>
+
+  <script>
+    const byId = (id) => document.getElementById(id);
+    const resultsCard = byId('results-card');
+    const resultContent = byId('result-content');
+    const initialParams = new URLSearchParams(window.location.search);
+    let autoCompareDailyKwh = '';
+
+    function setExample(name, brand, model, type) {
+      byId('eq-name').value = name || '';
+      byId('eq-brand').value = brand || '';
+      byId('eq-model').value = model || '';
+      byId('eq-type').value = type || '';
+      byId('eq-serial').value = '';
+    }
+
+    function format(value, suffix) {
+      if (value === null || value === undefined || value === '') return '--';
+      return `${value}${suffix || ''}`;
+    }
+
+    function renderError(message) {
+      resultsCard.classList.remove('hidden');
+      resultContent.innerHTML = `<div class="error">${message}</div>`;
+    }
+
+    function renderNotFound(payload) {
+      const suggestions = (payload.suggestions || [])
+        .map((item) => `<li>${item.brand || ''} ${item.name || ''} ${item.model ? `(${item.model})` : ''}</li>`)
+        .join('');
+      resultsCard.classList.remove('hidden');
+      resultContent.innerHTML = `
+        <div class="error">${payload.message || 'No close match found.'}</div>
+        ${suggestions ? `<div class="small" style="margin-top:8px;">Try one of these known examples:</div><ul class="list">${suggestions}</ul>` : ''}
+      `;
+    }
+
+    function renderResult(payload) {
+      const c = payload.consumption || {};
+      const b = payload.benchmarks || {};
+      const confidence = payload.confidence || 'low';
+      const benchmarkText = (b.typicalDailyKwhMin && b.typicalDailyKwhMax)
+        ? `${b.typicalDailyKwhMin} - ${b.typicalDailyKwhMax} kWh/day`
+        : '--';
+
+      const sources = (payload.sources || []).map((s) => (
+        s.url ? `<li><a href="${s.url}" target="_blank" rel="noopener">${s.name}</a></li>` : `<li>${s.name}</li>`
+      )).join('');
+
+      const checks = (payload.healthChecks || []).map((item) => `<li>${item}</li>`).join('');
+      const hints = (payload.comparisonHints || []).map((item) => `<li>${item}</li>`).join('');
+
+      resultsCard.classList.remove('hidden');
+      resultContent.innerHTML = `
+        <div class="result-header">
+          <div>
+            <div style="font-size:20px;font-weight:700;">${payload.equipment?.name || 'Equipment'}</div>
+            <div class="small">${payload.equipment?.brand || ''} ${payload.equipment?.model ? `· ${payload.equipment.model}` : ''} ${payload.equipment?.type ? `· ${payload.equipment.type}` : ''}</div>
+          </div>
+          <span class="badge ${confidence}">Confidence: ${confidence}</span>
+        </div>
+        <div class="small" style="margin-bottom:10px;">${payload.equipment?.summary || ''}</div>
+
+        <div style="font-weight:700;margin:8px 0;">Consumption & Operating Specs</div>
+        <div class="spec-grid">
+          <div class="spec"><div class="k">Connected load</div><div class="v">${format(c.connectedLoadKw, ' kW')}</div></div>
+          <div class="spec"><div class="k">kWh/hr in use</div><div class="v">${format(c.kwhPerHourInUse, '')}</div></div>
+          <div class="spec"><div class="k">Idle power</div><div class="v">${format(c.idleKw, ' kW')}</div></div>
+          <div class="spec"><div class="k">Water use</div><div class="v">${format(c.waterLitresPerHour, ' L/hr')}</div></div>
+          <div class="spec"><div class="k">Water per cycle</div><div class="v">${format(c.waterLitresPerCycle, ' L')}</div></div>
+          <div class="spec"><div class="k">Gas input</div><div class="v">${format(c.gasKw, ' kW')}</div></div>
+        </div>
+
+        <div style="font-weight:700;margin:12px 0 6px;">Benchmark Range</div>
+        <div class="spec-grid">
+          <div class="spec"><div class="k">Expected daily energy</div><div class="v">${benchmarkText}</div></div>
+          <div class="spec"><div class="k">Annual energy</div><div class="v">${format(b.typicalAnnualKwhMin, '')}${b.typicalAnnualKwhMin && b.typicalAnnualKwhMax ? ` - ${b.typicalAnnualKwhMax}` : ''} ${b.typicalAnnualKwhMin ? 'kWh/yr' : ''}</div></div>
+          <div class="spec"><div class="k">Daily water</div><div class="v">${format(b.dailyWaterLitresMin, '')}${b.dailyWaterLitresMin && b.dailyWaterLitresMax ? ` - ${b.dailyWaterLitresMax}` : ''} ${b.dailyWaterLitresMin ? 'L/day' : ''}</div></div>
+          <div class="spec"><div class="k">Efficiency rating</div><div class="v">${format(b.efficiencyRating, '')}</div></div>
+        </div>
+
+        ${checks ? `<div style="font-weight:700;margin-top:12px;">If usage is high, check</div><ul class="list">${checks}</ul>` : ''}
+        ${hints ? `<div style="font-weight:700;margin-top:8px;">Comparison workflow</div><ul class="list">${hints}</ul>` : ''}
+        <div class="compare-panel">
+          <div style="font-weight:700; margin-bottom:8px;">Compare with your actual meter data</div>
+          <div class="grid three">
+            <div class="field">
+              <label for="actual-kwh">Actual Daily kWh</label>
+              <input id="actual-kwh" type="number" step="0.1" min="0" placeholder="e.g. 16.5">
+            </div>
+            <div class="field">
+              <label for="actual-water">Actual Daily Water (L)</label>
+              <input id="actual-water" type="number" step="1" min="0" placeholder="optional">
+            </div>
+            <div class="field">
+              <label for="actual-gas">Actual Daily Gas (kWh)</label>
+              <input id="actual-gas" type="number" step="0.1" min="0" placeholder="optional">
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn primary" id="compare-btn">Compare vs Benchmark</button>
+          </div>
+          <div id="compare-output" class="small"></div>
+        </div>
+        ${sources ? `<div style="font-weight:700;margin-top:8px;">Sources</div><ul class="list">${sources}</ul>` : ''}
+      `;
+
+      const compareButton = byId('compare-btn');
+      if (compareButton) {
+        compareButton.addEventListener('click', () => runCompare(payload.lookup || {}));
+      }
+      if (autoCompareDailyKwh) {
+        const actualInput = byId('actual-kwh');
+        if (actualInput) actualInput.value = autoCompareDailyKwh;
+        runCompare(payload.lookup || {});
+        autoCompareDailyKwh = '';
+      }
+    }
+
+    function renderComparisonStatus(status, comparison) {
+      if (status === 'within_benchmark') {
+        return `<span class="status-chip ok">Within benchmark</span> Using ${comparison.actualDailyKwh} kWh/day.`;
+      }
+      if (status === 'below_benchmark') {
+        return `<span class="status-chip warn">Below benchmark</span> Using ${comparison.actualDailyKwh} kWh/day. Verify assumptions/meter mapping.`;
+      }
+      if (status === 'above_benchmark') {
+        return `<span class="status-chip bad">Above benchmark</span> About ${comparison.deltaKwh} kWh/day above expected range.`;
+      }
+      return '<span class="status-chip warn">Unknown</span> Benchmark range not available.';
+    }
+
+    async function runCompare(lookup) {
+      const actualDailyKwh = byId('actual-kwh')?.value.trim();
+      const output = byId('compare-output');
+      if (!actualDailyKwh) {
+        if (output) output.innerHTML = '<div class="error">Enter actual daily kWh before comparing.</div>';
+        return;
+      }
+
+      const params = new URLSearchParams();
+      if (lookup.name) params.append('name', lookup.name);
+      if (lookup.brand) params.append('brand', lookup.brand);
+      if (lookup.model) params.append('model', lookup.model);
+      if (lookup.serial) params.append('serial', lookup.serial);
+      if (lookup.type) params.append('type', lookup.type);
+      params.append('actualDailyKwh', actualDailyKwh);
+
+      if (output) output.textContent = 'Comparing...';
+      try {
+        const response = await fetch(`/api/equipment-intelligence/compare?${params.toString()}`, { cache: 'no-store' });
+        const payload = await response.json();
+        if (!response.ok || !payload.success) {
+          if (output) output.innerHTML = `<div class="error">${payload.message || 'Comparison failed.'}</div>`;
+          return;
+        }
+
+        const comparison = payload.comparison || {};
+        const guidance = (payload.guidance || []).map((item) => `<li>${item}</li>`).join('');
+        const recommendations = await fetchGreenwaysRecommendations(payload.lookup);
+        const firstRecommendation = recommendations && recommendations.length > 0 ? recommendations[0] : null;
+        if (output) {
+          output.innerHTML = `
+            <div style="margin-top:8px;">
+              ${renderComparisonStatus(comparison.status, comparison)}
+              <div style="margin-top:6px;">Annualized actual: <strong>${comparison.annualizedActualKwh} kWh/yr</strong></div>
+              ${comparison.excessAnnualKwh > 0 ? `<div>Estimated excess: <strong>${comparison.excessAnnualKwh} kWh/yr</strong></div>` : ''}
+              ${guidance ? `<ul class="list">${guidance}</ul>` : ''}
+              <div class="actions">
+                <button class="btn" id="save-comparison-btn">Save This Comparison</button>
+              </div>
+              ${renderRecommendations(recommendations, comparison)}
+            </div>
+          `;
+          const saveButton = byId('save-comparison-btn');
+          if (saveButton) {
+            saveButton.addEventListener('click', () => saveComparisonToProfile(payload, comparison, firstRecommendation));
+          }
+        }
+      } catch (error) {
+        if (output) output.innerHTML = '<div class="error">Could not compare actual usage. Try again.</div>';
+      }
+    }
+
+    function getApiBaseUrl() {
+      return (window.location.protocol === 'file:' ||
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:4000/api'
+        : `${window.location.origin}/api`;
+    }
+
+    function getDeepDiveUrl(productId, comparison) {
+      if (!productId) return '';
+      const min = comparison && comparison.benchmarkDailyKwhMin !== null && comparison.benchmarkDailyKwhMin !== undefined ? comparison.benchmarkDailyKwhMin : '';
+      const max = comparison && comparison.benchmarkDailyKwhMax !== null && comparison.benchmarkDailyKwhMax !== undefined ? comparison.benchmarkDailyKwhMax : '';
+      const status = comparison && comparison.status ? comparison.status : '';
+      const excessAnnual = comparison && comparison.excessAnnualKwh !== null && comparison.excessAnnualKwh !== undefined ? comparison.excessAnnualKwh : '';
+      const actual = comparison && comparison.actualDailyKwh !== null && comparison.actualDailyKwh !== undefined ? comparison.actualDailyKwh : '';
+      return `./restaurant-equipment-deep-dive.html?source=equipment-intelligence&productId=${encodeURIComponent(productId)}&actualDailyKwh=${encodeURIComponent(actual)}&benchmarkMin=${encodeURIComponent(min)}&benchmarkMax=${encodeURIComponent(max)}&status=${encodeURIComponent(status)}&excessAnnualKwh=${encodeURIComponent(excessAnnual)}`;
+    }
+
+    async function saveComparisonToProfile(payload, comparison, recommendation) {
+      const output = byId('compare-output');
+      const token = localStorage.getItem('energy_calc_membership_token');
+      const equipment = payload && payload.lookup && payload.lookup.equipment ? payload.lookup.equipment : {};
+      const equipmentName = equipment.name || 'Equipment comparison';
+      const recommendationName = recommendation && recommendation.name ? recommendation.name : 'Greenways product';
+      const recommendationId = recommendation && recommendation.id ? recommendation.id : '';
+      const deepDiveUrl = getDeepDiveUrl(recommendationId, comparison);
+      const statusText = comparison && comparison.status ? comparison.status.replace(/_/g, ' ') : 'unknown';
+
+      const savedItem = {
+        id: `comparison_${equipment.id || equipmentName.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}`,
+        title: `${equipmentName} comparison`,
+        description: `Status: ${statusText}. Actual ${comparison.actualDailyKwh} kWh/day.`,
+        category: 'comparison',
+        imageUrl: '',
+        url: deepDiveUrl,
+        type: 'products'
+      };
+
+      if (!token) {
+        const localKey = 'gw_saved_products';
+        const existing = (() => {
+          try {
+            const raw = localStorage.getItem(localKey);
+            return raw ? JSON.parse(raw) : [];
+          } catch (error) {
+            return [];
+          }
+        })();
+        existing.unshift(savedItem);
+        localStorage.setItem(localKey, JSON.stringify(existing.slice(0, 50)));
+        if (output) {
+          output.innerHTML += `<div class="small" style="margin-top:6px;color:#166534;">Saved locally. Login to sync saved comparisons to your profile.</div>`;
+        }
+        return;
+      }
+
+      try {
+        const response = await fetch(`${getApiBaseUrl()}/members/saved-items/products`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(savedItem)
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to save comparison');
+        }
+        if (output) {
+          output.innerHTML += `<div class="small" style="margin-top:6px;color:#166534;">Comparison saved to your profile${deepDiveUrl ? ` for ${recommendationName}` : ''}.</div>`;
+        }
+      } catch (error) {
+        if (output) {
+          output.innerHTML += `<div class="error" style="margin-top:6px;">Could not save comparison to profile. ${error.message}</div>`;
+        }
+      }
+    }
+
+    function mapTypeToCategory(type) {
+      const normalized = String(type || '').toLowerCase();
+      if (normalized.includes('dishwasher')) return 'dishwasher';
+      if (normalized.includes('combi') || normalized.includes('oven')) return 'oven';
+      if (normalized.includes('fridge') || normalized.includes('refrigerator')) return 'refrigeration';
+      if (normalized.includes('ice')) return 'ice';
+      if (normalized.includes('fryer')) return 'fryer';
+      return '';
+    }
+
+    async function fetchGreenwaysRecommendations(lookupPayload) {
+      try {
+        const lookup = lookupPayload && lookupPayload.lookup ? lookupPayload.lookup : {};
+        const equipment = lookupPayload && lookupPayload.equipment ? lookupPayload.equipment : {};
+        const searchTerm = equipment.name || lookup.name || equipment.model || lookup.model || '';
+        const categoryHint = mapTypeToCategory(equipment.type || lookup.type);
+
+        const params = new URLSearchParams();
+        if (searchTerm) params.append('q', searchTerm);
+        if (categoryHint) params.append('category', categoryHint);
+        const response = await fetch(`/api/product-widget/products/search?${params.toString()}`, { cache: 'no-store' });
+        if (!response.ok) return [];
+        const payload = await response.json();
+        const list = Array.isArray(payload.products) ? payload.products : [];
+        return list.slice(0, 3);
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function renderRecommendations(list, comparison) {
+      if (!list || list.length === 0) return '';
+      const min = comparison && comparison.benchmarkDailyKwhMin !== null && comparison.benchmarkDailyKwhMin !== undefined
+        ? comparison.benchmarkDailyKwhMin
+        : '';
+      const max = comparison && comparison.benchmarkDailyKwhMax !== null && comparison.benchmarkDailyKwhMax !== undefined
+        ? comparison.benchmarkDailyKwhMax
+        : '';
+      const status = comparison && comparison.status ? comparison.status : '';
+      const excessAnnual = comparison && comparison.excessAnnualKwh !== null && comparison.excessAnnualKwh !== undefined
+        ? comparison.excessAnnualKwh
+        : '';
+      const actual = comparison && comparison.actualDailyKwh !== null && comparison.actualDailyKwh !== undefined
+        ? comparison.actualDailyKwh
+        : '';
+
+      const cards = list.map((item) => {
+        const deepDiveUrl = `./restaurant-equipment-deep-dive.html?source=equipment-intelligence&productId=${encodeURIComponent(item.id)}&actualDailyKwh=${encodeURIComponent(actual)}&benchmarkMin=${encodeURIComponent(min)}&benchmarkMax=${encodeURIComponent(max)}&status=${encodeURIComponent(status)}&excessAnnualKwh=${encodeURIComponent(excessAnnual)}`;
+        return `
+          <div class="rec-item">
+            <div style="font-weight:700;">${item.name || 'Greenways Product'}</div>
+            <div class="small">${item.brand || ''} ${item.category ? `· ${item.category}` : ''}</div>
+            <div class="actions">
+              <a class="btn primary" href="${deepDiveUrl}">Open Deep Dive Comparison</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div style="font-weight:700;margin-top:10px;">Suggested Greenways alternatives</div>
+        <div class="small">Open a product deep dive with this comparison context prefilled.</div>
+        <div class="rec-list">${cards}</div>
+      `;
+    }
+
+    async function runSearch() {
+      const query = {
+        name: byId('eq-name').value.trim(),
+        brand: byId('eq-brand').value.trim(),
+        model: byId('eq-model').value.trim(),
+        serial: byId('eq-serial').value.trim(),
+        type: byId('eq-type').value.trim()
+      };
+
+      if (!query.name && !query.brand && !query.model) {
+        renderError('Enter at least equipment name, brand, or model.');
+        return;
+      }
+
+      resultsCard.classList.remove('hidden');
+      resultContent.innerHTML = '<div class="small">Searching equipment intelligence data...</div>';
+
+      const params = new URLSearchParams();
+      Object.entries(query).forEach(([key, value]) => {
+        if (value) params.append(key, value);
+      });
+
+      try {
+        const response = await fetch(`/api/equipment-intelligence/search?${params.toString()}`, { cache: 'no-store' });
+        const payload = await response.json();
+        if (!response.ok) {
+          renderError(payload.message || 'Search failed.');
+          return;
+        }
+        if (!payload.found) {
+          renderNotFound(payload);
+          return;
+        }
+        renderResult(payload);
+      } catch (error) {
+        renderError('Could not reach equipment intelligence API. Start backend and try again.');
+      }
+    }
+
+    byId('search-btn').addEventListener('click', runSearch);
+
+    function hydrateFromQueryParams() {
+      const name = initialParams.get('name') || '';
+      const brand = initialParams.get('brand') || '';
+      const model = initialParams.get('model') || '';
+      const type = initialParams.get('type') || '';
+      autoCompareDailyKwh = initialParams.get('actualDailyKwh') || '';
+
+      if (name) byId('eq-name').value = name;
+      if (brand) byId('eq-brand').value = brand;
+      if (model) byId('eq-model').value = model;
+      if (type) byId('eq-type').value = type;
+
+      if (name || brand || model) {
+        runSearch();
+      }
+    }
+
+    document.querySelectorAll('[data-example]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const key = button.getAttribute('data-example');
+        if (key === 'rational') setExample('Rational SelfCookingCenter', 'Rational', 'SCC WE 61', 'combi oven');
+        if (key === 'hobart') setExample('Hobart AM15', 'Hobart', 'AM15', 'dishwasher');
+        if (key === 'scotsman') setExample('Scotsman Ice Machine', 'Scotsman', 'EC 86', 'ice machine');
+        runSearch();
+      });
+    });
+
+    hydrateFromQueryParams();
+  </script>
+</body>
+</html>

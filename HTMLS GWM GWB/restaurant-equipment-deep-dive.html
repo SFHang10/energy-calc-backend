@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Restaurant Equipment Deep Dive</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    :root {
+      --bg:#07120c;
+      --surface:#0f1f16;
+      --surface-2:#152a1f;
+      --line:rgba(0,245,130,.2);
+      --text:#e8f5ee;
+      --muted:#9fc0af;
+      --green:#00f582;
+      --amber:#f5a623;
+      --blue:#22d4ff;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(circle at top right, rgba(0,245,130,.1), transparent 40%),var(--bg);color:var(--text);font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+    .wrap{max-width:1200px;margin:0 auto;padding:18px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;position:sticky;top:6px;z-index:9}
+    .btn{border:1px solid var(--line);background:var(--surface-2);color:var(--text);padding:8px 12px;border-radius:10px;text-decoration:none;font-size:13px;cursor:pointer}
+    .btn.primary{background:var(--green);color:#04210f;border-color:transparent;font-weight:700}
+    .utility-btn{font-weight:700}
+    .utility-btn.utility-electricity{border-color:rgba(0,245,130,.5);color:#a6ffd4;background:rgba(0,245,130,.12)}
+    .utility-btn.utility-gas{border-color:rgba(245,166,35,.5);color:#ffd79c;background:rgba(245,166,35,.12)}
+    .utility-btn.utility-water{border-color:rgba(34,212,255,.5);color:#afefff;background:rgba(34,212,255,.12)}
+    .picker{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px}
+    .picker-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .equip-option{border:1px solid var(--line);background:var(--surface-2);border-radius:12px;padding:10px;cursor:pointer;transition:.15s}
+    .equip-option.active{outline:2px solid var(--green)}
+    .equip-option img{width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:6px}
+    .custom-form{margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);display:none}
+    .custom-form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .custom-form label{font-size:11px;color:var(--muted);display:block;margin-bottom:3px}
+    .custom-form input,.custom-form select{width:100%;padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:#0d1f16;color:var(--text)}
+    .hero{margin-top:12px;display:grid;grid-template-columns:1.2fr 1fr;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+    .hero-copy{padding:18px}
+    .hero h1{margin:0 0 8px;font-size:28px}
+    .hero p{margin:0;color:var(--muted);line-height:1.5}
+    .hero img{width:100%;height:100%;min-height:260px;object-fit:cover;display:block}
+    .tag-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .tag{font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px}
+    .tag.green{background:rgba(0,245,130,.18);color:#a6ffd4}
+    .tag.amber{background:rgba(245,166,35,.18);color:#ffd79c}
+    .tag.blue{background:rgba(34,212,255,.18);color:#afefff}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;margin-top:12px}
+    .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+    .context-banner{margin-top:12px;background:linear-gradient(135deg, rgba(34,212,255,.12), rgba(0,245,130,.12));border:1px solid rgba(34,212,255,.35);border-radius:14px;padding:12px;display:none}
+    .context-chip{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:700;margin-left:8px}
+    .context-chip.above_benchmark{background:#fee2e2;color:#991b1b}
+    .context-chip.within_benchmark{background:#dcfce7;color:#166534}
+    .context-chip.below_benchmark{background:#fef3c7;color:#92400e}
+    .context-chip.unknown{background:#e5e7eb;color:#374151}
+    .card h3{margin:0 0 8px;font-size:16px}
+    .sub{font-size:12px;color:var(--muted)}
+    .kpi{grid-column:span 3}
+    .kpi .v{font-size:30px;font-weight:800;margin-top:6px}
+    .w8{grid-column:span 8}
+    .w4{grid-column:span 4}
+    .w6{grid-column:span 6}
+    .w12{grid-column:span 12}
+    .row{display:flex;justify-content:space-between;align-items:center;margin:8px 0}
+    .bar{height:8px;border-radius:999px;background:#1f3a2b;overflow:hidden}
+    .bar>span{display:block;height:100%}
+    .range-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+    .range-btn{border:1px solid var(--line);background:var(--surface-2);color:var(--text);border-radius:999px;padding:6px 10px;font-size:12px;cursor:pointer}
+    .range-btn.active{background:var(--green);color:#04210f;border-color:transparent}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+    .pill{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:8px}
+    .pill strong{display:block;font-size:18px}
+    .cta{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .alt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .alt-column{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px}
+    .alt-list{display:grid;gap:8px;margin-top:8px}
+    .alt-item{
+      border:1px solid rgba(0,245,130,.28);
+      border-radius:12px;
+      padding:12px;
+      background:linear-gradient(160deg, rgba(6,14,10,.82), rgba(8,22,15,.86));
+      box-shadow:0 10px 24px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.02);
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    .alt-item:hover{
+      transform:translateY(-2px);
+      border-color:rgba(0,245,130,.42);
+      box-shadow:0 14px 28px rgba(0,0,0,.34), 0 0 0 1px rgba(0,245,130,.16);
+    }
+    .alt-item h4{margin:0 0 4px;font-size:14px}
+    .alt-savings{font-size:12px;color:#a6ffd4;margin:6px 0}
+    .alt-empty{font-size:12px;color:var(--muted);padding:8px 0}
+    .alt-item-layout{display:grid;grid-template-columns:1.25fr .75fr;gap:10px;align-items:stretch}
+    .alt-item-copy{min-width:0}
+    .alt-image-wrap{
+      border:1px solid rgba(80,125,255,.35);
+      border-radius:10px;
+      background:radial-gradient(circle at 30% 25%, rgba(75,132,255,.14), rgba(10,18,28,.92));
+      overflow:hidden;
+      min-height:150px;
+      aspect-ratio:16/10;
+      box-shadow:0 8px 20px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.03);
+    }
+    .alt-image{
+      width:100%;
+      height:100%;
+      min-height:150px;
+      object-fit:contain;
+      display:block;
+      padding:10px;
+      filter:drop-shadow(0 10px 16px rgba(0,0,0,.38));
+      transition:transform .28s ease;
+    }
+    .alt-item:hover .alt-image{
+      transform:scale(1.04);
+    }
+    .shortlist-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+    .shortlist-item{border:1px solid var(--line);border-radius:10px;padding:10px;background:rgba(7,18,12,.45)}
+    .score{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:700}
+    .score.high{background:rgba(0,245,130,.2);color:#9af8cd}
+    .score.medium{background:rgba(245,166,35,.2);color:#ffd79c}
+    .score.low{background:rgba(34,212,255,.2);color:#afefff}
+    .status-pill{display:inline-block;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700;margin-left:6px}
+    .status-new{background:rgba(34,212,255,.2);color:#afefff}
+    .status-in_review{background:rgba(245,166,35,.2);color:#ffd79c}
+    .status-approved{background:rgba(0,245,130,.2);color:#9af8cd}
+    .status-added{background:rgba(0,245,130,.3);color:#d8ffeb}
+    .status-rejected{background:rgba(255,99,132,.2);color:#ffd6de}
+    .decision-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .decision-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+    .decision-col{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px}
+    .decision-item{border:1px solid var(--line);border-radius:10px;padding:10px;background:rgba(7,18,12,.45);margin-top:8px}
+    .decision-image{width:100%;height:130px;object-fit:cover;border-radius:8px;border:1px solid var(--line);margin-bottom:8px;background:#0d1f16}
+    .grant-list{display:grid;gap:6px;margin-top:8px}
+    .grant-item{background:rgba(0,245,130,.08);border:1px solid rgba(0,245,130,.25);border-radius:8px;padding:7px}
+    @media(max-width:980px){
+      .picker-grid{grid-template-columns:1fr}
+      .hero{grid-template-columns:1fr}
+      .kpi,.w8,.w4,.w6{grid-column:span 12}
+      .stats{grid-template-columns:repeat(2,1fr)}
+      .alt-grid{grid-template-columns:1fr}
+      .shortlist-grid{grid-template-columns:1fr}
+      .decision-grid{grid-template-columns:1fr}
+      .alt-item-layout{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div style="font-weight:700">Independent Equipment Deep Dive Module</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a class="btn" href="./Greenways%20Interface%20.html">← Back to Buildings</a>
+        <a class="btn" href="./equipment_intelligence_tool.html">Open Equipment Intelligence</a>
+      </div>
+    </div>
+
+    <section class="picker">
+      <div class="sub" style="margin-bottom:8px">Choose equipment profile (module view, no page reload)</div>
+      <div class="picker-grid" id="equipmentPicker"></div>
+      <div id="customForm" class="custom-form">
+        <div class="sub" style="margin-bottom:8px">Define your own equipment profile for demo/comparison handoff.</div>
+        <div class="custom-form-grid">
+          <div>
+            <label for="customName">Equipment Name</label>
+            <input id="customName" placeholder="e.g. Prep Counter Fridge">
+          </div>
+          <div>
+            <label for="customBrand">Brand</label>
+            <input id="customBrand" placeholder="e.g. Foster">
+          </div>
+          <div>
+            <label for="customModel">Model</label>
+            <input id="customModel" placeholder="e.g. X123">
+          </div>
+          <div>
+            <label for="customType">Type</label>
+            <select id="customType">
+              <option value="refrigerator">Refrigerator</option>
+              <option value="dishwasher">Dishwasher</option>
+              <option value="fryer">Fryer</option>
+              <option value="oven">Oven</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label for="customDailyKwh">Actual Daily kWh</label>
+            <input id="customDailyKwh" type="number" step="0.1" min="0" placeholder="e.g. 19.5">
+          </div>
+          <div>
+            <label for="customDailyWater">Daily Water (L)</label>
+            <input id="customDailyWater" type="number" step="1" min="0" placeholder="e.g. 45">
+          </div>
+        </div>
+        <div style="margin-top:8px">
+          <label for="customImage">Equipment Image</label>
+          <input id="customImage" type="file" accept="image/*">
+        </div>
+        <div class="cta">
+          <button class="btn primary" type="button" id="applyCustomBtn">Apply Custom Profile</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <h1 id="heroTitle">Equipment Deep Dive</h1>
+        <p id="heroDescription">Professional profile for restaurant equipment assets with performance and comparison context.</p>
+        <div class="tag-row">
+          <span class="tag green">Live Performance Ready</span>
+          <span class="tag amber">Electrical + Water Aware</span>
+          <span class="tag blue">Comparison-Ready Module</span>
+        </div>
+        <div class="cta">
+          <a class="btn primary" id="openCompareLink" href="#">Compare with Greenways alternatives</a>
+          <a class="btn utility-btn utility-electricity" href="./utility-detail.html?type=electricity">Open Electricity utility page</a>
+          <a class="btn utility-btn utility-gas" href="./utility-detail.html?type=gas">Open Gas utility page</a>
+          <a class="btn utility-btn utility-water" href="./utility-detail.html?type=water">Open Water utility page</a>
+        </div>
+      </div>
+      <img id="heroImage" src="./Product%20Comparison/hotpoint-undercounter-fridge-or-silver-or-rla36g1__79125%20(1).jpg" alt="Equipment visual">
+    </section>
+
+    <section id="compareContextBanner" class="context-banner"></section>
+
+    <div class="grid">
+      <div class="card kpi">
+        <h3>Daily Electricity</h3>
+        <div class="v" id="kpiElectric">--</div>
+        <div class="sub" id="kpiElectricDelta">--</div>
+      </div>
+      <div class="card kpi">
+        <h3>Daily Water</h3>
+        <div class="v" id="kpiWater">--</div>
+        <div class="sub" id="kpiWaterDelta">--</div>
+      </div>
+      <div class="card kpi">
+        <h3>Runtime</h3>
+        <div class="v" id="kpiRuntime">--</div>
+        <div class="sub" id="kpiRuntimeDelta">--</div>
+      </div>
+      <div class="card kpi">
+        <h3>Health Status</h3>
+        <div class="v" id="kpiHealth" style="color:#f5a623">--</div>
+        <div class="sub" id="kpiHealthDelta">--</div>
+      </div>
+
+      <div class="card w8">
+        <h3 id="trendHeading">Performance Trend (14 days)</h3>
+        <div class="sub" id="trendSub">Usage trend for this equipment</div>
+        <canvas id="perfTrend" height="115"></canvas>
+      </div>
+      <div class="card w4">
+        <h3>Utility Mix</h3>
+        <div class="sub">Per-equipment consumption split</div>
+        <canvas id="mixChart" height="190"></canvas>
+      </div>
+
+      <div class="card w6">
+        <h3>Where Power Is Going</h3>
+        <div class="sub">Electrical breakdown by function</div>
+        <div id="powerBreakdown"></div>
+      </div>
+      <div class="card w6">
+        <h3>Operational Checks</h3>
+        <div class="sub">Likely causes if consumption rises</div>
+        <ul id="checksList" style="margin-top:10px;line-height:1.7;color:var(--muted)"></ul>
+      </div>
+
+      <div class="card w12">
+        <h3>Interactive Water Comparison</h3>
+        <div class="sub">Appealing view of equipment-related water usage: 7d, 14d, 1m, 2m.</div>
+        <div class="range-tabs">
+          <button class="range-btn active" data-range="7">Last 7 days</button>
+          <button class="range-btn" data-range="14">Last 14 days</button>
+          <button class="range-btn" data-range="30">Last 1 month</button>
+          <button class="range-btn" data-range="60">Last 2 months</button>
+        </div>
+        <canvas id="waterRangeChart" height="120"></canvas>
+        <div class="stats">
+          <div class="pill"><span class="sub">Current window</span><strong id="statCurrent">0 L</strong></div>
+          <div class="pill"><span class="sub">Previous window</span><strong id="statPrevious">0 L</strong></div>
+          <div class="pill"><span class="sub">Change</span><strong id="statChange">0%</strong></div>
+          <div class="pill"><span class="sub">Daily average</span><strong id="statAverage">0 L/day</strong></div>
+        </div>
+      </div>
+
+      <div class="card w12">
+        <h3>Sustainable Alternatives Finder</h3>
+        <div class="sub">Checks Greenways marketplace first, then suggests high-saving external alternatives not yet listed.</div>
+        <div class="alt-grid" style="margin-top:10px">
+          <div class="alt-column">
+            <div style="font-weight:700">On Greenways Marketplace</div>
+            <div id="marketplaceAlternatives" class="alt-list"></div>
+          </div>
+          <div class="alt-column">
+            <div style="font-weight:700">Not Yet on Greenways</div>
+            <div id="externalAlternatives" class="alt-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card w12">
+        <h3>Decision Matrix</h3>
+        <div class="sub">Compare current equipment vs Greenways options vs non-Greenways options using your bill rates.</div>
+        <div class="decision-controls">
+          <button class="range-btn active" type="button" data-horizon="1m">1 month</button>
+          <button class="range-btn" type="button" data-horizon="6m">6 months</button>
+          <button class="range-btn" type="button" data-horizon="1y">1 year</button>
+          <button class="range-btn" type="button" data-horizon="2y">2 years</button>
+          <button class="range-btn" type="button" data-horizon="10y">10 years</button>
+        </div>
+        <div class="decision-grid">
+          <div class="decision-col">
+            <div style="font-weight:700">Current Equipment</div>
+            <div id="decisionCurrent"></div>
+          </div>
+          <div class="decision-col">
+            <div style="font-weight:700">Greenways Marketplace Option(s)</div>
+            <div id="decisionGreenways"></div>
+          </div>
+          <div class="decision-col">
+            <div style="font-weight:700">Non-Greenways Option(s)</div>
+            <div id="decisionExternal"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card w12">
+        <h3>Greenways Intake Shortlist</h3>
+        <div class="sub">Auto-triaged suggestions ranked by expected savings and utility impact.</div>
+        <div class="cta">
+          <button class="btn" type="button" data-shortlist-status="new">Show New</button>
+          <button class="btn" type="button" data-shortlist-status="in_review">Show In Review</button>
+          <button class="btn" type="button" data-shortlist-status="approved">Show Approved</button>
+          <button class="btn" type="button" data-shortlist-status="added">Show Added</button>
+        </div>
+        <div id="intakeShortlist" class="shortlist-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CUSTOM_PROFILE_STORAGE_KEY = 'restaurantEquipmentDeepDiveCustomProfile';
+    const incomingParams = new URLSearchParams(window.location.search);
+    const EQUIPMENT_PROFILES = {
+      fridge: {
+        title: 'Undercounter Fridge Deep Dive',
+        description: 'Cold storage profile with compressor-cycle electrical performance and cleaning-water awareness.',
+        image: './Product%20Comparison/hotpoint-undercounter-fridge-or-silver-or-rla36g1__79125%20(1).jpg',
+        query: { name: 'Undercounter Fridge', brand: 'Hotpoint', model: 'RLA36G1', type: 'refrigerator' },
+        actualDailyKwh: 16.8,
+        kpi: ['16.8 kWh', '52 L', '18.2 h', 'Watch'],
+        delta: ['▲ 6% vs baseline', 'Condensate + cleaning estimate', 'Compressor duty cycle', 'Door-open events above target'],
+        trendLabel: 'Electricity (kWh/day)',
+        trendSub: 'Electrical usage trend for this equipment',
+        trendData: [15.9,16.2,16.0,16.5,16.3,16.8,17.2,16.9,16.6,16.4,16.7,17.0,16.9,16.8],
+        mixData: [78,18,4],
+        powerBreakdown: [['Compressor cycles',46],['Fans',18],['Defrost heaters',17],['Standby/control',11],['Door losses',8]],
+        checks: [
+          'Door gasket wear causing frequent compressor cycles.',
+          'Condenser coil dust reducing cooling efficiency.',
+          'Overfilled shelves restricting airflow.',
+          'Night setback schedule not applied.',
+          'Defrost cycle timing not optimized.'
+        ],
+        waterSeries: {
+          7:[48,51,49,53,55,52,54],
+          14:[47,48,50,49,51,52,53,54,53,52,51,52,54,55],
+          30:Array.from({length:30},(_,i)=>45 + Math.round(7*Math.sin(i/4)) + (i%6===0?2:0)),
+          60:Array.from({length:60},(_,i)=>44 + Math.round(8*Math.sin(i/6)) + (i%9===0?2:0))
+        }
+      },
+      freezer: {
+        title: 'Commercial Freezer Deep Dive',
+        description: 'Low-temperature storage profile with high compressor duty and door-loss sensitivity.',
+        image: './Product%20Comparison/Restuarants/Oven/Refrigerator/ETL.jpeg',
+        query: { name: 'Commercial Freezer', brand: 'ETL', model: 'CFZ-01', type: 'refrigerator' },
+        actualDailyKwh: 21.4,
+        kpi: ['21.4 kWh', '41 L', '20.1 h', 'Watch'],
+        delta: ['▲ 9% vs baseline', 'Defrost + cleaning water estimate', 'Compressor duty cycle', 'Defrost interval review needed'],
+        trendLabel: 'Electricity (kWh/day)',
+        trendSub: 'Freezer electrical usage trend',
+        trendData: [20.4,20.6,20.9,21.2,21.0,21.4,21.8,21.5,21.3,21.1,21.4,21.6,21.5,21.4],
+        mixData: [84,12,4],
+        powerBreakdown: [['Compressor cycles',53],['Evaporator fans',16],['Defrost heaters',19],['Controls',7],['Door losses',5]],
+        checks: [
+          'Evaporator icing increases compressor run time.',
+          'Door-open frequency spikes during prep windows.',
+          'Setpoint tighter than required for inventory.',
+          'Defrost heaters running too frequently.',
+          'Condenser airflow blocked by wall gap.'
+        ],
+        waterSeries: {
+          7:[36,38,37,39,40,38,39],
+          14:[35,36,37,38,39,38,39,40,39,38,37,38,39,40],
+          30:Array.from({length:30},(_,i)=>34 + Math.round(6*Math.sin(i/4)) + (i%7===0?1:0)),
+          60:Array.from({length:60},(_,i)=>33 + Math.round(7*Math.sin(i/6)) + (i%10===0?1:0))
+        }
+      },
+      dishwasher: {
+        title: 'Hood Dishwasher Deep Dive',
+        description: 'Dishwashing profile balancing electricity, water throughput, and heating cycle performance.',
+        image: './Product%20Comparison/Restuarants/Oven/Hood%20Type%20Dishwasher/ETL%20Image_Product_Winterhalter_PT-L_1200x1200_JPG_01.jpg',
+        query: { name: 'Hood Dishwasher', brand: 'Winterhalter', model: 'PT-L', type: 'dishwasher' },
+        actualDailyKwh: 28.2,
+        kpi: ['28.2 kWh', '620 L', '9.3 h', 'Watch'],
+        delta: ['▲ 4% vs baseline', 'High-volume wash periods', 'Active cycle runtime', 'Rinse booster temp drift'],
+        trendLabel: 'Electricity (kWh/day)',
+        trendSub: 'Dishwasher electrical usage trend',
+        trendData: [27.1,27.6,27.9,28.0,28.4,28.2,28.5,28.4,28.1,27.9,28.0,28.3,28.4,28.2],
+        mixData: [46,48,6],
+        powerBreakdown: [['Wash pump + motors',28],['Booster heaters',37],['Drying',14],['Standby/control',9],['Auxiliary loads',12]],
+        checks: [
+          'Rinse booster setpoint too high for throughput.',
+          'Nozzle blockage increases cycle duration.',
+          'Partial rack loading reduces water efficiency.',
+          'Scale buildup on heating elements.',
+          'Recovery delays between service peaks.'
+        ],
+        waterSeries: {
+          7:[580,610,595,630,640,615,620],
+          14:[560,575,590,610,595,620,630,640,620,610,600,615,625,630],
+          30:Array.from({length:30},(_,i)=>540 + Math.round(90*Math.sin(i/5)) + (i%6===0?25:0)),
+          60:Array.from({length:60},(_,i)=>530 + Math.round(110*Math.sin(i/7)) + (i%10===0?30:0))
+        }
+      }
+    };
+    let customImageDataUrl = '';
+
+    let currentProfileKey = 'fridge';
+    let perfTrendChart = null;
+    let mixChart = null;
+    let waterChart = null;
+    let currentShortlistStatus = 'new';
+    let decisionMatrixData = null;
+    let selectedDecisionHorizon = '1m';
+
+    function resolveApiUrl(pathname) {
+      if (/^https?:\/\//i.test(window.location.href)) return pathname;
+      return `http://localhost:4000${pathname}`;
+    }
+
+    function renderIncomingComparisonContext() {
+      const source = incomingParams.get('source');
+      if (source !== 'equipment-intelligence') return;
+
+      const banner = document.getElementById('compareContextBanner');
+      if (!banner) return;
+
+      const productId = incomingParams.get('productId') || 'n/a';
+      const actualDailyKwh = incomingParams.get('actualDailyKwh') || 'n/a';
+      const benchmarkMin = incomingParams.get('benchmarkMin') || 'n/a';
+      const benchmarkMax = incomingParams.get('benchmarkMax') || 'n/a';
+      const status = incomingParams.get('status') || 'unknown';
+      const excessAnnual = incomingParams.get('excessAnnualKwh') || '0';
+      const statusLabel = String(status).replace(/_/g, ' ');
+
+      banner.style.display = 'block';
+      banner.innerHTML = `
+        <div style="font-weight:700;margin-bottom:6px">
+          Comparison Context Loaded
+          <span class="context-chip ${status}">${statusLabel}</span>
+        </div>
+        <div class="sub" style="margin-bottom:8px">
+          Handoff received from Equipment Intelligence module.
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,minmax(110px,1fr));gap:8px">
+          <div class="pill"><span class="sub">Product ID</span><strong>${productId}</strong></div>
+          <div class="pill"><span class="sub">Actual Daily</span><strong>${actualDailyKwh} kWh</strong></div>
+          <div class="pill"><span class="sub">Benchmark Min</span><strong>${benchmarkMin}</strong></div>
+          <div class="pill"><span class="sub">Benchmark Max</span><strong>${benchmarkMax}</strong></div>
+          <div class="pill"><span class="sub">Excess Annual</span><strong>${excessAnnual}</strong></div>
+        </div>
+      `;
+    }
+
+    function renderPicker() {
+      const picker = document.getElementById('equipmentPicker');
+      const cards = Object.entries(EQUIPMENT_PROFILES).map(([key, p]) => `
+        <div class="equip-option ${key === currentProfileKey ? 'active' : ''}" data-equip="${key}">
+          <img src="${p.image}" alt="${p.title}">
+          <div style="font-weight:700">${p.title.replace(' Deep Dive','')}</div>
+          <div class="sub">${p.query.brand} · ${p.query.model}</div>
+        </div>
+      `).join('');
+      const customCard = `
+        <div class="equip-option ${currentProfileKey === 'custom' ? 'active' : ''}" data-equip="custom">
+          <img src="${customImageDataUrl || './Product%20Comparison/Restuarants/Oven/Refrigerator/Stanadard.webp'}" alt="Custom equipment">
+          <div style="font-weight:700">Custom Equipment</div>
+          <div class="sub">Use your own name/model/photo</div>
+        </div>
+      `;
+      picker.innerHTML = cards + customCard;
+      picker.querySelectorAll('.equip-option').forEach((el) => {
+        el.addEventListener('click', () => setProfile(el.getAttribute('data-equip')));
+      });
+      const customForm = document.getElementById('customForm');
+      if (customForm) customForm.style.display = currentProfileKey === 'custom' ? 'block' : 'none';
+    }
+
+    function updateCompareLink(profile) {
+      const q = profile.query;
+      const href = `./equipment_intelligence_tool.html?name=${encodeURIComponent(q.name)}&brand=${encodeURIComponent(q.brand)}&model=${encodeURIComponent(q.model)}&type=${encodeURIComponent(q.type)}&actualDailyKwh=${encodeURIComponent(profile.actualDailyKwh)}`;
+      document.getElementById('openCompareLink').href = href;
+    }
+
+    function renderPowerBreakdown(profile) {
+      document.getElementById('powerBreakdown').innerHTML = profile.powerBreakdown.map(([name,val]) => `
+      <div class="row">
+        <div style="min-width:140px">${name}</div>
+        <div style="flex:1">
+          <div class="bar"><span style="width:${val}%;background:var(--green)"></span></div>
+        </div>
+        <strong style="min-width:42px;text-align:right">${val}%</strong>
+      </div>
+    `).join('');
+    }
+
+    function renderPerfTrend(profile) {
+      if (perfTrendChart) perfTrendChart.destroy();
+      perfTrendChart = new Chart(document.getElementById('perfTrend'), {
+      type:'line',
+      data:{
+        labels:['D1','D2','D3','D4','D5','D6','D7','D8','D9','D10','D11','D12','D13','D14'],
+        datasets:[{
+          label:profile.trendLabel,
+          data:profile.trendData,
+          borderColor:'#00f582',
+          backgroundColor:'rgba(0,245,130,.14)',
+          fill:true,
+          tension:.35,
+          pointRadius:0,
+          borderWidth:2
+        }]
+      },
+      options:{
+        plugins:{legend:{labels:{color:'#c6dfd0'}}},
+        scales:{
+          x:{ticks:{color:'#9fc0af'},grid:{color:'#1a3526'}},
+          y:{ticks:{color:'#9fc0af'},grid:{color:'#1a3526'}}
+        }
+      }
+    });
+    }
+
+    function renderMixChart(profile) {
+      if (mixChart) mixChart.destroy();
+      mixChart = new Chart(document.getElementById('mixChart'), {
+      type:'doughnut',
+      data:{
+        labels:['Electricity','Water','Gas equivalent'],
+        datasets:[{
+          data:profile.mixData,
+          backgroundColor:['#00f582','#22d4ff','#f5a623'],
+          borderWidth:0
+        }]
+      },
+      options:{plugins:{legend:{labels:{color:'#c6dfd0'}}},cutout:'62%'}
+    });
+    }
+
+    function renderWater(range, profile) {
+      const data = profile.waterSeries[range];
+      const prev = data.slice().reverse();
+      const current = data.reduce((a,b)=>a+b,0);
+      const previous = prev.reduce((a,b)=>a+b,0) * 0.93;
+      const change = ((current - previous) / previous) * 100;
+      const avg = current / data.length;
+
+      document.getElementById('statCurrent').textContent = `${current.toFixed(0)} L`;
+      document.getElementById('statPrevious').textContent = `${previous.toFixed(0)} L`;
+      document.getElementById('statChange').textContent = `${change >= 0 ? '▲' : '▼'} ${Math.abs(change).toFixed(1)}%`;
+      document.getElementById('statAverage').textContent = `${avg.toFixed(1)} L/day`;
+
+      if (waterChart) waterChart.destroy();
+      waterChart = new Chart(document.getElementById('waterRangeChart'), {
+        type:'bar',
+        data:{
+          labels:Array.from({length:data.length},(_,i)=>`${i+1}`),
+          datasets:[{
+            label:'Water usage (L/day)',
+            data,
+            backgroundColor:'rgba(34,212,255,.6)',
+            borderColor:'#22d4ff',
+            borderWidth:1
+          }]
+        },
+        options:{
+          plugins:{legend:{labels:{color:'#c6dfd0'}}},
+          scales:{
+            x:{ticks:{color:'#9fc0af'},grid:{color:'#1a3526'}},
+            y:{ticks:{color:'#9fc0af'},grid:{color:'#1a3526'}}
+          }
+        }
+      });
+    }
+
+    function createAlternativeCard(item, sourceType) {
+      const cost = item?.savings?.annualEstimatedCostSavedEur ?? 0;
+      const energy = item?.savings?.annualEnergySavedKwh ?? 0;
+      const water = item?.savings?.annualWaterSavedLitres ?? 0;
+      const marketplaceHref = item?.id ? `./product-page-v2-marketplace.html?product=${encodeURIComponent(item.id)}&fromPopup=true` : '#';
+      const sampleGreenways = './Product%20Comparison/Restuarants/Oven/Refrigerator/ETL.jpeg';
+      const sampleExternal = './Product%20Comparison/Restuarants/Oven/Refrigerator/Stanadard.webp';
+      const imageSrc = item?.imageUrl || item?.image || (sourceType === 'marketplace' ? sampleGreenways : sampleExternal);
+      const suggestButton = sourceType === 'external'
+        ? `<button class="btn" type="button" data-intake-name="${encodeURIComponent(item.name || '')}" data-intake-brand="${encodeURIComponent(item.brand || '')}" data-intake-model="${encodeURIComponent(item.model || '')}" data-intake-type="${encodeURIComponent(item.type || '')}" data-intake-savings="${encodeURIComponent(JSON.stringify(item.savings || {}))}">Suggest for Greenways</button>`
+        : '';
+
+      return `
+        <div class="alt-item">
+          <div class="alt-item-layout">
+            <div class="alt-item-copy">
+              <h4>${item.name || 'Unknown product'}</h4>
+              <div class="sub">${item.brand || 'Unknown brand'}${item.model ? ` · ${item.model}` : ''}</div>
+              <div class="alt-savings">Est. annual savings: €${Number(cost).toFixed(0)} · ${Number(energy).toFixed(0)} kWh · ${Number(water).toFixed(0)} L</div>
+              <div class="cta">
+                ${sourceType === 'marketplace' ? `<a class="btn primary" href="${marketplaceHref}" target="_blank" rel="noopener noreferrer">View Marketplace Option</a>` : ''}
+                ${suggestButton}
+              </div>
+            </div>
+            <div class="alt-image-wrap">
+              <img class="alt-image" src="${imageSrc}" alt="${item.name || 'Equipment option'} image">
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function submitIntakeSuggestion(button, activeProfile) {
+      if (!button) return;
+      button.disabled = true;
+      button.textContent = 'Saving...';
+      try {
+        const expectedSavings = JSON.parse(decodeURIComponent(button.dataset.intakeSavings || '%7B%7D'));
+        const response = await fetch(resolveApiUrl('/api/equipment-intelligence/marketplace-intake-suggestions'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            source: 'restaurant-equipment-deep-dive',
+            name: decodeURIComponent(button.dataset.intakeName || ''),
+            brand: decodeURIComponent(button.dataset.intakeBrand || ''),
+            model: decodeURIComponent(button.dataset.intakeModel || ''),
+            type: decodeURIComponent(button.dataset.intakeType || ''),
+            reason: `Suggested from deep dive profile: ${activeProfile?.title || 'Unknown profile'}`,
+            expectedSavings
+          })
+        });
+        const payload = await response.json();
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.message || 'Failed to save suggestion.');
+        }
+        button.textContent = 'Suggested';
+        await renderIntakeShortlist();
+      } catch (error) {
+        console.warn('Failed to save intake suggestion:', error.message);
+        button.disabled = false;
+        button.textContent = 'Suggest for Greenways';
+      }
+    }
+
+    async function renderSustainableAlternatives(profile) {
+      const marketplaceContainer = document.getElementById('marketplaceAlternatives');
+      const externalContainer = document.getElementById('externalAlternatives');
+      if (!marketplaceContainer || !externalContainer || !profile) return;
+
+      marketplaceContainer.innerHTML = '<div class="alt-empty">Checking marketplace alternatives...</div>';
+      externalContainer.innerHTML = '<div class="alt-empty">Checking external sustainable alternatives...</div>';
+
+      try {
+        const query = new URLSearchParams({
+          name: profile.query?.name || '',
+          brand: profile.query?.brand || '',
+          model: profile.query?.model || '',
+          type: profile.query?.type || '',
+          actualDailyKwh: String(profile.actualDailyKwh || 0),
+          actualDailyWaterLitres: String(Number(String(profile.kpi?.[1] || '').replace(/[^\d.]/g, '')) || 0)
+        });
+        const response = await fetch(resolveApiUrl(`/api/equipment-intelligence/alternatives?${query.toString()}`));
+        const payload = await response.json();
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.message || 'Could not load alternatives.');
+        }
+
+        const marketplaceItems = Array.isArray(payload.marketplaceMatches) ? payload.marketplaceMatches : [];
+        const externalItems = Array.isArray(payload.externalAlternatives) ? payload.externalAlternatives : [];
+
+        marketplaceContainer.innerHTML = marketplaceItems.length
+          ? marketplaceItems.map((item) => createAlternativeCard(item, 'marketplace')).join('')
+          : '<div class="alt-empty">No direct marketplace alternatives found for this profile yet.</div>';
+
+        externalContainer.innerHTML = externalItems.length
+          ? externalItems.map((item) => createAlternativeCard(item, 'external')).join('')
+          : '<div class="alt-empty">No external alternatives matched this profile yet.</div>';
+
+        externalContainer.querySelectorAll('button[data-intake-name]').forEach((button) => {
+          button.addEventListener('click', () => submitIntakeSuggestion(button, profile));
+        });
+      } catch (error) {
+        marketplaceContainer.innerHTML = `<div class="alt-empty">${error.message}</div>`;
+        externalContainer.innerHTML = '<div class="alt-empty">Could not load external alternatives right now.</div>';
+      }
+    }
+
+    function formatCurrency(value) {
+      return `€${Number(value || 0).toFixed(0)}`;
+    }
+
+    function getDecisionImage(option, sourceType) {
+      const sampleCurrent = './Product%20Comparison/hotpoint-undercounter-fridge-or-silver-or-rla36g1__79125%20(1).jpg';
+      const sampleGreenways = './Product%20Comparison/Restuarants/Oven/Refrigerator/ETL.jpeg';
+      const sampleExternal = './Product%20Comparison/Restuarants/Oven/Refrigerator/Stanadard.webp';
+      const direct = option?.imageUrl || option?.image || null;
+      if (direct) return direct;
+      if (sourceType === 'greenways') return sampleGreenways;
+      if (sourceType === 'external') return sampleExternal;
+      return sampleCurrent;
+    }
+
+    function renderCurrentDecisionCard(baseline, horizon) {
+      const horizonCost = baseline?.costs?.horizons?.[horizon] ?? 0;
+      const imageSrc = getDecisionImage(baseline, 'current');
+      return `
+        <div class="decision-item">
+          <img class="decision-image" src="${imageSrc}" alt="${baseline?.name || 'Current equipment'} image">
+          <strong>${baseline?.name || 'Current Equipment'}</strong>
+          <div class="sub">${baseline?.brand || 'Current asset'}${baseline?.model ? ` · ${baseline.model}` : ''}</div>
+          <div class="alt-savings">Total cost (${horizon}): ${formatCurrency(horizonCost)}</div>
+          <div class="sub">Daily: ${baseline?.dailyKwh ?? 0} kWh · ${baseline?.dailyWaterLitres ?? 0} L · ${baseline?.dailyGasKwh ?? 0} gas-kWh</div>
+        </div>
+      `;
+    }
+
+    function renderDecisionOptionCard(option, horizon, includeGrants) {
+      const horizonCost = option?.costs?.horizons?.[horizon] ?? 0;
+      const savings = option?.savings?.[horizon] ?? 0;
+      const grants = Array.isArray(option?.grants) ? option.grants : [];
+      const imageSrc = getDecisionImage(option, includeGrants ? 'greenways' : 'external');
+      const grantsHtml = includeGrants && grants.length
+        ? `<div class="grant-list">${grants.slice(0, 3).map((grant) => `
+          <div class="grant-item">
+            <div style="font-weight:700;font-size:12px">${grant.name || grant.title || 'Grant option'}</div>
+            <div class="sub">${grant.type || 'support'}${grant.amount ? ` · ${grant.amount}` : ''}</div>
+          </div>
+        `).join('')}</div>`
+        : includeGrants
+          ? '<div class="sub" style="margin-top:6px">No grants linked yet.</div>'
+          : '';
+
+      return `
+        <div class="decision-item">
+          <img class="decision-image" src="${imageSrc}" alt="${option?.name || 'Equipment option'} image">
+          <strong>${option?.name || 'Option'}</strong>
+          <div class="sub">${option?.brand || 'Unknown'}${option?.model ? ` · ${option.model}` : ''}</div>
+          <div class="alt-savings">Cost (${horizon}): ${formatCurrency(horizonCost)} · Savings: ${formatCurrency(savings)}</div>
+          <div class="sub">Daily: ${option?.dailyKwh ?? 0} kWh · ${option?.dailyWaterLitres ?? 0} L · ${option?.dailyGasKwh ?? 0} gas-kWh</div>
+          <div class="cta">
+            <button class="btn" type="button" disabled>Check Deals (wire later)</button>
+          </div>
+          ${grantsHtml}
+        </div>
+      `;
+    }
+
+    function drawDecisionMatrix() {
+      const currentContainer = document.getElementById('decisionCurrent');
+      const greenwaysContainer = document.getElementById('decisionGreenways');
+      const externalContainer = document.getElementById('decisionExternal');
+      if (!currentContainer || !greenwaysContainer || !externalContainer) return;
+      if (!decisionMatrixData?.success) {
+        currentContainer.innerHTML = '<div class="alt-empty">Decision matrix unavailable.</div>';
+        greenwaysContainer.innerHTML = '<div class="alt-empty">--</div>';
+        externalContainer.innerHTML = '<div class="alt-empty">--</div>';
+        return;
+      }
+
+      currentContainer.innerHTML = renderCurrentDecisionCard(decisionMatrixData.baseline, selectedDecisionHorizon);
+
+      const greenways = Array.isArray(decisionMatrixData.greenwaysOptions) ? decisionMatrixData.greenwaysOptions : [];
+      greenwaysContainer.innerHTML = greenways.length
+        ? greenways.slice(0, 3).map((option) => renderDecisionOptionCard(option, selectedDecisionHorizon, true)).join('')
+        : '<div class="alt-empty">No Greenways options matched yet.</div>';
+
+      const external = Array.isArray(decisionMatrixData.externalOptions) ? decisionMatrixData.externalOptions : [];
+      externalContainer.innerHTML = external.length
+        ? external.slice(0, 3).map((option) => renderDecisionOptionCard(option, selectedDecisionHorizon, false)).join('')
+        : '<div class="alt-empty">No non-Greenways options matched yet.</div>';
+    }
+
+    async function renderDecisionMatrix(profile) {
+      const currentContainer = document.getElementById('decisionCurrent');
+      const greenwaysContainer = document.getElementById('decisionGreenways');
+      const externalContainer = document.getElementById('decisionExternal');
+      if (!currentContainer || !greenwaysContainer || !externalContainer || !profile) return;
+      currentContainer.innerHTML = '<div class="alt-empty">Building decision matrix...</div>';
+      greenwaysContainer.innerHTML = '<div class="alt-empty">Loading Greenways options...</div>';
+      externalContainer.innerHTML = '<div class="alt-empty">Loading external options...</div>';
+      try {
+        const query = new URLSearchParams({
+          name: profile.query?.name || '',
+          brand: profile.query?.brand || '',
+          model: profile.query?.model || '',
+          type: profile.query?.type || '',
+          actualDailyKwh: String(profile.actualDailyKwh || 0),
+          actualDailyWaterLitres: String(Number(String(profile.kpi?.[1] || '').replace(/[^\d.]/g, '')) || 0),
+          actualDailyGasKwh: '0',
+          electricityRateEurPerKwh: '0.30',
+          gasRateEurPerKwh: '0.11',
+          waterRateEurPerLitre: '0.0025'
+        });
+        const response = await fetch(resolveApiUrl(`/api/equipment-intelligence/decision-matrix?${query.toString()}`));
+        const payload = await response.json();
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.message || 'Could not build decision matrix.');
+        }
+        decisionMatrixData = payload;
+        drawDecisionMatrix();
+      } catch (error) {
+        decisionMatrixData = null;
+        currentContainer.innerHTML = `<div class="alt-empty">${error.message}</div>`;
+        greenwaysContainer.innerHTML = '<div class="alt-empty">Could not load Greenways comparison.</div>';
+        externalContainer.innerHTML = '<div class="alt-empty">Could not load external comparison.</div>';
+      }
+    }
+
+    function renderShortlistCard(item) {
+      const score = Number(item?.triage?.priorityScore || 0);
+      const band = item?.triage?.roiBand || 'low';
+      const scoreClass = band === 'high' ? 'high' : band === 'medium' ? 'medium' : 'low';
+      const savings = Number(item?.expectedSavings?.annualEstimatedCostSavedEur || 0);
+      const tags = Array.isArray(item?.triage?.tags) ? item.triage.tags.join(' · ') : '';
+      const status = String(item?.status || 'new');
+      return `
+        <div class="shortlist-item">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <div>
+              <strong>${item.name || 'Unknown product'}</strong>
+              <span class="status-pill status-${status}">${status.replace('_', ' ')}</span>
+            </div>
+            <span class="score ${scoreClass}">Score ${score}</span>
+          </div>
+          <div class="sub" style="margin-top:4px">${item.brand || 'Unknown brand'}${item.model ? ` · ${item.model}` : ''} · ${item.type || 'n/a'}</div>
+          <div class="alt-savings">Est. annual savings: €${savings.toFixed(0)}</div>
+          <div class="sub">${tags || 'No tags yet'}</div>
+          <div class="cta">
+            <button class="btn" type="button" data-status-id="${item.id}" data-next-status="in_review">In Review</button>
+            <button class="btn" type="button" data-status-id="${item.id}" data-next-status="approved">Approve</button>
+            <button class="btn" type="button" data-status-id="${item.id}" data-next-status="added">Mark Added</button>
+            <button class="btn" type="button" data-status-id="${item.id}" data-next-status="rejected">Reject</button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function updateSuggestionStatus(id, status) {
+      const response = await fetch(resolveApiUrl(`/api/equipment-intelligence/marketplace-intake-suggestions/${encodeURIComponent(id)}/status`), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      const payload = await response.json();
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.message || 'Could not update suggestion status.');
+      }
+      return payload;
+    }
+
+    async function renderIntakeShortlist() {
+      const shortlistContainer = document.getElementById('intakeShortlist');
+      if (!shortlistContainer) return;
+      shortlistContainer.innerHTML = '<div class="alt-empty">Loading intake shortlist...</div>';
+      try {
+        const response = await fetch(resolveApiUrl(`/api/equipment-intelligence/marketplace-intake-shortlist?status=${encodeURIComponent(currentShortlistStatus)}&limit=8`));
+        const payload = await response.json();
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.message || 'Could not load shortlist.');
+        }
+        const shortlist = Array.isArray(payload.shortlist) ? payload.shortlist : [];
+        shortlistContainer.innerHTML = shortlist.length
+          ? shortlist.map((item) => renderShortlistCard(item)).join('')
+          : `<div class="alt-empty">No ${currentShortlistStatus.replace('_', ' ')} suggestions yet.</div>`;
+
+        shortlistContainer.querySelectorAll('button[data-status-id]').forEach((button) => {
+          button.addEventListener('click', async () => {
+            const id = button.getAttribute('data-status-id');
+            const nextStatus = button.getAttribute('data-next-status');
+            const originalLabel = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Saving...';
+            try {
+              await updateSuggestionStatus(id, nextStatus);
+              await renderIntakeShortlist();
+            } catch (error) {
+              button.disabled = false;
+              button.textContent = originalLabel;
+              console.warn(error.message);
+            }
+          });
+        });
+      } catch (error) {
+        shortlistContainer.innerHTML = `<div class="alt-empty">${error.message}</div>`;
+      }
+    }
+
+    function setProfile(key) {
+      if (key === 'custom') {
+        if (EQUIPMENT_PROFILES.custom) {
+          key = 'custom';
+        } else {
+          currentProfileKey = 'custom';
+          renderPicker();
+          return;
+        }
+      }
+      if (!EQUIPMENT_PROFILES[key]) return;
+      currentProfileKey = key;
+      const profile = EQUIPMENT_PROFILES[key];
+      if (key === 'custom') {
+        currentProfileKey = 'custom';
+        renderPicker();
+      }
+
+      document.getElementById('heroTitle').textContent = profile.title;
+      document.getElementById('heroDescription').textContent = profile.description;
+      document.getElementById('heroImage').src = profile.image;
+      document.getElementById('heroImage').alt = `${profile.title} visual`;
+
+      document.getElementById('kpiElectric').textContent = profile.kpi[0];
+      document.getElementById('kpiWater').textContent = profile.kpi[1];
+      document.getElementById('kpiRuntime').textContent = profile.kpi[2];
+      document.getElementById('kpiHealth').textContent = profile.kpi[3];
+      document.getElementById('kpiElectricDelta').textContent = profile.delta[0];
+      document.getElementById('kpiWaterDelta').textContent = profile.delta[1];
+      document.getElementById('kpiRuntimeDelta').textContent = profile.delta[2];
+      document.getElementById('kpiHealthDelta').textContent = profile.delta[3];
+
+      document.getElementById('trendHeading').textContent = `Performance Trend (14 days)`;
+      document.getElementById('trendSub').textContent = profile.trendSub;
+      document.getElementById('checksList').innerHTML = profile.checks.map((item) => `<li>${item}</li>`).join('');
+
+      updateCompareLink(profile);
+      renderPowerBreakdown(profile);
+      renderPerfTrend(profile);
+      renderMixChart(profile);
+      renderWater(Number(document.querySelector('.range-btn.active')?.dataset.range || 7), profile);
+      renderSustainableAlternatives(profile);
+      renderDecisionMatrix(profile);
+      renderPicker();
+    }
+
+    function applyCustomProfile() {
+      const name = document.getElementById('customName').value.trim() || 'Custom Equipment';
+      const brand = document.getElementById('customBrand').value.trim() || 'Custom Brand';
+      const model = document.getElementById('customModel').value.trim() || 'MODEL-X';
+      const type = document.getElementById('customType').value.trim() || 'other';
+      const actualDailyKwhInput = Number(document.getElementById('customDailyKwh').value);
+      const actualDailyWaterInput = Number(document.getElementById('customDailyWater').value);
+      const actualDailyKwh = Number.isFinite(actualDailyKwhInput) && actualDailyKwhInput > 0 ? actualDailyKwhInput : 18.5;
+      const actualDailyWater = Number.isFinite(actualDailyWaterInput) && actualDailyWaterInput > 0 ? actualDailyWaterInput : 55;
+
+      const generatedProfile = {
+        title: `${name} Deep Dive`,
+        description: 'Custom profile generated from your equipment details. Update values anytime.',
+        image: customImageDataUrl || './Product%20Comparison/Restuarants/Oven/Refrigerator/Stanadard.webp',
+        query: { name, brand, model, type },
+        actualDailyKwh,
+        kpi: [`${actualDailyKwh.toFixed(1)} kWh`, `${Math.round(actualDailyWater)} L`, '16.0 h', 'Watch'],
+        delta: ['Custom baseline', 'Custom water estimate', 'Estimated runtime', 'Review after 7 days data'],
+        trendLabel: 'Electricity (kWh/day)',
+        trendSub: 'Custom electrical usage trend estimate',
+        trendData: Array.from({ length: 14 }, (_, i) => Number((actualDailyKwh * (0.92 + ((i % 5) * 0.03))).toFixed(1))),
+        mixData: [72, 22, 6],
+        powerBreakdown: [['Primary load', 42], ['Secondary motors/fans', 21], ['Heating/cooling', 19], ['Standby/control', 11], ['Other', 7]],
+        checks: [
+          'Validate meter mapping for this equipment.',
+          'Track open/close or cycle events against load spikes.',
+          'Review cleaning and idle schedules.',
+          'Compare 7-day rolling average to baseline.',
+          'Refine thresholds after first month of real data.'
+        ],
+        waterSeries: {
+          7: Array.from({ length: 7 }, (_, i) => Math.round(actualDailyWater * (0.9 + (i % 4) * 0.04))),
+          14: Array.from({ length: 14 }, (_, i) => Math.round(actualDailyWater * (0.88 + (i % 5) * 0.03))),
+          30: Array.from({ length: 30 }, (_, i) => Math.round(actualDailyWater * (0.86 + (i % 7) * 0.025))),
+          60: Array.from({ length: 60 }, (_, i) => Math.round(actualDailyWater * (0.84 + (i % 9) * 0.02)))
+        }
+      };
+
+      EQUIPMENT_PROFILES.custom = generatedProfile;
+      try {
+        localStorage.setItem(CUSTOM_PROFILE_STORAGE_KEY, JSON.stringify(generatedProfile));
+      } catch (error) {
+        console.warn('Could not persist custom equipment profile:', error.message);
+      }
+      setProfile('custom');
+    }
+
+    function hydrateCustomFormFromProfile(profile) {
+      if (!profile) return;
+      document.getElementById('customName').value = profile.query?.name || '';
+      document.getElementById('customBrand').value = profile.query?.brand || '';
+      document.getElementById('customModel').value = profile.query?.model || '';
+      document.getElementById('customType').value = profile.query?.type || 'other';
+      const dailyKwh = typeof profile.actualDailyKwh === 'number' ? profile.actualDailyKwh : '';
+      const dailyWater = Array.isArray(profile.kpi) && profile.kpi[1] ? Number(String(profile.kpi[1]).replace(/[^\d.]/g, '')) : '';
+      document.getElementById('customDailyKwh').value = dailyKwh || '';
+      document.getElementById('customDailyWater').value = dailyWater || '';
+    }
+
+    function restoreCustomProfile() {
+      try {
+        const raw = localStorage.getItem(CUSTOM_PROFILE_STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object') return;
+        EQUIPMENT_PROFILES.custom = parsed;
+        customImageDataUrl = parsed.image || '';
+        hydrateCustomFormFromProfile(parsed);
+      } catch (error) {
+        console.warn('Could not restore custom profile:', error.message);
+      }
+    }
+
+    document.querySelectorAll('.range-btn[data-range]').forEach((btn)=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('.range-btn[data-range]').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        renderWater(Number(btn.dataset.range), EQUIPMENT_PROFILES[currentProfileKey]);
+      });
+    });
+
+    document.getElementById('applyCustomBtn').addEventListener('click', applyCustomProfile);
+    document.getElementById('customImage').addEventListener('change', (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        customImageDataUrl = ev.target.result;
+        if (EQUIPMENT_PROFILES.custom) {
+          EQUIPMENT_PROFILES.custom.image = customImageDataUrl;
+          try {
+            localStorage.setItem(CUSTOM_PROFILE_STORAGE_KEY, JSON.stringify(EQUIPMENT_PROFILES.custom));
+          } catch (error) {
+            console.warn('Could not update stored custom profile image:', error.message);
+          }
+        }
+        renderPicker();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    restoreCustomProfile();
+    renderIncomingComparisonContext();
+    setProfile('fridge');
+    document.querySelectorAll('.range-btn[data-horizon]').forEach((button) => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.range-btn[data-horizon]').forEach((b) => b.classList.remove('active'));
+        button.classList.add('active');
+        selectedDecisionHorizon = button.getAttribute('data-horizon') || '1m';
+        drawDecisionMatrix();
+      });
+    });
+    document.querySelectorAll('button[data-shortlist-status]').forEach((button) => {
+      button.addEventListener('click', () => {
+        currentShortlistStatus = button.getAttribute('data-shortlist-status') || 'new';
+        renderIntakeShortlist();
+      });
+    });
+    renderIntakeShortlist();
+  </script>
+</body>
+</html>
