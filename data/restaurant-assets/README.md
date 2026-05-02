@@ -1,22 +1,26 @@
 # Restaurant asset sources
 
-Large vendor decks (**not** tracked here) belong on your Desktop, cloud drive, or Git LFS if you truly need version control.
+Large vendor decks (**not** tracked) can stay on Desktop or cloud. Regenerate structured lists with `scripts/extract-pptx-text.py` when the source changes.
 
-## Extract only (recommended)
+## Tracked slim list (dashboard)
 
-Keep the `.pptx` outside the repo. When you want structured data for a dashboard sprint, run locally and write JSON **anywhere convenient** (or under this folder—it will stay untracked):
+**`wok-to-walk-equipment-list.json`** — small venue inventory (~32 rows) used by:
+
+- `HTMLS GWM GWB/restaurant-equipment-deep-dive.html` — first **6** items as chips, rest in **dropdown**; each row drives the deep dive + alternatives API.
+- `HTMLS GWM GWB/equipment_intelligence_tool.html` — same pattern for quick search prefill + deep-dive link.
+
+Served as static JSON when you run the app from repo root (`http://localhost:4000/data/restaurant-assets/wok-to-walk-equipment-list.json`).
+
+### Refresh from PowerPoint
 
 ```bash
-python scripts/extract-pptx-text.py "C:/Users/you/Desktop/Wok To Walk Assets.pptx" --json-out data/restaurant-assets/wok-to-walk-assets.json
+python scripts/extract-pptx-text.py "C:/path/to/Wok To Walk Assets.pptx" --json-out "%TEMP%/wok-full.json"
+python -c "import json, pathlib; p=pathlib.Path(r'%TEMP%/wok-full.json'); d=json.load(open(p,encoding='utf-8')); slim={'schemaVersion':1,'brand':'Wok To Walk','label':'Wok To Walk site equipment','equipment':[{'id':e['id'],'name':e['name'],'slug':e['slug'],'utilities':e.get('utilities',[]),'equipmentIntelligenceType':e.get('equipmentIntelligenceType','other')} for e in d.get('equipment',[])]}; json.dump(slim, open('data/restaurant-assets/wok-to-walk-equipment-list.json','w',encoding='utf-8'), indent=2, ensure_ascii=False)"
 ```
 
-- **Git ignores** `data/restaurant-assets/*.pptx` and `data/restaurant-assets/wok-to-walk-assets.json` so nothing huge or regenerable is committed accidentally.
-- The **tooling** lives in-repo: `scripts/extract-pptx-text.py` (stdlib only).
+(Adjust temp path on non-Windows.)
 
-### JSON shape (quick reference)
+### Still ignored (heavy / regenerable)
 
-`schemaVersion: 2` output includes:
-
-- `equipment[]` — parsed rows (`name`, `measurementsSummary`, `utilities`, `equipmentIntelligenceType`, …)
-- `items[]` — compact `{ id, name, slideNumber }` for tiles
-- `slides[]` — raw slide text audit trail
+- `data/restaurant-assets/*.pptx`
+- `data/restaurant-assets/wok-to-walk-assets.json` (full extract dump)

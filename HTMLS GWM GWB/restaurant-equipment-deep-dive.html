@@ -28,6 +28,16 @@
     .utility-btn.utility-electricity{border-color:rgba(0,245,130,.5);color:#a6ffd4;background:rgba(0,245,130,.12)}
     .utility-btn.utility-gas{border-color:rgba(245,166,35,.5);color:#ffd79c;background:rgba(245,166,35,.12)}
     .utility-btn.utility-water{border-color:rgba(34,212,255,.5);color:#afefff;background:rgba(34,212,255,.12)}
+    .utility-btn.utility-intelligence{
+      border-color:rgba(95,180,255,.78);
+      color:#cfe9ff;
+      background:rgba(95,180,255,.16);
+      box-shadow:0 0 0 1px rgba(95,180,255,.22) inset, 0 0 14px rgba(95,180,255,.22);
+    }
+    .utility-btn.utility-intelligence:hover{
+      border-color:rgba(120,196,255,.95);
+      background:rgba(95,180,255,.24);
+    }
     .picker{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px}
     .picker-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
     .equip-option{border:1px solid var(--line);background:var(--surface-2);border-radius:12px;padding:10px;cursor:pointer;transition:.15s}
@@ -67,6 +77,7 @@
     .bar{height:8px;border-radius:999px;background:#1f3a2b;overflow:hidden}
     .bar>span{display:block;height:100%}
     .range-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+    .water-range-tabs{margin-top:8px}
     .range-btn{border:1px solid var(--line);background:var(--surface-2);color:var(--text);border-radius:999px;padding:6px 10px;font-size:12px;cursor:pointer}
     .range-btn.active{background:var(--green);color:#04210f;border-color:transparent}
     .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
@@ -116,6 +127,25 @@
     .alt-item:hover .alt-image{
       transform:scale(1.04);
     }
+    .alt-repeater-nav{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin-top:8px;
+    }
+    .alt-repeater-controls{display:flex;gap:6px;align-items:center}
+    .alt-repeater-btn{
+      border:1px solid var(--line);
+      background:var(--surface-2);
+      color:var(--text);
+      border-radius:8px;
+      padding:5px 9px;
+      font-size:12px;
+      cursor:pointer;
+    }
+    .alt-repeater-btn:disabled{opacity:.45;cursor:not-allowed}
+    .alt-repeater-counter{font-size:12px;color:var(--muted)}
     .shortlist-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
     .shortlist-item{border:1px solid var(--line);border-radius:10px;padding:10px;background:rgba(7,18,12,.45)}
     .score{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:700}
@@ -135,6 +165,12 @@
     .decision-image{width:100%;height:130px;object-fit:cover;border-radius:8px;border:1px solid var(--line);margin-bottom:8px;background:#0d1f16}
     .grant-list{display:grid;gap:6px;margin-top:8px}
     .grant-item{background:rgba(0,245,130,.08);border:1px solid rgba(0,245,130,.25);border-radius:8px;padding:7px}
+    .wok-site-panel{margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(7,18,12,.45)}
+    .wok-chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;align-items:center}
+    .wok-chip{border:1px solid rgba(95,180,255,.55);background:rgba(95,180,255,.1);color:#cfe9ff;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+    .wok-chip:hover{background:rgba(95,180,255,.22)}
+    .wok-more-row{margin-top:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    .wok-more-row select{min-width:240px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);font-size:13px}
     @media(max-width:980px){
       .picker-grid{grid-template-columns:1fr}
       .hero{grid-template-columns:1fr}
@@ -159,6 +195,15 @@
 
     <section class="picker">
       <div class="sub" style="margin-bottom:8px">Choose equipment profile (module view, no page reload)</div>
+      <div class="wok-site-panel" id="wokSitePanel" hidden>
+        <div class="sub" style="margin-bottom:4px;font-weight:700" id="wokSiteLabel">Restaurant site equipment</div>
+        <div class="sub" style="margin-bottom:6px;line-height:1.45">Real venue inventory — open a deep dive for this asset. Sustainable alternatives (Greenways marketplace + external) use the selection below.</div>
+        <div class="wok-chip-row" id="wokChipRow"></div>
+        <div class="wok-more-row">
+          <label for="wokEquipSelect" style="font-size:13px;color:var(--muted)">More equipment</label>
+          <select id="wokEquipSelect" aria-label="More site equipment"><option value="">Choose…</option></select>
+        </div>
+      </div>
       <div class="picker-grid" id="equipmentPicker"></div>
       <div id="customForm" class="custom-form">
         <div class="sub" style="margin-bottom:8px">Define your own equipment profile for demo/comparison handoff.</div>
@@ -216,6 +261,7 @@
         <div class="cta">
           <a class="btn primary" id="openCompareLink" href="#">Compare with Greenways alternatives</a>
           <a class="btn utility-btn utility-electricity" href="./utility-detail.html?type=electricity">Open Electricity utility page</a>
+          <a class="btn utility-btn utility-intelligence" id="openIntelligenceLink" href="#">Open Equipment Intelligence</a>
           <a class="btn utility-btn utility-gas" href="./utility-detail.html?type=gas">Open Gas utility page</a>
           <a class="btn utility-btn utility-water" href="./utility-detail.html?type=water">Open Water utility page</a>
         </div>
@@ -272,7 +318,7 @@
       <div class="card w12">
         <h3>Interactive Water Comparison</h3>
         <div class="sub">Appealing view of equipment-related water usage: 7d, 14d, 1m, 2m.</div>
-        <div class="range-tabs">
+        <div class="range-tabs water-range-tabs">
           <button class="range-btn active" data-range="7">Last 7 days</button>
           <button class="range-btn" data-range="14">Last 14 days</button>
           <button class="range-btn" data-range="30">Last 1 month</button>
@@ -345,6 +391,150 @@
   <script>
     const CUSTOM_PROFILE_STORAGE_KEY = 'restaurantEquipmentDeepDiveCustomProfile';
     const incomingParams = new URLSearchParams(window.location.search);
+    const WOK_SITE = { listUrl: 'data/restaurant-assets/wok-to-walk-equipment-list.json', visibleChips: 6 };
+    let wokInventory = [];
+    let wokBootstrapped = false;
+
+    function staticJsonUrl(relPath) {
+      if (window.location.protocol === 'file:') return `http://localhost:4000/${relPath.replace(/^\//, '')}`;
+      return `${window.location.origin}/${relPath.replace(/^\//, '')}`;
+    }
+
+    function mapWokNameToEqType(name, intelType) {
+      const n = String(name || '').toLowerCase();
+      if (/dishwasher/.test(n)) return 'dishwasher';
+      if (/fryer/.test(n)) return 'fryer';
+      if (/fridge|freezer|cooler|chiller/.test(n)) return 'refrigerator';
+      if (/ice\s*machine|ice\s*cold|scotsman/.test(n)) return 'ice machine';
+      if (/coffee|milkshake|kettle|tap|dispenser|washer|dryer|ac\s|lights?|board|heater|advertising|casa/.test(n)) return '';
+      if (/rice|cooker|induction|wok|burner|oven|fryer|plate/.test(n)) {
+        if (/fryer/.test(n)) return 'fryer';
+        return 'combi oven';
+      }
+      if (intelType === 'warewashing') return 'dishwasher';
+      if (intelType === 'refrigeration') return 'refrigerator';
+      if (intelType === 'cooking') return /fryer/.test(n) ? 'fryer' : 'combi oven';
+      return '';
+    }
+
+    function defaultKwhWater(item) {
+      const t = item.equipmentIntelligenceType;
+      const n = String(item.name || '').toLowerCase();
+      let kwh = 18;
+      if (t === 'hvac') kwh = 45;
+      else if (t === 'lighting') kwh = 12;
+      else if (t === 'warewashing') kwh = 28;
+      else if (t === 'cooking' && /fryer|oil/.test(n)) kwh = 24;
+      else if (t === 'cooking' && /wok|burner/.test(n)) kwh = 6;
+      else if (t === 'cooking') kwh = 20;
+      else if (t === 'refrigeration') kwh = /small/.test(n) ? 14 : 18;
+      else if (t === 'laundry') kwh = 22;
+      else if (t === 'restroom') kwh = 4;
+      else if (t === 'misc') kwh = 10;
+      let water = 40;
+      if (t === 'warewashing' || /dishwasher/.test(n)) water = 620;
+      else if (/tap|chiller|dispenser|coffee|milkshake|freezer|washing/.test(n)) water = /tap/.test(n) ? 120 : 90;
+      if (t === 'gas' || (item.utilities && item.utilities.length === 1 && item.utilities[0] === 'gas')) water = 25;
+      return { kwh, water };
+    }
+
+    function defaultImageForWok(item) {
+      const n = String(item.name || '').toLowerCase();
+      if (/dishwasher/.test(n)) return './Product%20Comparison/Restuarants/Oven/Hood%20Type%20Dishwasher/ETL%20Image_Product_Winterhalter_PT-L_1200x1200_JPG_01.jpg';
+      if (/freezer/.test(n) && !/dishwasher/.test(n)) return './Product%20Comparison/Restuarants/Oven/Refrigerator/ETL.jpeg';
+      if (/fridge|glass|cooler|chiller|dispenser/.test(n)) return './Product%20Comparison/hotpoint-undercounter-fridge-or-silver-or-rla36g1__79125%20(1).jpg';
+      if (/fryer|wok|burner|rice|induction|oil|cooker|plate/.test(n)) return './Product%20Comparison/Restuarants/Oven/Convectional/ETL%20Oven.jpeg';
+      return './Product%20Comparison/Restuarants/Oven/Refrigerator/Stanadard.webp';
+    }
+
+    function buildWokProfile(item) {
+      const eqType = mapWokNameToEqType(item.name, item.equipmentIntelligenceType);
+      const { kwh, water } = defaultKwhWater(item);
+      const utilStr = (item.utilities || []).join(' · ') || 'General';
+      return {
+        title: `${item.name} — Deep Dive`,
+        description: `Wok To Walk site inventory. Monitoring focus: ${utilStr}. Use alternatives below for Greenways matches and external options.`,
+        image: defaultImageForWok(item),
+        query: { name: item.name, brand: 'Wok To Walk', model: '—', type: eqType },
+        actualDailyKwh: kwh,
+        kpi: [`${kwh.toFixed(1)} kWh`, `${Math.round(water)} L`, '16.0 h', 'Site list'],
+        delta: ['Inventory baseline', 'Water estimate by category', 'Runtime placeholder', 'Refine with sub-meter data'],
+        trendLabel: 'Electricity (kWh/day)',
+        trendSub: 'Estimated trend until live metering is connected',
+        trendData: Array.from({ length: 14 }, (_, i) => Number((kwh * (0.92 + ((i % 5) * 0.03))).toFixed(1))),
+        mixData: (item.utilities && item.utilities.includes('gas')) ? [25, 15, 60] : [72, 22, 6],
+        powerBreakdown: [['Primary load', 40], ['Motors / fans', 22], ['Thermal / cycles', 18], ['Standby / controls', 12], ['Other', 8]],
+        checks: [
+          'Connect real sub-meter data when available for this asset.',
+          'Validate category mapping against your as-built schedule.',
+          'Use Equipment Intelligence to compare actual kWh/day to benchmarks.',
+          'Prioritise alternatives on high-load or fault-prone equipment.'
+        ],
+        waterSeries: {
+          7: Array.from({ length: 7 }, (_, i) => Math.round(water * (0.9 + (i % 4) * 0.04))),
+          14: Array.from({ length: 14 }, (_, i) => Math.round(water * (0.88 + (i % 5) * 0.03))),
+          30: Array.from({ length: 30 }, (_, i) => Math.round(water * (0.86 + (i % 7) * 0.025))),
+          60: Array.from({ length: 60 }, (_, i) => Math.round(water * (0.84 + (i % 9) * 0.02)))
+        },
+        wokMeta: { id: item.id, slug: item.slug }
+      };
+    }
+
+    function applyWokAsset(item) {
+      const key = `wok_${item.slug}`;
+      EQUIPMENT_PROFILES[key] = buildWokProfile(item);
+      wokBootstrapped = true;
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('site', 'wok-to-walk');
+        url.searchParams.set('wok', item.slug);
+        window.history.replaceState({}, '', url);
+      } catch (e) { /* file:// */ }
+      setProfile(key);
+    }
+
+    async function loadWokInventory() {
+      const panel = document.getElementById('wokSitePanel');
+      const chipRow = document.getElementById('wokChipRow');
+      const sel = document.getElementById('wokEquipSelect');
+      if (!panel || !chipRow || !sel) return;
+      try {
+        const res = await fetch(staticJsonUrl(WOK_SITE.listUrl), { cache: 'no-store' });
+        if (!res.ok) throw new Error('list');
+        const data = await res.json();
+        wokInventory = Array.isArray(data.equipment) ? data.equipment : [];
+        if (!wokInventory.length) return;
+        const labelEl = document.getElementById('wokSiteLabel');
+        if (labelEl && data.label) labelEl.textContent = data.label;
+        panel.hidden = false;
+        const vis = wokInventory.slice(0, WOK_SITE.visibleChips);
+        chipRow.innerHTML = vis.map((it) => `<button type="button" class="wok-chip" data-wok-slug="${it.slug}">${it.name}</button>`).join('');
+        chipRow.querySelectorAll('[data-wok-slug]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const slug = btn.getAttribute('data-wok-slug');
+            const found = wokInventory.find((x) => x.slug === slug);
+            if (found) applyWokAsset(found);
+          });
+        });
+        sel.innerHTML = `<option value="">More equipment (${wokInventory.length} total)…</option>` +
+          wokInventory.map((it) => `<option value="${it.slug}">${it.name}</option>`).join('');
+        sel.onchange = () => {
+          const slug = sel.value;
+          if (!slug) return;
+          const found = wokInventory.find((x) => x.slug === slug);
+          if (found) applyWokAsset(found);
+          sel.value = '';
+        };
+        const paramSlug = incomingParams.get('wok') || incomingParams.get('asset');
+        if (paramSlug) {
+          const match = wokInventory.find((x) => x.slug === paramSlug);
+          if (match) applyWokAsset(match);
+        }
+      } catch (err) {
+        console.warn('Wok inventory list unavailable (serve via localhost:4000):', err.message);
+      }
+    }
+
     const EQUIPMENT_PROFILES = {
       fridge: {
         title: 'Undercounter Fridge Deep Dive',
@@ -437,6 +627,10 @@
     let currentShortlistStatus = 'new';
     let decisionMatrixData = null;
     let selectedDecisionHorizon = '1m';
+    const alternativesRepeaterState = {
+      marketplace: { items: [], index: 0 },
+      external: { items: [], index: 0 }
+    };
 
     function resolveApiUrl(pathname) {
       if (/^https?:\/\//i.test(window.location.href)) return pathname;
@@ -505,6 +699,8 @@
       const q = profile.query;
       const href = `./equipment_intelligence_tool.html?name=${encodeURIComponent(q.name)}&brand=${encodeURIComponent(q.brand)}&model=${encodeURIComponent(q.model)}&type=${encodeURIComponent(q.type)}&actualDailyKwh=${encodeURIComponent(profile.actualDailyKwh)}`;
       document.getElementById('openCompareLink').href = href;
+      const intelligenceLink = document.getElementById('openIntelligenceLink');
+      if (intelligenceLink) intelligenceLink.href = href;
     }
 
     function renderPowerBreakdown(profile) {
@@ -630,6 +826,51 @@
       `;
     }
 
+    function renderAlternativesRepeater(target, profile) {
+      const container = target === 'marketplace'
+        ? document.getElementById('marketplaceAlternatives')
+        : document.getElementById('externalAlternatives');
+      if (!container) return;
+      const state = alternativesRepeaterState[target];
+      const items = Array.isArray(state.items) ? state.items : [];
+      if (!items.length) {
+        container.innerHTML = target === 'marketplace'
+          ? '<div class="alt-empty">No direct marketplace alternatives found for this profile yet.</div>'
+          : '<div class="alt-empty">No external alternatives matched this profile yet.</div>';
+        return;
+      }
+
+      state.index = Math.max(0, Math.min(state.index, items.length - 1));
+      const active = items[state.index];
+      const card = createAlternativeCard(active, target === 'marketplace' ? 'marketplace' : 'external');
+      const nav = items.length > 1 ? `
+        <div class="alt-repeater-nav">
+          <div class="alt-repeater-counter">Option ${state.index + 1} of ${items.length}</div>
+          <div class="alt-repeater-controls">
+            <button class="alt-repeater-btn" type="button" data-alt-nav="${target}" data-step="-1" ${state.index === 0 ? 'disabled' : ''}>Prev</button>
+            <button class="alt-repeater-btn" type="button" data-alt-nav="${target}" data-step="1" ${state.index === items.length - 1 ? 'disabled' : ''}>Next</button>
+          </div>
+        </div>
+      ` : '<div class="alt-repeater-counter" style="margin-top:8px">1 option available</div>';
+      container.innerHTML = card + nav;
+
+      container.querySelectorAll('button[data-alt-nav]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const step = Number(button.getAttribute('data-step') || 0);
+          const key = button.getAttribute('data-alt-nav');
+          if (!key || !alternativesRepeaterState[key]) return;
+          alternativesRepeaterState[key].index += step;
+          renderAlternativesRepeater(key, profile);
+        });
+      });
+
+      if (target === 'external') {
+        container.querySelectorAll('button[data-intake-name]').forEach((button) => {
+          button.addEventListener('click', () => submitIntakeSuggestion(button, profile));
+        });
+      }
+    }
+
     async function submitIntakeSuggestion(button, activeProfile) {
       if (!button) return;
       button.disabled = true;
@@ -687,18 +928,12 @@
 
         const marketplaceItems = Array.isArray(payload.marketplaceMatches) ? payload.marketplaceMatches : [];
         const externalItems = Array.isArray(payload.externalAlternatives) ? payload.externalAlternatives : [];
-
-        marketplaceContainer.innerHTML = marketplaceItems.length
-          ? marketplaceItems.map((item) => createAlternativeCard(item, 'marketplace')).join('')
-          : '<div class="alt-empty">No direct marketplace alternatives found for this profile yet.</div>';
-
-        externalContainer.innerHTML = externalItems.length
-          ? externalItems.map((item) => createAlternativeCard(item, 'external')).join('')
-          : '<div class="alt-empty">No external alternatives matched this profile yet.</div>';
-
-        externalContainer.querySelectorAll('button[data-intake-name]').forEach((button) => {
-          button.addEventListener('click', () => submitIntakeSuggestion(button, profile));
-        });
+        alternativesRepeaterState.marketplace.items = marketplaceItems;
+        alternativesRepeaterState.external.items = externalItems;
+        alternativesRepeaterState.marketplace.index = 0;
+        alternativesRepeaterState.external.index = 0;
+        renderAlternativesRepeater('marketplace', profile);
+        renderAlternativesRepeater('external', profile);
       } catch (error) {
         marketplaceContainer.innerHTML = `<div class="alt-empty">${error.message}</div>`;
         externalContainer.innerHTML = '<div class="alt-empty">Could not load external alternatives right now.</div>';
@@ -1054,7 +1289,9 @@
 
     restoreCustomProfile();
     renderIncomingComparisonContext();
-    setProfile('fridge');
+    loadWokInventory().finally(() => {
+      if (!wokBootstrapped) setProfile('fridge');
+    });
     document.querySelectorAll('.range-btn[data-horizon]').forEach((button) => {
       button.addEventListener('click', () => {
         document.querySelectorAll('.range-btn[data-horizon]').forEach((b) => b.classList.remove('active'));
