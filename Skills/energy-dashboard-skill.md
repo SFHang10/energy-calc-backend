@@ -10,7 +10,7 @@
 
 Use this skill when working on:
 
-- `HTMLS GWM GWB/Greenways Interface .html`
+- `HTMLS GWM GWB/Greenways Interface .html` (equipment grid merges **`wok-to-walk-equipment-list.json`** into category groups; chips + “More in this group” dropdown when a group exceeds **6** items; venue rows use `restaurant-equipment-deep-dive` + `equipment_intelligence_tool` links)
 - `HTMLS GWM GWB/utility-detail.html`
 - `HTMLS GWM GWB/restaurant-equipment-deep-dive.html`
 - `HTMLS GWM GWB/equipment_intelligence_tool.html`
@@ -188,6 +188,13 @@ When this skill is used, provide:
 
 - Per-slug real deep-dive profiles (replace synthetic `buildWokProfile`).
 - Confidence badge on deep-dive cards; bill-rate strip + persistence (earlier roadmap).
+
+**2026-05-02 (addendum) — Main dashboard equipment tab**
+
+- `Greenways Interface .html` loads the same slim venue JSON and **appends** rows into `equipmentGroups` by `equipmentIntelligenceType` → group id (`ovens`, `cold`, `hvac`, `lighting`, `ops`).
+- Instance bar: **6** `instance-chip` buttons max; overflow in **`#equipInstanceSelect`**; hint when selection is in overflow.
+- **Gas Wok Burner** demo photo corrected (was HVAC); **Ice Machine** demo photo corrected; `wokPhotoForItem()` maps names to existing `Product Comparison` / `product-placement` assets; detail image **`onerror`** falls back to generic fridge webp.
+- Venue appliance **Open Deep Dive** → `restaurant-equipment-deep-dive.html?site=wok-to-walk&wok=<slug>`; **View Marketplace Option** → prefilled `equipment_intelligence_tool.html` for Wok rows.
 
 ---
 

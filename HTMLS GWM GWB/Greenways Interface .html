@@ -10,11 +10,11 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg-base: #050e09;
-    --bg-surface: #0a1a10;
-    --bg-card: #0c1e14;
-    --bg-card2: #0e2416;
-    --bg-hover: #152c1c;
+    --bg-base: #07140d;
+    --bg-surface: #102418;
+    --bg-card: #132b1d;
+    --bg-card2: #173421;
+    --bg-hover: #1d3a28;
     --accent-green: #00f582;
     --accent-green-dim: #00d470;
     --accent-green-glow: rgba(0,245,130,0.14);
@@ -57,7 +57,8 @@
     background-size: cover, cover, cover;
     background-position: center, center, center;
     background-repeat: no-repeat;
-    opacity: 0.52;
+    opacity: 0.46;
+    filter: brightness(1.1);
   }
 
   /* ─── Layout ─── */
@@ -955,9 +956,37 @@
   }
 
   .instance-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 10px;
+    align-items: center;
+  }
+
+  .instance-more-row {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .instance-more-row select {
+    flex: 1;
+    min-width: 200px;
+    max-width: 360px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-card2);
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+
+  .instance-overflow-hint {
+    display: none;
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--accent-green);
   }
 
   .instance-chip {
@@ -1719,6 +1748,11 @@
         </div>
 
         <div class="instance-list" id="equipInstances"></div>
+        <div class="instance-overflow-hint" id="equipInstanceOverflowHint"></div>
+        <div class="instance-more-row" id="equipInstanceMore">
+          <label for="equipInstanceSelect" style="font-size:12px;color:var(--text-muted)">More in this group</label>
+          <select id="equipInstanceSelect" aria-label="More equipment in group"></select>
+        </div>
 
         <div class="detail-stat-row" id="detailStats">
           <div class="detail-stat"><div class="detail-stat-label">Current Draw</div><div class="detail-stat-value">—</div></div>
@@ -2195,7 +2229,7 @@ const equipmentGroups = [
     cat: 'kitchen',
     selected: true,
     appliances: [
-      { id: 'ov1', name: 'Gas Wok Burner', watts: '7.2 kW eq', today: '23.6 kWh', cost: '€49/mo', status: 'Running', photo: './Product%20Comparison/HVAC/OIP.jpeg', replacement: 'High-efficiency wok range with staged burners', save: 'Estimated save: €29/mo · 19% lower fuel draw', replacementMonthlyCost: 36, replacementCapexEur: 2350 },
+      { id: 'ov1', name: 'Gas Wok Burner', watts: '7.2 kW eq', today: '23.6 kWh', cost: '€49/mo', status: 'Running', photo: './Product%20Comparison/Restuarants/Oven/Convectional/ETL%20Oven.jpeg', replacement: 'High-efficiency wok range with staged burners', save: 'Estimated save: €29/mo · 19% lower fuel draw', replacementMonthlyCost: 36, replacementCapexEur: 2350 },
       { id: 'ov2', name: 'Wok Range (2 Ring)', watts: '9.4 kW eq', today: '28.1 kWh', cost: '€57/mo', status: 'Running', photo: './Product%20Comparison/f2ziDg_o5uO8IByj_edited_edited.png', replacement: 'Condensing wok range package', save: 'Estimated save: €34/mo · 22% lower fuel draw', replacementMonthlyCost: 43, replacementCapexEur: 3120 },
       { id: 'ov3', name: 'Combi Oven Line 1', watts: '6.8 kW', today: '19.2 kWh', cost: '€42/mo', status: 'Running', photo: './Product%20Comparison/Restuarants/Oven/Combi/Hobart%20Oven%20(17).jpeg', replacement: 'Rational iCombi Pro XS', save: 'Estimated save: €34/mo · 22% lower draw', replacementMonthlyCost: 30, replacementCapexEur: 2150 },
       { id: 'ov4', name: 'Convection Oven Line 2', watts: '5.1 kW', today: '15.4 kWh', cost: '€31/mo', status: 'Pre-heating', photo: './Product%20Comparison/Restuarants/Oven/Convectional/Standard%20Convection%20.jpg', replacement: 'Electrolux SkyLine Premium', save: 'Estimated save: €26/mo · 18% lower draw', deepDiveProductId: 'electrolux-skyline-premium', replacementMonthlyCost: 24, replacementCapexEur: 1780 },
@@ -2251,11 +2285,99 @@ const equipmentGroups = [
       { id: 'op1', name: 'Hood-Type Dishwasher', watts: '4.2 kW', today: '13.9 kWh', cost: '€22/mo', status: 'Running', photo: './Product%20Comparison/Restuarants/Oven/Hood%20Type%20Dishwasher/ETL%20Image_Product_Winterhalter_PT-L_1200x1200_JPG_01.jpg', replacement: 'Heat-recovery hood dishwasher', save: 'Estimated save: €15/mo · 19% lower draw', replacementMonthlyCost: 14, replacementCapexEur: 1960 },
       { id: 'op2', name: 'Glasswasher', watts: '1.1 kW', today: '6.4 kWh', cost: '€8/mo', status: 'Running', photo: './Product%20Comparison/Restuarants/Oven/Hood%20Type%20Dishwasher/Standard%20Hood%20OIP.jpeg', replacement: 'Eco-cycle glasswasher', save: 'Estimated save: €4/mo · 14% lower draw', replacementMonthlyCost: 6, replacementCapexEur: 760 },
       { id: 'op3', name: 'Commercial Coffee Machine', watts: '2.0 kW', today: '7.1 kWh', cost: '€10/mo', status: 'Idle', photo: './Product%20Comparison/S9193-COVER-NEW_edited.png', replacement: 'High-efficiency dual boiler coffee unit', save: 'Estimated save: €5/mo · 13% lower draw', replacementMonthlyCost: 7, replacementCapexEur: 1180 },
-      { id: 'op4', name: 'Ice Machine', watts: '0.9 kW', today: '5.8 kWh', cost: '€7/mo', status: 'Running', photo: './Product%20Comparison/architectui-free-react-admin-dashboard.jpg', replacement: 'Variable-cycle ice maker', save: 'Estimated save: €4/mo · 15% lower draw', replacementMonthlyCost: 5, replacementCapexEur: 690 },
+      { id: 'op4', name: 'Ice Machine', watts: '0.9 kW', today: '5.8 kWh', cost: '€7/mo', status: 'Running', photo: './Product%20Comparison/Restuarants/Oven/Refrigerator/ETL.jpeg', replacement: 'Variable-cycle ice maker', save: 'Estimated save: €4/mo · 15% lower draw', replacementMonthlyCost: 5, replacementCapexEur: 690 },
       { id: 'op5', name: 'Gas Water Heater', watts: '3.8 kW eq', today: '14.6 kWh', cost: '€19/mo', status: 'Running', photo: './Product%20Comparison/HVAC/HPMinMaxHomeHeatLoad_NEEP-PNNL_4-26-24_1.jpg', replacement: 'Condensing gas water heater', save: 'Estimated save: €12/mo · 18% lower fuel draw', replacementMonthlyCost: 13, replacementCapexEur: 1650 }
     ]
   }
 ];
+
+const INSTANCE_CHIPS_MAX = 6;
+const WOK_LIST_URL = 'data/restaurant-assets/wok-to-walk-equipment-list.json';
+
+function wokInventoryJsonUrl() {
+  if (window.location.protocol === 'file:') return `http://localhost:4000/${WOK_LIST_URL}`;
+  return `${window.location.origin}/${WOK_LIST_URL}`;
+}
+
+function mapWokItemToEquipmentGroupId(item) {
+  const t = item.equipmentIntelligenceType || '';
+  if (t === 'cooking') return 'ovens';
+  if (t === 'refrigeration') return 'cold';
+  if (t === 'hvac') return 'hvac';
+  if (t === 'lighting') return 'lighting';
+  if (t === 'warewashing' || t === 'misc' || t === 'laundry' || t === 'restroom' || t === 'other' || t === 'comfort_heat') return 'ops';
+  return 'ops';
+}
+
+function wokPhotoForItem(item) {
+  const n = String(item.name || '').toLowerCase();
+  const dish = './Product%20Comparison/Restuarants/Oven/Hood%20Type%20Dishwasher/ETL%20Image_Product_Winterhalter_PT-L_1200x1200_JPG_01.jpg';
+  const fridge = './Product%20Comparison/hotpoint-undercounter-fridge-or-silver-or-rla36g1__79125%20(1).jpg';
+  const freezer = './Product%20Comparison/Restuarants/Oven/Refrigerator/ETL.jpeg';
+  const cook = './Product%20Comparison/Restuarants/Oven/Convectional/ETL%20Oven.jpeg';
+  const fry = './Product%20Comparison/f2ziDg_o5uO8IByj.jpeg';
+  const coffee = './Product%20Comparison/S9193-COVER-NEW_edited.png';
+  const hvac = './Product%20Comparison/HVAC/Fig1_HTML.png';
+  const light = './Product%20Comparison/Dashboard/Banner-Snapshot-Group-1920x1080-1.png';
+  const water = '../product-placement/BFC%20Water%20Heater.jpg';
+  const generic = './Product%20Comparison/Restuarants/Oven/Refrigerator/Stanadard.webp';
+
+  if (/dishwasher|glass\s*wash/.test(n)) return dish;
+  if (/ice\s*(machine|maker)|ice\s*cold/.test(n)) return freezer;
+  if (/tap|water\s*chiller|dispenser/.test(n)) return water;
+  if (/freezer|blast/.test(n)) return freezer;
+  if (/fridge|cooler|glass\s*fridge|chiller/.test(n)) return fridge;
+  if (/fryer|deep\s*fry/.test(n)) return fry;
+  if (/wok|burner|range|griddle|plancha|combi|convection|oven|rice|induction|cooker|kettle/.test(n)) return cook;
+  if (/coffee|milkshake/.test(n)) return coffee;
+  if (/ac\s|hvac|vent|extraction|make-up|canopy/.test(n)) return hvac;
+  if (/light|board|advertising|signage/.test(n)) return light;
+  if (/washer|dryer|laundry/.test(n)) return generic;
+  if (/hand\s*dryer|restroom/.test(n)) return './Product%20Comparison/Dashboard/1_rQ3d_dKG7V2JhX8SrUjs6g.png';
+  if (/heater/.test(n)) return hvac;
+  return generic;
+}
+
+function wokApplianceFromInventory(item, seed) {
+  const gas = Array.isArray(item.utilities) && item.utilities.includes('gas');
+  const kW = gas ? (5.5 + (seed % 5) * 0.4) : (0.8 + (seed % 12) * 0.35);
+  const today = `${14 + (seed % 12)}.${(seed % 8) + 1} kWh`;
+  const costN = 7 + (seed % 18);
+  return {
+    id: `wok-${item.id}`,
+    name: item.name,
+    watts: gas ? `${kW.toFixed(1)} kW eq` : `${kW.toFixed(1)} kW`,
+    today,
+    cost: `€${costN}/mo`,
+    status: 'Running',
+    photo: wokPhotoForItem(item),
+    replacement: 'Review Greenways marketplace + external alternatives (Equipment Deep Dive)',
+    save: 'Open Deep Dive for savings scenarios and intake suggestions',
+    replacementMonthlyCost: Math.max(4, Math.round(costN * 0.72)),
+    replacementCapexEur: 1100 + seed * 75,
+    wokSlug: item.slug,
+    fromVenueList: true
+  };
+}
+
+async function mergeWokVenueInventory() {
+  try {
+    const res = await fetch(wokInventoryJsonUrl(), { cache: 'no-store' });
+    if (!res.ok) return;
+    const data = await res.json();
+    const list = Array.isArray(data.equipment) ? data.equipment : [];
+    list.forEach((item, idx) => {
+      const gid = mapWokItemToEquipmentGroupId(item);
+      const group = equipmentGroups.find(g => g.id === gid);
+      if (!group) return;
+      const exists = group.appliances.some(a => a.wokSlug === item.slug || a.id === `wok-${item.id}`);
+      if (exists) return;
+      group.appliances.push(wokApplianceFromInventory(item, idx));
+    });
+  } catch (e) {
+    console.warn('Venue equipment list not merged (serve dashboard via http://localhost:4000):', e.message);
+  }
+}
 
 let miniChartInst = null;
 let selectedCategory = 'all';
@@ -2303,8 +2425,16 @@ function updateSelectedCount() {
 
 function renderApplianceInstances(group) {
   const wrap = document.getElementById('equipInstances');
+  const moreRow = document.getElementById('equipInstanceMore');
+  const select = document.getElementById('equipInstanceSelect');
+  const hint = document.getElementById('equipInstanceOverflowHint');
+  if (!wrap) return;
   wrap.innerHTML = '';
-  group.appliances.forEach(app => {
+  const apps = group.appliances || [];
+  const visible = apps.slice(0, INSTANCE_CHIPS_MAX);
+  const overflow = apps.slice(INSTANCE_CHIPS_MAX);
+
+  visible.forEach(app => {
     const chip = document.createElement('button');
     chip.type = 'button';
     chip.className = 'instance-chip' + (app.id === selectedApplianceId ? ' active' : '');
@@ -2316,6 +2446,39 @@ function renderApplianceInstances(group) {
     });
     wrap.appendChild(chip);
   });
+
+  if (moreRow && select) {
+    if (overflow.length) {
+      moreRow.style.display = 'flex';
+      select.innerHTML = '<option value="">More in this group…</option>' +
+        overflow.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+      select.onchange = () => {
+        const id = select.value;
+        if (!id) return;
+        const app = apps.find(a => a.id === id);
+        if (app) {
+          selectedApplianceId = app.id;
+          renderApplianceInstances(group);
+          showEquipDetail(group, app);
+        }
+        select.value = '';
+      };
+    } else {
+      moreRow.style.display = 'none';
+      select.innerHTML = '';
+    }
+  }
+
+  if (hint) {
+    const selApp = apps.find(a => a.id === selectedApplianceId);
+    if (selApp && overflow.some(a => a.id === selApp.id)) {
+      hint.style.display = 'block';
+      hint.textContent = `Selected: ${selApp.name} (use “More in this group” to switch)`;
+    } else {
+      hint.style.display = 'none';
+      hint.textContent = '';
+    }
+  }
 }
 
 function showEquipDetail(group, app) {
@@ -2323,8 +2486,13 @@ function showEquipDetail(group, app) {
   document.getElementById('detailName').textContent = app.name;
   document.getElementById('detailCat').textContent = `${group.title} · ${app.status}`;
   document.getElementById('detailGroupMeta').textContent = `${group.appliances.length} appliances in this group · benchmarked against Greenways marketplace alternatives`;
-  document.getElementById('detailImage').src = app.photo;
-  document.getElementById('detailImage').alt = app.name;
+  const detailImg = document.getElementById('detailImage');
+  detailImg.onerror = function () {
+    this.onerror = null;
+    this.src = './Product%20Comparison/Restuarants/Oven/Refrigerator/Stanadard.webp';
+  };
+  detailImg.src = app.photo;
+  detailImg.alt = app.name;
   document.getElementById('detailStats').innerHTML = `
     <div class="detail-stat"><div class="detail-stat-label">Current Draw</div><div class="detail-stat-value">${app.watts}</div></div>
     <div class="detail-stat"><div class="detail-stat-label">Today Total</div><div class="detail-stat-value">${app.today}</div></div>
@@ -2334,11 +2502,19 @@ function showEquipDetail(group, app) {
   const deepDiveLink = document.getElementById('deepDiveLink');
   const marketplaceLink = document.getElementById('marketplaceLink');
   if (deepDiveLink) {
-    const productId = app.deepDiveProductId || '';
-    deepDiveLink.href = productId ? `./Product%20Deep%20Dive.html?id=${encodeURIComponent(productId)}` : './Product%20Deep%20Dive.html';
+    if (app.wokSlug) {
+      deepDiveLink.href = `./restaurant-equipment-deep-dive.html?site=wok-to-walk&wok=${encodeURIComponent(app.wokSlug)}`;
+    } else {
+      const productId = app.deepDiveProductId || '';
+      deepDiveLink.href = productId ? `./Product%20Deep%20Dive.html?id=${encodeURIComponent(productId)}` : './Product%20Deep%20Dive.html';
+    }
   }
   if (marketplaceLink) {
-    marketplaceLink.href = `./product-page-v2-marketplace-v2-enhanced.html?focus=${encodeURIComponent(app.replacement || app.name)}`;
+    if (app.fromVenueList && app.name) {
+      marketplaceLink.href = `./equipment_intelligence_tool.html?name=${encodeURIComponent(app.name)}&brand=${encodeURIComponent('Wok To Walk')}`;
+    } else {
+      marketplaceLink.href = `./product-page-v2-marketplace-v2-enhanced.html?focus=${encodeURIComponent(app.replacement || app.name)}`;
+    }
   }
   updateComparisonCard(app);
   updatePriorityQueue();
@@ -2944,13 +3120,17 @@ window.GreenwaysDashboard = {
   useHttpFeed: (endpoint, authToken = '') => dashboardRuntime.setConnector(new HttpConnector(endpoint, authToken))
 };
 
-renderEquipGrid();
-updateSelectedCount();
-updateSavingsPipeline();
-selectedGroupId = equipmentGroups[0].id;
-selectedApplianceId = equipmentGroups[0].appliances[0].id;
-renderApplianceInstances(equipmentGroups[0]);
-showEquipDetail(equipmentGroups[0], equipmentGroups[0].appliances[0]);
+(async function bootEquipmentDashboard() {
+  await mergeWokVenueInventory();
+  renderEquipGrid();
+  updateSelectedCount();
+  updateSavingsPipeline();
+  selectedGroupId = equipmentGroups[0].id;
+  selectedApplianceId = equipmentGroups[0].appliances[0].id;
+  renderApplianceInstances(equipmentGroups[0]);
+  showEquipDetail(equipmentGroups[0], equipmentGroups[0].appliances[0]);
+})();
+
 initComparisonHorizon();
 initExportActions();
 initGreenTableEmbed();
