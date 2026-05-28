@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>What's On — Live Music Finder</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font: 'Space Grotesk', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      --hub-max: min(1200px, calc(100vw - 40px));
+      --hub-backdrop-image: url("https://static.wixstatic.com/media/c123de_538ebcd0cb8744009c22d5676cb8a5da~mv2.jpg");
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #020408;
+      color: #e8f0f8;
+      font-family: var(--font);
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding: 40px 0 64px;
+      position: relative;
+    }
+    .hub-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(180deg, rgba(2, 5, 12, 0.82) 0%, rgba(0, 2, 6, 0.9) 100%),
+        var(--hub-backdrop-image);
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.5) saturate(1.05);
+    }
+    .wrap { max-width: var(--hub-max); margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+    .nav-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+      margin-bottom: 28px;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    .nav-row a { color: #7ec8ff; text-decoration: none; }
+    .nav-row a:hover { text-decoration: underline; }
+    .header { text-align: center; margin-bottom: 32px; }
+    .header-eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: #8a949e;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .header-title {
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #fff;
+      text-shadow: 0 4px 24px rgba(0, 0, 0, 0.8);
+    }
+    .header-title span { color: #ff8c1a; }
+    .header-sub {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #6d7885;
+      margin-top: 12px;
+      letter-spacing: 0.06em;
+    }
+    .meta-bar {
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 24px;
+    }
+    .meta-bar strong { color: #aaa; }
+    .err-banner {
+      background: rgba(120, 30, 30, 0.35);
+      border: 1px solid rgba(255, 100, 100, 0.35);
+      color: #faa;
+      padding: 14px 18px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      display: none;
+    }
+    .ticker-embed-wrap {
+      border: 1px solid #1a1a1a;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 32px;
+      background: #000;
+    }
+    .ticker-embed-wrap iframe {
+      display: block;
+      width: 100%;
+      height: 112px;
+      border: 0;
+    }
+    .control-card {
+      background: rgba(4, 8, 14, 0.85);
+      border: 1px solid #1a1a1a;
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 28px;
+      backdrop-filter: blur(10px);
+    }
+    .search-input {
+      width: 100%;
+      height: 48px;
+      padding: 0 16px;
+      border-radius: 8px;
+      border: 1px solid #222;
+      background: #0a0a0a;
+      color: #e8f0f8;
+      font-family: var(--font);
+      font-size: 15px;
+    }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .pill {
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: 1px solid #2a2a2a;
+      background: #0a0a0a;
+      color: #888;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .pill.active {
+      border-color: #4da6ff55;
+      color: #4da6ff;
+      background: rgba(77, 166, 255, 0.1);
+    }
+    .pill.gigs.active {
+      border-color: #ff8c1a55;
+      color: #ff8c1a;
+      background: rgba(255, 140, 26, 0.1);
+    }
+    .section-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #555;
+      margin: 28px 0 14px;
+    }
+    .highlights {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .hi-card {
+      border-radius: 10px;
+      padding: 18px 20px;
+      background: #040d1a;
+      border: 1px solid #4da6ff22;
+      border-top: 2px solid #4da6ff;
+    }
+    .hi-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; color: #fff; }
+    .hi-card p { font-size: 13px; line-height: 1.5; color: #4da6ff99; margin-bottom: 12px; font-family: var(--mono); }
+    .hi-card a { font-family: var(--mono); font-size: 12px; color: #7ec8ff; text-decoration: none; }
+    .hi-card a:hover { text-decoration: underline; }
+    .event-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .event-card {
+      border-radius: 10px;
+      padding: 18px 20px;
+      background: rgba(8, 8, 8, 0.9);
+      border: 1px solid #1a1a1a;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.12s;
+    }
+    .event-card:hover {
+      border-color: rgba(77, 166, 255, 0.35);
+      transform: translateY(-1px);
+    }
+    .event-card.cat-gigs:hover { border-color: rgba(255, 140, 26, 0.35); }
+    .event-card .ec-date {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 3px;
+      display: inline-block;
+      margin-bottom: 10px;
+      background: #0a1f3a;
+      color: #4da6ff;
+      border: 1px solid #4da6ff33;
+    }
+    .event-card.cat-gigs .ec-date {
+      background: #2a1500;
+      color: #ff8c1a;
+      border-color: #ff8c1a33;
+    }
+    .event-card .ec-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .event-card .ec-venue { font-size: 13px; color: #888; margin-bottom: 8px; }
+    .event-card .ec-line { font-size: 12px; color: #666; line-height: 1.45; font-family: var(--mono); }
+    .event-card .ec-new {
+      display: inline-block;
+      margin-top: 10px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      color: #4da6ff;
+      text-transform: uppercase;
+    }
+    .event-card .ec-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+      align-items: center;
+    }
+    .event-card .ec-map-btn {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: #f0a03a;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(240, 160, 58, 0.45);
+      background: rgba(240, 160, 58, 0.08);
+    }
+    .event-card .ec-map-btn:hover {
+      background: rgba(240, 160, 58, 0.18);
+      color: #ffe0b0;
+    }
+    .event-card .ec-ext {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #7ec8ff;
+      text-decoration: none;
+    }
+    .event-card .ec-ext:hover { text-decoration: underline; }
+    .empty-state { text-align: center; padding: 40px; color: #555; font-size: 14px; }
+    .footer-note {
+      text-align: center;
+      margin-top: 40px;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #333;
+      letter-spacing: 0.1em;
+    }
+    .footer-note code { color: #555; }
+    html.embed-hub body { padding: 12px 0 24px; min-height: 100%; overflow-y: auto; }
+    html.embed-hub .hub-backdrop { display: none; }
+    html.embed-hub .nav-row { display: none; }
+    html.embed-hub .header { margin-bottom: 12px; }
+    html.embed-hub .header-title { font-size: clamp(22px, 3.5vw, 32px); }
+    html.embed-hub .ticker-embed-wrap iframe { height: 104px; }
+    html.embed-hub .footer-note { margin-top: 24px; }
+  </style>
+  <script>
+    (function () {
+      try {
+        if (new URLSearchParams(window.location.search).get('embed') === 'hub') {
+          document.documentElement.classList.add('embed-hub');
+        }
+      } catch (e) { /* ignore */ }
+    })();
+  </script>
+</head>
+<body>
+  <div class="hub-backdrop" aria-hidden="true"></div>
+  <div class="wrap">
+    <nav class="nav-row" aria-label="Live Music Finder">
+      <a href="./live-music-hub.html">← All tools hub</a>
+      <a href="./live-music-finder.html">Live jam map</a>
+      <a href="./live-events-ticker.html">Full ticker</a>
+    </nav>
+
+    <header class="header">
+      <p class="header-eyebrow">Amsterdam · curated &amp; sourced</p>
+      <h1 class="header-title">What's <span>On</span></h1>
+      <p class="header-sub">Open mics, jams, gigs &amp; festivals — verify dates on the source link</p>
+    </header>
+
+    <p class="meta-bar" id="metaBar"><span>Loading feed…</span></p>
+    <div id="errBox" class="err-banner"></div>
+
+    <div class="ticker-embed-wrap">
+      <iframe src="./live-events-ticker.html?embed=1" title="Live music events ticker" loading="lazy"></iframe>
+    </div>
+
+    <div class="control-card">
+      <input type="search" class="search-input" id="eventSearch" placeholder="Search title, venue, tags…" autocomplete="off">
+      <div class="pill-row" id="categoryPills">
+        <button type="button" class="pill active" data-cat="all">All</button>
+        <button type="button" class="pill" data-cat="jams">Open mic &amp; jams</button>
+        <button type="button" class="pill gigs" data-cat="gigs">Gigs &amp; festivals</button>
+      </div>
+    </div>
+
+    <p class="section-title">Quick links</p>
+    <div class="highlights" id="highlights"></div>
+
+    <p class="section-title">Browse listings</p>
+    <div class="event-grid" id="eventGrid"></div>
+    <div class="empty-state" id="emptyGrid" style="display:none">No matches — try another search or category.</div>
+
+    <p class="footer-note">Regenerate feed: <code>npm run build:live-events-feed</code> · Sources in <code>data/live-events-seeds.json</code></p>
+  </div>
+
+  <script>
+    const FEED_URLS = ['../data/live-events-feed.json', '/data/live-events-feed.json'];
+    const LANE_JAMS = new Set(['open-mic', 'open-jam', 'jazz', 'jams']);
+    const LANE_GIGS = new Set(['gigs', 'festival', 'concert']);
+
+    let FEED = { meta: {}, events: [], highlights: [] };
+    let activeCat = 'all';
+
+    function isJams(e) {
+      return LANE_JAMS.has(String(e.category || '').toLowerCase());
+    }
+
+    function escapeHtml(s) {
+      const t = document.createElement('div');
+      t.textContent = s == null ? '' : String(s);
+      return t.innerHTML;
+    }
+
+    function mapUrlForVenue(venueId) {
+      const u = new URL('./live-music-finder.html', window.location.href);
+      u.searchParams.set('venue', String(venueId));
+      return u.pathname + u.search;
+    }
+
+    function isEmbedHub() {
+      return document.documentElement.classList.contains('embed-hub');
+    }
+
+    function notifyHubMapVenue(venueId, venueName) {
+      if (!venueId || !isEmbedHub() || window.parent === window) return;
+      window.parent.postMessage({
+        type: 'live-music-select-venue',
+        venueId: Number(venueId),
+        venueName: venueName || ''
+      }, '*');
+    }
+
+    async function loadFeed() {
+      let lastErr = null;
+      for (const u of FEED_URLS) {
+        try {
+          const res = await fetch(u, { cache: 'no-store' });
+          if (!res.ok) throw new Error(res.status + ' ' + u);
+          FEED = await res.json();
+          document.getElementById('errBox').style.display = 'none';
+          return;
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+      const box = document.getElementById('errBox');
+      box.style.display = 'block';
+      box.textContent = 'Could not load live events feed. Run npm run build:live-events-feed. (' + (lastErr && lastErr.message) + ')';
+      FEED = { meta: {}, events: [], highlights: [] };
+    }
+
+    function filteredEvents() {
+      const q = (document.getElementById('eventSearch').value || '').trim().toLowerCase();
+      return (FEED.events || []).filter((e) => {
+        if (activeCat === 'jams' && !isJams(e)) return false;
+        if (activeCat === 'gigs' && isJams(e)) return false;
+        if (!q) return true;
+        const blob = [e.title, e.venue, e.line, e.desc, e.category, e.source].join(' ').toLowerCase();
+        return blob.includes(q);
+      });
+    }
+
+    function renderHighlights() {
+      const el = document.getElementById('highlights');
+      const items = FEED.highlights || [];
+      if (!items.length) {
+        el.innerHTML = '';
+        return;
+      }
+      el.innerHTML = items.map((h) =>
+        '<article class="hi-card">' +
+          '<h3>' + escapeHtml(h.title) + '</h3>' +
+          '<p>' + escapeHtml(h.line) + '</p>' +
+          (h.href ? '<a href="' + escapeHtml(h.href) + '">Open →</a>' : '') +
+        '</article>'
+      ).join('');
+    }
+
+    function renderGrid() {
+      const list = filteredEvents();
+      const grid = document.getElementById('eventGrid');
+      const empty = document.getElementById('emptyGrid');
+      if (!list.length) {
+        grid.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      grid.innerHTML = list.map((e) => {
+        const catClass = isJams(e) ? '' : ' cat-gigs';
+        const href = e.href || e.webUrl || '';
+        const mapBtn = e.venueId
+          ? (isEmbedHub()
+            ? '<a class="ec-map-btn" href="#" data-venue-id="' + escapeHtml(String(e.venueId)) + '" data-venue-name="' + escapeHtml(e.venue || e.title) + '">📍 On map below</a>'
+            : '<a class="ec-map-btn" href="' + escapeHtml(mapUrlForVenue(e.venueId)) + '">📍 On map</a>')
+          : '';
+        const extLink = href
+          ? '<a class="ec-ext" href="' + escapeHtml(href) + '" target="_blank" rel="noopener noreferrer">Source ↗</a>'
+          : '';
+        return (
+          '<article class="event-card' + catClass + '">' +
+            '<span class="ec-date">' + escapeHtml(e.date || 'TBC') + '</span>' +
+            '<div class="ec-title">' + escapeHtml(e.title) + '</div>' +
+            (e.venue ? '<div class="ec-venue">' + escapeHtml(e.venue) + '</div>' : '') +
+            '<div class="ec-line">' + escapeHtml(e.line || e.desc || '') + '</div>' +
+            (e.isNew ? '<span class="ec-new">New</span>' : '') +
+            (mapBtn || extLink ? '<div class="ec-actions">' + mapBtn + extLink + '</div>' : '') +
+          '</article>'
+        );
+      }).join('');
+    }
+
+    function updateMeta() {
+      const m = FEED.meta || {};
+      const n = (FEED.events || []).length;
+      document.getElementById('metaBar').innerHTML =
+        '<strong>' + escapeHtml(m.city || 'Amsterdam') + '</strong> · ' +
+        n + ' listings' +
+        (m.generatedAt ? ' · updated <strong>' + escapeHtml(m.generatedAt.slice(0, 10)) + '</strong>' : '');
+    }
+
+    document.getElementById('eventSearch').addEventListener('input', renderGrid);
+    document.getElementById('categoryPills').addEventListener('click', (ev) => {
+      const btn = ev.target.closest('.pill');
+      if (!btn) return;
+      document.querySelectorAll('.pill').forEach((p) => p.classList.remove('active'));
+      btn.classList.add('active');
+      activeCat = btn.getAttribute('data-cat') || 'all';
+      renderGrid();
+    });
+
+    document.getElementById('eventGrid').addEventListener('click', (e) => {
+      const mapLink = e.target.closest('[data-venue-id]');
+      if (mapLink) {
+        e.preventDefault();
+        e.stopPropagation();
+        notifyHubMapVenue(mapLink.getAttribute('data-venue-id'), mapLink.getAttribute('data-venue-name'));
+        return;
+      }
+      const ext = e.target.closest('.ec-ext');
+      if (ext) return;
+    });
+
+    (async function boot() {
+      await loadFeed();
+      updateMeta();
+      renderHighlights();
+      renderGrid();
+    })();
+  </script>
+</body>
+</html>

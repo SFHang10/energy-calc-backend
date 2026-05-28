@@ -132,6 +132,9 @@ app.use(express.static('.', {
     if (filePath.includes('product-page-v2.html') || filePath.includes('product-categories.html')) {
       return; // Don't serve via static middleware
     }
+    if (filePath.endsWith('.html') || filePath.endsWith('.htm')) {
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    }
   }
 }));
 
@@ -162,24 +165,11 @@ console.log('Loading ETL router...');
 const etlWixRouter = require('./routes/etl-wix');
 console.log('ETL router loaded successfully');
 
-// Load members router - use MongoDB if configured, otherwise SQLite
-console.log('Loading members router...');
+// Members + companies routers resolved after MongoDB ping (see bootstrapStorageRouters)
+const { bootstrapStorageRouters } = require('./database/bootstrap-storage');
 let membersRouter;
-if (process.env.USE_MONGODB === 'true' && process.env.MONGODB_URI) {
-  console.log('🍃 Using MongoDB for members...');
-  try {
-    membersRouter = require('./routes/members-mongodb');
-    console.log('✅ MongoDB members router loaded successfully');
-  } catch (error) {
-    console.error('❌ Failed to load MongoDB members router:', error.message);
-    console.log('⚠️ Falling back to SQLite members router...');
-    membersRouter = require('./routes/members');
-  }
-} else {
-  console.log('📁 Using SQLite for members...');
-  membersRouter = require('./routes/members');
-  console.log('✅ SQLite members router loaded successfully');
-}
+let companiesRouter;
+let storageBootstrap = null;
 
 console.log('Loading subscriptions router...');
 const subscriptionsRouter = require('./routes/subscriptions-simple');
@@ -200,6 +190,20 @@ try {
 console.log('Loading product widget router...');
 const productWidgetRouter = require('./routes/product-widget');
 console.log('Product widget router loaded successfully');
+
+console.log('Loading dashboard live router...');
+const dashboardLiveRouter = require('./routes/dashboard-live');
+console.log('Dashboard live router loaded successfully');
+
+console.log('Loading assistant router...');
+let assistantRouter;
+try {
+  assistantRouter = require('./routes/assistant');
+  console.log('Assistant router loaded successfully');
+} catch (error) {
+  console.error('❌ Failed to load assistant router:', error.message);
+  assistantRouter = null;
+}
 
 console.log('Loading Wix MCP integration router...');
 let wixIntegrationRouter;
@@ -224,47 +228,79 @@ try {
   schemesRouter = null;
 }
 
-// Mount routes with proper prefixes
-console.log('Mounting routes...');
-app.use('/api/products', productsRouter);
-console.log('✅ /api/products route mounted');
-app.use('/api/calculate', calculateRouter);
-console.log('✅ /api/calculate route mounted');
-app.use('/api/etl', etlWixRouter);
-console.log('✅ /api/etl route mounted');
-app.use('/api/members', membersRouter);
-console.log('✅ /api/members route mounted');
-app.use('/api/subscriptions', subscriptionsRouter);
-console.log('✅ /api/subscriptions route mounted');
-
-// Mount Wix pricing plans router only if it loaded successfully
-if (wixPricingPlansRouter) {
-  app.use('/api/wix-pricing-plans', wixPricingPlansRouter);
-  console.log('✅ /api/wix-pricing-plans route mounted');
-} else {
-  console.log('⚠️ Wix pricing plans routes not mounted due to loading error');
+console.log('Loading equipment intelligence router...');
+let equipmentIntelligenceRouter;
+try {
+  equipmentIntelligenceRouter = require('./routes/equipment-intelligence');
+  console.log('Equipment intelligence router loaded successfully');
+} catch (error) {
+  console.error('❌ Failed to load equipment intelligence router:', error.message);
+  console.error('Error details:', error);
+  equipmentIntelligenceRouter = null;
 }
 
-app.use('/api/product-widget', productWidgetRouter);
-console.log('✅ /api/product-widget route mounted');
+function mountApiRoutes() {
+  console.log('Mounting routes...');
+  app.use('/api/products', productsRouter);
+  console.log('✅ /api/products route mounted');
+  app.use('/api/calculate', calculateRouter);
+  console.log('✅ /api/calculate route mounted');
+  app.use('/api/etl', etlWixRouter);
+  console.log('✅ /api/etl route mounted');
+  app.use('/api/members', membersRouter);
+  console.log(`✅ /api/members route mounted (${storageBootstrap?.membersBackend || 'unknown'})`);
+  app.use('/api/subscriptions', subscriptionsRouter);
+  console.log('✅ /api/subscriptions route mounted');
 
-// Mount Wix integration router only if it loaded successfully
-if (wixIntegrationRouter) {
-  app.use('/api/wix', wixIntegrationRouter);
-  console.log('✅ Wix integration routes mounted successfully');
-} else {
-  console.log('⚠️ Wix integration routes not mounted due to loading error');
+  if (wixPricingPlansRouter) {
+    app.use('/api/wix-pricing-plans', wixPricingPlansRouter);
+    console.log('✅ /api/wix-pricing-plans route mounted');
+  } else {
+    console.log('⚠️ Wix pricing plans routes not mounted due to loading error');
+  }
+
+  app.use('/api/product-widget', productWidgetRouter);
+  app.use('/api/dashboard', dashboardLiveRouter);
+  if (assistantRouter) {
+    app.use('/api/assistant', assistantRouter);
+    console.log('✅ /api/assistant route mounted');
+  }
+  app.use('/api/companies', companiesRouter);
+  app.use('/api/company-updates', require('./routes/company-updates'));
+  app.use('/api/music-venues', require('./routes/music-venues'));
+  app.use('/api/music-venue-inquiries', require('./routes/music-venue-inquiries'));
+  app.use('/api/music-guide', require('./routes/music-guide'));
+  console.log(`✅ /api/companies route mounted (${storageBootstrap?.companiesBackend || 'unknown'})`);
+  console.log('✅ /api/product-widget route mounted');
+  console.log('✅ /api/dashboard route mounted');
+  console.log('✅ /api/company-updates route mounted');
+  console.log('✅ /api/music-venues route mounted');
+  console.log('✅ /api/music-venue-inquiries route mounted');
+  console.log('✅ /api/music-guide route mounted');
+
+  if (wixIntegrationRouter) {
+    app.use('/api/wix', wixIntegrationRouter);
+    console.log('✅ Wix integration routes mounted successfully');
+  } else {
+    console.log('⚠️ Wix integration routes not mounted due to loading error');
+  }
+
+  if (schemesRouter) {
+    app.use('/api/schemes', schemesRouter);
+    console.log('✅ /api/schemes route mounted (Mongo when connected, else schemes.json fallback in router)');
+  } else {
+    console.log('⚠️ Schemes routes not mounted due to loading error');
+  }
+
+  if (equipmentIntelligenceRouter) {
+    app.use('/api/equipment-intelligence', equipmentIntelligenceRouter);
+    console.log('✅ /api/equipment-intelligence route mounted');
+  } else {
+    console.log('⚠️ Equipment intelligence routes not mounted due to loading error');
+  }
+
+  console.log('All routes mounted successfully');
 }
-
-// Mount schemes router only if it loaded successfully
-if (schemesRouter) {
-  app.use('/api/schemes', schemesRouter);
-  console.log('✅ /api/schemes route mounted');
-} else {
-  console.log('⚠️ Schemes routes not mounted due to loading error');
-}
-
-console.log('All routes mounted successfully');
 
 // Direct implementation of calculator-wix routes to avoid module loading issues
 const sampleProducts = [
@@ -542,7 +578,15 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    message: 'Energy Calculator API is running'
+    message: 'Energy Calculator API is running',
+    storage: storageBootstrap
+      ? {
+          wantMongo: storageBootstrap.wantMongo,
+          mongoConnected: storageBootstrap.mongoConnected,
+          members: storageBootstrap.membersBackend,
+          companies: storageBootstrap.companiesBackend
+        }
+      : { note: 'Storage bootstrap in progress' }
   });
 });
 
@@ -780,27 +824,58 @@ app.get('/test-widget', (req, res) => {
   });
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('Error:', err.stack);
-  res.status(500).json({
-    error: 'Internal Server Error',
-    message: 'Something went wrong on the server'
-  });
-});
-
-// 404 handler for undefined routes
-app.use('*', (req, res) => {
-  res.status(404).json({
-    error: 'Route not found',
-    message: `The route ${req.originalUrl} does not exist`
-  });
-});
-
 const PORT = process.env.PORT || 4000;
 
-app.listen(PORT, () => {
+function registerErrorHandlers() {
+  app.use((err, req, res, next) => {
+    console.error('Error:', err.stack);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Something went wrong on the server'
+    });
+  });
+
+  app.use('*', (req, res) => {
+    res.status(404).json({
+      error: 'Route not found',
+      message: `The route ${req.originalUrl} does not exist`
+    });
+  });
+}
+
+async function startServer() {
+  try {
+    storageBootstrap = await bootstrapStorageRouters();
+    membersRouter = storageBootstrap.membersRouter;
+    companiesRouter = storageBootstrap.companiesRouter;
+    mountApiRoutes();
+    registerErrorHandlers();
+  } catch (error) {
+    console.error('❌ Storage bootstrap failed:', error.message);
+    console.log('⚠️ Emergency fallback: SQLite members + JSON companies');
+    storageBootstrap = {
+      wantMongo: wantsMongoFromEnv(),
+      mongoConnected: false,
+      membersBackend: 'sqlite-emergency',
+      companiesBackend: 'json-emergency'
+    };
+    membersRouter = require('./routes/members');
+    companiesRouter = require('./routes/companies');
+    mountApiRoutes();
+    registerErrorHandlers();
+  }
+
+  app.listen(PORT, () => {
   console.log(`🚀 Energy Calculator API (NEW) running on port ${PORT}`);
+  if (storageBootstrap) {
+    const mode = storageBootstrap.mongoConnected
+      ? 'MongoDB (production path)'
+      : storageBootstrap.wantMongo
+        ? 'SQLite/JSON fallback (MongoDB configured but not connected)'
+        : 'SQLite/JSON (local default)';
+    console.log(`📦 Active storage: ${mode}`);
+    console.log(`   Members → ${storageBootstrap.membersBackend} · Companies → ${storageBootstrap.companiesBackend}`);
+  }
   console.log(`🔗 Available endpoints:`);
   console.log(`   - GET /health (health check)`);
   console.log(`   - GET /test (test endpoint)`);
@@ -826,6 +901,7 @@ app.listen(PORT, () => {
   console.log(`   - GET /api/product-widget/:productId (product widget data)`);
   console.log(`   - GET /api/product-widget/compare/:productId (product comparison)`);
   console.log(`   - POST /api/product-widget/calculate (custom calculation)`);
+  console.log(`   - GET /api/dashboard/live (dashboard smart meter feed contract)`);
   console.log(`   - GET /product-energy-widget.html (widget HTML)`);
   console.log(`   - GET /product-energy-widget (widget HTML without .html)`);
   console.log(`   - GET /test-widget (widget test endpoint)`);
@@ -839,4 +915,14 @@ app.listen(PORT, () => {
     console.log(`   - POST /api/wix/content-update (Update Wix content)`);
     console.log(`   - GET /api/wix/recommendations/:wixUserId (Get recommendations)`);
   }
+  });
+}
+
+function wantsMongoFromEnv() {
+  return process.env.USE_MONGODB === 'true' && Boolean(process.env.MONGODB_URI);
+}
+
+startServer().catch((error) => {
+  console.error('❌ Server failed to start:', error);
+  process.exit(1);
 });

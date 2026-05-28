@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Amsterdam Live Music Ticker</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font: 'Space Grotesk', sans-serif;
+    --font-clean: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --events-ticker-backdrop-image: url("https://static.wixstatic.com/media/c123de_538ebcd0cb8744009c22d5676cb8a5da~mv2.jpg");
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #020408;
+    color: #fff;
+    font-family: var(--font);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 48px 0;
+    position: relative;
+  }
+  body.ticker-has-back::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(180deg, rgba(2, 5, 12, 0.76) 0%, rgba(1, 3, 8, 0.82) 42%, rgba(0, 2, 6, 0.88) 100%),
+      radial-gradient(ellipse 95% 65% at 50% 38%, rgba(0, 30, 55, 0.22), transparent 62%),
+      var(--events-ticker-backdrop-image);
+    background-size: cover, cover, cover;
+    background-position: center, center, center;
+    background-repeat: no-repeat;
+    filter: brightness(0.55) saturate(1.06) contrast(1.06);
+  }
+  html.ticker-embed body.ticker-has-back::before { display: none; }
+  body.ticker-has-back > :not(.ticker-back-bar) { position: relative; z-index: 1; }
+  .header { text-align: center; margin-bottom: 48px; position: relative; }
+  .header-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: #8a949e;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.75);
+  }
+  .header-title {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: #fff;
+    text-shadow: 0 4px 28px rgba(0, 0, 0, 0.82), 0 1px 2px rgba(0, 0, 0, 0.9);
+  }
+  .header-title span { color: #ff8c1a; }
+  .header-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #6d7885;
+    margin-top: 10px;
+    letter-spacing: 0.1em;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.75);
+  }
+  .feed-err {
+    max-width: 720px;
+    margin: 0 auto 20px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: rgba(120, 30, 30, 0.35);
+    border: 1px solid rgba(255, 100, 100, 0.35);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #faa;
+    display: none;
+  }
+  .ticker-container { width: 100vw; display: flex; flex-direction: column; gap: 0; }
+  .ticker-row {
+    display: flex;
+    align-items: stretch;
+    height: 52px;
+    border-top: 1px solid #1a1a1a;
+    border-bottom: 1px solid #1a1a1a;
+    overflow: hidden;
+    position: relative;
+  }
+  .ticker-row + .ticker-row { border-top: none; margin-top: 2px; }
+  html:not(.ticker-embed) .ticker-row {
+    background: rgba(4, 8, 14, 0.72);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  html:not(.ticker-embed) .label-events,
+  html:not(.ticker-embed) .label-catering { background: rgba(0, 0, 0, 0.82); }
+  .ticker-label {
+    flex-shrink: 0;
+    width: 230px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 20px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-right: 1px solid #1a1a1a;
+    z-index: 2;
+    position: relative;
+  }
+  .label-events { background: #000; color: #4da6ff; border-right-color: #4da6ff22; }
+  .label-catering { background: #000; color: #ff8c1a; border-right-color: #ff8c1a22; }
+  .label-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
+  .dot-events { background: #4da6ff; }
+  .dot-catering { background: #ff8c1a; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+  .ticker-track-outer { flex: 1; overflow: hidden; position: relative; }
+  .ticker-track-outer::before,
+  .ticker-track-outer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 60px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .ticker-track-outer::before { left: 0; background: linear-gradient(to right, #000, transparent); }
+  .ticker-track-outer::after { right: 0; background: linear-gradient(to left, #000, transparent); }
+  html:not(.ticker-embed) .ticker-track-outer::before { background: linear-gradient(to right, rgba(4, 8, 14, 0.98), transparent); }
+  html:not(.ticker-embed) .ticker-track-outer::after { background: linear-gradient(to left, rgba(4, 8, 14, 0.98), transparent); }
+  .ticker-track { display: flex; white-space: nowrap; height: 100%; align-items: center; }
+  .ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 28px;
+    height: 100%;
+    border-right: 1px solid #111;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .ticker-item:hover { background: #ffffff08; }
+  .ticker-item.selected-event { background: #0a1f3a; }
+  .ticker-item.selected-catering { background: #1a0900; }
+  .item-date {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .date-events { background: #0a1f3a; color: #4da6ff; border: 1px solid #4da6ff33; }
+  .date-catering { background: #2a1500; color: #ff8c1a; border: 1px solid #ff8c1a33; }
+  .item-name { font-size: 13px; font-weight: 400; color: #ccc; letter-spacing: 0.01em; }
+  .divider { color: #222; font-size: 18px; padding: 0 4px; flex-shrink: 0; }
+  .ticker-hint {
+    width: 100%;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: #333;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+  .status-bar {
+    width: 100%;
+    max-width: 1100px;
+    padding: 0 32px;
+    margin-top: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .status-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+  .status-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #444; }
+  .status-selected {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: #4da6ff;
+    font-weight: 700;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.3s;
+  }
+  .status-selected.catering { color: #ff8c1a; }
+  .status-selected.none { color: #333; }
+  .clear-btn {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #444;
+    border: 1px solid #2a2a2a;
+    border-radius: 3px;
+    padding: 4px 10px;
+    cursor: pointer;
+    background: none;
+    display: none;
+  }
+  .clear-btn.visible { display: block; }
+  .clear-btn:hover { color: #fff; border-color: #555; }
+  .cards-section {
+    width: 100%;
+    max-width: 1100px;
+    padding: 0 32px;
+    margin-top: 36px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 960px) {
+    .cards-section { grid-template-columns: 1fr 1fr; }
+  }
+  .detail-card {
+    border-radius: 8px;
+    padding: 20px 20px 16px;
+    min-height: 200px;
+    position: relative;
+    overflow: hidden;
+    transition: opacity 0.7s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    user-select: none;
+  }
+  .detail-card:hover { box-shadow: 0 0 0 1px #ffffff18; }
+  .detail-card.pinned.card-events { border-top-color: #4da6ff; box-shadow: 0 0 0 1px #4da6ff44; background: #061424; }
+  .detail-card.pinned.card-catering { border-top-color: #ff8c1a; box-shadow: 0 0 0 1px #ff8c1a44; background: #1a0a00; }
+  .pin-badge {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-family: var(--mono);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .detail-card.pinned .pin-badge { opacity: 1; }
+  .detail-card:hover:not(.pinned) .pin-badge { opacity: 0.5; }
+  .card-events .pin-badge { background: #0a1f3a; color: #4da6ff; border: 1px solid #4da6ff44; }
+  .card-catering .pin-badge { background: #2a1500; color: #ff8c1a; border: 1px solid #ff8c1a44; }
+  .detail-card.fading { opacity: 0; }
+  .detail-card.visible { opacity: 1; }
+  .card-events { background: #040d1a; border: 1px solid #4da6ff22; border-top: 2px solid #4da6ff; }
+  .card-catering { background: #120800; border: 1px solid #ff8c1a22; border-top: 2px solid #ff8c1a; }
+  .card-type {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .card-type-dot { width: 5px; height: 5px; border-radius: 50%; }
+  .card-events .card-type { color: #4da6ff; }
+  .card-events .card-type-dot { background: #4da6ff; }
+  .card-catering .card-type { color: #ff8c1a; }
+  .card-catering .card-type-dot { background: #ff8c1a; }
+  .card-date {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-bottom: 9px;
+  }
+  .card-events .card-date { background: #0a1f3a; color: #4da6ff; border: 1px solid #4da6ff33; }
+  .card-catering .card-date { background: #2a1500; color: #ff8c1a; border: 1px solid #ff8c1a33; }
+  .card-title { font-size: 15px; font-weight: 700; line-height: 1.25; margin-bottom: 7px; color: #fff; }
+  .card-desc { font-size: 11px; line-height: 1.6; font-family: var(--mono); flex: 1; margin-bottom: 12px; }
+  .card-events .card-desc { color: #4da6ff99; }
+  .card-catering .card-desc { color: #ff8c1a99; }
+  .card-contact {
+    border-top: 1px solid #1a1a1a;
+    padding-top: 10px;
+    margin-top: auto;
+    font-family: var(--mono);
+    font-size: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .card-events .card-contact { border-top-color: #4da6ff22; }
+  .card-catering .card-contact { border-top-color: #ff8c1a22; }
+  .contact-row { display: flex; align-items: center; gap: 7px; overflow: hidden; }
+  .contact-icon { font-size: 11px; flex-shrink: 0; }
+  .card-events .contact-icon { color: #4da6ff66; }
+  .card-catering .contact-icon { color: #ff8c1a66; }
+  .contact-link {
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 10px;
+  }
+  .card-events .contact-link { color: #4da6ffcc; }
+  .card-catering .contact-link { color: #ff8c1acc; }
+  .contact-link:hover { text-decoration: underline; }
+  .contact-link.map-venue-link { color: #f0a03a; font-weight: 600; }
+  .card-events .contact-link.map-venue-link { color: #f0a03a; }
+  .card-catering .contact-link.map-venue-link { color: #ffcc80; }
+  .footer {
+    margin-top: 40px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: #333;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .ticker-back-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 24px;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 10px 16px;
+    background: rgba(0, 0, 0, 0.94);
+    border-bottom: 1px solid #1a1a1a;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .ticker-back-link { color: #7ec8ff; text-decoration: none; letter-spacing: 0.04em; }
+  .ticker-back-link:hover { color: #b5e3ff; text-decoration: underline; }
+  body.ticker-has-back { padding-top: 48px; }
+  html.ticker-embed body.ticker-has-back { padding-top: 0; }
+  html.ticker-embed body { padding: 0; min-height: 0; align-items: stretch; justify-content: flex-start; }
+  html.ticker-embed .ticker-back-bar,
+  html.ticker-embed .header,
+  html.ticker-embed .ticker-hint,
+  html.ticker-embed .status-bar,
+  html.ticker-embed .cards-section,
+  html.ticker-embed .footer,
+  html.ticker-embed .feed-err { display: none !important; }
+  html.ticker-embed .ticker-container { width: 100%; max-width: none; margin: 0; }
+  html.ticker-embed .ticker-row { height: 52px; }
+  html.ticker-embed .ticker-label { width: 124px; padding: 0 8px 0 10px; font-size: 10px; }
+  .embed-open-strip {
+    display: none;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    padding: 6px 8px 2px;
+    border-top: 1px solid #1a1a1a;
+    background: #050505;
+  }
+  html.ticker-embed .embed-open-strip:not([hidden]) { display: block; }
+  .embed-open-link { color: #7ec8ff; text-decoration: none; border-bottom: 1px dashed rgba(126, 200, 255, 0.45); }
+  html.embed-hub body.ticker-has-back { padding-top: 0; }
+  html.embed-hub .ticker-back-bar { display: none !important; }
+  html.embed-hub body {
+    min-height: 0;
+    justify-content: flex-start;
+    padding: 6px 0 10px;
+    overflow-y: auto;
+    height: 100%;
+  }
+  html.embed-hub body.ticker-has-back::before { display: none; }
+  html.embed-hub .header { margin-bottom: 10px; }
+  html.embed-hub .header-eyebrow,
+  html.embed-hub .header-sub,
+  html.embed-hub .ticker-hint { display: none; }
+  html.embed-hub .header-title { font-size: clamp(20px, 3.2vw, 28px); margin-bottom: 0; }
+  html.embed-hub .ticker-container { width: 100%; max-width: none; }
+  html.embed-hub .cards-section {
+    margin-top: 12px;
+    padding: 0 10px 8px;
+    max-width: none;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  html.embed-hub .detail-card { min-height: 172px; padding: 14px 14px 12px; }
+  html.embed-hub .card-title { font-size: 14px; }
+  html.embed-hub .card-desc { font-size: 10px; line-height: 1.5; }
+  html.embed-hub .status-bar { margin-top: 8px; padding: 0 10px; max-width: none; }
+  html.embed-hub .footer { display: none; }
+  @media (max-width: 1100px) {
+    html.embed-hub .cards-section { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 720px) {
+    html.embed-hub .cards-section { grid-template-columns: 1fr; }
+    html.embed-hub .detail-card { min-height: 150px; }
+  }
+</style>
+<script>
+(function () {
+  try {
+    var q = new URLSearchParams(window.location.search);
+    if (q.get('embed') === '1' || String(q.get('embed') || '').toLowerCase() === 'true') {
+      document.documentElement.classList.add('ticker-embed');
+    }
+    if (q.get('embed') === 'hub') {
+      document.documentElement.classList.add('embed-hub');
+    }
+  } catch (e) { /* ignore */ }
+})();
+</script>
+</head>
+<body class="ticker-has-back">
+
+<nav class="ticker-back-bar" aria-label="Navigation">
+  <a class="ticker-back-link" href="./live-music-hub.html">← Live Music Hub</a>
+  <a class="ticker-back-link" href="./live-music-finder.html">Live jam map</a>
+  <a class="ticker-back-link" href="./live-events-updates.html">What's on — full list</a>
+</nav>
+
+<div class="header">
+  <p class="header-eyebrow" id="headerEyebrow">Live feed · Amsterdam</p>
+  <h1 class="header-title">Live Music<br><span>Finder</span></h1>
+  <p class="header-sub">Open mics &amp; jams · Gigs &amp; festivals</p>
+</div>
+
+<p class="feed-err" id="feedErr"></p>
+
+<div class="ticker-container">
+  <div class="ticker-row" id="ticker-row-jams">
+    <div class="ticker-label label-events">
+      <span class="label-dot dot-events"></span>
+      Open mic &amp; jams
+    </div>
+    <div class="ticker-track-outer">
+      <div class="ticker-track" id="track-jams"></div>
+    </div>
+  </div>
+  <div class="ticker-row" id="ticker-row-gigs">
+    <div class="ticker-label label-catering">
+      <span class="label-dot dot-catering"></span>
+      Gigs &amp; festivals
+    </div>
+    <div class="ticker-track-outer">
+      <div class="ticker-track" id="track-gigs"></div>
+    </div>
+  </div>
+</div>
+
+<p class="embed-open-strip" id="embedOpenStrip" hidden>
+  <a class="embed-open-link" id="embedOpenFullLink" href="./live-events-ticker.html" target="_blank" rel="noopener noreferrer">Open full feed — spotlight cards →</a>
+</p>
+
+<p class="ticker-hint">↑ click any ticker item to spotlight it in the cards below</p>
+
+<div class="status-bar">
+  <div class="status-left">
+    <span class="status-label">Showing:</span>
+    <span class="status-selected none" id="status-text">Auto-rotating</span>
+  </div>
+  <button type="button" class="clear-btn" id="clear-btn">✕ Clear</button>
+</div>
+
+<div class="cards-section">
+  <div class="detail-card card-events visible" id="card-j1">
+    <div class="pin-badge">pinned</div>
+    <div class="card-type"><span class="card-type-dot"></span>Jam spotlight</div>
+    <div class="card-date" id="card-j1-date"></div>
+    <div class="card-title" id="card-j1-title"></div>
+    <div class="card-desc" id="card-j1-desc"></div>
+    <div class="card-contact" id="card-j1-contact"></div>
+  </div>
+  <div class="detail-card card-events visible" id="card-j2">
+    <div class="pin-badge">pinned</div>
+    <div class="card-type"><span class="card-type-dot"></span>Jam spotlight</div>
+    <div class="card-date" id="card-j2-date"></div>
+    <div class="card-title" id="card-j2-title"></div>
+    <div class="card-desc" id="card-j2-desc"></div>
+    <div class="card-contact" id="card-j2-contact"></div>
+  </div>
+  <div class="detail-card card-catering visible" id="card-g1">
+    <div class="pin-badge">pinned</div>
+    <div class="card-type"><span class="card-type-dot"></span>Gig spotlight</div>
+    <div class="card-date" id="card-g1-date"></div>
+    <div class="card-title" id="card-g1-title"></div>
+    <div class="card-desc" id="card-g1-desc"></div>
+    <div class="card-contact" id="card-g1-contact"></div>
+  </div>
+  <div class="detail-card card-catering visible" id="card-g2">
+    <div class="pin-badge">pinned</div>
+    <div class="card-type"><span class="card-type-dot"></span>Gig spotlight</div>
+    <div class="card-date" id="card-g2-date"></div>
+    <div class="card-title" id="card-g2-title"></div>
+    <div class="card-desc" id="card-g2-desc"></div>
+    <div class="card-contact" id="card-g2-contact"></div>
+  </div>
+</div>
+
+<div class="footer">Live Music Finder · Amsterdam · Greenways</div>
+
+<script>
+const FEED_URLS = ['../data/live-events-feed.json', '/data/live-events-feed.json'];
+const LANE_JAMS = new Set(['open-mic', 'open-jam', 'jazz', 'jams']);
+const LANE_GIGS = new Set(['gigs', 'festival', 'concert']);
+
+let FEED = { meta: {}, events: [], lanes: { jams: [], gigs: [] } };
+let jamsDetails = [];
+let gigsDetails = [];
+let jamsRaw = [];
+let gigsRaw = [];
+let tickerSelected = null;
+
+function isEmbedHub() {
+  return document.documentElement.classList.contains('embed-hub');
+}
+
+function notifyHubMapVenue(venueId, venueName) {
+  if (!venueId || !isEmbedHub() || window.parent === window) return;
+  window.parent.postMessage({
+    type: 'live-music-select-venue',
+    venueId: Number(venueId),
+    venueName: venueName || ''
+  }, '*');
+}
+
+function mapUrlForVenue(venueId) {
+  const u = new URL("./live-music-finder.html", window.location.href);
+  u.searchParams.set("venue", String(venueId));
+  return u.pathname + u.search;
+}
+
+function toTickerItem(e) {
+  const venue = e.venue ? ' — ' + e.venue : '';
+  return { date: e.date || 'TBC', name: (e.title || 'Event') + venue, id: e.id };
+}
+
+function toDetail(e) {
+  const venue = e.venue ? ' — ' + e.venue : '';
+  return {
+    date: e.date || 'TBC',
+    name: (e.title || 'Event') + venue,
+    desc: e.desc || e.line || '',
+    email: e.email,
+    phone: e.phone,
+    web: e.web,
+    webUrl: e.webUrl || e.href,
+    href: e.href,
+    id: e.id
+  };
+}
+
+async function loadFeed() {
+  let lastErr = null;
+  for (const u of FEED_URLS) {
+    try {
+      const res = await fetch(u, { cache: 'no-store' });
+      if (!res.ok) throw new Error(res.status + ' ' + u);
+      FEED = await res.json();
+      document.getElementById('feedErr').style.display = 'none';
+      return;
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  const el = document.getElementById('feedErr');
+  el.style.display = 'block';
+  el.textContent = 'Could not load live events feed. Run npm run build:live-events-feed. (' + (lastErr && lastErr.message) + ')';
+  FEED = { meta: {}, events: [], lanes: { jams: [], gigs: [] } };
+}
+
+function partitionEvents() {
+  if (FEED.lanes && Array.isArray(FEED.lanes.jams) && Array.isArray(FEED.lanes.gigs)) {
+    return { jams: FEED.lanes.jams, gigs: FEED.lanes.gigs };
+  }
+  const jams = [];
+  const gigs = [];
+  (FEED.events || []).forEach((e) => {
+    const cat = String(e.category || '').toLowerCase();
+    if (LANE_JAMS.has(cat)) jams.push(e);
+    else if (LANE_GIGS.has(cat)) gigs.push(e);
+    else gigs.push(e);
+  });
+  return { jams, gigs };
+}
+
+function buildTrack(items, dateClass, trackId, type) {
+  const track = document.getElementById(trackId);
+  track.innerHTML = '';
+  if (!items.length) {
+    track.innerHTML = '<span class="ticker-item" style="cursor:default;color:#555">No items — add seeds in data/live-events-seeds.json</span>';
+    return;
+  }
+  const tripled = [...items, ...items, ...items];
+  tripled.forEach((item) => {
+    const el = document.createElement('div');
+    el.className = 'ticker-item';
+    el.dataset.id = item.id || '';
+    el.dataset.name = item.name;
+    el.dataset.date = item.date;
+    el.dataset.type = type;
+    el.innerHTML =
+      '<span class="item-date ' + dateClass + '">' + escapeHtml(item.date) + '</span>' +
+      '<span class="item-name">' + escapeHtml(item.name) + '</span>' +
+      '<span class="divider" aria-hidden="true">·</span>';
+    el.addEventListener('click', () => handleTickerClick(el, type));
+    track.appendChild(el);
+  });
+}
+
+function escapeHtml(s) {
+  const t = document.createElement('div');
+  t.textContent = s == null ? '' : String(s);
+  return t.innerHTML;
+}
+
+function handleTickerClick(el, type) {
+  const id = el.dataset.id;
+  const name = el.dataset.name;
+  const date = el.dataset.date;
+  const already = tickerSelected && tickerSelected.id === id && tickerSelected.type === type;
+
+  document.querySelectorAll('.ticker-item').forEach((i) => i.classList.remove('selected-event', 'selected-catering'));
+
+  if (already) {
+    tickerSelected = null;
+    updateStatusBar(null);
+    return;
+  }
+
+  const cls = type === 'jams' ? 'selected-event' : 'selected-catering';
+  document.querySelectorAll('.ticker-item[data-id="' + CSS.escape(id) + '"]').forEach((i) => i.classList.add(cls));
+
+  tickerSelected = { type, id, name, date };
+  updateStatusBar(tickerSelected);
+  pushToCards(type, id);
+  const row = (type === 'jams' ? jamsRaw : gigsRaw).find((e) => e.id === id);
+  if (row && row.venueId) notifyHubMapVenue(row.venueId, row.venue || row.title);
+}
+
+function clearTickerSelection() {
+  tickerSelected = null;
+  document.querySelectorAll('.ticker-item').forEach((i) => i.classList.remove('selected-event', 'selected-catering'));
+  updateStatusBar(null);
+}
+
+document.getElementById('clear-btn').addEventListener('click', clearTickerSelection);
+
+function updateStatusBar(sel) {
+  const txt = document.getElementById('status-text');
+  const btn = document.getElementById('clear-btn');
+  if (!sel) {
+    txt.textContent = 'Auto-rotating';
+    txt.className = 'status-selected none';
+    btn.classList.remove('visible');
+  } else {
+    txt.textContent = sel.date + '  ·  ' + sel.name;
+    txt.className = 'status-selected' + (sel.type === 'gigs' ? ' catering' : '');
+    btn.classList.add('visible');
+  }
+}
+
+function pushToCards(type, id) {
+  const pool = type === 'jams' ? jamsDetails : gigsDetails;
+  const match = pool.find((d) => d.id === id);
+  if (!match) return;
+  const targets = type === 'jams' ? ['card-j1', 'card-j2'] : ['card-g1', 'card-g2'];
+  const target = targets.find((cid) => !document.getElementById(cid).classList.contains('pinned')) || targets[0];
+  flashCard(target, match);
+}
+
+function buildContactHTML(item) {
+  let html = '';
+  if (item.email) {
+    html += '<div class="contact-row"><span class="contact-icon">✉</span><a class="contact-link" href="mailto:' + escapeHtml(item.email) + '">' + escapeHtml(item.email) + '</a></div>';
+  }
+  if (item.phone) {
+    html += '<div class="contact-row"><span class="contact-icon">☎</span><span class="contact-link">' + escapeHtml(item.phone) + '</span></div>';
+  }
+  const link = item.webUrl || item.href;
+  if (link) {
+    const label = item.web || link.replace(/^https?:\/\//, '').split('/')[0];
+    html += '<div class="contact-row"><span class="contact-icon">⌘</span><a class="contact-link" href="' + escapeHtml(link) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(label) + '</a></div>';
+  }
+  if (item.venueId) {
+    if (isEmbedHub()) {
+      html += '<div class="contact-row"><span class="contact-icon">📍</span><a class="contact-link map-venue-link" href="#" data-venue-id="' + escapeHtml(String(item.venueId)) + '" data-venue-name="' + escapeHtml(item.name || '') + '">Show on jam map below</a></div>';
+    } else {
+      const mapHref = mapUrlForVenue(item.venueId);
+      html += '<div class="contact-row"><span class="contact-icon">📍</span><a class="contact-link map-venue-link" href="' + escapeHtml(mapHref) + '">View on Live Music Map</a></div>';
+    }
+  }
+  if (!html) {
+    html = '<div class="contact-row"><span class="contact-icon" style="opacity:.3">–</span><span class="contact-link" style="color:#333">Verify on venue site</span></div>';
+  }
+  return html;
+}
+
+function fillCard(prefix, data) {
+  document.getElementById(prefix + '-date').textContent = data.date;
+  document.getElementById(prefix + '-title').textContent = data.name;
+  document.getElementById(prefix + '-desc').textContent = data.desc;
+  document.getElementById(prefix + '-contact').innerHTML = buildContactHTML(data);
+}
+
+function flashCard(cardId, data) {
+  const card = document.getElementById(cardId);
+  if (card.classList.contains('pinned')) return;
+  card.classList.remove('visible');
+  card.classList.add('fading');
+  setTimeout(() => {
+    fillCard(cardId, data);
+    card.classList.remove('fading');
+    card.classList.add('visible');
+    card.style.outline = card.classList.contains('card-events') ? '1px solid #4da6ff88' : '1px solid #ff8c1a88';
+    setTimeout(() => { card.style.outline = ''; }, 1200);
+  }, 400);
+}
+
+function animateTicker(trackId, speed) {
+  const track = document.getElementById(trackId);
+  if (!track || !track.children.length) return;
+  let pos = 0;
+  const totalWidth = track.scrollWidth;
+  const oneThird = totalWidth / 3;
+  if (!oneThird || !isFinite(oneThird)) return;
+  function step() {
+    pos += speed;
+    if (pos >= oneThird) pos = 0;
+    track.style.transform = 'translateX(-' + pos + 'px)';
+    requestAnimationFrame(step);
+  }
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  requestAnimationFrame(step);
+}
+
+function fadeUpdateCard(cardId, data) {
+  const card = document.getElementById(cardId);
+  if (card.classList.contains('pinned') || card.matches(':hover')) return;
+  card.classList.remove('visible');
+  card.classList.add('fading');
+  setTimeout(() => {
+    if (card.classList.contains('pinned') || card.matches(':hover')) {
+      card.classList.remove('fading');
+      card.classList.add('visible');
+      return;
+    }
+    fillCard(cardId, data);
+    card.classList.remove('fading');
+    card.classList.add('visible');
+  }, 700);
+}
+
+function initCards() {
+  const cardConfigs = [
+    { cardId: 'card-j1', data: jamsDetails, startIdx: 0, interval: 16000 },
+    { cardId: 'card-j2', data: jamsDetails, startIdx: 2, interval: 21000 },
+    { cardId: 'card-g1', data: gigsDetails, startIdx: 0, interval: 14000 },
+    { cardId: 'card-g2', data: gigsDetails, startIdx: 2, interval: 19000 }
+  ];
+
+  cardConfigs.forEach((cfg) => {
+    if (!cfg.data.length) return;
+    fillCard(cfg.cardId, cfg.data[cfg.startIdx % cfg.data.length]);
+    let idx = cfg.startIdx % cfg.data.length;
+    const card = document.getElementById(cfg.cardId);
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('a')) return;
+      card.classList.toggle('pinned');
+    });
+    setInterval(() => {
+      if (tickerSelected) return;
+      idx = (idx + 1) % cfg.data.length;
+      fadeUpdateCard(cfg.cardId, cfg.data[idx]);
+    }, cfg.interval);
+  });
+}
+
+async function boot() {
+  await loadFeed();
+  const meta = FEED.meta || {};
+  if (meta.city) {
+    document.getElementById('headerEyebrow').textContent =
+      'Live feed · ' + meta.city + (meta.generatedAt ? ' · updated ' + meta.generatedAt.slice(0, 10) : '');
+  }
+
+  const { jams, gigs } = partitionEvents();
+  jamsRaw = jams;
+  gigsRaw = gigs;
+  const jamsTicker = jams.map(toTickerItem);
+  const gigsTicker = gigs.map(toTickerItem);
+
+  jamsDetails = (jams.filter((e) => e.spotlight).length ? jams.filter((e) => e.spotlight) : jams).map(toDetail);
+  gigsDetails = (gigs.filter((e) => e.spotlight).length ? gigs.filter((e) => e.spotlight) : gigs).map(toDetail);
+  if (!jamsDetails.length) jamsDetails = [{ date: '—', name: 'Add jam listings', desc: 'Edit data/live-events-seeds.json', id: 'empty' }];
+  if (!gigsDetails.length) gigsDetails = [{ date: '—', name: 'Add gig listings', desc: 'Edit data/live-events-seeds.json', id: 'empty2' }];
+
+  buildTrack(jamsTicker, 'date-events', 'track-jams', 'jams');
+  buildTrack(gigsTicker, 'date-catering', 'track-gigs', 'gigs');
+  animateTicker('track-jams', 0.5);
+  animateTicker('track-gigs', 0.38);
+  initCards();
+}
+
+(function initEmbed() {
+  const isEmbed = document.documentElement.classList.contains('ticker-embed');
+  const strip = document.getElementById('embedOpenStrip');
+  const stripLink = document.getElementById('embedOpenFullLink');
+  if (isEmbed && strip) {
+    strip.hidden = false;
+    if (stripLink) {
+      const u = new URL(stripLink.getAttribute('href') || './live-events-ticker.html', window.location.href);
+      u.searchParams.delete('embed');
+      stripLink.href = u.pathname + u.search;
+    }
+  }
+  const p = new URLSearchParams(window.location.search);
+  const sec = (p.get('section') || '').toLowerCase();
+  requestAnimationFrame(() => {
+    if (sec === 'gigs') document.getElementById('ticker-row-gigs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    else if (sec === 'jams') document.getElementById('ticker-row-jams')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+})();
+
+boot();
+
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-venue-id]');
+  if (!a) return;
+  notifyHubMapVenue(a.getAttribute('data-venue-id'), a.getAttribute('data-venue-name'));
+  if (isEmbedHub()) e.preventDefault();
+});
+</script>
+</body>
+</html>

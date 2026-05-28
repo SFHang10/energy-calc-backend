@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Music Venues Admin</title>
+  <style>
+    body { margin: 0; background: #0f1013; color: #e8e8ea; font-family: "Segoe UI", Tahoma, sans-serif; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    h1 { margin: 0 0 6px; color: #f0a03a; font-size: 1.5rem; }
+    .sub { margin-bottom: 12px; color: #9da3af; font-size: 0.9rem; }
+    .bar { display: flex; gap: 8px; margin-bottom: 12px; }
+    input, select, button {
+      background: #1a1f29; color: #e8e8ea; border: 1px solid #303848; border-radius: 8px; padding: 8px 10px;
+    }
+    button { cursor: pointer; }
+    button:hover { border-color: #f0a03a; color: #f0a03a; }
+    table { width: 100%; border-collapse: collapse; border: 1px solid #2a3140; background: #151922; }
+    th, td { text-align: left; border-bottom: 1px solid #242b38; padding: 10px; font-size: 0.82rem; vertical-align: top; }
+    th { color: #f0a03a; background: #11151d; }
+    .status { padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; }
+    .status.verified { background: rgba(39, 174, 96, 0.25); color: #96e5b9; }
+    .status.unverified { background: rgba(240, 160, 58, 0.2); color: #ffd6a0; }
+    .stale { color: #ffd08c; font-size: 0.72rem; margin-top: 4px; display: inline-block; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Music Venues Admin</h1>
+    <div class="sub">Validate listings and control what shows as verified.</div>
+    <div class="bar">
+      <input id="q" placeholder="Search venues">
+      <select id="status-filter">
+        <option value="all">All statuses</option>
+        <option value="verified">Verified</option>
+        <option value="unverified">Unverified</option>
+      </select>
+      <button id="toggle-all">Select all</button>
+      <button id="verify-selected">Verify selected</button>
+      <button id="refresh">Refresh</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:36px">✓</th>
+          <th>Venue</th>
+          <th>Schedule / Genre</th>
+          <th>Venue detail</th>
+          <th>Source</th>
+          <th>Status</th>
+          <th>Last verified</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <script>
+    let venues = [];
+    let allSelected = false;
+
+    function escapeHtml(v) {
+      return String(v || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    async function loadVenues() {
+      const rows = document.getElementById('rows');
+      rows.innerHTML = '<tr><td colspan="8">Loading...</td></tr>';
+      const status = document.getElementById('status-filter').value;
+      const url = status === 'all' ? '/api/music-venues' : `/api/music-venues?verificationStatus=${encodeURIComponent(status)}`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        venues = data.items || [];
+        renderRows();
+      } catch (_) {
+        rows.innerHTML = '<tr><td colspan="8">Failed to load venues.</td></tr>';
+      }
+    }
+
+    function isStale(lastVerified) {
+      if (!lastVerified) return true;
+      const t = new Date(lastVerified).getTime();
+      if (!Number.isFinite(t)) return true;
+      const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+      return Date.now() - t > THIRTY_DAYS_MS;
+    }
+
+    function renderRows() {
+      const rows = document.getElementById('rows');
+      const q = document.getElementById('q').value.trim().toLowerCase();
+      const filtered = venues.filter((v) => {
+        if (!q) return true;
+        return [v.name, v.address, v.genre, v.schedule, v.source].filter(Boolean).join(' ').toLowerCase().includes(q);
+      });
+      if (!filtered.length) {
+        rows.innerHTML = '<tr><td colspan="8">No matching venues.</td></tr>';
+        return;
+      }
+      rows.innerHTML = filtered.map((v) => `
+        <tr>
+          <td><input type="checkbox" class="venue-check" data-id="${Number(v.id)}" ${allSelected ? 'checked' : ''}></td>
+          <td>
+            <strong>${escapeHtml(v.name)}</strong><br>
+            <span>${escapeHtml(v.address || '')}</span><br>
+            ${v.contactEmail ? `<a href="mailto:${escapeHtml(v.contactEmail)}">${escapeHtml(v.contactEmail)}</a>` : ''}
+          </td>
+          <td>${escapeHtml(v.schedule || '-')}<br>${escapeHtml(v.genre || '-')}</td>
+          <td>
+            <div>${escapeHtml((v.vibeTags || []).join(', ') || '-')}</div>
+            ${v.mapsUrl ? `<a href="${escapeHtml(v.mapsUrl)}" target="_blank" rel="noopener noreferrer">Maps</a>` : ''}
+            ${(v.youtubeVideos || []).length ? `<div>${(v.youtubeVideos || []).length} YouTube clip(s)</div>` : ''}
+          </td>
+          <td>${escapeHtml(v.source || '-')}</td>
+          <td><span class="status ${escapeHtml((v.verificationStatus || 'unverified').toLowerCase())}">${escapeHtml(v.verificationStatus || 'unverified')}</span></td>
+          <td>
+            ${escapeHtml(v.lastVerified || '-')}
+            ${isStale(v.lastVerified) ? '<span class="stale">Needs re-check</span>' : ''}
+          </td>
+          <td>
+            <button onclick="updateVenue(${Number(v.id)}, 'verified')">Mark verified</button>
+            <button onclick="updateVenue(${Number(v.id)}, 'unverified')">Mark unverified</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function updateVenue(id, status, reload = true) {
+      const payload = {
+        verificationStatus: status,
+        lastVerified: status === 'verified' ? new Date().toISOString() : ''
+      };
+      try {
+        const res = await fetch(`/api/music-venues/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok && reload) loadVenues();
+      } catch (_) {}
+    }
+
+    async function verifySelected() {
+      const checks = [...document.querySelectorAll('.venue-check:checked')];
+      if (!checks.length) return;
+      for (const check of checks) {
+        const id = Number(check.dataset.id);
+        if (!Number.isFinite(id)) continue;
+        await updateVenue(id, 'verified', false);
+      }
+      await loadVenues();
+    }
+
+    document.getElementById('refresh').addEventListener('click', loadVenues);
+    document.getElementById('toggle-all').addEventListener('click', () => {
+      allSelected = !allSelected;
+      renderRows();
+    });
+    document.getElementById('verify-selected').addEventListener('click', verifySelected);
+    document.getElementById('status-filter').addEventListener('change', loadVenues);
+    document.getElementById('q').addEventListener('input', renderRows);
+    loadVenues();
+  </script>
+</body>
+</html>

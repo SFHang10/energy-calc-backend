@@ -2,7 +2,7 @@
 
 **Purpose:** Central knowledge base for AI agents working on this project  
 **Updated By:** Ralph iterations and Continuous Learning Protocol  
-**Last Updated:** January 2026
+**Last Updated:** 16 May 2026
 
 ---
 
@@ -22,18 +22,43 @@
 | **Routes** | `routes/` |
 | **Database** | `database/energy_calculator_central.db` |
 | **Product Data** | `FULL-DATABASE-5554.json` |
-| **Products with Grants** | `energy-calculator/products-with-grants.json` |
-| **Products with Collection** | `energy-calculator/products-with-grants-and-collection.json` |
+| **Products with Grants** | `products-with-grants.json` (integrator output, repo root) and `energy-calculator/products-with-grants.json` (mirror if used) |
+| **Products with Collection** | `products-with-grants-and-collection.json` (preferred for widget / API merge) and `energy-calculator/` copy if present |
 | **Products Deep Dive** | `energy-calculator/products-deep-dive.json` |
+| **Non-marketplace sustainable catalog** | `data/sustainable-products-catalog.json` ⭐ (`sust_*` ids; grants: `npm run enrich:sustainable-products`) |
+| **Marketplace intake queue** | `data/marketplace-intake-suggestions.json` (“Suggest for Greenways” workflow) |
+| **Venue equipment (per site)** | `data/restaurant-assets/*.json` (e.g. `wok-to-walk-equipment-list.json`) |
 | **Deep Dive Content** | `deep-dive-content.json` |
 | **Member Profile Page** | `wix-integration/member-profile.html` |
 | **Member Uploads** | `uploads/members/` |
 | **Grants System (Combined)** | `combined-grants-loader.js` ⭐ (62+ grants) |
 | **Grants System (Hardcoded)** | `hardcoded-grants-system.js` (46 grants) |
-| **Grants Database** | `schemes.json` ⭐ (62 grants - source of truth) |
+| **Grants & schemes (edit this)** | `schemes.json` ⭐ canonical scheme rows; **`combined-grants-loader.js`** + **`product-grants-integrator.js`** turn them into per-product grants |
 | **Product Images** | `product-placement/` |
 | **HTML Pages** | `HTMLs/` |
+| **Greenways dashboard (buildings)** | `HTMLS GWM GWB/Greenways Interface .html` |
+| **Utility detail (Elec / Gas / Water)** | `HTMLS GWM GWB/utility-detail.html` (`?type=electricity|gas|water`) |
+| **Energy prices ticker (embed)** | `content-ops/drafts/energy-ticker/energy-ticker-green-wire.html` |
+| **Wok Assist (embedded)** | `HTMLS GWM GWB/Chef 3 W2W .html` |
+| **Amsterdam events ticker** | `HTMLS GWM GWB/Events Ticker W2W .html` |
+| **Live Music Finder (map)** | `HTMLS GWM GWB/live-music-finder.html` |
+| **Live music events feed** | `data/live-events-feed.json` ← `npm run build:live-events-feed` (`data/live-events-seeds.json` + `data/live-events-weekly-input.json`) |
+| **Live music hub (shell)** | `HTMLS GWM GWB/live-music-hub.html` — events tabs top, map below, venue sync via postMessage |
+| **Live music ticker** | `HTMLS GWM GWB/live-events-ticker.html` (`?embed=1` for Wix iframe) |
+| **Live music what's on** | `HTMLS GWM GWB/live-events-updates.html` |
+| **Deals (full page shell)** | `HTMLS GWM GWB/Deals.html` |
+| **Deals hub (ticker + search)** | `HTMLS GWM GWB/deals-ticker-hub.html` |
+| **Deals feed (generated)** | `data/deals-feed.json` ← `npm run build:deals-feed` (`data/deals-feed-seeds.json` + `data/deals-weekly-input.json`) |
+| **Water Saving Finder** | `HTMLS GWM GWB/water-saving-finder.html` |
+| **Savings tour page** | `HTMLS GWM GWB/savings.html` — Grants tab: Restaurant portal, EU schemes, **Financial assistance** |
+| **Restaurant finance finder** | `HTMLS GWM GWB/finance-finder-restaurant.html` (draft: `Fianance Finder/Finance Finder .html`) |
+| **Schemes portal (restaurant)** | `HTMLS GWM GWB/Full Schemes Portal Restaurant.html` |
+| **Schemes portal (EU)** | `HTMLS GWM GWB/Full Schemes Portal html.html` |
+| **Savings projection UI** | `HTMLS GWM GWB/equipment-savings-projection.html` |
+| **Savings projection math** | `HTMLS GWM GWB/js/savings-projection-model.js` |
+| **Projection demo scenarios** | `data/savings-projection-scenarios.json` |
 | **Skills** | `Skills/` |
+| **Live Music Finder (skill)** | `Skills/live-music-finder-skill.md` ⭐ map, events feed, ticker, `venueId` links, Wix |
 | **PRD Tasks** | `tasks/` |
 
 ---
@@ -167,6 +192,9 @@ html, body {
 | `/api/shop-products` | GET | Products with shop categories |
 | `/api/product-widget/:id` | GET | Single product |
 | `/api/schemes` | GET | Grants & schemes |
+| `/api/equipment-intelligence/alternatives` | GET | Marketplace + external (`sust_*`) sustainable alternatives; `?persistCatalog=1` auto-saves matches to catalog |
+| `/api/equipment-intelligence/finder-session` | POST | Same as alternatives + persist (Sustainable Product Finder runs) |
+| `/api/equipment-intelligence/sustainable-products` | GET/POST | List or upsert non-marketplace catalog rows |
 
 ---
 
@@ -226,14 +254,21 @@ html, body {
 
 1. **Validate product data** - Ensure category/subcategory match grants mapping
 2. **Run grants enrichment** - `node product-grants-integrator.js`
-   - Matches product to grants by category/subcategory
+   - Matches product to grants by category/subcategory (from `schemes.json` via `combined-grants-loader.js`)
    - Adds collection agencies for recycling/trade-in
-   - Exports to `products-with-grants.json`
+   - Exports to repo-root `products-with-grants.json`; refresh `products-with-grants-and-collection.json` when you rely on that bundle
 3. **Add image** to `product-placement/`
 4. **Commit and push** to GitHub
 5. **Verify on Render** - Check `/api/product-widget/:id` shows grants data
 
 **Never Skip:** Grants enrichment ensures customers see available funding!
+
+### Grants & schemes — single source of truth (ongoing updates)
+
+1. **Edit schemes only in `schemes.json`** — add, update, or retire schemes (regions, keywords, deadlines, links). This is the catalogue you maintain as policies change.
+2. **Regenerate product-side data** — `node product-grants-integrator.js` refreshes **`products-with-grants.json`** (repo root). If you use the collection bundle, merge or regenerate **`products-with-grants-and-collection.json`** so it stays in step (widget and API code prefer that file when present).
+3. **Runtime behaviour** — `/api/product-widget/...` and **`services/equipment-intelligence-service.js`** (restaurant equipment deep dive / `/api/equipment-intelligence/*`) attach grants from that enriched export **by `product.id`**, with **`FULL-DATABASE-5554.json`** as product spec baseline. Keep the export fresh after `schemes.json` changes so marketplace, widget, and deep dive stay aligned.
+4. **`grants-to-add.json`** — legacy / helper format; new work should land in **`schemes.json`** so **`combined-grants-loader.js`** sees it. Use `HOW-TO-ADD-MORE-GRANTS.md` and related docs for narrative workflow.
 
 ### Creating HTML Page
 1. Upload images to Wix Media Manager
@@ -301,10 +336,47 @@ html, body {
   - Grant types: subsidies, grants, certifications, tax incentives
   - **Always use `combined-grants-loader.js`** for full grant coverage
 
+- **🔎 Sustainable Product Finder → catalog (May 2026)**:
+  - **`sustainable_product_deal_finder_portal.html`** and **`water-saving-finder.html`** call **`/api/equipment-intelligence/alternatives?persistCatalog=1`** so each search upserts matches into **`data/sustainable-products-catalog.json`** (merged search keywords + optional discovery row for unmatched queries).
+  - **`GET /api/equipment-intelligence/decision-matrix`** external lane uses the same catalog with **`impactFactors`** (wok gas/water %) and scheme-backed **`grants`** on `externalOptions`; deep dive wok profiles prefer API rows over hardcoded fallback when matches exist.
+
+- **📌 Grants ↔ deep dive / intelligence (May 2026)**:
+  - **`services/equipment-intelligence-service.js`** loads the same **`products-with-grants*.json`** overlay (prefer root **`products-with-grants-and-collection.json`**, then `energy-calculator/` mirrors, then grants-only JSON) so alternative rows and decision-matrix grant chips match the scheme-backed enrichment from `product-grants-integrator.js`, not only `FULL-DATABASE-5554.json` grant fields.
+
 - **👥 Membership Video Integration (Jan 2026)**:
   - MongoDB router needed Wix video integration parity with SQLite router
   - Wix videos require Render env vars: `WIX_APP_TOKEN` (or `WIX_APP_ID`/`WIX_APP_SECRET`/`WIX_INSTANCE_ID`) + `WIX_SITE_ID`
   - Preferences API should return interest objects `{ id, name }` for UI compatibility
+
+- **🖥️ Greenways overview UI (May 2026)** — `HTMLS GWM GWB/Greenways Interface .html`:
+  - **System status** (left sidebar): `updateSystemStatusPanel()` from `applyDashboardData` and on feed error from `dashboardRuntime.refreshNow`; pill states Live / Hold / Feed issue / Syncing; **Energy & utilities** + **Sensors & equipment** sections (sensor lines are placeholder copy until real connectivity payloads exist).
+  - **KPI cards** (`.kpi-card`): same card chrome as the top **energy ticker** embed (`energy-ticker-green-wire.html`): gradient `#0e2117` → `#0b1a12`, border `rgba(75, 140, 104, 0.22)`, shadow aligned with ticker container.
+  - **Utility KPI links**: the first three KPI tiles (Electricity, Gas, Water) are `<a class="kpi-card" href="utility-detail.html?type=…">` — same `type` values as `openUtilityDetail()` and sidebar nav. **Cost Today** stays a non-link `<div>`. Use `a.kpi-card` CSS (no underline, inherit colour, focus ring).
+  - **Metric typography**: CSS variable `--font-clean` loads **IBM Plex Sans** (Google Fonts) for large headline metrics, analytics values, target chips, and data-quality numerals; **Space Grotesk** remains the main UI font; **Alert Center** list (`.demo-list`) is intentionally not switched to `--font-clean` so it stays the lighter sans stack.
+  - **Analytics row** (Usage Breakdown · 7-Day Trend · AI Insights): `.charts-row-3 > .card` uses a **cyan** outline (`rgba(34, 212, 255, …)`) so those three cards read distinct from default `.card` borders and from KPI / system-status styling.
+  - **Energy ticker** iframe: `../content-ops/drafts/energy-ticker/energy-ticker-green-wire.html` (see `initEnergyTickerToggle`).
+  - **Portfolio card:** photo + site copy **left**; IoT schematic + centered utility chips + **Open Site Detail** **right** (`portfolio-visual-split`, `portfolio-chip-row`). Recovery note: avoid `flex-end` on `portfolio-visual-right` and a 300px max on the photo column — see **`Skills/energy-dashboard-skill.md`** § 2026-05-16 recovery.
+
+- **🎪 Wok Assist → Events ticker (May 2026)**:
+  - **`Chef 3 W2W .html`:** `openEventsTicker('events'|'catering')` navigates to `./Events%20Ticker%20W2W%20.html?return=Chef+3+W2W+.html&section=…` (quick buttons, Events/Catering domain tabs, matching welcome tags). Works inside the dashboard iframe (same iframe) or full page.
+  - **`Events Ticker W2W .html`:** fixed **Back to Wok Assist** bar when `?return=` is present; optional `section=` scrolls to `#ticker-row-events` / `#ticker-row-catering`.
+
+- **🇳🇱 Business.gov.nl hub (May 2026)**:
+  - **`schemes.json`:** `nl-business-gov-finder` (priority resource) links the 3-subject finder: environmental impact + products/innovation + international business (~80 schemes). Plus NL rows for MIA/Vamil, Horizon Europe, WBSO, BMKB-Groen, DEI+, SPRILA, Flex-e, WIS, MIT, DGGF, DTIF, VEKI, Innovation box — each with `business.gov.nl/subsidies-and-schemes/...` detail URLs.
+  - **Schemes portals:** `Full Schemes Portal Restaurant.html` and `Full Schemes Portal html.html` — header CTA to the same finder URL; `loadSchemes()` tries `/api/schemes`, then `../schemes.json`.
+  - **Finance finder:** `finance-finder-restaurant.html` — five tabs (grants, BNPL, equipment, loans, Europe); grants tiles with Wix photos + hint + example; dark glass UI. **`savings.html`** Grants tab → **Financial assistance**. Full agent detail: **`Skills/energy-dashboard-skill.md`** § Restaurant finance finder & schemes portals.
+
+- **🏷️ Deals hub (May 2026)**:
+  - **`HTMLS GWM GWB/deals-ticker-hub.html`:** three marquee lanes (energy / water / sustainability) + manual search + category pills + spotlight cards; loads **`/data/deals-feed.json`** (or `../data/deals-feed.json`).
+  - **`npm run build:deals-feed`:** runs `scripts/build-deals-feed.js` — merges **`data/deals-feed-seeds.json`** with product rows from **`data/deals-weekly-input.json`** and writes **`data/deals-feed.json`** (set `meta.generatedAt`). Schedule daily on host if desired.
+  - **`HTMLS GWM GWB/water-saving-finder.html`:** full-page Water Saving Finder (synced from project workflow; was `water-saving-finder_1.html` in Downloads).
+
+- **💶 Savings projections (May 2026)** — full detail in **`Skills/energy-dashboard-skill.md`** § Savings projections:
+  - **`js/savings-projection-model.js`** + **`equipment-savings-projection.html`:** payback chart (do nothing vs upgrade, grants, illustrative tax, capex to €25k product / €150k building).
+  - **`restaurant-equipment-deep-dive.html`:** **Savings projection** on marketplace alternative cards → modal iframe (`?popup=1&embed=1`).
+  - **`restaurant-data.html`:** whole-building projection under site banner; same modal.
+  - **`savings.html`:** **Savings projections** Explore tab above **Deals** — explains feature; **See example projection** opens popup only (no full-page / no tablet preview).
+  - Demos: **`data/savings-projection-scenarios.json`** (`?scenario=fridge`).
 
 ---
 

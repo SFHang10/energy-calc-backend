@@ -14,6 +14,38 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 
 ---
 
+## 🧭 Org Chart Reference (Greenways)
+
+**Purpose:** One‑page org chart for a ~20 person green e‑commerce team.
+
+### Central Leadership
+- **Founder / CEO** — Vision, strategy, culture, partnerships
+
+### Functional Teams
+- **Marketing & Brand (4–5)**: Marketing Manager (Lead), Performance (SEO/PPC), Social Media, Email/CRM, Brand/Campaign Coordinator
+- **Sales & Customer Experience (3–4)**: Sales Manager (Lead), Customer Support (2), B2B/Account Sales (optional)
+- **Product & Supplier Management (3–4)**: Product & Supplier Lead, Product Research/Validation, Supplier Relationship Manager, Sustainability & Compliance Reviewer
+- **Content & Media (3–4)**: Content & Media Lead, Website/Product Copywriter, Blog/Content Writer, Video/Media Producer
+- **Technology & IT (2–3)**: IT Systems Manager, Website Support/Resolution Assistant, Cybersecurity/Data Protection (part‑time)
+- **Operations & Finance (2–3)**: Operations Manager, Finance/Bookkeeping, HR/People Ops (part‑time)
+
+### Headcount Summary
+- Leadership: 1
+- Marketing & Brand: 4–5
+- Sales & CX: 3–4
+- Product & Supply: 3–4
+- Content & Media: 3–4
+- Technology & IT: 2–3
+- Ops & Finance: 2–3
+- **Total:** ~20
+
+### Notes
+- Dotted‑line relationships: Marketing ↔ Content, Product ↔ Sustainability
+- Some roles fractional or outsourced depending on growth stage
+- Structure supports compliance, scalability, and brand trust
+
+---
+
 ## 🗂️ Available Skills
 
 | Skill | File | Primary Purpose |
@@ -24,8 +56,10 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 | 🌍 **Grants Finder** | `grants-schemes-finder.md` | Find energy grants & schemes |
 | 🎬 **Video Finder** | `sustainability-video-finder.md` | Find sustainability videos |
 | 📰 **News Finder** | `sustainability-news-finder.md` | Sustainability news roundups |
+| 🧪 **New in Tech News** | `tech-news-finder.md` | Tech news roundups (green + general) |
 | ✍️ **Blog Writer** | `sustainability-blog-writer.md` | Generate blog content & ESG reports |
 | ⚡ **Energy Ticker** | `energy-ticker.md` | Live energy price ticker for Europe |
+| 📈 **Rate Consultant** | `rate-consultant.md` | Price trend insights for low‑energy products |
 | 🌐 **HTML Creator** | `html-content-creator.md` | Create HTML pages with images |
 | ✉️ **Secretary** | `secretary-skill.md` | Professional Greenways emails |
 | 🤖 **Ralph** | `RALPH-INTEGRATION.md` | Autonomous multi-step feature deployment |
@@ -33,6 +67,13 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 | 🔍 **Product Deep Dive** | `product-deep-dive.md` | Build deep-dive product info and pages |
 | 👥 **Member Manager** | `member-manager.md` | Member profiles, uploads, and access UX |
 | 💷 **Product Deal Finder** | `product-deal-finder.md` | Deals, discounts, and price comparisons |
+| 🕒 **Historical Data Finder** | `historical-data-finder.md` | Historical cost comparisons tied to energy prices |
+| 🧮 **Calculator Cohesion** | `calculator-cohesion.md` | Align calculators to shared enriched data |
+| ⚡ **Energy Dashboard** | `energy-dashboard-skill.md` | Main Greenways UI, utility detail, Wok Assist, equipment / deep dive / intelligence, deals hub, **savings tour**, **finance finder**, **schemes portals**, sustainable catalogue |
+| 🎵 **Live Music Finder** | `live-music-finder-skill.md` | Amsterdam jam/open-mic map, events feed/ticker, `venueId` map links, music guide, venue inquiries, Wix embeds |
+| 🧭 **Hover Data Aggregator** | `hover-data-aggregator.md` | Build hover cache with grants + deals |
+| 🧩 **Personalized Impact Hover** | `personalized-impact-hover.md` | Explain how info affects the user |
+| 🧠 **News → Product Recommender** | `news-product-recommender.md` | Suggest products for news items |
 | 📦 **Content Operations** | `content-operations.md` | Draft → review → publish workflow |
 | 🏗️ **Renovation Planner** | `sustainable-renovation-planner.md` | Renovation project plans with grants |
 
@@ -212,6 +253,153 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 
 ---
 
+### 🧮 Calculator Cohesion (Unified Calculator Data)
+
+**Activate when user says:**
+```
+"calculator data"
+"calculator data source"
+"align calculators"
+"same data for calculators"
+"enriched products for calculators"
+"grants on calculators"
+"calculator safety check"
+"avoid breaking calculators"
+"calculator cohesion"
+```
+
+**Routes to:** `calculator-cohesion.md`
+
+**Performs:**
+- Align calculator data sources to enriched products
+- Maintain safe fallbacks to legacy endpoints
+- Preserve comparative products
+- Validate grants/schemes availability
+
+---
+
+### ⚡ Energy Dashboard (Guidance + Savings Strategy)
+
+**Activate when user says:**
+```
+"energy dashboard"
+"dashboard strategy"
+"dashboard guidance"
+"bill savings dashboard"
+"decision matrix"
+"equipment alternatives"
+"recommendation confidence"
+"horizon savings"
+"energy guidance core"
+"dashboard ingestion"
+"kitchen operations adjustments"
+"restaurant energy optimization"
+"finance finder"
+"financial assistance"
+"restaurant green finance"
+"BNPL restaurant equipment"
+"schemes portal restaurant"
+"savings.html grants tab"
+```
+
+**Routes to:** `energy-dashboard-skill.md`
+
+**Performs:**
+- Keep dashboard calculation logic consistent across modules
+- Align unit normalization and horizon math
+- Ensure assumptions + confidence are shown in outputs
+- Coordinate alternatives, grants, and savings strategy flow
+- Preserve calculator safety boundaries while improving dashboard guidance
+- **`finance-finder-restaurant.html`**, **`savings.html`** grants wiring, schemes portal styling (see skill § Restaurant finance finder)
+
+---
+
+### 🎵 Live Music Finder (map + events ticker)
+
+**Activate when user says:**
+```
+"live music finder"
+"open mic map amsterdam"
+"live-events-ticker"
+"live-events-seeds"
+"venueId map link"
+"music guide venue"
+"music-venues.json"
+```
+
+**Routes to:** `live-music-finder-skill.md`
+
+**Performs:**
+- Map (`live-music-finder.html`), feed build (`npm run build:live-events-feed`), ticker/updates pages
+- Link feed rows to map via **`venueId`** and **`?venue=`** deep links
+- Wix/Render embed URLs; never **`file://`** for testing
+- Venue API, inquiries, music guide; agent intake via seeds / weekly / candidates JSON
+
+---
+
+### 🧭 Hover Data Aggregator (Hover Cache Builder)
+
+**Activate when user says:**
+```
+"hover data"
+"hover tooltip"
+"hover grants"
+"hover deals"
+"product hover info"
+"weekly hover update"
+"hover cache"
+```
+
+**Routes to:** `hover-data-aggregator.md`
+
+**Performs:**
+- Generate hover cache from enriched products
+- Keep grants in sync with product data
+- Merge deals from weekly cache
+- Output `data/hover-data.json`
+
+---
+
+### 🧩 Personalized Impact Hover (User Impact Explainer)
+
+**Activate when user says:**
+```
+"personalized hover"
+"why this matters to me"
+"impact summary"
+"hover explainer"
+"membership encouragement hover"
+```
+
+**Routes to:** `personalized-impact-hover.md`
+
+**Performs:**
+- Generate impact summaries from existing content
+- Map summaries to region/category
+- Provide membership CTA messaging
+
+---
+
+### 🧠 News → Product Recommender (Automated Example Links)
+
+**Activate when user says:**
+```
+"auto link products from news"
+"news to product matching"
+"recommend products from news"
+"automate example product links"
+"suggest products for policy updates"
+```
+
+**Routes to:** `news-product-recommender.md`
+
+**Performs:**
+- Match news items to products using knowledge base + enriched data
+- Output `data/news-product-recommendations.json`
+- Provide specific marketplace links
+
+---
+
 ### 🏗️ Sustainable Renovation Planner
 
 **Activate when user says:**
@@ -257,6 +445,75 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 - Generate HTML monthly/weekly news reports
 - Output drafts to content-ops for review
 - Use supporting reference docs for sources/outreach (see News Finder skill)
+
+---
+
+### 🧪 New in Tech News Finder
+
+**Activate when user says:**
+```
+"new in tech"
+"tech news"
+"technology news"
+"tech roundup"
+"green tech news"
+"clean tech updates"
+"innovation news"
+"tech policy update"
+```
+
+**Routes to:** `tech-news-finder.md`
+
+**Performs:**
+- Research green tech + general tech from authoritative sources
+- Generate HTML monthly/weekly tech news reports
+- Use the same format and recency window as sustainability news
+- Output drafts to content-ops for review
+
+---
+
+### 🧩 News HTML Enhancer
+
+**Activate when user says:**
+```
+"update February edition"
+"apply January template"
+"news HTML enhancements"
+"add help buttons"
+"How does this affect you buttons"
+"add example products section"
+"news template updates"
+"newsletter HTML update"
+```
+
+**Routes to:** `html-content-creator.md`, `personalized-impact-hover.md`, `news-product-recommender.md`, `content-operations.md`
+
+**Performs:**
+- Apply January template patterns to new monthly HTMLs
+- Add “How does this affect you” toggles + “Find out more” CTAs
+- Add Example Products by Topic section with marketplace links
+- Ensure product links are Render-safe and data-driven where possible
+- Update sidebar navigation to include new sections
+
+---
+
+### 🗺️ Company Case Study Finder
+
+**Activate when user says:**
+```
+"company case study finder"
+"company map"
+"list of companies mentioned in HTMLs"
+"add a company to the map"
+"case study database"
+```
+
+**Routes to:** `html-content-creator.md`, `content-operations.md`
+
+**Performs:**
+- Maintain the company list in `data/companies.json`
+- Ensure `HTMLS GWM GWB/European Company - Case Study Finder .html` stays in sync
+- Use `/api/companies` for persistent additions
 
 ---
 
@@ -310,6 +567,50 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 - Build a two-line energy ticker (All Energy + Renewables)
 - Fetch data via backend proxy (avoid CORS)
 - Provide HTML widget for Wix embed
+
+---
+
+### 📈 Rate Consultant (Price Trend Insights)
+
+**Activate when user says:**
+```
+"price trends"
+"energy price insights"
+"use energy prices for insights"
+"savings potential"
+"rate consultant"
+"wholesale vs retail"
+```
+
+**Routes to:** `rate-consultant.md`
+
+**Performs:**
+- Converts wholesale trends into safe insights
+- Creates badges and CTA modules
+- Adds disclaimers to avoid retail‑bill claims
+
+---
+
+### 🕒 Historical Data Finder (Historical Price/Cost Comparisons)
+
+**Activate when user says:**
+```
+"historical cost"
+"price history"
+"cost over time"
+"historical data finder"
+"appliance cost today"
+"how much does this product cost to run"
+"baseline vs low energy"
+"compare old vs new appliance cost"
+```
+
+**Routes to:** `historical-data-finder.md`
+
+**Performs:**
+- Build cost comparisons using energy price history
+- Provide baseline vs low‑energy savings ranges
+- Define data sources and caching strategy
 
 ---
 
@@ -569,6 +870,12 @@ User Request
     ├── Contains "video", "YouTube", "embed video"?
     │   └── → sustainability-video-finder.md
     │
+    ├── Contains "news to product", "auto link products", "example product links"?
+    │   └── → news-product-recommender.md
+    │
+    ├── Contains "new in tech", "tech news", "technology news", "tech roundup"?
+    │   └── → tech-news-finder.md
+    │
     ├── Contains "sustainability news", "news roundup", "policy update report"?
     │   └── → sustainability-news-finder.md
     │
@@ -577,6 +884,9 @@ User Request
     │
     ├── Contains "energy ticker", "energy prices", "electricity prices", "renewable share"?
     │   └── → energy-ticker.md
+    │
+    ├── Contains "price trends", "energy price insights", "savings potential", "wholesale vs retail"?
+    │   └── → rate-consultant.md
     │
     ├── Contains "content workflow", "publish content", "content pipeline"?
     │   └── → content-operations.md
@@ -730,8 +1040,10 @@ C:\Users\steph\Documents\energy-cal-backend\Skills\
 | `grants-schemes-finder.md` | ~420 lines | January 2025 |
 | `sustainability-video-finder.md` | ~420 lines | January 2025 |
 | `sustainability-news-finder.md` | New | January 2026 |
+| `news-product-recommender.md` | New | February 2026 |
 | `sustainability-blog-writer.md` | ~500 lines | January 2026 |
 | `energy-ticker.md` | New | January 2026 |
+| `rate-consultant.md` | New | January 2026 |
 | `html-content-creator.md` | ~270 lines | January 2026 |
 | `product-deep-dive.md` | New | January 2026 |
 | `member-manager.md` | New | January 2026 |
@@ -971,8 +1283,11 @@ git commit -m "📚 Update SKILL-ORCHESTRATOR: Add new trigger phrases for styli
 │  👥 MEMBERS         → "profile", "member manager"             │
 │  🎬 VIDEOS         → "videos", "YouTube", "sustainability"    │
 │  📰 NEWS           → "news roundup", "sustainability news"    │
+│  🧪 NEW IN TECH     → "new in tech", "tech news"              │
+│  🧠 NEWS→PRODUCT   → "news to product", "example links"       │
 │  ✍️ BLOG           → "write", "blog", "ESG", "article"        │
 │  ⚡ ENERGY TICKER  → "energy prices", "energy ticker"         │
+│  📈 RATE CONSULT  → "price trends", "savings potential"       │
 │  🌐 HTML           → "create page", "HTML", "webpage"         │
 │  🏗️ RENOVATION     → "renovation plan", "retrofit"           │
 │  ✉️ SECRETARY      → "write email", "outreach", "contact"     │

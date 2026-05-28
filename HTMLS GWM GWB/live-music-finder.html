@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Live Music Finder For Artists — Open mic &amp; jam nights</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+  :root {
+    --orange:     #c45e0a;
+    --orange-lt:  #f0a03a;
+    --orange-dk:  #8b3a06;
+    --bg:         #0d0d0d;
+    --panel:      #161616;
+    --panel2:     #1e1e1e;
+    --border:     rgba(196,94,10,0.25);
+    --text:       #e8e0d8;
+    --muted:      #888;
+    --map-bg:     #0b2a3d;
+    --map-sea:    #0f3550;
+    --land:       #1c3a4a;
+    --land-focus: #2a4f62;
+    --land-hover: #2e5870;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    z-index: 100;
+  }
+  header .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4em;
+    background: linear-gradient(135deg, var(--orange), var(--orange-lt));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header .tagline {
+    font-size: 0.8em;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .header-stats {
+    display: flex;
+    gap: 30px;
+  }
+  .hstat {
+    text-align: center;
+  }
+  .hstat-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3em;
+    color: var(--orange-lt);
+  }
+  .hstat-lbl {
+    font-size: 0.72em;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    display: flex;
+    flex: 1;
+    min-height: calc(100vh - 72px);
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 300px;
+    min-width: 300px;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 50;
+  }
+
+  .sidebar-top {
+    padding: 18px 18px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .sidebar-title {
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--orange);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  .search-box {
+    width: 100%;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88em;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus {
+    border-color: var(--orange);
+  }
+  .search-box::placeholder { color: var(--muted); }
+
+  .filter-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    font-size: 0.72em;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: white;
+  }
+
+  .company-list {
+    overflow-y: auto;
+    flex: 1;
+    padding: 8px 0;
+  }
+  .company-list::-webkit-scrollbar { width: 4px; }
+  .company-list::-webkit-scrollbar-track { background: transparent; }
+  .company-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .company-item {
+    padding: 12px 18px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-left: 3px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .company-item:hover {
+    background: var(--panel2);
+  }
+  .company-item.active {
+    background: rgba(196,94,10,0.12);
+    border-left-color: var(--orange);
+  }
+  .company-dot-mini {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .company-name {
+    font-size: 0.88em;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .company-country {
+    font-size: 0.75em;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .company-savings-mini {
+    margin-left: auto;
+    font-size: 0.75em;
+    color: var(--orange-lt);
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* ── MAP AREA ── */
+  .map-container {
+    flex: 1;
+    position: relative;
+    background: radial-gradient(ellipse at 40% 40%, #0f3d5a 0%, #071a28 100%);
+    overflow: hidden;
+  }
+
+  #map-svg {
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+  }
+  #map-svg:active { cursor: grabbing; }
+
+  .country-path {
+    fill: var(--land);
+    stroke: #1e4a5e;
+    stroke-width: 0.8;
+    transition: fill 0.2s;
+  }
+  .country-path:hover {
+    fill: var(--land-hover);
+  }
+  .country-focus {
+    fill: var(--land-focus) !important;
+  }
+
+  /* Map controls */
+  .map-controls {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .map-btn {
+    width: 36px;
+    height: 36px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 1.1em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .map-btn:hover {
+    background: var(--orange);
+    border-color: var(--orange);
+  }
+
+  /* Reset view btn */
+  .reset-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 0.78em;
+    padding: 7px 14px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+  .reset-btn:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+
+  /* ── COMPANY POPUP ── */
+  .popup {
+    position: fixed;
+    background: var(--panel);
+    border: 1px solid var(--orange);
+    border-radius: 14px;
+    padding: 0;
+    width: 300px;
+    max-width: calc(100vw - 24px);
+    max-height: min(85vh, 560px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(196,94,10,0.3);
+    pointer-events: all;
+    z-index: 300;
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .popup.visible {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  .popup-header {
+    background: linear-gradient(135deg, var(--orange-dk), var(--orange));
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .popup-company-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1em;
+    color: white;
+    line-height: 1.3;
+    flex: 1;
+  }
+  .popup-close {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .popup-close:hover { background: rgba(255,255,255,0.35); }
+  .popup-body {
+    padding: 14px 16px;
+  }
+  .popup-country-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75em;
+    background: rgba(196,94,10,0.15);
+    border: 1px solid rgba(196,94,10,0.3);
+    color: var(--orange-lt);
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+  .verify-pill {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    font-size: 0.68em;
+    letter-spacing: 0.03em;
+  }
+  .verify-pill.verified {
+    background: rgba(39, 174, 96, 0.22);
+    color: #97e7bf;
+    border: 1px solid rgba(39, 174, 96, 0.4);
+  }
+  .verify-pill.unverified {
+    background: rgba(240, 160, 58, 0.18);
+    color: #ffd6a0;
+    border: 1px solid rgba(240, 160, 58, 0.35);
+  }
+  .verify-note {
+    font-size: 0.72em;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .verify-note.stale {
+    color: #ffd08c;
+  }
+  .popup-desc {
+    font-size: 0.83em;
+    color: #aaa;
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  .popup-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .popup-stat {
+    background: var(--panel2);
+    border-radius: 8px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+  .popup-stat-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05em;
+    color: var(--orange-lt);
+  }
+  .popup-stat-lbl {
+    font-size: 0.68em;
+    color: var(--muted);
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .popup-sector {
+    font-size: 0.75em;
+    color: var(--muted);
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .popup-sector span {
+    color: var(--orange-lt);
+  }
+
+
+  .popup-scroll {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .popup-scroll::-webkit-scrollbar { width: 5px; }
+  .popup-scroll::-webkit-scrollbar-thumb {
+    background: rgba(196,94,10,0.35);
+    border-radius: 3px;
+  }
+
+  .popup-image-wrap {
+    width: 100%; height: 120px; background: var(--panel2); overflow: hidden;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .popup-image-wrap img { width: 100%; height: 100%; object-fit: cover; }
+  .popup-image-placeholder {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; color: rgba(196,94,10,0.35);
+    background: linear-gradient(135deg, #1a1a1a, #252015);
+  }
+  .popup-link {
+    display: inline-block; margin-top: 10px; font-size: 0.78em; color: var(--orange-lt);
+    text-decoration: none; border-bottom: 1px solid rgba(240,160,58,0.35);
+  }
+  .popup-link:hover { color: white; }
+  .vibe-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0 10px;
+  }
+  .vibe-chip {
+    font-size: 0.68em;
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #cfd6df;
+    background: rgba(255,255,255,0.03);
+  }
+  .video-section {
+    margin-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 10px;
+  }
+  .video-preview {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    cursor: pointer;
+  }
+  .video-frame {
+    width: 100%;
+    height: 170px;
+    border: 0;
+    border-radius: 8px;
+    margin-top: 8px;
+  }
+  .popup-actions { margin-top: 10px; display: flex; gap: 8px; }
+  .popup-mini-btn {
+    flex: 1;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.03);
+    color: var(--text);
+    border-radius: 8px;
+    font-size: 0.74em;
+    padding: 7px 8px;
+    cursor: pointer;
+  }
+  .popup-mini-btn:hover { border-color: var(--orange); color: var(--orange-lt); }
+  .popup-inquiry {
+    margin-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 10px;
+  }
+  .popup-inquiry h4 {
+    margin-bottom: 8px;
+    font-size: 0.78em;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--orange-lt);
+  }
+  .popup-inquiry input,
+  .popup-inquiry textarea {
+    width: 100%;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 7px;
+    padding: 7px 8px;
+    font-size: 0.75em;
+    margin-bottom: 7px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .popup-inquiry textarea { min-height: 64px; resize: vertical; }
+  .popup-inquiry-status {
+    min-height: 18px;
+    font-size: 0.72em;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .popup-stat.full-width { grid-column: 1 / -1; text-align: left; }
+  .popup-stat.full-width .popup-stat-val {
+    font-size: 0.88em; font-family: 'DM Sans', sans-serif; line-height: 1.4;
+  }
+
+  /* ── MAP DOTS ── */
+  .company-marker {
+    cursor: pointer;
+  }
+  .marker-pulse {
+    opacity: 0;
+  }
+  .company-marker.selected .marker-pulse,
+  .company-marker:hover .marker-pulse {
+    animation: pulse-ring 3.6s ease-out infinite;
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+  @keyframes pulse-ring {
+    0%   { opacity: 0.18; }
+    100% { opacity: 0; }
+  }
+  .marker-dot {
+    transition: r 0.2s ease;
+  }
+  .company-marker:hover .marker-dot {
+    r: 8;
+  }
+  .company-marker.selected .marker-dot {
+    r: 9;
+  }
+
+  /* Country label */
+  .country-label {
+    fill: rgba(255,255,255,0.25);
+    font-size: 9px;
+    font-family: 'DM Sans', sans-serif;
+    pointer-events: none;
+    text-anchor: middle;
+  }
+
+  /* ── ADD COMPANY MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .modal {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    width: 420px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3em;
+    color: var(--orange-lt);
+    margin-bottom: 4px;
+  }
+  .modal-sub {
+    font-size: 0.82em;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .form-row {
+    margin-bottom: 14px;
+  }
+  .form-label {
+    font-size: 0.78em;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    margin-bottom: 5px;
+    display: block;
+  }
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88em;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--orange);
+  }
+  .form-select option { background: #1e1e1e; }
+  .form-textarea { resize: vertical; min-height: 70px; }
+  .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .btn-primary {
+    flex: 1;
+    padding: 11px;
+    background: linear-gradient(135deg, var(--orange), var(--orange-dk));
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-secondary {
+    padding: 11px 20px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--orange); color: var(--orange); }
+
+  /* Add company button in sidebar */
+  .add-company-btn {
+    margin: 10px 18px 14px;
+    width: calc(100% - 36px);
+    padding: 9px;
+    background: transparent;
+    border: 1px dashed rgba(196,94,10,0.45);
+    border-radius: 8px;
+    color: var(--orange);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82em;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .add-company-btn:hover {
+    background: rgba(196,94,10,0.1);
+    border-color: var(--orange);
+  }
+
+  /* Legend */
+  .legend {
+    position: absolute;
+    bottom: 24px;
+    left: 16px;
+    background: rgba(22,22,22,0.9);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.72em;
+  }
+  .legend-title {
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 7px;
+    font-size: 0.9em;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 4px;
+    color: #bbb;
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Tooltip on hover (before click) */
+  .map-tooltip {
+    position: absolute;
+    background: rgba(22,22,22,0.95);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.78em;
+    color: var(--text);
+    pointer-events: none;
+    z-index: 150;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  /* Count badge */
+  .count-badge {
+    background: var(--orange);
+    color: white;
+    font-size: 0.7em;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 20px;
+    margin-left: 6px;
+  }
+
+  @media (max-width: 700px) {
+    .sidebar { width: 240px; min-width: 240px; }
+    header .header-stats { gap: 14px; }
+    .hstat-val { font-size: 1em; }
+  }
+
+  .guide-toggle {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 320;
+    background: linear-gradient(135deg, var(--orange), var(--orange-dk));
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 0.82em;
+  }
+  .guide-panel {
+    position: fixed;
+    right: 16px;
+    bottom: 62px;
+    width: 320px;
+    max-width: calc(100vw - 24px);
+    height: 410px;
+    background: rgba(16,16,16,0.96);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    z-index: 320;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .guide-panel.open { display: flex; }
+  .guide-header {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-size: 0.8em;
+    color: var(--orange-lt);
+    font-weight: 600;
+  }
+  .guide-profile {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+  }
+  .guide-profile input,
+  .guide-profile select {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 6px 7px;
+    font-size: 0.72em;
+  }
+  .guide-log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    font-size: 0.76em;
+    line-height: 1.45;
+    color: #ddd;
+    white-space: pre-wrap;
+  }
+  .guide-row {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .guide-row input {
+    flex: 1;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 8px 9px;
+    font-size: 0.75em;
+  }
+  .admin-link {
+    position: fixed;
+    right: 16px;
+    bottom: 56px;
+    z-index: 320;
+    font-size: 0.76em;
+    color: #d7c4ad;
+    text-decoration: none;
+  }
+  .admin-link.secondary { bottom: 76px; }
+  .header-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    align-items: center;
+    margin-right: 12px;
+  }
+  .header-nav a {
+    font-size: 0.78em;
+    color: var(--orange-lt);
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(240, 160, 58, 0.45);
+    white-space: nowrap;
+  }
+  .header-nav a:hover { color: #fff; border-bottom-color: var(--orange-lt); }
+  html.embed-hub header { display: none !important; }
+  html.embed-hub .main { min-height: 100vh; height: 100vh; }
+  html.embed-hub .admin-link,
+  html.embed-hub .guide-toggle { display: none !important; }
+</style>
+<script>
+(function () {
+  try {
+    var q = new URLSearchParams(window.location.search);
+    if (q.get("embed") === "hub") document.documentElement.classList.add("embed-hub");
+  } catch (e) { /* ignore */ }
+})();
+</script>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">🎵 Live Music Finder For Artists</div>
+    <div class="tagline">Open mic nights &amp; jam sessions for musicians</div>
+  </div>
+  <nav class="header-nav" aria-label="Live Music Finder tools">
+    <a href="./live-music-hub.html">All tools hub</a>
+    <a href="./live-events-ticker.html">Events ticker</a>
+  </nav>
+  <div class="header-stats">
+    <div class="hstat">
+      <div class="hstat-val" id="stat-venues">0</div>
+      <div class="hstat-lbl">Venues</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val" id="stat-genres">0</div>
+      <div class="hstat-lbl">Music styles</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val" id="stat-city">Amsterdam</div>
+      <div class="hstat-lbl">City</div>
+    </div>
+  </div>
+</header>
+
+<div class="main">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-title">Music venues <span class="count-badge" id="list-count">0</span></div>
+      <input class="search-box" type="text" placeholder="Search venues, styles, or areas…" id="search-input">
+      <div class="filter-row" id="filter-row">
+        <button class="filter-btn active" data-genre="all">All</button>
+      </div>
+    </div>
+    <div class="company-list" id="company-list"></div>
+    <button class="add-company-btn" id="add-company-btn">＋ Suggest a venue</button>
+  </div>
+
+  <!-- MAP -->
+  <div class="map-container" id="map-container">
+    <button class="reset-btn" id="reset-btn">↺ Reset View</button>
+    <svg id="map-svg"></svg>
+    <div class="map-controls">
+      <button class="map-btn" id="zoom-in">＋</button>
+      <button class="map-btn" id="zoom-out">－</button>
+    </div>
+    <div class="legend" id="legend"></div>
+    <div class="map-tooltip" id="map-tooltip"></div>
+  </div>
+</div>
+
+<a class="admin-link secondary" href="./music-venues-admin.html" target="_blank" rel="noopener noreferrer">Open venues admin</a>
+<a class="admin-link" href="./music-inquiries-admin.html" target="_blank" rel="noopener noreferrer">Open inquiries admin</a>
+<button class="guide-toggle" id="guide-toggle">🎵 Ask Music Guide</button>
+<div class="guide-panel" id="guide-panel">
+  <div class="guide-header">Music Guide Assistant</div>
+  <div class="guide-profile">
+    <input id="guide-instrument" placeholder="Instrument">
+    <input id="guide-style" placeholder="Style">
+    <select id="guide-level">
+      <option value="">Any level</option>
+      <option value="beginner">Beginner</option>
+      <option value="intermediate">Intermediate</option>
+      <option value="advanced">Advanced</option>
+      <option value="pro">Pro</option>
+    </select>
+  </div>
+  <div class="guide-log" id="guide-log">Ask things like "Where can I play jazz on Tuesday?"</div>
+  <div class="guide-row">
+    <input id="guide-input" placeholder="Ask about jam nights, styles, or venues...">
+    <button class="popup-mini-btn" id="guide-send">Send</button>
+  </div>
+</div>
+
+<!-- POPUP (absolute within map) -->
+<div class="popup" id="popup">
+  <div class="popup-header">
+    <div class="popup-company-name" id="popup-name"></div>
+    <button class="popup-close" id="popup-close">✕</button>
+  </div>
+  <div class="popup-scroll">
+    <div class="popup-image-wrap" id="popup-image-wrap">
+      <div class="popup-image-placeholder" id="popup-image-placeholder">🎵</div>
+      <img id="popup-image" alt="" hidden>
+    </div>
+    <div class="popup-body">
+      <div class="popup-country-tag" id="popup-country"></div>
+      <div class="popup-desc" id="popup-desc"></div>
+      <div class="popup-stats" id="popup-stats"></div>
+      <div class="popup-sector" id="popup-genre"></div>
+      <div class="vibe-tags" id="popup-vibes"></div>
+      <a class="popup-link" id="popup-link" href="#" target="_blank" rel="noopener noreferrer" hidden>View listing / venue site →</a>
+      <a class="popup-link" id="popup-maps-link" href="#" target="_blank" rel="noopener noreferrer" hidden>Open in Google Maps →</a>
+      <a class="popup-link" id="popup-contact-email" href="#" hidden>Email venue contact →</a>
+      <div class="video-section" id="popup-video-section" hidden>
+        <div class="verify-note">Jam clip</div>
+        <img id="popup-video-thumb" class="video-preview" alt="Venue jam video thumbnail">
+        <iframe id="popup-video-frame" class="video-frame" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen hidden></iframe>
+      </div>
+      <div class="popup-actions">
+        <button class="popup-mini-btn" id="open-inquiry-btn">Send message</button>
+        <button class="popup-mini-btn" id="open-guide-btn">Ask guide</button>
+      </div>
+      <div class="popup-inquiry" id="popup-inquiry" hidden>
+        <h4>Contact this venue</h4>
+        <input id="inq-name" placeholder="Your name">
+        <input id="inq-email" placeholder="Your email">
+        <input id="inq-instrument" placeholder="Instrument / style (optional)">
+        <input id="inq-date" placeholder="Preferred day / date (optional)">
+        <input id="inq-company" placeholder="Company" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;">
+        <textarea id="inq-message" placeholder="Message to venue..."></textarea>
+        <button class="popup-mini-btn" id="inq-send-btn">Send inquiry</button>
+        <div class="popup-inquiry-status" id="inq-status"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD COMPANY MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3>Suggest a venue</h3>
+    <div class="modal-sub">Add a jam night or open mic you know about. Pins use Amsterdam area until the address is geocoded.</div>
+    <div class="form-row">
+      <label class="form-label">Venue name *</label>
+      <input class="form-input" id="f-name" placeholder="e.g. Café de Muurbloem">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Music style *</label>
+      <select class="form-select" id="f-genre">
+        <option value="jazz">Jazz jam</option>
+        <option value="open-mic">Open mic</option>
+        <option value="open-jam">Open jam</option>
+        <option value="gypsy-swing">Gypsy swing</option>
+        <option value="mixed">Mixed / variety</option>
+        <option value="live-music">Live music (other)</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Genre / format</label>
+      <input class="form-input" id="f-format" placeholder="e.g. Jazz jam, acoustic welcome">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Day / time</label>
+      <input class="form-input" id="f-schedule" placeholder="e.g. Tuesday 20:00–23:00">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Address</label>
+      <input class="form-input" id="f-address" placeholder="Street, postcode, Amsterdam">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Listing URL</label>
+      <input class="form-input" id="f-url" placeholder="https://…">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Venue contact email (optional)</label>
+      <input class="form-input" id="f-contact-email" placeholder="bookings@venue.com">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Vibe tags (comma-separated)</label>
+      <input class="form-input" id="f-vibes" placeholder="chill, acoustic, jazz-club">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Google Maps URL</label>
+      <input class="form-input" id="f-maps-url" placeholder="https://maps.google.com/...">
+    </div>
+    <div class="form-row">
+      <label class="form-label">YouTube video IDs (comma-separated)</label>
+      <input class="form-input" id="f-youtube-ids" placeholder="dQw4w9WgXcQ, abc123xyz">
+    </div>
+    <div class="form-row">
+      <label class="form-label">About the venue</label>
+      <textarea class="form-textarea" id="f-desc" placeholder="Vibe, sign-up rules, who plays here…"></textarea>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Image URL (Wix static when ready)</label>
+      <input class="form-input" id="f-image" placeholder="https://static.wixstatic.com/media/…">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="modal-save">Add to Map</button>
+      <button class="btn-secondary" id="modal-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Live Music Finder — loads data/music-venues.json (served via Express static root)
+const MUSIC_VENUES_FALLBACK = [{"id":1,"name":"Zoku Amsterdam","genre":"open-mic","format":"Open mic for musicians, live music","schedule":"Rooftop Open Mic Night; sign-up 17:30–18:00","address":"Weesperstraat 105, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.9056,"lat":52.361,"desc":"Rooftop open mic with sign-up before the session — a hotel-meets-creative-space venue welcoming musicians for live performance.","imageUrl":"https://static.wixstatic.com/media/c123de_24f207656eba41eaafc1556ced2caa0d~mv2.jpg","url":"https://livezoku.com/amsterdam/events/rooftop-open-mic-night/"},{"id":2,"name":"Buurthuis de Sering","genre":"open-mic","format":"Open mic, mixed performance with music","schedule":"Monthly Open Mic Night","address":"Rhoneweg 6, 1043 AH Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8268,"lat":52.3867,"desc":"Community centre open mic mixing music with other performance — friendly neighbourhood stage for trying new material.","imageUrl":"https://static.wixstatic.com/media/c123de_61a11dc1a168478eb53aee56401f18d4~mv2.jpg","url":"https://www.iamsterdam.com/en/whats-on/calendar/concerts-and-music/concerts/sering-open-mic-night"},{"id":3,"name":"Bimhuis","genre":"jazz","format":"Jazz jam / live music venue","schedule":"Tuesday jam/session","address":"Piet Heinkade 3, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.9136,"lat":52.3731,"desc":"Internationally known jazz venue on the waterfront — professional stage for jazz jams and live sessions.","imageUrl":"https://static.wixstatic.com/media/c123de_dbd9ce74d28640a589a494f6524ca25d~mv2.jpg","url":"https://www.bimhuis.nl"},{"id":4,"name":"Café Czaar","genre":"jazz","format":"Jazz jam","schedule":"2nd and 4th Saturday, 21:00–23:30","address":"Czaar Peterstraat 281, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.929,"lat":52.363,"desc":"Intimate café jazz jam twice a month — sit-in session for improvisers in east Amsterdam.","imageUrl":"https://static.wixstatic.com/media/c123de_0c364f5e0d324e48866aa3a9ee678eeb~mv2.jpg","url":"https://www.jazzinamsterdam.com/"},{"id":5,"name":"Café Engelbewaarder","genre":"jazz","format":"Jazz jam","schedule":"Sunday, 16:30–20:00","address":"Kloveniersburgwal 86, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8992,"lat":52.3698,"desc":"Classic Amsterdam brown café with a long-running Sunday jazz jam in the Jordaan.","imageUrl":"","url":"https://www.jazzinamsterdam.com/"},{"id":6,"name":"Café de Pianist","genre":"jazz","format":"Jazz jam","schedule":"Thursday jam session","address":"Utrechtsestraat 122, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8935,"lat":52.3595,"desc":"Thursday evening jazz jam in a piano-bar setting — welcoming players for standards and improvisation.","imageUrl":"https://static.wixstatic.com/media/c123de_a33b3f22f1b64c7aaf0e0601ab1dabba~mv2.jpg","url":"https://www.jazzinamsterdam.com/"},{"id":7,"name":"Café Langereis","genre":"gypsy-swing","format":"Gypsy swing / jam","schedule":"Tuesday gypsy swing session","address":"Eerste Helmersstraat 9, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8725,"lat":52.3662,"desc":"Tuesday gypsy swing jam — Django-style guitars and violin-friendly session in Oud-West.","imageUrl":"https://static.wixstatic.com/media/c123de_5a25f3fab50f40b7913768ba43a8b76f~mv2.jpg","url":"https://www.jazzinamsterdam.com/"},{"id":8,"name":"Café de Muurbloem","genre":"jazz","format":"Jazz jam","schedule":"Wednesday session","address":"Plantage Middenlaan 35, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.9128,"lat":52.3668,"desc":"Wednesday jazz session near Artis — relaxed café jam in the Plantage neighbourhood.","imageUrl":"https://static.wixstatic.com/media/c123de_cd0c4879cd4243bb952074de90e951ec~mv2.jpg","url":"https://www.jazzinamsterdam.com/"},{"id":9,"name":"Studio K","genre":"jazz","format":"Jazz session","schedule":"Wednesday session","address":"Timorplein 62, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.9276,"lat":52.3663,"desc":"Cultural venue in Oost with a midweek jazz session — film-house atmosphere with live music programming.","imageUrl":"https://static.wixstatic.com/media/c123de_15aae0fb2030435d99f883c13f0423b4~mv2.jpg","url":"https://www.jazzinamsterdam.com/"},{"id":10,"name":"Zaal 100","genre":"jazz","format":"Jazz café / jam","schedule":"Tuesday and Thursday","address":"Piratenweg 256, Amsterdam (NDSM)","city":"Amsterdam","country":"Netherlands","lng":4.8912,"lat":52.4012,"desc":"NDSM jazz café with twice-weekly jams — creative harbour-side room for acoustic and small-combo jazz.","imageUrl":"","url":"https://www.jazzinamsterdam.com/"},{"id":11,"name":"Posthoornkerk","genre":"jazz","format":"Jazz club / live music","schedule":"Friday and Saturday","address":"Haarlemmerstraat 110, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8931,"lat":52.3784,"desc":"Weekend jazz club in a former church space — live sets and club programming near the Haarlemmerbuurt.","imageUrl":"https://static.wixstatic.com/media/c123de_b7925e9cdf214d3a9dd226b00cc516ca~mv2.jpg","url":"https://www.jazzinamsterdam.com/"},{"id":12,"name":"Kaap Amsterdam","genre":"open-jam","format":"Open jam","schedule":"Open Jam Session at 21:30 after the live set","address":"Cruquiusweg 204, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.9352,"lat":52.3648,"desc":"Open jam after the headline set — join the stage once the booked act finishes (Kaap LIVE programming).","imageUrl":"https://static.wixstatic.com/media/c123de_dbbea148814f491eb85b92a84e6e5cf5~mv2.jpg","url":"https://kaapamsterdam.nl/"},{"id":13,"name":"Ruby Emma","genre":"open-mic","format":"Open mic / music event","schedule":"Recurring open mic/music events","address":"Amstelvlietstraat 4, 1096 GG Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.934,"lat":52.352,"desc":"Recurring open mic and music nights at this Amstel-side venue — check listings for the next sign-up slot.","imageUrl":"https://static.wixstatic.com/media/c123de_b8584b0d4c9a4f78ac2e9c59f9c3f26f~mv2.jpg","url":"https://openstageperformances.com/"}];
+const MAP_CENTER = {"lng":4.9041,"lat":52.3676};
+
+const GENRE_COLORS = {
+  jazz: "#c45e0a",
+  "open-mic": "#e9c46a",
+  "open-jam": "#2a9d8f",
+  "gypsy-swing": "#f4845f",
+  mixed: "#6c91c2",
+  "live-music": "#8ecae6",
+  other: "#aaa"
+};
+
+const GENRE_LABELS = {
+  jazz: "Jazz",
+  "open-mic": "Open mic",
+  "open-jam": "Open jam",
+  "gypsy-swing": "Gypsy swing",
+  mixed: "Mixed",
+  "live-music": "Live music",
+  other: "Other"
+};
+
+let venues = [];
+let activeId = null;
+let activeVenue = null;
+let currentFilter = "all";
+let searchTerm = "";
+let inquiryFormOpenedAt = 0;
+
+const mapContainer = document.getElementById("map-container");
+const svg = d3.select("#map-svg");
+let width = mapContainer.clientWidth;
+let height = mapContainer.clientHeight;
+
+const projection = d3.geoMercator()
+  .center([MAP_CENTER.lng, MAP_CENTER.lat])
+  .scale(Math.min(width, height) * 18)
+  .translate([width * 0.5, height * 0.52]);
+
+const path = d3.geoPath().projection(projection);
+const g = svg.append("g").attr("id", "map-group");
+
+const zoomBehaviour = d3.zoom()
+  .scaleExtent([0.6, 40])
+  .on("zoom", (event) => {
+    g.attr("transform", event.transform);
+    g.selectAll(".marker-dot").attr("r", 6 / event.transform.k * 1.2);
+    g.selectAll(".marker-pulse").attr("r", 0);
+    g.selectAll(".country-label").attr("font-size", `${9 / event.transform.k}px`);
+  });
+
+svg.call(zoomBehaviour);
+
+document.getElementById("zoom-in").onclick = () =>
+  svg.transition().duration(300).call(zoomBehaviour.scaleBy, 1.4);
+document.getElementById("zoom-out").onclick = () =>
+  svg.transition().duration(300).call(zoomBehaviour.scaleBy, 0.7);
+document.getElementById("reset-btn").onclick = resetView;
+
+function resetView() {
+  const [x, y] = projection([MAP_CENTER.lng, MAP_CENTER.lat]);
+  const scale = 8;
+  svg.transition().duration(600).call(
+    zoomBehaviour.transform,
+    d3.zoomIdentity.translate(width / 2 - scale * x, height / 2 - scale * y).scale(scale)
+  );
+}
+
+function genreColor(v) {
+  return GENRE_COLORS[v.genre] || v.color || "#c45e0a";
+}
+
+function genreLabel(slug) {
+  return GENRE_LABELS[slug] || (slug ? slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, " ") : "");
+}
+
+function verificationStatusLabel(value) {
+  const v = (value || "unverified").toLowerCase();
+  return v === "verified" ? "Verified" : "Unverified";
+}
+
+function isVerificationStale(lastVerified) {
+  if (!lastVerified) return true;
+  const time = new Date(lastVerified).getTime();
+  if (!Number.isFinite(time)) return true;
+  return Date.now() - time > 30 * 24 * 60 * 60 * 1000;
+}
+
+async function loadVenues() {
+  const paths = ["/api/music-venues", "../data/music-venues.json", "/data/music-venues.json", "data/music-venues.json"];
+  for (const p of paths) {
+    try {
+      const r = await fetch(p);
+      if (r.ok) {
+        const data = await r.json();
+        const items = data.items || data;
+        if (Array.isArray(items) && items.length) {
+          return items.map(normalizeVenue);
+        }
+      }
+    } catch (_) { /* try next */ }
+  }
+  return MUSIC_VENUES_FALLBACK.map(normalizeVenue);
+}
+
+function normalizeVenue(v) {
+  return {
+    ...v,
+    genre: v.genre || "other",
+    vibeTags: Array.isArray(v.vibeTags) ? v.vibeTags : [],
+    mapsUrl: v.mapsUrl || "",
+    youtubeVideos: Array.isArray(v.youtubeVideos) ? v.youtubeVideos : [],
+    verificationStatus: v.verificationStatus || "unverified",
+    lastVerified: v.lastVerified || "",
+    source: v.source || "seed",
+    color: v.color || GENRE_COLORS[v.genre] || GENRE_COLORS.other
+  };
+}
+
+function initMap() {
+  const geoUrl = "https://raw.githubusercontent.com/leakyMirror/map-of-europe/master/GeoJSON/europe.geojson";
+  fetch(geoUrl)
+    .then(r => r.json())
+    .then(data => {
+      g.selectAll(".country-path")
+        .data(data.features)
+        .enter()
+        .append("path")
+        .attr("class", "country-path")
+        .attr("d", path);
+      g.selectAll(".country-label")
+        .data(data.features.filter(f => f.properties && f.properties.NAME))
+        .enter()
+        .append("text")
+        .attr("class", "country-label")
+        .attr("transform", d => {
+          const c = path.centroid(d);
+          return `translate(${c[0]},${c[1]})`;
+        })
+        .text(d => {
+          const name = d.properties.NAME;
+          if (name === "Netherlands") return "NL";
+          return name && name.length <= 6 ? name : "";
+        });
+      afterDataReady();
+    })
+    .catch(() => afterDataReady());
+}
+
+function afterDataReady() {
+  renderFilterButtons();
+  renderDots();
+  updateStats();
+  renderSidebar();
+  renderLegend();
+  resetView();
+}
+
+function renderFilterButtons() {
+  const genres = [...new Set(venues.map(v => v.genre))].sort();
+  const row = document.getElementById("filter-row");
+  row.innerHTML = '<button class="filter-btn active" data-genre="all">All</button>' +
+    genres.map(g => `<button class="filter-btn" data-genre="${g}">${genreLabel(g)}</button>`).join("");
+}
+
+function getFiltered() {
+  return venues.filter(v => {
+    const matchGenre = currentFilter === "all" || v.genre === currentFilter;
+    const q = searchTerm;
+    const hay = [v.name, v.city, v.country, v.address, v.format, v.schedule, v.desc, v.genre]
+      .filter(Boolean).join(" ").toLowerCase();
+    return matchGenre && (!q || hay.includes(q));
+  });
+}
+
+function renderDots() {
+  g.selectAll(".company-marker").remove();
+  getFiltered().forEach(venue => {
+    const [x, y] = projection([venue.lng, venue.lat]);
+    if (x == null || y == null) return;
+    const color = genreColor(venue);
+    const marker = g.append("g")
+      .attr("class", "company-marker" + (venue.id === activeId ? " selected" : ""))
+      .attr("data-id", venue.id)
+      .attr("transform", `translate(${x},${y})`);
+    marker.append("circle").attr("class", "marker-pulse").attr("r", 7)
+      .attr("fill", "none").attr("stroke", color).attr("stroke-width", 1).attr("opacity", 0.35);
+    marker.append("circle").attr("class", "marker-dot")
+      .attr("r", venue.id === activeId ? 9 : 6)
+      .attr("fill", color).attr("stroke", "white").attr("stroke-width", 1.5).attr("opacity", 0.95);
+    marker.on("mouseover", e => showTooltip(e, venue.name))
+      .on("mouseout", () => hideTooltip())
+      .on("click", e => { e.stopPropagation(); selectVenue(venue.id); });
+  });
+}
+
+const tooltip = document.getElementById("map-tooltip");
+function showTooltip(event, text) {
+  const rect = mapContainer.getBoundingClientRect();
+  tooltip.style.left = (event.clientX - rect.left + 14) + "px";
+  tooltip.style.top = (event.clientY - rect.top - 12) + "px";
+  tooltip.textContent = text;
+  tooltip.style.opacity = "1";
+}
+function hideTooltip() { tooltip.style.opacity = "0"; }
+
+const popup = document.getElementById("popup");
+
+function applyDeepLinkVenue() {
+  const p = new URLSearchParams(window.location.search);
+  const raw = p.get("venue") || p.get("venueId");
+  if (!raw) return;
+  const id = parseInt(raw, 10);
+  if (!Number.isFinite(id) || !venues.some((v) => v.id === id)) return;
+
+  currentFilter = "all";
+  searchTerm = "";
+  const searchInput = document.getElementById("search-input");
+  if (searchInput) searchInput.value = "";
+  document.querySelectorAll(".filter-btn").forEach((b) => {
+    b.classList.toggle("active", b.dataset.genre === "all");
+  });
+
+  selectVenue(id);
+}
+
+function selectVenue(id) {
+  activeId = id;
+  const venue = venues.find(v => v.id === id);
+  if (!venue) return;
+  const [x, y] = projection([venue.lng, venue.lat]);
+  const scale = 14;
+  svg.transition().duration(700).call(
+    zoomBehaviour.transform,
+    d3.zoomIdentity.translate(width / 2 - scale * x, height / 2 - scale * y).scale(scale)
+  );
+  const t = d3.zoomTransform(svg.node());
+  showPopup(venue, x * t.k + t.x, y * t.k + t.y);
+  renderSidebar();
+  renderDots();
+}
+
+function showPopup(venue, px, py) {
+  activeVenue = venue;
+  document.getElementById("popup-name").textContent = venue.name;
+  const statusClass = (venue.verificationStatus || "unverified").toLowerCase() === "verified" ? "verified" : "unverified";
+  document.getElementById("popup-country").innerHTML =
+    `📍 ${venue.address || venue.city || "Amsterdam"} <span class="verify-pill ${statusClass}">${verificationStatusLabel(venue.verificationStatus)}</span>`;
+  document.getElementById("popup-desc").textContent = venue.desc || venue.format || "";
+
+  const img = document.getElementById("popup-image");
+  const ph = document.getElementById("popup-image-placeholder");
+  if (venue.imageUrl) {
+    img.src = venue.imageUrl;
+    img.alt = venue.name;
+    img.hidden = false;
+    ph.hidden = true;
+  } else {
+    img.hidden = true;
+    img.removeAttribute("src");
+    ph.hidden = false;
+  }
+
+  const statsDiv = document.getElementById("popup-stats");
+  statsDiv.innerHTML = "";
+  const blocks = [
+    [venue.schedule, "When"],
+    [venue.format, "Style / format"]
+  ];
+  blocks.forEach(([val, label]) => {
+    if (!val) return;
+    statsDiv.innerHTML += `
+      <div class="popup-stat full-width">
+        <div class="popup-stat-val">${val}</div>
+        <div class="popup-stat-lbl">${label}</div>
+      </div>`;
+  });
+
+  const staleClass = isVerificationStale(venue.lastVerified) ? " stale" : "";
+  const staleText = isVerificationStale(venue.lastVerified) ? " · Needs re-check" : "";
+  document.getElementById("popup-genre").innerHTML =
+    `Music style: <span>${genreLabel(venue.genre)}</span><div class="verify-note${staleClass}">Last verified: ${venue.lastVerified || "Not yet verified"}${staleText}</div>`;
+
+  const link = document.getElementById("popup-link");
+  if (venue.url) {
+    link.href = venue.url;
+    link.hidden = false;
+  } else {
+    link.hidden = true;
+  }
+  const emailLink = document.getElementById("popup-contact-email");
+  if (venue.contactEmail) {
+    emailLink.href = `mailto:${venue.contactEmail}`;
+    emailLink.hidden = false;
+  } else {
+    emailLink.hidden = true;
+  }
+  const mapsLink = document.getElementById("popup-maps-link");
+  const inferredMapsUrl = venue.mapsUrl || (venue.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue.address)}` : "");
+  if (inferredMapsUrl) {
+    mapsLink.href = inferredMapsUrl;
+    mapsLink.hidden = false;
+  } else {
+    mapsLink.hidden = true;
+  }
+  const vibesEl = document.getElementById("popup-vibes");
+  const vibeTags = Array.isArray(venue.vibeTags) ? venue.vibeTags.filter(Boolean) : [];
+  vibesEl.innerHTML = vibeTags.length
+    ? vibeTags.map((tag) => `<span class="vibe-chip">${tag}</span>`).join("")
+    : `<span class="vibe-chip">live music</span>`;
+
+  const videoSection = document.getElementById("popup-video-section");
+  const videoThumb = document.getElementById("popup-video-thumb");
+  const videoFrame = document.getElementById("popup-video-frame");
+  videoFrame.hidden = true;
+  videoFrame.removeAttribute("src");
+  const firstVideo = Array.isArray(venue.youtubeVideos) && venue.youtubeVideos.length ? venue.youtubeVideos[0] : null;
+  if (firstVideo?.id) {
+    videoSection.hidden = false;
+    videoThumb.src = `https://img.youtube.com/vi/${firstVideo.id}/hqdefault.jpg`;
+    videoThumb.hidden = false;
+    videoThumb.onclick = () => {
+      videoFrame.src = `https://www.youtube.com/embed/${firstVideo.id}?autoplay=1`;
+      videoFrame.hidden = false;
+      videoThumb.hidden = true;
+    };
+  } else {
+    videoSection.hidden = true;
+    videoThumb.hidden = true;
+    videoThumb.removeAttribute("src");
+    videoThumb.onclick = null;
+  }
+
+  let left = mapContainer.getBoundingClientRect().left + px + 18;
+  let top = mapContainer.getBoundingClientRect().top + py - 80;
+  const popupW = 300;
+  const popupMaxH = Math.min(window.innerHeight * 0.85, 560);
+  if (left + popupW > window.innerWidth - 12) left = window.innerWidth - popupW - 12;
+  if (left < 12) left = 12;
+  if (top < 12) top = 12;
+  if (top + popupMaxH > window.innerHeight - 12) top = window.innerHeight - popupMaxH - 12;
+
+  popup.style.left = left + "px";
+  popup.style.top = top + "px";
+  popup.classList.add("visible");
+  document.body.appendChild(popup);
+  const scrollEl = popup.querySelector(".popup-scroll");
+  if (scrollEl) scrollEl.scrollTop = 0;
+  document.getElementById("popup-inquiry").hidden = true;
+  document.getElementById("inq-status").textContent = "";
+}
+
+document.getElementById("popup-close").onclick = () => {
+  popup.classList.remove("visible");
+  activeId = null;
+  activeVenue = null;
+  renderSidebar();
+  renderDots();
+};
+svg.on("click", () => {
+  popup.classList.remove("visible");
+  activeId = null;
+  activeVenue = null;
+  renderSidebar();
+  renderDots();
+});
+
+document.getElementById("open-inquiry-btn").addEventListener("click", () => {
+  const panel = document.getElementById("popup-inquiry");
+  panel.hidden = !panel.hidden;
+  if (!panel.hidden) inquiryFormOpenedAt = Date.now();
+});
+
+document.getElementById("inq-send-btn").addEventListener("click", async () => {
+  if (!activeVenue) return;
+  const payload = {
+    venueId: activeVenue.id,
+    name: document.getElementById("inq-name").value.trim(),
+    email: document.getElementById("inq-email").value.trim(),
+    instrument: document.getElementById("inq-instrument").value.trim(),
+    preferredDate: document.getElementById("inq-date").value.trim(),
+    message: document.getElementById("inq-message").value.trim(),
+    company: document.getElementById("inq-company").value.trim(),
+    elapsedMs: inquiryFormOpenedAt ? Date.now() - inquiryFormOpenedAt : 0,
+    pageUrl: window.location.href
+  };
+  const status = document.getElementById("inq-status");
+  if (!payload.name || !payload.email || !payload.message) {
+    status.textContent = "Please add name, email, and message.";
+    return;
+  }
+  status.textContent = "Sending...";
+  try {
+    const r = await fetch("/api/music-venue-inquiries", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (!r.ok) throw new Error("Failed");
+    status.textContent = "Inquiry sent to venue queue.";
+    ["inq-name","inq-email","inq-instrument","inq-date","inq-message"].forEach((id) => {
+      document.getElementById(id).value = "";
+    });
+  } catch (_) {
+    status.textContent = "Could not send right now. Please try again.";
+  }
+});
+
+document.getElementById("open-guide-btn").addEventListener("click", () => {
+  document.getElementById("guide-panel").classList.add("open");
+  document.getElementById("guide-input").focus();
+});
+
+document.getElementById("guide-toggle").addEventListener("click", () => {
+  const panel = document.getElementById("guide-panel");
+  panel.classList.toggle("open");
+});
+
+async function sendGuideQuestion() {
+  const input = document.getElementById("guide-input");
+  const question = input.value.trim();
+  if (!question) return;
+  const log = document.getElementById("guide-log");
+  log.textContent += `\n\nYou: ${question}\nGuide: thinking...`;
+  log.scrollTop = log.scrollHeight;
+  input.value = "";
+  try {
+    const profile = {
+      instrument: document.getElementById("guide-instrument").value.trim(),
+      style: document.getElementById("guide-style").value.trim(),
+      level: document.getElementById("guide-level").value
+    };
+    const r = await fetch("/api/music-guide/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question, profile })
+    });
+    const data = await r.json();
+    const answer = data?.answer || "I could not answer that yet.";
+    log.textContent = log.textContent.replace("Guide: thinking...", `Guide: ${answer}`);
+  } catch (_) {
+    log.textContent = log.textContent.replace("Guide: thinking...", "Guide: Service unavailable right now.");
+  }
+  log.scrollTop = log.scrollHeight;
+}
+
+document.getElementById("guide-send").addEventListener("click", sendGuideQuestion);
+document.getElementById("guide-input").addEventListener("keydown", (event) => {
+  if (event.key === "Enter") sendGuideQuestion();
+});
+
+function renderSidebar() {
+  const list = document.getElementById("company-list");
+  const filtered = getFiltered();
+  document.getElementById("list-count").textContent = filtered.length;
+  list.innerHTML = filtered.map(v => {
+    const color = genreColor(v);
+    const isActive = v.id === activeId;
+    return `
+      <div class="company-item ${isActive ? "active" : ""}" data-id="${v.id}">
+        <div class="company-dot-mini" style="background:${color}"></div>
+        <div>
+          <div class="company-name">${v.name}</div>
+          <div class="company-country">${v.schedule || genreLabel(v.genre)} · ${verificationStatusLabel(v.verificationStatus)}</div>
+        </div>
+      </div>`;
+  }).join("");
+  list.querySelectorAll(".company-item").forEach(el => {
+    el.addEventListener("click", () => selectVenue(parseInt(el.dataset.id, 10)));
+  });
+}
+
+document.getElementById("search-input").addEventListener("input", e => {
+  searchTerm = e.target.value.toLowerCase();
+  renderSidebar();
+  renderDots();
+});
+
+document.getElementById("filter-row").addEventListener("click", e => {
+  const btn = e.target.closest(".filter-btn");
+  if (!btn) return;
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  currentFilter = btn.dataset.genre;
+  renderSidebar();
+  renderDots();
+});
+
+function renderLegend() {
+  const genres = [...new Set(venues.map(v => v.genre))];
+  document.getElementById("legend").innerHTML =
+    '<div class="legend-title">Music style</div>' +
+    genres.map(g => `
+      <div class="legend-item">
+        <div class="legend-dot" style="background:${GENRE_COLORS[g] || "#aaa"}"></div>
+        ${genreLabel(g)}
+      </div>`).join("");
+}
+
+function updateStats() {
+  document.getElementById("stat-venues").textContent = venues.length;
+  document.getElementById("stat-genres").textContent =
+    new Set(venues.map(v => v.genre)).size;
+}
+
+document.getElementById("add-company-btn").onclick = () =>
+  document.getElementById("modal-overlay").classList.add("open");
+document.getElementById("modal-cancel").onclick = () =>
+  document.getElementById("modal-overlay").classList.remove("open");
+document.getElementById("modal-overlay").addEventListener("click", e => {
+  if (e.target === document.getElementById("modal-overlay"))
+    document.getElementById("modal-overlay").classList.remove("open");
+});
+
+document.getElementById("modal-save").onclick = async () => {
+  const name = document.getElementById("f-name").value.trim();
+  const genre = document.getElementById("f-genre").value;
+  const format = document.getElementById("f-format").value.trim();
+  const schedule = document.getElementById("f-schedule").value.trim();
+  const address = document.getElementById("f-address").value.trim();
+  const url = document.getElementById("f-url").value.trim();
+  const contactEmail = document.getElementById("f-contact-email").value.trim();
+  const vibeTags = document.getElementById("f-vibes").value.trim();
+  const mapsUrl = document.getElementById("f-maps-url").value.trim();
+  const youtubeIds = document.getElementById("f-youtube-ids").value.trim();
+  const desc = document.getElementById("f-desc").value.trim();
+  const imageUrl = document.getElementById("f-image").value.trim();
+  if (!name) {
+    alert("Please enter a venue name.");
+    return;
+  }
+
+  const payload = {
+    name,
+    genre,
+    format: format || genreLabel(genre),
+    schedule,
+    address: address || "Amsterdam",
+    city: "Amsterdam",
+    country: "Netherlands",
+    desc: desc || format,
+    imageUrl,
+    contactEmail,
+    vibeTags: vibeTags ? vibeTags.split(",").map((s) => s.trim()).filter(Boolean) : [],
+    mapsUrl,
+    youtubeVideos: youtubeIds ? youtubeIds.split(",").map((id) => id.trim()).filter(Boolean).map((id) => ({ id, title: "" })) : [],
+    url
+  };
+
+  let savedVenue = null;
+  try {
+    const r = await fetch("/api/music-venues", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (r.ok) {
+      const data = await r.json();
+      savedVenue = normalizeVenue(data.item);
+      const existingIdx = venues.findIndex(v => v.id === savedVenue.id);
+      if (existingIdx >= 0) {
+        venues[existingIdx] = savedVenue;
+      } else if (!data.existing) {
+        venues.push(savedVenue);
+      } else {
+        const byName = venues.findIndex(v => v.name.toLowerCase() === savedVenue.name.toLowerCase());
+        if (byName >= 0) venues[byName] = savedVenue;
+        else venues.push(savedVenue);
+      }
+    }
+  } catch (_) { /* fall back to local-only below */ }
+
+  if (!savedVenue) {
+    const jitter = (venues.length % 7) * 0.008 - 0.024;
+    savedVenue = normalizeVenue({
+      id: Date.now(),
+      ...payload,
+      lng: MAP_CENTER.lng + jitter,
+      lat: MAP_CENTER.lat + (venues.length % 5) * 0.006 - 0.012,
+      color: GENRE_COLORS[genre]
+    });
+    venues.push(savedVenue);
+  }
+
+  document.getElementById("modal-overlay").classList.remove("open");
+  ["f-name","f-format","f-schedule","f-address","f-url","f-contact-email","f-vibes","f-maps-url","f-youtube-ids","f-desc","f-image"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+  renderFilterButtons();
+  renderDots();
+  renderSidebar();
+  updateStats();
+  renderLegend();
+  selectVenue(savedVenue.id);
+};
+
+window.addEventListener("resize", () => {
+  width = mapContainer.clientWidth;
+  height = mapContainer.clientHeight;
+  projection.translate([width * 0.5, height * 0.52])
+    .scale(Math.min(width, height) * 18);
+  g.selectAll(".country-path").attr("d", path);
+  g.selectAll(".company-marker").remove();
+  renderDots();
+});
+
+loadVenues().then(items => {
+  venues = items;
+  initMap();
+  requestAnimationFrame(() => {
+    applyDeepLinkVenue();
+    if (window.__pendingVenueId) {
+      selectVenue(window.__pendingVenueId);
+      window.__pendingVenueId = null;
+    }
+  });
+});
+
+window.addEventListener("message", (ev) => {
+  const d = ev.data;
+  if (!d || d.type !== "live-music-select-venue") return;
+  const id = parseInt(d.venueId, 10);
+  if (!Number.isFinite(id)) return;
+  if (venues.length) selectVenue(id);
+  else window.__pendingVenueId = id;
+});
+</script>
+</body>
+</html>
