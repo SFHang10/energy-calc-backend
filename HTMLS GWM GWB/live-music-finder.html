@@ -1434,8 +1434,40 @@
   } catch (e) { /* ignore */ }
 })();
 </script>
+<style>
+  .host-warn {
+    display: none;
+    margin: 0;
+    padding: 12px 16px;
+    background: #3d2208;
+    border-bottom: 2px solid #f0a03a;
+    color: #f0ede8;
+    font-size: 0.85em;
+    line-height: 1.45;
+    z-index: 9999;
+  }
+  .host-warn a { color: #f0a03a; font-weight: 600; }
+  html.host-not-render .host-warn { display: block; }
+</style>
 </head>
 <body>
+<div class="host-warn" id="host-warn" role="alert">
+  This map is running from <strong id="host-warn-site"></strong>, not Render — venue data and the map will not load.
+  Remove uploaded HTML on Wix. Use one <strong>Embed a site</strong> URL:
+  <a href="https://energy-calc-backend.onrender.com/live-music/render" target="_blank" rel="noopener">energy-calc-backend.onrender.com/live-music/render</a>
+  (map only: <a href="https://energy-calc-backend.onrender.com/live-music/map" target="_blank" rel="noopener">/live-music/map</a>).
+</div>
+<script>
+(function () {
+  var h = (location.hostname || "").toLowerCase();
+  var ok = h === "localhost" || h === "127.0.0.1" || h.indexOf("onrender.com") !== -1;
+  if (!ok) {
+    document.documentElement.classList.add("host-not-render");
+    var el = document.getElementById("host-warn-site");
+    if (el) el.textContent = location.hostname || "this site";
+  }
+})();
+</script>
 <div class="mobile-swipe-hint" id="mobile-swipe-hint" aria-hidden="true">Swipe sideways to view the full map →</div>
 
 <header>
