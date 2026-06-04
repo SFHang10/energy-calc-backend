@@ -241,8 +241,14 @@ const productWidgetRouter = require('./routes/product-widget');
 console.log('Product widget router loaded successfully');
 
 console.log('Loading dashboard live router...');
-const dashboardLiveRouter = require('./routes/dashboard-live');
-console.log('Dashboard live router loaded successfully');
+let dashboardLiveRouter;
+try {
+  dashboardLiveRouter = require('./routes/dashboard-live');
+  console.log('Dashboard live router loaded successfully');
+} catch (error) {
+  console.error('❌ Failed to load dashboard live router:', error.message);
+  dashboardLiveRouter = null;
+}
 
 console.log('Loading assistant router...');
 let assistantRouter;
@@ -325,17 +331,25 @@ function mountApiRoutes() {
   }
 
   app.use('/api/product-widget', productWidgetRouter);
-  app.use('/api/dashboard', dashboardLiveRouter);
+  if (dashboardLiveRouter) {
+    app.use('/api/dashboard', dashboardLiveRouter);
+    console.log('✅ /api/dashboard route mounted');
+  } else {
+    console.log('⚠️ Dashboard live routes not mounted due to loading error');
+  }
   if (assistantRouter) {
     app.use('/api/assistant', assistantRouter);
     console.log('✅ /api/assistant route mounted');
   }
   app.use('/api/companies', companiesRouter);
-  app.use('/api/company-updates', require('./routes/company-updates'));
   console.log(`✅ /api/companies route mounted (${storageBootstrap?.companiesBackend || 'unknown'})`);
   console.log('✅ /api/product-widget route mounted');
-  console.log('✅ /api/dashboard route mounted');
-  console.log('✅ /api/company-updates route mounted');
+  try {
+    app.use('/api/company-updates', require('./routes/company-updates'));
+    console.log('✅ /api/company-updates route mounted');
+  } catch (error) {
+    console.log('⚠️ Company-updates routes not mounted:', error.message);
+  }
 
   if (wixIntegrationRouter) {
     app.use('/api/wix', wixIntegrationRouter);
