@@ -95,6 +95,55 @@ app.get('/product-categories.html', (req, res) => {
   }
 });
 
+// Live Music Finder — explicit routes (Wix embed + folder path with spaces)
+const LIVE_MUSIC_GWB_DIR = path.join(__dirname, 'HTMLS GWM GWB');
+const LIVE_MUSIC_FILES = [
+  'live-music-hub-render.html',
+  'live-music-hub.html',
+  'live-music-finder.html',
+  'live-events-ticker.html',
+  'live-events-updates.html'
+];
+const LIVE_MUSIC_DATA = [
+  ['live-events-feed.json', path.join(__dirname, 'data', 'live-events-feed.json')],
+  ['music-venues.json', path.join(__dirname, 'data', 'music-venues.json')]
+];
+
+function sendLiveMusicHtml(res, filename) {
+  const fsSync = require('fs');
+  const filePath = path.join(LIVE_MUSIC_GWB_DIR, filename);
+  if (!fsSync.existsSync(filePath)) {
+    return res.status(404).json({
+      error: 'File not found',
+      message: `${filename} not found on server`,
+      path: filePath
+    });
+  }
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  return res.sendFile(filename, { root: LIVE_MUSIC_GWB_DIR });
+}
+
+LIVE_MUSIC_FILES.forEach((filename) => {
+  const webPath = `/HTMLS GWM GWB/${filename}`;
+  app.get(webPath, (req, res) => sendLiveMusicHtml(res, filename));
+});
+
+// Short URL for Wix HTML embed (no spaces) — same Render Version page
+app.get('/live-music/render', (req, res) => sendLiveMusicHtml(res, 'live-music-hub-render.html'));
+app.get('/live-music/hub', (req, res) => sendLiveMusicHtml(res, 'live-music-hub.html'));
+app.get('/live-music/map', (req, res) => sendLiveMusicHtml(res, 'live-music-finder.html'));
+
+LIVE_MUSIC_DATA.forEach(([name, filePath]) => {
+  app.get(`/data/${name}`, (req, res) => {
+    const fsSync = require('fs');
+    if (!fsSync.existsSync(filePath)) {
+      return res.status(404).json({ error: 'File not found', message: name });
+    }
+    res.type('json');
+    return res.sendFile(path.basename(filePath), { root: path.dirname(filePath) });
+  });
+});
+
 // Explicitly serve product-page-v2.html BEFORE any static middleware
 // Match both with and without query parameters
 app.get('/product-page-v2.html', (req, res, next) => {
@@ -267,16 +316,10 @@ function mountApiRoutes() {
   }
   app.use('/api/companies', companiesRouter);
   app.use('/api/company-updates', require('./routes/company-updates'));
-  app.use('/api/music-venues', require('./routes/music-venues'));
-  app.use('/api/music-venue-inquiries', require('./routes/music-venue-inquiries'));
-  app.use('/api/music-guide', require('./routes/music-guide'));
   console.log(`✅ /api/companies route mounted (${storageBootstrap?.companiesBackend || 'unknown'})`);
   console.log('✅ /api/product-widget route mounted');
   console.log('✅ /api/dashboard route mounted');
   console.log('✅ /api/company-updates route mounted');
-  console.log('✅ /api/music-venues route mounted');
-  console.log('✅ /api/music-venue-inquiries route mounted');
-  console.log('✅ /api/music-guide route mounted');
 
   if (wixIntegrationRouter) {
     app.use('/api/wix', wixIntegrationRouter);

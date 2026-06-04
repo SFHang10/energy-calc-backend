@@ -20,6 +20,14 @@ You do **not** upload `live-music-hub-render.html` to Wix. That file is ~600 lin
 
 ## Render URL (inside the snippet or URL field)
 
+**Use this short URL in Wix** (no spaces in path):
+
+```
+https://energy-calc-backend.onrender.com/live-music/render
+```
+
+Alternate (same page):
+
 ```
 https://energy-calc-backend.onrender.com/HTMLS%20GWM%20GWB/live-music-hub-render.html
 ```
