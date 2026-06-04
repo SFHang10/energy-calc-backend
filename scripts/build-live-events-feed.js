@@ -13,6 +13,7 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const SEEDS_PATH = path.join(ROOT, 'data', 'live-events-seeds.json');
 const WEEKLY_PATH = path.join(ROOT, 'data', 'live-events-weekly-input.json');
+const VENUES_PATH = path.join(ROOT, 'data', 'music-venues.json');
 const OUT_PATH = path.join(ROOT, 'data', 'live-events-feed.json');
 
 const LANE_JAMS = new Set(['open-mic', 'open-jam', 'jazz', 'jams']);
@@ -43,9 +44,28 @@ function weeklyToFeedEvents(weekly, generatedAt) {
       phone: e.phone,
       source: e.source || 'weekly-intake',
       spotlight: Boolean(e.spotlight),
-      isNew: e.isNew !== false,
+      isNew: Boolean(e.isNew),
+      newHint: e.newHint || e.newBadgeHint || '',
       addedAt: e.addedAt || generatedAt.slice(0, 10)
     }));
+}
+
+function venueImageById() {
+  const store = readJsonSafe(VENUES_PATH);
+  const items = store?.items || (Array.isArray(store) ? store : []);
+  const map = new Map();
+  for (const v of items) {
+    if (v && v.id != null && v.imageUrl) map.set(Number(v.id), v.imageUrl);
+  }
+  return map;
+}
+
+function attachVenueImages(events, venueImages) {
+  return events.map((e) => {
+    if (e.imageUrl || !e.venueId) return e;
+    const img = venueImages.get(Number(e.venueId));
+    return img ? { ...e, imageUrl: img } : e;
+  });
 }
 
 function main() {
@@ -58,7 +78,11 @@ function main() {
 
   const generatedAt = new Date().toISOString();
   const weekly = readJsonSafe(WEEKLY_PATH);
-  const merged = [...seeds.events, ...weeklyToFeedEvents(weekly, generatedAt)];
+  const venueImages = venueImageById();
+  const merged = attachVenueImages(
+    [...seeds.events, ...weeklyToFeedEvents(weekly, generatedAt)],
+    venueImages
+  );
 
   const jams = merged.filter((e) => LANE_JAMS.has(String(e.category || '').toLowerCase()));
   const gigs = merged.filter((e) => LANE_GIGS.has(String(e.category || '').toLowerCase()));

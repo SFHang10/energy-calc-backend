@@ -25,10 +25,10 @@
       --font-display: 'Playfair Display', serif;
       --font-clean: 'IBM Plex Sans', system-ui, sans-serif;
       --mono: 'JetBrains Mono', monospace;
-      --music-hub-backdrop-image: none;
+      --music-hub-backdrop-image: url("https://static.wixstatic.com/media/c123de_538ebcd0cb8744009c22d5676cb8a5da~mv2.jpg");
       /* Events/ticker panel — taller so spotlight cards show before scrolling to map */
-      --events-panel-h: min(68vh, 820px);
-      --map-panel-h: min(38vh, 480px);
+      --events-panel-h: min(52vh, 680px);
+      --map-panel-h: min(58vh, 820px);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { height: 100%; }
@@ -46,13 +46,12 @@
       pointer-events: none;
       background-color: #0d0d0d;
       background-image:
-        linear-gradient(rgba(13, 8, 4, 0.78), rgba(8, 6, 4, 0.88)),
-        radial-gradient(circle at 28% 20%, rgba(240, 160, 58, 0.08), transparent 50%),
+        linear-gradient(rgba(13, 8, 4, 0.55), rgba(8, 6, 4, 0.68)),
+        radial-gradient(circle at 28% 20%, rgba(240, 160, 58, 0.07), transparent 50%),
         var(--music-hub-backdrop-image);
       background-size: cover, cover, cover;
       background-position: center, center, center;
-      opacity: 0.95;
-      filter: brightness(0.82) saturate(1.05);
+      filter: brightness(0.88) saturate(1.08) contrast(1.04);
     }
     body.music-hub--backdrop .music-hub-backdrop { display: block; }
     .shell {
@@ -78,9 +77,17 @@
     body.music-hub--backdrop aside,
     body.music-hub--backdrop .main-toolbar,
     body.music-hub--backdrop .map-toolbar {
-      background: rgba(18, 18, 18, 0.78);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: rgba(18, 18, 18, 0.52);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    body.music-hub--backdrop .hub-events-block,
+    body.music-hub--backdrop .hub-map-section {
+      background: transparent;
+    }
+    body.music-hub--backdrop .frame-wrap iframe,
+    body.music-hub--backdrop .map-frame-wrap iframe {
+      background: transparent;
     }
     .logo { display: flex; align-items: center; gap: 12px; }
     .logo-icon {
@@ -307,7 +314,7 @@
     .hub-map-section {
       flex-shrink: 0;
       height: var(--map-panel-h);
-      min-height: 300px;
+      min-height: 520px;
       display: flex;
       flex-direction: column;
       background: #0d0d0d;
@@ -344,11 +351,37 @@
       background: #0d0d0d;
     }
     @media (max-width: 900px) {
-      :root { --events-panel-h: min(58vh, 640px); --map-panel-h: min(42vh, 520px); }
+      :root { --events-panel-h: min(48vh, 560px); --map-panel-h: min(52vh, 640px); }
       .hub-events-block { min-height: 440px; }
       .app { grid-template-columns: 1fr; }
       aside { display: none; }
       .mobile-tabs { display: flex; }
+    }
+    @media (max-width: 700px) {
+      body {
+        overflow-x: auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .shell {
+        overflow-x: auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .hub-map-section {
+        min-height: 520px;
+        height: max(var(--map-panel-h), 55vh);
+      }
+      .map-frame-wrap {
+        overflow: visible;
+        -webkit-overflow-scrolling: touch;
+      }
+      .map-frame-wrap iframe {
+        min-height: 480px;
+      }
+      .sidebar-note {
+        color: var(--text);
+      }
     }
   </style>
 </head>
@@ -441,6 +474,8 @@
 
     let activeTab = 'ticker';
     let pendingMapVenueId = null;
+    let lastPostedVenueId = null;
+    let lastPostedVenueAt = 0;
     const frame = document.getElementById('hubFrame');
     const mapFrame = document.getElementById('mapFrame');
     const newsPanel = document.getElementById('newsPanel');
@@ -517,33 +552,40 @@
 
       document.getElementById('mapSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-      if (mapFrame.dataset.ready === '1') {
-        try {
-          mapFrame.contentWindow.postMessage({ type: 'live-music-select-venue', venueId: id }, '*');
-          return;
-        } catch (_) { /* fall through */ }
-      }
-
       pendingMapVenueId = id;
-      mapFrame.src = './live-music-finder.html?embed=hub&venue=' + encodeURIComponent(String(id));
+      postVenueToMap(id);
+    }
+
+    function postVenueToMap(id) {
+      if (!id || mapFrame.dataset.ready !== '1') return false;
+      const now = Date.now();
+      if (id === lastPostedVenueId && now - lastPostedVenueAt < 900) {
+        pendingMapVenueId = null;
+        return true;
+      }
+      try {
+        if (mapFrame.contentWindow) {
+          mapFrame.contentWindow.postMessage({ type: 'live-music-select-venue', venueId: id }, '*');
+          lastPostedVenueId = id;
+          lastPostedVenueAt = now;
+          pendingMapVenueId = null;
+          return true;
+        }
+      } catch (_) { /* ignore */ }
+      return false;
     }
 
     mapFrame.addEventListener('load', () => {
       mapFrame.dataset.ready = '1';
       if (pendingMapVenueId != null) {
-        try {
-          mapFrame.contentWindow.postMessage(
-            { type: 'live-music-select-venue', venueId: pendingMapVenueId },
-            '*'
-          );
-        } catch (_) { /* ignore */ }
-        pendingMapVenueId = null;
+        postVenueToMap(pendingMapVenueId);
       }
     });
 
     window.addEventListener('message', (ev) => {
       const d = ev.data;
       if (!d || d.type !== 'live-music-select-venue') return;
+      if (ev.source !== frame.contentWindow) return;
       selectMapVenue(d.venueId, d.venueName || '');
     });
 
@@ -564,7 +606,15 @@
         if (tab && tabById(tab)) setTab(tab);
         else renderNav();
         const v = p.get('venue');
-        if (v) selectMapVenue(v, '');
+        if (v) {
+          const vid = Number(v);
+          if (Number.isFinite(vid) && vid > 0) {
+            pendingMapVenueId = vid;
+            mapHint.textContent = 'Loading venue on map…';
+            document.getElementById('mapSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            if (mapFrame.dataset.ready === '1') postVenueToMap(vid);
+          }
+        }
       } catch (_) {
         renderNav();
       }

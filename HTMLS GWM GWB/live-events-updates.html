@@ -29,11 +29,11 @@
       z-index: 0;
       pointer-events: none;
       background-image:
-        linear-gradient(180deg, rgba(2, 5, 12, 0.82) 0%, rgba(0, 2, 6, 0.9) 100%),
+        linear-gradient(180deg, rgba(2, 5, 12, 0.42) 0%, rgba(0, 2, 6, 0.55) 100%),
         var(--hub-backdrop-image);
       background-size: cover;
       background-position: center;
-      filter: brightness(0.5) saturate(1.05);
+      filter: brightness(0.88) saturate(1.08) contrast(1.03);
     }
     .wrap { max-width: var(--hub-max); margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
     .nav-row {
@@ -66,9 +66,10 @@
     .header-sub {
       font-family: var(--mono);
       font-size: 12px;
-      color: #6d7885;
+      color: #a8b6c4;
       margin-top: 12px;
       letter-spacing: 0.06em;
+      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.72);
     }
     .meta-bar {
       text-align: center;
@@ -179,7 +180,29 @@
       border: 1px solid #1a1a1a;
       cursor: pointer;
       transition: border-color 0.15s, transform 0.12s;
+      overflow: hidden;
     }
+    .event-card.has-photo {
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .event-card .ec-photo-wrap {
+      width: 100%;
+      height: 148px;
+      flex-shrink: 0;
+      overflow: hidden;
+      background: linear-gradient(135deg, #141414, #1a1510);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .event-card .ec-photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+    .event-card .ec-body { padding: 16px 18px 18px; }
     .event-card:hover {
       border-color: rgba(77, 166, 255, 0.35);
       transform: translateY(-1px);
@@ -202,17 +225,37 @@
       color: #ff8c1a;
       border-color: #ff8c1a33;
     }
-    .event-card .ec-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .event-card .ec-title-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .event-card .ec-title { font-size: 16px; font-weight: 700; color: #fff; flex: 1; min-width: 0; }
     .event-card .ec-venue { font-size: 13px; color: #888; margin-bottom: 8px; }
     .event-card .ec-line { font-size: 12px; color: #666; line-height: 1.45; font-family: var(--mono); }
-    .event-card .ec-new {
-      display: inline-block;
-      margin-top: 10px;
+    .event-card .ec-new,
+    .ev-new-badge {
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
       font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 0.1em;
-      color: #4da6ff;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 3px;
+      cursor: help;
+      background: rgba(77, 166, 255, 0.14);
+      color: #9fd4ff;
+      border: 1px solid rgba(77, 166, 255, 0.42);
+      margin-top: 2px;
+    }
+    .event-card.cat-gigs .ec-new {
+      background: rgba(255, 140, 26, 0.14);
+      color: #ffc080;
+      border-color: rgba(255, 140, 26, 0.42);
     }
     .event-card .ec-actions {
       display: flex;
@@ -254,11 +297,18 @@
       letter-spacing: 0.1em;
     }
     .footer-note code { color: #555; }
-    html.embed-hub body { padding: 12px 0 24px; min-height: 100%; overflow-y: auto; }
+    html.embed-hub body { padding: 12px 0 24px; min-height: 100%; overflow-y: auto; background: transparent; }
+    html.embed-hub .control-card { background: rgba(4, 8, 14, 0.68); }
+    html.embed-hub .event-card { background: rgba(8, 8, 8, 0.72); }
+    html.embed-hub .hi-card { background: rgba(4, 13, 26, 0.78); }
     html.embed-hub .hub-backdrop { display: none; }
     html.embed-hub .nav-row { display: none; }
     html.embed-hub .header { margin-bottom: 12px; }
     html.embed-hub .header-title { font-size: clamp(22px, 3.5vw, 32px); }
+    html.embed-hub .header-sub {
+      color: #d2dae3;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.85), 0 0 18px rgba(0, 0, 0, 0.55);
+    }
     html.embed-hub .ticker-embed-wrap iframe { height: 104px; }
     html.embed-hub .footer-note { margin-top: 24px; }
   </style>
@@ -315,8 +365,11 @@
 
   <script>
     const FEED_URLS = ['../data/live-events-feed.json', '/data/live-events-feed.json'];
+    const VENUE_URLS = ['../data/music-venues.json', '/data/music-venues.json', '/api/music-venues'];
+    let venueImageById = new Map();
     const LANE_JAMS = new Set(['open-mic', 'open-jam', 'jazz', 'jams']);
     const LANE_GIGS = new Set(['gigs', 'festival', 'concert']);
+    const NEW_BADGE_HINT_DEFAULT = '1st event, come join and support';
 
     let FEED = { meta: {}, events: [], highlights: [] };
     let activeCat = 'all';
@@ -329,6 +382,19 @@
       const t = document.createElement('div');
       t.textContent = s == null ? '' : String(s);
       return t.innerHTML;
+    }
+
+    function newBadgeHint(e) {
+      const h = e && (e.newHint || e.newBadgeHint);
+      return (h && String(h).trim()) || NEW_BADGE_HINT_DEFAULT;
+    }
+
+    function newBadgeSpan(e) {
+      if (!e || !e.isNew) return '';
+      const hint = newBadgeHint(e);
+      return (
+        '<span class="ec-new" title="' + escapeHtml(hint) + '" aria-label="' + escapeHtml(hint) + '">New</span>'
+      );
     }
 
     function mapUrlForVenue(venueId) {
@@ -348,6 +414,30 @@
         venueId: Number(venueId),
         venueName: venueName || ''
       }, '*');
+    }
+
+    async function loadVenueImages() {
+      for (const u of VENUE_URLS) {
+        try {
+          const res = await fetch(u, { cache: 'no-store' });
+          if (!res.ok) continue;
+          const data = await res.json();
+          const items = data.items || data;
+          if (!Array.isArray(items)) continue;
+          venueImageById = new Map(
+            items.filter((v) => v && v.id != null && v.imageUrl).map((v) => [Number(v.id), v.imageUrl])
+          );
+          return;
+        } catch (_) { /* try next */ }
+      }
+    }
+
+    function eventImageUrl(e) {
+      if (e.imageUrl) return e.imageUrl;
+      if (e.venueId && venueImageById.has(Number(e.venueId))) {
+        return venueImageById.get(Number(e.venueId));
+      }
+      return '';
     }
 
     async function loadFeed() {
@@ -417,14 +507,24 @@
         const extLink = href
           ? '<a class="ec-ext" href="' + escapeHtml(href) + '" target="_blank" rel="noopener noreferrer">Source ↗</a>'
           : '';
+        const img = eventImageUrl(e);
+        const photoHtml = img
+          ? '<div class="ec-photo-wrap"><img src="' + escapeHtml(img) + '" alt="" loading="lazy"></div>'
+          : '';
+        const photoClass = img ? ' has-photo' : '';
         return (
-          '<article class="event-card' + catClass + '">' +
-            '<span class="ec-date">' + escapeHtml(e.date || 'TBC') + '</span>' +
-            '<div class="ec-title">' + escapeHtml(e.title) + '</div>' +
-            (e.venue ? '<div class="ec-venue">' + escapeHtml(e.venue) + '</div>' : '') +
-            '<div class="ec-line">' + escapeHtml(e.line || e.desc || '') + '</div>' +
-            (e.isNew ? '<span class="ec-new">New</span>' : '') +
-            (mapBtn || extLink ? '<div class="ec-actions">' + mapBtn + extLink + '</div>' : '') +
+          '<article class="event-card' + catClass + photoClass + '">' +
+            photoHtml +
+            '<div class="ec-body">' +
+              '<span class="ec-date">' + escapeHtml(e.date || 'TBC') + '</span>' +
+              '<div class="ec-title-row">' +
+                '<div class="ec-title">' + escapeHtml(e.title) + '</div>' +
+                newBadgeSpan(e) +
+              '</div>' +
+              (e.venue ? '<div class="ec-venue">' + escapeHtml(e.venue) + '</div>' : '') +
+              '<div class="ec-line">' + escapeHtml(e.line || e.desc || '') + '</div>' +
+              (mapBtn || extLink ? '<div class="ec-actions">' + mapBtn + extLink + '</div>' : '') +
+            '</div>' +
           '</article>'
         );
       }).join('');
@@ -462,7 +562,7 @@
     });
 
     (async function boot() {
-      await loadFeed();
+      await Promise.all([loadFeed(), loadVenueImages()]);
       updateMeta();
       renderHighlights();
       renderGrid();

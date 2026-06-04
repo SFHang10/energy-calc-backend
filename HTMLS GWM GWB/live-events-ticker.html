@@ -35,13 +35,13 @@
     z-index: 0;
     pointer-events: none;
     background-image:
-      linear-gradient(180deg, rgba(2, 5, 12, 0.76) 0%, rgba(1, 3, 8, 0.82) 42%, rgba(0, 2, 6, 0.88) 100%),
-      radial-gradient(ellipse 95% 65% at 50% 38%, rgba(0, 30, 55, 0.22), transparent 62%),
+      linear-gradient(180deg, rgba(2, 5, 12, 0.70) 0%, rgba(1, 3, 8, 0.76) 42%, rgba(0, 2, 6, 0.82) 100%),
+      radial-gradient(ellipse 95% 65% at 50% 38%, rgba(0, 30, 55, 0.20), transparent 62%),
       var(--events-ticker-backdrop-image);
     background-size: cover, cover, cover;
     background-position: center, center, center;
     background-repeat: no-repeat;
-    filter: brightness(0.55) saturate(1.06) contrast(1.06);
+    filter: brightness(0.61) saturate(1.06) contrast(1.06);
   }
   html.ticker-embed body.ticker-has-back::before { display: none; }
   body.ticker-has-back > :not(.ticker-back-bar) { position: relative; z-index: 1; }
@@ -88,10 +88,11 @@
   .ticker-row {
     display: flex;
     align-items: stretch;
-    height: 52px;
+    min-height: 56px;
+    height: auto;
     border-top: 1px solid #1a1a1a;
     border-bottom: 1px solid #1a1a1a;
-    overflow: hidden;
+    overflow: visible;
     position: relative;
   }
   .ticker-row + .ticker-row { border-top: none; margin-top: 2px; }
@@ -118,6 +119,7 @@
     z-index: 2;
     position: relative;
   }
+  .ticker-row.has-expanded .ticker-label { align-items: flex-start; padding-top: 12px; }
   .label-events { background: #000; color: #4da6ff; border-right-color: #4da6ff22; }
   .label-catering { background: #000; color: #ff8c1a; border-right-color: #ff8c1a22; }
   .label-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
@@ -127,7 +129,7 @@
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.4; transform: scale(0.7); }
   }
-  .ticker-track-outer { flex: 1; overflow: hidden; position: relative; }
+  .ticker-track-outer { flex: 1; overflow-x: hidden; overflow-y: visible; position: relative; }
   .ticker-track-outer::before,
   .ticker-track-outer::after {
     content: '';
@@ -142,21 +144,105 @@
   .ticker-track-outer::after { right: 0; background: linear-gradient(to left, #000, transparent); }
   html:not(.ticker-embed) .ticker-track-outer::before { background: linear-gradient(to right, rgba(4, 8, 14, 0.98), transparent); }
   html:not(.ticker-embed) .ticker-track-outer::after { background: linear-gradient(to left, rgba(4, 8, 14, 0.98), transparent); }
-  .ticker-track { display: flex; white-space: nowrap; height: 100%; align-items: center; }
+  .ticker-track { display: flex; align-items: stretch; min-height: 56px; height: auto; white-space: nowrap; }
   .ticker-item {
     display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 28px;
-    height: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0;
+    padding: 10px 22px;
+    min-height: 56px;
+    height: auto;
     border-right: 1px solid #111;
     flex-shrink: 0;
     cursor: pointer;
-    transition: background 0.15s ease;
+    white-space: normal;
+    transition: background 0.15s ease, padding 0.15s ease;
+  }
+  .ticker-item .item-compact {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+  }
+  .ticker-item .item-detail {
+    display: none;
+    width: 100%;
+    min-width: 240px;
+    max-width: 300px;
+    padding-top: 8px;
+    margin-top: 8px;
+    border-top: 1px solid #222;
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 1.55;
+  }
+  .ticker-item.expanded .item-detail { display: block; }
+  .ticker-item.expanded {
+    min-width: 260px;
+    max-width: 320px;
+    padding: 12px 20px 14px;
+    z-index: 3;
+    position: relative;
   }
   .ticker-item:hover { background: #ffffff08; }
   .ticker-item.selected-event { background: #0a1f3a; }
   .ticker-item.selected-catering { background: #1a0900; }
+  .ticker-item.expanded.selected-event {
+    background: #0a1f3a;
+    box-shadow: inset 0 0 0 1px #4da6ff44;
+  }
+  .ticker-item.expanded.selected-catering {
+    background: #1a0900;
+    box-shadow: inset 0 0 0 1px #ff8c1a44;
+  }
+  .ticker-item.expanded.selected-event .item-detail { border-top-color: #4da6ff33; }
+  .ticker-item.expanded.selected-catering .item-detail { border-top-color: #ff8c1a33; }
+  .item-detail-venue {
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+    font-size: 11px;
+    font-family: var(--font-clean);
+  }
+  .item-detail-line { margin-bottom: 6px; }
+  .ticker-item.selected-event .item-detail-line { color: #4da6ffcc; }
+  .ticker-item.selected-catering .item-detail-line { color: #ff8c1acc; }
+  .item-detail-desc {
+    color: #aaa;
+    margin-bottom: 8px;
+    font-family: var(--font-clean);
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .item-detail-type {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-bottom: 8px;
+  }
+  .ticker-item.selected-event .item-detail-type {
+    background: #061424;
+    color: #4da6ff;
+    border: 1px solid #4da6ff33;
+  }
+  .ticker-item.selected-catering .item-detail-type {
+    background: #2a1500;
+    color: #ff8c1a;
+    border: 1px solid #ff8c1a33;
+  }
+  .item-detail-contact { display: flex; flex-direction: column; gap: 4px; }
+  .item-detail-contact .contact-link {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+  }
+  .ticker-item.selected-event .item-detail-contact .contact-link { color: #4da6ff; }
+  .ticker-item.selected-catering .item-detail-contact .contact-link { color: #ff8c1a; }
   .item-date {
     font-family: var(--mono);
     font-size: 10px;
@@ -168,8 +254,38 @@
   }
   .date-events { background: #0a1f3a; color: #4da6ff; border: 1px solid #4da6ff33; }
   .date-catering { background: #2a1500; color: #ff8c1a; border: 1px solid #ff8c1a33; }
-  .item-name { font-size: 13px; font-weight: 400; color: #ccc; letter-spacing: 0.01em; }
-  .divider { color: #222; font-size: 18px; padding: 0 4px; flex-shrink: 0; }
+  .item-name { font-size: 13px; font-weight: 600; color: #ddd; letter-spacing: 0.01em; }
+  .ev-new-badge {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 8px;
+    flex-shrink: 0;
+    cursor: help;
+    background: rgba(77, 166, 255, 0.14);
+    color: #9fd4ff;
+    border: 1px solid rgba(77, 166, 255, 0.42);
+  }
+  .ticker-item.selected-catering .ev-new-badge,
+  .card-catering .ev-new-badge {
+    background: rgba(255, 140, 26, 0.14);
+    color: #ffc080;
+    border-color: rgba(255, 140, 26, 0.42);
+  }
+  .card-title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .card-title-row .card-title { margin-bottom: 0; flex: 1; min-width: 0; }
+  .card-new-badge { margin-left: 0; margin-top: 2px; }
   .ticker-hint {
     width: 100%;
     text-align: center;
@@ -234,8 +350,8 @@
   }
   .detail-card {
     border-radius: 8px;
-    padding: 20px 20px 16px;
-    min-height: 200px;
+    padding: 16px 18px 14px;
+    min-height: 168px;
     position: relative;
     overflow: hidden;
     transition: opacity 0.7s ease, box-shadow 0.2s ease;
@@ -296,10 +412,43 @@
   }
   .card-events .card-date { background: #0a1f3a; color: #4da6ff; border: 1px solid #4da6ff33; }
   .card-catering .card-date { background: #2a1500; color: #ff8c1a; border: 1px solid #ff8c1a33; }
-  .card-title { font-size: 15px; font-weight: 700; line-height: 1.25; margin-bottom: 7px; color: #fff; }
-  .card-desc { font-size: 11px; line-height: 1.6; font-family: var(--mono); flex: 1; margin-bottom: 12px; }
+  .card-title { font-size: 15px; font-weight: 700; line-height: 1.25; margin-bottom: 4px; color: #fff; }
+  .card-venue {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: #888;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card-events .card-venue { color: #4da6ff99; }
+  .card-catering .card-venue { color: #ff8c1a99; }
+  .card-desc {
+    font-size: 11px;
+    line-height: 1.5;
+    font-family: var(--mono);
+    flex: 1;
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
   .card-events .card-desc { color: #4da6ff99; }
   .card-catering .card-desc { color: #ff8c1a99; }
+  .card-more {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: auto;
+    opacity: 0.65;
+  }
+  .card-events .card-more { color: #4da6ff; }
+  .card-catering .card-more { color: #ff8c1a; }
+  .detail-card .card-contact { display: none; }
+
   .card-contact {
     border-top: 1px solid #1a1a1a;
     padding-top: 10px;
@@ -389,7 +538,17 @@
     padding: 6px 0 10px;
     overflow-y: auto;
     height: 100%;
+    background: transparent;
   }
+  html.embed-hub .ticker-row {
+    background: rgba(4, 8, 14, 0.58);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  html.embed-hub .label-events,
+  html.embed-hub .label-catering { background: rgba(0, 0, 0, 0.62); }
+  html.embed-hub .card-events { background: rgba(4, 13, 26, 0.78); }
+  html.embed-hub .card-catering { background: rgba(18, 8, 0, 0.78); }
   html.embed-hub body.ticker-has-back::before { display: none; }
   html.embed-hub .header { margin-bottom: 10px; }
   html.embed-hub .header-eyebrow,
@@ -472,7 +631,7 @@
   <a class="embed-open-link" id="embedOpenFullLink" href="./live-events-ticker.html" target="_blank" rel="noopener noreferrer">Open full feed — spotlight cards →</a>
 </p>
 
-<p class="ticker-hint">↑ click any ticker item to spotlight it in the cards below</p>
+<p class="ticker-hint">↑ click a ticker item to expand · click again or ✕ clear to collapse</p>
 
 <div class="status-bar">
   <div class="status-left">
@@ -487,33 +646,53 @@
     <div class="pin-badge">pinned</div>
     <div class="card-type"><span class="card-type-dot"></span>Jam spotlight</div>
     <div class="card-date" id="card-j1-date"></div>
-    <div class="card-title" id="card-j1-title"></div>
+    <div class="card-title-row">
+      <div class="card-title" id="card-j1-title"></div>
+      <span class="card-new-badge ev-new-badge" id="card-j1-new" hidden>New</span>
+    </div>
+    <div class="card-venue" id="card-j1-venue"></div>
     <div class="card-desc" id="card-j1-desc"></div>
-    <div class="card-contact" id="card-j1-contact"></div>
+    <div class="card-more">Click to pin</div>
+    <div class="card-contact" id="card-j1-contact" hidden></div>
   </div>
   <div class="detail-card card-events visible" id="card-j2">
     <div class="pin-badge">pinned</div>
     <div class="card-type"><span class="card-type-dot"></span>Jam spotlight</div>
     <div class="card-date" id="card-j2-date"></div>
-    <div class="card-title" id="card-j2-title"></div>
+    <div class="card-title-row">
+      <div class="card-title" id="card-j2-title"></div>
+      <span class="card-new-badge ev-new-badge" id="card-j2-new" hidden>New</span>
+    </div>
+    <div class="card-venue" id="card-j2-venue"></div>
     <div class="card-desc" id="card-j2-desc"></div>
-    <div class="card-contact" id="card-j2-contact"></div>
+    <div class="card-more">Click to pin</div>
+    <div class="card-contact" id="card-j2-contact" hidden></div>
   </div>
   <div class="detail-card card-catering visible" id="card-g1">
     <div class="pin-badge">pinned</div>
     <div class="card-type"><span class="card-type-dot"></span>Gig spotlight</div>
     <div class="card-date" id="card-g1-date"></div>
-    <div class="card-title" id="card-g1-title"></div>
+    <div class="card-title-row">
+      <div class="card-title" id="card-g1-title"></div>
+      <span class="card-new-badge ev-new-badge" id="card-g1-new" hidden>New</span>
+    </div>
+    <div class="card-venue" id="card-g1-venue"></div>
     <div class="card-desc" id="card-g1-desc"></div>
-    <div class="card-contact" id="card-g1-contact"></div>
+    <div class="card-more">Click to pin</div>
+    <div class="card-contact" id="card-g1-contact" hidden></div>
   </div>
   <div class="detail-card card-catering visible" id="card-g2">
     <div class="pin-badge">pinned</div>
     <div class="card-type"><span class="card-type-dot"></span>Gig spotlight</div>
     <div class="card-date" id="card-g2-date"></div>
-    <div class="card-title" id="card-g2-title"></div>
+    <div class="card-title-row">
+      <div class="card-title" id="card-g2-title"></div>
+      <span class="card-new-badge ev-new-badge" id="card-g2-new" hidden>New</span>
+    </div>
+    <div class="card-venue" id="card-g2-venue"></div>
     <div class="card-desc" id="card-g2-desc"></div>
-    <div class="card-contact" id="card-g2-contact"></div>
+    <div class="card-more">Click to pin</div>
+    <div class="card-contact" id="card-g2-contact" hidden></div>
   </div>
 </div>
 
@@ -523,13 +702,40 @@
 const FEED_URLS = ['../data/live-events-feed.json', '/data/live-events-feed.json'];
 const LANE_JAMS = new Set(['open-mic', 'open-jam', 'jazz', 'jams']);
 const LANE_GIGS = new Set(['gigs', 'festival', 'concert']);
+const CATEGORY_LABELS = {
+  'open-mic': 'Open mic',
+  'open-jam': 'Open jam',
+  jazz: 'Jazz',
+  jams: 'Jam session',
+  gigs: 'Gig',
+  festival: 'Festival',
+  concert: 'Concert'
+};
+const NEW_BADGE_HINT_DEFAULT = '1st event, come join and support';
+
+function newBadgeHint(item) {
+  const h = item && (item.newHint || item.newBadgeHint);
+  return (h && String(h).trim()) || NEW_BADGE_HINT_DEFAULT;
+}
+
+function newBadgeHtml(item, extraClass) {
+  if (!item || !item.isNew) return '';
+  const hint = newBadgeHint(item);
+  const cls = 'ev-new-badge' + (extraClass ? ' ' + extraClass : '');
+  return (
+    '<span class="' + cls + '" title="' + escapeHtml(hint) + '" aria-label="' + escapeHtml(hint) + '">New</span>'
+  );
+}
 
 let FEED = { meta: {}, events: [], lanes: { jams: [], gigs: [] } };
 let jamsDetails = [];
 let gigsDetails = [];
 let jamsRaw = [];
 let gigsRaw = [];
+let eventsById = new Map();
 let tickerSelected = null;
+let tickerPaused = false;
+let cardDetailByPrefix = {};
 
 function isEmbedHub() {
   return document.documentElement.classList.contains('embed-hub');
@@ -550,24 +756,70 @@ function mapUrlForVenue(venueId) {
   return u.pathname + u.search;
 }
 
-function toTickerItem(e) {
-  const venue = e.venue ? ' — ' + e.venue : '';
-  return { date: e.date || 'TBC', name: (e.title || 'Event') + venue, id: e.id };
+function buildItemDetailHTML(detail) {
+  let html = '<div class="item-detail">';
+  if (detail.venue) {
+    html += '<div class="item-detail-venue">' + escapeHtml(detail.venue) + '</div>';
+  }
+  if (detail.line && detail.line !== detail.desc) {
+    html += '<div class="item-detail-line">' + escapeHtml(detail.line) + '</div>';
+  }
+  html += '<div class="item-detail-desc">' + escapeHtml(detail.desc || 'Verify on venue site.') + '</div>';
+  if (detail.isNew) {
+    html += '<div style="margin-bottom:8px">' + newBadgeHtml(detail) + '</div>';
+  }
+  if (detail.categoryLabel) {
+    html += '<div class="item-detail-type">' + escapeHtml(detail.categoryLabel) + '</div>';
+  }
+  html += '<div class="item-detail-contact">' + buildContactHTML(detail) + '</div>';
+  html += '</div>';
+  return html;
+}
+
+function setTickerExpanded(type, id, expanded) {
+  document.querySelectorAll('.ticker-item').forEach((i) => {
+    i.classList.remove('selected-event', 'selected-catering', 'expanded');
+  });
+  document.querySelectorAll('.ticker-row').forEach((r) => r.classList.remove('has-expanded'));
+  if (!expanded || !id) return;
+  const cls = type === 'jams' ? 'selected-event' : 'selected-catering';
+  document.querySelectorAll('.ticker-item[data-id="' + CSS.escape(id) + '"]').forEach((i) => {
+    i.classList.add(cls, 'expanded');
+    i.closest('.ticker-row')?.classList.add('has-expanded');
+  });
 }
 
 function toDetail(e) {
-  const venue = e.venue ? ' — ' + e.venue : '';
   return {
+    id: e.id,
+    category: e.category || '',
+    categoryLabel: CATEGORY_LABELS[String(e.category || '').toLowerCase()] || e.category || 'Event',
     date: e.date || 'TBC',
-    name: (e.title || 'Event') + venue,
+    title: e.title || 'Event',
+    venue: e.venue || '',
+    line: e.line || '',
     desc: e.desc || e.line || '',
+    imageUrl: e.imageUrl || '',
     email: e.email,
     phone: e.phone,
     web: e.web,
     webUrl: e.webUrl || e.href,
     href: e.href,
-    id: e.id
+    venueId: e.venueId,
+    source: e.source || '',
+    isNew: Boolean(e.isNew),
+    newHint: e.newHint || e.newBadgeHint || ''
   };
+}
+
+function truncateText(text, max) {
+  const s = String(text || '').trim();
+  if (s.length <= max) return s;
+  return s.slice(0, max - 1).trim() + '…';
+}
+
+function setTickerPaused(on) {
+  tickerPaused = on;
 }
 
 async function loadFeed() {
@@ -604,26 +856,31 @@ function partitionEvents() {
   return { jams, gigs };
 }
 
-function buildTrack(items, dateClass, trackId, type) {
+function buildTrack(events, dateClass, trackId, type) {
   const track = document.getElementById(trackId);
   track.innerHTML = '';
-  if (!items.length) {
+  if (!events.length) {
     track.innerHTML = '<span class="ticker-item" style="cursor:default;color:#555">No items — add seeds in data/live-events-seeds.json</span>';
     return;
   }
-  const tripled = [...items, ...items, ...items];
-  tripled.forEach((item) => {
+  const tripled = [...events, ...events, ...events];
+  tripled.forEach((e) => {
+    const detail = toDetail(e);
     const el = document.createElement('div');
     el.className = 'ticker-item';
-    el.dataset.id = item.id || '';
-    el.dataset.name = item.name;
-    el.dataset.date = item.date;
+    el.dataset.id = detail.id || '';
     el.dataset.type = type;
     el.innerHTML =
-      '<span class="item-date ' + dateClass + '">' + escapeHtml(item.date) + '</span>' +
-      '<span class="item-name">' + escapeHtml(item.name) + '</span>' +
-      '<span class="divider" aria-hidden="true">·</span>';
-    el.addEventListener('click', () => handleTickerClick(el, type));
+      '<div class="item-compact">' +
+        '<span class="item-date ' + dateClass + '">' + escapeHtml(detail.date) + '</span>' +
+        '<span class="item-name">' + escapeHtml(detail.title) + '</span>' +
+        newBadgeHtml(detail) +
+      '</div>' +
+      buildItemDetailHTML(detail);
+    el.addEventListener('click', (ev) => {
+      if (ev.target.closest('a')) return;
+      handleTickerClick(el, type);
+    });
     track.appendChild(el);
   });
 }
@@ -636,35 +893,41 @@ function escapeHtml(s) {
 
 function handleTickerClick(el, type) {
   const id = el.dataset.id;
-  const name = el.dataset.name;
-  const date = el.dataset.date;
   const already = tickerSelected && tickerSelected.id === id && tickerSelected.type === type;
-
-  document.querySelectorAll('.ticker-item').forEach((i) => i.classList.remove('selected-event', 'selected-catering'));
 
   if (already) {
     tickerSelected = null;
+    setTickerExpanded(null, null, false);
+    setTickerPaused(false);
     updateStatusBar(null);
     return;
   }
 
-  const cls = type === 'jams' ? 'selected-event' : 'selected-catering';
-  document.querySelectorAll('.ticker-item[data-id="' + CSS.escape(id) + '"]').forEach((i) => i.classList.add(cls));
+  const row = eventsById.get(id) || (type === 'jams' ? jamsRaw : gigsRaw).find((e) => e.id === id);
+  const detail = row ? toDetail(row) : null;
+  const label = detail
+    ? detail.title + (detail.venue ? ' — ' + detail.venue : '')
+    : el.querySelector('.item-name')?.textContent || '';
 
-  tickerSelected = { type, id, name, date };
+  setTickerExpanded(type, id, true);
+  tickerSelected = { type, id, name: label, date: detail?.date || '' };
   updateStatusBar(tickerSelected);
+  setTickerPaused(true);
   pushToCards(type, id);
-  const row = (type === 'jams' ? jamsRaw : gigsRaw).find((e) => e.id === id);
-  if (row && row.venueId) notifyHubMapVenue(row.venueId, row.venue || row.title);
+  if (row?.venueId) notifyHubMapVenue(row.venueId, row.venue || row.title);
 }
 
 function clearTickerSelection() {
   tickerSelected = null;
-  document.querySelectorAll('.ticker-item').forEach((i) => i.classList.remove('selected-event', 'selected-catering'));
+  setTickerExpanded(null, null, false);
+  setTickerPaused(false);
   updateStatusBar(null);
 }
 
 document.getElementById('clear-btn').addEventListener('click', clearTickerSelection);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && tickerSelected) clearTickerSelection();
+});
 
 function updateStatusBar(sel) {
   const txt = document.getElementById('status-text');
@@ -704,7 +967,7 @@ function buildContactHTML(item) {
   }
   if (item.venueId) {
     if (isEmbedHub()) {
-      html += '<div class="contact-row"><span class="contact-icon">📍</span><a class="contact-link map-venue-link" href="#" data-venue-id="' + escapeHtml(String(item.venueId)) + '" data-venue-name="' + escapeHtml(item.name || '') + '">Show on jam map below</a></div>';
+      html += '<div class="contact-row"><span class="contact-icon">📍</span><a class="contact-link map-venue-link" href="#" data-venue-id="' + escapeHtml(String(item.venueId)) + '" data-venue-name="' + escapeHtml(item.venue || item.title || '') + '">Show on jam map below</a></div>';
     } else {
       const mapHref = mapUrlForVenue(item.venueId);
       html += '<div class="contact-row"><span class="contact-icon">📍</span><a class="contact-link map-venue-link" href="' + escapeHtml(mapHref) + '">View on Live Music Map</a></div>';
@@ -717,10 +980,26 @@ function buildContactHTML(item) {
 }
 
 function fillCard(prefix, data) {
+  cardDetailByPrefix[prefix] = data;
   document.getElementById(prefix + '-date').textContent = data.date;
-  document.getElementById(prefix + '-title').textContent = data.name;
-  document.getElementById(prefix + '-desc').textContent = data.desc;
-  document.getElementById(prefix + '-contact').innerHTML = buildContactHTML(data);
+  document.getElementById(prefix + '-title').textContent = data.title;
+  const newEl = document.getElementById(prefix + '-new');
+  if (newEl) {
+    const hint = newBadgeHint(data);
+    if (data.isNew) {
+      newEl.hidden = false;
+      newEl.title = hint;
+      newEl.setAttribute('aria-label', hint);
+    } else {
+      newEl.hidden = true;
+      newEl.removeAttribute('title');
+      newEl.removeAttribute('aria-label');
+    }
+  }
+  const venueEl = document.getElementById(prefix + '-venue');
+  if (venueEl) venueEl.textContent = data.venue || '';
+  const teaser = data.line || truncateText(data.desc, 100);
+  document.getElementById(prefix + '-desc').textContent = teaser;
 }
 
 function flashCard(cardId, data) {
@@ -745,9 +1024,11 @@ function animateTicker(trackId, speed) {
   const oneThird = totalWidth / 3;
   if (!oneThird || !isFinite(oneThird)) return;
   function step() {
-    pos += speed;
-    if (pos >= oneThird) pos = 0;
-    track.style.transform = 'translateX(-' + pos + 'px)';
+    if (!tickerPaused) {
+      pos += speed;
+      if (pos >= oneThird) pos = 0;
+      track.style.transform = 'translateX(-' + pos + 'px)';
+    }
     requestAnimationFrame(step);
   }
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -807,16 +1088,16 @@ async function boot() {
   const { jams, gigs } = partitionEvents();
   jamsRaw = jams;
   gigsRaw = gigs;
-  const jamsTicker = jams.map(toTickerItem);
-  const gigsTicker = gigs.map(toTickerItem);
+  eventsById = new Map();
+  [...jams, ...gigs].forEach((e) => { if (e && e.id) eventsById.set(e.id, e); });
 
   jamsDetails = (jams.filter((e) => e.spotlight).length ? jams.filter((e) => e.spotlight) : jams).map(toDetail);
   gigsDetails = (gigs.filter((e) => e.spotlight).length ? gigs.filter((e) => e.spotlight) : gigs).map(toDetail);
-  if (!jamsDetails.length) jamsDetails = [{ date: '—', name: 'Add jam listings', desc: 'Edit data/live-events-seeds.json', id: 'empty' }];
-  if (!gigsDetails.length) gigsDetails = [{ date: '—', name: 'Add gig listings', desc: 'Edit data/live-events-seeds.json', id: 'empty2' }];
+  if (!jamsDetails.length) jamsDetails = [{ date: '—', title: 'Add jam listings', desc: 'Edit data/live-events-seeds.json', id: 'empty' }];
+  if (!gigsDetails.length) gigsDetails = [{ date: '—', title: 'Add gig listings', desc: 'Edit data/live-events-seeds.json', id: 'empty2' }];
 
-  buildTrack(jamsTicker, 'date-events', 'track-jams', 'jams');
-  buildTrack(gigsTicker, 'date-catering', 'track-gigs', 'gigs');
+  buildTrack(jams, 'date-events', 'track-jams', 'jams');
+  buildTrack(gigs, 'date-catering', 'track-gigs', 'gigs');
   animateTicker('track-jams', 0.5);
   animateTicker('track-gigs', 0.38);
   initCards();

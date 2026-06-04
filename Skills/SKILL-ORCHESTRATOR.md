@@ -70,7 +70,9 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 | 🕒 **Historical Data Finder** | `historical-data-finder.md` | Historical cost comparisons tied to energy prices |
 | 🧮 **Calculator Cohesion** | `calculator-cohesion.md` | Align calculators to shared enriched data |
 | ⚡ **Energy Dashboard** | `energy-dashboard-skill.md` | Main Greenways UI, utility detail, Wok Assist, equipment / deep dive / intelligence, deals hub, **savings tour**, **finance finder**, **schemes portals**, sustainable catalogue |
-| 🎵 **Live Music Finder** | `live-music-finder-skill.md` | Amsterdam jam/open-mic map, events feed/ticker, `venueId` map links, music guide, venue inquiries, Wix embeds |
+| 🎵 **Live Music Finder** | `live-music-finder-skill.md` | Map, ticker, feed, Wix embeds — UI and data locations |
+| 🎵 **Live Music Discovery Scout** | `live-music-discovery-scout.md` | **Auto-populate** venues, events, media via candidate queues → `npm run merge:music-discovery` |
+| 🎵 **Live Music Media Scout** | `live-music-media-scout.md` | Photos + YouTube only → `music-media-candidates.json` |
 | 🧭 **Hover Data Aggregator** | `hover-data-aggregator.md` | Build hover cache with grants + deals |
 | 🧩 **Personalized Impact Hover** | `personalized-impact-hover.md` | Explain how info affects the user |
 | 🧠 **News → Product Recommender** | `news-product-recommender.md` | Suggest products for news items |
@@ -327,13 +329,14 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 "music-venues.json"
 ```
 
-**Routes to:** `live-music-finder-skill.md`
+**Routes to:** `live-music-finder-skill.md` (UI/data) · **`live-music-discovery-scout.md`** (auto-populate region) · **`live-music-media-scout.md`** (photos/video only)
 
 **Performs:**
 - Map (`live-music-finder.html`), feed build (`npm run build:live-events-feed`), ticker/updates pages
 - Link feed rows to map via **`venueId`** and **`?venue=`** deep links
 - Wix/Render embed URLs; never **`file://`** for testing
-- Venue API, inquiries, music guide; agent intake via seeds / weekly / candidates JSON
+- Candidate queues → **`npm run merge:music-discovery`** (venues + events + media)
+- Venue API, inquiries, music guide
 
 ---
 

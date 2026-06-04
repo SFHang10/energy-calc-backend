@@ -16,6 +16,8 @@ Use when the user mentions:
 - Linking ticker listings to map pins, `venueId`, `?venue=`
 - Wix embeds for the music finder site
 
+**Auto-populate jams nationally / fill venue info:** use **`Skills/live-music-discovery-scout.md`** (master pipeline). Media-only passes: **`Skills/live-music-media-scout.md`**.
+
 **Do not use `file://`** for any of these pages — they `fetch()` JSON and APIs. Always test via **`npm start`** → `http://localhost:4000/...` or Render.
 
 ---
@@ -69,7 +71,11 @@ flowchart LR
 | **Venue data** | `data/music-venues.json` |
 | **Events seeds (edit)** | `data/live-events-seeds.json` |
 | **Generated feed** | `data/live-events-feed.json` |
-| **Agent proposals** | `data/live-events-candidates.json` → approve → `live-events-weekly-input.json` |
+| **Discovery (master)** | **`Skills/live-music-discovery-scout.md`** — venue + event + media queues |
+| **Venue proposals** | `data/music-venue-candidates.json` → `npm run merge:music-venues` |
+| **Event proposals** | `data/live-events-candidates.json` → `npm run merge:live-events-candidates` |
+| **Media proposals** | `data/music-media-candidates.json` → `npm run merge:music-media` — **`Skills/live-music-media-scout.md`** |
+| **Publish all approved** | `npm run merge:music-discovery` |
 | **Venues API** | `routes/music-venues.js` |
 | **Inquiries API** | `routes/music-venue-inquiries.js` |
 | **Music guide API** | `routes/music-guide.js` |
@@ -104,6 +110,11 @@ npm start
 npm run build:live-events-feed    # seeds + approved weekly → feed JSON
 npm run import:music-venues       # optional CSV → music-venues.json
 npm run sync:music-venues-fallback # refresh inline fallback in map HTML
+npm run propose:music-media-og    # probe venue URLs → og:image candidates
+npm run merge:music-venues        # approved venue profiles → music-venues.json
+npm run merge:live-events-candidates  # approved events → seeds + feed build
+npm run merge:music-media         # approved media → venues + sync map fallback
+npm run merge:music-discovery     # all three queues + map sync (after review)
 ```
 
 ---
@@ -137,6 +148,8 @@ Upload in **Wix Media Manager**, then paste **`https://static.wixstatic.com/medi
 
 Optional event hero: **`imageUrl`** on a row in **`live-events-seeds.json`** (e.g. Rooftop Open Mic), then **`npm run build:live-events-feed`**.
 
+**Gallery photos:** prefer **`mediaGallery`** on the venue row; keep **`imageUrl`** as the single map/listing thumbnail (usually first gallery image).
+
 ---
 
 ## Events feed schema
@@ -162,9 +175,12 @@ Edit **`data/live-events-seeds.json`** → run **`npm run build:live-events-feed
   "source": "venue",
   "spotlight": true,
   "isNew": false,
+  "newHint": "1st event, come join and support",
   "addedAt": "2026-05-28"
 }
 ```
+
+Set **`isNew": true`** on new sessions (e.g. The Black Dog jam). Ticker marquee items, spotlight cards (`live-events-ticker.html`), and listing cards (`live-events-updates.html`) show a small **New** pill; hover/`title` uses **`newHint`** or the default *1st event, come join and support*.
 
 **Categories → ticker lanes**
 
@@ -223,22 +239,90 @@ Only rows with **`approved: true`** (or missing `approved`, treated as approved)
 
 - **D3 map** centred on Amsterdam; genre filters + sidebar list.
 - **`selectVenue(id)`** — zoom, popup, highlight marker.
-- **Popup:** verification badge, vibes, maps link, lazy YouTube, inquiry form → `/api/music-venue-inquiries`.
+- **Popup:** verification badge, vibes, maps link, **Photos & videos** lightbox (lazy), legacy inline YouTube only when no gallery items, inquiry form → `/api/music-venue-inquiries`.
 - **Music guide** panel → `POST /api/music-guide/ask` (optional LLM via env).
 - **Suggest venue** modal → POST `/api/music-venues`.
-- Venue fields: `verificationStatus`, `lastVerified`, `contactEmail`, `vibeTags`, `mapsUrl`, `youtubeVideos`.
+- Venue fields: `verificationStatus`, `lastVerified`, `contactEmail`, `vibeTags`, `mapsUrl`, `youtubeVideos`, **`mediaGallery`**.
+
+### Photos & videos lightbox (implemented)
+
+- **Data:** `mediaGallery[]` on `data/music-venues.json` (max **8** items per venue via API). Types: `image` (`url`, `caption`) and `youtube` (`id`, `title`).
+- **Fallback merge:** If `mediaGallery` is empty, the UI still builds a gallery from `imageUrl` + `youtubeVideos[]` (deduped).
+- **UX:** Popup button **Photos & videos (N)** opens full-screen carousel; images lazy-load; YouTube embeds **only on tap**; swipe on mobile; ←/→ and Escape on desktop.
+- **Performance:** Nothing loads until the user opens the lightbox — map/ticker stay light.
+- **Pilots with curated `mediaGallery`:** Café Engelbewaarder (id 5), Zaal 100 (id 10), The Black Dog (id 15). Add more rows as Wix URLs / YouTube IDs are ready.
+
+```json
+"mediaGallery": [
+  { "type": "image", "url": "https://static.wixstatic.com/media/…", "caption": "Sunday jam" },
+  { "type": "youtube", "id": "VIDEO_ID", "title": "Jam night clip" }
+]
+```
+
+After JSON edits: `npm run sync:music-venues-fallback`.
+
+**Native iOS/Android app:** explicitly out of scope — mobile = responsive web + optional PWA later (see roadmap).
+
+---
+
+## Roadmap / backlog (work when convenient)
+
+Track ideas here; check off as shipped. **Do not** build a native app unless requirements change.
+
+### Phase 1 — Media (in progress / done)
+
+- [x] `mediaGallery` schema + API normalization (`routes/music-venues.js`)
+- [x] Lazy lightbox carousel on map popup (`live-music-finder.html`)
+- [x] Pilot galleries: Engelbewaarder, Zaal 100, Black Dog
+- [x] **`music-media-candidates.json`** + **`merge:music-media`** + **`propose:music-media-og`** — see **`Skills/live-music-media-scout.md`**
+- [ ] Add 2–4 more photos + YouTube IDs for pilot venues (Waterhole, Bimhuis, etc.) via media scout
+- [ ] `music-venues-admin.html` — edit `mediaGallery` (or JSON-only workflow doc)
+
+### Phase 2 — Discovery surfaces
+
+- [ ] Listings / ticker: small **▶ N videos** or **📷 gallery** chip (still no autoplay)
+- [ ] Optional **Instagram / venue site** link in popup when gallery is thin (“See more online”)
+- [ ] Optional full **venue story** HTML page for long copy (linked from popup, off the map)
+
+### Phase 3 — Community & ops
+
+- [x] **Full discovery pipeline** — `music-venue-candidates.json` + merge scripts + **`live-music-discovery-scout.md`**
+- [ ] Member/venue submit → same candidate queues (venue + media)
+- [ ] **Artist spotlight** agent: YouTube search batch → candidates (skill: `live-music-media-scout.md`)
+- [ ] Auto-expire **`isNew`** badges after first jam date passes
+
+### Phase 4 — Mobile web (not native app)
+
+- [ ] **PWA** manifest + “Add to home screen” for hub/map (offline shell only)
+- [ ] Push notifications — only if product needs it (would be PWA or native; defer)
+- [ ] “Jams near me” geolocation — web API first
+
+### Explicitly deferred
+
+- [ ] Native iOS/Android store apps — **not planned** unless push/location becomes mandatory
 
 ---
 
 ## Agent workflows (low maintenance)
 
-| Agent | Input | Output | Human step |
-|-------|--------|--------|------------|
-| **Venue finder** | Web / lists | Update `music-venues.json` or admin | Verify pin + contact |
-| **Events scout** | I amsterdam, Eventbrite, venue sites | `live-events-candidates.json` | Approve → seeds or weekly input |
-| **Artist spotlight** (later) | YouTube / uploads | Wix media + metadata | Curate on Wix |
+**Runbook:** **`Skills/live-music-discovery-scout.md`** (populate all fields → three JSON queues → `npm run merge:music-discovery`).
 
-**Preferred external sources (Amsterdam):** I amsterdam calendar, venue own URLs, Eventbrite/Bandsintown (API + approval). Avoid brittle scrapers early.
+| Agent | Input | Output file | Merge |
+|-------|--------|-------------|--------|
+| **Discovery scout** | Directories, venue sites, calendars | `music-venue-candidates.json` + `live-events-candidates.json` | `merge:music-venues` + `merge:live-events-candidates` |
+| **Media scout** | og:image, YouTube, Wix | `music-media-candidates.json` | `merge:music-media` |
+| **Enrich pass** | Fill gaps on existing `venueId` | `music-venue-candidates.json` (`mode: enrich`) | `merge:music-venues` |
+
+**Preferred external sources (Amsterdam):** I amsterdam calendar, venue own URLs, jazzinamsterdam.com, Eventbrite/Bandsintown (verify + approval). Avoid brittle scrapers early.
+
+### Quick agent checklist (per region)
+
+1. Add **venue** candidates (`create` / `enrich`) with schedule, jam copy, contact, coords.  
+2. Add **event** candidates with matching `venueId` (after venue merge if new).  
+3. Run **`npm run propose:music-media-og`** + YouTube proposals.  
+4. Review → `approved: true`.  
+5. **`npm run merge:music-discovery`**.  
+6. Hand-polish Wix heroes and edge cases.
 
 ---
 
@@ -286,5 +370,11 @@ Only rows with **`approved: true`** (or missing `approved`, treated as approved)
 ```json
 "build:live-events-feed": "node scripts/build-live-events-feed.js",
 "build:live-music-finder": "node scripts/build-live-music-finder-html.js",
-"import:music-venues": "node scripts/import-music-venues.js"
+"import:music-venues": "node scripts/import-music-venues.js",
+"sync:music-venues-fallback": "node scripts/sync-music-venues-fallback.js",
+"propose:music-media-og": "node scripts/propose-music-media-og.js",
+"merge:music-media": "node scripts/merge-music-media-candidates.js && node scripts/sync-music-venues-fallback.js",
+"merge:music-venues": "node scripts/merge-music-venue-candidates.js",
+"merge:live-events-candidates": "node scripts/merge-live-events-candidates.js",
+"merge:music-discovery": "node scripts/merge-music-discovery.js"
 ```

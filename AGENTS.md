@@ -41,11 +41,6 @@
 | **Energy prices ticker (embed)** | `content-ops/drafts/energy-ticker/energy-ticker-green-wire.html` |
 | **Wok Assist (embedded)** | `HTMLS GWM GWB/Chef 3 W2W .html` |
 | **Amsterdam events ticker** | `HTMLS GWM GWB/Events Ticker W2W .html` |
-| **Live Music Finder (map)** | `HTMLS GWM GWB/live-music-finder.html` |
-| **Live music events feed** | `data/live-events-feed.json` ← `npm run build:live-events-feed` (`data/live-events-seeds.json` + `data/live-events-weekly-input.json`) |
-| **Live music hub (shell)** | `HTMLS GWM GWB/live-music-hub.html` — events tabs top, map below, venue sync via postMessage |
-| **Live music ticker** | `HTMLS GWM GWB/live-events-ticker.html` (`?embed=1` for Wix iframe) |
-| **Live music what's on** | `HTMLS GWM GWB/live-events-updates.html` |
 | **Deals (full page shell)** | `HTMLS GWM GWB/Deals.html` |
 | **Deals hub (ticker + search)** | `HTMLS GWM GWB/deals-ticker-hub.html` |
 | **Deals feed (generated)** | `data/deals-feed.json` ← `npm run build:deals-feed` (`data/deals-feed-seeds.json` + `data/deals-weekly-input.json`) |
@@ -58,7 +53,7 @@
 | **Savings projection math** | `HTMLS GWM GWB/js/savings-projection-model.js` |
 | **Projection demo scenarios** | `data/savings-projection-scenarios.json` |
 | **Skills** | `Skills/` |
-| **Live Music Finder (skill)** | `Skills/live-music-finder-skill.md` ⭐ map, events feed, ticker, `venueId` links, Wix |
+| **Live music discovery (auto-fill)** | `Skills/live-music-discovery-scout.md` — venue + event + media candidate queues → `npm run merge:music-discovery` |
 | **PRD Tasks** | `tasks/` |
 
 ---

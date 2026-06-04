@@ -92,6 +92,35 @@ function normalizeYoutubeVideos(value) {
     .slice(0, 3);
 }
 
+/** Curated photos + YouTube clips for lazy lightbox (max 8). */
+function normalizeMediaGallery(value) {
+  const items = Array.isArray(value) ? value : [];
+  const out = [];
+  const seen = new Set();
+  for (const raw of items) {
+    if (!raw || out.length >= 8) break;
+    const type = toText(raw.type, 20).toLowerCase();
+    if (type === 'image') {
+      const url = toText(raw.url, 500);
+      if (!url || seen.has(url)) continue;
+      seen.add(url);
+      out.push({ type: 'image', url, caption: toText(raw.caption, 160) });
+      continue;
+    }
+    if (type === 'youtube' || type === 'video') {
+      const id = toText(raw.id || raw.youtubeId, 40);
+      if (!id || seen.has(`yt:${id}`)) continue;
+      seen.add(`yt:${id}`);
+      out.push({
+        type: 'youtube',
+        id,
+        title: toText(raw.title || raw.caption, 120)
+      });
+    }
+  }
+  return out;
+}
+
 function normalizeGenre(value) {
   const slug = toText(value, 40).toLowerCase();
   if (VALID_GENRES.includes(slug)) return slug;
@@ -126,6 +155,7 @@ function buildVenue(body, id, index) {
   const vibeTags = toStringArray(body.vibeTags, 10, 40);
   const mapsUrl = toText(body.mapsUrl, 500);
   const youtubeVideos = normalizeYoutubeVideos(body.youtubeVideos);
+  const mediaGallery = normalizeMediaGallery(body.mediaGallery);
   return {
     id,
     name: toText(body.name, 120),
@@ -144,10 +174,21 @@ function buildVenue(body, id, index) {
     vibeTags,
     mapsUrl,
     youtubeVideos,
+    mediaGallery,
     source,
     verificationStatus,
     lastVerified,
     sourceNote: toText(body.sourceNote, 200),
+    sessionTime: toText(body.sessionTime, 120),
+    recurrence: toText(body.recurrence, 200),
+    nextSession: toText(body.nextSession, 160),
+    signUpNotes: toText(body.signUpNotes, 300),
+    entryCost: toText(body.entryCost, 120),
+    skillLevel: toText(body.skillLevel, 160),
+    jamDetails: toText(body.jamDetails, 600),
+    phone: toText(body.phone, 40),
+    instagramUrl: toText(body.instagramUrl, 500),
+    agendaUrl: toText(body.agendaUrl, 500),
     color: GENRE_COLORS[genre],
   };
 }
@@ -260,10 +301,25 @@ router.patch('/:id', async (req, res) => {
       merged.lat = coords.lat;
     }
 
-    const fields = ['format', 'schedule', 'address', 'city', 'country', 'desc', 'imageUrl', 'url', 'contactEmail', 'mapsUrl', 'source', 'verificationStatus', 'lastVerified', 'sourceNote'];
+    const fields = [
+      'format', 'schedule', 'address', 'city', 'country', 'desc', 'imageUrl', 'url', 'contactEmail', 'mapsUrl',
+      'source', 'verificationStatus', 'lastVerified', 'sourceNote',
+      'sessionTime', 'recurrence', 'nextSession', 'signUpNotes', 'entryCost', 'skillLevel', 'jamDetails',
+      'phone', 'instagramUrl', 'agendaUrl'
+    ];
+    const fieldLimits = {
+      desc: 800,
+      jamDetails: 600,
+      signUpNotes: 300,
+      imageUrl: 500,
+      url: 500,
+      mapsUrl: 500,
+      instagramUrl: 500,
+      agendaUrl: 500,
+    };
     fields.forEach((key) => {
       if (req.body?.[key] != null) {
-        merged[key] = toText(req.body[key], key === 'desc' ? 800 : 200);
+        merged[key] = toText(req.body[key], fieldLimits[key] || 200);
       }
     });
     if (req.body?.verificationStatus != null) {
@@ -274,6 +330,9 @@ router.patch('/:id', async (req, res) => {
     }
     if (req.body?.youtubeVideos != null) {
       merged.youtubeVideos = normalizeYoutubeVideos(req.body.youtubeVideos);
+    }
+    if (req.body?.mediaGallery != null) {
+      merged.mediaGallery = normalizeMediaGallery(req.body.mediaGallery);
     }
 
     items[index] = merged;
