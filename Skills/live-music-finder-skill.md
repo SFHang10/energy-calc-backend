@@ -121,12 +121,15 @@ npm run merge:music-discovery     # all three queues + map sync (after review)
 
 ## Wix / Render embeds
 
-**Primary Wix embed:** use the hub shell (one iframe, three tabs inside):
+**Primary Wix embed:** use **Render Version** (one iframe, events + map inside):
 
 | Embed | URL |
 |-------|-----|
-| **Hub (recommended)** | `/HTMLS%20GWM%20GWB/live-music-hub.html` |
+| **Render Version (Wix — recommended)** | `https://energy-calc-backend.onrender.com/HTMLS%20GWM%20GWB/live-music-hub-render.html` |
+| Hub (dev / full page) | `/HTMLS%20GWM%20GWB/live-music-hub.html` |
 | Map only | `/HTMLS%20GWM%20GWB/live-music-finder.html` |
+
+Setup checklist: **`HTMLS GWM GWB/WIX-LIVE-MUSIC-EMBED.md`** · iframe height **1200–1400px** · `<meta name="wix-html-scroll" content="no-scroll">` is already on the page.
 | Ticker strip | `/HTMLS%20GWM%20GWB/live-events-ticker.html?embed=1` |
 | Events list only | `/HTMLS%20GWM%20GWB/live-events-updates.html` |
 

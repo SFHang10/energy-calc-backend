@@ -36,6 +36,7 @@
 | **Grants & schemes (edit this)** | `schemes.json` ⭐ canonical scheme rows; **`combined-grants-loader.js`** + **`product-grants-integrator.js`** turn them into per-product grants |
 | **Product Images** | `product-placement/` |
 | **HTML Pages** | `HTMLs/` |
+| **Live Music Finder (Wix embed)** | `HTMLS GWM GWB/live-music-hub-render.html` — **Render Version**; see `HTMLS GWM GWB/WIX-LIVE-MUSIC-EMBED.md` |
 | **Greenways dashboard (buildings)** | `HTMLS GWM GWB/Greenways Interface .html` |
 | **Utility detail (Elec / Gas / Water)** | `HTMLS GWM GWB/utility-detail.html` (`?type=electricity|gas|water`) |
 | **Energy prices ticker (embed)** | `content-ops/drafts/energy-ticker/energy-ticker-green-wire.html` |

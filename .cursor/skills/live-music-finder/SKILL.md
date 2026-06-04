@@ -25,7 +25,8 @@ Read **`Skills/live-music-finder-skill.md`** (UI/data). For **auto-populating** 
 
 | Page | File |
 |------|------|
-| **Hub** | `HTMLS GWM GWB/live-music-hub.html` |
+| **Hub (Wix embed)** | `HTMLS GWM GWB/live-music-hub-render.html` on Render — see `WIX-LIVE-MUSIC-EMBED.md` |
+| **Hub (dev)** | `HTMLS GWM GWB/live-music-hub.html` |
 | Map | `HTMLS GWM GWB/live-music-finder.html` |
 | Ticker | `HTMLS GWM GWB/live-events-ticker.html` |
 | Listings | `HTMLS GWM GWB/live-events-updates.html` |

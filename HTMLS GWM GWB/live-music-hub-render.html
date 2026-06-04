@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Live Music Finder — Render Version (Wix embed)</title>
+  <!-- Wix: HTML iframe src = https://energy-calc-backend.onrender.com/HTMLS%20GWM%20GWB/live-music-hub-render.html · height ~1200–1400px -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #f0a03a;
+      --accent-dim: rgba(240, 160, 58, 0.12);
+      --accent-hot: rgba(240, 160, 58, 0.28);
+      --accent-blue: #4da6ff;
+      --black: #0a0a0a;
+      --dark: #121212;
+      --panel: #1a1a1a;
+      --border: #2a2a2a;
+      --text: #f0ede8;
+      --text-dim: #9a9088;
+      --text-faint: #555550;
+      --font: 'Space Grotesk', sans-serif;
+      --font-display: 'Playfair Display', serif;
+      --font-clean: 'IBM Plex Sans', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      --music-hub-backdrop-image: url("https://static.wixstatic.com/media/c123de_538ebcd0cb8744009c22d5676cb8a5da~mv2.jpg");
+      /* Events/ticker panel — taller so spotlight cards show before scrolling to map */
+      --events-panel-h: min(52vh, 680px);
+      --map-panel-h: min(58vh, 820px);
+      --wix-embed-min-h: 1320px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; min-height: var(--wix-embed-min-h); }
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: var(--font);
+      overflow: hidden;
+    }
+    /* Render Version — tuned for Wix HTML iframe (fixed height on parent page) */
+    body.music-hub--wix-render {
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    body.music-hub--wix-render .shell {
+      height: auto;
+      min-height: var(--wix-embed-min-h);
+      overflow-y: visible;
+    }
+    body.music-hub--wix-render .wix-embed-footer {
+      flex-shrink: 0;
+      text-align: center;
+      padding: 10px 16px 14px;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.08em;
+      color: var(--text-faint);
+      border-top: 1px solid var(--border);
+    }
+    .music-hub-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-color: #0d0d0d;
+      background-image:
+        linear-gradient(rgba(13, 8, 4, 0.55), rgba(8, 6, 4, 0.68)),
+        radial-gradient(circle at 28% 20%, rgba(240, 160, 58, 0.07), transparent 50%),
+        var(--music-hub-backdrop-image);
+      background-size: cover, cover, cover;
+      background-position: center, center, center;
+      filter: brightness(0.88) saturate(1.08) contrast(1.04);
+    }
+    body.music-hub--backdrop .music-hub-backdrop { display: block; }
+    .shell {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    header {
+      flex-shrink: 0;
+      background: var(--dark);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 58px;
+    }
+    body.music-hub--backdrop header,
+    body.music-hub--backdrop aside,
+    body.music-hub--backdrop .main-toolbar,
+    body.music-hub--backdrop .map-toolbar {
+      background: rgba(18, 18, 18, 0.52);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    body.music-hub--backdrop .hub-events-block,
+    body.music-hub--backdrop .hub-map-section {
+      background: transparent;
+    }
+    body.music-hub--backdrop .frame-wrap iframe,
+    body.music-hub--backdrop .map-frame-wrap iframe {
+      background: transparent;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #c45e0a 0%, #f0a03a 100%);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px;
+    }
+    .logo-text {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.1;
+    }
+    .logo-sub {
+      font-size: 0.6rem;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-family: var(--mono);
+      margin-top: 2px;
+    }
+    .header-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .btn-header {
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text-dim);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+    .btn-header:hover { border-color: var(--accent-hot); color: var(--text); }
+    .btn-header.primary {
+      background: var(--accent-dim);
+      border-color: var(--accent-hot);
+      color: var(--accent);
+    }
+    .hub-events-block {
+      flex-shrink: 0;
+      height: var(--events-panel-h);
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid var(--border);
+    }
+    .mobile-tabs {
+      display: none;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--dark);
+      flex-shrink: 0;
+    }
+    .mobile-tabs button {
+      flex: 1;
+      min-width: 88px;
+      padding: 8px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text-dim);
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      cursor: pointer;
+    }
+    .mobile-tabs button.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+    .app {
+      display: grid;
+      grid-template-columns: 248px 1fr;
+      flex: 1;
+      min-height: 0;
+    }
+    aside {
+      background: var(--dark);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-section { padding: 0.85rem 0.9rem 0.75rem; border-bottom: 1px solid var(--border); }
+    .sidebar-label {
+      font-size: 0.625rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      font-family: var(--mono);
+      margin-bottom: 0.55rem;
+    }
+    .sidebar-note {
+      font-family: var(--font-clean);
+      font-size: 0.68rem;
+      line-height: 1.45;
+      color: var(--text-dim);
+      margin-top: 0.65rem;
+    }
+    .nav-tabs { display: flex; flex-direction: column; gap: 5px; }
+    .tab-btn {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-dim);
+      font-family: var(--font);
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 9px 10px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      width: 100%;
+    }
+    .tab-btn .tab-icon { font-size: 1rem; flex-shrink: 0; }
+    .tab-btn .tab-desc {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 400;
+      color: var(--text-faint);
+      margin-top: 2px;
+      font-family: var(--font-clean);
+    }
+    .tab-btn:hover { border-color: var(--accent-hot); color: var(--text); background: rgba(240, 160, 58, 0.06); }
+    .tab-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+    .tab-btn .soon-badge {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.52rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: rgba(77, 166, 255, 0.15);
+      color: var(--accent-blue);
+    }
+    main { display: flex; flex-direction: column; min-width: 0; background: #000; }
+    body.music-hub--backdrop main { background: transparent; }
+    .main-toolbar {
+      flex-shrink: 0;
+      padding: 7px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--dark);
+    }
+    .main-toolbar span {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+    .frame-wrap { flex: 1; min-height: 0; position: relative; }
+    .frame-wrap iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #0d0d0d;
+    }
+    .placeholder-panel {
+      display: none;
+      position: absolute;
+      inset: 0;
+      overflow-y: auto;
+      padding: 20px 16px;
+      background: linear-gradient(180deg, rgba(13, 13, 13, 0.97), rgba(8, 8, 8, 0.98));
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .placeholder-panel.visible { display: flex; }
+    .placeholder-card {
+      max-width: 440px;
+      width: 100%;
+      border: 1px solid rgba(77, 166, 255, 0.25);
+      border-top: 3px solid var(--accent-blue);
+      border-radius: 12px;
+      padding: 22px 20px;
+      background: rgba(4, 13, 26, 0.88);
+    }
+    .placeholder-card h2 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    .placeholder-card p {
+      font-family: var(--font-clean);
+      font-size: 0.85rem;
+      line-height: 1.55;
+      color: #9ab0c8;
+      margin-bottom: 12px;
+    }
+    .placeholder-btn {
+      padding: 9px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(77, 166, 255, 0.35);
+      background: rgba(77, 166, 255, 0.1);
+      color: var(--accent-blue);
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: not-allowed;
+      opacity: 0.85;
+    }
+    .hub-map-section {
+      flex-shrink: 0;
+      height: var(--map-panel-h);
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      background: #0d0d0d;
+    }
+    .map-toolbar {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--dark);
+    }
+    .map-toolbar span {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .map-toolbar small {
+      font-family: var(--font-clean);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+    .map-frame-wrap { flex: 1; min-height: 0; position: relative; }
+    .map-frame-wrap iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #0d0d0d;
+    }
+    @media (max-width: 900px) {
+      :root { --events-panel-h: min(48vh, 560px); --map-panel-h: min(52vh, 640px); }
+      .hub-events-block { min-height: 440px; }
+      .app { grid-template-columns: 1fr; }
+      aside { display: none; }
+      .mobile-tabs { display: flex; }
+    }
+    @media (max-width: 700px) {
+      body {
+        overflow-x: auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .shell {
+        overflow-x: auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .hub-map-section {
+        min-height: 520px;
+        height: max(var(--map-panel-h), 55vh);
+      }
+      .map-frame-wrap {
+        overflow: visible;
+        -webkit-overflow-scrolling: touch;
+      }
+      .map-frame-wrap iframe {
+        min-height: 480px;
+      }
+      .sidebar-note {
+        color: var(--text);
+      }
+    }
+  </style>
+</head>
+<body class="music-hub--backdrop music-hub--wix-render">
+  <div class="music-hub-backdrop" aria-hidden="true"></div>
+  <div class="shell">
+    <header>
+      <div class="logo">
+        <div class="logo-icon">🎵</div>
+        <div>
+          <div class="logo-text">Live Music Finder</div>
+          <div class="logo-sub">Render Version · Wix embed</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="btn-header" id="btnRefresh">Refresh panel</button>
+        <a class="btn-header primary" id="btnOpenTab" href="./live-music-hub-render.html" target="_blank" rel="noopener noreferrer" title="Opens full page on Render">Full page ↗</a>
+      </div>
+    </header>
+
+    <div class="hub-events-block">
+      <div class="mobile-tabs" id="mobileTabs" aria-label="Sections"></div>
+      <div class="app">
+        <aside>
+          <div class="sidebar-section">
+            <div class="sidebar-label">Live events</div>
+            <div class="nav-tabs" id="navTabs"></div>
+            <p class="sidebar-note">Pick an event or listing — linked venues highlight on the <strong style="color:var(--accent)">jam map below</strong>.</p>
+          </div>
+        </aside>
+        <main>
+          <div class="main-toolbar">
+            <span id="toolbarLabel">Live events ticker · jams &amp; gigs</span>
+          </div>
+          <div class="frame-wrap">
+            <iframe id="hubFrame" title="Live events panel" src="./live-events-ticker.html?embed=hub"></iframe>
+            <div class="placeholder-panel" id="newsPanel" aria-hidden="true">
+              <div class="placeholder-card">
+                <h2>Music news</h2>
+                <p>Local music news for Amsterdam — Music News Finder agent (coming soon).</p>
+                <button type="button" class="placeholder-btn" disabled>Coming soon</button>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <section class="hub-map-section" id="mapSection">
+      <div class="map-toolbar">
+        <span>Live jam map</span>
+        <small id="mapHint">Venues, music guide &amp; inquiries</small>
+      </div>
+      <div class="map-frame-wrap">
+        <iframe id="mapFrame" title="Live jam map" src="./live-music-finder.html?embed=hub"></iframe>
+      </div>
+    </section>
+
+    <p class="wix-embed-footer" aria-hidden="true">Render Version · Amsterdam jams · served from energy-calc-backend.onrender.com</p>
+  </div>
+
+  <script>
+    const RENDER_ORIGIN = 'https://energy-calc-backend.onrender.com';
+    const HUB_BASE = RENDER_ORIGIN + '/HTMLS%20GWM%20GWB/';
+
+    const TABS = [
+      {
+        id: 'ticker',
+        icon: '🎪',
+        title: 'Events ticker',
+        desc: 'Scrolling jams & gigs',
+        toolbar: 'Live events ticker · jams & gigs',
+        src: './live-events-ticker.html?embed=hub',
+        openHref: './live-events-ticker.html'
+      },
+      {
+        id: 'listings',
+        icon: '📋',
+        title: 'Event listings',
+        desc: 'Search & browse feed',
+        toolbar: 'Event listings · search & on-map links',
+        src: './live-events-updates.html?embed=hub',
+        openHref: './live-events-updates.html'
+      },
+      {
+        id: 'news',
+        icon: '📰',
+        title: 'Music news',
+        desc: 'Scene updates',
+        toolbar: 'Music news · coming soon',
+        placeholder: true,
+        openHref: './live-music-hub-render.html?tab=news'
+      }
+    ];
+
+    let activeTab = 'ticker';
+    let pendingMapVenueId = null;
+    let lastPostedVenueId = null;
+    let lastPostedVenueAt = 0;
+    const frame = document.getElementById('hubFrame');
+    const mapFrame = document.getElementById('mapFrame');
+    const newsPanel = document.getElementById('newsPanel');
+    const toolbarLabel = document.getElementById('toolbarLabel');
+    const btnOpenTab = document.getElementById('btnOpenTab');
+    const mapHint = document.getElementById('mapHint');
+    const navTabs = document.getElementById('navTabs');
+    const mobileTabs = document.getElementById('mobileTabs');
+
+    function tabById(id) {
+      return TABS.find((t) => t.id === id) || TABS[0];
+    }
+
+    function renderNav() {
+      navTabs.innerHTML = TABS.map((t) => {
+        const soon = t.placeholder ? '<span class="soon-badge">Soon</span>' : '';
+        return (
+          '<button type="button" class="tab-btn' + (t.id === activeTab ? ' active' : '') + '" data-tab="' + t.id + '">' +
+            '<span class="tab-icon">' + t.icon + '</span>' +
+            '<span><span class="tab-title">' + t.title + '</span><span class="tab-desc">' + t.desc + '</span></span>' +
+            soon +
+          '</button>'
+        );
+      }).join('');
+
+      mobileTabs.innerHTML = TABS.map((t) =>
+        '<button type="button" data-tab="' + t.id + '"' + (t.id === activeTab ? ' class="active"' : '') + '>' + t.icon + ' ' + t.title + '</button>'
+      ).join('');
+
+      navTabs.querySelectorAll('[data-tab]').forEach((btn) => {
+        btn.addEventListener('click', () => setTab(btn.getAttribute('data-tab')));
+      });
+      mobileTabs.querySelectorAll('[data-tab]').forEach((btn) => {
+        btn.addEventListener('click', () => setTab(btn.getAttribute('data-tab')));
+      });
+    }
+
+    function setTab(id) {
+      const tab = tabById(id);
+      if (!tab) return;
+      activeTab = tab.id;
+      toolbarLabel.textContent = tab.toolbar;
+      btnOpenTab.href = tab.openHref || './live-music-hub-render.html';
+
+      if (tab.placeholder) {
+        frame.hidden = true;
+        newsPanel.classList.add('visible');
+        newsPanel.setAttribute('aria-hidden', 'false');
+      } else {
+        frame.hidden = false;
+        newsPanel.classList.remove('visible');
+        newsPanel.setAttribute('aria-hidden', 'true');
+        if (frame.getAttribute('data-current') !== tab.id) {
+          frame.src = tab.src;
+          frame.setAttribute('data-current', tab.id);
+        }
+      }
+
+      renderNav();
+      try {
+        const u = new URL(window.location.href);
+        u.searchParams.set('tab', tab.id);
+        history.replaceState(null, '', u.pathname + u.search);
+      } catch (_) { /* ignore */ }
+    }
+
+    function selectMapVenue(venueId, venueName) {
+      const id = Number(venueId);
+      if (!id || !Number.isFinite(id)) return;
+
+      mapHint.textContent = venueName
+        ? 'Showing: ' + venueName
+        : 'Venues, music guide & inquiries';
+
+      document.getElementById('mapSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      pendingMapVenueId = id;
+      postVenueToMap(id);
+    }
+
+    function postVenueToMap(id) {
+      if (!id || mapFrame.dataset.ready !== '1') return false;
+      const now = Date.now();
+      if (id === lastPostedVenueId && now - lastPostedVenueAt < 900) {
+        pendingMapVenueId = null;
+        return true;
+      }
+      try {
+        if (mapFrame.contentWindow) {
+          mapFrame.contentWindow.postMessage({ type: 'live-music-select-venue', venueId: id }, '*');
+          lastPostedVenueId = id;
+          lastPostedVenueAt = now;
+          pendingMapVenueId = null;
+          return true;
+        }
+      } catch (_) { /* ignore */ }
+      return false;
+    }
+
+    mapFrame.addEventListener('load', () => {
+      mapFrame.dataset.ready = '1';
+      if (pendingMapVenueId != null) {
+        postVenueToMap(pendingMapVenueId);
+      }
+    });
+
+    window.addEventListener('message', (ev) => {
+      const d = ev.data;
+      if (!d || d.type !== 'live-music-select-venue') return;
+      if (ev.source !== frame.contentWindow) return;
+      selectMapVenue(d.venueId, d.venueName || '');
+    });
+
+    document.getElementById('btnRefresh').addEventListener('click', () => {
+      const tab = tabById(activeTab);
+      if (tab && tab.placeholder) return;
+      try {
+        frame.contentWindow.location.reload();
+      } catch (_) {
+        frame.src = frame.src;
+      }
+    });
+
+    (function initFromQuery() {
+      try {
+        const p = new URLSearchParams(window.location.search);
+        const tab = p.get('tab');
+        if (tab && tabById(tab)) setTab(tab);
+        else renderNav();
+        const v = p.get('venue');
+        if (v) {
+          const vid = Number(v);
+          if (Number.isFinite(vid) && vid > 0) {
+            pendingMapVenueId = vid;
+            mapHint.textContent = 'Loading venue on map…';
+            document.getElementById('mapSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            if (mapFrame.dataset.ready === '1') postVenueToMap(vid);
+          }
+        }
+      } catch (_) {
+        renderNav();
+      }
+    })();
+  </script>
+</body>
+</html>
