@@ -6,7 +6,8 @@
 <meta name="wix-html-scroll" content="no-scroll">
 <title>Live Music Finder For Artists — Open mic &amp; jam nights</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="./js/d3.v7.min.js"></script>
+<script>if(typeof d3==="undefined"){document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"><\\/script>');}</script>
 <style>
   :root {
     --orange:     #c45e0a;
@@ -1318,6 +1319,14 @@
   html.embed-hub .guide-toggle { display: none !important; }
   html.embed-hub .map-top-actions { top: 12px; }
   html.embed-hub .helper-popup { top: 54px; max-height: min(58vh, 360px); }
+  html.embed-hub .main {
+    height: 100vh;
+    min-height: 480px;
+  }
+  html.embed-hub .map-container {
+    min-height: 360px;
+    flex: 1 1 auto;
+  }
 
   /* Mobile: wide layout + horizontal scroll (standalone + hub iframe) — same pattern as Sustainability Map */
   @media (max-width: 700px) {
@@ -1709,8 +1718,22 @@ let mapGeoReady = false;
 
 const mapContainer = document.getElementById("map-container");
 const svg = d3.select("#map-svg");
-let width = mapContainer.clientWidth;
-let height = mapContainer.clientHeight;
+let width = Math.max(mapContainer.clientWidth, 640);
+let height = Math.max(mapContainer.clientHeight, 400);
+svg.attr("width", width).attr("height", height);
+
+function syncMapDimensions() {
+  const w = mapContainer.clientWidth;
+  const h = mapContainer.clientHeight;
+  if (w >= 8 && h >= 8) {
+    width = w;
+    height = h;
+  }
+  svg.attr("width", width).attr("height", height);
+  projection.translate([width * 0.5, height * 0.52])
+    .scale(Math.min(width, height) * 18);
+  return width >= 8 && height >= 8;
+}
 
 const projection = d3.geoMercator()
   .center([MAP_CENTER.lng, MAP_CENTER.lat])
@@ -1903,7 +1926,17 @@ function isVerificationStale(lastVerified) {
 }
 
 async function loadVenues() {
-  const paths = ["/api/music-venues", "../data/music-venues.json", "/data/music-venues.json", "data/music-venues.json"];
+  const origin = (typeof window !== "undefined" && window.location && window.location.origin)
+    ? window.location.origin
+    : "https://energy-calc-backend.onrender.com";
+  const paths = [
+    origin + "/api/music-venues",
+    "/api/music-venues",
+    origin + "/data/music-venues.json",
+    "/data/music-venues.json",
+    "../data/music-venues.json",
+    "data/music-venues.json"
+  ];
   for (const p of paths) {
     try {
       const r = await fetch(p);
@@ -2264,11 +2297,30 @@ function requestVenueFocus(id) {
   if (venuesReady && mapGeoReady) selectVenue(venueId);
   else window.__pendingVenueId = venueId;
 }
+async function fetchMapGeo() {
+  const origin = window.location.origin || "https://energy-calc-backend.onrender.com";
+  const urls = [
+    origin + "/data/europe.geojson",
+    "/data/europe.geojson",
+    "https://raw.githubusercontent.com/leakyMirror/map-of-europe/master/GeoJSON/europe.geojson"
+  ];
+  for (const url of urls) {
+    try {
+      const r = await fetch(url);
+      if (r.ok) return r.json();
+    } catch (_) { /* try next */ }
+  }
+  return null;
+}
+
 function initMap() {
-  const geoUrl = "https://raw.githubusercontent.com/leakyMirror/map-of-europe/master/GeoJSON/europe.geojson";
-  fetch(geoUrl)
-    .then(r => r.json())
+  fetchMapGeo()
     .then(data => {
+      if (!data || !data.features) {
+        mapGeoReady = true;
+        afterDataReady();
+        return;
+      }
       g.selectAll(".country-path")
         .data(data.features)
         .enter()
@@ -2852,15 +2904,21 @@ document.getElementById("modal-save").onclick = async () => {
   selectVenue(savedVenue.id);
 };
 
-window.addEventListener("resize", () => {
-  width = mapContainer.clientWidth;
-  height = mapContainer.clientHeight;
-  projection.translate([width * 0.5, height * 0.52])
-    .scale(Math.min(width, height) * 18);
+function relayoutMap() {
+  if (!syncMapDimensions()) return;
   g.selectAll(".country-path").attr("d", path);
-  g.selectAll(".company-marker").remove();
+  g.selectAll(".country-label").attr("transform", d => {
+    const c = path.centroid(d);
+    return `translate(${c[0]},${c[1]})`;
+  });
   renderDots();
-});
+}
+
+window.addEventListener("resize", relayoutMap);
+if (typeof ResizeObserver !== "undefined") {
+  new ResizeObserver(() => relayoutMap()).observe(mapContainer);
+}
+requestAnimationFrame(() => relayoutMap());
 
 loadVenues().then(items => {
   venues = items;

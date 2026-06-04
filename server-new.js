@@ -106,7 +106,8 @@ const LIVE_MUSIC_FILES = [
 ];
 const LIVE_MUSIC_DATA = [
   ['live-events-feed.json', path.join(__dirname, 'data', 'live-events-feed.json')],
-  ['music-venues.json', path.join(__dirname, 'data', 'music-venues.json')]
+  ['music-venues.json', path.join(__dirname, 'data', 'music-venues.json')],
+  ['europe.geojson', path.join(__dirname, 'data', 'europe.geojson')]
 ];
 
 function sendLiveMusicHtml(res, filename) {
@@ -139,7 +140,11 @@ LIVE_MUSIC_DATA.forEach(([name, filePath]) => {
     if (!fsSync.existsSync(filePath)) {
       return res.status(404).json({ error: 'File not found', message: name });
     }
-    res.type('json');
+    if (name.endsWith('.geojson')) {
+      res.type('application/geo+json');
+    } else {
+      res.type('json');
+    }
     return res.sendFile(path.basename(filePath), { root: path.dirname(filePath) });
   });
 });
