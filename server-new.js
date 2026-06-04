@@ -288,6 +288,22 @@ try {
   equipmentIntelligenceRouter = null;
 }
 
+console.log('Loading live music routers...');
+let musicVenuesRouter;
+let musicGuideRouter;
+let musicVenueInquiriesRouter;
+try {
+  musicVenuesRouter = require('./routes/music-venues');
+  musicGuideRouter = require('./routes/music-guide');
+  musicVenueInquiriesRouter = require('./routes/music-venue-inquiries');
+  console.log('Live music routers loaded successfully');
+} catch (error) {
+  console.error('❌ Failed to load live music routers:', error.message);
+  musicVenuesRouter = null;
+  musicGuideRouter = null;
+  musicVenueInquiriesRouter = null;
+}
+
 function mountApiRoutes() {
   console.log('Mounting routes...');
   app.use('/api/products', productsRouter);
@@ -340,6 +356,19 @@ function mountApiRoutes() {
     console.log('✅ /api/equipment-intelligence route mounted');
   } else {
     console.log('⚠️ Equipment intelligence routes not mounted due to loading error');
+  }
+
+  if (musicVenuesRouter) {
+    app.use('/api/music-venues', musicVenuesRouter);
+    console.log('✅ /api/music-venues route mounted');
+  }
+  if (musicGuideRouter) {
+    app.use('/api/music-guide', musicGuideRouter);
+    console.log('✅ /api/music-guide route mounted');
+  }
+  if (musicVenueInquiriesRouter) {
+    app.use('/api/music-venue-inquiries', musicVenueInquiriesRouter);
+    console.log('✅ /api/music-venue-inquiries route mounted');
   }
 
   console.log('All routes mounted successfully');
