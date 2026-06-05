@@ -1299,34 +1299,34 @@
     white-space: nowrap;
   }
   .header-nav a:hover { color: #fff; border-bottom-color: var(--orange-lt); }
-  html.embed-hub header { display: none !important; }
+  /* Hub iframe embed — use % height (not vh); vh breaks inside nested iframes on Render/Wix */
+  html.embed-hub,
   html.embed-hub body {
-    min-height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  html.embed-hub .main {
-    min-height: 100vh;
-    height: auto;
-  }
-  html.embed-hub .sidebar,
-  html.embed-hub .company-list {
+    height: 100%;
     min-height: 0;
-    -webkit-overflow-scrolling: touch;
+    overflow: hidden;
   }
+  html.embed-hub header { display: none !important; }
+  html.embed-hub .sidebar,
+  html.embed-hub .company-list,
   html.embed-hub .admin-link,
-  html.embed-hub .guide-toggle { display: none !important; }
-  html.embed-hub .map-top-actions { top: 12px; }
-  html.embed-hub .helper-popup { top: 54px; max-height: min(58vh, 360px); }
+  html.embed-hub .guide-toggle,
+  html.embed-hub .header-stats,
+  html.embed-hub .mobile-swipe-hint { display: none !important; }
   html.embed-hub .main {
-    height: 100vh;
-    min-height: 480px;
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
   }
   html.embed-hub .map-container {
-    min-height: 360px;
     flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
   }
+  html.embed-hub .map-top-actions { top: 12px; }
+  html.embed-hub .helper-popup { top: 54px; max-height: min(58vh, 360px); }
 
   /* Mobile: wide layout + horizontal scroll (standalone + hub iframe) — same pattern as Sustainability Map */
   @media (max-width: 700px) {
@@ -1460,7 +1460,11 @@
 <script>
 (function () {
   var h = (location.hostname || "").toLowerCase();
-  var ok = h === "localhost" || h === "127.0.0.1" || h.indexOf("onrender.com") !== -1;
+  var ok = !h
+    || h === "localhost"
+    || h === "127.0.0.1"
+    || h.indexOf("onrender.com") !== -1
+    || h.indexOf("energy-calc-backend") !== -1;
   if (!ok) {
     document.documentElement.classList.add("host-not-render");
     var el = document.getElementById("host-warn-site");
@@ -2957,9 +2961,14 @@ loadVenues().then(items => {
   venuesReady = true;
   initMap();
   requestAnimationFrame(() => {
+    relayoutMap();
     applyDeepLinkVenue();
     tryFocusPendingVenue();
   });
+  if (document.documentElement.classList.contains("embed-hub")) {
+    setTimeout(relayoutMap, 120);
+    setTimeout(relayoutMap, 600);
+  }
 });
 
 window.addEventListener("message", (ev) => {
