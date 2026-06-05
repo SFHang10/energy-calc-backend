@@ -122,12 +122,33 @@ If Wix shows JSON like `The route /live-music/render does not exist`:
    - `https://energy-calc-backend.onrender.com/data/live-events-feed.json`
 4. Update the Wix embed snippet if it still points at the old long path; prefer the short URL above.
 
+## Tabs vs map — do they conflict?
+
+**No.** Events tabs (ticker / listings) only switch the **top** iframe. The jam map is a **separate** block below. A blank blue map with Help / Reset was a **JavaScript bug** in `live-music-finder.html` (fixed May 2026), not tab switching.
+
+After you push and Render redeploys, the combined embed should show Europe + venue pins without changing Wix layout.
+
+## Optional: two Wix embeds (stacked on one page)
+
+Easier to debug and resize on Wix — use two **Embed a site** blocks, one above the other:
+
+| Block | URL | Height |
+|-------|-----|--------|
+| Events only | `https://energy-calc-backend.onrender.com/live-music/events` | **760–900px** |
+| Map only | `https://energy-calc-backend.onrender.com/live-music/map?embed=hub` | **520–700px** |
+
+Or map full page (sidebar + list): `…/live-music/map` without `embed=hub` — use **900px+**.
+
+Event listings can still scroll the map into view when you pick a venue if both blocks are on the same Wix page (postMessage works same-origin on Render).
+
 ## Optional query params
 
 | Param | Example |
 |-------|---------|
 | Tab | `?tab=listings` |
+| Events only (hide map) | `?eventsOnly=1` or `/live-music/events` |
 | Venue on map | `?venue=15` |
+| Map in hub iframe | `?embed=hub` on finder URL |
 
 ## Full page (new tab)
 

@@ -131,6 +131,11 @@ LIVE_MUSIC_FILES.forEach((filename) => {
 
 // Short URL for Wix HTML embed (no spaces) — same Render Version page
 app.get('/live-music/render', (req, res) => sendLiveMusicHtml(res, 'live-music-hub-render.html'));
+app.get('/live-music/events', (req, res) => {
+  const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+  const extra = qs ? (qs.includes('eventsOnly=') ? '' : '&eventsOnly=1') : '?eventsOnly=1';
+  return res.redirect(302, `/live-music/render${qs}${extra}`);
+});
 app.get('/live-music/hub', (req, res) => sendLiveMusicHtml(res, 'live-music-hub.html'));
 app.get('/live-music/map', (req, res) => {
   const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
