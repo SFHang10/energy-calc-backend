@@ -6,8 +6,17 @@
 <meta name="wix-html-scroll" content="no-scroll">
 <title>Live Music Finder For Artists — Open mic &amp; jam nights</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script>
+(function () {
+  var p = location.pathname || "";
+  if (location.protocol !== "file:" && (p.indexOf("/live-music/") === 0 || p.indexOf("/HTMLS") === 0)) {
+    var base = document.createElement("base");
+    base.href = location.origin + "/HTMLS%20GWM%20GWB/";
+    document.head.appendChild(base);
+  }
+})();
+</script>
 <script src="./js/d3.v7.min.js"></script>
-<script>if(typeof d3==="undefined"){document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"><\\/script>');}</script>
 <style>
   :root {
     --orange:     #c45e0a;
@@ -1310,7 +1319,6 @@
   html.embed-hub .sidebar,
   html.embed-hub .company-list,
   html.embed-hub .admin-link,
-  html.embed-hub .guide-toggle,
   html.embed-hub .header-stats,
   html.embed-hub .mobile-swipe-hint { display: none !important; }
   html.embed-hub .main {
@@ -1325,7 +1333,19 @@
     min-height: 0;
     width: 100%;
   }
-  html.embed-hub .map-top-actions { top: 12px; }
+  html.embed-hub .map-top-actions {
+    top: 12px;
+    z-index: 120;
+    display: flex !important;
+  }
+  html.embed-hub .helper-btn,
+  html.embed-hub .reset-btn {
+    display: inline-flex !important;
+  }
+  html.embed-hub .guide-toggle {
+    display: inline-flex !important;
+    z-index: 120;
+  }
   html.embed-hub .helper-popup { top: 54px; max-height: min(58vh, 360px); }
 
   /* Mobile: wide layout + horizontal scroll (standalone + hub iframe) — same pattern as Sustainability Map */
@@ -1462,7 +1482,7 @@
   <a href="https://energy-calc-backend.onrender.com/live-music/render" target="_blank" rel="noopener">energy-calc-backend.onrender.com/live-music/render</a>
   (map only: <a href="https://energy-calc-backend.onrender.com/live-music/map" target="_blank" rel="noopener">/live-music/map</a>).</span>
   <span id="host-warn-file" hidden>For full venue data and map tiles, run <code>npm start</code> and open
-  <a href="http://localhost:4000/live-music/map" target="_blank" rel="noopener">http://localhost:4000/live-music/map</a>
+  <a href="http://localhost:4000/HTMLS%20GWM%20GWB/live-music-finder.html" target="_blank" rel="noopener">http://localhost:4000/HTMLS%20GWM%20GWB/live-music-finder.html</a>
   (or use the embedded fallback list below).</span>
 </div>
 <script>
