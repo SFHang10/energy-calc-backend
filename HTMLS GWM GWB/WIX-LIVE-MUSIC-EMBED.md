@@ -30,7 +30,7 @@ Same as Greenways membership pages and `wix-integration/energy-ticker-embed.html
 https://energy-calc-backend.onrender.com/live-music/render
 ```
 
-4. **Size:** width **100%** of the section; height **1320px** minimum (use **1500–1600px** if the map is clipped).
+4. **Size:** width **100%** of the section; height **1380px** minimum (use **1500–1600px** if the map venue list or pins are clipped).
 5. **Publish**.
 
 Wix keeps your header, menu, and footer; the section is a live window into Render. Updates ship when you push to GitHub and Render redeploys — no Wix republish for data/UI-only changes.
@@ -135,9 +135,9 @@ Easier to debug and resize on Wix — use two **Embed a site** blocks, one above
 | Block | URL | Height |
 |-------|-----|--------|
 | Events only | `https://energy-calc-backend.onrender.com/live-music/events` | **760–900px** |
-| Map only | `https://energy-calc-backend.onrender.com/live-music/map?embed=hub` | **520–700px** |
+| Map only | `https://energy-calc-backend.onrender.com/live-music/map?embed=hub` | **560–760px** |
 
-Or map full page (sidebar + list): `…/live-music/map` without `embed=hub` — use **900px+**.
+Hub embed (`/live-music/render`) includes the **venue sidebar** on the map (search + venue list), same as standalone — only the finder page header is hidden inside the iframe.
 
 Event listings can still scroll the map into view when you pick a venue if both blocks are on the same Wix page (postMessage works same-origin on Render).
 
