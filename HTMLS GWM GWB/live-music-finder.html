@@ -1447,21 +1447,38 @@
     z-index: 9999;
   }
   .host-warn a { color: #f0a03a; font-weight: 600; }
-  html.host-not-render .host-warn { display: block; }
+  html.host-not-render .host-warn,
+  html.host-file-mode .host-warn { display: block; }
+  html.host-file-mode .host-warn {
+    background: #1a2433;
+    border-bottom-color: rgba(77, 166, 255, 0.45);
+  }
 </style>
 </head>
 <body>
 <div class="host-warn" id="host-warn" role="alert">
-  This map is running from <strong id="host-warn-site"></strong>, not Render — venue data and the map will not load.
+  <span id="host-warn-wix">This map is running from <strong id="host-warn-site"></strong>, not Render — venue data and the map will not load.
   Remove uploaded HTML on Wix. Use one <strong>Embed a site</strong> URL:
   <a href="https://energy-calc-backend.onrender.com/live-music/render" target="_blank" rel="noopener">energy-calc-backend.onrender.com/live-music/render</a>
-  (map only: <a href="https://energy-calc-backend.onrender.com/live-music/map" target="_blank" rel="noopener">/live-music/map</a>).
+  (map only: <a href="https://energy-calc-backend.onrender.com/live-music/map" target="_blank" rel="noopener">/live-music/map</a>).</span>
+  <span id="host-warn-file" hidden>For full venue data and map tiles, run <code>npm start</code> and open
+  <a href="http://localhost:4000/live-music/map" target="_blank" rel="noopener">http://localhost:4000/live-music/map</a>
+  (or use the embedded fallback list below).</span>
 </div>
 <script>
 (function () {
+  var warn = document.getElementById("host-warn");
+  var wix = document.getElementById("host-warn-wix");
+  var file = document.getElementById("host-warn-file");
+  if (location.protocol === "file:") {
+    document.documentElement.classList.add("host-file-mode");
+    if (warn) warn.style.display = "block";
+    if (wix) wix.hidden = true;
+    if (file) file.hidden = false;
+    return;
+  }
   var h = (location.hostname || "").toLowerCase();
-  var ok = !h
-    || h === "localhost"
+  var ok = h === "localhost"
     || h === "127.0.0.1"
     || h.indexOf("onrender.com") !== -1
     || h.indexOf("energy-calc-backend") !== -1;
@@ -1961,18 +1978,27 @@ function isVerificationStale(lastVerified) {
   return Date.now() - time > 30 * 24 * 60 * 60 * 1000;
 }
 
+function resolveMusicApiOrigin() {
+  const loc = window.location;
+  if (!loc || loc.protocol === "file:") return "";
+  const o = loc.origin;
+  if (!o || o === "null") return "";
+  return o;
+}
+
 async function loadVenues() {
-  const origin = (typeof window !== "undefined" && window.location && window.location.origin)
-    ? window.location.origin
-    : "https://energy-calc-backend.onrender.com";
-  const paths = [
-    origin + "/api/music-venues",
+  const origin = resolveMusicApiOrigin();
+  const paths = [];
+  if (origin) {
+    paths.push(origin + "/api/music-venues", origin + "/data/music-venues.json");
+  }
+  paths.push(
     "/api/music-venues",
-    origin + "/data/music-venues.json",
     "/data/music-venues.json",
     "../data/music-venues.json",
+    "../../data/music-venues.json",
     "data/music-venues.json"
-  ];
+  );
   for (const p of paths) {
     try {
       const r = await fetch(p);
@@ -2334,12 +2360,15 @@ function requestVenueFocus(id) {
   else window.__pendingVenueId = venueId;
 }
 async function fetchMapGeo() {
-  const origin = window.location.origin || "https://energy-calc-backend.onrender.com";
-  const urls = [
-    origin + "/data/europe.geojson",
+  const origin = resolveMusicApiOrigin();
+  const urls = [];
+  if (origin) urls.push(origin + "/data/europe.geojson");
+  urls.push(
     "/data/europe.geojson",
+    "../data/europe.geojson",
+    "../../data/europe.geojson",
     "https://raw.githubusercontent.com/leakyMirror/map-of-europe/master/GeoJSON/europe.geojson"
-  ];
+  );
   for (const url of urls) {
     try {
       const r = await fetch(url);
