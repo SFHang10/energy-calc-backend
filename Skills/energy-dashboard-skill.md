@@ -647,24 +647,11 @@ Carry-forward next:
 4. Keep a local fallback image only if absolutely needed during draft work.
 5. Verify in browser over `http://localhost:4000/...` and in Wix iframe.
 
-**2026-06-05 — Sustainability Map mobile / Wix (Case Study Finder)**
+**2026-06-05 — Sustainability Map = mobile / map UX reference**
 
-Canonical files (keep in sync):
+The **Case Study Finder / Sustainability Map** (`European Company - Case Study Finder (Standalone) - Wix bundle.html`, `Sustainable Map Copy .html`) is the **source pattern** for advanced map UX. **Live Music Finder** (`live-music-finder.html`) copies behaviour from it — not the other way around.
 
-| File | Use |
-|------|-----|
-| `HTMLS GWM GWB/European Company - Case Study Finder (Standalone) - Wix bundle.html` | **Wix embed** — upload / paste into Wix HTML element |
-| `HTMLS GWM GWB/Sustainable Map Copy .html` | Working copy; same mobile behaviour |
-
-Mobile + Wix pattern (aligned with **Live Music Finder** `live-music-finder.html`):
-
-- `<meta name="wix-html-scroll" content="no-scroll">` on the map page.
-- `@media (max-width: 700px)`: wide `.main` (`min-width: 980px`) + **`overflow-x: auto`** on `html`/`body` so users **swipe left/right** for sidebar + map.
-- Organisation popup: `.popup.mobile-overlay` — **fixed, vertically centred** (`top: 50%`, `translateY(-50%)`); `positionCompanyPanelInView()` + `scrollIntoView({ block: "center" })` on open.
-- `scrollMapTowardCompany()` pans horizontal scroll toward the selected pin.
-- **Help** auto-opens once (`localStorage` key `gwm_map_helper_seen_v2`); **ⓘ Help** + swipe hint at bottom; `initMobileSwipeHint()` on resize.
-
-After HTML edits: **re-publish Wix** if the map is an uploaded HTML embed (not Render-only).
+Reference behaviours to port into venue finder: wide mobile layout + horizontal swipe, centred venue/org panels, first-load Help, `scrollMapToward*` on pin select, Near Me / topic chips / insight popup when product needs them.
 
 ---
 

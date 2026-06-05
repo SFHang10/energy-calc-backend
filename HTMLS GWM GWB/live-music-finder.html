@@ -459,15 +459,17 @@
   }
   .popup.mobile-overlay {
     position: fixed;
-    left: 50% !important;
-    top: 68px !important;
-    transform: translateX(-50%) scale(0.96) !important;
-    max-height: calc(100vh - 82px);
-    width: min(336px, calc(100vw - 24px));
-    max-width: calc(100vw - 24px);
+    left: 12px !important;
+    right: 12px !important;
+    top: 50% !important;
+    width: auto;
+    max-width: none;
+    max-height: min(76vh, calc(100vh - 32px));
+    z-index: 1200 !important;
+    transform: translateY(-50%) scale(0.96);
   }
   .popup.mobile-overlay.visible {
-    transform: translateX(-50%) scale(1) !important;
+    transform: translateY(-50%) scale(1);
   }
   .popup.visible {
     opacity: 1;
@@ -1317,8 +1319,10 @@
   }
   html.embed-hub header { display: none !important; }
   html.embed-hub .admin-link,
-  html.embed-hub .header-stats,
-  html.embed-hub .mobile-swipe-hint { display: none !important; }
+  html.embed-hub .header-stats { display: none !important; }
+  @media (min-width: 701px) {
+    html.embed-hub .mobile-swipe-hint { display: none !important; }
+  }
   html.embed-hub .main {
     display: flex;
     height: 100%;
@@ -1364,7 +1368,8 @@
 
   /* Mobile: wide layout + horizontal scroll (standalone + hub iframe) — same pattern as Sustainability Map */
   @media (max-width: 700px) {
-    html {
+    html,
+    html.embed-hub {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
     }
@@ -1428,10 +1433,6 @@
     html.embed-hub .helper-popup {
       top: 54px;
       max-height: min(58vh, 360px);
-    }
-    .popup.mobile-overlay {
-      top: 68px !important;
-      max-height: calc(100vh - 82px);
     }
     .mobile-swipe-hint {
       display: inline-flex;
@@ -1591,8 +1592,9 @@
           <strong>Help</strong> is on the left and <strong>Reset View</strong> on the right (top centre) to return the map to its default size; use the <strong>＋ / －</strong> controls at the bottom right to zoom step-by-step.
         </p>
         <div class="helper-note">
-          <p>Tip: On mobile, <strong>swipe left and right</strong> on the screen to see the full map and venue list. <strong>Help</strong> and <strong>Reset View</strong> stay visible at the top of the map while you scroll.</p>
-          <p>Pinch to zoom on the map, drag to pan, then use <strong>＋ / －</strong> for step zoom. This helper appears once automatically — tap <strong>Help</strong> anytime to reopen it.</p>
+          <p>On mobile, <strong>swipe left and right</strong> to see the full map and venue list. Venue panels open <strong>centred on screen</strong> at eye level.</p>
+          <p>Pinch to zoom on the map, drag to pan, then use <strong>＋ / －</strong> for step zoom. <strong>Help</strong> and <strong>Reset View</strong> stay visible at the top of the map while you scroll.</p>
+          <p>This helper appears once automatically — tap <strong>Help</strong> anytime to reopen it.</p>
         </div>
       </div>
     </div>
@@ -1909,7 +1911,7 @@ bindMapControl(document.getElementById("reset-btn"), () => resetView());
 const helperPopup = document.getElementById("helper-popup");
 const helperBtn = document.getElementById("helper-btn");
 const helperClose = document.getElementById("helper-close");
-const HELPER_STORAGE_KEY = "live_music_map_helper_seen_v1";
+const HELPER_STORAGE_KEY = "live_music_map_helper_seen_v2";
 
 function openHelperPopup() {
   if (!helperPopup) return;
@@ -2522,7 +2524,19 @@ function scrollActiveVenueIntoView(behavior = "smooth") {
 function positionVenuePanelInView(smooth = true) {
   if (!popup.classList.contains("visible")) return;
   requestAnimationFrame(() => {
-    popup.scrollIntoView({ block: "nearest", behavior: smooth ? "smooth" : "auto" });
+    popup.scrollIntoView({ block: "center", behavior: smooth ? "smooth" : "auto" });
+  });
+}
+
+function scrollMapTowardVenue(venue) {
+  if (!isMobileMap() || !venue) return;
+  const [x] = projection([venue.lng, venue.lat]);
+  if (!Number.isFinite(x)) return;
+  requestAnimationFrame(() => {
+    const sidebarW = document.querySelector(".sidebar")?.offsetWidth || 240;
+    const host = document.scrollingElement || document.documentElement;
+    const target = sidebarW + Math.max(0, x - window.innerWidth * 0.38);
+    host.scrollLeft = Math.max(0, target);
   });
 }
 
@@ -2729,8 +2743,10 @@ function showPopup(venue, px, py) {
 
   requestAnimationFrame(() => {
     if (isMobileMap()) {
+      scrollMapTowardVenue(venue);
       popup.classList.add("visible");
       positionVenuePanelInView(true);
+      scrollActiveVenueIntoView(true);
       return;
     }
     repositionPopupAt(px, py);

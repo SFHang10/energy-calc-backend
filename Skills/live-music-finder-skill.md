@@ -139,6 +139,15 @@ Setup checklist: **`HTMLS GWM GWB/WIX-LIVE-MUSIC-EMBED.md`** · iframe height **
 
 Child panels use `?embed=hub` to hide duplicate chrome when loaded inside the hub iframe.
 
+**Mobile / map UX reference:** copy patterns from **`HTMLS GWM GWB/Sustainable Map Copy .html`** (and Wix bundle Case Study Finder) — not the reverse. Venue finder should match:
+
+- `@media (max-width: 700px)`: wide `.main` (`min-width: 980px`) + horizontal **swipe** for sidebar + map (including `embed=hub` hub iframe).
+- Venue popup: `.popup.mobile-overlay` centred at **eye level** (`top: 50%`, `translateY(-50%)`); `positionVenuePanelInView()` uses `scrollIntoView({ block: "center" })`.
+- `scrollMapTowardVenue()` pans horizontal scroll toward the selected pin; `scrollActiveVenueIntoView()` for sidebar row.
+- **Help** auto-opens once (`live_music_map_helper_seen_v2`); swipe hint visible on mobile even inside hub embed.
+
+Advanced sustainability-map features to port when needed: Near Me panel, topic chips, “How this helps you” insight popup, similar-orgs row.
+
 - Add `<meta name="wix-html-scroll" content="no-scroll">` on full pages (already on map + updates).
 - Match iframe height to content; hub shell ≈ **full viewport**; ticker embed ≈ **112px**.
 - After seed changes: run build, **commit `data/live-events-feed.json`**, push for Render.
