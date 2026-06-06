@@ -70,12 +70,23 @@
       pointer-events: none;
       background-color: #0d0d0d;
       background-image:
-        linear-gradient(rgba(13, 8, 4, 0.48), rgba(8, 6, 4, 0.60)),
-        radial-gradient(circle at 28% 20%, rgba(240, 160, 58, 0.08), transparent 50%),
+        linear-gradient(rgba(13, 8, 4, 0.62), rgba(6, 4, 2, 0.74)),
+        radial-gradient(circle at 28% 20%, rgba(240, 160, 58, 0.06), transparent 50%),
         var(--music-hub-backdrop-image);
       background-size: cover, cover, cover;
       background-position: center, center, center;
-      filter: brightness(0.97) saturate(1.08) contrast(1.04);
+      filter: brightness(0.82) saturate(1.05) contrast(1.06);
+      transition: filter 0.45s ease, background-image 0.45s ease;
+    }
+    body.music-hub--backdrop-day .music-hub-backdrop {
+      background-image:
+        linear-gradient(rgba(13, 8, 4, 0.43), rgba(8, 6, 4, 0.54)),
+        radial-gradient(circle at 28% 20%, rgba(240, 160, 58, 0.09), transparent 50%),
+        var(--music-hub-backdrop-image);
+      filter: brightness(1.07) saturate(1.08) contrast(1.03);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .music-hub-backdrop { transition: none; }
     }
     body.music-hub--backdrop .music-hub-backdrop { display: block; }
     .shell {
@@ -157,6 +168,14 @@
       background: var(--accent-dim);
       border-color: var(--accent-hot);
       color: var(--accent);
+    }
+    #btnBackdropTheme .backdrop-theme-label--day {
+      color: #f0a03a;
+      font-weight: 600;
+    }
+    #btnBackdropTheme .backdrop-theme-label--night {
+      color: #4da6ff;
+      font-weight: 600;
     }
     .hub-events-block {
       flex-shrink: 0;
@@ -348,22 +367,74 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px 14px;
+      flex-wrap: wrap;
       padding: 8px 14px;
       border-bottom: 1px solid var(--border);
       background: var(--dark);
     }
-    .map-toolbar span {
+    .map-toolbar-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .map-toolbar-title > span {
       font-family: var(--mono);
       font-size: 0.6rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--accent);
     }
-    .map-toolbar small {
+    .map-preview-badge {
+      font-family: var(--mono);
+      font-size: 0.52rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(240, 160, 58, 0.12);
+      border: 1px solid rgba(240, 160, 58, 0.42);
+      color: #ffcc80;
+    }
+    .map-toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      margin-left: auto;
+      min-width: 0;
+    }
+    .map-toolbar-hint {
       font-family: var(--font-clean);
       font-size: 0.72rem;
       color: var(--text-dim);
+      line-height: 1.35;
+      max-width: 28rem;
+    }
+    .map-full-link {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(34, 212, 255, 0.75);
+      background: rgba(34, 212, 255, 0.08);
+      color: #ffcc80;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      box-shadow: 0 0 8px rgba(34, 212, 255, 0.28);
+      transition: border-color 0.2s, background 0.2s, color 0.2s;
+    }
+    .map-full-link:hover {
+      border-color: #5ce8ff;
+      background: rgba(34, 212, 255, 0.16);
+      color: #ffe4a8;
     }
     .map-frame-wrap {
       flex: 1 1 auto;
@@ -380,12 +451,67 @@
       border: 0;
       background: #0d0d0d;
     }
+    .hub-scroll-separator {
+      display: none;
+      flex-shrink: 0;
+    }
+    body.music-hub--backdrop .hub-scroll-separator {
+      background: var(--black);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+    @keyframes hub-scroll-chevron {
+      0%, 100% { transform: translateY(0); opacity: 0.45; }
+      50% { transform: translateY(5px); opacity: 1; }
+    }
     @media (max-width: 900px) {
       :root { --events-panel-h: min(48vh, 560px); --map-panel-h: min(52vh, 640px); }
-      .hub-events-block { min-height: 440px; }
+      .hub-events-block { min-height: 440px; border-bottom: none; }
       .app { grid-template-columns: 1fr; }
       aside { display: none; }
       .mobile-tabs { display: flex; }
+      .hub-scroll-separator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-height: 68px;
+        padding: 16px 18px 18px;
+        background: var(--black);
+        border-top: 2px solid var(--border);
+        border-bottom: 2px solid var(--border);
+        cursor: grab;
+        touch-action: pan-y;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .hub-scroll-separator:active { cursor: grabbing; }
+      .hub-scroll-separator-grip {
+        font-family: var(--mono);
+        font-size: 0.85rem;
+        letter-spacing: 0.35em;
+        color: var(--text-faint);
+        line-height: 1;
+      }
+      .hub-scroll-separator-text {
+        font-family: var(--mono);
+        font-size: 0.58rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+        text-align: center;
+        line-height: 1.35;
+      }
+      .hub-scroll-separator-chevron {
+        color: var(--accent);
+        font-size: 1.15rem;
+        line-height: 1;
+        animation: hub-scroll-chevron 2.4s ease-in-out infinite;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .hub-scroll-separator-chevron { animation: none; opacity: 0.85; }
+      }
     }
     @media (max-width: 700px) {
       body {
@@ -397,6 +523,25 @@
         overflow-x: auto;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
+        padding-top: max(16px, env(safe-area-inset-top, 12px));
+      }
+      header {
+        height: auto;
+        min-height: 64px;
+        padding-top: 14px;
+        padding-bottom: 14px;
+        padding-left: max(1rem, env(safe-area-inset-left, 0px));
+        padding-right: max(1rem, env(safe-area-inset-right, 0px));
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .map-toolbar {
+        padding-top: 12px;
+        padding-bottom: 10px;
       }
       .hub-map-section {
         min-height: 520px;
@@ -427,6 +572,7 @@
         </div>
       </div>
       <div class="header-actions">
+        <button type="button" class="btn-header" id="btnBackdropTheme" aria-pressed="false" title="Switch to day mode (page look)">☀ <span class="backdrop-theme-label backdrop-theme-label--day">Day Mode</span></button>
         <button type="button" class="btn-header" id="btnRefresh">Refresh panel</button>
         <a class="btn-header primary" id="btnOpenTab" href="./live-music-hub-render.html" target="_blank" rel="noopener noreferrer" title="Opens full page on Render">Full page ↗</a>
       </div>
@@ -460,10 +606,22 @@
       </div>
     </div>
 
+    <div class="hub-scroll-separator" id="hubScrollSeparator" role="region" aria-label="Scroll handle — swipe here to reach the jam map">
+      <span class="hub-scroll-separator-grip" aria-hidden="true">···</span>
+      <span class="hub-scroll-separator-text">Swipe here to reach the map</span>
+      <span class="hub-scroll-separator-chevron" aria-hidden="true">↓</span>
+    </div>
+
     <section class="hub-map-section" id="mapSection">
       <div class="map-toolbar">
-        <span>Live jam map</span>
-        <small id="mapHint">Venues, music guide &amp; inquiries</small>
+        <div class="map-toolbar-title">
+          <span>Live jam map</span>
+          <span class="map-preview-badge">Preview</span>
+        </div>
+        <div class="map-toolbar-actions">
+          <small id="mapHint" class="map-toolbar-hint">Compact preview — open full map for venues, guide, photos &amp; inquiries</small>
+          <a class="map-full-link" id="mapFullLink" href="./live-music-finder.html?from=hub" target="_top" rel="noopener noreferrer">Open full map →</a>
+        </div>
       </div>
       <div class="map-frame-wrap">
         <iframe id="mapFrame" title="Live jam map" src="./live-music-finder.html?embed=hub" loading="eager"></iframe>
@@ -501,9 +659,9 @@
         icon: '📰',
         title: 'Music news',
         desc: 'Scene updates',
-        toolbar: 'Music news · coming soon',
-        placeholder: true,
-        openHref: './live-music-hub-render.html?tab=news'
+        toolbar: 'Music news · Amsterdam round-up',
+        src: './live-music-news.html?embed=hub',
+        openHref: './live-music-news.html'
       }
     ];
 
@@ -517,8 +675,24 @@
     const toolbarLabel = document.getElementById('toolbarLabel');
     const btnOpenTab = document.getElementById('btnOpenTab');
     const mapHint = document.getElementById('mapHint');
+    const mapFullLink = document.getElementById('mapFullLink');
     const navTabs = document.getElementById('navTabs');
     const mobileTabs = document.getElementById('mobileTabs');
+    const MAP_HINT_DEFAULT = 'Compact preview — open full map for venues, guide, photos & inquiries';
+
+    function fullMapHref(venueId) {
+      try {
+        const u = new URL('./live-music-finder.html', window.location.href);
+        u.searchParams.set('from', 'hub');
+        const vid = venueId != null ? Number(venueId) : Number(new URLSearchParams(location.search).get('venue'));
+        if (Number.isFinite(vid) && vid > 0) u.searchParams.set('venue', String(vid));
+        return u.pathname + u.search;
+      } catch (_) {
+        return './live-music-finder.html?from=hub';
+      }
+    }
+
+    if (mapFullLink) mapFullLink.href = fullMapHref();
 
     function tabById(id) {
       return TABS.find((t) => t.id === id) || TABS[0];
@@ -553,7 +727,13 @@
       if (!tab) return;
       activeTab = tab.id;
       toolbarLabel.textContent = tab.toolbar;
-      btnOpenTab.href = tab.openHref || './live-music-hub-render.html';
+      try {
+        const openUrl = new URL(tab.openHref || './live-music-hub-render.html', window.location.href);
+        openUrl.searchParams.set('return', location.pathname + location.search);
+        btnOpenTab.href = openUrl.pathname + openUrl.search;
+      } catch (_) {
+        btnOpenTab.href = tab.openHref || './live-music-hub-render.html';
+      }
 
       if (tab.placeholder) {
         frame.hidden = true;
@@ -582,8 +762,9 @@
       if (!id || !Number.isFinite(id)) return;
 
       mapHint.textContent = venueName
-        ? 'Showing: ' + venueName
-        : 'Venues, music guide & inquiries';
+        ? 'Preview · showing: ' + venueName
+        : MAP_HINT_DEFAULT;
+      if (mapFullLink) mapFullLink.href = fullMapHref(id);
 
       document.getElementById('mapSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
@@ -610,6 +791,89 @@
       return false;
     }
 
+    function scrollHubPageBy(dy) {
+      if (!dy) return;
+      const candidates = [
+        document.querySelector('.shell'),
+        document.scrollingElement,
+        document.documentElement,
+        document.body
+      ].filter(Boolean);
+      for (const el of candidates) {
+        if (el.scrollHeight <= el.clientHeight + 1) continue;
+        const before = el.scrollTop;
+        el.scrollTop += dy;
+        if (el.scrollTop !== before) return;
+      }
+      window.scrollBy(0, dy);
+    }
+
+    function initHubScrollSeparator() {
+      const sep = document.getElementById('hubScrollSeparator');
+      if (!sep) return;
+
+      function scrollToMap() {
+        const map = document.getElementById('mapSection');
+        if (map) map.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      let touchStartY = 0;
+      let touchMoved = false;
+
+      sep.addEventListener('touchstart', (e) => {
+        touchMoved = false;
+        if (e.touches.length) touchStartY = e.touches[0].clientY;
+      }, { passive: true });
+
+      sep.addEventListener('touchmove', (e) => {
+        if (!e.touches.length) return;
+        const y = e.touches[0].clientY;
+        const dy = touchStartY - y;
+        if (Math.abs(dy) > 4) touchMoved = true;
+        scrollHubPageBy(dy);
+        touchStartY = y;
+      }, { passive: true });
+
+      sep.addEventListener('touchend', () => {
+        if (!touchMoved) scrollToMap();
+      });
+
+      sep.addEventListener('click', () => {
+        if ('ontouchstart' in window) return;
+        scrollToMap();
+      });
+
+      sep.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          scrollToMap();
+        }
+      });
+
+      sep.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        scrollHubPageBy(e.deltaY);
+      }, { passive: false });
+
+      let pointerActive = false;
+      let pointerStartY = 0;
+      sep.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'touch') return;
+        pointerActive = true;
+        pointerStartY = e.clientY;
+        try { sep.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
+      });
+      sep.addEventListener('pointermove', (e) => {
+        if (!pointerActive) return;
+        scrollHubPageBy(pointerStartY - e.clientY);
+        pointerStartY = e.clientY;
+      });
+      sep.addEventListener('pointerup', () => { pointerActive = false; });
+      sep.addEventListener('pointercancel', () => { pointerActive = false; });
+    }
+
+    initHubScrollSeparator();
+
     mapFrame.addEventListener('load', () => {
       mapFrame.dataset.ready = '1';
       if (pendingMapVenueId != null) {
@@ -619,9 +883,16 @@
 
     window.addEventListener('message', (ev) => {
       const d = ev.data;
-      if (!d || d.type !== 'live-music-select-venue') return;
-      if (ev.source !== frame.contentWindow) return;
-      selectMapVenue(d.venueId, d.venueName || '');
+      if (!d || !d.type) return;
+      if (d.type === 'live-music-select-venue') {
+        if (ev.source !== frame.contentWindow) return;
+        selectMapVenue(d.venueId, d.venueName || '');
+        return;
+      }
+      if (d.type === 'live-music-helper-scroll') {
+        if (ev.source !== mapFrame.contentWindow) return;
+        scrollHubPageBy(Number(d.deltaY) || 0);
+      }
     });
 
     document.getElementById('btnRefresh').addEventListener('click', () => {
@@ -634,12 +905,51 @@
       }
     });
 
+    const BACKDROP_THEME_KEY = 'live_music_hub_backdrop_theme';
+    const btnBackdropTheme = document.getElementById('btnBackdropTheme');
+
+    function applyBackdropTheme(mode) {
+      const day = mode === 'day';
+      document.body.classList.toggle('music-hub--backdrop-day', day);
+      if (btnBackdropTheme) {
+        btnBackdropTheme.innerHTML = day
+          ? '🌙 <span class="backdrop-theme-label backdrop-theme-label--night">Night Mode</span>'
+          : '☀ <span class="backdrop-theme-label backdrop-theme-label--day">Day Mode</span>';
+        btnBackdropTheme.setAttribute('aria-pressed', day ? 'true' : 'false');
+        btnBackdropTheme.setAttribute('aria-label', day ? 'Switch to night mode (page look)' : 'Switch to day mode (page look)');
+        btnBackdropTheme.title = day ? 'Switch to night mode (page look)' : 'Switch to day mode (page look)';
+      }
+    }
+
+    function getBackdropTheme() {
+      try {
+        const saved = localStorage.getItem(BACKDROP_THEME_KEY);
+        if (saved === 'day' || saved === 'night') return saved;
+      } catch (_) { /* ignore */ }
+      return 'night';
+    }
+
+    function setBackdropTheme(mode) {
+      const next = mode === 'day' ? 'day' : 'night';
+      applyBackdropTheme(next);
+      try { localStorage.setItem(BACKDROP_THEME_KEY, next); } catch (_) { /* ignore */ }
+    }
+
+    if (btnBackdropTheme) {
+      applyBackdropTheme(getBackdropTheme());
+      btnBackdropTheme.addEventListener('click', () => {
+        setBackdropTheme(document.body.classList.contains('music-hub--backdrop-day') ? 'night' : 'day');
+      });
+    }
+
     (function initFromQuery() {
       try {
         const p = new URLSearchParams(window.location.search);
         if (p.get('eventsOnly') === '1' || p.get('map') === '0') {
           const mapSection = document.getElementById('mapSection');
           if (mapSection) mapSection.hidden = true;
+          const hubSep = document.getElementById('hubScrollSeparator');
+          if (hubSep) hubSep.hidden = true;
           document.documentElement.style.setProperty('--wix-embed-min-h', '760px');
           document.body.style.minHeight = '760px';
         }
