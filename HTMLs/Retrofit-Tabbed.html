@@ -963,6 +963,139 @@
             transform: translateX(-50%) translateY(-15px);
             pointer-events: auto;
         }
+
+        .preview-hover-card {
+            position: absolute;
+            bottom: 100%;
+            left: calc(50% + 220px);
+            transform: translateY(-10px);
+            background: linear-gradient(135deg, rgba(18, 34, 64, 0.98), rgba(10, 22, 44, 0.98));
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 16px;
+            min-width: 220px;
+            max-width: 260px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 95;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+            pointer-events: none;
+            text-align: center;
+        }
+
+        .product-hover-wrapper:hover .preview-hover-card {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(-15px);
+            pointer-events: auto;
+        }
+
+        .preview-hover-card::after {
+            content: '';
+            position: absolute;
+            top: 18px;
+            left: -20px;
+            border: 10px solid transparent;
+            border-right-color: #3b82f6;
+        }
+
+        .preview-title {
+            color: #93c5fd;
+            font-size: 0.9em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .preview-gauges {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .preview-gauge {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            background:
+                conic-gradient(#60a5fa 0deg, #60a5fa var(--gauge-fill), rgba(255,255,255,0.08) var(--gauge-fill));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e5f2ff;
+            font-weight: 700;
+            font-size: 0.85em;
+            position: relative;
+            animation: gaugeFill 1.2s ease-out forwards;
+        }
+
+        .preview-gauge::after {
+            content: '';
+            position: absolute;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #0f1a2e;
+        }
+
+        .preview-gauge span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .preview-gauge-label {
+            font-size: 0.65em;
+            color: #9fb4d6;
+            margin-top: 4px;
+        }
+
+        .preview-button {
+            display: inline-block;
+            background: #3b82f6;
+            color: #0f1a2e;
+            padding: 8px 14px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: 700;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+        }
+
+        .preview-button:hover {
+            background: #60a5fa;
+            transform: scale(1.05);
+        }
+
+        @keyframes gaugeFill {
+            from { background: conic-gradient(#60a5fa 0deg, #60a5fa 0deg, rgba(255,255,255,0.08) 0deg); }
+            to { background: conic-gradient(#60a5fa 0deg, #60a5fa var(--gauge-fill), rgba(255,255,255,0.08) var(--gauge-fill)); }
+        }
+
+        @media (max-width: 900px) {
+            .preview-hover-card {
+                left: 50%;
+                transform: translateX(-50%) translateY(10px);
+                bottom: auto;
+                top: 100%;
+            }
+
+            .product-hover-wrapper:hover .preview-hover-card {
+                transform: translateX(-50%) translateY(15px);
+            }
+
+            .preview-hover-card::after {
+                left: 50%;
+                top: -20px;
+                transform: translateX(-50%);
+                border: 10px solid transparent;
+                border-bottom-color: #3b82f6;
+            }
+        }
         
         .product-hover-card::after {
             content: '';
@@ -1005,6 +1138,47 @@
             color: #4ade80;
             font-weight: bold;
         }
+
+        .hover-section-title {
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 10px 0 6px;
+        }
+
+        .hover-section-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+            margin: 10px 0;
+        }
+
+        .hover-card-features.grants li::before {
+            color: #b388ff;
+        }
+
+        .hover-card-features.deals li::before {
+            color: #f9d65c;
+        }
+
+        .hover-section-title.grants {
+            color: #b388ff;
+        }
+
+        .hover-section-title.deals {
+            color: #f9d65c;
+        }
+
+        .hover-inline-link {
+            color: #cfe1ff;
+            text-decoration: none;
+            border-bottom: 1px dotted rgba(207, 225, 255, 0.5);
+        }
+
+        .hover-inline-link:hover {
+            color: #ffffff;
+            border-bottom-color: rgba(255, 255, 255, 0.7);
+        }
         
         .hover-card-link {
             display: inline-block;
@@ -1023,6 +1197,22 @@
         .hover-card-link:hover {
             background: #86efac;
             transform: scale(1.05);
+        }
+
+        .hover-member-link {
+            display: inline-block;
+            margin-top: 12px;
+            padding-top: 8px;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: #4ade80;
+            text-decoration: none;
+            border-top: 1px solid rgba(74, 222, 128, 0.6);
+        }
+
+        .hover-member-link:hover {
+            color: #86efac;
+            border-top-color: rgba(134, 239, 172, 0.8);
         }
         
         /* Product Image Hover Card (for diagram panels) - SIDE POSITION */
@@ -1417,7 +1607,50 @@
                             <li>3-4 year payback</li>
                             <li>ETL Certified</li>
                         </ul>
+                        <div class="hover-section-divider"></div>
+                        <div class="hover-section-title grants">Grants</div>
+                        <ul class="hover-card-features grants">
+                            <li>
+                                <a class="hover-inline-link" href="https://www.gov.uk/kitchen-efficiency-scheme" target="_blank" rel="noopener">
+                                    Kitchen Efficiency Grant
+                                </a>
+                            </li>
+                            <li>Heat recovery retrofit support</li>
+                        </ul>
+                        <div class="hover-section-divider"></div>
+                        <div class="hover-section-title deals">Deals</div>
+                        <ul class="hover-card-features deals">
+                            <li>Spring install discount (limited)</li>
+                            <li>Bundle with boiler tune-up</li>
+                        </ul>
                         <a href="javascript:void(0)" onclick="openProductPage('economiser')" class="hover-card-link">View in Marketplace →</a>
+                        <a class="hover-member-link" href="https://energy-calc-backend.onrender.com/wix-integration/membership-landing.html" target="_blank" rel="noopener">
+                            Become a Greenways Member and get help to keep track & sync your product offers
+                        </a>
+                    </div>
+                    <div class="preview-hover-card">
+                        <div class="preview-title">Preview Deep Dive</div>
+                        <div class="preview-gauges">
+                            <div>
+                                <div class="preview-gauge" style="--gauge-fill: 260deg;">
+                                    <span>78%</span>
+                                </div>
+                                <div class="preview-gauge-label">Energy</div>
+                            </div>
+                            <div>
+                                <div class="preview-gauge" style="--gauge-fill: 230deg;">
+                                    <span>64%</span>
+                                </div>
+                                <div class="preview-gauge-label">Fuel</div>
+                            </div>
+                            <div>
+                                <div class="preview-gauge" style="--gauge-fill: 200deg;">
+                                    <span>55%</span>
+                                </div>
+                                <div class="preview-gauge-label">CO₂</div>
+                            </div>
+                        </div>
+                        <a href="javascript:void(0)" class="preview-button">Explore Deep Dive</a>
                     </div>
                 </div>
             </div>

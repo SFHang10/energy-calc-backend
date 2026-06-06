@@ -19,6 +19,7 @@ class SafeETLIntegration {
             // Try static data first (fastest and most reliable)
             const etlSources = [
                 this.staticDataPath,      // Static JSON file (PREFERRED)
+                '/api/products/enriched', // Enriched products with grants + collection
                 '/api/energy-audit-etl', // Dedicated endpoint
                 '/api/etl-products',     // General ETL endpoint
                 '/etl-products.json',    // Alternative static file

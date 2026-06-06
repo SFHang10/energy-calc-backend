@@ -31,6 +31,11 @@ let productsCache = null;
 let cacheTimestamp = null;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
+// Cache for enriched products (grants + collection)
+let enrichedProductsCache = null;
+let enrichedCacheTimestamp = null;
+const ENRICHED_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 // Function to load products from ETL database
 async function loadProductsFromETLDatabase() {
     return new Promise((resolve, reject) => {
@@ -106,6 +111,96 @@ try {
     console.error('❌ Error loading hardcoded products:', error.message);
     console.error('❌ Error stack:', error.stack);
     hardcodedProducts = [];
+}
+
+// Load enriched products with grants + collection
+function loadEnrichedProductsFromJson() {
+    const candidatePaths = [
+        path.join(__dirname, '..', 'energy-calculator', 'products-with-grants-and-collection.json'),
+        path.join(__dirname, '..', 'energy-calculator', 'products-with-grants.json')
+    ];
+
+    for (const dataPath of candidatePaths) {
+        if (!fs.existsSync(dataPath)) {
+            continue;
+        }
+        const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+        const products = data.products || data.data || [];
+        return {
+            products,
+            sourcePath: dataPath
+        };
+    }
+
+    return {
+        products: [],
+        sourcePath: null
+    };
+}
+
+function normalizeEnrichedProduct(product) {
+    const base = {
+        ...product,
+        id: product.id || product.sku || `db_${Math.random().toString(36).slice(2)}`,
+        name: product.name || product.description || product.descriptionFull || 'Unknown Product',
+        brand: product.brand || product.manufacturer || 'Unknown',
+        manufacturer: product.manufacturer || product.brand || 'Unknown',
+        category: product.category || 'Appliances',
+        subcategory: product.subcategory || product.displaySubcategory || product.shopSubcategory || null,
+        power: Number(product.power) || Number(product.power_consumption) || Number(product.powerDisplay) || 0,
+        power_consumption: Number(product.power_consumption) || Number(product.power) || 0,
+        powerDisplay: product.powerDisplay || product.power_display || null,
+        energyRating: product.energyRating || product.energy_rating || product.energy_efficiency_rating || null,
+        energy_efficiency_rating: product.energy_efficiency_rating || product.energyRating || null,
+        efficiency: product.efficiency || null,
+        runningCostPerYear: typeof product.runningCostPerYear === 'number' ? product.runningCostPerYear : (Number(product.runningCostPerYear) || null),
+        modelNumber: product.modelNumber || product.model_number || product.model || null,
+        waterPerCycle: typeof product.waterPerCycle === 'number' ? product.waterPerCycle : (Number(product.waterPerCycle) || 0),
+        waterPerYear: typeof product.waterPerYear === 'number' ? product.waterPerYear : (Number(product.waterPerYear) || 0),
+        capacity: typeof product.capacity === 'number' ? product.capacity : (Number(product.capacity) || null),
+        placeSettings: typeof product.placeSettings === 'number' ? product.placeSettings : (Number(product.placeSettings) || null),
+        imageUrl: product.imageUrl || product.image_url || null,
+        source: product.source || 'enriched_json'
+    };
+
+    const categorization = categorizeProduct(
+        base.category || '',
+        base.subcategory || '',
+        base.name || '',
+        { id: base.id, source: base.source }
+    );
+
+    return {
+        ...base,
+        displayCategory: categorization.displayCategory,
+        displaySubcategory: categorization.displaySubcategory,
+        productType: categorization.productType,
+        shopCategory: categorization.shopCategory,
+        shopSubcategory: categorization.shopSubcategory,
+        isHVAC: categorization.isHVAC,
+        isMotor: categorization.isMotor,
+        isHeating: categorization.isHeating
+    };
+}
+
+function getEnrichedProducts() {
+    const now = Date.now();
+    if (enrichedProductsCache && enrichedCacheTimestamp && now - enrichedCacheTimestamp < ENRICHED_CACHE_DURATION) {
+        return {
+            products: enrichedProductsCache,
+            sourcePath: 'cache'
+        };
+    }
+
+    const { products, sourcePath } = loadEnrichedProductsFromJson();
+    const normalized = products.map(normalizeEnrichedProduct).filter(p => p.name !== 'Unknown Product');
+    enrichedProductsCache = normalized;
+    enrichedCacheTimestamp = now;
+
+    return {
+        products: normalized,
+        sourcePath
+    };
 }
 
 // Function to load products from ETL database (up-to-date)
@@ -207,7 +302,8 @@ async function getProducts(forceETL = false) {
         const categorization = categorizeProduct(
             product.category || '',
             product.subcategory || '',
-            product.name || ''
+            product.name || '',
+            { id: product.id, source: product.source }
         );
         
         return {
@@ -328,6 +424,36 @@ router.get('/etl', async (req, res) => {
         console.error('❌ Error getting ETL products:', error);
         res.status(500).json({
             error: 'Failed to load ETL products',
+            products: []
+        });
+    }
+});
+
+// GET /products/enriched - Return ALL products with grants + collection
+router.get('/enriched', (req, res) => {
+    try {
+        const { limit = 10000, offset = 0 } = req.query;
+        const limitNum = parseInt(limit) || 10000;
+        const offsetNum = parseInt(offset) || 0;
+
+        const { products, sourcePath } = getEnrichedProducts();
+        const totalProducts = products.length;
+        const paginatedProducts = products.slice(offsetNum, offsetNum + limitNum);
+
+        res.json({
+            success: true,
+            total_products: totalProducts,
+            limit: limitNum,
+            offset: offsetNum,
+            products: paginatedProducts,
+            source: sourcePath || 'missing_enriched_json',
+            last_updated: new Date().toISOString(),
+            note: 'Enriched products with grants and collection data'
+        });
+    } catch (error) {
+        console.error('❌ Error getting enriched products:', error);
+        res.status(500).json({
+            error: 'Failed to load enriched products',
             products: []
         });
     }

@@ -23,7 +23,7 @@
 
 ```text
 1. Discover / propose  →  data/music-media-candidates.json  (approved: false)
-2. Human review        →  set approved: true on good rows
+2. Human review        →  `music-media-admin.html` (or set `approved: true` in JSON)
 3. Merge               →  npm run merge:music-media  →  music-venues.json mediaGallery
 4. Sync map fallback   →  npm run sync:music-venues-fallback
 ```
@@ -97,7 +97,7 @@ npm run propose:music-media-og -- --venue-id=14 --limit=1
 
 ## Agent workflow: YouTube videos
 
-Mirror **`Skills/sustainability-video-finder.md`**:
+Use **`Skills/live-music-video-finder.md`** (pilot queries, EN/NL, admin page). Also mirrors **`Skills/sustainability-video-finder.md`**:
 
 1. Run web searches per venue, e.g.  
    `site:youtube.com "Café Engelbewaarder" jazz jam Amsterdam`  

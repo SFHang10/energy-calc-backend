@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Energy Price Ticker - Green Wire</title>
+  <style>
+    :root {
+      --bg-main: #050e09;
+      --bg-card: #0b1a12;
+      --bg-panel: #0e2117;
+      --bg-hover: #13281d;
+      --charcoal: #1f252b;
+      --charcoal-soft: #2a3138;
+      --border: rgba(75, 140, 104, 0.22);
+      --border-bright: rgba(0, 245, 130, 0.34);
+      --text-primary: #e8f5ee;
+      --text-secondary: #9ec8b0;
+      --text-muted: #7aaa8e;
+      --accent-green: #00f582;
+      --accent-blue: #22d4ff;
+      --accent-red: #e11d48;
+      --accent-amber: #f5a623;
+      --accent-green-glow: rgba(0, 245, 130, 0.14);
+      --shadow-soft: 0 14px 34px rgba(0,0,0,0.35);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: transparent;
+      padding: 16px;
+      color: var(--text-primary);
+      scrollbar-width: thin;
+      scrollbar-color: var(--charcoal-soft) #0a1510;
+    }
+
+    body::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    body::-webkit-scrollbar-track {
+      background: #0a1510;
+    }
+
+    body::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, var(--charcoal-soft), var(--charcoal));
+      border-radius: 8px;
+      border: 1px solid rgba(0,245,130,0.24);
+    }
+
+    body::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #374049, #272e35);
+    }
+
+    .ticker-container {
+      background: linear-gradient(135deg, var(--bg-panel) 0%, var(--bg-card) 100%);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .ticker-header {
+      background: rgba(11, 26, 18, 0.92);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ticker-title {
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-primary);
+    }
+
+    .ticker-title-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+    }
+
+    .info-trigger {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid var(--border-bright);
+      background: var(--bg-card);
+      color: var(--accent-green);
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .info-tooltip {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      max-width: 360px;
+      padding: 10px 12px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.35);
+      font-size: 12px;
+      line-height: 1.4;
+      white-space: pre-line;
+      z-index: 6;
+    }
+
+    .info-tooltip.open {
+      display: block;
+    }
+
+    .info-tooltip .info-disclaimer {
+      color: #22d4ff;
+      font-weight: 600;
+    }
+
+    .ticker-title .icon {
+      font-size: 18px;
+    }
+
+    .live-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(8,24,16,0.9);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      color: #cfe9dc;
+      border: 1px solid var(--border);
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4ade80;
+      animation: pulse 2s infinite;
+    }
+
+    .demo-dot {
+      background: #fbbf24;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .ticker-wrapper {
+      background: rgba(11, 26, 18, 0.92);
+      overflow: hidden;
+      position: relative;
+      height: 54px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .price-bar {
+      position: relative;
+    }
+
+    .price-bar::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: 16px;
+      top: 100%;
+      margin-top: 8px;
+      max-width: 420px;
+      padding: 10px 12px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.35);
+      font-size: 12px;
+      line-height: 1.4;
+      white-space: pre-line;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .price-bar:hover::after {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .ticker-content {
+      display: flex;
+      gap: 32px;
+      animation: scroll 40s linear infinite;
+      padding: 14px 0;
+      white-space: nowrap;
+    }
+
+    .ticker-content:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .price-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .price-label {
+      font-weight: 600;
+    }
+
+    .price-value {
+      font-weight: 700;
+      color: var(--accent-green);
+    }
+
+    .price-change {
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .price-up { color: var(--accent-green); }
+    .price-down { color: var(--accent-red); }
+
+    .data-source {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-align: center;
+      padding: 8px 12px;
+      background: rgba(8,20,14,0.92);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .insight-panel {
+      padding: 16px;
+      background: rgba(8,20,14,0.92);
+      color: var(--text-primary);
+      border-top: 1px solid var(--border);
+    }
+
+    .insight-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .insight-card {
+      background: rgba(10,22,16,0.92);
+      border-radius: 10px;
+      padding: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .insight-card.trend-stable { border-color: var(--accent-blue); }
+    .insight-card.trend-unstable { border-color: var(--accent-red); }
+    .insight-card.trend-rising { border-color: var(--accent-red); }
+    .insight-card.trend-falling { border-color: var(--accent-blue); }
+
+    .insight-card.savings-high { border-color: var(--accent-green); }
+    .insight-card.savings-medium { border-color: #22c55e; }
+    .insight-card.savings-low { border-color: var(--accent-amber); }
+
+    .insight-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .insight-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent-green);
+    }
+
+    .insight-disclaimer {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .insight-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 0;
+      margin-bottom: 8px;
+      padding: 8px 16px;
+      background: rgba(8,24,16,0.95);
+      color: var(--text-primary);
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+      border: 1px solid var(--border-bright);
+    }
+
+    .insight-cta {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 8px 14px;
+      background: rgba(8,24,16,0.95);
+      color: var(--accent-green);
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border-bright);
+    }
+
+    .insight-details {
+      display: none;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: var(--charcoal);
+    }
+
+    .insight-details.open {
+      display: block;
+    }
+
+    .insight-toggle-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 0;
+      margin-left: 8px;
+      margin-bottom: 8px;
+      padding: 8px 16px;
+      background: rgba(8,24,16,0.95);
+      color: var(--accent-blue);
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+      border: 1px solid var(--border-bright);
+      box-shadow: 0 0 10px rgba(0,245,130,0.2);
+    }
+
+    .accent-all { color: #60a5fa; }
+    .accent-renewable { color: #22c55e; }
+
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .ticker-title { font-size: 13px; }
+      .price-item { font-size: 12px; }
+      .price-value { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ticker-container" id="energyTicker" data-api-url="https://energy-calc-backend.onrender.com/api/energy-ticker">
+    <div class="ticker-header">
+      <div class="ticker-title">
+        <span class="icon">⚡</span>
+        <span class="ticker-title-group">
+          All Energy Prices (Europe)
+          <button class="info-trigger" type="button" aria-expanded="false" aria-controls="priceInfo">i</button>
+          <span class="info-tooltip" id="priceInfo">
+            Changes in energy prices can change your energy outlook.
+            Unstable prices can be a sign to consider how you use energy to combat fluctuations.
+            <span class="info-disclaimer">Disclaimer:</span> prices are shown as a guide for your energy costs; prices are also affected by the types of tariffs consumers have chosen.
+          </span>
+        </span>
+      </div>
+      <div class="live-indicator">
+        <div class="live-dot" id="statusDot"></div>
+        <span id="statusText">LIVE DATA</span>
+      </div>
+    </div>
+    <div class="ticker-wrapper price-bar" data-tooltip="Changes in energy prices can change your energy outlook.&#10;Unstable prices can be a sign to consider how you use energy to combat fluctuations.&#10;Disclaimer: prices are shown as a guide for your energy costs; prices are also affected by the types of tariffs consumers have chosen.">
+      <div class="ticker-content" id="allEnergyTicker">
+        <div class="price-item">Loading energy prices...</div>
+      </div>
+    </div>
+
+    <div class="ticker-header">
+      <div class="ticker-title"><span class="icon">🌿</span>Renewable Share (Europe)</div>
+    </div>
+    <div class="ticker-wrapper">
+      <div class="ticker-content" id="renewableTicker">
+        <div class="price-item">Loading renewable share...</div>
+      </div>
+    </div>
+
+    <div class="data-source">
+      Last updated: <span id="lastUpdate">--</span> | Time stamped
+    </div>
+
+    <div class="insight-panel">
+      <div>
+        <button class="insight-toggle" id="insightToggle" type="button">See more</button>
+        <a class="insight-toggle-secondary" href="https://www.greenwaysbuildings.com/productcomparison" target="_blank" rel="noopener">
+          See more on how you could save
+        </a>
+      </div>
+      <div class="insight-details" id="insightDetails">
+        <div class="insight-grid">
+          <div class="insight-card" id="trendCard">
+            <div class="insight-label">Market trend (vs recent average)</div>
+            <div class="insight-value" id="trendText">Stable</div>
+          </div>
+          <div class="insight-card" id="savingsCard">
+            <div class="insight-label">Savings potential</div>
+            <div class="insight-value" id="savingsText">Medium</div>
+          </div>
+        </div>
+        <div class="insight-disclaimer">
+          Wholesale market trends do not equal retail tariffs; actual bills vary by supplier and contract.
+        </div>
+        <a class="insight-cta" href="https://www.greenwaysmarket.com" target="_blank" rel="noopener">
+          Explore more energy
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const infoTrigger = document.querySelector('.info-trigger');
+      const infoTooltip = document.getElementById('priceInfo');
+      if (!infoTrigger || !infoTooltip) return;
+
+      const closeTooltip = () => {
+        infoTooltip.classList.remove('open');
+        infoTrigger.setAttribute('aria-expanded', 'false');
+      };
+
+      infoTrigger.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const isOpen = infoTooltip.classList.toggle('open');
+        infoTrigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+
+      document.addEventListener('click', closeTooltip);
+    })();
+
+    const demoData = {
+      updatedAt: new Date().toISOString(),
+      isLive: false,
+      source: 'demo',
+      allEnergy: [
+        { code: 'FR', name: 'France', priceEurMwh: 101.31, changePct: -2.5 },
+        { code: 'ES', name: 'Spain', priceEurMwh: 101.54, changePct: -2.2 },
+        { code: 'PT', name: 'Portugal', priceEurMwh: 101.54, changePct: -2.1 },
+        { code: 'DE', name: 'Germany', priceEurMwh: 156.17, changePct: 1.2 },
+        { code: 'NL', name: 'Netherlands', priceEurMwh: 122.76, changePct: -1.2 },
+        { code: 'IT', name: 'Italy', priceEurMwh: 142.24, changePct: -0.3 },
+        { code: 'PL', name: 'Poland', priceEurMwh: 141.00, changePct: 0.0 }
+      ],
+      renewableShare: [
+        { code: 'FR', name: 'France', sharePct: 52.4, changePct: 0.8 },
+        { code: 'ES', name: 'Spain', sharePct: 61.1, changePct: 1.2 },
+        { code: 'PT', name: 'Portugal', sharePct: 67.3, changePct: 0.5 },
+        { code: 'DE', name: 'Germany', sharePct: 58.4, changePct: -1.2 },
+        { code: 'NL', name: 'Netherlands', sharePct: 39.8, changePct: -0.4 },
+        { code: 'IT', name: 'Italy', sharePct: 45.2, changePct: 0.1 },
+        { code: 'PL', name: 'Poland', sharePct: 27.6, changePct: 0.2 }
+      ]
+    };
+
+    function formatChange(change) {
+      const numericChange = Number(change);
+      if (!Number.isFinite(numericChange) || numericChange === 0) return '';
+      const symbol = numericChange > 0 ? '▲' : '▼';
+      return `${symbol}${Math.abs(numericChange).toFixed(1)}%`;
+    }
+
+    function renderPriceItem(item, type) {
+      const changeText = formatChange(item.changePct);
+      const numericChange = Number(item.changePct);
+      const changeClass = numericChange >= 0 ? 'price-up' : 'price-down';
+      const priceValue = Number(item.priceEurMwh);
+      const shareValue = Number(item.sharePct);
+      const value = type === 'all'
+        ? (Number.isFinite(priceValue) ? `€${priceValue.toFixed(2)}/MWh` : `${item.priceEurMwh}`)
+        : (Number.isFinite(shareValue) ? `${shareValue.toFixed(1)}%` : `${item.sharePct}%`);
+
+      return `
+        <div class="price-item">
+          <span class="price-label">${item.name}:</span>
+          <span class="price-value">${value}</span>
+          ${changeText ? `<span class="price-change ${changeClass}">${changeText}</span>` : ''}
+        </div>
+      `;
+    }
+
+    function updateTicker(data) {
+      const allEnergy = document.getElementById('allEnergyTicker');
+      const renewable = document.getElementById('renewableTicker');
+
+      const allEnergyContent = data.allEnergy.map(item => renderPriceItem(item, 'all')).join('');
+      const renewableContent = data.renewableShare.map(item => renderPriceItem(item, 'renewable')).join('');
+
+      allEnergy.innerHTML = allEnergyContent + allEnergyContent;
+      renewable.innerHTML = renewableContent + renewableContent;
+
+      document.getElementById('lastUpdate').textContent = new Date(data.updatedAt).toLocaleString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      const dot = document.getElementById('statusDot');
+      const text = document.getElementById('statusText');
+      if (data.isLive) {
+        dot.classList.remove('demo-dot');
+        text.textContent = 'LIVE DATA';
+      } else {
+        dot.classList.add('demo-dot');
+        text.textContent = 'TIME STAMPED';
+      }
+
+      updateInsights(data);
+    }
+
+    function updateInsights(data) {
+      const trendEl = document.getElementById('trendText');
+      const savingsEl = document.getElementById('savingsText');
+      const trendCard = document.getElementById('trendCard');
+      const savingsCard = document.getElementById('savingsCard');
+
+      const changes = (data.allEnergy || [])
+        .map(item => Number(item.changePct))
+        .filter(value => Number.isFinite(value));
+
+      if (!changes.length) {
+        trendEl.textContent = 'Stable';
+        savingsEl.textContent = 'Medium';
+        trendCard.className = 'insight-card trend-stable';
+        savingsCard.className = 'insight-card savings-medium';
+        return;
+      }
+
+      const avgChange = changes.reduce((sum, value) => sum + value, 0) / changes.length;
+
+      if (avgChange > 1) {
+        trendEl.textContent = 'Unstable';
+        savingsEl.textContent = 'High';
+        trendCard.className = 'insight-card trend-unstable';
+        savingsCard.className = 'insight-card savings-high';
+      } else if (avgChange < -1) {
+        trendEl.textContent = 'Stable';
+        savingsEl.textContent = 'Low';
+        trendCard.className = 'insight-card trend-stable';
+        savingsCard.className = 'insight-card savings-low';
+      } else {
+        trendEl.textContent = 'Stable';
+        savingsEl.textContent = 'Medium';
+        trendCard.className = 'insight-card trend-stable';
+        savingsCard.className = 'insight-card savings-medium';
+      }
+    }
+
+    const toggleButton = document.getElementById('insightToggle');
+    const detailsPanel = document.getElementById('insightDetails');
+    toggleButton.addEventListener('click', () => {
+      const isOpen = detailsPanel.classList.toggle('open');
+      toggleButton.textContent = isOpen ? 'See less' : 'See more';
+    });
+
+    async function loadTicker() {
+      const container = document.getElementById('energyTicker');
+      const apiUrl = container.dataset.apiUrl || '/api/energy-ticker';
+
+      try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error('API error');
+        const data = await response.json();
+        if (!data || !data.allEnergy || !data.renewableShare) {
+          throw new Error('Invalid data');
+        }
+        updateTicker(data);
+      } catch (error) {
+        updateTicker(demoData);
+      }
+    }
+
+    loadTicker();
+    setInterval(loadTicker, 30 * 60 * 1000);
+  </script>
+</body>
+</html>

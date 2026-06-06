@@ -3073,7 +3073,39 @@
             renderVideos();
         }
 
-        // Open video modal with lazy loading (supports both YouTube and Wix videos)
+        let currentHlsPlayer = null;
+
+        async function ensureHlsLibrary() {
+            if (window.Hls) return true;
+            return new Promise((resolve) => {
+                const existing = document.querySelector('script[data-hls-loader="1"]');
+                if (existing) {
+                    existing.addEventListener('load', () => resolve(!!window.Hls), { once: true });
+                    existing.addEventListener('error', () => resolve(false), { once: true });
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js';
+                script.async = true;
+                script.dataset.hlsLoader = '1';
+                script.onload = () => resolve(!!window.Hls);
+                script.onerror = () => resolve(false);
+                document.head.appendChild(script);
+            });
+        }
+
+        function stopHlsPlayback() {
+            if (currentHlsPlayer) {
+                try {
+                    currentHlsPlayer.destroy();
+                } catch (error) {
+                    console.warn('Could not fully destroy HLS instance', error);
+                }
+                currentHlsPlayer = null;
+            }
+        }
+
+        // Open video modal with lazy loading (supports YouTube, MP4, and HLS)
         function openVideoModal(index) {
             const modal = document.getElementById('video-modal');
             const container = document.getElementById('video-iframe-container');
@@ -3090,20 +3122,42 @@
             
             let videoHtml = '';
             
-            // Check if it's a Wix video (has videoUrl) or YouTube video (has videoId)
-            if (video.videoUrl && video.source === 'wix') {
-                // Wix video - use HTML5 video player
+            stopHlsPlayback();
+
+            // Use direct video URL when available (Wix or otherwise)
+            if (video.videoUrl) {
                 videoHtml = `
                     <video 
+                        id="memberVideoPlayer"
                         controls 
                         autoplay 
+                        playsinline
+                        preload="metadata"
                         style="width: 100%; height: 100%; max-width: 100%; max-height: 90vh;"
                         onerror="this.parentElement.innerHTML='<p style=\\'padding: 40px; text-align: center;\\'>Video unavailable. Please try again later.</p>'"
-                    >
-                        <source src="${video.videoUrl}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
+                    ></video>
                 `;
+                container.innerHTML = videoHtml;
+                const player = document.getElementById('memberVideoPlayer');
+                const url = String(video.videoUrl || '');
+                const isHls = url.includes('.m3u8');
+                if (player) {
+                    if (isHls) {
+                        ensureHlsLibrary().then((hasHls) => {
+                            if (hasHls && window.Hls && window.Hls.isSupported()) {
+                                currentHlsPlayer = new window.Hls();
+                                currentHlsPlayer.loadSource(url);
+                                currentHlsPlayer.attachMedia(player);
+                            } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+                                player.src = url;
+                            } else {
+                                container.innerHTML = '<p style="padding: 40px; text-align: center;">This browser cannot play this video stream format.</p>';
+                            }
+                        });
+                    } else {
+                        player.src = url;
+                    }
+                }
             } else if (video.videoId) {
                 // YouTube video - use embed
                 videoHtml = `
@@ -3118,8 +3172,10 @@
             } else {
                 videoHtml = '<p style="padding: 40px; text-align: center;">Video source not available.</p>';
             }
-            
-            container.innerHTML = videoHtml;
+
+            if (!video.videoUrl) {
+                container.innerHTML = videoHtml;
+            }
             modal.classList.add('active');
             document.body.style.overflow = 'hidden'; // Prevent background scrolling
         }
@@ -3130,7 +3186,8 @@
             
             const modal = document.getElementById('video-modal');
             const container = document.getElementById('video-iframe-container');
-            
+
+            stopHlsPlayback();
             modal.classList.remove('active');
             container.innerHTML = ''; // Remove iframe to stop video
             document.body.style.overflow = ''; // Restore scrolling

@@ -101,6 +101,17 @@ Safety references:
 - **Portfolio card** (`.building-visual-card` / `.portfolio-visual-split`): **left** = site photo + name/address + dashed hint; **right** = IoT schematic (`.portfolio-iot-wrap` / `#portfolioAssetSurface` → `iot_restaurant_green.svg`) + utility chips + **Open Site Detail**. Site pills = restaurant venues (`initPortfolioVisual`, `portfolioSitesList`). Chips: **`.portfolio-chip-row`** with **`justify-content: center`** under the schematic. Do **not** use `justify-content: flex-end` on **`.portfolio-visual-right`** (pushes schematic to bottom). Avoid capping the photo column with `minmax(…, 300px)` on the split grid — use proportional `fr` columns (~`1.05fr` / `1.45fr`) so the storefront image stays prominent.
 - **KPI row (May 2026 refresh):** all four tiles share the **same dark green gradient** as the energy ticker (`#0e2117` → `#0b1a12`); accent only on top edge / icons — not near-black fills.
 
+### Day / night page backdrop (May 2026)
+
+- **File:** `HTMLS GWM GWB/Greenways Interface .html` — building photo layer only; **does not** change ticker, KPI, cards, or feed logic.
+- **Layer:** `.greenways-backdrop` (replaces legacy `body::before`); image from **`--page-backdrop-image`** (`../product-placement/Sustainability Round Up/Building Pic/OIP (24).jpeg`).
+- **Toggle:** top bar **`.topbar-meta`**, immediately before **Greenways Buildings** badge — `#btnGreenwaysBackdropTheme` (☀ Day Mode / 🌙 Night Mode); same UX labels as **`live-music-hub.html`**.
+- **Persistence:** `localStorage` key **`greenways_backdrop_theme`** (`day` | `night`; default **night**). **Separate** from music hub key **`live_music_hub_backdrop_theme`** — do not merge keys across projects.
+- **JS:** `initGreenwaysBackdropTheme()` — body class **`gw-backdrop-day`** when day is active.
+- **Night (default / current look):** overlay `rgba(5, 14, 9, 0.52)`, opacity `0.48`, `filter: brightness(1.16)`.
+- **Day (tuned May 2026):** lighter overlay `rgba(5, 14, 9, 0.28)` → `0.35`, opacity `0.63`, `filter: brightness(1.26) saturate(1.08) contrast(1.03)` — hub-style lift, then user-requested +10% and +7% bumps on top of base day values.
+- **Optional backlog:** light glass blur on `.topbar` in day mode (music hub pattern) — not implemented unless user asks.
+
 ### Equipment tab (critical wiring)
 
 - **`equipmentGroups`** drives category cards + instance chips. Venue merge: **`mergeWokVenueInventory()`** loads `data/restaurant-assets/wok-to-walk-equipment-list.json` and **appends** rows by `equipmentIntelligenceType` → group (`ovens`, `cold`, `hvac`, `lighting`, `ops`).
@@ -497,6 +508,12 @@ When this skill is used, provide:
 - **`data/savings-projection-scenarios.json`:** Illustrative scenarios (`fridge`, etc.) for demos.
 - **`company-map.html`:** Removed duplicate header back control; sidebar **Back to dashboard** retained.
 
+### 2026-05-28 — Greenways day/night backdrop toggle
+
+- **`Greenways Interface .html`:** `.greenways-backdrop` + **`gw-backdrop-day`**; top-bar **`#btnGreenwaysBackdropTheme`** beside venue badge; **`greenways_backdrop_theme`** in `localStorage`; **`initGreenwaysBackdropTheme()`**.
+- **Day tuning:** base hub-style lift, then **+10%** then **+7%** user adjustments → current day values: opacity **0.63**, brightness **1.26**, overlay **0.28 / 0.35**. Night unchanged.
+- **Cross-project:** music stack uses **`live_music_hub_backdrop_theme`** on **`live-music-hub.html`** / **`live-music-helper-hub.html`** — see **`Skills/live-music-finder-skill.md`**.
+
 ### 2026-05-15 — Energy Level period controls, utility-detail chips, wok burners, grants on intelligence API
 
 - **`Greenways Interface .html`:** Energy Level **Day / Week / Month** cards are interactive buttons; **`setDashboardPeriodRange`**, **`initGaugeContextPeriod`**, **`syncGaugePeriodButtons`**, **`syncTopToolbarPeriod`**, **`lastRawDashboardPayload`**, **`getPeriodLoadShape`**, **`updateEnergyLevelSubtitle`**; top toolbar period buttons use same path (no duplicate refresh-only behaviour).
@@ -647,11 +664,19 @@ Carry-forward next:
 4. Keep a local fallback image only if absolutely needed during draft work.
 5. Verify in browser over `http://localhost:4000/...` and in Wix iframe.
 
-**2026-06-05 — Sustainability Map = mobile / map UX reference**
+**2026-06-05 — Sustainability Map = mobile / map UX reference (one-way copy)**
 
-The **Case Study Finder / Sustainability Map** (`European Company - Case Study Finder (Standalone) - Wix bundle.html`, `Sustainable Map Copy .html`) is the **source pattern** for advanced map UX. **Live Music Finder** (`live-music-finder.html`) copies behaviour from it — not the other way around.
+The **Case Study Finder / Sustainability Map** is the **source** for advanced map UX. **Live Music Finder** is the **target** — copy **from** sustainability **to** `live-music-finder.html`, never the reverse.
 
-Reference behaviours to port into venue finder: wide mobile layout + horizontal swipe, centred venue/org panels, first-load Help, `scrollMapToward*` on pin select, Near Me / topic chips / insight popup when product needs them.
+| | Sustainability | Live Music venue map |
+|--|----------------|----------------------|
+| **Working copy** | `Sustainable Map Copy .html` (local, untracked) | `live-music-finder.html` |
+| **Production embed** | `European Company - Case Study Finder (Standalone) - Wix bundle.html` | `live-music-hub-render.html` on Render |
+| **Deploy** | Re-upload HTML in Wix | Push to GitHub → Render |
+
+**Do not** change the Wix bundle or Sustainable Map Copy when implementing live-music mobile UX unless the user explicitly requests sustainability map changes.
+
+Reference behaviours to port into venue finder: wide mobile layout + horizontal swipe, centred panels, first-load Help, `scrollMapToward*` on pin select, Near Me / topic chips / insight popup when needed. Full runbook: **`Skills/live-music-finder-skill.md`** § Map UX porting.
 
 ---
 

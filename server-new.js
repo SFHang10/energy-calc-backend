@@ -311,16 +311,19 @@ console.log('Loading live music routers...');
 let musicVenuesRouter;
 let musicGuideRouter;
 let musicVenueInquiriesRouter;
+let musicMediaCandidatesRouter;
 try {
   musicVenuesRouter = require('./routes/music-venues');
   musicGuideRouter = require('./routes/music-guide');
   musicVenueInquiriesRouter = require('./routes/music-venue-inquiries');
+  musicMediaCandidatesRouter = require('./routes/music-media-candidates');
   console.log('Live music routers loaded successfully');
 } catch (error) {
   console.error('❌ Failed to load live music routers:', error.message);
   musicVenuesRouter = null;
   musicGuideRouter = null;
   musicVenueInquiriesRouter = null;
+  musicMediaCandidatesRouter = null;
 }
 
 function mountApiRoutes() {
@@ -396,6 +399,10 @@ function mountApiRoutes() {
   if (musicVenueInquiriesRouter) {
     app.use('/api/music-venue-inquiries', musicVenueInquiriesRouter);
     console.log('✅ /api/music-venue-inquiries route mounted');
+  }
+  if (musicMediaCandidatesRouter) {
+    app.use('/api/music-media-candidates', musicMediaCandidatesRouter);
+    console.log('✅ /api/music-media-candidates route mounted');
   }
 
   console.log('All routes mounted successfully');

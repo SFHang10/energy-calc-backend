@@ -20,12 +20,19 @@ Skills/
 ├── product-deep-dive.md           ← Product Deep Dive (Enhanced product info)
 ├── member-manager.md              ← Member profiles & uploads
 ├── product-deal-finder.md         ← Deals, pricing, offers
+├── historical-data-finder.md      ← Historical cost comparisons
+├── calculator-cohesion.md         ← Calculator data alignment & safety
+├── hover-data-aggregator.md       ← Hover cache (grants + deals)
+├── personalized-impact-hover.md   ← Personalized hover explainer
+├── news-product-recommender.md    ← News → product recommendations
 ├── content-operations.md          ← Content pipeline & publishing
 ├── RALPH-INTEGRATION.md           ← Autonomous Feature Deployment
 ├── sustainability-video-finder.md ← Video Curation
 ├── sustainability-news-finder.md  ← Sustainability News Reports
+├── tech-news-finder.md            ← New in Tech news reports
 ├── sustainability-blog-writer.md  ← Blog & ESG Content
 ├── energy-ticker.md               ← Live energy price ticker
+├── rate-consultant.md             ← Price trend insights
 ├── sustainable-renovation-planner.md ← Renovation project plans
 ├── secretary-skill.md             ← Professional email writer
 └── html-content-creator.md        ← HTML Pages
@@ -49,10 +56,17 @@ Skills/
 │  🔍 DEEP DIVE       → "deep dive", "product details"          │
 │  📦 CONTENT        → "content workflow", "publish content"    │
 │  💷 DEALS           → "deals", "discount", "best price"       │
+│  🕒 HISTORICAL DATA  → "historical cost", "price history"      │
+│  🧮 CALCULATOR       → "calculator data", "align calculators"  │
+│  🧭 HOVER DATA       → "hover tooltip", "hover grants"         │
+│  🧩 IMPACT HOVER     → "why this matters", "impact summary"    │
+│  🧠 NEWS→PRODUCT     → "news to product", "example links"      │
 │  🎬 VIDEOS         → "videos", "YouTube", "sustainability"    │
 │  📰 NEWS           → "news roundup", "sustainability news"    │
+│  🧪 NEW IN TECH     → "new in tech", "tech news"              │
 │  ✍️ BLOG           → "write", "blog", "ESG", "article"        │
 │  ⚡ ENERGY TICKER  → "energy prices", "energy ticker"         │
+│  📈 RATE CONSULT  → "price trends", "savings potential"       │
 │  🌐 HTML           → "create page", "HTML", "webpage"         │
 │  🏗️ RENOVATION     → "renovation plan", "retrofit"           │
 │  ✉️ SECRETARY      → "write email", "outreach", "contact"     │
@@ -78,11 +92,18 @@ Skills/
 | 🔍 **Product Deep Dive** | `product-deep-dive.md` | Build deep-dive product info and pages |
 | 👥 **Member Manager** | `member-manager.md` | Member profiles, uploads, and access UX |
 | 💷 **Product Deal Finder** | `product-deal-finder.md` | Find deals, offers, and price comparisons |
+| 🕒 **Historical Data Finder** | `historical-data-finder.md` | Historical cost comparisons tied to energy prices |
+| 🧮 **Calculator Cohesion** | `calculator-cohesion.md` | Align calculators to shared enriched data |
+| 🧭 **Hover Data Aggregator** | `hover-data-aggregator.md` | Build hover cache with grants + deals |
+| 🧩 **Personalized Impact Hover** | `personalized-impact-hover.md` | Explain how info affects the user |
+| 🧠 **News → Product Recommender** | `news-product-recommender.md` | Suggest products for news items |
 | 📦 **Content Operations** | `content-operations.md` | Draft → review → publish workflow |
 | 🎬 **Video Finder** | `sustainability-video-finder.md` | Find sustainability videos |
 | 📰 **News Finder** | `sustainability-news-finder.md` | Sustainability news roundups |
+| 🧪 **New in Tech News** | `tech-news-finder.md` | Tech news roundups (green + general) |
 | ✍️ **Blog Writer** | `sustainability-blog-writer.md` | Generate blog content & ESG reports |
 | ⚡ **Energy Ticker** | `energy-ticker.md` | Live energy price ticker for Europe |
+| 📈 **Rate Consultant** | `rate-consultant.md` | Price trend insights for low‑energy products |
 | 🏗️ **Renovation Planner** | `sustainable-renovation-planner.md` | Renovation plans with grants |
 | ✉️ **Secretary** | `secretary-skill.md` | Professional Greenways emails |
 | 🌐 **HTML Creator** | `html-content-creator.md` | Create HTML pages with images |
@@ -368,6 +389,25 @@ These files support technical-spec enrichment for deep dive entries:
 
 ---
 
+### 📈 Rate Consultant (Price Trend Insights)
+
+**Activate when user says:**
+```
+"price trends"
+"energy price insights"
+"use energy prices for insights"
+"savings potential"
+"rate consultant"
+"wholesale vs retail"
+```
+
+**What it does:**
+- Converts wholesale trends into safe insights
+- Creates badges and CTA modules
+- Adds disclaimers to avoid retail‑bill claims
+
+---
+
 ### 🌐 HTML Content Creator
 
 **Activate when user says:**
@@ -625,6 +665,7 @@ Some tasks require multiple skills. Common combinations:
 | `sustainability-video-finder.md` | ~420 | Video curation |
 | `sustainability-blog-writer.md` | ~500 | Blog & ESG content |
 | `energy-ticker.md` | New | Energy price ticker |
+| `rate-consultant.md` | New | Price trend insights |
 | `sustainable-renovation-planner.md` | New | Renovation project planning |
 | `secretary-skill.md` | New | Professional email writer |
 | `html-content-creator.md` | ~270 | HTML page creation |
@@ -713,7 +754,7 @@ RECEIVE → EXECUTE → COMPLETE → REFLECT → DOCUMENT → COMMIT → READY
 ---
 
 **Last Updated:** January 2026  
-**Total Skills:** 14  
+**Total Skills:** 16  
 **Master Controller:** SKILL-ORCHESTRATOR.md  
 **Learning Protocol:** v2.0 (Auto-documentation enabled)
 **Product Workflow:** ⚠️ MANDATORY for all new products

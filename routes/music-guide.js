@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs/promises');
+const { answerFromKnowledge } = require('../services/music-guide-knowledge');
 
 const router = express.Router();
 const venuesPath = path.join(__dirname, '..', 'data', 'music-venues.json');
@@ -163,13 +164,24 @@ router.post('/ask', async (req, res) => {
     }
 
     const venues = await loadVenues();
+    const knowledge = await answerFromKnowledge(question, venues, profile);
+    if (knowledge?.answer) {
+      return res.json({
+        ok: true,
+        answer: knowledge.answer,
+        suggestions: knowledge.suggestions || [],
+        source: 'knowledge',
+        intentId: knowledge.intentId || null
+      });
+    }
+
     const ranked = venues
       .map((v) => ({ venue: v, score: scoreVenue(v, question, profile) }))
       .filter((v) => v.score > 0)
       .sort((a, b) => b.score - a.score)
       .map((v) => v.venue);
 
-    const response = buildHeuristicReply(question, ranked, profile);
+    const response = buildHeuristicReply(question, ranked.length ? ranked : venues, profile);
     const llmAnswer = await maybeCallServerLlm(question, response.suggestions, profile);
     res.json({
       ok: true,

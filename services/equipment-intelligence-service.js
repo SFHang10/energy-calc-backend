@@ -1,9 +1,31 @@
 const fs = require('fs');
 const path = require('path');
+const {
+  CALCULATION_VERSION,
+  normalizeRates,
+  buildAssumptions,
+  calculateConfidence
+} = require('./energy-guidance-core');
 
 const DATA_PATH = path.join(__dirname, '..', 'data', 'equipment-intelligence-seed.json');
 const FULL_DATABASE_PATH = path.join(__dirname, '..', 'FULL-DATABASE-5554.json');
 const INTAKE_SUGGESTIONS_PATH = path.join(__dirname, '..', 'data', 'marketplace-intake-suggestions.json');
+const {
+  loadCatalog: loadSustainableProductsCatalog,
+  persistFinderResults
+} = require('./sustainable-products-catalog');
+
+/**
+ * Product-level grants attached to marketplace rows must match the enriched export built from
+ * schemes.json (see product-grants-integrator.js + combined-grants-loader.js).
+ * Order: root bundle first (same default as routes/product-widget.js), then energy-calculator mirrors.
+ */
+const GRANTS_PRODUCT_OVERLAY_CANDIDATES = [
+  path.join(__dirname, '..', 'products-with-grants-and-collection.json'),
+  path.join(__dirname, '..', 'energy-calculator', 'products-with-grants-and-collection.json'),
+  path.join(__dirname, '..', 'products-with-grants.json'),
+  path.join(__dirname, '..', 'energy-calculator', 'products-with-grants.json')
+];
 
 function normalizeText(value) {
   return String(value || '').trim().toLowerCase();
@@ -39,7 +61,8 @@ class EquipmentIntelligenceService {
   constructor() {
     this.seed = this.loadSeedData();
     this.marketplaceCatalog = this.loadMarketplaceCatalog();
-    this.externalAlternatives = this.buildExternalAlternatives();
+    this.productGrantsOverlay = this.loadProductGrantsOverlay();
+    this.externalAlternatives = this.loadExternalAlternatives();
   }
 
   loadSeedData() {
@@ -64,59 +87,156 @@ class EquipmentIntelligenceService {
     }
   }
 
-  buildExternalAlternatives() {
-    return [
-      {
-        id: 'external_true_tuc-24-hc',
-        source: 'sustainable_product_finder',
-        name: 'TRUE TUC-24-HC Undercounter Refrigerator',
-        brand: 'TRUE',
-        model: 'TUC-24-HC',
-        type: 'refrigerator',
-        utilityProfile: { dailyKwh: 9.2, dailyWaterLitres: 0, dailyGasKwh: 0 },
-        summary: 'Hydrocarbon refrigerant unit with lower compressor duty and improved insulation.'
-      },
-      {
-        id: 'external_hoshizaki_jwe-620',
-        source: 'sustainable_product_finder',
-        name: 'Hoshizaki JWE-620 Undercounter Dishwasher',
-        brand: 'Hoshizaki',
-        model: 'JWE-620',
-        type: 'dishwasher',
-        utilityProfile: { dailyKwh: 14.6, dailyWaterLitres: 190, dailyGasKwh: 0 },
-        summary: 'Low-water, heat-recovery commercial dishwasher for medium throughput kitchens.'
-      },
-      {
-        id: 'external_rational_icombi_pro',
-        source: 'sustainable_product_finder',
-        name: 'Rational iCombi Pro 6-1/1',
-        brand: 'Rational',
-        model: 'iCombi Pro',
-        type: 'oven',
-        utilityProfile: { dailyKwh: 10.4, dailyWaterLitres: 48, dailyGasKwh: 0 },
-        summary: 'Efficient combi oven with adaptive cooking cycles and reduced idle overhead.'
-      },
-      {
-        id: 'external_frymaster_fpx',
-        source: 'sustainable_product_finder',
-        name: 'Frymaster FPH155 High-Efficiency Fryer',
-        brand: 'Frymaster',
-        model: 'FPH155',
-        type: 'fryer',
-        utilityProfile: { dailyKwh: 0, dailyWaterLitres: 0, dailyGasKwh: 24.5 },
-        summary: 'Condensing gas fryer with improved thermal transfer and reduced standby losses.'
-      },
-      {
-        id: 'external_meiko_upster',
-        source: 'sustainable_product_finder',
-        name: 'MEIKO UPster U 500',
-        brand: 'MEIKO',
-        model: 'UPster U 500',
-        type: 'dishwasher',
-        utilityProfile: { dailyKwh: 12.8, dailyWaterLitres: 165, dailyGasKwh: 0 },
-        summary: 'Compact warewashing platform with lower water and detergent intensity.'
+  loadProductGrantsOverlay() {
+    const overlay = new Map();
+    for (const filePath of GRANTS_PRODUCT_OVERLAY_CANDIDATES) {
+      if (!fs.existsSync(filePath)) continue;
+      try {
+        const raw = fs.readFileSync(filePath, 'utf8');
+        const parsed = JSON.parse(raw);
+        const products = Array.isArray(parsed.products) ? parsed.products : [];
+        products.forEach((p) => {
+          if (p && p.id != null) overlay.set(String(p.id), p.grants);
+        });
+        console.log(
+          `✅ Equipment intelligence: merged grants overlay from ${path.basename(filePath)} (${overlay.size} product rows)`
+        );
+        return overlay;
+      } catch (error) {
+        console.error(`⚠️ Equipment intelligence: skipped grants overlay ${filePath}:`, error.message);
       }
-    ];
+    }
+    console.warn(
+      '⚠️ Equipment intelligence: no products-with-grants JSON found — marketplace grants fall back to FULL-DATABASE only'
+    );
+    return overlay;
+  }
+
+  /** Grants for a catalogue product: enriched overlay (from schemes-backed export) overrides FULL-DATABASE. */
+  grantsForCatalogProduct(product) {
+    const id = product && product.id != null ? String(product.id) : '';
+    if (id && this.productGrantsOverlay.has(id)) {
+      return this.parseGrants(this.productGrantsOverlay.get(id));
+    }
+    return this.parseGrants(product.grants);
+  }
+
+  /** Non-marketplace catalog: data/sustainable-products-catalog.json */
+  loadExternalAlternatives() {
+    const rows = loadSustainableProductsCatalog({ attachGrants: true, status: 'external' });
+    if (rows.length) return rows;
+    console.warn('⚠️ sustainable-products-catalog empty — external alternatives lane unavailable');
+    return [];
+  }
+
+  reloadExternalCatalog() {
+    this.externalAlternatives = this.loadExternalAlternatives();
+  }
+
+  shouldPersistFinderCatalog(query = {}) {
+    return (
+      query.persistCatalog === true ||
+      query.persistCatalog === '1' ||
+      query.saveToCatalog === true ||
+      query.saveToCatalog === '1'
+    );
+  }
+
+  mapCountryToGrantsRegion(countryOrRegion) {
+    const key = String(countryOrRegion || 'nl').trim().toLowerCase();
+    const map = {
+      netherlands: 'nl',
+      nl: 'nl',
+      germany: 'de',
+      de: 'de',
+      belgium: 'be',
+      be: 'be',
+      'united kingdom': 'uk',
+      uk: 'uk',
+      france: 'fr',
+      fr: 'fr',
+      spain: 'es',
+      es: 'es',
+      italy: 'it',
+      it: 'it',
+      portugal: 'pt',
+      pt: 'pt',
+      ireland: 'ie',
+      ie: 'ie'
+    };
+    return map[key] || (key.length === 2 ? key : 'nl');
+  }
+
+  persistFinderCatalogFromQuery(query, externalAlternatives) {
+    const region = this.mapCountryToGrantsRegion(query.region || query.country);
+    const catalogPersisted = persistFinderResults({
+      finderQuery: String(query.name || '').trim(),
+      finderSource: query.finderSource || query.source || 'sustainable_product_finder',
+      region: region === 'uk' ? 'uk' : region === 'ie' ? 'ie' : region === 'de' ? 'de' : 'nl',
+      brand: query.brand,
+      model: query.model,
+      type: this.normalizeType(query.type),
+      actualDailyKwh: query.actualDailyKwh,
+      actualDailyWaterLitres: query.actualDailyWaterLitres,
+      actualDailyGasKwh: query.actualDailyGasKwh,
+      externalAlternatives
+    });
+    this.reloadExternalCatalog();
+    return catalogPersisted;
+  }
+
+  buildExternalDecisionOptions(externalAlternatives, baseline, rates) {
+    const baselineCosts = this.calculateHorizonCosts(baseline, rates);
+    return (externalAlternatives || []).map((item) => {
+      let dailyKwh = baseline.dailyKwh;
+      let dailyWaterLitres = baseline.dailyWaterLitres;
+      let dailyGasKwh = baseline.dailyGasKwh;
+      const factors = item.impactFactors;
+      if (factors) {
+        dailyGasKwh = baseline.dailyGasKwh * (1 - (Number(factors.gasReductionPct) || 0));
+        dailyWaterLitres = baseline.dailyWaterLitres * (1 - (Number(factors.waterReductionPct) || 0));
+        if (factors.electricityReductionPct != null) {
+          dailyKwh = baseline.dailyKwh * (1 - (Number(factors.electricityReductionPct) || 0));
+        }
+      } else {
+        dailyKwh = toNumber(item.utilityProfile?.dailyKwh) ?? baseline.dailyKwh;
+        dailyWaterLitres = toNumber(item.utilityProfile?.dailyWaterLitres) ?? baseline.dailyWaterLitres;
+        dailyGasKwh = toNumber(item.utilityProfile?.dailyGasKwh) ?? baseline.dailyGasKwh;
+      }
+      const normalizedOption = {
+        source: 'external',
+        id: item.id,
+        catalogId: item.id,
+        name: item.name,
+        brand: item.brand || null,
+        model: item.model || null,
+        type: item.type || baseline.type,
+        imageUrl: item.imageUrl || null,
+        dailyKwh,
+        dailyWaterLitres,
+        dailyGasKwh,
+        grants: Array.isArray(item.grants) ? item.grants.slice(0, 4) : [],
+        impactFactors: item.impactFactors || null,
+        deals: { available: false, action: 'wire_later' }
+      };
+      const costs = this.calculateHorizonCosts(normalizedOption, rates);
+      return {
+        ...normalizedOption,
+        costs,
+        savings: Object.keys(costs.horizons).reduce((acc, key) => {
+          acc[key] = Number((baselineCosts.horizons[key] - costs.horizons[key]).toFixed(2));
+          return acc;
+        }, {})
+      };
+    });
+  }
+
+  runFinderSession(body = {}) {
+    const result = this.getAlternatives({
+      ...body,
+      persistCatalog: true
+    });
+    return result;
   }
 
   normalizeType(value) {
@@ -125,7 +245,23 @@ class EquipmentIntelligenceService {
     if (type.includes('fridge') || type.includes('freezer') || type.includes('refriger')) return 'refrigerator';
     if (type.includes('oven') || type.includes('combi')) return 'oven';
     if (type.includes('fryer')) return 'fryer';
+    if (type.includes('wok')) return 'wok';
+    if (type.includes('water')) return 'water saving';
     return type || 'other';
+  }
+
+  externalProductMatchesQuery(product, normalizedQuery) {
+    const queryType = normalizedQuery.type;
+    if (!queryType || queryType === 'other') return true;
+    if (this.normalizeType(product.type) === queryType) return true;
+    const equipmentTypes = product.search?.equipmentTypes || [];
+    if (equipmentTypes.some((t) => this.normalizeType(t) === queryType)) return true;
+    const profiles = product.search?.profiles || [];
+    if (profiles.some((p) => queryType.includes(safeLower(p)) || safeLower(p).includes(queryType))) {
+      return true;
+    }
+    if (queryType === 'wok' && safeLower(product.type).includes('wok')) return true;
+    return false;
   }
 
   estimateMarketplaceDailyKwh(product) {
@@ -135,10 +271,10 @@ class EquipmentIntelligenceService {
     return Number(((power / 1000) * runHoursPerDay).toFixed(2));
   }
 
-  estimateSavings(payload, baseline) {
-    const energyRate = toNumber(payload.energyRateEurPerKwh) ?? 0.30;
-    const waterRate = toNumber(payload.waterRateEurPerLitre) ?? 0.0025;
-    const gasRate = toNumber(payload.gasRateEurPerKwh) ?? 0.11;
+  estimateSavings(payload, baseline, rates) {
+    const energyRate = rates.electricityRateEurPerKwh;
+    const waterRate = rates.waterRateEurPerLitre;
+    const gasRate = rates.gasRateEurPerKwh;
     const annualEnergySaved = Math.max(0, (baseline.dailyKwh - payload.dailyKwh) * 365);
     const annualWaterSaved = Math.max(0, (baseline.dailyWaterLitres - payload.dailyWaterLitres) * 365);
     const annualGasSaved = Math.max(0, (baseline.dailyGasKwh - payload.dailyGasKwh) * 365);
@@ -152,6 +288,9 @@ class EquipmentIntelligenceService {
   }
 
   getAlternatives(query) {
+    const providedElectricity = toNumber(query.actualDailyKwh) !== null;
+    const providedWater = toNumber(query.actualDailyWaterLitres) !== null;
+    const providedGas = toNumber(query.actualDailyGasKwh) !== null;
     const normalizedQuery = {
       name: String(query.name || '').trim(),
       brand: String(query.brand || '').trim(),
@@ -181,6 +320,19 @@ class EquipmentIntelligenceService {
       dailyWaterLitres: normalizedQuery.actualDailyWaterLitres,
       dailyGasKwh: normalizedQuery.actualDailyGasKwh
     };
+    const { rates, fallbackRatesUsed } = normalizeRates({
+      electricityRateEurPerKwh: query.electricityRateEurPerKwh,
+      gasRateEurPerKwh: query.gasRateEurPerKwh,
+      waterRateEurPerLitre: query.waterRateEurPerLitre
+    });
+    const assumptions = buildAssumptions({
+      fallbackRatesUsed,
+      missingUtilities: [
+        !providedElectricity ? 'electricity' : null,
+        !providedGas ? 'gas' : null,
+        !providedWater ? 'water' : null
+      ].filter(Boolean)
+    });
 
     const marketplaceMatches = this.marketplaceCatalog
       .map((product) => {
@@ -202,7 +354,14 @@ class EquipmentIntelligenceService {
           dailyKwh: estimatedDailyKwh ?? baseline.dailyKwh,
           dailyWaterLitres: baseline.dailyWaterLitres,
           dailyGasKwh: baseline.dailyGasKwh
-        }, baseline);
+        }, baseline, rates);
+        const productDaily = {
+          dailyKwh: estimatedDailyKwh ?? baseline.dailyKwh,
+          dailyWaterLitres: baseline.dailyWaterLitres,
+          dailyGasKwh: baseline.dailyGasKwh
+        };
+        const grants = this.grantsForCatalogProduct(product);
+        const consumer = this.buildConsumerInsight(baseline, productDaily, rates);
         return {
           source: 'greenways_marketplace',
           id: product.id,
@@ -213,7 +372,9 @@ class EquipmentIntelligenceService {
           estimatedDailyKwh,
           imageUrl: product.imageUrl || null,
           score,
-          savings
+          savings,
+          consumer,
+          grants: grants.slice(0, 4)
         };
       })
       .filter(Boolean)
@@ -222,14 +383,14 @@ class EquipmentIntelligenceService {
 
     const externalAlternatives = this.externalAlternatives
       .map((product) => {
-        const matchesType = !normalizedQuery.type || normalizedQuery.type === 'other'
-          ? true
-          : this.normalizeType(product.type) === normalizedQuery.type;
+        const matchesType = this.externalProductMatchesQuery(product, normalizedQuery);
         const haystack = uniqueStrings([
           ...tokenize(product.name),
           ...tokenize(product.brand),
           ...tokenize(product.model),
-          ...tokenize(product.type)
+          ...tokenize(product.type),
+          ...(product.search?.keywords || []).flatMap((k) => tokenize(k)),
+          ...(product.search?.profiles || []).flatMap((p) => tokenize(p))
         ]);
         let score = matchesType ? 10 : 0;
         searchTokens.forEach((token) => {
@@ -241,17 +402,29 @@ class EquipmentIntelligenceService {
           dailyKwh: product.utilityProfile.dailyKwh,
           dailyWaterLitres: product.utilityProfile.dailyWaterLitres,
           dailyGasKwh: product.utilityProfile.dailyGasKwh
-        }, baseline);
+        }, baseline, rates);
+        const productDaily = {
+          dailyKwh: product.utilityProfile.dailyKwh,
+          dailyWaterLitres: product.utilityProfile.dailyWaterLitres,
+          dailyGasKwh: product.utilityProfile.dailyGasKwh
+        };
+        const consumer = this.buildConsumerInsight(baseline, productDaily, rates);
         return {
           ...product,
           score,
           savings,
-          notInMarketplace: true
+          notInMarketplace: true,
+          consumer
         };
       })
       .filter(Boolean)
       .sort((a, b) => b.score - a.score)
-      .slice(0, 6);
+      .slice(0, 8);
+
+    let catalogPersisted = null;
+    if (this.shouldPersistFinderCatalog(query)) {
+      catalogPersisted = this.persistFinderCatalogFromQuery(query, externalAlternatives);
+    }
 
     const intakeCandidates = externalAlternatives
       .filter((item) => item.savings.annualEstimatedCostSavedEur >= 100)
@@ -267,10 +440,24 @@ class EquipmentIntelligenceService {
 
     return {
       success: true,
+      calculationVersion: CALCULATION_VERSION,
+      assumptions,
+      confidence: calculateConfidence({
+        sourceQuality: {
+          electricity: providedElectricity ? 'meter' : 'estimated',
+          gas: providedGas ? 'meter' : 'estimated',
+          water: providedWater ? 'meter' : 'estimated'
+        },
+        benchmarkAvailable: true,
+        matchScore: marketplaceMatches[0]?.score ?? null,
+        explicitRates: fallbackRatesUsed.length === 0
+      }),
       lookup: normalizedQuery,
+      rates,
       marketplaceMatches,
       externalAlternatives,
-      intakeCandidates
+      intakeCandidates,
+      catalogPersisted
     };
   }
 
@@ -312,7 +499,63 @@ class EquipmentIntelligenceService {
     };
   }
 
+  /**
+   * Consumer-facing running-cost comparison vs baseline (same horizon math as decision matrix).
+   * @param {object} baseline - { dailyKwh, dailyWaterLitres, dailyGasKwh }
+   * @param {object} productDaily - same shape for the suggested product
+   * @param {object} rates - normalized utility rates
+   */
+  buildConsumerInsight(baseline, productDaily, rates) {
+    const bl = {
+      dailyKwh: toNumber(baseline.dailyKwh) ?? 0,
+      dailyWaterLitres: toNumber(baseline.dailyWaterLitres) ?? 0,
+      dailyGasKwh: toNumber(baseline.dailyGasKwh) ?? 0
+    };
+    const op = {
+      dailyKwh: toNumber(productDaily.dailyKwh) ?? 0,
+      dailyWaterLitres: toNumber(productDaily.dailyWaterLitres) ?? 0,
+      dailyGasKwh: toNumber(productDaily.dailyGasKwh) ?? 0
+    };
+    const baselineCosts = this.calculateHorizonCosts(bl, rates);
+    const productCosts = this.calculateHorizonCosts(op, rates);
+    const savings1m = Number((baselineCosts.horizons['1m'] - productCosts.horizons['1m']).toFixed(0));
+    const savings1y = Number((baselineCosts.horizons['1y'] - productCosts.horizons['1y']).toFixed(0));
+    const fmtEuro = (n) => `€${Math.round(Number(n) || 0).toLocaleString('en-GB')}`;
+    let headline;
+    if (savings1y > 15) {
+      headline = `Based on your usage, this option could lower indicative running cost by about ${fmtEuro(savings1y)} per year vs your baseline (roughly ${fmtEuro(savings1m)} per month at these rate assumptions).`;
+    } else if (savings1y < -15) {
+      headline = 'At these assumptions, indicative running cost is similar or higher than your baseline — verify with your actual tariff and meter data before deciding.';
+    } else {
+      headline = 'Indicative running cost is close to your baseline at these assumptions — small changes in use or tariff band can flip the outcome.';
+    }
+    return {
+      baselineDaily: {
+        electricityKwh: Number(bl.dailyKwh.toFixed(2)),
+        waterLitres: Number(bl.dailyWaterLitres.toFixed(1)),
+        gasKwh: Number(bl.dailyGasKwh.toFixed(2))
+      },
+      productDaily: {
+        electricityKwh: Number(op.dailyKwh.toFixed(2)),
+        waterLitres: Number(op.dailyWaterLitres.toFixed(1)),
+        gasKwh: Number(op.dailyGasKwh.toFixed(2))
+      },
+      runningCost: {
+        baselineEurPerMonth: baselineCosts.horizons['1m'],
+        productEurPerMonth: productCosts.horizons['1m'],
+        eurSavedVsBaselinePerMonth: savings1m,
+        eurSavedVsBaselinePerYear: savings1y,
+        productDailyEur: productCosts.dailyCost,
+        baselineDailyEur: baselineCosts.dailyCost
+      },
+      headline
+    };
+  }
+
   getDecisionMatrix(query) {
+    const providedElectricity = toNumber(query.actualDailyKwh) !== null;
+    const providedWater = toNumber(query.actualDailyWaterLitres) !== null;
+    const providedGas = toNumber(query.actualDailyGasKwh) !== null;
     const type = this.normalizeType(query.type);
     const baseline = {
       source: 'current',
@@ -325,11 +568,20 @@ class EquipmentIntelligenceService {
       dailyGasKwh: toNumber(query.actualDailyGasKwh) ?? 0
     };
 
-    const rates = {
-      electricityRateEurPerKwh: toNumber(query.electricityRateEurPerKwh) ?? 0.30,
-      gasRateEurPerKwh: toNumber(query.gasRateEurPerKwh) ?? 0.11,
-      waterRateEurPerLitre: toNumber(query.waterRateEurPerLitre) ?? 0.0025
-    };
+    const normalizedRates = normalizeRates({
+      electricityRateEurPerKwh: query.electricityRateEurPerKwh,
+      gasRateEurPerKwh: query.gasRateEurPerKwh,
+      waterRateEurPerLitre: query.waterRateEurPerLitre
+    });
+    const rates = normalizedRates.rates;
+    const assumptions = buildAssumptions({
+      fallbackRatesUsed: normalizedRates.fallbackRatesUsed,
+      missingUtilities: [
+        !providedElectricity ? 'electricity' : null,
+        !providedGas ? 'gas' : null,
+        !providedWater ? 'water' : null
+      ].filter(Boolean)
+    });
 
     const alternatives = this.getAlternatives({
       name: baseline.name,
@@ -349,7 +601,7 @@ class EquipmentIntelligenceService {
 
     const greenwaysOptions = (alternatives.marketplaceMatches || []).map((item) => {
       const catalogProduct = this.marketplaceCatalog.find((p) => p.id === item.id) || {};
-      const grants = this.parseGrants(catalogProduct.grants);
+      const grants = this.grantsForCatalogProduct(catalogProduct);
       const normalizedOption = {
         source: 'greenways',
         id: item.id,
@@ -375,34 +627,26 @@ class EquipmentIntelligenceService {
       };
     });
 
-    const externalOptions = (alternatives.externalAlternatives || []).map((item) => {
-      const normalizedOption = {
-        source: 'external',
-        id: item.id,
-        name: item.name,
-        brand: item.brand || null,
-        model: item.model || null,
-        type: item.type || baseline.type,
-        imageUrl: null,
-        dailyKwh: toNumber(item.utilityProfile?.dailyKwh) ?? baseline.dailyKwh,
-        dailyWaterLitres: toNumber(item.utilityProfile?.dailyWaterLitres) ?? baseline.dailyWaterLitres,
-        dailyGasKwh: toNumber(item.utilityProfile?.dailyGasKwh) ?? baseline.dailyGasKwh,
-        grants: [],
-        deals: { available: false, action: 'wire_later' }
-      };
-      const costs = this.calculateHorizonCosts(normalizedOption, rates);
-      return {
-        ...normalizedOption,
-        costs,
-        savings: Object.keys(costs.horizons).reduce((acc, key) => {
-          acc[key] = Number((baselineCosts.horizons[key] - costs.horizons[key]).toFixed(2));
-          return acc;
-        }, {})
-      };
-    });
+    const externalOptions = this.buildExternalDecisionOptions(
+      alternatives.externalAlternatives || [],
+      baseline,
+      rates
+    );
 
     return {
       success: true,
+      calculationVersion: CALCULATION_VERSION,
+      assumptions,
+      confidence: calculateConfidence({
+        sourceQuality: {
+          electricity: providedElectricity ? 'meter' : 'estimated',
+          gas: providedGas ? 'meter' : 'estimated',
+          water: providedWater ? 'meter' : 'estimated'
+        },
+        benchmarkAvailable: true,
+        matchScore: alternatives.marketplaceMatches?.[0]?.score ?? null,
+        explicitRates: normalizedRates.fallbackRatesUsed.length === 0
+      }),
       rates,
       baseline: {
         ...baseline,
@@ -476,7 +720,29 @@ class EquipmentIntelligenceService {
       suggestions: [record, ...existing]
     };
     fs.writeFileSync(INTAKE_SUGGESTIONS_PATH, JSON.stringify(next, null, 2), 'utf8');
+    record.catalogId = payload.catalogId || payload.sourceId || null;
+
     return { success: true, suggestion: record };
+  }
+
+  listSustainableCatalog(query = {}) {
+    const { loadCatalog, listCatalogMeta } = require('./sustainable-products-catalog');
+    const status = query.status || 'external';
+    const products = loadCatalog({ attachGrants: true, status });
+    return {
+      success: true,
+      meta: listCatalogMeta(),
+      products
+    };
+  }
+
+  upsertSustainableCatalogProduct(payload) {
+    const { upsertProduct } = require('./sustainable-products-catalog');
+    const result = upsertProduct(payload);
+    if (result.success) {
+      this.reloadExternalCatalog();
+    }
+    return result;
   }
 
   listIntakeSuggestions() {

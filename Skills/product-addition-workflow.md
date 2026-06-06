@@ -2,7 +2,7 @@
 
 **Skill Type:** Product Data Pipeline & Enrichment  
 **Purpose:** Ensure ALL products are enriched with grants, schemes, and collection data before being added to the marketplace  
-**Last Updated:** January 2026
+**Last Updated:** May 2026
 
 ---
 
@@ -25,10 +25,10 @@ This skill defines the **MANDATORY** workflow for adding any new product to the 
 
 | File | Purpose | Location |
 |------|---------|----------|
-| `products-with-grants.json` | Products with grants data | `energy-calculator/` |
-| `products-with-grants-and-collection.json` | Products with grants + collection | `energy-calculator/` |
+| `products-with-grants.json` | Products with grants data | Repo root (integrator output) and **`energy-calculator/`** mirror if present |
+| `products-with-grants-and-collection.json` | Products with grants + collection | Repo root (preferred for widget + intelligence overlay) and **`energy-calculator/`** copy |
 | `FULL-DATABASE-5554.json` | Base product database | Project root |
-| `schemes.json` | Grants & schemes definitions | Project root |
+| `schemes.json` | Grants & schemes definitions (human-edited source of truth) | Project root |
 
 ### Database Files
 
@@ -49,6 +49,8 @@ This skill defines the **MANDATORY** workflow for adding any new product to the 
 | `load-hardcoded-data.js` | Loads enriched data into calculators |
 
 > **⚠️ IMPORTANT (Jan 2026):** Use `combined-grants-loader.js` for full 62+ grant coverage!
+
+After **`schemes.json`** changes, always re-run **`product-grants-integrator.js`** so **`products-with-grants*.json`** stays current; **`equipment-intelligence-service`** and **`/api/product-widget/...`** consume those exports for per-product grant chips (see **`AGENTS.md`**).
 
 ---
 

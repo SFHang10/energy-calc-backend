@@ -96,6 +96,12 @@ Provide:
 - Animated elements on scroll
 - Icon badges and highlights
 
+### Greenways Buildings (`HTMLS GWM GWB/`)
+
+- **Typography:** For consumer pages in this folder (Deals, finders, portals, savings, tickers), align with **`Greenways Interface .html`**: **Space Grotesk** (`--font`), **IBM Plex Sans** (`--font-clean`), **JetBrains Mono** (`--mono`). See **`Skills/energy-dashboard-skill.md`** for dashboard + Wok Assist iframe rules (**`embed=1`**, nested-dashboard guard).
+- **Finance finder / schemes (May 2026):** **`finance-finder-restaurant.html`** uses **Fraunces** + **DM Sans**, dark glass over Wix restaurant AVIF; category tiles need **Wix-only** image URLs. **`Full Schemes Portal Restaurant.html`** / **`Full Schemes Portal html.html`** share schemes load pattern with **`savings.html`** — document in **`energy-dashboard-skill.md`** § Restaurant finance finder & schemes portals.
+- **Button “icons”:** Plain **emoji** in markup are not separate assets — they look cartoon-like per OS. For **photographic** quick-picks, replace with **`<img>`** using **Wix static URLs** (same upload workflow as above); for a middle ground, use compact **SVG** line icons.
+
 ---
 
 ## 📝 Example Request Format
@@ -114,6 +120,27 @@ Wix Images (uploaded and numbered):
 Design: Tabbed layout with professional dark theme
 Features needed: Stats grid, comparison tables, image gallery
 ```
+
+---
+
+## 🌍 Regional Illustration Set (Standard)
+
+When a page includes **country/region illustrations** (UK, Netherlands, Spain, Portugal),
+reuse this standard image set for consistency across HTMLs:
+
+```
+Netherlands: https://static.wixstatic.com/media/c123de_cc1b13a403af4c628862cfe90b38ef36~mv2.jpg
+United Kingdom: https://static.wixstatic.com/media/c123de_cb6e8abcf2854234b64b2924634b7027~mv2.jpeg
+Spain: https://static.wixstatic.com/media/c123de_f9897452c9e340b68c0ea6c407e1ad5d~mv2.jpeg
+Portugal: https://static.wixstatic.com/media/c123de_6562e0f95d3a4b9fbbe043e7caba39d6~mv2.jpeg
+```
+
+**Use cases:**
+- Country highlight sections
+- “Benefits by country” blocks
+- Regional comparison grids
+
+If new regions are introduced, request Wix static URLs and extend this list.
 
 ---
 
@@ -171,6 +198,12 @@ content-ops/
 - [ ] Layout preference specified
 - [ ] Theme/color preference noted
 - [ ] Special features requested
+
+### Product Linking Rule (MANDATORY)
+- When referencing a product in HTML, link to the **specific** marketplace item.
+- Source of truth: `energy-calculator/products-with-grants-and-collection.json`
+- Render URL format:
+  - `https://energy-calc-backend.onrender.com/product-page-v2-marketplace.html?product=[ID]&fromPopup=true`
 
 ### Common Image Placements
 | Section | Image Type | Purpose |

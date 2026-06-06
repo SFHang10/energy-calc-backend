@@ -13,6 +13,41 @@ This skill searches for new and updated energy efficiency grants, schemes, subsi
 
 ---
 
+## 🖥️ Static HTML consumers (keep in sync with `schemes.json` / API)
+
+When updating **`schemes.json`** or importing to Mongo, these pages should stay aligned (they load **`/api/schemes`** first where possible, then fall back to **`../schemes.json`** and/or **`./schemes.json`**):
+
+| Page | Path | Notes |
+|------|------|--------|
+| EU schemes browser | `eu-energy-schemes.html` | API → embedded fallback; **`?q=`** prefills search via `applySearchFromQueryString()` |
+| Full schemes portal (EU / general) | `HTMLS GWM GWB/Full Schemes Portal html.html` | **`loadSchemes()`:** `/api/schemes` → `../schemes.json`; **`?q=`** prefills search; analyst backdrop |
+| Restaurant schemes portal | `HTMLS GWM GWB/Full Schemes Portal Restaurant.html` | Same data pipeline; restaurant Wix backdrop; header CTA → Business.gov.nl 3-subject finder |
+| Restaurant finance finder | `HTMLS GWM GWB/finance-finder-restaurant.html` | AI-assisted grant/BNPL/loan search UI (not the static catalogue); linked from **`savings.html`** |
+| Savings tour (grants tab) | `HTMLS GWM GWB/savings.html` | **Restaurant schemes portal**, **EU schemes**, **Financial assistance** buttons |
+| Visual savings window | `HTMLS GWM GWB/Visual Schems Savings Window.html` | Dynamic cards by region; filename has typo “Schems” |
+| Electrical schemes (styling variant) | `HTMLS GWM GWB/Electrical Schemes New.html` | Same data pipeline; replaces former hardcoded tabs |
+| Greenways equipment tab | `HTMLS GWM GWB/Greenways Interface .html` | Links out to portals with **`?q=`** when grant context matches |
+
+**2026-05-11:** Wired Visual Savings + Electrical Schemes New to shared sources; added `?q=` handling on EU + Full portals; equipment tab gold scheme pills + reorder documented in `Skills/energy-dashboard-skill.md`.
+
+**2026-05-15 (backend alignment):** **`schemes.json`** remains the editable scheme catalogue; **`node product-grants-integrator.js`** (via **`combined-grants-loader.js`**) refreshes **`products-with-grants.json`** / **`products-with-grants-and-collection.json`**. **`services/equipment-intelligence-service.js`** merges that per-product grants payload into marketplace alternative rows (same idea as **`routes/product-widget.js`**) so deep dive / **`/api/equipment-intelligence/*`** stay in sync when schemes change. Full workflow: **`AGENTS.md`** → Grants & schemes section.
+
+**2026-05-20 (NL hub):** Add or maintain **`nl-business-gov-finder`** in **`schemes.json`** pointing to [Business.gov.nl subsidies](https://business.gov.nl/subsidies-and-schemes/?subject=environmental-impact&subject=products-services-and-innovations&subject=international-business) (~80 schemes discovery). Prefer individual **`business.gov.nl/subsidies-and-schemes/…`** URLs on new NL rows. UI detail: **`Skills/energy-dashboard-skill.md`** § Restaurant finance finder & schemes portals.
+
+---
+
+## 📚 Supporting Reference Files (Use for Inputs)
+
+Use these supporting, non-skill docs for policy context and funding programs:
+- `Skills/Key EU sustainability laws adopted in 2025 and tim.md` (policy timeline reference)
+- `Skills/How will the Carbon Border Adjustment Mechanism im.md` (CBAM impacts)
+- `Skills/Major EU funding programs for circular economy pro.md` (funding programs overview)
+- `Skills/Top funded circular economy topics in Horizon Euro.md` (funding themes + topics)
+
+Use these for verification and framing. Do not copy text verbatim.
+
+---
+
 ## 🎯 Step 1: Execute Search Queries
 
 Run these web searches to discover new grants and schemes. Perform searches for EACH target region.
@@ -417,6 +452,6 @@ From existing `schemes.json`:
 
 ---
 
-**Last Updated:** January 2025  
+**Last Updated:** May 2026  
 **Maintained By:** Energy Calculator Backend System
 

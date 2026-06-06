@@ -89,6 +89,28 @@ node server-new.js
 **Prevention/Future Use:** Verify required env vars on Render before debugging API logic.
 ---
 
+## ⚡ Energy Dashboard Alignment (New)
+
+For dashboard and equipment guidance work, use:
+
+- `Skills/energy-dashboard-skill.md`
+- `docs/energy-guidance-core-spec-v1.md`
+
+This ensures:
+
+- consistent unit normalization (`kWh`, `gas kWh`, `L`),
+- consistent horizon math (`1m`, `6m`, `1y`, `2y`, `10y`),
+- confidence and assumptions are exposed in recommendation outputs,
+- safer scoped edits that avoid accidental calculator regressions.
+
+Data protection references for any data-sensitive work:
+
+- `data_protection_system.js`
+- `database/protection/PROTECTION_ACTIVE.txt`
+- `database/backups/PROTECTION_BACKUP.txt`
+
+---
+
 ## 🏗️ System Architecture Reference
 
 ### **Core Components**

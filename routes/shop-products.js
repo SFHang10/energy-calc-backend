@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
+const { categorizeProduct } = require('../utils/categorization');
 const router = express.Router();
 
 console.log('🛒 Shop Products router loading...');
@@ -64,76 +65,22 @@ async function loadProductsFromDatabase() {
                 console.error('❌ Database error:', err);
                 reject(err);
             } else {
-                // Enhance products with better categorization
-                const enhancedRows = rows.map(product => {
-                    // Create better category mapping for shop display
-                    let displayCategory = product.category;
-                    let displaySubcategory = product.subcategory;
-                    
-                    // Enhanced categorization for ETL Technology products
-                    if (product.category === 'ETL Technology') {
-                        const subcategory = product.subcategory || '';
-                        
-                        // Heat Pumps and Heating Equipment
-                        if (subcategory.includes('Baxi Heating-Commercial') || 
-                            subcategory.includes('Heat Pump') || 
-                            subcategory.includes('heat pump') ||
-                            product.name.toLowerCase().includes('heat pump')) {
-                            displayCategory = 'Heat Pumps';
-                            displaySubcategory = 'Air to Water Heat Pumps';
-                        }
-                        // HVAC Equipment
-                        else if (subcategory.includes('HVAC') || 
-                                 subcategory.includes('Reznor') ||
-                                 subcategory.includes('Air Conditioning')) {
-                            displayCategory = 'HVAC Equipment';
-                            displaySubcategory = subcategory.includes('HVAC') ? 'HVAC Drives' : 'Heating Systems';
-                        }
-                        // Motor Drives and Controls
-                        else if (subcategory.includes('Motor') || 
-                                 subcategory.includes('Drive') ||
-                                 subcategory.includes('Inverter') ||
-                                 subcategory.includes('Control')) {
-                            displayCategory = 'Motor Drives';
-                            displaySubcategory = 'Variable Speed Drives';
-                        }
-                        // Heating Equipment
-                        else if (subcategory.includes('HEATING') || 
-                                 subcategory.includes('Heating') ||
-                                 subcategory.includes('Boiler') ||
-                                 subcategory.includes('Water Heater')) {
-                            displayCategory = 'Heating Equipment';
-                            displaySubcategory = subcategory;
-                        }
-                        // Lighting
-                        else if (subcategory.includes('Lighting') || 
-                                 subcategory.includes('LED') ||
-                                 subcategory.includes('Lamp')) {
-                            displayCategory = 'Lighting';
-                            displaySubcategory = subcategory;
-                        }
-                        // Keep as ETL Technology for other products
-                        else {
-                            displayCategory = 'ETL Technology';
-                            displaySubcategory = subcategory;
-                        }
-                    }
-                    // Keep other categories as is
-                    else {
-                        displayCategory = product.category;
-                        displaySubcategory = product.subcategory;
-                    }
-                    
+                const enhancedRows = rows.map((product) => {
+                    const categorization = categorizeProduct(
+                        product.category || '',
+                        product.subcategory || '',
+                        product.name || '',
+                        { id: product.id, source: 'ETL' }
+                    );
                     return {
                         ...product,
-                        displayCategory,
-                        displaySubcategory,
-                        // Add shop-specific fields
-                        shopCategory: displayCategory,
-                        shopSubcategory: displaySubcategory,
-                        isHVAC: displayCategory === 'HVAC Equipment' || displayCategory === 'Heat Pumps',
-                        isMotor: displayCategory === 'Motor Drives',
-                        isHeating: displayCategory === 'Heat Pumps' || displayCategory === 'Heating Equipment'
+                        displayCategory: categorization.displayCategory,
+                        displaySubcategory: categorization.displaySubcategory,
+                        shopCategory: categorization.shopCategory,
+                        shopSubcategory: categorization.shopSubcategory,
+                        isHVAC: categorization.isHVAC,
+                        isMotor: categorization.isMotor,
+                        isHeating: categorization.isHeating,
                     };
                 });
                 
@@ -141,7 +88,7 @@ async function loadProductsFromDatabase() {
                 console.log(`🌡️ HVAC products: ${enhancedRows.filter(p => p.isHVAC).length}`);
                 console.log(`⚙️ Motor products: ${enhancedRows.filter(p => p.isMotor).length}`);
                 console.log(`🔥 Heat Pumps: ${enhancedRows.filter(p => p.shopCategory === 'Heat Pumps').length}`);
-                console.log(`🏠 Heating Equipment: ${enhancedRows.filter(p => p.shopCategory === 'Heating Equipment').length}`);
+                console.log(`🏠 Boiler Equipment: ${enhancedRows.filter(p => p.shopCategory === 'Boiler Equipment').length}`);
                 console.log(`💡 Lighting: ${enhancedRows.filter(p => p.shopCategory === 'Lighting').length}`);
                 resolve(enhancedRows);
             }

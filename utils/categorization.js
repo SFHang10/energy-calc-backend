@@ -4,8 +4,13 @@
  * 
  * This module provides categorization that works for both:
  * - Audit Widget (productTypes: oven, fridge, freezer, lights, motor, dishwasher, hvac, handdryer)
- * - Marketplace (categories: Heat Pumps, Motor Drives, HVAC Equipment, Heating Equipment, Lighting, Ovens, Hand Dryers, Fridges and Freezers)
+ * - Marketplace display uses ETL official technology names for etl_* products (see etl-marketplace-categories.js)
  */
+
+const {
+    isEtlMarketplaceProduct,
+    getEtlMarketplaceDisplayName,
+} = require('./etl-marketplace-categories');
 
 /**
  * Map ETL category/subcategory to audit widget product type
@@ -174,7 +179,7 @@ function getProductType(category, subcategory = '', name = '') {
  * @param {string} name - Product name (for additional matching)
  * @returns {object} - { displayCategory, displaySubcategory, productType }
  */
-function categorizeProduct(category, subcategory = '', name = '') {
+function categorizeProduct(category, subcategory = '', name = '', productMeta = {}) {
     const cat = (category || '').toLowerCase();
     const subcat = (subcategory || '').toLowerCase();
     const productName = (name || '').toLowerCase();
@@ -373,16 +378,23 @@ function categorizeProduct(category, subcategory = '', name = '') {
         }
     }
 
+    const marketplaceBucket = displayCategory;
+
+    if (isEtlMarketplaceProduct(productMeta)) {
+        displayCategory = getEtlMarketplaceDisplayName(marketplaceBucket);
+    }
+
     return {
         displayCategory,
         displaySubcategory,
         productType,
         shopCategory: displayCategory,
         shopSubcategory: displaySubcategory,
-        // Helper flags
-        isHVAC: displayCategory === 'HVAC Equipment' || displayCategory === 'Heat Pumps',
-        isMotor: displayCategory === 'Motor Drives',
-        isHeating: displayCategory === 'Heat Pumps' || displayCategory === 'Heating Equipment'
+        marketplaceBucket,
+        // Helper flags (internal buckets — unchanged for logic/grants)
+        isHVAC: marketplaceBucket === 'HVAC Equipment' || marketplaceBucket === 'Heat Pumps',
+        isMotor: marketplaceBucket === 'Motor Drives',
+        isHeating: marketplaceBucket === 'Heat Pumps' || marketplaceBucket === 'Heating Equipment',
     };
 }
 

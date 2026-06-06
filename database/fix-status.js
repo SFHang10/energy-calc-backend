@@ -7,7 +7,12 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const Scheme = require('../models/Scheme');
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://stephenhanglan:Greenways2025@cluster0.urcg4mg.mongodb.net/energy_calculator?retryWrites=true&w=majority';
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
+
+if (!MONGODB_URI) {
+  console.error('❌ Set MONGODB_URI in .env (Atlas → Database Access → user password in connection string)');
+  process.exit(1);
+}
 
 async function fixStatuses() {
     console.log('🔌 Connecting to MongoDB...');

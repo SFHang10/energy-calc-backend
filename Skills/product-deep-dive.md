@@ -1,4 +1,4 @@
-# 🔍 Product Deep Dive Skill
+	# 🔍 Product Deep Dive Skill
 
 **Skill Type:** Product Intelligence & Deep Dive Builder  
 **Purpose:** Build a consistent, rich Deep Dive page for every product  
@@ -38,6 +38,24 @@ This avoids slow or unreliable live web calls and ensures consistent layout.
 | `energy-calculator/products-deep-dive.json` | Copy for calculators/frontends |
 | `HTMLs/Product Deep Dive.html` | Presentation template |
 | `wix-integration/member-product-deep-dive.html` | Member-only version (optional) |
+| `HTMLS GWM GWB/restaurant-equipment-deep-dive.html` | Venue / equipment module; marketplace alternatives use **`/api/equipment-intelligence/*`** with grants merged from **`products-with-grants*.json`** (same enrichment pipeline as marketplace widget — keep integrator output fresh after **`schemes.json`** edits; see **`AGENTS.md`**) |
+| `HTMLS GWM GWB/equipment-savings-projection.html` | Payback / ROI popup UI (opened from deep dive cards) |
+| `HTMLS GWM GWB/js/savings-projection-model.js` | Shared projection math for popup + building mode |
+
+**Savings projection button (May 2026):** On **`restaurant-equipment-deep-dive.html`**, marketplace alternative cards with meaningful savings show **Savings projection** → modal → **`equipment-savings-projection.html?popup=1&embed=1&…`**. URL built from alternative savings copy, inferred capex, and parsed grants. Onboarding copy lives on **`savings.html`** (Savings projections tab). See **`Skills/energy-dashboard-skill.md`** § Savings projections.
+
+**Grants & finance discovery (May 2026):** Users can browse **`schemes.json`** via restaurant/EU portals or use **`finance-finder-restaurant.html`** (linked from **`savings.html`** → **Financial assistance**) for grant/BNPL/loan-style searches. Keep **`schemes.json`** + integrator fresh when adding schemes referenced in deep dive grant chips. See **`Skills/energy-dashboard-skill.md`** § Restaurant finance finder & schemes portals.
+
+---
+
+## 📚 Supporting Reference Files (Use for Inputs)
+
+Use these supporting, non-skill docs to build technical spec content:
+- `Skills/Provide a one-page technical spec summary for this.md`
+- `Skills/Summarise the product's key technical specificatio.md`
+- `Skills/[https___etl.energysecurity.gov.uk_product-search_.md`
+
+Use these for specs, use cases, and savings rationale. Do not copy text verbatim.
 
 ---
 

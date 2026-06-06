@@ -13,6 +13,21 @@ This skill searches for the latest sustainability news and trends, then generate
 
 ---
 
+## 📚 Supporting Reference Files (Use for Inputs)
+
+Use these supporting, non-skill docs for sources, outreach, and topic ideas:
+- `Skills/Email Templates for Sustainability News Organisati.md` (request access to news sources)
+- `Skills/Could you provide me a list of 20 organisations in.md` (org/source list + links)
+- `Skills/Top funded circular economy topics in Horizon Euro.md` (funding themes + topics)
+- `Skills/Key EU sustainability laws adopted in 2025 and tim.md` (policy timeline reference)
+- `Skills/How will the Carbon Border Adjustment Mechanism im.md` (CBAM impacts)
+- `Skills/Major EU funding programs for circular economy pro.md` (funding programs overview)
+- `Skills/Could you provide a detailed News report of the cu.md` (regional coverage outline)
+
+Use these for topic discovery and verification. Do not copy text verbatim.
+
+---
+
 ## 🎯 Content Categories
 
 Based on your Greenways websites, cover these topic areas:
@@ -685,6 +700,8 @@ Run every week (suggest: Monday):
 - Treehugger
 - Energy Saving Trust Blog
 - Carbon Brief
+- European Investment Bank (EIB) — climate finance, projects, and policy updates: https://www.eib.org/en/index
+- EIB newsletter and announcements (investment updates): https://t.eib.org/nl3/onbIEztJwoxMWNYAr74SOA?m=AV8AAIsPlFoAAcp0O8IAAM2ZvcMAASKD_84AJIO2AAgi3ABpb0gCBMim2UE-SguQCR55Lb5BPQAHvRc&b=9f2c5072&e=2f720d74&x=fmoyytDNVLwlSEzjucxMbD4HB0maogYKAKS54LfgSvU
 
 ### Industry Sources
 - BEIS / DESNZ (UK Government)

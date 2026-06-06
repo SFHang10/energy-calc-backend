@@ -298,6 +298,21 @@
             display: none;
         }
 
+        .auth-debug {
+            margin: 0 0 20px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #cfe8d1;
+            background: #f3fbf4;
+            font-size: 12px;
+            color: #2f4f35;
+            line-height: 1.5;
+        }
+
+        .auth-debug strong {
+            color: #1b5e20;
+        }
+
         @media (max-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
@@ -321,6 +336,7 @@
         </div>
 
         <div id="message-display"></div>
+        <div id="auth-debug-strip" class="auth-debug"></div>
 
         <!-- Member Dashboard -->
         <div id="member-dashboard" class="hidden">
@@ -414,6 +430,21 @@
                 </div>
             </div>
 
+            <!-- Saved Comparisons Section -->
+            <div class="content-section" style="margin-top: 30px;">
+                <h3 style="color: var(--primary-green); margin-bottom: 20px;">📊 Saved Comparisons</h3>
+                <p style="color: var(--gray); margin-bottom: 20px;">
+                    Reopen equipment intelligence comparisons and jump back to the linked product deep dive context.
+                </p>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;">
+                    <a class="btn btn-primary" href="../HTMLS%20GWM%20GWB/equipment_intelligence_tool.html">Open Equipment Intelligence</a>
+                    <a class="btn btn-secondary" href="../HTMLS%20GWM%20GWB/restaurant-equipment-deep-dive.html">Open Restaurant Deep Dive</a>
+                </div>
+                <div id="saved-comparisons-grid" class="content-grid">
+                    <p style="text-align: center; color: var(--gray);">No saved comparisons yet.</p>
+                </div>
+            </div>
+
             <!-- Admin Section (only visible to admins) -->
             <div class="content-section admin-section" id="admin-section" style="display: none; border: 2px solid #9C27B0; background: linear-gradient(135deg, #F3E5F5, #E1BEE7);">
                 <h3 style="color: #7B1FA2; margin-bottom: 20px;">👑 Admin Panel</h3>
@@ -500,12 +531,29 @@
         let authToken = localStorage.getItem('energy_calc_membership_token');
         let currentUser = null;
 
+        function updateAuthDebug(statusText = 'Not checked yet') {
+            const target = document.getElementById('auth-debug-strip');
+            if (!target) return;
+            const token = localStorage.getItem('energy_calc_membership_token');
+            const tokenState = token ? `present (${token.length} chars)` : 'missing';
+            target.innerHTML = `
+                <strong>Auth Debug</strong><br>
+                Origin: ${window.location.origin || 'file://'}<br>
+                Protocol: ${window.location.protocol}<br>
+                API Base: ${API_BASE_URL}<br>
+                Token: ${tokenState}<br>
+                Last auth check: ${statusText}
+            `;
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            updateAuthDebug('Page loaded');
             if (authToken) {
                 checkAuthStatus();
             } else {
                 document.getElementById('login-container').classList.remove('hidden');
+                updateAuthDebug('No token found in localStorage');
             }
         });
 
@@ -529,12 +577,15 @@
                     localStorage.setItem('energy_calc_membership_token', authToken);
                     currentUser = data.user;
                     showMessage('Login successful!', 'success');
+                    updateAuthDebug('Login succeeded');
                     checkAuthStatus();
                 } else {
                     showMessage(data.error || 'Login failed', 'error');
+                    updateAuthDebug(`Login failed (${response.status})`);
                 }
             } catch (error) {
                 showMessage('Login error: ' + error.message, 'error');
+                updateAuthDebug(`Login error: ${error.message}`);
             }
         });
 
@@ -548,6 +599,7 @@
                 if (response.ok) {
                     const data = await response.json();
                     currentUser = data.member;
+                    updateAuthDebug('Auth check OK');
                     displayDashboard(data);
                 } else if (response.status === 401 || response.status === 403) {
                     // Only clear token on actual auth failures (401/403), not network errors
@@ -555,12 +607,14 @@
                     authToken = null;
                     document.getElementById('login-container').classList.remove('hidden');
                     showMessage('Session expired. Please login again.', 'error');
+                    updateAuthDebug(`Token rejected (${response.status})`);
                 } else {
                     // Network or server error - don't clear token, just show error
                     console.error('Auth check failed with status:', response.status);
                     showMessage('Unable to verify login status. Please try again.', 'error');
                     // Still show login form as fallback
                     document.getElementById('login-container').classList.remove('hidden');
+                    updateAuthDebug(`Auth check failed (${response.status})`);
                 }
             } catch (error) {
                 // Network error - don't clear token, just show error
@@ -568,6 +622,7 @@
                 showMessage('Connection error. Please check if server is running.', 'error');
                 // Still show login form as fallback, but don't clear token
                 document.getElementById('login-container').classList.remove('hidden');
+                updateAuthDebug(`Network/auth error: ${error.message}`);
             }
         }
 
@@ -602,6 +657,7 @@
 
             // Load content
             loadContent('all');
+            loadSavedComparisons();
             
             // Check if user is admin and show admin section
             checkAdminAccess();
@@ -690,6 +746,7 @@
             document.getElementById('member-dashboard').classList.add('hidden');
             document.getElementById('login-container').classList.remove('hidden');
             showMessage('Logged out successfully', 'success');
+            updateAuthDebug('Logged out; token removed');
         }
 
         // Show message
@@ -759,6 +816,82 @@
             }
         }
 
+        async function loadSavedComparisons() {
+            const grid = document.getElementById('saved-comparisons-grid');
+            if (!grid) return;
+
+            const localItems = getSavedList('gw_saved_products')
+                .filter((item) => item && item.category === 'comparison');
+
+            let apiItems = [];
+            if (authToken) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/members/saved-items`, {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        const savedProducts = Array.isArray(data.saved?.products) ? data.saved.products : [];
+                        apiItems = savedProducts.filter((item) => item && item.category === 'comparison');
+                    }
+                } catch (error) {
+                    console.error('Error loading saved comparisons:', error);
+                }
+            }
+
+            const merged = [];
+            const seen = new Set();
+            [...apiItems, ...localItems].forEach((item) => {
+                if (!item || !item.id || seen.has(item.id)) return;
+                seen.add(item.id);
+                merged.push(item);
+            });
+
+            if (merged.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: var(--gray); grid-column: 1/-1;">No saved comparisons yet. Save one from the Equipment Intelligence Tool.</p>';
+                return;
+            }
+
+            grid.innerHTML = merged.slice(0, 12).map((item) => `
+                <div class="content-card">
+                    <h4>${item.title || 'Saved comparison'}</h4>
+                    <p style="color: var(--gray); font-size: 0.9rem; margin: 10px 0;">${item.description || ''}</p>
+                    <small style="color: var(--gray); display: block; margin-bottom: 10px;">Category: comparison</small>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button class="btn btn-primary" style="flex: 1;" onclick="openSavedComparison('${String(item.id).replace(/'/g, "\\'")}')">Open Comparison</button>
+                    </div>
+                </div>
+            `).join('');
+
+            window.savedComparisons = merged;
+        }
+
+        function openSavedComparison(itemId) {
+            const list = Array.isArray(window.savedComparisons) ? window.savedComparisons : [];
+            const item = list.find((entry) => String(entry.id) === String(itemId));
+            if (!item || !item.url) {
+                showMessage('Saved comparison link not available.', 'error');
+                return;
+            }
+            const resolvedUrl = resolveSavedComparisonUrl(item.url);
+            window.location.href = resolvedUrl;
+        }
+
+        function resolveSavedComparisonUrl(rawUrl) {
+            const url = String(rawUrl || '').trim();
+            if (!url) return url;
+            if (/^https?:\/\//i.test(url)) return url;
+
+            // Saved links created from equipment_intelligence_tool.html may be relative to HTMLS GWM GWB.
+            if (url.includes('restaurant-equipment-deep-dive.html') || url.includes('equipment_intelligence_tool.html')) {
+                const normalized = url.replace(/^\.\//, '');
+                return `../HTMLS%20GWM%20GWB/${normalized}`;
+            }
+
+            // Keep existing member deep-dive links intact for legacy saved items.
+            return url;
+        }
+
         function saveToList(key, item) {
             const list = getSavedList(key);
             const exists = list.some((entry) => entry.id === item.id);
@@ -803,6 +936,7 @@
             const apiSaved = await saveItemToApi('products', payload);
             const saved = saveToList('gw_saved_products', payload);
             showMessage(apiSaved || saved ? 'Product saved to your profile.' : 'Product already saved.', 'success');
+            loadSavedComparisons();
         }
 
         // Open product deep dive page

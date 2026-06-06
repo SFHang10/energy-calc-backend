@@ -352,6 +352,7 @@ html, body {
   - **Analytics row** (Usage Breakdown · 7-Day Trend · AI Insights): `.charts-row-3 > .card` uses a **cyan** outline (`rgba(34, 212, 255, …)`) so those three cards read distinct from default `.card` borders and from KPI / system-status styling.
   - **Energy ticker** iframe: `../content-ops/drafts/energy-ticker/energy-ticker-green-wire.html` (see `initEnergyTickerToggle`).
   - **Portfolio card:** photo + site copy **left**; IoT schematic + centered utility chips + **Open Site Detail** **right** (`portfolio-visual-split`, `portfolio-chip-row`). Recovery note: avoid `flex-end` on `portfolio-visual-right` and a 300px max on the photo column — see **`Skills/energy-dashboard-skill.md`** § 2026-05-16 recovery.
+  - **Day / night backdrop (May 2026):** `.greenways-backdrop` + top-bar ☀/🌙 toggle (`#btnGreenwaysBackdropTheme`) beside **Greenways Buildings**; `localStorage` **`greenways_backdrop_theme`** (`day`|`night`, default night). Day: opacity **0.63**, brightness **1.26**, lighter green overlay — tuned +10% then +7% after initial hub-style lift. Night = prior look. **Not** shared with music hub key **`live_music_hub_backdrop_theme`**. Detail: **`Skills/energy-dashboard-skill.md`** § Day / night page backdrop.
 
 - **🎪 Wok Assist → Events ticker (May 2026)**:
   - **`Chef 3 W2W .html`:** `openEventsTicker('events'|'catering')` navigates to `./Events%20Ticker%20W2W%20.html?return=Chef+3+W2W+.html&section=…` (quick buttons, Events/Catering domain tabs, matching welcome tags). Works inside the dashboard iframe (same iframe) or full page.

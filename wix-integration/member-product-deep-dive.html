@@ -153,6 +153,27 @@
             box-shadow: var(--shadow);
         }
 
+        .context-banner {
+            background: linear-gradient(135deg, #eef6ff, #e7f7ec);
+            border: 1px solid #c9dfef;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .context-chip {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .context-chip.above_benchmark { background: #fee2e2; color: #991b1b; }
+        .context-chip.within_benchmark { background: #dcfce7; color: #166534; }
+        .context-chip.below_benchmark { background: #fef3c7; color: #92400e; }
+
         .deep-dive-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -378,6 +399,7 @@
         </div>
 
         <div id="product-content" style="display: none;">
+            <div id="comparison-context-banner" class="context-banner" style="display: none;"></div>
             <!-- Product Information -->
             <div class="product-grid">
                 <div class="product-card">
@@ -495,6 +517,14 @@
         // Get product ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get('id') || urlParams.get('productId');
+        const source = urlParams.get('source');
+        const comparisonContext = {
+            actualDailyKwh: urlParams.get('actualDailyKwh'),
+            benchmarkMin: urlParams.get('benchmarkMin'),
+            benchmarkMax: urlParams.get('benchmarkMax'),
+            status: urlParams.get('status'),
+            excessAnnualKwh: urlParams.get('excessAnnualKwh')
+        };
 
         // Check authentication
         if (!authToken) {
@@ -593,6 +623,7 @@
             // Hide loading, show content
             document.getElementById('loading').style.display = 'none';
             document.getElementById('product-content').style.display = 'block';
+            renderComparisonContextBanner();
 
             // Update breadcrumb
             document.getElementById('product-name-breadcrumb').textContent = product.name;
@@ -671,6 +702,48 @@
             if (product.deepDive) {
                 displayDeepDive(product.deepDive);
             }
+        }
+
+        function renderComparisonContextBanner() {
+            if (source !== 'equipment-intelligence') return;
+            const banner = document.getElementById('comparison-context-banner');
+            if (!banner) return;
+
+            const actual = Number(comparisonContext.actualDailyKwh);
+            const min = Number(comparisonContext.benchmarkMin);
+            const max = Number(comparisonContext.benchmarkMax);
+            const excess = Number(comparisonContext.excessAnnualKwh);
+            const status = comparisonContext.status || 'unknown';
+
+            const hasRange = Number.isFinite(min) && Number.isFinite(max);
+            const rangeText = hasRange ? `${min} - ${max} kWh/day` : 'N/A';
+            const actualText = Number.isFinite(actual) ? `${actual} kWh/day` : 'N/A';
+            const excessText = Number.isFinite(excess) && excess > 0 ? `${excess.toFixed(0)} kWh/year` : '0';
+
+            banner.style.display = 'block';
+            banner.innerHTML = `
+                <h3 style="color: var(--primary-green); margin-bottom: 8px;">
+                    Linked from Equipment Intelligence
+                    <span class="context-chip ${status}">${status.replace('_', ' ')}</span>
+                </h3>
+                <p style="color: var(--gray); margin-bottom: 8px;">
+                    Actual usage captured from your equipment analysis is shown below so you can compare this marketplace product directly.
+                </p>
+                <div class="product-specs">
+                    <div class="spec-item">
+                        <div class="spec-label">Actual Daily Usage</div>
+                        <div class="spec-value">${actualText}</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Expected Benchmark Range</div>
+                        <div class="spec-value">${rangeText}</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Estimated Excess Annual Use</div>
+                        <div class="spec-value">${excessText}</div>
+                    </div>
+                </div>
+            `;
         }
 
         function displayCurrentProduct(currentProduct, newProduct) {

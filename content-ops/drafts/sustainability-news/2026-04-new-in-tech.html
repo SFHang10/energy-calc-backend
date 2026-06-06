@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="wix-html-scroll" content="no-scroll">
+    <title>New in Tech Roundup - April 2026</title>
+    <meta name="description" content="Monthly New in Tech roundup covering green technology, innovation, and global tech developments">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+Pro:wght@300;400;600;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { font-size: 16px; scroll-behavior: smooth; scroll-padding-top: 20px; }
+        body { font-family: 'Source Sans Pro', sans-serif; line-height: 1.6; color: #263238; background: #FAFAFA; }
+        html, body { height: auto; overflow-x: hidden; }
+
+        :root {
+            --primary-green: #2E7D32; --primary-blue: #0277BD; --accent-teal: #00897B;
+            --light-green: #81C784; --neutral-gray: #757575; --bg-white: #FFFFFF;
+            --space-xs: 8px; --space-sm: 16px; --space-md: 24px; --space-lg: 40px; --space-xl: 64px;
+            --radius: 8px; --radius-lg: 12px; --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 var(--space-md); }
+        .grid { display: grid; gap: var(--space-lg); }
+        .grid-2col { grid-template-columns: 2fr 1fr; overflow: visible; position: relative; z-index: 0; }
+        main { position: relative; z-index: 5; }
+        aside { position: relative; z-index: 1; }
+        .grid-auto { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        
+        .site-header { background: linear-gradient(135deg, var(--primary-green), var(--primary-blue)); color: white; padding: var(--space-xl) var(--space-md); text-align: center; }
+        .site-title { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; margin-bottom: var(--space-sm); }
+        .site-subtitle { font-size: 22px; opacity: 0.95; font-weight: 300; }
+        .meta-info { margin-top: var(--space-md); font-size: 14px; opacity: 0.9; }
+        
+        .hero-photo-strip { background: #F1F5F9; padding: var(--space-md) 0; }
+        .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); }
+        .photo-card { background: white; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+        .photo-card img { width: 100%; height: 200px; object-fit: cover; display: block; }
+
+        .sidebar-nav { position: sticky; top: var(--space-md); background: white; border-radius: var(--radius); padding: var(--space-md); box-shadow: var(--shadow-sm); z-index: 1; }
+        .sidebar-nav h3 { font-size: 22px; margin-bottom: var(--space-sm); color: var(--primary-green); }
+        .sidebar-nav ul { list-style: none; }
+        .sidebar-nav li { margin-bottom: var(--space-xs); }
+        .sidebar-nav a { color: var(--neutral-gray); text-decoration: none; display: block; padding: var(--space-xs); border-radius: var(--radius); transition: all 0.2s; }
+        .sidebar-nav a:hover { background: #F5F5F5; color: var(--primary-green); padding-left: var(--space-sm); }
+        
+        .section { padding: var(--space-xl) 0; border-bottom: 1px solid #E0E0E0; scroll-margin-top: 20px; }
+        .section:last-child { border-bottom: none; }
+        .section-header { display: flex; align-items: center; margin-bottom: var(--space-lg); }
+        .section-header::before { content: ''; width: 4px; height: 40px; background: var(--primary-green); margin-right: var(--space-sm); border-radius: 2px; }
+        .section-header.with-image { justify-content: space-between; gap: var(--space-md); }
+        .section-header-img {
+            width: 200px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+        }
+        .section-title { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; color: #263238; }
+        .section-header::before { display: none; }
+        .section-title-hero {
+            flex: 1;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            padding: 20px 28px;
+            border-radius: 12px;
+            color: #FFFFFF;
+            background-image:
+                linear-gradient(rgba(20, 83, 45, 0.74), rgba(22, 101, 52, 0.74)),
+                url('https://static.wixstatic.com/media/c123de_957ddf8c995e441cb9d1535015adbdf4~mv2.jpg');
+            background-size: cover;
+            background-position: center;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .card { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; transition: all 0.3s; }
+        .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+        .card-content { padding: var(--space-md); }
+        .card-title { font-size: 22px; font-weight: 600; margin-bottom: var(--space-sm); color: #263238; }
+        .card-text { color: var(--neutral-gray); margin-bottom: var(--space-sm); }
+        .card-link { color: var(--primary-blue); text-decoration: none; font-weight: 600; }
+        .card-link:hover { text-decoration: underline; }
+
+        .hover-card { position: relative; overflow: hidden; z-index: 1; }
+        .impact-toggle {
+            margin-top: var(--space-sm);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 2px solid #F59E0B;
+            background: rgba(245, 158, 11, 0.12);
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .impact-toggle::after {
+            content: '▾';
+            font-size: 12px;
+        }
+        .hover-card.open .impact-toggle::after {
+            content: '▴';
+        }
+        .impact-panel {
+            margin-top: var(--space-sm);
+            background: rgba(15, 23, 42, 0.06);
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            border-radius: 12px;
+            padding: 0 16px;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.2s ease;
+        }
+        .hover-card.open .impact-panel {
+            max-height: 600px;
+            opacity: 1;
+            padding: 14px 16px;
+        }
+        .impact-box {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: #0f172a;
+            margin-bottom: var(--space-sm);
+        }
+        .impact-box:last-child { margin-bottom: 0; }
+        .impact-box h4 { font-size: 15px; margin-bottom: 6px; color: #0f172a; }
+        .impact-box ul { margin: 0; padding-left: 18px; line-height: 1.6; font-size: 13px; color: #334155; }
+        .impact-box p { margin: 0 0 8px 0; font-size: 13px; color: #334155; }
+        .impact-cta {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            color: #0f172a;
+            background: #38bdf8;
+        }
+        .impact-cta.secondary { background: #a7f3d0; color: #0f172a; }
+        
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md); margin: var(--space-lg) 0; }
+        .stat-box { background: linear-gradient(135deg, var(--light-green), var(--primary-green)); color: white; padding: var(--space-md); border-radius: var(--radius); text-align: center; }
+        .stat-number { font-size: 48px; font-weight: 700; font-family: 'Roboto Mono', monospace; line-height: 1; }
+        .stat-label { font-size: 16px; margin-top: var(--space-xs); opacity: 0.95; }
+        
+        .quote { border-left: 4px solid var(--accent-teal); padding-left: var(--space-md); margin: var(--space-lg) 0; font-style: italic; font-size: 20px; color: var(--neutral-gray); }
+        .quote-attribution { font-style: normal; font-size: 16px; margin-top: var(--space-sm); font-weight: 600; color: var(--primary-green); }
+        .quote-attribution::before { content: '— '; }
+        
+        .org-spotlight { background: white; border-radius: var(--radius-lg); overflow: hidden; margin: var(--space-xl) 0; box-shadow: var(--shadow-md); }
+        .org-header { background: linear-gradient(135deg, var(--primary-green), var(--accent-teal)); color: white; padding: var(--space-lg); }
+        .org-content { padding: var(--space-lg); }
+        
+        .badge { display: inline-block; padding: 4px var(--space-sm); border-radius: 20px; font-size: 14px; font-weight: 600; background: var(--light-green); color: white; margin-right: var(--space-xs); }
+        
+        @media (max-width: 768px) {
+            .grid-2col { grid-template-columns: 1fr; }
+            .site-title { font-size: 32px; }
+            .section-title { font-size: 28px; }
+            .sidebar-nav { position: static; }
+            .photo-grid { grid-template-columns: 1fr; }
+            .photo-card img { height: 180px; }
+            .section-header.with-image {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .section-header-img { width: 100%; height: 190px; }
+        }
+        
+        @media print {
+            .sidebar-nav { display: none; }
+            .card { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <h1 class="site-title">New in Tech Roundup</h1>
+        <p class="site-subtitle">Green Industry + Global Technology Updates</p>
+        <p class="meta-info">April 2026 Edition | Published May 13, 2026</p>
+    </header>
+
+    <!-- Hero photo strip (pick 1 image from each folder set in hero-photo-pool.json) -->
+    <section class="hero-photo-strip">
+        <div class="container">
+            <div class="photo-grid">
+                <div class="photo-card">
+                    <img src="https://static.wixstatic.com/media/c123de_e1425f690eae4ea1adf5e605b69dd35a~mv2.jpg" alt="Latest in Tech News — global connectivity graphic">
+                </div>
+                <div class="photo-card">
+                    <img src="https://static.wixstatic.com/media/c123de_0263fecb41e34ce6a742e80e76181c20~mv2.jpg" alt="AI and digital tech news sources">
+                </div>
+                <div class="photo-card">
+                    <img src="https://static.wixstatic.com/media/c123de_7f7bb81f39124a70be88071621a0fc50~mv2.webp" alt="Smart building and connected systems">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="grid grid-2col">
+            <main>
+                <section class="section" id="summary">
+                    <div class="quote">
+                        April picks up where March’s “Looking Ahead” left off: Q2 is now the live window for clean‑tech award decisions and shortlist progression, UK public‑service AI pilots tied to energy‑bill support deserve weekly monitoring, IEA data releases and AI tooling updates should feed your scenario models, and sustainable computing benchmarks belong in data‑centre and procurement scorecards. Use this edition to turn those watch items into concrete checkpoints for engineering, finance, and policy leads.
+                    </div>
+                </section>
+
+                <section class="section" id="top-stories">
+                    <div class="section-header with-image">
+                        <h2 class="section-title section-title-hero">Top Stories</h2>
+                        <img class="section-header-img" src="https://static.wixstatic.com/media/c123de_390a888de6614b0b9e22ecb9613cd4b8~mv2.jpg" alt="Top stories image">
+                    </div>
+                    
+                    <div class="grid grid-auto">
+                        <div class="card hover-card">
+                            <div class="card-content">
+                                <h3 class="card-title">Clean‑tech funding: Q2 shortlists and award decisions</h3>
+                                <p class="card-text">Spring calls across UKRI, ARPA‑E, and EU CORDIS/CINEA are moving from submission peaks into evaluation and shortlist phases—April is when portfolio teams should lock governance for consortium reporting and match funding.</p>
+                                <span class="badge">Funding</span><span class="badge">Q2</span>
+                                <button class="impact-toggle" type="button">How this affects you</button>
+                            </div>
+                            <div class="impact-panel">
+                                <div class="impact-box">
+                                    <h4>How this affects you</h4>
+                                    <ul>
+                                        <li>Clarify who owns diligence responses when assessors request technical clarifications.</li>
+                                        <li>Parallel‑track IP and subcontractor agreements before conditional awards land.</li>
+                                        <li>Example action: export a single “evidence pack” from your pilot metrics.</li>
+                                    </ul>
+                                    <a class="impact-cta" href="https://www.ukri.org/councils/innovate-uk/">View example</a>
+                                </div>
+                                <div class="impact-box">
+                                    <h4>Find out more…</h4>
+                                    <p>Monitor UKRI opportunities alongside ARPA‑E and CORDIS calendars.</p>
+                                    <a class="impact-cta secondary" href="https://www.ukri.org/">Find out more</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card hover-card">
+                            <div class="card-content">
+                                <h3 class="card-title">UK public‑service AI pilots: energy‑bill support rollout signals</h3>
+                                <p class="card-text">April is a natural checkpoint for the five public‑service AI kickstarter projects—including eligibility discovery for energy‑bill support—as departments move from sandbox demos toward operational guardrails and service integration.</p>
+                                <span class="badge">UK</span><span class="badge">Public AI</span>
+                                <button class="impact-toggle" type="button">How this affects you</button>
+                            </div>
+                            <div class="impact-panel">
+                                <div class="impact-box">
+                                    <h4>How this affects you</h4>
+                                    <ul>
+                                        <li>Energy retailers and charities should watch for API and data‑sharing patterns.</li>
+                                        <li>Expect more scrutiny on model risk, bias testing, and audit logs.</li>
+                                        <li>Example action: map your customer journeys to upcoming eligibility flows.</li>
+                                    </ul>
+                                    <a class="impact-cta" href="https://www.gov.uk/government/organisations/department-for-energy-security-and-net-zero">View example</a>
+                                </div>
+                                <div class="impact-box">
+                                    <h4>Find out more…</h4>
+                                    <p>Independent coverage of the pilot portfolio and service areas.</p>
+                                    <a class="impact-cta secondary" href="https://www.digit.fyi/ai-public-services/">Find out more</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card hover-card">
+                            <div class="card-content">
+                                <h3 class="card-title">IEA data releases &amp; AI tooling: refresh your scenario stack</h3>
+                                <p class="card-text">Teams that adopted the IEA’s conversational access pattern for flagship outlook data should now calendar institutional releases—statistics balances, technology roadmaps, and market reports—to keep internal models aligned with the latest official scenarios.</p>
+                                <span class="badge">IEA</span><span class="badge">Data</span>
+                                <button class="impact-toggle" type="button">How this affects you</button>
+                            </div>
+                            <div class="impact-panel">
+                                <div class="impact-box">
+                                    <h4>How this affects you</h4>
+                                    <ul>
+                                        <li>Automate a quarterly diff between your internal assumptions and IEA datasets.</li>
+                                        <li>Pair analyst review with AI assistants only where citations trace to primary tables.</li>
+                                        <li>Example action: assign an owner for “dataset version drift” in planning packs.</li>
+                                    </ul>
+                                    <a class="impact-cta" href="https://www.iea.org/data-and-statistics">View example</a>
+                                </div>
+                                <div class="impact-box">
+                                    <h4>Find out more…</h4>
+                                    <p>IEA news and data hub; cross‑check secondary write‑ups against primary sources.</p>
+                                    <a class="impact-cta secondary" href="https://www.iea.org/news">Find out more</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card hover-card">
+                            <div class="card-content">
+                                <h3 class="card-title">Sustainable computing benchmarks hit procurement</h3>
+                                <p class="card-text">Data‑centre buyers are increasingly scoring tenders on measured workload efficiency—not nameplate capacity—using vendor benchmarks, PUE reporting, and software‑level carbon awareness; April is a good month to embed those metrics in RFPs.</p>
+                                <span class="badge">Green IT</span><span class="badge">Procurement</span>
+                                <button class="impact-toggle" type="button">How this affects you</button>
+                            </div>
+                            <div class="impact-panel">
+                                <div class="impact-box">
+                                    <h4>How this affects you</h4>
+                                    <ul>
+                                        <li>Shift capex conversations from “more servers” to “more useful work per kWh”.</li>
+                                        <li>Ask vendors for third‑party benchmark artefacts, not marketing claims.</li>
+                                        <li>Example action: add a sustainable‑compute line item to IT governance.</li>
+                                    </ul>
+                                    <a class="impact-cta" href="https://news.mit.edu/topic/sustainable-computing">View example</a>
+                                </div>
+                                <div class="impact-box">
+                                    <h4>Find out more…</h4>
+                                    <p>EU ICT energy efficiency knowledge centre and sustainable computing research.</p>
+                                    <a class="impact-cta secondary" href="https://energy-efficiency-ict.jrc.ec.europa.eu/">Find out more</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="statistics">
+                    <div class="section-header with-image">
+                        <h2 class="section-title section-title-hero">By The Numbers</h2>
+                        <img class="section-header-img" src="https://static.wixstatic.com/media/c123de_64f33894c73f4968b3a1bf200d2808ad~mv2.webp" alt="By the numbers image">
+                    </div>
+                    
+                    <div class="stat-grid">
+                        <div class="stat-box">
+                            <div class="stat-number">3</div>
+                            <div class="stat-label">Major clean‑innovation channels in active Q2 evaluation (UKRI, ARPA‑E, EU programmes)</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number">5</div>
+                            <div class="stat-label">UK public‑service AI kickstarter projects to monitor for rollout</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number">1</div>
+                            <div class="stat-label">Minimum cadence (per quarter) to reconcile internal models with IEA releases</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="policy">
+                    <div class="section-header with-image">
+                        <h2 class="section-title section-title-hero">Policy & Regulation</h2>
+                        <img class="section-header-img" src="https://static.wixstatic.com/media/c123de_2b55825d2bc04e7ea629ddfab1efb312~mv2.jpg" alt="Policy and regulation image">
+                    </div>
+                    
+                    <div class="grid grid-auto">
+                        <div class="card hover-card">
+                            <div class="card-content">
+                                <h3 class="card-title">UK public‑services AI pilots (April checkpoint)</h3>
+                                <p class="card-text">Energy‑bill support identification remains a headline use case; April is when programme offices typically publish interim learnings, data‑quality fixes, and integration plans ahead of wider rollout decisions.</p>
+                                <button class="impact-toggle" type="button">How this affects you</button>
+                            </div>
+                            <div class="impact-panel">
+                                <div class="impact-box">
+                                    <h4>How this affects you</h4>
+                                    <ul>
+                                        <li>Digital eligibility checks could speed up support for households.</li>
+                                        <li>More data‑driven targeting can improve program reach.</li>
+                                        <li>Example action: track policy pilots that impact energy‑bill assistance.</li>
+                                    </ul>
+                                    <a class="impact-cta" href="https://www.digit.fyi/ai-public-services/">View example</a>
+                                </div>
+                                <div class="impact-box">
+                                    <h4>Find out more…</h4>
+                                    <p>Read the overview of the UK AI pilots and their service areas.</p>
+                                    <a class="impact-cta secondary" href="https://www.digit.fyi/ai-public-services/">Find out more</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card hover-card">
+                            <div class="card-content">
+                                <h3 class="card-title">Green AI leadership report (UK) — procurement follow‑through</h3>
+                                <p class="card-text">The UK’s “narrow window” narrative on energy‑efficient AI now meets practical test: April RFPs should request measurable inference‑per‑kWh or PUE‑linked metrics where models are hosted on‑prem or in colocation.</p>
+                                <button class="impact-toggle" type="button">How this affects you</button>
+                            </div>
+                            <div class="impact-panel">
+                                <div class="impact-box">
+                                    <h4>How this affects you</h4>
+                                    <ul>
+                                        <li>Expect stronger emphasis on energy‑efficient compute in tech policy.</li>
+                                        <li>Procurement may shift toward lower‑energy AI models and data centers.</li>
+                                        <li>Example action: benchmark AI workloads against energy‑efficiency goals.</li>
+                                    </ul>
+                                    <a class="impact-cta" href="https://news.mit.edu/topic/sustainable-computing">View example</a>
+                                </div>
+                                <div class="impact-box">
+                                    <h4>Find out more…</h4>
+                                    <p>See the report details on the UK’s timing and strategic approach.</p>
+                                    <a class="impact-cta secondary" href="https://www.computing.co.uk/news/2026/uk-has-narrow-window-to-lead-global-green-ai-race-report-says">Find out more</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card hover-card">
+                            <div class="card-content">
+                                <h3 class="card-title">EU ICT energy efficiency &amp; data centres</h3>
+                                <p class="card-text">European guidance on data‑centre energy performance continues to inform national inspections and voluntary schemes—relevant when you harmonise UK and EU site standards after spring procurement refreshes.</p>
+                                <button class="impact-toggle" type="button">How this affects you</button>
+                            </div>
+                            <div class="impact-panel">
+                                <div class="impact-box">
+                                    <h4>How this affects you</h4>
+                                    <ul>
+                                        <li>Align colocation contracts with measurable efficiency clauses.</li>
+                                        <li>Map heat‑reuse and renewable electricity claims to verification methods.</li>
+                                        <li>Example action: add EU ICT metrics as a secondary score in RFPs.</li>
+                                    </ul>
+                                    <a class="impact-cta" href="https://energy-efficiency-ict.jrc.ec.europa.eu/">View example</a>
+                                </div>
+                                <div class="impact-box">
+                                    <h4>Find out more…</h4>
+                                    <p>European Commission / JRC knowledge centre for energy‑efficient ICT.</p>
+                                    <a class="impact-cta secondary" href="https://energy-efficiency-ict.jrc.ec.europa.eu/">Find out more</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="funding">
+                    <div class="section-header with-image">
+                        <h2 class="section-title section-title-hero">Funding Spotlight</h2>
+                        <img class="section-header-img" src="https://static.wixstatic.com/media/c123de_c935567d6b884055a9851d742b940eba~mv2.jpg" alt="Funding spotlight image">
+                    </div>
+                    
+                    <div class="grid grid-auto">
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">UKRI / Innovate UK Tech Calls</h3>
+                                <p class="card-text"><strong>Amount:</strong> Rolling opportunities</p>
+                                <p class="card-text"><strong>Deadline:</strong> Varies by call</p>
+                                <p class="card-text"><strong>Focus:</strong> April–May is peak evaluation for many spring challenges—assign a bid librarian to track shortlist letters and assessor queries.</p>
+                                <a href="https://www.ukri.org/" class="card-link">View UKRI portal</a>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">DOE / ARPA‑E Funding Announcements</h3>
+                                <p class="card-text"><strong>Amount:</strong> Varies by program</p>
+                                <p class="card-text"><strong>Deadline:</strong> See DOE and ARPA‑E updates</p>
+                                <p class="card-text"><strong>Focus:</strong> Programme offices often batch down‑selects in Q2; keep partner MOUs warm so you can re‑submit rapidly if invited to full proposals.</p>
+                                <a href="https://arpa-e.energy.gov/" class="card-link">View ARPA‑E</a>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">EU CORDIS / CINEA Calls</h3>
+                                <p class="card-text"><strong>Amount:</strong> Program‑specific</p>
+                                <p class="card-text"><strong>Deadline:</strong> See call calendar</p>
+                                <p class="card-text"><strong>Focus:</strong> CORDIS remains the authoritative feed for Horizon Europe and LIFE results—filter for “evaluation in progress” and “signature pending” states in Q2.</p>
+                                <a href="https://cordis.europa.eu/" class="card-link">View CORDIS</a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="green-tech">
+                    <div class="section-header with-image">
+                        <h2 class="section-title section-title-hero">Green Tech Developments</h2>
+                        <img class="section-header-img" src="https://static.wixstatic.com/media/c123de_aafe287030ff44bfa5b3d98f6a97e6b5~mv2.jpeg" alt="Green tech image">
+                    </div>
+                    
+                    <div class="grid grid-auto">
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">AI‑optimized wastewater‑to‑hydrogen research</h3>
+                                <p class="card-text">AI methods are improving dark‑fermentation efficiency to produce green hydrogen from wastewater, advancing circular energy systems.</p>
+                                <a href="https://techxplore.com/news/2026-01-optimizing-wastewater-green-hydrogen-production.html" class="card-link">Read the research summary</a>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">Sustainable computing &amp; data‑centre efficiency</h3>
+                                <p class="card-text">April procurement cycles increasingly reference workload efficiency metrics and EU ICT guidance—pair MIT’s sustainable‑computing coverage with your own vendor scorecards.</p>
+                                <a href="https://news.mit.edu/topic/sustainable-computing" class="card-link">Explore recent research</a>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">Energy tech trends to watch</h3>
+                                <p class="card-text">Grid optimization, storage, and electrification advances remain top themes in current energy tech updates.</p>
+                                <a href="https://www.energytechreview.com/news/" class="card-link">Browse Energy Tech Review</a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="countries">
+                    <div class="section-header with-image">
+                        <h2 class="section-title section-title-hero">Country Spotlights</h2>
+                        <img class="section-header-img" src="https://static.wixstatic.com/media/c123de_53ee36f4fd4343d9b9cd58829bb9d145~mv2.avif" alt="Country spotlights image">
+                    </div>
+                    
+                    <h3 style="color: var(--primary-green); margin-top: var(--space-lg); font-size: 24px;">🇳🇱 Netherlands</h3>
+                    <p style="margin-bottom: var(--space-md);">Track EU digital infrastructure and energy‑efficiency initiatives alongside national innovation vouchers; Dutch operators often pilot EU ICT metrics ahead of wider EU adoption.</p>
+                    
+                    <h3 style="color: var(--primary-green); margin-top: var(--space-lg); font-size: 24px;">🇬🇧 United Kingdom</h3>
+                    <p style="margin-bottom: var(--space-md);">Q2 focus: public‑service AI pilots and green‑AI procurement language—coordinate DESNZ updates with your energy‑retail and charity partners when eligibility flows change.</p>
+                    
+                    <h3 style="color: var(--primary-green); margin-top: var(--space-lg); font-size: 24px;">🇪🇸 Spain</h3>
+                    <p style="margin-bottom: var(--space-md);">Watch EU innovation results and regional efficiency programmes; April is a useful month to align Spanish site upgrades with EU sustainable‑computing procurement criteria.</p>
+                    
+                    <h3 style="color: var(--primary-green); margin-top: var(--space-lg); font-size: 24px;">🇵🇹 Portugal</h3>
+                    <p style="margin-bottom: var(--space-md);">Monitor EU funding portals and national digital initiatives; align startup participation with UKRI/Horizon partner searches during Q2 shortlist windows.</p>
+                </section>
+
+                <section class="section" id="organizations">
+                    <div class="section-header">
+                        <h2 class="section-title section-title-hero">Organization Spotlight</h2>
+                    </div>
+                    
+                    <div class="org-spotlight">
+                        <div class="org-header">
+                            <div class="org-info">
+                                <h3>Innovate UK (UKRI)</h3>
+                                <p style="opacity: 0.9; margin-top: var(--space-xs);">UK | Business‑led innovation funding</p>
+                            </div>
+                        </div>
+                        
+                        <div class="org-content">
+                            <h4 style="margin-bottom: var(--space-sm); color: var(--primary-green);">April focus: spring call progression &amp; portfolio hygiene</h4>
+                            <p style="margin-bottom: var(--space-md);">Innovate UK sits at the centre of the UK’s Q2 clean‑tech pipeline—where March’s “track shortlists and awards” watchlist becomes operational: governance, match funding, and impact evidence for assessor rounds.</p>
+                            
+                            <div class="stat-grid" style="margin-top: var(--space-md);">
+                                <div class="stat-box">
+                                    <div class="stat-number">Q2</div>
+                                    <div class="stat-label">Peak evaluation for many competitions</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-number">UK</div>
+                                    <div class="stat-label">Primary route for challenge‑driven pilots</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="upcoming">
+                    <div class="section-header">
+                        <h2 class="section-title section-title-hero">Looking Ahead</h2>
+                    </div>
+                    
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: var(--space-sm); background: #F5F5F5; margin-bottom: var(--space-xs); border-radius: var(--radius);">
+                            <strong style="color: var(--primary-green);">Late Q2–Q3 2026:</strong> Grant execution, contracting, and first reporting milestones from spring clean‑tech shortlists —
+                            <a href="https://www.ukri.org/" class="card-link">UKRI</a> /
+                            <a href="https://arpa-e.energy.gov/" class="card-link">ARPA‑E</a> /
+                            <a href="https://cordis.europa.eu/" class="card-link">CORDIS</a>
+                        </li>
+                        <li style="padding: var(--space-sm); background: #F5F5F5; margin-bottom: var(--space-xs); border-radius: var(--radius);">
+                            <strong style="color: var(--primary-green);">Q2–Q3 2026:</strong> UK public‑service AI pilot readouts → service design and scaling decisions (energy‑bill support flows) —
+                            <a href="https://www.digit.fyi/ai-public-services/" class="card-link">Pilot coverage</a> /
+                            <a href="https://www.gov.uk/government/organisations/department-for-energy-security-and-net-zero" class="card-link">DESNZ</a>
+                        </li>
+                        <li style="padding: var(--space-sm); background: #F5F5F5; margin-bottom: var(--space-xs); border-radius: var(--radius);">
+                            <strong style="color: var(--primary-green);">Q3–Q4 2026:</strong> IEA flagship statistics, market reports, and outlook cycles—keep AI assistants citation‑locked to primary tables —
+                            <a href="https://www.iea.org/data-and-statistics" class="card-link">Data &amp; statistics</a> /
+                            <a href="https://www.iea.org/news" class="card-link">News</a>
+                        </li>
+                        <li style="padding: var(--space-sm); background: #F5F5F5; margin-bottom: var(--space-xs); border-radius: var(--radius);">
+                            <strong style="color: var(--primary-green);">H2 2026:</strong> Sustainable computing &amp; data‑centre procurement—EU ICT metrics, PUE reporting, and workload efficiency benchmarks in enterprise RFPs —
+                            <a href="https://energy-efficiency-ict.jrc.ec.europa.eu/" class="card-link">EU ICT knowledge centre</a> /
+                            <a href="https://news.mit.edu/topic/sustainable-computing" class="card-link">MIT sustainable computing</a>
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="section" id="resources">
+                    <div class="section-header">
+                        <h2 class="section-title section-title-hero">Resources & Links</h2>
+                    </div>
+                    
+                    <div class="grid grid-auto">
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">Energy Data & Tools</h3>
+                                <ul style="color: var(--neutral-gray); line-height: 1.8;">
+                                    <li><a href="https://www.iea.org/data-and-statistics" class="card-link">IEA data &amp; statistics</a></li>
+                                    <li><a href="https://www.iea.org/news" class="card-link">IEA news</a></li>
+                                    <li><a href="https://ethicalmarketingnews.com/iea-launches-new-gpt-tool-to-explore-flagship-energy-data-and-analysis-using-artificial-intelligence" class="card-link">IEA GPT tool write‑up (verify against primary IEA sources)</a></li>
+                                    <li><a href="https://www.energytechreview.com/news/" class="card-link">Energy Tech Review updates</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">Green AI & Sustainable Computing</h3>
+                                <ul style="color: var(--neutral-gray); line-height: 1.8;">
+                                    <li><a href="https://www.computing.co.uk/news/2026/uk-has-narrow-window-to-lead-global-green-ai-race-report-says" class="card-link">UK green AI leadership report</a></li>
+                                    <li><a href="https://news.mit.edu/topic/sustainable-computing" class="card-link">MIT sustainable computing research</a></li>
+                                    <li><a href="https://energy-efficiency-ict.jrc.ec.europa.eu/" class="card-link">EU ICT energy efficiency (JRC)</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">Public‑Service Tech Pilots</h3>
+                                <ul style="color: var(--neutral-gray); line-height: 1.8;">
+                                    <li><a href="https://www.digit.fyi/ai-public-services/" class="card-link">UK AI public‑services pilots</a></li>
+                                    <li><a href="https://www.gov.uk/government/organisations/department-for-energy-security-and-net-zero" class="card-link">DESNZ</a></li>
+                                    <li><a href="https://arstechnica.com/ai/2026/02/sixteen-claude-ai-agents-working-together-created-a-new-c-compiler" class="card-link">AI agents collaborating at scale</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">Green Tech Research</h3>
+                                <ul style="color: var(--neutral-gray); line-height: 1.8;">
+                                    <li><a href="https://techxplore.com/news/2026-01-optimizing-wastewater-green-hydrogen-production.html" class="card-link">Wastewater‑to‑hydrogen optimization</a></li>
+                                    <li><a href="https://techxplore.com/" class="card-link">TechXplore technology news</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <aside>
+                <nav class="sidebar-nav">
+                    <h3>Contents</h3>
+                    <ul>
+                        <li><a href="#summary">Executive Summary</a></li>
+                        <li><a href="#top-stories">Top Stories</a></li>
+                        <li><a href="#statistics">By The Numbers</a></li>
+                        <li><a href="#policy">Policy & Regulation</a></li>
+                        <li><a href="#funding">Funding Spotlight</a></li>
+                        <li><a href="#green-tech">Green Tech</a></li>
+                        <li><a href="#countries">Country Spotlights</a></li>
+                        <li><a href="#organizations">Organizations</a></li>
+                        <li><a href="#upcoming">Looking Ahead</a></li>
+                        <li><a href="#resources">Resources</a></li>
+                    </ul>
+                </nav>
+            </aside>
+        </div>
+    </div>
+
+    <footer style="background: #263238; color: white; padding: var(--space-lg); text-align: center; margin-top: var(--space-xl);">
+        <p style="font-size: 18px; margin-bottom: var(--space-xs);">New in Tech Roundup | April 2026</p>
+        <p style="opacity: 0.7; font-size: 14px;">
+            Sources: EU/UK/US official agencies, research bodies, verified tech outlets<br>
+            Generated using New in Tech News Finder Skill
+        </p>
+    </footer>
+
+    <script>
+        (function () {
+            const handleAnchorClick = (event) => {
+                const link = event.currentTarget;
+                const hash = link.getAttribute('href');
+                if (!hash || !hash.startsWith('#')) return;
+                const target = document.querySelector(hash);
+                if (!target) return;
+                event.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                history.replaceState(null, '', hash);
+            };
+
+            document.querySelectorAll('.sidebar-nav a[href^="#"], .impact-cta[href^="#"]').forEach((link) => {
+                link.addEventListener('click', handleAnchorClick);
+            });
+        })();
+    </script>
+    <script>
+        // Keep only the impact toggle functionality
+        (function () {
+            document.querySelectorAll('.impact-toggle').forEach((btn) => {
+                const closedLabel = btn.getAttribute('data-closed-label') || 'How this affects you';
+                const openLabel = btn.getAttribute('data-open-label') || 'Hide details';
+                btn.textContent = closedLabel;
+
+                btn.addEventListener('click', () => {
+                    const card = btn.closest('.hover-card');
+                    if (!card) return;
+                    card.classList.toggle('open');
+                    btn.textContent = card.classList.contains('open') ? openLabel : closedLabel;
+                });
+            });
+        })();
+    </script>
+    <script>
+        (function () {
+            const isExternal = (href) => /^https?:\/\//i.test(href || '');
+            document.querySelectorAll('a[href]').forEach((link) => {
+                const href = link.getAttribute('href') || '';
+                if (!isExternal(href)) return;
+                link.setAttribute('target', '_blank');
+                link.setAttribute('rel', 'noopener noreferrer');
+            });
+        })();
+    </script>
+</body>
+</html>

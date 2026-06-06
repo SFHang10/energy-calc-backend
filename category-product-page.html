@@ -588,14 +588,42 @@
             return productPower;
         }
 
+        // Legacy marketplace tile labels → ETL official display names (bookmarks)
+        const LEGACY_MARKETPLACE_TO_ETL = {
+            'Motor Drives': 'Motors, Drives & Fans',
+            'HVAC Equipment': 'Heating, Ventilation and Air Conditioning (HVAC) Equipment',
+            'Heating Equipment': 'Boiler Equipment',
+            'Ovens': 'Professional Foodservice Equipment',
+            'Fridges and Freezers': 'Refrigeration Equipment',
+        };
+
+        function resolveMarketplaceCategory(category) {
+            return LEGACY_MARKETPLACE_TO_ETL[category] || category;
+        }
+
+        function matchesMarketplaceCategory(product, etlDisplayName) {
+            const legacy = Object.keys(LEGACY_MARKETPLACE_TO_ETL).find(
+                (k) => LEGACY_MARKETPLACE_TO_ETL[k] === etlDisplayName
+            );
+            const labels = [etlDisplayName, legacy].filter(Boolean);
+            return labels.some(
+                (label) => product.displayCategory === label || product.shopCategory === label
+            );
+        }
+
         // Category background images mapping
         const categoryBackgroundImages = {
             'Hand Dryers': 'https://static.wixstatic.com/media/c123de_96d81aaa0c1748f0a8bbcb20fbb1629d~mv2.jpeg',
+            'Refrigeration Equipment': 'https://static.wixstatic.com/media/c123de_ab678c6399a840079485b12b6cdb22e6~mv2.jpg',
             'Fridges and Freezers': 'https://static.wixstatic.com/media/c123de_ab678c6399a840079485b12b6cdb22e6~mv2.jpg',
             'Lighting': 'https://static.wixstatic.com/media/c123de_2b101bafd199404e8f17453e5aea54c7~mv2.jpg',
+            'Boiler Equipment': 'https://static.wixstatic.com/media/c123de_5ec669fffe0e4b56bfe93efb177b22cf~mv2.jpeg',
             'Heating Equipment': 'https://static.wixstatic.com/media/c123de_5ec669fffe0e4b56bfe93efb177b22cf~mv2.jpeg',
+            'Professional Foodservice Equipment': 'https://static.wixstatic.com/media/c123de_281b24bf85fc4b2d8cf13e3a6cefcf92~mv2.jpeg',
             'Ovens': 'https://static.wixstatic.com/media/c123de_281b24bf85fc4b2d8cf13e3a6cefcf92~mv2.jpeg',
+            'Heating, Ventilation and Air Conditioning (HVAC) Equipment': 'https://static.wixstatic.com/media/c123de_fac577d2258d460883750968948c54f5~mv2.jpeg',
             'HVAC Equipment': 'https://static.wixstatic.com/media/c123de_fac577d2258d460883750968948c54f5~mv2.jpeg',
+            'Motors, Drives & Fans': 'https://static.wixstatic.com/media/c123de_ac174d362c7a4a3e98f3cdd07c8f7c91~mv2.jpeg',
             'Motor Drives': 'https://static.wixstatic.com/media/c123de_ac174d362c7a4a3e98f3cdd07c8f7c91~mv2.jpeg',
             'Heat Pumps': 'https://static.wixstatic.com/media/c123de_5652aa65a54647799d6f14c4a1364f94~mv2.jpg',
             'all': 'https://static.wixstatic.com/media/c123de_d66f1b33c9ec4ed4afcb7c281b8f02d9~mv2.jpg'
@@ -888,6 +916,38 @@
             }
         };
 
+        // ETL official category labels (marketplace tiles) — same filters, new display names
+        (function registerEtlMarketplaceCategories() {
+            const renamedTiles = [
+                { etl: 'Motors, Drives & Fans', legacy: 'Motor Drives', icon: '⚡' },
+                {
+                    etl: 'Heating, Ventilation and Air Conditioning (HVAC) Equipment',
+                    legacy: 'HVAC Equipment',
+                    icon: '🏭',
+                },
+                { etl: 'Boiler Equipment', legacy: 'Heating Equipment', icon: '🌡️' },
+                { etl: 'Professional Foodservice Equipment', legacy: 'Ovens', icon: '🔥' },
+                { etl: 'Refrigeration Equipment', legacy: 'Fridges and Freezers', icon: '🧊' },
+            ];
+            for (const { etl, legacy, icon } of renamedTiles) {
+                if (!categoryInfo[legacy]) continue;
+                const base = categoryInfo[legacy];
+                categoryInfo[etl] = {
+                    title: `${icon} ${etl}`,
+                    description: base.description,
+                    filter: (product) => base.filter(product) || matchesMarketplaceCategory(product, etl),
+                };
+            }
+            ['Heat Pumps', 'Lighting', 'Hand Dryers'].forEach((etl) => {
+                if (!categoryInfo[etl]) return;
+                const base = categoryInfo[etl];
+                categoryInfo[etl] = {
+                    ...base,
+                    filter: (product) => base.filter(product) || matchesMarketplaceCategory(product, etl),
+                };
+            });
+        })();
+
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Category Product Page initialized');
@@ -907,9 +967,10 @@
         function loadProductsFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
             // Decode the category parameter (handles spaces and special characters)
-            const category = decodeURIComponent(urlParams.get('category') || 'all');
+            const rawCategory = decodeURIComponent(urlParams.get('category') || 'all');
+            const category = resolveMarketplaceCategory(rawCategory);
             
-            console.log(`📋 Category from URL: "${category}"`);
+            console.log(`📋 Category from URL: "${rawCategory}" → "${category}"`);
             console.log(`📋 Available categories:`, Object.keys(categoryInfo));
             console.log(`📋 Category exists?`, categoryInfo.hasOwnProperty(category));
             

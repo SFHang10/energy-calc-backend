@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New in Tech Roundup - [MONTH YEAR]</title>
+    <meta name="description" content="Monthly New in Tech roundup covering green technology, innovation, and global tech developments">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+Pro:wght@300;400;600;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { font-size: 16px; scroll-behavior: smooth; scroll-padding-top: 20px; }
+        body { font-family: 'Source Sans Pro', sans-serif; line-height: 1.6; color: #263238; background: #FAFAFA; }
+        
+        :root {
+            --primary-green: #2E7D32; --primary-blue: #0277BD; --accent-teal: #00897B;
+            --light-green: #81C784; --neutral-gray: #757575; --bg-white: #FFFFFF;
+            --space-xs: 8px; --space-sm: 16px; --space-md: 24px; --space-lg: 40px; --space-xl: 64px;
+            --radius: 8px; --radius-lg: 12px; --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 var(--space-md); }
+        .grid { display: grid; gap: var(--space-lg); }
+        .grid-2col { grid-template-columns: 2fr 1fr; overflow: visible; position: relative; z-index: 0; }
+        main { position: relative; z-index: 5; }
+        aside { position: relative; z-index: 1; }
+        .grid-auto { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        
+        .site-header { background: linear-gradient(135deg, var(--primary-green), var(--primary-blue)); color: white; padding: var(--space-xl) var(--space-md); text-align: center; }
+        .site-title { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; margin-bottom: var(--space-sm); }
+        .site-subtitle { font-size: 22px; opacity: 0.95; font-weight: 300; }
+        .meta-info { margin-top: var(--space-md); font-size: 14px; opacity: 0.9; }
+        
+        .hero-photo-strip { background: #F1F5F9; padding: var(--space-md) 0; }
+        .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); }
+        .photo-card { background: white; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+        .photo-card img { width: 100%; height: 200px; object-fit: cover; display: block; }
+
+        .sidebar-nav { position: sticky; top: var(--space-md); background: white; border-radius: var(--radius); padding: var(--space-md); box-shadow: var(--shadow-sm); z-index: 1; }
+        .sidebar-nav h3 { font-size: 22px; margin-bottom: var(--space-sm); color: var(--primary-green); }
+        .sidebar-nav ul { list-style: none; }
+        .sidebar-nav li { margin-bottom: var(--space-xs); }
+        .sidebar-nav a { color: var(--neutral-gray); text-decoration: none; display: block; padding: var(--space-xs); border-radius: var(--radius); transition: all 0.2s; }
+        .sidebar-nav a:hover { background: #F5F5F5; color: var(--primary-green); padding-left: var(--space-sm); }
+        
+        .section { padding: var(--space-xl) 0; border-bottom: 1px solid #E0E0E0; scroll-margin-top: 20px; }
+        .section:last-child { border-bottom: none; }
+        .section-header { display: flex; align-items: center; margin-bottom: var(--space-lg); }
+        .section-header::before { content: ''; width: 4px; height: 40px; background: var(--primary-green); margin-right: var(--space-sm); border-radius: 2px; }
+        .section-header.with-image { justify-content: space-between; gap: var(--space-md); }
+        .section-header-img {
+            width: 200px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+        }
+        .section-title { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; color: #263238; }
+        #top-stories .section-header::before { display: none; }
+        #top-stories .section-title-hero {
+            flex: 1;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            padding: 20px 28px;
+            border-radius: 12px;
+            color: #FFFFFF;
+            background-image:
+                linear-gradient(rgba(15, 23, 42, 0.45), rgba(15, 23, 42, 0.45)),
+                url('https://static.wixstatic.com/media/c123de_957ddf8c995e441cb9d1535015adbdf4~mv2.jpg');
+            background-size: cover;
+            background-position: center;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .card { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; transition: all 0.3s; }
+        .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+        .card-content { padding: var(--space-md); }
+        .card-title { font-size: 22px; font-weight: 600; margin-bottom: var(--space-sm); color: #263238; }
+        .card-text { color: var(--neutral-gray); margin-bottom: var(--space-sm); }
+        .card-link { color: var(--primary-blue); text-decoration: none; font-weight: 600; }
+        .card-link:hover { text-decoration: underline; }
+
+        .hover-card { position: relative; overflow: hidden; z-index: 1; }
+        .impact-toggle {
+            margin-top: var(--space-sm);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 2px solid #F59E0B;
+            background: rgba(245, 158, 11, 0.12);
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .impact-toggle::after {
+            content: '▾';
+            font-size: 12px;
+        }
+        .hover-card.open .impact-toggle::after {
+            content: '▴';
+        }
+        .impact-panel {
+            margin-top: var(--space-sm);
+            background: rgba(15, 23, 42, 0.06);
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            border-radius: 12px;
+            padding: 0 16px;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.2s ease;
+        }
+        .hover-card.open .impact-panel {
+            max-height: 600px;
+            opacity: 1;
+            padding: 14px 16px;
+        }
+        .impact-box {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: #0f172a;
+            margin-bottom: var(--space-sm);
+        }
+        .impact-box:last-child { margin-bottom: 0; }
+        .impact-box h4 { font-size: 15px; margin-bottom: 6px; color: #0f172a; }
+        .impact-box ul { margin: 0; padding-left: 18px; line-height: 1.6; font-size: 13px; color: #334155; }
+        .impact-box p { margin: 0 0 8px 0; font-size: 13px; color: #334155; }
+        .impact-cta {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            color: #0f172a;
+            background: #38bdf8;
+        }
+        .impact-cta.secondary { background: #a7f3d0; color: #0f172a; }
+        
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md); margin: var(--space-lg) 0; }
+        .stat-box { background: linear-gradient(135deg, var(--light-green), var(--primary-green)); color: white; padding: var(--space-md); border-radius: var(--radius); text-align: center; }
+        .stat-number { font-size: 48px; font-weight: 700; font-family: 'Roboto Mono', monospace; line-height: 1; }
+        .stat-label { font-size: 16px; margin-top: var(--space-xs); opacity: 0.95; }
+        
+        .quote { border-left: 4px solid var(--accent-teal); padding-left: var(--space-md); margin: var(--space-lg) 0; font-style: italic; font-size: 20px; color: var(--neutral-gray); }
+        .quote-attribution { font-style: normal; font-size: 16px; margin-top: var(--space-sm); font-weight: 600; color: var(--primary-green); }
+        .quote-attribution::before { content: '— '; }
+        
+        .org-spotlight { background: white; border-radius: var(--radius-lg); overflow: hidden; margin: var(--space-xl) 0; box-shadow: var(--shadow-md); }
+        .org-header { background: linear-gradient(135deg, var(--primary-green), var(--accent-teal)); color: white; padding: var(--space-lg); }
+        .org-content { padding: var(--space-lg); }
+        
+        .badge { display: inline-block; padding: 4px var(--space-sm); border-radius: 20px; font-size: 14px; font-weight: 600; background: var(--light-green); color: white; margin-right: var(--space-xs); }
+        
+        @media (max-width: 768px) {
+            .grid-2col { grid-template-columns: 1fr; }
+            .site-title { font-size: 32px; }
+            .section-title { font-size: 28px; }
+            .sidebar-nav { position: static; }
+            .photo-grid { grid-template-columns: 1fr; }
+            .photo-card img { height: 180px; }
+            .section-header.with-image {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .section-header-img { width: 100%; height: 190px; }
+        }
+        
+        @media print {
+            .sidebar-nav { display: none; }
+            .card { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <h1 class="site-title">New in Tech Roundup</h1>
+        <p class="site-subtitle">Green Industry + Global Technology Updates</p>
+        <p class="meta-info">[MONTH YEAR] Edition | Published [DATE]</p>
+    </header>
+
+    <!-- Hero photo strip (pick 1 image from each folder set in hero-photo-pool.json) -->
+    <section class="hero-photo-strip">
+        <div class="container">
+            <div class="photo-grid">
+                <div class="photo-card">
+                    <img src="[PHOTO_URL_1]" alt="[Photo 1 alt text]">
+                </div>
+                <div class="photo-card">
+                    <img src="[PHOTO_URL_2]" alt="[Photo 2 alt text]">
+                </div>
+                <div class="photo-card">
+                    <img src="[PHOTO_URL_3]" alt="[Photo 3 alt text]">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="grid grid-2col">
+            <main>
+                <section class="section" id="summary">
+                    <div class="quote">
+                        [Executive summary paragraph highlighting the month's major developments...]
+                    </div>
+                </section>
+
+                <section class="section" id="top-stories">
+                    <div class="section-header with-image">
+                        <h2 class="section-title section-title-hero">Top Stories</h2>
+                        <img class="section-header-img" src="[TOP_STORIES_IMAGE_URL]" alt="[Top stories image alt]">
+                    </div>
+                    
+                    <div class="grid grid-auto">
+                        <div class="card hover-card">
+                            <div class="card-content">
+                                <h3 class="card-title">[Story Title]</h3>
+                                <p class="card-text">[Story summary...]</p>
+                                <span class="badge">[Tag]</span><span class="badge">[Tag]</span>
+                                <button class="impact-toggle" type="button">How this affects you</button>
+                            </div>
+                            <div class="impact-panel">
+                                <div class="impact-box">
+                                    <h4>How this affects you</h4>
+                                    <ul>
+                                        <li>[Personal impact point 1]</li>
+                                        <li>[Personal impact point 2]</li>
+                                        <li>[Example action + link]</li>
+                                    </ul>
+                                    <a class="impact-cta" href="[EXAMPLE_LINK]">View example</a>
+                                </div>
+                                <div class="impact-box">
+                                    <h4>Find out more…</h4>
+                                    <p>[Short explainer or context for people who need more detail.]</p>
+                                    <a class="impact-cta secondary" href="[MORE_LINK]">Find out more</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Repeat for each top story -->
+                    </div>
+                </section>
+
+                <section class="section" id="statistics">
+                    <div class="section-header with-image">
+                        <h2 class="section-title">By The Numbers</h2>
+                        <img class="section-header-img" src="https://static.wixstatic.com/media/c123de_64f33894c73f4968b3a1bf200d2808ad~mv2.webp" alt="[By the numbers image alt]">
+                    </div>
+                    
+                    <div class="stat-grid">
+                        <div class="stat-box">
+                            <div class="stat-number">[NUMBER]</div>
+                            <div class="stat-label">[Label]</div>
+                        </div>
+                        <!-- Repeat for each key statistic -->
+                    </div>
+                </section>
+
+                <section class="section" id="policy">
+                    <div class="section-header with-image">
+                        <h2 class="section-title">Policy & Regulation</h2>
+                        <img class="section-header-img" src="[POLICY_IMAGE_URL]" alt="[Policy and regulation image alt]">
+                    </div>
+                    
+                    <div class="grid grid-auto">
+                        <div class="card hover-card">
+                            <div class="card-content">
+                                <h3 class="card-title">[Policy Name]</h3>
+                                <p class="card-text">[Details about the policy update...]</p>
+                                <button class="impact-toggle" type="button">How this affects you</button>
+                            </div>
+                            <div class="impact-panel">
+                                <div class="impact-box">
+                                    <h4>How this affects you</h4>
+                                    <ul>
+                                        <li>[Practical impact on costs/compliance]</li>
+                                        <li>[What changes in procurement/operations]</li>
+                                        <li>[Example action + link]</li>
+                                    </ul>
+                                    <a class="impact-cta" href="[EXAMPLE_LINK]">View example</a>
+                                </div>
+                                <div class="impact-box">
+                                    <h4>Find out more…</h4>
+                                    <p>[Short explainer for non‑technical readers.]</p>
+                                    <a class="impact-cta secondary" href="[MORE_LINK]">Find out more</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Repeat for each policy update -->
+                    </div>
+                </section>
+
+                <section class="section" id="funding">
+                    <div class="section-header with-image">
+                        <h2 class="section-title">Funding Spotlight</h2>
+                        <img class="section-header-img" src="[FUNDING_IMAGE_URL]" alt="[Funding spotlight image alt]">
+                    </div>
+                    
+                    <div class="grid grid-auto">
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">[Program Name]</h3>
+                                <p class="card-text"><strong>Amount:</strong> [Amount]</p>
+                                <p class="card-text"><strong>Deadline:</strong> [Date]</p>
+                                <p class="card-text">[Brief description...]</p>
+                            </div>
+                        </div>
+                        <!-- Repeat for each funding opportunity -->
+                    </div>
+                </section>
+
+                <section class="section" id="green-tech">
+                    <div class="section-header with-image">
+                        <h2 class="section-title">Green Tech Developments</h2>
+                        <img class="section-header-img" src="https://static.wixstatic.com/media/c123de_aafe287030ff44bfa5b3d98f6a97e6b5~mv2.jpeg" alt="[Green tech image alt]">
+                    </div>
+                    
+                    <div class="grid grid-auto">
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">[Initiative Name]</h3>
+                                <p class="card-text">[Description...]</p>
+                            </div>
+                        </div>
+                        <!-- Repeat for each development -->
+                    </div>
+                </section>
+
+                <section class="section" id="countries">
+                    <div class="section-header with-image">
+                        <h2 class="section-title">Country Spotlights</h2>
+                        <img class="section-header-img" src="[COUNTRY_SPOTLIGHTS_IMAGE_URL]" alt="[Country spotlights image alt]">
+                    </div>
+                    
+                    <h3 style="color: var(--primary-green); margin-top: var(--space-lg); font-size: 24px;">🇳🇱 Netherlands</h3>
+                    <p style="margin-bottom: var(--space-md);">[Netherlands news and developments...]</p>
+                    
+                    <h3 style="color: var(--primary-green); margin-top: var(--space-lg); font-size: 24px;">🇬🇧 United Kingdom</h3>
+                    <p style="margin-bottom: var(--space-md);">[UK news and developments...]</p>
+                    
+                    <h3 style="color: var(--primary-green); margin-top: var(--space-lg); font-size: 24px;">🇪🇸 Spain</h3>
+                    <p style="margin-bottom: var(--space-md);">[Spain news and developments...]</p>
+                    
+                    <h3 style="color: var(--primary-green); margin-top: var(--space-lg); font-size: 24px;">🇵🇹 Portugal</h3>
+                    <p style="margin-bottom: var(--space-md);">[Portugal news and developments...]</p>
+                </section>
+
+                <section class="section" id="organizations">
+                    <div class="section-header">
+                        <h2 class="section-title">Organization Spotlight</h2>
+                    </div>
+                    
+                    <div class="org-spotlight">
+                        <div class="org-header">
+                            <div class="org-info">
+                                <h3>[Organization Name]</h3>
+                                <p style="opacity: 0.9; margin-top: var(--space-xs);">[Location] | [Sector]</p>
+                            </div>
+                        </div>
+                        
+                        <div class="org-content">
+                            <h4 style="margin-bottom: var(--space-sm); color: var(--primary-green);">Featured Achievement: [Title]</h4>
+                            <p style="margin-bottom: var(--space-md);">[Description...]</p>
+                            
+                            <div class="stat-grid" style="margin-top: var(--space-md);">
+                                <div class="stat-box">
+                                    <div class="stat-number">[Number]</div>
+                                    <div class="stat-label">[Metric]</div>
+                                </div>
+                                <!-- Repeat for key metrics -->
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Repeat for additional organizations -->
+                </section>
+
+                <section class="section" id="upcoming">
+                    <div class="section-header">
+                        <h2 class="section-title">Looking Ahead</h2>
+                    </div>
+                    
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: var(--space-sm); background: #F5F5F5; margin-bottom: var(--space-xs); border-radius: var(--radius);">
+                            <strong style="color: var(--primary-green);">[Date]:</strong> [Event/deadline]
+                        </li>
+                        <!-- Repeat for upcoming items -->
+                    </ul>
+                </section>
+
+                <section class="section" id="resources">
+                    <div class="section-header">
+                        <h2 class="section-title">Resources & Links</h2>
+                    </div>
+                    
+                    <div class="grid grid-auto">
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">[Resource Category]</h3>
+                                <ul style="color: var(--neutral-gray); line-height: 1.8;">
+                                    <li><a href="#" class="card-link">[Link 1]</a></li>
+                                    <li><a href="#" class="card-link">[Link 2]</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- Repeat for each category -->
+                    </div>
+                </section>
+            </main>
+
+            <aside>
+                <nav class="sidebar-nav">
+                    <h3>Contents</h3>
+                    <ul>
+                        <li><a href="#summary">Executive Summary</a></li>
+                        <li><a href="#top-stories">Top Stories</a></li>
+                        <li><a href="#statistics">By The Numbers</a></li>
+                        <li><a href="#policy">Policy & Regulation</a></li>
+                        <li><a href="#funding">Funding Spotlight</a></li>
+                        <li><a href="#green-tech">Green Tech</a></li>
+                        <li><a href="#countries">Country Spotlights</a></li>
+                        <li><a href="#organizations">Organizations</a></li>
+                        <li><a href="#upcoming">Looking Ahead</a></li>
+                        <li><a href="#resources">Resources</a></li>
+                    </ul>
+                </nav>
+            </aside>
+        </div>
+    </div>
+
+    <footer style="background: #263238; color: white; padding: var(--space-lg); text-align: center; margin-top: var(--space-xl);">
+        <p style="font-size: 18px; margin-bottom: var(--space-xs);">New in Tech Roundup | [MONTH YEAR]</p>
+        <p style="opacity: 0.7; font-size: 14px;">
+            Sources: EU/UK/US official agencies, research bodies, verified tech outlets<br>
+            Generated using New in Tech News Finder Skill
+        </p>
+    </footer>
+
+    <script>
+        (function () {
+            const handleAnchorClick = (event) => {
+                const link = event.currentTarget;
+                const hash = link.getAttribute('href');
+                if (!hash || !hash.startsWith('#')) return;
+                const target = document.querySelector(hash);
+                if (!target) return;
+                event.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                history.replaceState(null, '', hash);
+            };
+
+            document.querySelectorAll('.sidebar-nav a[href^="#"], .impact-cta[href^="#"]').forEach((link) => {
+                link.addEventListener('click', handleAnchorClick);
+            });
+        })();
+    </script>
+    <script>
+        (function () {
+            document.querySelectorAll('.impact-toggle').forEach((btn) => {
+                const closedLabel = btn.getAttribute('data-closed-label') || 'How this affects you';
+                const openLabel = btn.getAttribute('data-open-label') || 'Hide details';
+                btn.textContent = closedLabel;
+
+                btn.addEventListener('click', () => {
+                    const card = btn.closest('.hover-card');
+                    if (!card) return;
+                    card.classList.toggle('open');
+                    btn.textContent = card.classList.contains('open') ? openLabel : closedLabel;
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

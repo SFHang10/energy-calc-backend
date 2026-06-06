@@ -64,7 +64,13 @@ router.get('/alternatives', (req, res) => {
       type: req.query.type,
       actualDailyKwh: req.query.actualDailyKwh,
       actualDailyWaterLitres: req.query.actualDailyWaterLitres,
-      actualDailyGasKwh: req.query.actualDailyGasKwh
+      actualDailyGasKwh: req.query.actualDailyGasKwh,
+      persistCatalog: req.query.persistCatalog,
+      saveToCatalog: req.query.saveToCatalog,
+      finderSource: req.query.finderSource,
+      source: req.query.source,
+      region: req.query.region,
+      country: req.query.country
     });
 
     if (!payload.success) {
@@ -150,6 +156,53 @@ router.get('/marketplace-intake-shortlist', (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Failed to load marketplace intake shortlist.'
+    });
+  }
+});
+
+router.get('/sustainable-products', (req, res) => {
+  try {
+    const payload = service.listSustainableCatalog({
+      status: req.query.status
+    });
+    return res.json(payload);
+  } catch (error) {
+    console.error('❌ Sustainable products list error:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to list sustainable products catalog.'
+    });
+  }
+});
+
+router.post('/finder-session', (req, res) => {
+  try {
+    const payload = service.runFinderSession(req.body || {});
+    if (!payload.success) {
+      return res.status(400).json(payload);
+    }
+    return res.json(payload);
+  } catch (error) {
+    console.error('❌ Equipment intelligence finder session error:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to run sustainable product finder session.'
+    });
+  }
+});
+
+router.post('/sustainable-products', (req, res) => {
+  try {
+    const payload = service.upsertSustainableCatalogProduct(req.body || {});
+    if (!payload.success) {
+      return res.status(400).json(payload);
+    }
+    return res.status(201).json(payload);
+  } catch (error) {
+    console.error('❌ Sustainable products upsert error:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to save sustainable catalog product.'
     });
   }
 });

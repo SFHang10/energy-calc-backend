@@ -25,6 +25,12 @@ content-ops/
 └── manifests/    # Wix media URL mapping + publish tracking
 ```
 
+## 📌 Active Drafts (Index)
+
+- `content-ops/drafts/html/HVACA Comparison.html` — HVAC comparisons page (draft)
+- `HTMLS GWM GWB/Restuarant Appliance Comparison.html` — restaurant equipment comparisons (draft)
+- `HTMLS GWM GWB/European Company - Case Study Finder .html` — company case study finder (draft)
+
 ---
 
 ## ✅ Publish Flow (MANDATORY)
@@ -59,6 +65,7 @@ node scripts/publish-checklist.js
 - Tags and category match site taxonomy
 - Content previewed in Wix or on Render
 - Content catalog entry updated
+- External links open in new tab (`target="_blank"`, `rel="noopener noreferrer"`) to avoid iframe CSP blocks on official sites
 
 ---
 

@@ -465,6 +465,17 @@
             box-shadow: 0 2px 8px rgba(255, 87, 34, 0.4);
             z-index: 10;
         }
+
+        .urgent-note {
+            margin: 0 0 10px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border-left: 3px solid #ff7043;
+            background: rgba(255, 112, 67, 0.12);
+            color: #ffd5c6;
+            font-size: 0.8rem;
+            line-height: 1.35;
+        }
         
         .learn-more-btn {
             background: linear-gradient(45deg, #3498db, #2ecc71);
@@ -1431,6 +1442,23 @@
                 this.renderNationalIncentives();
                 this.setupFilters();
                 this.setupSearch();
+                this.applySearchFromQueryString();
+            }
+
+            applySearchFromQueryString() {
+                try {
+                    const params = new URLSearchParams(window.location.search);
+                    const q = (params.get('q') || '').trim();
+                    if (!q) return;
+                    const searchBox = document.getElementById('search-box');
+                    if (!searchBox) return;
+                    searchBox.value = q;
+                    this.searchTerm = q;
+                    this.renderDynamicSchemes();
+                    if (typeof showTab === 'function') showTab('all-schemes');
+                } catch (e) {
+                    console.warn('applySearchFromQueryString:', e);
+                }
             }
 
             async loadSchemes() {
@@ -1605,10 +1633,13 @@
                 card.className = 'scheme-card';
 
                 let html = '';
+                const urgencyTooltip = this.getUrgencyTooltip(scheme);
+                const urgencyNote = this.getUrgencyNote(scheme);
 
                 // Priority badge
                 if (scheme.priority || scheme.categories?.includes('urgent')) {
-                    html += '<div class="priority-badge">⚡ URGENT</div>';
+                    html += `<div class="priority-badge" title="${urgencyTooltip}">⚡ URGENT</div>`;
+                    html += `<div class="urgent-note">${urgencyNote}</div>`;
                 }
 
                 // Deadline warning
@@ -1754,9 +1785,12 @@
                 const item = document.createElement('div');
                 const hasDeadline = scheme.deadline && new Date(scheme.deadline) > new Date();
                 item.className = `incentive-item${hasDeadline ? ' has-deadline' : ''}`;
+                const urgencyTooltip = this.getUrgencyTooltip(scheme);
+                const urgencyNote = this.getUrgencyNote(scheme);
                 
                 if (scheme.priority) {
-                    item.innerHTML = '<div class="priority-badge">⚡ URGENT</div>';
+                    item.innerHTML = `<div class="priority-badge" title="${urgencyTooltip}">⚡ URGENT</div>`;
+                    item.innerHTML += `<div class="urgent-note">${urgencyNote}</div>`;
                 }
                 
                 let html = '';
@@ -1793,6 +1827,40 @@
                 
                 item.innerHTML += html;
                 return item;
+            }
+
+            getUrgencyTooltip(scheme) {
+                if (!scheme.deadline) {
+                    return 'Urgent: this scheme is flagged as time-sensitive.';
+                }
+                const deadline = new Date(scheme.deadline);
+                if (Number.isNaN(deadline.getTime())) {
+                    return `Urgent: deadline is ${scheme.deadline}.`;
+                }
+                const now = new Date();
+                const daysUntil = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+                const dateText = deadline.toLocaleDateString();
+                if (daysUntil > 0) {
+                    return `Urgent: this scheme expires soon on ${dateText} (${daysUntil} day${daysUntil === 1 ? '' : 's'} left).`;
+                }
+                return `Now expired (${dateText}).`;
+            }
+
+            getUrgencyNote(scheme) {
+                if (!scheme.deadline) {
+                    return 'Urgent because this scheme is time-sensitive and may close without much notice.';
+                }
+                const deadline = new Date(scheme.deadline);
+                if (Number.isNaN(deadline.getTime())) {
+                    return `Urgent because the deadline is ${scheme.deadline}.`;
+                }
+                const now = new Date();
+                const daysUntil = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+                const dateText = deadline.toLocaleDateString();
+                if (daysUntil > 0) {
+                    return `Urgent because it expires on ${dateText} (${daysUntil} day${daysUntil === 1 ? '' : 's'} left).`;
+                }
+                return `Now expired (${dateText}).`;
             }
 
             getTypeIcon(type) {

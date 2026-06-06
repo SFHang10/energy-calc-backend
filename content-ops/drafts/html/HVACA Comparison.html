@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HVAC Energy Efficiency Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0c1e4a 0%, #1a2d5c 100%);
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            border: 1px solid rgba(192,192,192,0.2);
+        }
+
+        header h1 {
+            font-size: clamp(2em, 5vw, 3.5em);
+            color: #ffffff;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        header p {
+            font-size: clamp(1.1em, 3vw, 1.4em);
+            color: #f0f0f0;
+            opacity: 0.95;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            background: rgba(30,58,138,0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .tab {
+            background: linear-gradient(135deg, #505050 0%, #404040 100%);
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.05em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 150px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .tab:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(12,30,74,0.5), 0 0 15px rgba(74,144,226,0.5);
+            border-color: #4a90e2;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #0c1e4a 0%, #1a2d5c 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(12,30,74,0.8), 0 0 25px rgba(74,144,226,0.7);
+            border-color: #4a90e2;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(192,192,192,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .content-card h2 {
+            color: #4a90e2;
+            font-size: clamp(1.6em, 4vw, 2.2em);
+            margin-bottom: 20px;
+            border-bottom: 3px solid #0c1e4a;
+            padding-bottom: 10px;
+        }
+
+        .content-card h3 {
+            color: #d0d0d0;
+            font-size: 1.5em;
+            margin: 25px 0 15px 0;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .comparison-card {
+            background: rgba(30,58,138,0.15);
+            border-radius: 12px;
+            padding: 25px;
+            border: 2px solid;
+            transition: all 0.3s ease;
+        }
+
+        .comparison-card.baseline {
+            border-color: #dc2626;
+        }
+
+        .comparison-card.etl {
+            border-color: #16a34a;
+        }
+
+        .comparison-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        .comparison-card h4 {
+            text-align: center;
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .comparison-card.baseline h4 {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+        }
+
+        .comparison-card.etl h4 {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            color: white;
+        }
+
+        .product-image {
+            width: 100%;
+            max-width: 500px;
+            height: 350px;
+            object-fit: contain;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: block;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            image-rendering: crisp-edges;
+            image-rendering: -webkit-optimize-contrast;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            border-left: 4px solid #0c1e4a;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: #d0d0d0;
+        }
+
+        .stat-value {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #0c1e4a 0%, #1a2d5c 100%);
+            padding: 3px 10px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .savings-highlight {
+            background: linear-gradient(120deg, #16a34a 0%, #15803d 100%);
+            padding: 3px 10px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(135deg, #0c1e4a 0%, #1a2d5c 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(192,192,192,0.1);
+        }
+
+        tr:hover {
+            background: rgba(30,58,138,0.1);
+        }
+
+        .chart-container {
+            background: rgba(255,255,255,0.98);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .banner-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .banner-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border: 2px solid rgba(192,192,192,0.2);
+            image-rendering: crisp-edges;
+            image-rendering: -webkit-optimize-contrast;
+        }
+
+        .info-box {
+            background: rgba(30,58,138,0.2);
+            border-left: 5px solid #0c1e4a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .info-box h4 {
+            color: #4a90e2;
+            margin-bottom: 10px;
+        }
+
+        .big-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #16a34a;
+            text-align: center;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .side-by-side {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        @media (max-width: 768px) {
+            .side-by-side {
+                grid-template-columns: 1fr;
+            }
+            .tabs {
+                flex-direction: column;
+            }
+        .tab {
+            background: linear-gradient(135deg, #505050 0%, #404040 100%);
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.05em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 150px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .yoy-label {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .yoy-increase {
+            background: #dc2626;
+            color: white;
+        }
+
+        .yoy-decrease {
+            background: #16a34a;
+            color: white;
+        }
+
+        .equipment-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 24px;
+            margin: 25px 0;
+        }
+
+        .equipment-card {
+            background: rgba(32, 56, 72, 0.7);
+            padding: 26px 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid rgba(96, 140, 185, 0.5);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .equipment-card h5 {
+            color: #8cc2ff;
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .equipment-card .percentage {
+            font-size: 2.25em;
+            font-weight: 700;
+            color: #eef3f8;
+            margin-bottom: 4px;
+        }
+
+        .equipment-card p {
+            color: #d7e0ea;
+            font-size: 1.02em;
+        }
+
+        .glossary-term {
+            background: rgba(192,192,192,0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #d0d0d0;
+        }
+
+        .glossary-header-image {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            margin: 0 auto 30px auto;
+            display: block;
+            border-radius: 10px;
+        }
+
+        .glossary-term strong {
+            color: #4a90e2;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌡️ HVAC Energy Efficiency Analysis</h1>
+            <p>Optimize Building Performance with ETL-Listed Heat Recovery Ventilation Systems</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="openTab(event, 'overview')">🏢 Overview</button>
+            <button class="tab" onclick="openTab(event, 'comparison')">⚖️ System Comparison</button>
+            <button class="tab" onclick="openTab(event, 'monthly')">📊 Monthly Analysis</button>
+            <button class="tab" onclick="openTab(event, 'yoy')">📈 Year-over-Year</button>
+            <button class="tab" onclick="openTab(event, 'savings')">💶 Cost Savings</button>
+            <button class="tab" onclick="openTab(event, 'technical')">🔧 Technical Specs</button>
+            <button class="tab" onclick="openTab(event, 'glossary')">📚 Glossary</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <div class="content-card">
+                <h2>HVAC Energy Consumption Overview</h2>
+                
+                                <div class="banner-images">
+                    <img src="https://static.wixstatic.com/media/c123de_d94eb75c511848e1a6ea3eeb5b9d6d4f~mv2.jpeg" alt="HVAC overview photo 1" class="banner-image">
+                    <img src="https://static.wixstatic.com/media/c123de_ce6cc6d2636a4c67b44fe6ce9c0e25f7~mv2.jpeg" alt="HVAC overview photo 2" class="banner-image">
+                    <img src="https://static.wixstatic.com/media/c123de_e282ea3c60ef4b34943e887cbd50f759~mv2.jpg" alt="HVAC overview photo 3" class="banner-image">
+                </div>
+
+                <p style="font-size: 1.2em; margin: 25px 0;">Commercial HVAC systems represent the largest energy consumer in most buildings, accounting for <span class="highlight">40-60% of total electricity usage</span>. Heat Recovery Ventilation (HRV) with Energy Technology List (ETL) certification can reduce HVAC energy consumption by up to <span class="savings-highlight">30-40%</span> while improving indoor air quality.</p>
+
+                <h3>Key Performance Metrics (1,000 m² Commercial Building)</h3>
+                <div class="equipment-breakdown">
+                    <div class="equipment-card">
+                        <h5>⚙️ Fans/AHU</h5>
+                        <div class="percentage">46%</div>
+                        <p>183k kWh/year</p>
+                    </div>
+                    <div class="equipment-card">
+                        <h5>❄️ Cooling</h5>
+                        <div class="percentage">28%</div>
+                        <p>124k kWh/year</p>
+                    </div>
+                    <div class="equipment-card">
+                        <h5>🔥 Heating</h5>
+                        <div class="percentage">21%</div>
+                        <p>93k kWh/year</p>
+                    </div>
+                    <div class="equipment-card">
+                        <h5>💧 Pumps</h5>
+                        <div class="percentage">5%</div>
+                        <p>22k kWh/year</p>
+                    </div>
+                </div>
+
+                <div class="info-box" style="background: rgba(22,163,74,0.2); border-color: #16a34a;">
+                    <h4 style="color: #16a34a;">🌿 ETL HRV Impact</h4>
+                    <p style="font-size: 1.15em;">By installing an ETL-certified Heat Recovery Ventilation system, you achieve:</p>
+                    <ul style="font-size: 1.1em; margin-top: 15px;">
+                        <li><strong>63,000 kWh</strong> annual energy savings (fan energy reduced 30-40%)</li>
+                        <li><strong>£17,000-£18,000</strong> annual cost savings at £0.27/kWh</li>
+                        <li><strong>31,500 kg CO₂</strong> emissions prevented annually</li>
+                        <li><strong>Heat recovery efficiency:</strong> 75-85% vs 0% in standard systems</li>
+                    </ul>
+                </div>
+
+                <div class="big-number">-18%</div>
+                <p style="text-align: center; font-size: 1.2em; margin-bottom: 30px;">Year-over-year energy reduction with ETL HRV</p>
+
+                <img src="https://static.wixstatic.com/media/c123de_3c843ba6ab9b4c2fa1c7c96bc55e6bfd~mv2.png" alt="Energy breakdown pie charts" class="product-image" style="max-width: 600px;">
+            </div>
+        </div>
+
+        <!-- Comparison Tab -->
+        <div id="comparison" class="tab-content">
+            <div class="content-card">
+                <h2>⚖️ Standard HVAC vs ETL HRV System</h2>
+                
+                <p style="font-size: 1.15em; margin-bottom: 30px;">Direct comparison of conventional HVAC with basic ventilation versus modern ETL-certified Heat Recovery Ventilation (HRV) system for a typical 1,000 m² commercial building.</p>
+
+                <div class="side-by-side">
+                    <div class="comparison-card baseline">
+                        <h4>❌ Standard HVAC System</h4>
+                        <img src="https://static.wixstatic.com/media/c123de_235abc67a5bd421fa153c5013e8e1cae~mv2.png" alt="Standard HVAC technician" class="product-image">
+                        
+                        <div class="stat-row">
+                            <span class="stat-label">Annual Fan Energy:</span>
+                            <span class="stat-value">183,000 kWh</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Heat Recovery:</span>
+                            <span class="stat-value">0% (No HRV)</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Total HVAC Energy:</span>
+                            <span class="stat-value">443,000 kWh/year</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Annual Cost (UK):</span>
+                            <span class="stat-value">£119,610</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Fan Motor Type:</span>
+                            <span class="stat-value">Standard AC</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Control System:</span>
+                            <span class="stat-value">Basic on/off</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Typical Efficiency:</span>
+                            <span class="stat-value">55-65%</span>
+                        </div>
+                    </div>
+
+                    <div class="comparison-card etl">
+                        <h4>✅ ETL HRV System</h4>
+                        <img src="https://static.wixstatic.com/media/c123de_76e39d28e22446629296b194f03a4139~mv2.jpeg" alt="ETL Heat Recovery Ventilation" class="product-image">
+                        
+                        <div class="stat-row">
+                            <span class="stat-label">Annual Fan Energy:</span>
+                            <span class="stat-value">120,000 kWh</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Heat Recovery:</span>
+                            <span class="stat-value">75-85% efficiency</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Total HVAC Energy:</span>
+                            <span class="stat-value">380,000 kWh/year</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Annual Cost (UK):</span>
+                            <span class="stat-value">£102,600</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Fan Motor Type:</span>
+                            <span class="stat-value">Variable-speed EC</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Control System:</span>
+                            <span class="stat-value">Smart modulating</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Typical Efficiency:</span>
+                            <span class="stat-value">85-92%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box" style="background: rgba(22,163,74,0.2); border-color: #16a34a;">
+                    <h4 style="color: #16a34a;">💚 Annual Savings Summary</h4>
+                    <p style="font-size: 1.15em;">By upgrading to ETL HRV, you save:</p>
+                    <ul style="font-size: 1.1em; margin-top: 15px;">
+                        <li><strong>63,000 kWh</strong> of electricity per year (14.2% reduction)</li>
+                        <li><strong>£17,010</strong> in the UK annually at £0.27/kWh</li>
+                        <li><strong>31,500 kg CO₂</strong> emissions prevented</li>
+                        <li><strong>Improved air quality</strong> with continuous fresh air exchange</li>
+                        <li><strong>Reduced heating/cooling load</strong> through heat recovery</li>
+                    </ul>
+                </div>
+
+                <img src="https://static.wixstatic.com/media/c123de_b5883df39029468bb17dc8f1f6c3dedf~mv2.jpg" alt="Multi-year energy comparison" class="product-image" style="max-width: 700px;">
+            </div>
+        </div>
+
+        <!-- Monthly Analysis Tab -->
+        <div id="monthly" class="tab-content">
+            <div class="content-card">
+                <h2>📊 Monthly Energy Breakdown</h2>
+
+                <p style="font-size: 1.15em; margin-bottom: 25px;">Monthly HVAC energy consumption varies significantly by season, with cooling dominating summer months and heating in winter. Fan/AHU energy remains relatively constant year-round.</p>
+
+                <h3>2024 Monthly Energy Consumption by Equipment</h3>
+                <div class="chart-container">
+                    <canvas id="monthlyChart2024"></canvas>
+                </div>
+
+                <h3>Monthly Equipment Breakdown</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Fans/AHU (kWh)</th>
+                            <th>Heating (kWh)</th>
+                            <th>Cooling (kWh)</th>
+                            <th>Pumps (kWh)</th>
+                            <th>Total (kWh)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>January</td>
+                            <td>15,200</td>
+                            <td>12,500</td>
+                            <td>2,100</td>
+                            <td>4,100</td>
+                            <td>33,900</td>
+                        </tr>
+                        <tr>
+                            <td>February</td>
+                            <td>14,900</td>
+                            <td>11,800</td>
+                            <td>2,000</td>
+                            <td>4,100</td>
+                            <td>32,800</td>
+                        </tr>
+                        <tr>
+                            <td>March</td>
+                            <td>15,100</td>
+                            <td>9,200</td>
+                            <td>3,500</td>
+                            <td>4,200</td>
+                            <td>32,000</td>
+                        </tr>
+                        <tr>
+                            <td>April</td>
+                            <td>15,300</td>
+                            <td>6,100</td>
+                            <td>7,800</td>
+                            <td>4,300</td>
+                            <td>33,500</td>
+                        </tr>
+                        <tr>
+                            <td>May</td>
+                            <td>15,500</td>
+                            <td>3,800</td>
+                            <td>13,200</td>
+                            <td>4,700</td>
+                            <td>37,200</td>
+                        </tr>
+                        <tr>
+                            <td>June</td>
+                            <td>15,700</td>
+                            <td>2,900</td>
+                            <td>18,400</td>
+                            <td>4,900</td>
+                            <td>41,900</td>
+                        </tr>
+                        <tr style="background: rgba(220,38,38,0.2);">
+                            <td><strong>July (Peak)</strong></td>
+                            <td>15,600</td>
+                            <td>3,500</td>
+                            <td>21,500</td>
+                            <td>5,100</td>
+                            <td><strong>45,700</strong></td>
+                        </tr>
+                        <tr>
+                            <td>August</td>
+                            <td>15,400</td>
+                            <td>3,200</td>
+                            <td>19,800</td>
+                            <td>4,900</td>
+                            <td>43,300</td>
+                        </tr>
+                        <tr>
+                            <td>September</td>
+                            <td>15,200</td>
+                            <td>4,500</td>
+                            <td>14,500</td>
+                            <td>4,700</td>
+                            <td>38,900</td>
+                        </tr>
+                        <tr>
+                            <td>October</td>
+                            <td>15,000</td>
+                            <td>7,300</td>
+                            <td>8,200</td>
+                            <td>4,500</td>
+                            <td>35,000</td>
+                        </tr>
+                        <tr>
+                            <td>November</td>
+                            <td>14,800</td>
+                            <td>10,400</td>
+                            <td>3,800</td>
+                            <td>4,300</td>
+                            <td>33,300</td>
+                        </tr>
+                        <tr>
+                            <td>December</td>
+                            <td>14,800</td>
+                            <td>11,200</td>
+                            <td>2,400</td>
+                            <td>4,300</td>
+                            <td>32,700</td>
+                        </tr>
+                        <tr style="background: rgba(30,58,138,0.2); font-weight: bold;">
+                            <td>Annual Total</td>
+                            <td>182,500</td>
+                            <td>86,400</td>
+                            <td>117,200</td>
+                            <td>54,100</td>
+                            <td>440,200</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <h4>📌 Key Observations</h4>
+                    <ul>
+                        <li><strong>Fan energy</strong> remains constant at ~15k kWh/month (46% of annual HVAC)</li>
+                        <li><strong>Cooling peaks</strong> in July at 21.5k kWh (summer AC loads)</li>
+                        <li><strong>Heating peaks</strong> in January at 12.5k kWh (winter demands)</li>
+                        <li><strong>ETL HRV reduces</strong> fan energy to ~10k kWh/month consistently</li>
+                    </ul>
+                </div>
+
+                <img src="https://static.wixstatic.com/media/c123de_016e9c5368a641d38f71b6f36425030e~mv2.png" alt="Equipment breakdown by category" class="product-image" style="max-width: 600px;">
+            </div>
+        </div>
+
+        <!-- Year-over-Year Tab -->
+        <div id="yoy" class="tab-content">
+            <div class="content-card">
+                <h2>📈 Year-over-Year Energy Analysis</h2>
+
+                <p style="font-size: 1.15em; margin-bottom: 25px;">Comparing 2024 baseline with 2025 projections shows energy growth driven by warmer weather and equipment aging. ETL HRV systems counteract these trends with reliable savings.</p>
+
+                <h3>2024 vs 2025 Monthly Comparison</h3>
+                <div class="chart-container">
+                    <canvas id="yoyChart"></canvas>
+                </div>
+
+                <h3>Year-over-Year Growth Analysis</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>2024 Total (kWh)</th>
+                            <th>2025 Total (kWh)</th>
+                            <th>YoY Change</th>
+                            <th>ETL YoY Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>January</td>
+                            <td>33,900</td>
+                            <td>34,200</td>
+                            <td><span class="yoy-label yoy-increase">+1.0% ↑</span></td>
+                            <td><span class="yoy-label yoy-decrease">-20% ↓</span></td>
+                        </tr>
+                        <tr>
+                            <td>February</td>
+                            <td>32,800</td>
+                            <td>33,100</td>
+                            <td><span class="yoy-label yoy-increase">+1.0% ↑</span></td>
+                            <td><span class="yoy-label yoy-decrease">-20% ↓</span></td>
+                        </tr>
+                        <tr>
+                            <td>March</td>
+                            <td>32,000</td>
+                            <td>32,900</td>
+                            <td><span class="yoy-label yoy-increase">+2.8% ↑</span></td>
+                            <td><span class="yoy-label yoy-decrease">-19% ↓</span></td>
+                        </tr>
+                        <tr>
+                            <td>June</td>
+                            <td>41,900</td>
+                            <td>44,800</td>
+                            <td><span class="yoy-label yoy-increase">+6.9% ↑</span></td>
+                            <td><span class="yoy-label yoy-decrease">-22% ↓</span></td>
+                        </tr>
+                        <tr style="background: rgba(220,38,38,0.15);">
+                            <td><strong>July (Peak)</strong></td>
+                            <td>45,700</td>
+                            <td>49,200</td>
+                            <td><span class="yoy-label yoy-increase">+7.7% ↑</span></td>
+                            <td><span class="yoy-label yoy-decrease">-23% ↓</span></td>
+                        </tr>
+                        <tr>
+                            <td>September</td>
+                            <td>38,900</td>
+                            <td>41,400</td>
+                            <td><span class="yoy-label yoy-increase">+6.4% ↑</span></td>
+                            <td><span class="yoy-label yoy-decrease">-21% ↓</span></td>
+                        </tr>
+                        <tr>
+                            <td>December</td>
+                            <td>32,700</td>
+                            <td>33,200</td>
+                            <td><span class="yoy-label yoy-increase">+1.5% ↑</span></td>
+                            <td><span class="yoy-label yoy-decrease">-21% ↓</span></td>
+                        </tr>
+                        <tr style="background: rgba(30,58,138,0.2); font-weight: bold; font-size: 1.05em;">
+                            <td>Annual</td>
+                            <td>442,900</td>
+                            <td>460,200</td>
+                            <td><span class="yoy-label yoy-increase">+3.9% ↑</span></td>
+                            <td><span class="yoy-label yoy-decrease">-18% ↓</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box" style="background: rgba(22,163,74,0.2); border-color: #16a34a;">
+                    <h4 style="color: #16a34a;">🎯 ETL HRV: Weather-Proof Savings</h4>
+                    <p style="font-size: 1.15em;">While 2025 shows increased energy demand (+3.9% annually) due to warmer weather and equipment aging, ETL HRV systems deliver consistent <strong>-18% to -23%</strong> reductions across all months by:</p>
+                    <ul style="font-size: 1.05em; margin-top: 15px;">
+                        <li>Cutting fan energy 30-40% with efficient EC motors</li>
+                        <li>Recovering 75-85% of exhaust heat/cooling</li>
+                        <li>Smart modulation reducing runtime and wear</li>
+                        <li>Offsetting cooling growth with recovered energy</li>
+                    </ul>
+                </div>
+
+                <h3>Rolling 12-Month Growth Trends</h3>
+                <div class="chart-container">
+                    <canvas id="rollingChart"></canvas>
+                </div>
+
+                <img src="https://static.wixstatic.com/media/c123de_32b8483763234132aa0564e8b74de4e8~mv2.png" alt="Usage by area" class="product-image" style="max-width: 500px;">
+            </div>
+        </div>
+
+        <!-- Savings Tab -->
+        <div id="savings" class="tab-content">
+            <div class="content-card">
+                <h2>💶 Comprehensive Cost Savings Analysis</h2>
+
+                <h3>Annual Cost Comparison</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>System Type</th>
+                            <th>Annual kWh</th>
+                            <th>UK Cost (£0.27/kWh)</th>
+                            <th>EU Cost (€0.28/kWh)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Standard HVAC (2024)</td>
+                            <td>442,900 kWh</td>
+                            <td>£119,583</td>
+                            <td>€123,980</td>
+                        </tr>
+                        <tr>
+                            <td>ETL HRV System</td>
+                            <td>380,000 kWh</td>
+                            <td>£102,600</td>
+                            <td>€106,400</td>
+                        </tr>
+                        <tr style="background: rgba(22,163,74,0.2); font-weight: bold;">
+                            <td>Annual Savings</td>
+                            <td>62,900 kWh (14.2%)</td>
+                            <td class="savings-highlight">£16,983</td>
+                            <td class="savings-highlight">€17,612</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Multi-Year Financial Projection</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time Period</th>
+                            <th>Energy Saved</th>
+                            <th>UK Savings</th>
+                            <th>EU Savings</th>
+                            <th>CO₂ Prevented</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1 Year</td>
+                            <td>63,000 kWh</td>
+                            <td>£17,010</td>
+                            <td>€17,640</td>
+                            <td>31,500 kg</td>
+                        </tr>
+                        <tr>
+                            <td>5 Years</td>
+                            <td>315,000 kWh</td>
+                            <td>£85,050</td>
+                            <td>€88,200</td>
+                            <td>157,500 kg</td>
+                        </tr>
+                        <tr style="background: rgba(22,163,74,0.2); font-weight: bold;">
+                            <td>10 Years</td>
+                            <td>630,000 kWh</td>
+                            <td class="savings-highlight">£170,100</td>
+                            <td class="savings-highlight">€176,400</td>
+                            <td>315,000 kg</td>
+                        </tr>
+                        <tr>
+                            <td>15 Years (System Life)</td>
+                            <td>945,000 kWh</td>
+                            <td>£255,150</td>
+                            <td>€264,600</td>
+                            <td>472,500 kg</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <h4>📈 With Projected Energy Price Increases</h4>
+                    <p>Energy prices historically increase 3-5% annually. Assuming conservative 4% annual growth:</p>
+                    <ul>
+                        <li><strong>10-year savings:</strong> £195,000 - £210,000 (UK) or €202,000 - €218,000 (EU)</li>
+                        <li><strong>15-year savings:</strong> £315,000 - £340,000 (UK) or €326,000 - €352,000 (EU)</li>
+                        <li><strong>ROI accelerates</strong> as energy costs rise faster than inflation</li>
+                    </ul>
+                </div>
+
+                <h3>Total Cost of Ownership (15 Years)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cost Category</th>
+                            <th>Standard HVAC</th>
+                            <th>ETL HRV System</th>
+                            <th>Difference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Initial Equipment Cost</td>
+                            <td>£85,000</td>
+                            <td>£125,000</td>
+                            <td>-£40,000</td>
+                        </tr>
+                        <tr>
+                            <td>Installation</td>
+                            <td>£15,000</td>
+                            <td>£25,000</td>
+                            <td>-£10,000</td>
+                        </tr>
+                        <tr>
+                            <td>Energy Costs (15yr, UK)</td>
+                            <td>£1,793,745</td>
+                            <td>£1,539,000</td>
+                            <td class="savings-highlight">+£254,745</td>
+                        </tr>
+                        <tr>
+                            <td>Maintenance (15yr)</td>
+                            <td>£52,000</td>
+                            <td>£38,000</td>
+                            <td class="savings-highlight">+£14,000</td>
+                        </tr>
+                        <tr style="background: rgba(30,58,138,0.2); font-weight: bold; font-size: 1.1em;">
+                            <td>Total 15-Year Cost</td>
+                            <td>£1,945,745</td>
+                            <td>£1,727,000</td>
+                            <td class="savings-highlight">+£218,745 saved</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="big-number">£218,745</div>
+                <p style="text-align: center; font-size: 1.2em; margin-bottom: 20px;">Net savings over 15 years (UK, static energy prices)</p>
+
+                <div class="big-number">2.8 years</div>
+                <p style="text-align: center; font-size: 1.2em;">Simple payback period</p>
+
+                <div class="chart-container">
+                    <canvas id="savingsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Specs Tab -->
+        <div id="technical" class="tab-content">
+            <div class="content-card">
+                <h2>🔧 Technical Specifications</h2>
+
+                                <div class="banner-images">
+                    <img src="https://static.wixstatic.com/media/c123de_35ed958111a74f10bea23a84c732b58f~mv2.png" alt="HVAC system diagram" class="banner-image">
+                    <img src="https://static.wixstatic.com/media/c123de_1063a94c42814c4185e050576abea2a6~mv2.png" alt="HVAC installation overview" class="banner-image">
+                </div>
+
+                <h3>ETL-Listed Heat Recovery Ventilation System</h3>
+                <p style="margin-bottom: 20px;"><strong>Product ID:</strong> <a href="https://etl.energysecurity.gov.uk/product-search/product/83226" target="_blank" style="color: #4a90e2;">ETL 83226</a></p>
+
+                <div class="side-by-side">
+                    <div>
+                        <h4 style="color: #4a90e2; margin-bottom: 15px;">Performance Specifications</h4>
+                        <div class="stat-row">
+                            <span class="stat-label">Heat Recovery Efficiency:</span>
+                            <span class="stat-value">75-85%</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Airflow Capacity:</span>
+                            <span class="stat-value">2,000-10,000 m³/h</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Fan Type:</span>
+                            <span class="stat-value">EC (Electronically Commutated)</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Motor Efficiency:</span>
+                            <span class="stat-value">IE4/IE5 Class</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Specific Fan Power:</span>
+                            <span class="stat-value">0.45-0.65 W/(l/s)</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Control System:</span>
+                            <span class="stat-value">Variable speed + demand control</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 style="color: #4a90e2; margin-bottom: 15px;">Energy Performance</h4>
+                        <div class="stat-row">
+                            <span class="stat-label">Annual Fan Energy:</span>
+                            <span class="stat-value">120,000 kWh/year</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Saved vs Standard:</span>
+                            <span class="stat-value">63,000 kWh/year (34%)</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Heat Recovered:</span>
+                            <span class="stat-value">~450 MWh/year</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Cooling Recovered:</span>
+                            <span class="stat-value">~180 MWh/year</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">CO₂ Reduction:</span>
+                            <span class="stat-value">31.5 tonnes/year</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Noise Level:</span>
+                            <span class="stat-value">≤55 dB(A) @ 3m</span>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Key Technologies</h3>
+                <div class="equipment-breakdown">
+                    <div class="equipment-card">
+                        <h5>🌀 Crossflow Heat Exchanger</h5>
+                        <p>Counter-flow design maximizes heat transfer efficiency without contamination between airstreams</p>
+                    </div>
+                    <div class="equipment-card">
+                        <h5>⚡ EC Motor Technology</h5>
+                        <p>Brushless DC motors with integrated electronics deliver 30-40% better efficiency than AC</p>
+                    </div>
+                    <div class="equipment-card">
+                        <h5>🎛️ Variable Speed Drive</h5>
+                        <p>Automatically adjusts airflow based on demand, reducing energy waste during partial loads</p>
+                    </div>
+                    <div class="equipment-card">
+                        <h5>🧠 Smart Controls</h5>
+                        <p>CO₂, humidity, and temperature sensors optimize ventilation rates in real-time</p>
+                    </div>
+                </div>
+
+                <h3>Installation Requirements</h3>
+                <div class="info-box">
+                    <ul>
+                        <li><strong>Space Requirements:</strong> 2.5m x 1.5m x 1.2m typical footprint for 5,000 m³/h unit</li>
+                        <li><strong>Ductwork:</strong> Insulated supply/extract ducts, diameter 300-600mm depending on airflow</li>
+                        <li><strong>Electrical:</strong> 3-phase 400V supply, 15-30 kW connected load</li>
+                        <li><strong>Condensate Drain:</strong> Required for heat recovery condensation (winter operation)</li>
+                        <li><strong>External Air Intake/Exhaust:</strong> Weather-protected grilles with vermin screens</li>
+                        <li><strong>Filter Access:</strong> Easy-access panels for quarterly filter changes (ISO Coarse/ePM1)</li>
+                        <li><strong>BMS Integration:</strong> Modbus RTU/TCP, BACnet, or LonWorks protocols available</li>
+                    </ul>
+                </div>
+
+                <h3>Maintenance Schedule</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Frequency</th>
+                            <th>Task</th>
+                            <th>Time Required</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Monthly</td>
+                            <td>Visual inspection, alarm check</td>
+                            <td>15 minutes</td>
+                        </tr>
+                        <tr>
+                            <td>Quarterly</td>
+                            <td>Filter replacement (supply + extract)</td>
+                            <td>1 hour</td>
+                        </tr>
+                        <tr>
+                            <td>Semi-Annual</td>
+                            <td>Heat exchanger inspection/cleaning</td>
+                            <td>2-3 hours</td>
+                        </tr>
+                        <tr>
+                            <td>Annual</td>
+                            <td>Full service: motors, belts, controls calibration</td>
+                            <td>4-6 hours</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box" style="background: rgba(22,163,74,0.2); border-color: #16a34a;">
+                    <h4 style="color: #16a34a;">✅ ETL Certification Benefits</h4>
+                    <p>Products listed on the UK Energy Technology List qualify for:</p>
+                    <ul>
+                        <li><strong>Enhanced Capital Allowances (ECA):</strong> 100% first-year tax relief on equipment costs</li>
+                        <li><strong>Verified Performance:</strong> Independent testing confirms stated efficiency levels</li>
+                        <li><strong>Grant Eligibility:</strong> Qualifies for government energy efficiency funding schemes</li>
+                        <li><strong>Carbon Reporting:</strong> Certified savings for corporate sustainability reporting</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Glossary Tab -->
+        <div id="glossary" class="tab-content">
+            <div class="content-card">
+                <h2>📚 HVAC & Energy Glossary</h2>
+                <img src="https://static.wixstatic.com/media/c123de_3b3e2584ec3a43aa9921d10113ecfe23~mv2.png" alt="Glossary" class="glossary-header-image">
+                
+                
+                <p style="margin-bottom: 25px;">Key terms and concepts for understanding commercial HVAC energy efficiency.</p>
+
+                <div class="glossary-term">
+                    <strong>HVAC (Heating, Ventilation, Air Conditioning)</strong>
+                    <p>Building systems that control temperature, humidity, and air quality. In commercial buildings, HVAC typically accounts for 40-60% of total energy consumption.</p>
+                </div>
+
+                <div class="glossary-term">
+                    <strong>HRV (Heat Recovery Ventilation)</strong>
+                    <p>Ventilation system that recovers heat from exhaust air and transfers it to incoming fresh air, reducing heating/cooling loads. Typical efficiency ranges from 60-85% depending on design and conditions.</p>
+                </div>
+
+                <div class="glossary-term">
+                    <strong>ETL (Energy Technology List)</strong>
+                    <p>UK government database of energy-efficient products meeting strict performance criteria. ETL-listed equipment qualifies for Enhanced Capital Allowances (100% first-year tax relief) and demonstrates verified energy savings.</p>
+                    <p><a href="https://etl.energysecurity.gov.uk/" target="_blank" style="color: #4a90e2;">Visit ETL Database →</a></p>
+                </div>
+
+                <div class="glossary-term">
+                    <strong>EC Motor (Electronically Commutated)</strong>
+                    <p>High-efficiency brushless DC motor with integrated electronics. EC motors are 30-40% more efficient than standard AC motors and enable precise variable-speed control, making them ideal for HVAC fans.</p>
+                </div>
+
+                <div class="glossary-term">
+                    <strong>Specific Fan Power (SFP)</strong>
+                    <p>Energy efficiency metric for ventilation systems, measured in watts per liter per second [W/(l/s)]. Lower SFP indicates better efficiency. ETL HRV systems typically achieve 0.45-0.65 W/(l/s) vs 1.0-1.5 W/(l/s) for older systems.</p>
+                </div>
+
+                <div class="glossary-term">
+                    <strong>AHU (Air Handling Unit)</strong>
+                    <p>Central HVAC component that conditions and distributes air throughout a building. Includes fans, filters, heating/cooling coils, and optionally heat recovery. AHU fan energy represents ~46% of total HVAC electricity in typical buildings.</p>
+                </div>
+
+                <div class="glossary-term">
+                    <strong>kWh (Kilowatt-Hour)</strong>
+                    <p>Unit of energy consumption equal to 1,000 watts used for one hour. Your electricity bill is calculated from kWh usage. A typical 1,000 m² commercial building uses 440,000-460,000 kWh annually for HVAC.</p>
+                </div>
+
+                <div class="glossary-term">
+                    <strong>Year-over-Year (YoY) Growth</strong>
+                    <p>Percentage change in a metric (energy, cost) compared to the same period in the previous year. HVAC energy typically grows 1-4% YoY from weather variations and equipment degradation; ETL HRV reduces consumption -18% to -23% YoY.</p>
+                </div>
+
+                <div class="glossary-term">
+                    <strong>Variable Speed Drive (VSD)</strong>
+                    <p>Electronic system that controls motor speed by varying frequency and voltage. VSDs enable fans and pumps to match actual demand rather than running at fixed speeds, saving 20-50% energy during partial load conditions (which occur 80%+ of operating hours).</p>
+                </div>
+
+                <div class="glossary-term">
+                    <strong>Heat Exchanger</strong>
+                    <p>Device that transfers thermal energy between two fluid streams without mixing them. In HRV systems, crossflow or counter-flow heat exchangers recover 75-85% of heat from exhaust air to preheat incoming fresh air in winter (or pre-cool in summer).</p>
+                </div>
+
+                <div class="glossary-term">
+                    <strong>CO₂ Emissions Factor</strong>
+                    <p>Amount of CO₂ released per unit of energy generated. UK grid electricity produces approximately 0.5 kg CO₂ per kWh. Reducing HVAC energy by 63,000 kWh/year prevents 31,500 kg (31.5 tonnes) of CO₂ emissions annually.</p>
+                </div>
+
+                <div class="glossary-term">
+                    <strong>Simple Payback Period</strong>
+                    <p>Time required for energy savings to equal the additional upfront cost of efficient equipment. For ETL HRV, the additional £50,000 investment saves £17,010/year, yielding a 2.9-year simple payback (before tax benefits or grants).</p>
+                </div>
+
+                <div class="info-box">
+                    <h4>🔗 Useful Resources</h4>
+                    <ul>
+                        <li><a href="https://etl.energysecurity.gov.uk/" target="_blank" style="color: #4a90e2;">UK Energy Technology List (ETL)</a></li>
+                        <li><a href="https://www.cibse.org/" target="_blank" style="color: #4a90e2;">CIBSE - Chartered Institution of Building Services Engineers</a></li>
+                        <li><a href="https://www.carbontrust.com/" target="_blank" style="color: #4a90e2;">Carbon Trust - Energy Efficiency Guidance</a></li>
+                        <li><a href="https://www.gov.uk/guidance/energy-technology-list" target="_blank" style="color: #4a90e2;">Enhanced Capital Allowances Information</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("tab");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        // Monthly 2024 Stacked Bar Chart
+        const monthly2024Ctx = document.getElementById('monthlyChart2024').getContext('2d');
+        new Chart(monthly2024Ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [
+                    {
+                        label: 'Fans/AHU',
+                        data: [15200, 14900, 15100, 15300, 15500, 15700, 15600, 15400, 15200, 15000, 14800, 14800],
+                        backgroundColor: '#16a34a'
+                    },
+                    {
+                        label: 'Heating',
+                        data: [12500, 11800, 9200, 6100, 3800, 2900, 3500, 3200, 4500, 7300, 10400, 11200],
+                        backgroundColor: '#0c1e4a'
+                    },
+                    {
+                        label: 'Cooling',
+                        data: [2100, 2000, 3500, 7800, 13200, 18400, 21500, 19800, 14500, 8200, 3800, 2400],
+                        backgroundColor: '#dc2626'
+                    },
+                    {
+                        label: 'Pumps',
+                        data: [4100, 4100, 4200, 4300, 4700, 4900, 5100, 4900, 4700, 4500, 4300, 4300],
+                        backgroundColor: '#f59e0b'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: { display: true, text: '2024 Monthly HVAC Energy by Equipment (kWh)', font: { size: 18 } }
+                },
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, beginAtZero: true, title: { display: true, text: 'kWh' } }
+                }
+            }
+        });
+
+        // Year-over-Year Comparison Chart
+        const yoyCtx = document.getElementById('yoyChart').getContext('2d');
+        new Chart(yoyCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [
+                    {
+                        label: '2024 Total',
+                        data: [33900, 32800, 32000, 33500, 37200, 41900, 45700, 43300, 38900, 35000, 33300, 32700],
+                        backgroundColor: '#0c1e4a'
+                    },
+                    {
+                        label: '2025 Total',
+                        data: [34200, 33100, 32900, 35100, 39800, 44800, 49200, 46500, 41400, 36500, 34100, 33200],
+                        backgroundColor: '#dc2626'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: { display: true, text: '2024 vs 2025 Monthly HVAC Energy Comparison', font: { size: 18 } }
+                },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Total kWh' } }
+                }
+            }
+        });
+
+        // Rolling 12-Month Growth Chart
+        const rollingCtx = document.getElementById('rollingChart').getContext('2d');
+        new Chart(rollingCtx, {
+            type: 'line',
+            data: {
+                labels: ['Dec 24', 'Mar 25', 'Jun 25', 'Sep 25', 'Dec 25'],
+                datasets: [
+                    {
+                        label: 'Standard HVAC YoY%',
+                        data: [1.6, 2.8, 4.9, 6.2, 3.8],
+                        borderColor: '#dc2626',
+                        backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3
+                    },
+                    {
+                        label: 'ETL HRV YoY%',
+                        data: [-20, -19, -22, -21, -18],
+                        borderColor: '#16a34a',
+                        backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: { display: true, text: 'Rolling 12-Month Year-over-Year Growth', font: { size: 18 } }
+                },
+                scales: {
+                    y: { 
+                        title: { display: true, text: 'YoY % Change' },
+                        grid: { color: function(context) {
+                            if (context.tick.value === 0) return '#666';
+                            return 'rgba(200, 200, 200, 0.2)';
+                        }}
+                    }
+                }
+            }
+        });
+
+        // Cumulative Savings Chart
+        const savingsCtx = document.getElementById('savingsChart').getContext('2d');
+        new Chart(savingsCtx, {
+            type: 'line',
+            data: {
+                labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5', 'Year 6', 'Year 7', 'Year 8', 'Year 9', 'Year 10', 'Year 15'],
+                datasets: [{
+                    label: 'Cumulative Savings (£)',
+                    data: [17010, 34020, 51030, 68040, 85050, 102060, 119070, 136080, 153090, 170100, 255150],
+                    borderColor: '#16a34a',
+                    backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: { display: true, text: 'Cumulative Energy Cost Savings (UK)', font: { size: 18 } }
+                },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Total Savings (£)' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

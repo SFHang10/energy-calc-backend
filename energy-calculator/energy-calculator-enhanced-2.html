@@ -2077,13 +2077,18 @@
             document.head.appendChild(script);
         }
         
-        // Load products from our backend database API (FULL-DATABASE-5554.json)
+        // Load products from our backend database API
         async function loadBackendProducts() {
             try {
-                console.log('🔄 Loading products from backend /api/products/all (FULL-DATABASE-5554.json - includes comparative products)...');
-                // Use /all endpoint to get ALL products including comparative ones (oven_1, sample_*, etc.)
-                const response = await fetch(`${BACKEND_URL}/api/products/all?limit=10000&offset=0`);
+                console.log('🔄 Loading products from backend /api/products/enriched...');
+                // Use /enriched endpoint to get ALL products including comparative ones with grants
+                let response = await fetch(`${BACKEND_URL}/api/products/enriched?limit=10000&offset=0`);
                 
+                if (!response.ok) {
+                    console.log('⚠️ Enriched products not available, falling back to /api/products/all...');
+                    response = await fetch(`${BACKEND_URL}/api/products/all?limit=10000&offset=0`);
+                }
+
                 if (!response.ok) {
                     console.log('❌ Backend products API not available:', response.status, response.statusText);
                     console.log('💡 Make sure the server is running at:', BACKEND_URL);
@@ -2154,7 +2159,7 @@
                         energyRating: p.energyRating || p.energy_efficiency_rating || null,
                         efficiency: p.efficiency || null,
                         source: source, // 'ETL', 'Backend', or 'Sample' based on ID
-                        modelNumber: p.modelNumber || p.model || null,
+                        modelNumber: p.modelNumber || p.model || p.model_number || null,
                         // Water and capacity fields from backend
                         waterPerCycle: typeof p.waterPerCycle === 'number' ? p.waterPerCycle : null,
                         waterPerYear: typeof p.waterPerYear === 'number' ? p.waterPerYear : null,

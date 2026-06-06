@@ -5,6 +5,8 @@
  */
 
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const jwt = require('jsonwebtoken');
 const { connectMongoDB, isMongoDBConnected } = require('../database/mongodb');
 const Scheme = require('../models/Scheme');
@@ -13,13 +15,120 @@ const Member = require('../models/Member');
 console.log('🚀 Schemes router loading...');
 
 const router = express.Router();
+const SCHEMES_JSON_PATH = path.join(__dirname, '..', 'schemes.json');
+let schemesJsonCache = null;
+
+function loadSchemesFromJson() {
+  if (schemesJsonCache) return schemesJsonCache;
+  try {
+    const raw = fs.readFileSync(SCHEMES_JSON_PATH, 'utf8');
+    const parsed = JSON.parse(raw);
+    schemesJsonCache = Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    console.error('❌ Could not read schemes.json fallback:', err.message);
+    schemesJsonCache = [];
+  }
+  return schemesJsonCache;
+}
+
+function querySchemesFromJson({ region, type, search, limit = 100 }) {
+  const activeStatuses = new Set(['active', 'expiring-soon']);
+  let list = loadSchemesFromJson().filter((s) => {
+    const status = String(s.status || 'active').toLowerCase();
+    return activeStatuses.has(status);
+  });
+
+  if (region && region !== 'all') {
+    const r = String(region).toLowerCase();
+    list = list.filter((s) => String(s.region || '').toLowerCase() === r);
+  }
+
+  if (type && type !== 'all') {
+    const t = String(type).toLowerCase();
+    list = list.filter((s) => String(s.type || '').toLowerCase() === t);
+  }
+
+  if (search) {
+    const q = String(search).toLowerCase();
+    list = list.filter((s) => {
+      const blob = [
+        s.title,
+        s.description,
+        ...(Array.isArray(s.keywords) ? s.keywords : [])
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      return blob.includes(q);
+    });
+  }
+
+  list.sort((a, b) => {
+    const ap = a.priority ? 1 : 0;
+    const bp = b.priority ? 1 : 0;
+    if (bp !== ap) return bp - ap;
+    const ao = Number(a.displayOrder) || 0;
+    const bo = Number(b.displayOrder) || 0;
+    if (ao !== bo) return ao - bo;
+    return String(a.title || '').localeCompare(String(b.title || ''));
+  });
+
+  const cap = Math.max(1, parseInt(limit, 10) || 100);
+  return list.slice(0, cap);
+}
+
+async function fetchPublicSchemes(query) {
+  const { region, type, search, limit = 100 } = query;
+
+  if (isMongoDBConnected()) {
+    try {
+      const mongoQuery = { status: { $in: ['active', 'expiring-soon'] } };
+      if (region && region !== 'all') mongoQuery.region = region;
+      if (type && type !== 'all') mongoQuery.type = type;
+
+      let schemes;
+      if (search) {
+        schemes = await Scheme.find({
+          ...mongoQuery,
+          $or: [
+            { title: { $regex: search, $options: 'i' } },
+            { description: { $regex: search, $options: 'i' } },
+            { keywords: { $regex: search, $options: 'i' } }
+          ]
+        })
+          .select('-internalNotes -lastReviewedBy')
+          .sort({ priority: -1, displayOrder: 1 })
+          .limit(parseInt(limit, 10));
+      } else {
+        schemes = await Scheme.find(mongoQuery)
+          .select('-internalNotes -lastReviewedBy')
+          .sort({ priority: -1, displayOrder: 1 })
+          .limit(parseInt(limit, 10));
+      }
+
+      if (schemes.length > 0) {
+        Scheme.updateMany(
+          { _id: { $in: schemes.map((s) => s._id) } },
+          { $inc: { views: 1 } }
+        ).exec();
+      }
+
+      return { schemes, source: 'mongodb' };
+    } catch (error) {
+      console.warn('⚠️ MongoDB schemes query failed, using schemes.json:', error.message);
+    }
+  }
+
+  const schemes = querySchemesFromJson({ region, type, search, limit });
+  return { schemes, source: 'schemes.json' };
+}
 
 // Connect to MongoDB on startup
-connectMongoDB().then(connected => {
+connectMongoDB().then((connected) => {
   if (connected) {
     console.log('✅ Schemes route connected to MongoDB');
   } else {
-    console.log('⚠️ Schemes route: MongoDB not connected');
+    console.log('⚠️ Schemes route: MongoDB not connected — GET /api/schemes will use schemes.json');
   }
 });
 
@@ -115,54 +224,12 @@ const requirePermission = (permission) => {
 // GET /api/schemes - Get all active schemes (public)
 router.get('/', async (req, res) => {
   try {
-    // Automatic status update DISABLED - manage manually via JSON import
-    // autoUpdateStatusesIfNeeded();
-    
-    const { region, type, search, limit = 100 } = req.query;
-    
-    const query = { status: { $in: ['active', 'expiring-soon'] } };
-    
-    if (region && region !== 'all') {
-      query.region = region;
-    }
-    
-    if (type && type !== 'all') {
-      query.type = type;
-    }
-    
-    let schemes;
-    
-    if (search) {
-      schemes = await Scheme.find({
-        ...query,
-        $or: [
-          { title: { $regex: search, $options: 'i' } },
-          { description: { $regex: search, $options: 'i' } },
-          { keywords: { $regex: search, $options: 'i' } }
-        ]
-      })
-      .select('-internalNotes -lastReviewedBy')
-      .sort({ priority: -1, displayOrder: 1 })
-      .limit(parseInt(limit));
-    } else {
-      schemes = await Scheme.find(query)
-        .select('-internalNotes -lastReviewedBy')
-        .sort({ priority: -1, displayOrder: 1 })
-        .limit(parseInt(limit));
-    }
-    
-    // Track view (increment asynchronously)
-    if (schemes.length > 0) {
-      Scheme.updateMany(
-        { _id: { $in: schemes.map(s => s._id) } },
-        { $inc: { views: 1 } }
-      ).exec();
-    }
-    
+    const { schemes, source } = await fetchPublicSchemes(req.query);
     res.json({
       success: true,
       count: schemes.length,
-      schemes
+      schemes,
+      source
     });
   } catch (error) {
     console.error('❌ Error fetching schemes:', error);
@@ -173,16 +240,40 @@ router.get('/', async (req, res) => {
 // GET /api/schemes/stats - Get public stats
 router.get('/stats', async (req, res) => {
   try {
-    const stats = await Scheme.getStats();
-    
+    if (isMongoDBConnected()) {
+      try {
+        const stats = await Scheme.getStats();
+        return res.json({
+          success: true,
+          stats: {
+            total: stats.total,
+            regions: stats.byRegion.length,
+            types: stats.byType.length,
+            expiringSoon: stats.expiringSoon
+          },
+          source: 'mongodb'
+        });
+      } catch (error) {
+        console.warn('⚠️ MongoDB scheme stats failed, using schemes.json:', error.message);
+      }
+    }
+
+    const list = querySchemesFromJson({ limit: 10000 });
+    const regions = new Set(list.map((s) => s.region).filter(Boolean));
+    const types = new Set(list.map((s) => s.type).filter(Boolean));
+    const expiringSoon = loadSchemesFromJson().filter(
+      (s) => String(s.status || '').toLowerCase() === 'expiring-soon'
+    ).length;
+
     res.json({
       success: true,
       stats: {
-        total: stats.total,
-        regions: stats.byRegion.length,
-        types: stats.byType.length,
-        expiringSoon: stats.expiringSoon
-      }
+        total: list.length,
+        regions: regions.size,
+        types: types.size,
+        expiringSoon
+      },
+      source: 'schemes.json'
     });
   } catch (error) {
     console.error('❌ Error fetching stats:', error);
@@ -193,8 +284,16 @@ router.get('/stats', async (req, res) => {
 // GET /api/schemes/regions - Get list of regions
 router.get('/regions', async (req, res) => {
   try {
-    const regions = await Scheme.distinct('region', { status: { $in: ['active', 'expiring-soon'] } });
-    res.json({ success: true, regions: regions.sort() });
+    if (isMongoDBConnected()) {
+      try {
+        const regions = await Scheme.distinct('region', { status: { $in: ['active', 'expiring-soon'] } });
+        return res.json({ success: true, regions: regions.sort(), source: 'mongodb' });
+      } catch (error) {
+        console.warn('⚠️ MongoDB scheme regions failed, using schemes.json:', error.message);
+      }
+    }
+    const regions = [...new Set(querySchemesFromJson({ limit: 10000 }).map((s) => s.region).filter(Boolean))].sort();
+    res.json({ success: true, regions, source: 'schemes.json' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch regions' });
   }
@@ -203,8 +302,16 @@ router.get('/regions', async (req, res) => {
 // GET /api/schemes/types - Get list of scheme types
 router.get('/types', async (req, res) => {
   try {
-    const types = await Scheme.distinct('type', { status: { $in: ['active', 'expiring-soon'] } });
-    res.json({ success: true, types: types.sort() });
+    if (isMongoDBConnected()) {
+      try {
+        const types = await Scheme.distinct('type', { status: { $in: ['active', 'expiring-soon'] } });
+        return res.json({ success: true, types: types.sort(), source: 'mongodb' });
+      } catch (error) {
+        console.warn('⚠️ MongoDB scheme types failed, using schemes.json:', error.message);
+      }
+    }
+    const types = [...new Set(querySchemesFromJson({ limit: 10000 }).map((s) => s.type).filter(Boolean))].sort();
+    res.json({ success: true, types, source: 'schemes.json' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch types' });
   }
