@@ -1840,7 +1840,9 @@
   html.embed-hub body {
     height: 100%;
     min-height: 0;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
   }
   html.embed-hub {
     --map-header-offset: 0px;
@@ -1855,10 +1857,12 @@
   }
   html.embed-hub .main {
     display: flex;
+    min-width: 980px;
+    width: max-content;
+    max-width: none;
     height: 100%;
     min-height: 0;
-    max-height: 100%;
-    overflow: hidden;
+    overflow: visible;
   }
   html.embed-hub .sidebar {
     width: 260px;
@@ -1873,6 +1877,7 @@
   }
   html.embed-hub .map-container {
     flex: 1 1 auto;
+    min-width: 740px;
     min-height: 360px;
     height: 100%;
     width: 100%;
@@ -1904,6 +1909,11 @@
   html.embed-hub .guide-toggle {
     display: inline-flex !important;
     z-index: 120;
+    bottom: calc(62px + env(safe-area-inset-bottom, 0px));
+  }
+  html.embed-hub .map-hscroll-controls.is-active {
+    display: flex;
+    z-index: 1600;
   }
   html.embed-hub .helper-popup { top: calc(var(--map-overlay-top) + 46px); max-height: min(68vh, 440px); width: min(400px, calc(100vw - 24px)); }
   html.embed-hub .helper-popup.minimized { max-height: none; width: 118px; }
@@ -3036,7 +3046,7 @@ setTimeout(() => {
 
 const mobileSwipeHint = document.getElementById("mobile-swipe-hint");
 function initMobileSwipeHint() {
-  if (!mobileSwipeHint || window.innerWidth > 700) {
+  if (!mobileSwipeHint || !mapHScrollEnabled()) {
     if (mobileSwipeHint) mobileSwipeHint.style.display = "none";
     return;
   }
@@ -3093,12 +3103,21 @@ function mapHScrollMetrics() {
   return { max, railW, thumbW, travel };
 }
 
+function isHubEmbedMap() {
+  return document.documentElement.classList.contains("embed-hub");
+}
+
+function mapHScrollEnabled() {
+  if (mapHScrollMax() < 12) return false;
+  if (isHubEmbedMap()) return true;
+  return window.innerWidth <= 700;
+}
+
 function syncMapHScrollUi() {
   if (!mapHscrollControls) return;
-  const mobile = window.innerWidth <= 700;
   const max = mapHScrollMax();
   const host = mapHScrollHost();
-  if (!mobile || max < 12) {
+  if (!mapHScrollEnabled()) {
     mapHscrollControls.classList.remove("is-active");
     return;
   }
@@ -3197,7 +3216,7 @@ function mapHScrollFromClientXValue(clientX) {
 }
 
 function isMobileMapLayout() {
-  return window.innerWidth <= 700 && mapHScrollMax() > 12;
+  return mapHScrollEnabled();
 }
 
 function bindMobileMapHorizontalPan(el) {
@@ -4890,8 +4909,15 @@ Promise.all([loadVenues(), loadMapRegions()]).then(([items, regions]) => {
     tryFocusPendingVenue();
   });
   if (document.documentElement.classList.contains("embed-hub")) {
-    setTimeout(relayoutMap, 120);
-    setTimeout(relayoutMap, 600);
+    setTimeout(() => {
+      relayoutMap();
+      syncMapHScrollUi();
+      initMobileSwipeHint();
+    }, 120);
+    setTimeout(() => {
+      relayoutMap();
+      syncMapHScrollUi();
+    }, 600);
   }
   try {
     if (new URLSearchParams(window.location.search).get("suggest") === "1") {
