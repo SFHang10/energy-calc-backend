@@ -1932,22 +1932,27 @@
       opacity: 0;
     }
     .map-hscroll-controls {
-      display: flex;
+      display: none;
       align-items: center;
       gap: 8px;
-      position: fixed;
+      position: fixed !important;
       bottom: max(12px, env(safe-area-inset-bottom, 0px));
       left: max(12px, env(safe-area-inset-left, 0px));
       right: max(12px, env(safe-area-inset-right, 0px));
-      z-index: 1350;
-      padding: 8px 10px;
+      z-index: 1600;
+      padding: 10px 12px;
       border-radius: 14px;
       border: 1px solid rgba(196, 94, 10, 0.45);
-      background: rgba(18, 12, 8, 0.94);
+      background: rgba(18, 12, 8, 0.96);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
       pointer-events: auto;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
     }
-    .map-hscroll-controls[hidden] { display: none !important; }
+    .map-hscroll-controls.is-active {
+      display: flex;
+    }
     .map-hscroll-btn {
       flex-shrink: 0;
       width: 38px;
@@ -1977,13 +1982,29 @@
       text-align: center;
       font-family: 'JetBrains Mono', monospace;
     }
-    .map-hscroll-range {
+    .map-hscroll-rail {
+      position: relative;
       width: 100%;
-      height: 28px;
-      margin: 0;
-      accent-color: var(--orange-lt);
-      cursor: pointer;
-      touch-action: pan-x;
+      height: 34px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(196, 94, 10, 0.35);
+      cursor: grab;
+      touch-action: none;
+    }
+    .map-hscroll-rail.is-dragging { cursor: grabbing; }
+    .map-hscroll-thumb {
+      position: absolute;
+      top: 3px;
+      left: 0;
+      height: 26px;
+      min-width: 44px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #f0a03a 0%, #c45e0a 100%);
+      border: 1px solid rgba(255, 224, 176, 0.45);
+      box-shadow: 0 2px 10px rgba(196, 94, 10, 0.45);
+      pointer-events: auto;
+      will-change: transform;
     }
     .mobile-swipe-hint {
       bottom: calc(68px + env(safe-area-inset-bottom, 0px));
@@ -2074,13 +2095,15 @@
   }
 })();
 </script>
-<div class="mobile-swipe-hint" id="mobile-swipe-hint" aria-hidden="true">Swipe sideways or use the scroll bar below →</div>
+<div class="mobile-swipe-hint" id="mobile-swipe-hint" aria-hidden="true">Drag the fixed bar below to scroll the map ↔</div>
 
-<div class="map-hscroll-controls" id="map-hscroll-controls" hidden aria-label="Scroll map left and right">
+<div class="map-hscroll-controls" id="map-hscroll-controls" aria-label="Scroll map left and right">
   <button type="button" class="map-hscroll-btn" id="map-hscroll-left" aria-label="Scroll map left">◀</button>
   <div class="map-hscroll-track">
-    <span class="map-hscroll-label">Scroll map ↔</span>
-    <input type="range" class="map-hscroll-range" id="map-hscroll-range" min="0" max="0" value="0" step="1" aria-label="Horizontal map position">
+    <span class="map-hscroll-label">Drag bar to scroll map ↔</span>
+    <div class="map-hscroll-rail" id="map-hscroll-rail" role="slider" aria-label="Horizontal map position" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" tabindex="0">
+      <div class="map-hscroll-thumb" id="map-hscroll-thumb"></div>
+    </div>
   </div>
   <button type="button" class="map-hscroll-btn" id="map-hscroll-right" aria-label="Scroll map right">▶</button>
 </div>
@@ -2657,11 +2680,15 @@ function scrollPageBy(deltaY) {
 }
 
 function initEmbedHubFixedChrome() {
-  if (!document.documentElement.classList.contains("embed-hub")) return;
+  const isHubEmbed = document.documentElement.classList.contains("embed-hub");
   const bar = document.querySelector(".map-top-actions");
   const helper = document.getElementById("helper-popup");
-  if (bar && bar.parentElement !== document.body) document.body.appendChild(bar);
-  if (helper && helper.parentElement !== document.body) document.body.appendChild(helper);
+  const hscroll = document.getElementById("map-hscroll-controls");
+  if (isHubEmbed) {
+    if (bar && bar.parentElement !== document.body) document.body.appendChild(bar);
+    if (helper && helper.parentElement !== document.body) document.body.appendChild(helper);
+  }
+  if (hscroll && hscroll.parentElement !== document.body) document.body.appendChild(hscroll);
 }
 
 function updateHelperVisibility() {
@@ -2892,7 +2919,8 @@ initMobileSwipeHint();
 window.addEventListener("resize", initMobileSwipeHint);
 
 const mapHscrollControls = document.getElementById("map-hscroll-controls");
-const mapHscrollRange = document.getElementById("map-hscroll-range");
+const mapHscrollRail = document.getElementById("map-hscroll-rail");
+const mapHscrollThumb = document.getElementById("map-hscroll-thumb");
 const mapHscrollLeft = document.getElementById("map-hscroll-left");
 const mapHscrollRight = document.getElementById("map-hscroll-right");
 
@@ -2905,17 +2933,37 @@ function mapHScrollMax() {
   return Math.max(0, host.scrollWidth - host.clientWidth);
 }
 
+function mapHScrollMetrics() {
+  const rail = mapHscrollRail;
+  const host = mapHScrollHost();
+  const max = mapHScrollMax();
+  const railW = rail ? rail.clientWidth : 0;
+  const ratio = host.scrollWidth > 0 ? host.clientWidth / host.scrollWidth : 1;
+  const thumbW = railW ? Math.max(44, Math.round(railW * ratio)) : 44;
+  const travel = Math.max(0, railW - thumbW);
+  return { max, railW, thumbW, travel };
+}
+
 function syncMapHScrollUi() {
-  if (!mapHscrollControls || !mapHscrollRange) return;
+  if (!mapHscrollControls) return;
   const mobile = window.innerWidth <= 700;
   const max = mapHScrollMax();
+  const host = mapHScrollHost();
   if (!mobile || max < 12) {
-    mapHscrollControls.hidden = true;
+    mapHscrollControls.classList.remove("is-active");
     return;
   }
-  mapHscrollControls.hidden = false;
-  mapHscrollRange.max = String(max);
-  mapHscrollRange.value = String(Math.round(mapHScrollHost().scrollLeft));
+  mapHscrollControls.classList.add("is-active");
+  const { thumbW, travel } = mapHScrollMetrics();
+  if (mapHscrollThumb) {
+    mapHscrollThumb.style.width = `${thumbW}px`;
+    const offset = max && travel ? (host.scrollLeft / max) * travel : 0;
+    mapHscrollThumb.style.transform = `translateX(${offset}px)`;
+  }
+  if (mapHscrollRail) {
+    mapHscrollRail.setAttribute("aria-valuemax", String(max));
+    mapHscrollRail.setAttribute("aria-valuenow", String(Math.round(host.scrollLeft)));
+  }
 }
 
 function setMapHScrollLeft(value) {
@@ -2929,11 +2977,60 @@ function nudgeMapHScroll(delta) {
   setMapHScrollLeft(mapHScrollHost().scrollLeft + delta);
 }
 
-if (mapHscrollRange) {
-  mapHscrollRange.addEventListener("input", function () {
-    setMapHScrollLeft(Number(mapHscrollRange.value) || 0);
+function mapHScrollFromClientX(clientX) {
+  const rail = mapHscrollRail;
+  if (!rail) return;
+  const rect = rail.getBoundingClientRect();
+  const { max, thumbW, travel } = mapHScrollMetrics();
+  if (!max || !travel) return;
+  const x = Math.max(0, Math.min(rect.width - thumbW, clientX - rect.left - thumbW / 2));
+  setMapHScrollLeft((x / travel) * max);
+}
+
+function bindMapHScrollRail() {
+  if (!mapHscrollRail) return;
+  let dragging = false;
+
+  function onPointerDown(event) {
+    if (event.target.closest(".map-hscroll-btn")) return;
+    dragging = true;
+    mapHscrollRail.classList.add("is-dragging");
+    if (mapHscrollRail.setPointerCapture && event.pointerId != null) {
+      mapHscrollRail.setPointerCapture(event.pointerId);
+    }
+    mapHScrollFromClientX(event.clientX);
+    event.preventDefault();
+  }
+  function onPointerMove(event) {
+    if (!dragging) return;
+    mapHScrollFromClientX(event.clientX);
+    event.preventDefault();
+  }
+  function onPointerUp(event) {
+    if (!dragging) return;
+    dragging = false;
+    mapHscrollRail.classList.remove("is-dragging");
+    if (mapHscrollRail.releasePointerCapture && event.pointerId != null) {
+      try { mapHscrollRail.releasePointerCapture(event.pointerId); } catch (_) { /* ignore */ }
+    }
+  }
+
+  mapHscrollRail.addEventListener("pointerdown", onPointerDown);
+  mapHscrollRail.addEventListener("pointermove", onPointerMove);
+  mapHscrollRail.addEventListener("pointerup", onPointerUp);
+  mapHscrollRail.addEventListener("pointercancel", onPointerUp);
+
+  mapHscrollRail.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      nudgeMapHScroll(-Math.round(window.innerWidth * 0.18));
+    } else if (event.key === "ArrowRight") {
+      event.preventDefault();
+      nudgeMapHScroll(Math.round(window.innerWidth * 0.18));
+    }
   });
 }
+
 if (mapHscrollLeft) {
   mapHscrollLeft.addEventListener("click", function () {
     nudgeMapHScroll(-Math.round(window.innerWidth * 0.42));
@@ -2944,6 +3041,8 @@ if (mapHscrollRight) {
     nudgeMapHScroll(Math.round(window.innerWidth * 0.42));
   });
 }
+
+bindMapHScrollRail();
 
 window.addEventListener("scroll", syncMapHScrollUi, { passive: true });
 window.addEventListener("resize", syncMapHScrollUi);
