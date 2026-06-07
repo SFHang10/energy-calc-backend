@@ -146,6 +146,7 @@ npm run merge:music-discovery     # all three queues + map sync (after review)
 | **Music news** | `https://energy-calc-backend.onrender.com/live-music/news` |
 | **Scene status (venue alerts panel)** | `https://energy-calc-backend.onrender.com/live-music/scene-status?embed=1` |
 | **Helper hub (alerts + guide)** | `https://energy-calc-backend.onrender.com/live-music/helper` |
+| **Music Helper Guide (Wix full page)** | [livemusic4artists.com/musichelperguide](https://www.livemusic4artists.com/musichelperguide) — hub menu tab + map guide **Open full view** |
 | Music guide (full chat) | `https://energy-calc-backend.onrender.com/live-music/guide` |
 | Map file path (direct) | `/HTMLS%20GWM%20GWB/live-music-finder.html` |
 

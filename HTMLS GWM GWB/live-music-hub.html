@@ -330,6 +330,16 @@
       cursor: not-allowed;
       opacity: 0.85;
     }
+    a.placeholder-btn {
+      display: inline-block;
+      text-decoration: none;
+      cursor: pointer;
+      opacity: 1;
+    }
+    a.placeholder-btn:hover {
+      background: rgba(77, 166, 255, 0.2);
+      border-color: rgba(77, 166, 255, 0.55);
+    }
     .hub-map-section {
       flex-shrink: 0;
       height: var(--map-panel-h);
@@ -571,6 +581,13 @@
                 <button type="button" class="placeholder-btn" disabled>Coming soon</button>
               </div>
             </div>
+            <div class="placeholder-panel" id="helperGuidePanel" aria-hidden="true">
+              <div class="placeholder-card">
+                <h2>Music Helper Guide</h2>
+                <p>Venue alerts, live scene status, and the full artist guide chat — on your Wix helper page with day/night backdrop.</p>
+                <a class="placeholder-btn" id="helperGuideOpenLink" href="https://www.livemusic4artists.com/musichelperguide" target="_top" rel="noopener noreferrer">Open Music Helper Guide ↗</a>
+              </div>
+            </div>
           </div>
         </main>
       </div>
@@ -600,6 +617,8 @@
   </div>
 
   <script>
+    const MUSIC_HELPER_GUIDE_URL = 'https://www.livemusic4artists.com/musichelperguide';
+
     const TABS = [
       {
         id: 'ticker',
@@ -627,6 +646,14 @@
         toolbar: 'Music news · Amsterdam round-up',
         src: './live-music-news.html?embed=hub',
         openHref: './live-music-news.html'
+      },
+      {
+        id: 'helper-guide',
+        icon: '🎵',
+        title: 'Music Helper Guide',
+        desc: 'Venue alerts & artist guide',
+        toolbar: 'Music Helper Guide · full Wix page',
+        externalHref: MUSIC_HELPER_GUIDE_URL
       }
     ];
 
@@ -637,6 +664,7 @@
     const frame = document.getElementById('hubFrame');
     const mapFrame = document.getElementById('mapFrame');
     const newsPanel = document.getElementById('newsPanel');
+    const helperGuidePanel = document.getElementById('helperGuidePanel');
     const toolbarLabel = document.getElementById('toolbarLabel');
     const btnOpenTab = document.getElementById('btnOpenTab');
     const mapHint = document.getElementById('mapHint');
@@ -713,25 +741,49 @@
       if (!tab) return;
       activeTab = tab.id;
       toolbarLabel.textContent = tab.toolbar;
-      try {
-        const base = hubAssetHref(tab.openHref || './live-music-hub.html');
-        const openUrl = base.startsWith('/')
-          ? new URL(base, location.origin)
-          : new URL(base, location.href);
-        openUrl.searchParams.set('return', location.pathname + location.search);
-        btnOpenTab.href = openUrl.pathname + openUrl.search;
-      } catch (_) {
-        btnOpenTab.href = hubAssetHref(tab.openHref || './live-music-hub.html');
+      if (tab.externalHref) {
+        btnOpenTab.href = tab.externalHref;
+        btnOpenTab.target = '_top';
+        btnOpenTab.rel = 'noopener noreferrer';
+      } else {
+        btnOpenTab.target = '_blank';
+        btnOpenTab.rel = 'noopener noreferrer';
+        try {
+          const base = hubAssetHref(tab.openHref || './live-music-hub.html');
+          const openUrl = base.startsWith('/')
+            ? new URL(base, location.origin)
+            : new URL(base, location.href);
+          openUrl.searchParams.set('return', location.pathname + location.search);
+          btnOpenTab.href = openUrl.pathname + openUrl.search;
+        } catch (_) {
+          btnOpenTab.href = hubAssetHref(tab.openHref || './live-music-hub.html');
+        }
       }
 
-      if (tab.placeholder) {
+      if (tab.externalHref) {
         frame.hidden = true;
+        newsPanel.classList.remove('visible');
+        newsPanel.setAttribute('aria-hidden', 'true');
+        if (helperGuidePanel) {
+          helperGuidePanel.classList.add('visible');
+          helperGuidePanel.setAttribute('aria-hidden', 'false');
+        }
+      } else if (tab.placeholder) {
+        frame.hidden = true;
+        if (helperGuidePanel) {
+          helperGuidePanel.classList.remove('visible');
+          helperGuidePanel.setAttribute('aria-hidden', 'true');
+        }
         newsPanel.classList.add('visible');
         newsPanel.setAttribute('aria-hidden', 'false');
       } else {
         frame.hidden = false;
         newsPanel.classList.remove('visible');
         newsPanel.setAttribute('aria-hidden', 'true');
+        if (helperGuidePanel) {
+          helperGuidePanel.classList.remove('visible');
+          helperGuidePanel.setAttribute('aria-hidden', 'true');
+        }
         if (frame.getAttribute('data-current') !== tab.id) {
           frame.src = hubAssetHref(tab.src);
           frame.setAttribute('data-current', tab.id);

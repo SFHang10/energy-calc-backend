@@ -459,9 +459,9 @@
     position: fixed;
     top: calc(var(--map-overlay-top) + 46px);
     left: var(--map-overlay-center-x);
-    width: 340px;
-    max-width: calc(100% - 36px);
-    max-height: min(72vh, 420px);
+    width: min(420px, calc(100vw - 32px));
+    max-width: calc(100% - 24px);
+    max-height: min(82vh, 540px);
     background: var(--panel);
     border: 1px solid var(--helper-rust-border);
     border-left: 4px solid var(--helper-rust);
@@ -609,17 +609,21 @@
 
   .helper-scroll-hint {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    gap: 10px;
+    gap: 12px;
     margin-top: 12px;
-    padding: 9px 11px;
+    padding: 11px 13px;
     border-radius: 9px;
     background: rgba(240, 192, 64, 0.1);
     border: 1px solid rgba(240, 192, 64, 0.32);
-    font-size: 0.78em;
+    font-size: 0.8em;
     color: #e8d48a;
-    line-height: 1.4;
+    line-height: 1.5;
+  }
+  .helper-scroll-hint-text {
+    flex: 1;
+    min-width: 0;
   }
   .helper-scroll-hint strong { color: #f5e6a8; }
   .helper-scroll-arrow {
@@ -702,6 +706,48 @@
     box-shadow:
       0 0 14px rgba(34, 212, 255, 0.55),
       inset 0 0 14px rgba(34, 212, 255, 0.1);
+  }
+  .map-full-btn[hidden] {
+    display: none !important;
+  }
+
+  .page-scroll-hint {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    position: fixed;
+    right: max(10px, env(safe-area-inset-right, 0px));
+    top: 48%;
+    transform: translateY(-50%);
+    max-width: min(230px, 44vw);
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(240, 192, 64, 0.42);
+    background: rgba(22, 18, 8, 0.94);
+    color: #e8d48a;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.74em;
+    line-height: 1.45;
+    z-index: 1275;
+    pointer-events: none;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.42);
+    opacity: 1;
+    transition: opacity 0.35s ease;
+  }
+  .page-scroll-hint.is-on { display: inline-flex; }
+  .page-scroll-hint.fade-out { opacity: 0; }
+  .page-scroll-hint strong { color: #f5e6a8; }
+  .page-scroll-hint-arrow {
+    flex-shrink: 0;
+    color: #f0c040;
+    font-size: 1.35em;
+    font-weight: 700;
+    line-height: 1;
+    animation: page-scroll-hint-nudge 1.6s ease-in-out infinite;
+  }
+  @keyframes page-scroll-hint-nudge {
+    0%, 100% { transform: translateX(0); opacity: 0.75; }
+    50% { transform: translateX(-7px); opacity: 1; }
   }
 
   /* ── VENUE POPUP (absolute within map — sustainable map pattern) ── */
@@ -1569,6 +1615,44 @@
     display: none;
   }
 
+  .venue-tab-hint {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    position: fixed;
+    left: max(10px, env(safe-area-inset-left, 0px));
+    top: 44%;
+    transform: translateY(-50%);
+    max-width: min(220px, 46vw);
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(196, 94, 10, 0.45);
+    background: rgba(22, 14, 8, 0.94);
+    color: #ffe0b0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.74em;
+    line-height: 1.4;
+    z-index: 1275;
+    pointer-events: none;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.42);
+    opacity: 1;
+    transition: opacity 0.35s ease;
+  }
+  .venue-tab-hint.is-on { display: inline-flex; }
+  .venue-tab-hint.fade-out { opacity: 0; }
+  .venue-tab-hint-arrow {
+    flex-shrink: 0;
+    color: #f0a03a;
+    font-size: 1.35em;
+    font-weight: 700;
+    line-height: 1;
+    animation: venue-tab-hint-nudge 1.6s ease-in-out infinite;
+  }
+  @keyframes venue-tab-hint-nudge {
+    0%, 100% { transform: translateX(0); opacity: 0.75; }
+    50% { transform: translateX(7px); opacity: 1; }
+  }
+
   .guide-toggle {
     position: fixed;
     right: 16px;
@@ -1807,14 +1891,17 @@
   }
   html.embed-hub .helper-btn,
   html.embed-hub .reset-btn,
-  html.embed-hub .map-full-btn {
+  html.embed-hub .map-full-btn:not([hidden]) {
     display: inline-flex !important;
+  }
+  html.embed-hub .map-full-btn[hidden] {
+    display: none !important;
   }
   html.embed-hub .guide-toggle {
     display: inline-flex !important;
     z-index: 120;
   }
-  html.embed-hub .helper-popup { top: calc(var(--map-overlay-top) + 46px); max-height: min(58vh, 360px); }
+  html.embed-hub .helper-popup { top: calc(var(--map-overlay-top) + 46px); max-height: min(68vh, 440px); width: min(400px, calc(100vw - 24px)); }
   html.embed-hub .helper-popup.minimized { max-height: none; width: 118px; }
 
   /* Mobile: wide layout + horizontal scroll (standalone + hub iframe) — same pattern as Sustainability Map */
@@ -1848,6 +1935,25 @@
     .company-list {
       min-height: 0;
       -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pan-y;
+      overscroll-behavior-x: none;
+    }
+    .sidebar,
+    .sidebar-top,
+    .add-company-btn {
+      touch-action: pan-x pan-y;
+    }
+    .venue-tab-hint.is-on {
+      top: auto;
+      bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+      transform: none;
+      max-width: min(250px, 58vw);
+    }
+    .page-scroll-hint.is-on {
+      top: auto;
+      bottom: calc(138px + env(safe-area-inset-bottom, 0px));
+      transform: none;
+      max-width: min(270px, 64vw);
     }
     .map-container {
       min-width: 740px;
@@ -1887,9 +1993,9 @@
       left: auto;
       right: max(10px, env(safe-area-inset-right, 0px));
       top: 56px;
-      width: min(340px, calc(100vw - 24px));
-      max-width: calc(100vw - 24px);
-      max-height: min(74vh, 460px);
+      width: min(400px, calc(100vw - 20px));
+      max-width: calc(100vw - 20px);
+      max-height: min(78vh, 520px);
       transform: translateY(8px) scale(0.98);
     }
     .helper-popup.visible:not(.minimized) {
@@ -2097,6 +2203,16 @@
 </script>
 <div class="mobile-swipe-hint" id="mobile-swipe-hint" aria-hidden="true">Drag the fixed bar below to scroll the map ↔</div>
 
+<div class="venue-tab-hint" id="venue-tab-hint" aria-hidden="true">
+  <span>Click a venue tab to find out more on the venue and event</span>
+  <span class="venue-tab-hint-arrow" aria-hidden="true">→</span>
+</div>
+
+<div class="page-scroll-hint" id="page-scroll-hint" aria-hidden="true">
+  <span class="page-scroll-hint-arrow" aria-hidden="true">←</span>
+  <span>Having difficulties scrolling the map? Remember to use the <strong>scroll bar on the right</strong></span>
+</div>
+
 <div class="map-hscroll-controls" id="map-hscroll-controls" aria-label="Scroll map left and right">
   <button type="button" class="map-hscroll-btn" id="map-hscroll-left" aria-label="Scroll map left">◀</button>
   <div class="map-hscroll-track">
@@ -2183,7 +2299,7 @@
           <strong>Click and drag</strong> on the map to pan around Amsterdam — separate from scrolling the page.
         </p>
         <div class="helper-scroll-hint" role="note">
-          <span><strong>Also scroll the page</strong> up and down with the <strong>scroll bar on the right</strong> — independent of map zoom.</span>
+          <span class="helper-scroll-hint-text"><strong>Also scroll the page</strong> up and down with the <strong>scroll bar on the right</strong> — independent of map zoom.</span>
           <span class="helper-scroll-arrow" aria-hidden="true" title="Scroll bar on the right">→</span>
         </div>
         <p>
@@ -2302,7 +2418,7 @@
   <div class="guide-header">
     <span class="guide-header-title">Music Guide Assistant</span>
     <div class="guide-header-actions">
-      <a class="guide-full-link" id="guide-full-link" href="./live-music-guide.html" target="_top" rel="noopener noreferrer">Open full view</a>
+      <a class="guide-full-link" id="guide-full-link" href="https://www.livemusic4artists.com/musichelperguide" target="_top" rel="noopener noreferrer">Open full view</a>
       <button type="button" class="guide-close" id="guide-close" aria-label="Close Music Guide">✕</button>
     </div>
   </div>
@@ -2589,17 +2705,16 @@ function liveMusicMapHref(extra) {
   }
 }
 
-function liveMusicGuideHref(extra) {
-  const q = new URLSearchParams(extra || {});
-  const qs = q.toString() ? "?" + q.toString() : "";
-  const p = location.pathname || "";
-  if (p.indexOf("/live-music/") === 0) return "/live-music/guide" + qs;
-  if (p.indexOf("/HTMLS") === 0) return "/HTMLS%20GWM%20GWB/live-music-guide.html" + qs;
-  try {
-    return new URL("./live-music-guide.html", location.href).pathname + qs;
-  } catch (_) {
-    return "./live-music-guide.html" + qs;
-  }
+const MUSIC_HELPER_GUIDE_URL = "https://www.livemusic4artists.com/musichelperguide";
+
+function liveMusicGuideHref() {
+  return MUSIC_HELPER_GUIDE_URL;
+}
+
+function isFullMapStandalone() {
+  if (document.documentElement.classList.contains("embed-hub")) return false;
+  const p = (location.pathname || "").toLowerCase();
+  return p.indexOf("live-music-finder") !== -1 || p.indexOf("/live-music/map") !== -1;
 }
 
 function initMapNavLinks() {
@@ -2611,9 +2726,15 @@ function initMapNavLinks() {
   fullParams.set("from", "hub");
   if (pageParams.get("venue")) fullParams.set("venue", pageParams.get("venue"));
   if (backBtn) backBtn.href = liveMusicHubHref();
-  if (fullBtn && isHubEmbed) {
-    fullBtn.href = liveMusicMapHref(fullParams);
-    fullBtn.hidden = false;
+  if (fullBtn) {
+    if (isHubEmbed && !isFullMapStandalone()) {
+      fullBtn.href = liveMusicMapHref(fullParams);
+      fullBtn.hidden = false;
+      fullBtn.removeAttribute("hidden");
+    } else {
+      fullBtn.hidden = true;
+      fullBtn.setAttribute("hidden", "");
+    }
   }
   if (backBtn && !isHubEmbed && pageParams.get("from") === "hub") {
     backBtn.classList.add("back-home-link--from-hub");
@@ -2621,7 +2742,7 @@ function initMapNavLinks() {
   const guideFullLink = document.getElementById("guide-full-link");
   if (guideFullLink) {
     guideFullLink.href = liveMusicGuideHref();
-    if (!isHubEmbed) guideFullLink.target = "_blank";
+    guideFullLink.target = "_top";
   }
 }
 
@@ -2684,11 +2805,15 @@ function initEmbedHubFixedChrome() {
   const bar = document.querySelector(".map-top-actions");
   const helper = document.getElementById("helper-popup");
   const hscroll = document.getElementById("map-hscroll-controls");
+  const venueHint = document.getElementById("venue-tab-hint");
+  const pageScrollHint = document.getElementById("page-scroll-hint");
   if (isHubEmbed) {
     if (bar && bar.parentElement !== document.body) document.body.appendChild(bar);
     if (helper && helper.parentElement !== document.body) document.body.appendChild(helper);
   }
   if (hscroll && hscroll.parentElement !== document.body) document.body.appendChild(hscroll);
+  if (venueHint && venueHint.parentElement !== document.body) document.body.appendChild(venueHint);
+  if (pageScrollHint && pageScrollHint.parentElement !== document.body) document.body.appendChild(pageScrollHint);
 }
 
 function updateHelperVisibility() {
@@ -2923,8 +3048,23 @@ const mapHscrollRail = document.getElementById("map-hscroll-rail");
 const mapHscrollThumb = document.getElementById("map-hscroll-thumb");
 const mapHscrollLeft = document.getElementById("map-hscroll-left");
 const mapHscrollRight = document.getElementById("map-hscroll-right");
+let mapHScrollRafId = 0;
+let mapHScrollPendingLeft = null;
+
+function mapHScrollRoots() {
+  const roots = [
+    document.scrollingElement,
+    document.documentElement,
+    document.body
+  ].filter(Boolean);
+  return [...new Set(roots)];
+}
 
 function mapHScrollHost() {
+  const roots = mapHScrollRoots();
+  for (const el of roots) {
+    if (el.scrollWidth > el.clientWidth + 1) return el;
+  }
   return document.scrollingElement || document.documentElement;
 }
 
@@ -2966,59 +3106,65 @@ function syncMapHScrollUi() {
   }
 }
 
-function setMapHScrollLeft(value) {
-  const host = mapHScrollHost();
+function applyMapHScrollLeft(value) {
   const max = mapHScrollMax();
-  host.scrollLeft = Math.max(0, Math.min(max, value));
+  const left = Math.max(0, Math.min(max, value));
+  mapHScrollRoots().forEach((el) => {
+    if (el.scrollLeft !== left) el.scrollLeft = left;
+  });
   syncMapHScrollUi();
+}
+
+function setMapHScrollLeft(value) {
+  mapHScrollPendingLeft = value;
+  if (mapHScrollRafId) return;
+  mapHScrollRafId = requestAnimationFrame(() => {
+    mapHScrollRafId = 0;
+    if (mapHScrollPendingLeft == null) return;
+    const next = mapHScrollPendingLeft;
+    mapHScrollPendingLeft = null;
+    applyMapHScrollLeft(next);
+  });
 }
 
 function nudgeMapHScroll(delta) {
   setMapHScrollLeft(mapHScrollHost().scrollLeft + delta);
 }
 
-function mapHScrollFromClientX(clientX) {
-  const rail = mapHscrollRail;
-  if (!rail) return;
-  const rect = rail.getBoundingClientRect();
-  const { max, thumbW, travel } = mapHScrollMetrics();
-  if (!max || !travel) return;
-  const x = Math.max(0, Math.min(rect.width - thumbW, clientX - rect.left - thumbW / 2));
-  setMapHScrollLeft((x / travel) * max);
-}
-
 function bindMapHScrollRail() {
   if (!mapHscrollRail) return;
   let dragging = false;
+  let activePointerId = null;
 
-  function onPointerDown(event) {
-    if (event.target.closest(".map-hscroll-btn")) return;
-    dragging = true;
-    mapHscrollRail.classList.add("is-dragging");
-    if (mapHscrollRail.setPointerCapture && event.pointerId != null) {
-      mapHscrollRail.setPointerCapture(event.pointerId);
-    }
-    mapHScrollFromClientX(event.clientX);
-    event.preventDefault();
-  }
-  function onPointerMove(event) {
-    if (!dragging) return;
-    mapHScrollFromClientX(event.clientX);
-    event.preventDefault();
-  }
-  function onPointerUp(event) {
-    if (!dragging) return;
+  function endDrag() {
     dragging = false;
+    activePointerId = null;
     mapHscrollRail.classList.remove("is-dragging");
-    if (mapHscrollRail.releasePointerCapture && event.pointerId != null) {
-      try { mapHscrollRail.releasePointerCapture(event.pointerId); } catch (_) { /* ignore */ }
-    }
   }
 
-  mapHscrollRail.addEventListener("pointerdown", onPointerDown);
-  mapHscrollRail.addEventListener("pointermove", onPointerMove);
-  mapHscrollRail.addEventListener("pointerup", onPointerUp);
-  mapHscrollRail.addEventListener("pointercancel", onPointerUp);
+  mapHscrollRail.addEventListener("pointerdown", (event) => {
+    if (event.target.closest(".map-hscroll-btn")) return;
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    dragging = true;
+    activePointerId = event.pointerId;
+    mapHscrollRail.classList.add("is-dragging");
+    applyMapHScrollLeft(mapHScrollFromClientXValue(event.clientX));
+  });
+
+  window.addEventListener("pointermove", (event) => {
+    if (!dragging || event.pointerId !== activePointerId) return;
+    applyMapHScrollLeft(mapHScrollFromClientXValue(event.clientX));
+    event.preventDefault();
+  }, { passive: false });
+
+  window.addEventListener("pointerup", (event) => {
+    if (!dragging || event.pointerId !== activePointerId) return;
+    endDrag();
+  });
+  window.addEventListener("pointercancel", (event) => {
+    if (!dragging || event.pointerId !== activePointerId) return;
+    endDrag();
+  });
 
   mapHscrollRail.addEventListener("keydown", (event) => {
     if (event.key === "ArrowLeft") {
@@ -3028,6 +3174,160 @@ function bindMapHScrollRail() {
       event.preventDefault();
       nudgeMapHScroll(Math.round(window.innerWidth * 0.18));
     }
+  });
+}
+
+function mapHScrollFromClientXValue(clientX) {
+  const rail = mapHscrollRail;
+  if (!rail) return mapHScrollHost().scrollLeft;
+  const rect = rail.getBoundingClientRect();
+  const { max, thumbW, travel } = mapHScrollMetrics();
+  if (!max || !travel) return 0;
+  const x = Math.max(0, Math.min(rect.width - thumbW, clientX - rect.left - thumbW / 2));
+  return (x / travel) * max;
+}
+
+function isMobileMapLayout() {
+  return window.innerWidth <= 700 && mapHScrollMax() > 12;
+}
+
+function bindMobileMapHorizontalPan(el) {
+  if (!el) return;
+  let startX = 0;
+  let startY = 0;
+  let baseScroll = 0;
+  let axis = null;
+  const THRESH = 8;
+
+  el.addEventListener("touchstart", (event) => {
+    if (!isMobileMapLayout()) return;
+    if (event.touches.length !== 1) return;
+    if (event.target.closest("input, textarea, select, button, a, label, .map-hscroll-controls")) return;
+    startX = event.touches[0].clientX;
+    startY = event.touches[0].clientY;
+    baseScroll = mapHScrollHost().scrollLeft;
+    axis = null;
+  }, { passive: true });
+
+  el.addEventListener("touchmove", (event) => {
+    if (!isMobileMapLayout() || event.touches.length !== 1) return;
+    const x = event.touches[0].clientX;
+    const y = event.touches[0].clientY;
+    const dx = startX - x;
+    const dy = startY - y;
+
+    if (!axis) {
+      if (Math.abs(dx) < THRESH && Math.abs(dy) < THRESH) return;
+      axis = Math.abs(dx) >= Math.abs(dy) ? "x" : "y";
+    }
+
+    if (axis === "x") {
+      event.preventDefault();
+      applyMapHScrollLeft(baseScroll + dx);
+    }
+  }, { passive: false });
+
+  el.addEventListener("touchend", () => {
+    axis = null;
+  }, { passive: true });
+  el.addEventListener("touchcancel", () => {
+    axis = null;
+  }, { passive: true });
+}
+
+let mobileMapPanReady = false;
+function initMobileMapHorizontalPan() {
+  if (mobileMapPanReady) return;
+  bindMobileMapHorizontalPan(document.querySelector(".sidebar"));
+  mobileMapPanReady = true;
+}
+
+const VENUE_TAB_HINT_KEY = "live_music_venue_tab_hint_seen_v1";
+const VENUE_TAB_HINT_KEY_HUB = "live_music_venue_tab_hint_seen_hub_v1";
+const PAGE_SCROLL_HINT_KEY = "live_music_page_scroll_hint_seen_v1";
+const PAGE_SCROLL_HINT_KEY_HUB = "live_music_page_scroll_hint_seen_hub_v1";
+
+function initPageScrollHint() {
+  const hint = document.getElementById("page-scroll-hint");
+  const mapContainer = document.getElementById("map-container");
+  if (!hint || !mapContainer) return;
+
+  const isTouchUi = window.matchMedia("(hover: none), (max-width: 700px)").matches;
+  if (isTouchUi) {
+    const hintKey = document.documentElement.classList.contains("embed-hub")
+      ? PAGE_SCROLL_HINT_KEY_HUB
+      : PAGE_SCROLL_HINT_KEY;
+    try {
+      if (localStorage.getItem(hintKey) === "1") return;
+    } catch (_) { /* ignore */ }
+    hint.classList.add("is-on");
+    hint.setAttribute("aria-hidden", "false");
+    window.setTimeout(() => {
+      hint.classList.add("fade-out");
+      window.setTimeout(() => {
+        hint.classList.remove("is-on", "fade-out");
+        hint.setAttribute("aria-hidden", "true");
+      }, 400);
+      try { localStorage.setItem(hintKey, "1"); } catch (_) { /* ignore */ }
+    }, 9000);
+    return;
+  }
+
+  function showHint() {
+    hint.classList.add("is-on");
+    hint.setAttribute("aria-hidden", "false");
+  }
+  function hideHint() {
+    hint.classList.remove("is-on", "fade-out");
+    hint.setAttribute("aria-hidden", "true");
+  }
+  mapContainer.addEventListener("mouseenter", showHint);
+  mapContainer.addEventListener("mouseleave", hideHint);
+  mapContainer.addEventListener("focusin", showHint);
+  mapContainer.addEventListener("focusout", (event) => {
+    if (!mapContainer.contains(event.relatedTarget)) hideHint();
+  });
+}
+
+function initVenueTabHint() {
+  const hint = document.getElementById("venue-tab-hint");
+  const sidebar = document.querySelector(".sidebar");
+  if (!hint || !sidebar) return;
+
+  const isTouchUi = window.matchMedia("(hover: none), (max-width: 700px)").matches;
+  if (isTouchUi) {
+    const hintKey = document.documentElement.classList.contains("embed-hub")
+      ? VENUE_TAB_HINT_KEY_HUB
+      : VENUE_TAB_HINT_KEY;
+    try {
+      if (localStorage.getItem(hintKey) === "1") return;
+    } catch (_) { /* ignore */ }
+    hint.classList.add("is-on");
+    hint.setAttribute("aria-hidden", "false");
+    window.setTimeout(() => {
+      hint.classList.add("fade-out");
+      window.setTimeout(() => {
+        hint.classList.remove("is-on", "fade-out");
+        hint.setAttribute("aria-hidden", "true");
+      }, 400);
+      try { localStorage.setItem(hintKey, "1"); } catch (_) { /* ignore */ }
+    }, 9000);
+    return;
+  }
+
+  function showHint() {
+    hint.classList.add("is-on");
+    hint.setAttribute("aria-hidden", "false");
+  }
+  function hideHint() {
+    hint.classList.remove("is-on", "fade-out");
+    hint.setAttribute("aria-hidden", "true");
+  }
+  sidebar.addEventListener("mouseenter", showHint);
+  sidebar.addEventListener("mouseleave", hideHint);
+  sidebar.addEventListener("focusin", showHint);
+  sidebar.addEventListener("focusout", (event) => {
+    if (!sidebar.contains(event.relatedTarget)) hideHint();
   });
 }
 
@@ -3043,7 +3343,13 @@ if (mapHscrollRight) {
 }
 
 bindMapHScrollRail();
+initMobileMapHorizontalPan();
+initVenueTabHint();
+initPageScrollHint();
 
+mapHScrollRoots().forEach((el) => {
+  el.addEventListener("scroll", syncMapHScrollUi, { passive: true });
+});
 window.addEventListener("scroll", syncMapHScrollUi, { passive: true });
 window.addEventListener("resize", syncMapHScrollUi);
 window.addEventListener("orientationchange", function () {
