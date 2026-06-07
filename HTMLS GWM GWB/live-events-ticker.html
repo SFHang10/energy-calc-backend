@@ -447,17 +447,55 @@
   }
   .card-events .card-more { color: #4da6ff; }
   .card-catering .card-more { color: #ff8c1a; }
-  .detail-card .card-contact { display: none; }
 
   .card-contact {
-    border-top: 1px solid #1a1a1a;
-    padding-top: 10px;
-    margin-top: auto;
+    margin-top: 10px;
     font-family: var(--mono);
     font-size: 10px;
+  }
+  .card-link-row {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .card-chip-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 9px;
+    border-radius: 4px;
+    border: 1px solid #2a2a2a;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  }
+  .card-events .card-chip-link {
+    color: #9fd4ff;
+    border-color: rgba(77, 166, 255, 0.35);
+    background: rgba(77, 166, 255, 0.08);
+  }
+  .card-catering .card-chip-link {
+    color: #ffcc80;
+    border-color: rgba(255, 140, 26, 0.35);
+    background: rgba(255, 140, 26, 0.08);
+  }
+  .card-chip-link:hover {
+    text-decoration: none;
+    color: #fff;
+  }
+  .card-events .card-chip-link:hover { border-color: #4da6ff; background: rgba(77, 166, 255, 0.16); }
+  .card-catering .card-chip-link:hover { border-color: #ff8c1a; background: rgba(255, 140, 26, 0.16); }
+  .card-chip-link.card-chip-map {
+    color: #f0a03a;
+    border-color: rgba(240, 160, 58, 0.4);
+    background: rgba(240, 160, 58, 0.1);
+  }
+  .card-chip-link.card-chip-map:hover {
+    border-color: #f0a03a;
+    background: rgba(240, 160, 58, 0.18);
   }
   .card-events .card-contact { border-top-color: #4da6ff22; }
   .card-catering .card-contact { border-top-color: #ff8c1a22; }
@@ -502,6 +540,27 @@
     border-bottom: 1px solid #1a1a1a;
     font-family: var(--mono);
     font-size: 12px;
+  }
+  .ticker-back-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(196, 94, 10, 0.45);
+    background: rgba(196, 94, 10, 0.14);
+    color: #ffcc80;
+    text-decoration: none;
+    font-family: var(--font-clean);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+  }
+  .ticker-back-home:hover {
+    color: #fff;
+    border-color: #f0a03a;
+    background: rgba(196, 94, 10, 0.24);
   }
   .ticker-back-link { color: #7ec8ff; text-decoration: none; letter-spacing: 0.04em; }
   .ticker-back-link:hover { color: #b5e3ff; text-decoration: underline; }
@@ -563,11 +622,33 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
   }
-  html.embed-hub .detail-card { min-height: 172px; padding: 14px 14px 12px; }
+  html.embed-hub .detail-card { min-height: 188px; padding: 14px 14px 12px; }
   html.embed-hub .card-title { font-size: 14px; }
   html.embed-hub .card-desc { font-size: 10px; line-height: 1.5; }
   html.embed-hub .status-bar { margin-top: 8px; padding: 0 10px; max-width: none; }
   html.embed-hub .footer { display: none; }
+  /* Main hub only (?embed=hub) gets click-to-expand + map sync — not standalone tab or slim strip */
+  html.ticker-embed .ticker-item,
+  html:not(.embed-hub) .ticker-item {
+    cursor: default;
+    pointer-events: none;
+  }
+  html.ticker-embed .ticker-item:hover,
+  html:not(.embed-hub) .ticker-item:hover {
+    background: transparent;
+  }
+  html.ticker-embed .item-detail,
+  html:not(.embed-hub) .item-detail {
+    display: none !important;
+  }
+  html.ticker-embed .ticker-item.expanded,
+  html:not(.embed-hub) .ticker-item.expanded {
+    min-width: 0;
+    max-width: none;
+    padding: 0 20px;
+    box-shadow: none;
+    background: transparent;
+  }
   @media (max-width: 1100px) {
     html.embed-hub .cards-section { grid-template-columns: 1fr 1fr; }
   }
@@ -593,7 +674,7 @@
 <body class="ticker-has-back">
 
 <nav class="ticker-back-bar" aria-label="Navigation">
-  <a class="ticker-back-link" href="./live-music-hub.html">← Live Music Hub</a>
+  <a class="ticker-back-home" id="ticker-back-home" href="https://www.livemusic4artists.com/" target="_top" rel="noopener noreferrer">← Back to home</a>
   <a class="ticker-back-link" href="./live-music-finder.html">Live jam map</a>
   <a class="ticker-back-link" href="./live-events-updates.html">What's on — full list</a>
 </nav>
@@ -652,8 +733,8 @@
     </div>
     <div class="card-venue" id="card-j1-venue"></div>
     <div class="card-desc" id="card-j1-desc"></div>
-    <div class="card-more">Click to pin</div>
     <div class="card-contact" id="card-j1-contact" hidden></div>
+    <div class="card-more">Click card to pin</div>
   </div>
   <div class="detail-card card-events visible" id="card-j2">
     <div class="pin-badge">pinned</div>
@@ -665,8 +746,8 @@
     </div>
     <div class="card-venue" id="card-j2-venue"></div>
     <div class="card-desc" id="card-j2-desc"></div>
-    <div class="card-more">Click to pin</div>
     <div class="card-contact" id="card-j2-contact" hidden></div>
+    <div class="card-more">Click card to pin</div>
   </div>
   <div class="detail-card card-catering visible" id="card-g1">
     <div class="pin-badge">pinned</div>
@@ -678,8 +759,8 @@
     </div>
     <div class="card-venue" id="card-g1-venue"></div>
     <div class="card-desc" id="card-g1-desc"></div>
-    <div class="card-more">Click to pin</div>
     <div class="card-contact" id="card-g1-contact" hidden></div>
+    <div class="card-more">Click card to pin</div>
   </div>
   <div class="detail-card card-catering visible" id="card-g2">
     <div class="pin-badge">pinned</div>
@@ -691,8 +772,8 @@
     </div>
     <div class="card-venue" id="card-g2-venue"></div>
     <div class="card-desc" id="card-g2-desc"></div>
-    <div class="card-more">Click to pin</div>
     <div class="card-contact" id="card-g2-contact" hidden></div>
+    <div class="card-more">Click card to pin</div>
   </div>
 </div>
 
@@ -739,6 +820,11 @@ let cardDetailByPrefix = {};
 
 function isEmbedHub() {
   return document.documentElement.classList.contains('embed-hub');
+}
+
+/** Click expand, pause marquee, and jump map — main Live Music hub iframe only */
+function isHubTickerInteract() {
+  return isEmbedHub();
 }
 
 function notifyHubMapVenue(venueId, venueName) {
@@ -877,10 +963,12 @@ function buildTrack(events, dateClass, trackId, type) {
         newBadgeHtml(detail) +
       '</div>' +
       buildItemDetailHTML(detail);
-    el.addEventListener('click', (ev) => {
-      if (ev.target.closest('a')) return;
-      handleTickerClick(el, type);
-    });
+    if (isHubTickerInteract()) {
+      el.addEventListener('click', (ev) => {
+        if (ev.target.closest('a')) return;
+        handleTickerClick(el, type);
+      });
+    }
     track.appendChild(el);
   });
 }
@@ -892,6 +980,7 @@ function escapeHtml(s) {
 }
 
 function handleTickerClick(el, type) {
+  if (!isHubTickerInteract()) return;
   const id = el.dataset.id;
   const already = tickerSelected && tickerSelected.id === id && tickerSelected.type === type;
 
@@ -952,13 +1041,55 @@ function pushToCards(type, id) {
   flashCard(target, match);
 }
 
+function buildCardLinksHTML(item) {
+  const chips = [];
+  const site = item.webUrl || item.href;
+  if (site) {
+    chips.push(
+      '<a class="card-chip-link" href="' + escapeHtml(site) + '" target="_blank" rel="noopener noreferrer">Venue site</a>'
+    );
+  }
+  if (item.email) {
+    chips.push(
+      '<a class="card-chip-link" href="mailto:' + escapeHtml(item.email) + '">Email</a>'
+    );
+  }
+  if (item.phone) {
+    const tel = String(item.phone).replace(/[^\d+]/g, '');
+    if (tel) {
+      chips.push(
+        '<a class="card-chip-link" href="tel:' + escapeHtml(tel) + '">Call</a>'
+      );
+    }
+  }
+  if (item.venueId) {
+    if (isEmbedHub()) {
+      chips.push(
+        '<a class="card-chip-link card-chip-map map-venue-link" href="#" data-venue-id="' +
+          escapeHtml(String(item.venueId)) + '" data-venue-name="' +
+          escapeHtml(item.venue || item.title || '') + '">On map</a>'
+      );
+    } else {
+      chips.push(
+        '<a class="card-chip-link card-chip-map" href="' + escapeHtml(mapUrlForVenue(item.venueId)) + '">On map</a>'
+      );
+    }
+  }
+  if (!chips.length) return '';
+  return '<div class="card-link-row">' + chips.join('') + '</div>';
+}
+
 function buildContactHTML(item) {
   let html = '';
   if (item.email) {
     html += '<div class="contact-row"><span class="contact-icon">✉</span><a class="contact-link" href="mailto:' + escapeHtml(item.email) + '">' + escapeHtml(item.email) + '</a></div>';
   }
   if (item.phone) {
-    html += '<div class="contact-row"><span class="contact-icon">☎</span><span class="contact-link">' + escapeHtml(item.phone) + '</span></div>';
+    const tel = String(item.phone).replace(/[^\d+]/g, '');
+    const phoneInner = tel
+      ? '<a class="contact-link" href="tel:' + escapeHtml(tel) + '">' + escapeHtml(item.phone) + '</a>'
+      : '<span class="contact-link">' + escapeHtml(item.phone) + '</span>';
+    html += '<div class="contact-row"><span class="contact-icon">☎</span>' + phoneInner + '</div>';
   }
   const link = item.webUrl || item.href;
   if (link) {
@@ -1000,6 +1131,12 @@ function fillCard(prefix, data) {
   if (venueEl) venueEl.textContent = data.venue || '';
   const teaser = data.line || truncateText(data.desc, 100);
   document.getElementById(prefix + '-desc').textContent = teaser;
+  const contactEl = document.getElementById(prefix + '-contact');
+  if (contactEl) {
+    const linksHtml = buildCardLinksHTML(data);
+    contactEl.innerHTML = linksHtml;
+    contactEl.hidden = !linksHtml;
+  }
 }
 
 function flashCard(cardId, data) {
@@ -1103,7 +1240,35 @@ async function boot() {
   initCards();
 }
 
+const LIVE_MUSIC_SITE_HOME = 'https://www.livemusic4artists.com/';
+
+function liveMusicHubHref() {
+  return LIVE_MUSIC_SITE_HOME;
+}
+
+function initTickerBackHome() {
+  const btn = document.getElementById('ticker-back-home');
+  if (!btn) return;
+  const p = new URLSearchParams(window.location.search);
+  const ret = p.get('return');
+  if (ret) {
+    try {
+      btn.href = new URL(ret, window.location.href).href;
+      btn.removeAttribute('target');
+    } catch (_) {
+      btn.href = liveMusicHubHref();
+      btn.target = '_top';
+      btn.rel = 'noopener noreferrer';
+    }
+  } else {
+    btn.href = liveMusicHubHref();
+    btn.target = '_top';
+    btn.rel = 'noopener noreferrer';
+  }
+}
+
 (function initEmbed() {
+  initTickerBackHome();
   const isEmbed = document.documentElement.classList.contains('ticker-embed');
   const strip = document.getElementById('embedOpenStrip');
   const stripLink = document.getElementById('embedOpenFullLink');
