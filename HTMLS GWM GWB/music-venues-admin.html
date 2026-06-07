@@ -22,21 +22,24 @@
     .status { padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; }
     .status.verified { background: rgba(39, 174, 96, 0.25); color: #96e5b9; }
     .status.unverified { background: rgba(240, 160, 58, 0.2); color: #ffd6a0; }
+    .status.pending { background: rgba(77, 166, 255, 0.2); color: #9fd4ff; }
     .stale { color: #ffd08c; font-size: 0.72rem; margin-top: 4px; display: inline-block; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>Music Venues Admin</h1>
-    <div class="sub">Validate listings and control what shows as verified. <a href="./music-media-admin.html" style="color:#9fd4ff">Music media admin →</a> approve photos &amp; videos before merge.</div>
+    <div class="sub">Approve public map suggestions (pending), then validate listings. <a href="./music-media-admin.html" style="color:#9fd4ff">Music media admin →</a> approve photos &amp; videos before merge.</div>
     <div class="bar">
       <input id="q" placeholder="Search venues">
       <select id="status-filter">
         <option value="all">All statuses</option>
         <option value="verified">Verified</option>
         <option value="unverified">Unverified</option>
+        <option value="pending">Pending review</option>
       </select>
       <button id="toggle-all">Select all</button>
+      <button id="approve-selected">Approve pending</button>
       <button id="verify-selected">Verify selected</button>
       <button id="refresh">Refresh</button>
     </div>
@@ -73,7 +76,9 @@
       const rows = document.getElementById('rows');
       rows.innerHTML = '<tr><td colspan="8">Loading...</td></tr>';
       const status = document.getElementById('status-filter').value;
-      const url = status === 'all' ? '/api/music-venues' : `/api/music-venues?verificationStatus=${encodeURIComponent(status)}`;
+      const url = status === 'all'
+        ? '/api/music-venues?includePending=1'
+        : `/api/music-venues?verificationStatus=${encodeURIComponent(status)}`;
       try {
         const res = await fetch(url);
         const data = await res.json();
@@ -124,8 +129,10 @@
             ${isStale(v.lastVerified) ? '<span class="stale">Needs re-check</span>' : ''}
           </td>
           <td>
-            <button onclick="updateVenue(${Number(v.id)}, 'verified')">Mark verified</button>
-            <button onclick="updateVenue(${Number(v.id)}, 'unverified')">Mark unverified</button>
+            ${(v.verificationStatus || '').toLowerCase() === 'pending'
+              ? `<button onclick="updateVenue(${Number(v.id)}, 'unverified')">Approve to map</button>`
+              : `<button onclick="updateVenue(${Number(v.id)}, 'verified')">Mark verified</button>
+                 <button onclick="updateVenue(${Number(v.id)}, 'unverified')">Mark unverified</button>`}
           </td>
         </tr>
       `).join('');
@@ -157,11 +164,25 @@
       await loadVenues();
     }
 
+    async function approveSelected() {
+      const checks = [...document.querySelectorAll('.venue-check:checked')];
+      if (!checks.length) return;
+      for (const check of checks) {
+        const id = Number(check.dataset.id);
+        if (!Number.isFinite(id)) continue;
+        const venue = venues.find((v) => Number(v.id) === id);
+        if (!venue || (venue.verificationStatus || '').toLowerCase() !== 'pending') continue;
+        await updateVenue(id, 'unverified', false);
+      }
+      await loadVenues();
+    }
+
     document.getElementById('refresh').addEventListener('click', loadVenues);
     document.getElementById('toggle-all').addEventListener('click', () => {
       allSelected = !allSelected;
       renderRows();
     });
+    document.getElementById('approve-selected').addEventListener('click', approveSelected);
     document.getElementById('verify-selected').addEventListener('click', verifySelected);
     document.getElementById('status-filter').addEventListener('change', loadVenues);
     document.getElementById('q').addEventListener('input', renderRows);

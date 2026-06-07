@@ -207,6 +207,10 @@ router.get('/', async (req, res) => {
     if (genre && genre !== 'all') {
       items = items.filter((v) => v.genre === normalizeGenre(genre));
     }
+    const includePending = req.query.includePending === '1';
+    if (!includePending && verificationStatus !== 'pending') {
+      items = items.filter((v) => (v.verificationStatus || 'unverified') !== 'pending');
+    }
     if (verificationStatus && verificationStatus !== 'all') {
       items = items.filter((v) => (v.verificationStatus || 'unverified') === verificationStatus);
     }
@@ -251,11 +255,15 @@ router.post('/', async (req, res) => {
     const items = store.items || [];
     const existing = items.find((v) => v.name?.toLowerCase() === name.toLowerCase());
     if (existing) {
-      return res.json({ item: existing, existing: true });
+      const pending = (existing.verificationStatus || '').toLowerCase() === 'pending';
+      return res.json({ item: existing, existing: true, pending });
     }
 
     const venue = buildVenue(req.body, nextId(items), items.length);
     venue.name = name;
+    venue.source = 'submission';
+    venue.verificationStatus = 'pending';
+    venue.sourceNote = toText(req.body?.sourceNote, 200) || 'Public map suggestion — awaiting review';
 
     const nextStore = {
       ...store,

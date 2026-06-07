@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Who We Are — Live Music For Artists</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #f0a03a;
+      --accent-blue: #4da6ff;
+      --accent-orange: #ff8c1a;
+      --black: #0a0a0a;
+      --panel: rgba(8, 8, 8, 0.82);
+      --border: #2a2a2a;
+      --text: #f0ede8;
+      --text-dim: #9a9088;
+      --font: 'Space Grotesk', sans-serif;
+      --font-display: 'Playfair Display', serif;
+      --font-clean: 'IBM Plex Sans', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      --hub-max: min(1200px, calc(100vw - 40px));
+      --hub-backdrop-image: url("https://static.wixstatic.com/media/c123de_538ebcd0cb8744009c22d5676cb8a5da~mv2.jpg");
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: auto; overflow-x: hidden; }
+    body {
+      background: #020408;
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      padding: 40px 0 64px;
+      position: relative;
+    }
+    .hub-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(180deg, rgba(2, 5, 12, 0.48) 0%, rgba(0, 2, 6, 0.62) 100%),
+        var(--hub-backdrop-image);
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.84) saturate(1.08) contrast(1.03);
+    }
+    .wrap { max-width: var(--hub-max); margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+    .nav-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+      margin-bottom: 28px;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    .nav-row a { color: #7ec8ff; text-decoration: none; }
+    .nav-row a:hover { text-decoration: underline; }
+    .header { text-align: center; margin-bottom: 28px; }
+    .header-eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: #8a949e;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .header-title {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #fff;
+      text-shadow: 0 4px 24px rgba(0, 0, 0, 0.8);
+    }
+    .header-title span { color: var(--accent); }
+    .header-sub {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #a8b6c4;
+      margin-top: 12px;
+      letter-spacing: 0.06em;
+      max-width: 680px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.55;
+    }
+    .meta-bar {
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 24px;
+    }
+    .meta-bar strong { color: #aaa; }
+    .roundup-block {
+      background: rgba(4, 8, 14, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 22px 18px;
+      margin-bottom: 28px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    }
+    .roundup-kicker {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .roundup-title {
+      font-family: var(--font-display);
+      font-size: clamp(22px, 3.2vw, 30px);
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+    .roundup-lead p {
+      font-family: var(--font-clean);
+      font-size: 14px;
+      line-height: 1.65;
+      color: #c8d0d8;
+      margin-bottom: 12px;
+    }
+    .roundup-lead p:last-child { margin-bottom: 0; }
+    .roundup-lead-short {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #222;
+      font-family: var(--font-clean);
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+    .hero-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .hero-photo {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      aspect-ratio: 16 / 10;
+      background: #111;
+    }
+    .hero-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      image-rendering: crisp-edges;
+    }
+    .section-kicker {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent-blue);
+      margin-bottom: 8px;
+    }
+    .section-heading {
+      font-family: var(--font-display);
+      font-size: clamp(20px, 2.8vw, 26px);
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 8px;
+      line-height: 1.25;
+    }
+    .tab-desc {
+      font-family: var(--font-clean);
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-dim);
+      margin-bottom: 22px;
+      max-width: 720px;
+    }
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .news-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      backdrop-filter: blur(8px);
+    }
+    .news-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(77, 166, 255, 0.35);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    }
+    .news-card-media {
+      height: 140px;
+      background: linear-gradient(135deg, #1a1a2e, #0f172a);
+      overflow: hidden;
+      position: relative;
+    }
+    .news-card-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .news-card-body { padding: 14px 16px 16px; flex: 1; display: flex; flex-direction: column; }
+    .news-card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      align-items: center;
+      margin-bottom: 8px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #666;
+    }
+    .news-card-date {
+      color: #9fd4ff;
+      background: rgba(77, 166, 255, 0.12);
+      border: 1px solid rgba(77, 166, 255, 0.3);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .news-card-source {
+      color: #ffcc80;
+      background: rgba(240, 160, 58, 0.1);
+      border: 1px solid rgba(240, 160, 58, 0.3);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .news-card-title {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.35;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    .news-card-snippet {
+      font-family: var(--font-clean);
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text-dim);
+      flex: 1;
+      margin-bottom: 12px;
+    }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .tag {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid #333;
+      color: #888;
+    }
+    .card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+    .card-link {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border-radius: 4px;
+      border: 1px solid rgba(77, 166, 255, 0.35);
+      background: rgba(77, 166, 255, 0.08);
+      color: #9fd4ff;
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .card-link:hover { border-color: var(--accent-blue); color: #fff; }
+    .card-link.map-link {
+      border-color: rgba(240, 160, 58, 0.4);
+      background: rgba(240, 160, 58, 0.1);
+      color: var(--accent);
+    }
+    .cta-block {
+      background: rgba(4, 8, 14, 0.92);
+      border: 1.5px solid rgba(240, 160, 58, 0.45);
+      border-radius: 14px;
+      padding: 22px 22px 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 0 20px rgba(240, 160, 58, 0.08);
+    }
+    .cta-block h2 {
+      font-family: var(--font-display);
+      font-size: clamp(20px, 2.8vw, 26px);
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .cta-block p {
+      font-family: var(--font-clean);
+      font-size: 14px;
+      line-height: 1.65;
+      color: #c8d0d8;
+      margin-bottom: 12px;
+    }
+    .cta-block p:last-of-type { margin-bottom: 16px; }
+    .cta-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 1px solid rgba(240, 160, 58, 0.5);
+      background: rgba(240, 160, 58, 0.14);
+      color: var(--accent);
+    }
+    .cta-btn:hover { background: rgba(240, 160, 58, 0.24); color: #fff; }
+    .cta-btn.secondary {
+      border-color: rgba(77, 166, 255, 0.4);
+      background: rgba(77, 166, 255, 0.1);
+      color: #9fd4ff;
+    }
+    .cta-btn.secondary:hover { background: rgba(77, 166, 255, 0.2); color: #fff; }
+    .footer-note {
+      margin-top: 12px;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #555;
+      letter-spacing: 0.06em;
+    }
+    html.embed-hub body { padding: 12px 0 24px; min-height: 100%; background: transparent; }
+    html.embed-hub .hub-backdrop { display: none; }
+    html.embed-hub .nav-row { display: none; }
+    html.embed-hub .header { margin-bottom: 12px; text-align: left; }
+    html.embed-hub .header-title { font-size: clamp(22px, 3.5vw, 30px); }
+    html.embed-hub .header-sub { text-align: left; margin-left: 0; }
+    html.embed-hub .hero-strip { grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+    html.embed-hub .hero-photo { aspect-ratio: 16 / 9; }
+    html.embed-hub .roundup-block { padding: 14px 14px 12px; margin-bottom: 16px; }
+    html.embed-hub .roundup-title { font-size: 20px; }
+    html.embed-hub .roundup-lead p { font-size: 13px; }
+    html.embed-hub .news-card-media { height: 110px; }
+    @media (max-width: 699px) {
+      .hero-strip { grid-template-columns: 1fr; }
+      .news-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="hub-backdrop" aria-hidden="true"></div>
+  <div class="wrap">
+    <nav class="nav-row" aria-label="Related pages">
+      <a href="./live-music-hub.html">← Live Music Hub</a>
+      <a href="./live-music-news.html">Music news</a>
+      <a href="./live-music-finder.html">Jam map</a>
+      <a href="./live-music-guide.html">Music guide</a>
+    </nav>
+
+    <header class="header">
+      <div class="header-eyebrow">Live Music For Artists</div>
+      <h1 class="header-title">Who <span>We Are</span></h1>
+      <p class="header-sub">Artists building tools for artists — so you can find places to play, grow your craft, and stay close to the live scene.</p>
+    </header>
+    <p class="meta-bar"><strong>Built by musicians</strong> · Amsterdam &amp; beyond · open to your ideas</p>
+
+    <section class="roundup-block" aria-labelledby="storyTitle">
+      <div class="roundup-kicker">Our story</div>
+      <h2 class="roundup-title" id="storyTitle">We wanted playing live to feel simpler</h2>
+      <div class="roundup-lead">
+        <p>We are a group of artists who know how hard it can be to find the right room on the right night — open mics, jams, sessions, and venues where you can actually get on stage and hone your skills.</p>
+        <p>So we built <strong>Live Music For Artists</strong>: a friendly home for discovering where to play, when sessions happen, and how to take the next step in your musical journey. Whether you are finding your first open mic or looking for a regular jazz jam, we are here to help you turn hopes and dreams into real gigs and real practice.</p>
+        <p class="roundup-lead-short">This site is for you — the player, the singer, the songwriter still looking for their people and their stage.</p>
+      </div>
+    </section>
+
+    <div class="hero-strip" aria-hidden="true">
+      <div class="hero-photo"><img src="https://static.wixstatic.com/media/c123de_dbd9ce74d28640a589a494f6524ca25d~mv2.jpg" alt="Jazz venue — live session"></div>
+      <div class="hero-photo"><img src="https://static.wixstatic.com/media/c123de_24f207656eba41eaafc1556ced2caa0d~mv2.jpg" alt="Open mic night"></div>
+      <div class="hero-photo"><img src="https://static.wixstatic.com/media/c123de_0c364f5e0d324e48866aa3a9ee678eeb~mv2.jpg" alt="Intimate live music venue"></div>
+    </div>
+
+    <p class="section-kicker">How we help</p>
+    <h2 class="section-heading">Everything on the site, in one friendly place</h2>
+    <p class="tab-desc">Each part of Live Music For Artists is designed to save you time and keep you inspired — from scanning tonight’s listings to drilling into venue details on the map.</p>
+
+    <div class="news-grid">
+      <article class="news-card">
+        <div class="news-card-media">
+          <img src="https://static.wixstatic.com/media/c123de_e73c91fc02824ef3a239674be8999dc8~mv2.jpg" alt="Live events and listings">
+        </div>
+        <div class="news-card-body">
+          <div class="news-card-meta">
+            <span class="news-card-date">Events</span>
+            <span class="news-card-source">Ticker</span>
+          </div>
+          <h3 class="news-card-title">Events ticker — see what’s on at a glance</h3>
+          <p class="news-card-snippet">Scroll the ticker for a quick, easy view of gigs, jams, and listings moving through the scene. Spot something interesting without digging through ten different sites.</p>
+          <div class="tag-row">
+            <span class="tag">Tonight</span>
+            <span class="tag">This week</span>
+            <span class="tag">Listings</span>
+          </div>
+          <div class="card-actions">
+            <a class="card-link" href="./live-events-ticker.html">Open ticker</a>
+            <a class="card-link map-link" href="./live-music-hub.html">Full hub</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="news-card">
+        <div class="news-card-media">
+          <img src="https://static.wixstatic.com/media/c123de_61a11dc1a168478eb53aee56401f18d4~mv2.jpg" alt="Amsterdam jam map">
+        </div>
+        <div class="news-card-body">
+          <div class="news-card-meta">
+            <span class="news-card-date">Discover</span>
+            <span class="news-card-source">Jam map</span>
+          </div>
+          <h3 class="news-card-title">The map — venues, sessions &amp; times</h3>
+          <p class="news-card-snippet">Pin venues across the city, filter by genre, and open each place for schedule notes, skill level, sign-up tips, photos, and videos. Find where you could join a session this week.</p>
+          <div class="tag-row">
+            <span class="tag">Open mic</span>
+            <span class="tag">Jazz jam</span>
+            <span class="tag">Venue detail</span>
+          </div>
+          <div class="card-actions">
+            <a class="card-link map-link" href="./live-music-finder.html">Open map</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="news-card">
+        <div class="news-card-media">
+          <img src="https://static.wixstatic.com/media/c123de_86aa1dad6aa744b0bc7e790f55dc3a4c~mv2.jpg" alt="Music guide for artists">
+        </div>
+        <div class="news-card-body">
+          <div class="news-card-meta">
+            <span class="news-card-date">Ask</span>
+            <span class="news-card-source">Music guide</span>
+          </div>
+          <h3 class="news-card-title">Music guide — questions answered</h3>
+          <p class="news-card-snippet">Not sure which night suits your instrument, or which venue welcomes beginners? The guide helps you search venue data in plain language — like having a friend who knows the local scene.</p>
+          <div class="tag-row">
+            <span class="tag">Tips</span>
+            <span class="tag">Venue match</span>
+            <span class="tag">Sessions</span>
+          </div>
+          <div class="card-actions">
+            <a class="card-link" href="https://www.livemusic4artists.com/musichelperguide" target="_top" rel="noopener noreferrer">Open guide ↗</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="news-card">
+        <div class="news-card-media">
+          <img src="https://static.wixstatic.com/media/c123de_5a25f3fab50f40b7913768ba43a8b76f~mv2.jpg" alt="Map helper and how-to">
+        </div>
+        <div class="news-card-body">
+          <div class="news-card-meta">
+            <span class="news-card-date">Learn</span>
+            <span class="news-card-source">Map helper</span>
+          </div>
+          <h3 class="news-card-title">Helper — confidence on the map</h3>
+          <p class="news-card-snippet">New to the map? The helper walks you through panning, venue panels, photos &amp; videos, and the music guide — so you spend less time guessing and more time planning your next play.</p>
+          <div class="tag-row">
+            <span class="tag">How-to</span>
+            <span class="tag">Mobile</span>
+            <span class="tag">Quick start</span>
+          </div>
+          <div class="card-actions">
+            <a class="card-link" href="./live-music-helper-hub.html">Open helper</a>
+            <a class="card-link map-link" href="https://www.livemusic4artists.com/musichelperguide" target="_top" rel="noopener noreferrer">Full guide ↗</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="news-card">
+        <div class="news-card-media">
+          <img src="https://static.wixstatic.com/media/c123de_de6397a2a69a425ca09b1bbb056a5c4e~mv2.jpg" alt="Scene news for musicians">
+        </div>
+        <div class="news-card-body">
+          <div class="news-card-meta">
+            <span class="news-card-date">Stay current</span>
+            <span class="news-card-source">News</span>
+          </div>
+          <h3 class="news-card-title">Music news — keep your ear to the ground</h3>
+          <p class="news-card-snippet">Short scene updates, genre tabs, and links to what’s happening around Amsterdam and beyond — so you do not miss the nights that matter to your sound.</p>
+          <div class="tag-row">
+            <span class="tag">Roundup</span>
+            <span class="tag">Genres</span>
+            <span class="tag">Links</span>
+          </div>
+          <div class="card-actions">
+            <a class="card-link" href="./live-music-news.html">Read news</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="news-card">
+        <div class="news-card-media">
+          <img src="https://static.wixstatic.com/media/c123de_b7925e9cdf214d3a9dd226b00cc516ca~mv2.jpg" alt="Outstanding live performance">
+        </div>
+        <div class="news-card-body">
+          <div class="news-card-meta">
+            <span class="news-card-date">Spotlight</span>
+            <span class="news-card-source">Home banner</span>
+          </div>
+          <h3 class="news-card-title">Outstanding performance videos</h3>
+          <p class="news-card-snippet">We love celebrating great live moments. Send us standout performance videos — the ones that gave you chills — and we may feature them in the banner on our home page for other artists to discover.</p>
+          <div class="tag-row">
+            <span class="tag">Submit video</span>
+            <span class="tag">Celebrate artists</span>
+          </div>
+          <div class="card-actions">
+            <a class="card-link map-link" href="https://www.livemusic4artists.com/contact" target="_top" rel="noopener noreferrer">Submit via contact ↗</a>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <section class="cta-block" aria-labelledby="submitTitle">
+      <div class="roundup-kicker">Grow the map together</div>
+      <h2 id="submitTitle">Know more venues? We want to hear from you</h2>
+      <p>If there is a jam night, open mic, or session we have not listed yet, please tell us. We review submissions and look to add trustworthy venues to the map — with schedules, links, and the details musicians actually need.</p>
+      <p>You can also use the <strong>Suggest a venue</strong> option on the jam map — we review every submission before it goes live. Or reach us through the contact page for performance videos, corrections, and ideas.</p>
+      <div class="cta-actions">
+        <a class="cta-btn" href="./live-music-finder.html?suggest=1">Suggest on the map</a>
+        <a class="cta-btn secondary" href="https://www.livemusic4artists.com/contact" target="_top" rel="noopener noreferrer">Contact us page ↗</a>
+      </div>
+    </section>
+
+    <p class="footer-note">Embed on Wix: <code>https://energy-calc-backend.onrender.com/live-music/about</code></p>
+  </div>
+
+  <script>
+    (function initEmbed() {
+      const p = new URLSearchParams(window.location.search);
+      if (p.get('embed') === 'hub') document.documentElement.classList.add('embed-hub');
+    })();
+  </script>
+</body>
+</html>
