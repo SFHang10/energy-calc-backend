@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Live Music Scene Status</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+(function () {
+  if (new URLSearchParams(location.search).get("embed") === "1") {
+    document.documentElement.classList.add("embed-wix");
+  }
+})();
+</script>
+<style>
+  :root {
+    --blue: #4da6ff;
+    --blue-bright: #6ecfff;
+    --blue-glow: rgba(77, 166, 255, 0.65);
+    --blue-border: rgba(77, 166, 255, 0.35);
+    --text-line: #b5d4ff;
+    --text-muted: #6a8faa;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    background: #05080f;
+    font-family: var(--sans);
+    overflow: hidden;
+  }
+  html.embed-wix body {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    padding: 8px;
+    min-height: 0;
+  }
+
+  .scene-status-panel {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    padding: 14px 12px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--blue-border);
+    background: #000;
+    box-shadow:
+      0 10px 28px rgba(0, 0, 0, 0.55),
+      inset 0 1px 0 rgba(77, 166, 255, 0.12),
+      inset 0 0 0 1px rgba(77, 166, 255, 0.06);
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+    min-height: 0;
+  }
+  html.embed-wix .scene-status-panel { max-width: none; height: 100%; }
+
+  .scene-status-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 95% 70% at 50% -8%, rgba(77, 166, 255, 0.09) 0%, transparent 58%),
+      radial-gradient(ellipse 80% 55% at 50% 108%, rgba(0, 0, 0, 0.85) 0%, transparent 62%);
+    z-index: 0;
+  }
+  .scene-status-panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(77, 166, 255, 0.022) 2px,
+      rgba(77, 166, 255, 0.022) 4px
+    );
+    z-index: 0;
+  }
+  .scene-status-panel > * { position: relative; z-index: 1; }
+  .scene-status-panel.status-live {
+    animation: panelPulse 3s ease-in-out infinite;
+  }
+  @keyframes panelPulse {
+    0%, 100% {
+      border-color: rgba(77, 166, 255, 0.28);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(77, 166, 255, 0.08);
+    }
+    50% {
+      border-color: rgba(77, 166, 255, 0.42);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55), 0 0 0 4px rgba(77, 166, 255, 0.06);
+    }
+  }
+
+  .scene-status-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .scene-status-head h3 {
+    margin: 0;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .scene-status-pill {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 999px;
+    border: 1px solid rgba(77, 166, 255, 0.45);
+    color: var(--blue-bright);
+    background: rgba(77, 166, 255, 0.08);
+  }
+  .scene-status-pill.live { animation: livePulse 2.8s ease-in-out infinite; }
+  .scene-status-pill.syncing { color: #9dc8ff; }
+  .scene-status-pill.err { border-color: rgba(255, 107, 107, 0.45); color: #ffb4b4; }
+  @keyframes livePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(77, 166, 255, 0); }
+    50% { box-shadow: 0 0 12px rgba(77, 166, 255, 0.28); }
+  }
+
+  .scene-area-chip {
+    font-size: 10px;
+    color: var(--blue-bright);
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+  }
+
+  .scene-status-section-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #5a7a9a;
+    margin: 10px 0 4px;
+  }
+  .scene-status-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .scene-status-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 11px;
+    line-height: 1.45;
+    color: var(--text-line);
+    text-shadow: 0 0 12px rgba(77, 166, 255, 0.1);
+  }
+  .scene-status-list li:last-child { border-bottom: none; }
+  .scene-status-ico {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+    background: var(--blue);
+    box-shadow: 0 0 8px var(--blue-glow);
+  }
+  .scene-status-ico.ok { animation: icoPulse 2.4s ease-in-out infinite; }
+  .scene-status-ico.warn { background: #ffb830; box-shadow: 0 0 8px rgba(255, 184, 48, 0.5); animation: none; }
+  @keyframes icoPulse {
+    0%, 100% { box-shadow: 0 0 6px rgba(77, 166, 255, 0.45); opacity: 1; }
+    50% { box-shadow: 0 0 12px rgba(77, 166, 255, 0.7); opacity: 0.9; }
+  }
+  .scene-status-line { flex: 1; min-width: 0; }
+  .scene-status-line strong {
+    color: #e8f2ff;
+    font-weight: 600;
+  }
+
+  .scene-status-stamp {
+    margin: 10px 0 10px;
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--text-muted);
+  }
+
+  .scene-status-btn {
+    display: block;
+    width: 100%;
+    border: 1px solid rgba(77, 166, 255, 0.45);
+    background: rgba(77, 166, 255, 0.14);
+    color: #b5e3ff;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--sans);
+    text-align: center;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .scene-status-btn:hover { background: rgba(77, 166, 255, 0.24); }
+  .scene-status-btn + .scene-status-btn {
+    margin-top: 8px;
+    font-size: 11px;
+    font-weight: 500;
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--text-muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scene-status-panel.status-live,
+    .scene-status-pill.live,
+    .scene-status-ico.ok { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<section class="scene-status-panel status-live" id="scenePanel" aria-label="Live music scene status">
+  <div class="scene-status-head">
+    <h3>Scene status</h3>
+    <span class="scene-status-pill syncing live" id="statusPill">Syncing</span>
+  </div>
+  <p class="scene-area-chip" id="areaChip">Area — Amsterdam</p>
+
+  <p class="scene-status-section-label" id="sectionEvents">In your area</p>
+  <ul class="scene-status-list" id="listEvents">
+    <li><span class="scene-status-ico ok"></span><span class="scene-status-line">Loading feed…</span></li>
+  </ul>
+
+  <p class="scene-status-section-label">Venues &amp; listings</p>
+  <ul class="scene-status-list" id="listVenues">
+    <li><span class="scene-status-ico ok"></span><span class="scene-status-line">Loading venues…</span></li>
+  </ul>
+
+  <p class="scene-status-stamp" id="statusStamp">Updated —</p>
+  <a class="scene-status-btn" id="btnGuide" href="./live-music-guide.html?embed=1" target="_top" rel="noopener">Ask Music Guide</a>
+  <a class="scene-status-btn" id="btnMap" href="./live-music-finder.html" target="_top" rel="noopener">Open venue map</a>
+</section>
+
+<script>
+(function () {
+  const AREA_STORAGE_KEY = "live_music_map_areas";
+  const DEFAULT_AREAS = ["amsterdam"];
+
+  const DEFAULT_REGIONS = {
+    defaultAreaIds: DEFAULT_AREAS,
+    areas: [
+      { id: "amsterdam", label: "Amsterdam", type: "city", city: "Amsterdam", status: "active" },
+      { id: "rotterdam", label: "Rotterdam", type: "city", city: "Rotterdam", status: "planned" },
+      { id: "utrecht", label: "Utrecht", type: "city", city: "Utrecht", status: "planned" },
+      { id: "europe", label: "Europe", type: "scope", status: "active" }
+    ]
+  };
+
+  let mapRegions = DEFAULT_REGIONS;
+  let selectedAreaIds = new Set(DEFAULT_AREAS);
+  let venues = [];
+  let events = [];
+  let feedMeta = null;
+
+  const panel = document.getElementById("scenePanel");
+  const pill = document.getElementById("statusPill");
+  const areaChip = document.getElementById("areaChip");
+  const listEvents = document.getElementById("listEvents");
+  const listVenues = document.getElementById("listVenues");
+  const stamp = document.getElementById("statusStamp");
+  const sectionEvents = document.getElementById("sectionEvents");
+
+  function dataPaths(name) {
+    return ["/data/" + name, "../data/" + name, "../../data/" + name];
+  }
+
+  async function fetchJson(paths) {
+    for (const p of paths) {
+      try {
+        const r = await fetch(p);
+        if (r.ok) return await r.json();
+      } catch (_) { /* try next */ }
+    }
+    return null;
+  }
+
+  function areaById(id) {
+    return (mapRegions.areas || []).find(function (a) { return a.id === id; });
+  }
+
+  function readAreasFromStorage() {
+    try {
+      const raw = localStorage.getItem(AREA_STORAGE_KEY);
+      if (!raw) return null;
+      const arr = JSON.parse(raw);
+      if (!Array.isArray(arr) || !arr.length) return null;
+      const valid = new Set((mapRegions.areas || []).map(function (a) { return a.id; }));
+      const picked = arr.filter(function (id) { return valid.has(id); });
+      return picked.length ? picked : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function readAreasFromUrl() {
+    const q = new URLSearchParams(location.search).get("areas");
+    if (!q) return null;
+    const valid = new Set((mapRegions.areas || []).map(function (a) { return a.id; }));
+    const picked = q.split(",").map(function (s) { return s.trim(); }).filter(function (id) { return valid.has(id); });
+    return picked.length ? picked : null;
+  }
+
+  function applyAreaIds(ids) {
+    selectedAreaIds = new Set(ids && ids.length ? ids : DEFAULT_AREAS);
+  }
+
+  function areaSelectionLabel() {
+    const labels = [...selectedAreaIds]
+      .map(function (id) { return areaById(id)?.label; })
+      .filter(Boolean);
+    if (!labels.length) return "Amsterdam";
+    if (labels.length <= 2) return labels.join(" · ");
+    return labels.length + " areas";
+  }
+
+  function resolveVenueAreaIds(venue) {
+    if (Array.isArray(venue.areas) && venue.areas.length) return venue.areas;
+    const city = String(venue.city || "").trim().toLowerCase();
+    const matched = (mapRegions.areas || [])
+      .filter(function (a) { return a.type === "city" && a.city && a.city.toLowerCase() === city; })
+      .map(function (a) { return a.id; });
+    return matched.length ? matched : ["amsterdam"];
+  }
+
+  function venueMatchesAreas(venue) {
+    const activeIds = [...selectedAreaIds].filter(function (id) {
+      const area = areaById(id);
+      return area && area.status === "active";
+    });
+    if (!activeIds.length) return true;
+
+    const cityIds = activeIds.filter(function (id) { return areaById(id)?.type === "city"; });
+    if (!cityIds.length) return activeIds.includes("europe");
+
+    const venueAreas = resolveVenueAreaIds(venue);
+    return cityIds.some(function (id) { return venueAreas.includes(id); });
+  }
+
+  function venuesInArea() {
+    return venues.filter(venueMatchesAreas);
+  }
+
+  function eventsInArea(areaVenueList) {
+    const ids = new Set(areaVenueList.map(function (v) { return v.id; }));
+    if (selectedAreaIds.has("europe") && ![...selectedAreaIds].some(function (id) {
+      const a = areaById(id);
+      return a && a.type === "city" && a.status === "active";
+    })) {
+      return events.slice();
+    }
+    return events.filter(function (e) {
+      return e.venueId != null && ids.has(Number(e.venueId));
+    });
+  }
+
+  function countByCategory(evts, cats) {
+    const set = new Set(cats);
+    return evts.filter(function (e) { return set.has(e.category); }).length;
+  }
+
+  function li(html, warn) {
+    return '<li><span class="scene-status-ico ' + (warn ? "warn" : "ok") + '"></span><span class="scene-status-line">' + html + "</span></li>";
+  }
+
+  function formatStamp() {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    const feedAt = feedMeta?.generatedAt ? new Date(feedMeta.generatedAt) : null;
+    const feedStr = feedAt && !isNaN(feedAt.getTime())
+      ? " · feed " + feedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short" })
+      : "";
+    stamp.textContent = "Updated — " + now.toLocaleDateString("en-GB", { weekday: "short" }) + " " + timeStr + feedStr;
+  }
+
+  function render(mode) {
+    const areaLabel = areaSelectionLabel();
+    areaChip.textContent = "Area — " + areaLabel;
+    sectionEvents.textContent = selectedAreaIds.has("europe") && areaLabel.indexOf("Europe") !== -1
+      ? "In your area (Europe view)"
+      : "In your area";
+
+    if (mode === "error") {
+      pill.className = "scene-status-pill err";
+      pill.textContent = "Feed issue";
+      panel.classList.remove("status-live");
+      listEvents.innerHTML = li("Could not load scene data — check server is running.", true);
+      listVenues.innerHTML = li("Venue counts unavailable.", true);
+      formatStamp();
+      return;
+    }
+
+    pill.className = "scene-status-pill live";
+    pill.textContent = "Live";
+    panel.classList.add("status-live");
+
+    const vArea = venuesInArea();
+    const eArea = eventsInArea(vArea);
+
+    const jams = countByCategory(eArea, ["open-jam"]);
+    const openMics = countByCategory(eArea, ["open-mic"]);
+    const gigsNights = countByCategory(eArea, ["gigs", "jazz", "festival"]);
+    const totalEvents = eArea.length;
+    const verified = vArea.filter(function (v) { return v.verificationStatus === "verified"; }).length;
+    const newListings = eArea.filter(function (e) { return e.isNew; }).length;
+    const jamVenues = vArea.filter(function (v) { return v.genre === "open-jam"; }).length;
+    const openMicVenues = vArea.filter(function (v) { return v.genre === "open-mic"; }).length;
+
+    listEvents.innerHTML = [
+      li("<strong>Jams</strong> — " + jams + " in feed" + (jamVenues > jams ? " · " + jamVenues + " jam venues on map" : "")),
+      li("<strong>Open mics</strong> — " + openMics + (openMicVenues > openMics ? " · " + openMicVenues + " open-mic venues" : "")),
+      li("<strong>Events in area</strong> — " + totalEvents + " listings"),
+      li("<strong>Gigs &amp; nights</strong> — " + gigsNights + " jazz / gigs / festivals")
+    ].join("");
+
+    listVenues.innerHTML = [
+      li("<strong>Venues on map</strong> — " + vArea.length + " in " + areaLabel),
+      li("<strong>Verified</strong> — " + verified + " venue" + (verified === 1 ? "" : "s")),
+      li("<strong>New listings</strong> — " + newListings + " flagged new", newListings === 0),
+      li("Play or listen — tap a venue on the map for schedule &amp; inquiry")
+    ].join("");
+
+    formatStamp();
+  }
+
+  function onAreaSync(ids) {
+    if (!ids || !ids.length) return;
+    applyAreaIds(ids);
+    render("live");
+  }
+
+  window.addEventListener("message", function (ev) {
+    const d = ev.data;
+    if (!d || d.type !== "live-music-area-sync") return;
+    onAreaSync(d.areaIds);
+  });
+
+  window.addEventListener("storage", function (ev) {
+    if (ev.key !== AREA_STORAGE_KEY || !ev.newValue) return;
+    try {
+      const arr = JSON.parse(ev.newValue);
+      if (Array.isArray(arr)) onAreaSync(arr);
+    } catch (_) { /* ignore */ }
+  });
+
+  async function init() {
+    const fromUrl = readAreasFromUrl();
+    const fromStore = readAreasFromStorage();
+    applyAreaIds(fromUrl || fromStore || DEFAULT_AREAS);
+
+    try {
+      const [regionsDoc, venuesDoc, feedDoc] = await Promise.all([
+        fetchJson(dataPaths("music-map-regions.json")),
+        fetchJson(dataPaths("music-venues.json")),
+        fetchJson(dataPaths("live-events-feed.json"))
+      ]);
+
+      if (regionsDoc && Array.isArray(regionsDoc.areas)) {
+        mapRegions = regionsDoc;
+        const again = readAreasFromStorage();
+        if (again) applyAreaIds(again);
+      }
+
+      venues = Array.isArray(venuesDoc?.items) ? venuesDoc.items : [];
+      events = Array.isArray(feedDoc?.events) ? feedDoc.events : [];
+      feedMeta = feedDoc?.meta || null;
+
+      render("live");
+    } catch (_) {
+      render("error");
+    }
+  }
+
+  init();
+  setInterval(function () {
+    const stored = readAreasFromStorage();
+    if (!stored) return;
+    const key = [...selectedAreaIds].sort().join(",");
+    const next = stored.sort().join(",");
+    if (key !== next) onAreaSync(stored);
+  }, 2500);
+})();
+</script>
+</body>
+</html>

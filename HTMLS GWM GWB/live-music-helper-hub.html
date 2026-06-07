@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Live Music Finder Helper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #f0a03a;
+      --accent-dim: rgba(240, 160, 58, 0.12);
+      --accent-hot: rgba(240, 160, 58, 0.28);
+      --accent-blue: #4da6ff;
+      --black: #0a0a0a;
+      --dark: #121212;
+      --panel: #1a1a1a;
+      --border: #2a2a2a;
+      --text: #f0ede8;
+      --text-dim: #9a9088;
+      --font: 'Space Grotesk', sans-serif;
+      --font-display: 'Playfair Display', serif;
+      --mono: 'JetBrains Mono', monospace;
+      --helper-backdrop-image: url("https://static.wixstatic.com/media/c123de_538ebcd0cb8744009c22d5676cb8a5da~mv2.jpg");
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: var(--font);
+      overflow: hidden;
+    }
+
+    .helper-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-color: #0d0d0d;
+      background-image:
+        linear-gradient(rgba(13, 8, 4, 0.62), rgba(6, 4, 2, 0.74)),
+        radial-gradient(circle at 28% 20%, rgba(240, 160, 58, 0.06), transparent 50%),
+        var(--helper-backdrop-image);
+      background-size: cover, cover, cover;
+      background-position: center, center, center;
+      filter: brightness(0.82) saturate(1.05) contrast(1.06);
+      transition: filter 0.45s ease, background-image 0.45s ease;
+    }
+    body.helper-hub--day .helper-backdrop {
+      background-image:
+        linear-gradient(rgba(13, 8, 4, 0.43), rgba(8, 6, 4, 0.54)),
+        radial-gradient(circle at 28% 20%, rgba(240, 160, 58, 0.09), transparent 50%),
+        var(--helper-backdrop-image);
+      filter: brightness(1.07) saturate(1.08) contrast(1.03);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .helper-backdrop { transition: none; }
+    }
+
+    .shell {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    header {
+      flex-shrink: 0;
+      background: rgba(18, 18, 18, 0.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 58px;
+      gap: 12px;
+    }
+    body.helper-hub--day header,
+    body.helper-hub--day .col-head {
+      background: rgba(18, 18, 18, 0.52);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .logo { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #c45e0a 0%, #f0a03a 100%);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+    .logo-text {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.15;
+    }
+    .logo-sub {
+      font-size: 0.58rem;
+      color: var(--accent);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-family: var(--mono);
+      margin-top: 2px;
+    }
+    .header-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .btn-header {
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text-dim);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-header:hover { border-color: var(--accent-hot); color: var(--text); }
+    .btn-header.primary {
+      background: var(--accent-dim);
+      border-color: var(--accent-hot);
+      color: var(--accent);
+    }
+    #btnBackdropTheme .backdrop-theme-label--day { color: #f0a03a; font-weight: 600; }
+    #btnBackdropTheme .backdrop-theme-label--night { color: #4da6ff; font-weight: 600; }
+
+    .helper-grid {
+      flex: 1 1 0;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(260px, 34%) 1fr;
+      gap: 0;
+    }
+    .helper-col {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      min-width: 0;
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .helper-col:last-child { border-right: none; }
+    .col-head {
+      flex-shrink: 0;
+      padding: 12px 16px 10px;
+      background: rgba(18, 18, 18, 0.42);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .col-head h2 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      letter-spacing: 0.02em;
+    }
+    .col-head p {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .col-frame {
+      flex: 1 1 0;
+      min-height: 0;
+      padding: 10px 12px 14px;
+      background: transparent;
+    }
+    .col-frame iframe {
+      width: 100%;
+      height: 100%;
+      min-height: 320px;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+    }
+    @media (max-width: 860px) {
+      .helper-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(280px, 38vh) 1fr;
+        overflow-y: auto;
+      }
+      .helper-col { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+      .shell { overflow-y: auto; height: auto; min-height: 100vh; }
+    }
+  </style>
+</head>
+<body>
+  <div class="helper-backdrop" aria-hidden="true"></div>
+  <div class="shell">
+    <header>
+      <div class="logo">
+        <div class="logo-icon" aria-hidden="true">🎵</div>
+        <div>
+          <div class="logo-text">Live Music Finder Helper</div>
+          <div class="logo-sub">Scene status · artist guide</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="btn-header" id="btnBackdropTheme" aria-pressed="false" title="Switch to day mode (page look)">☀ <span class="backdrop-theme-label backdrop-theme-label--day">Day Mode</span></button>
+        <a class="btn-header" href="./live-music-finder.html" target="_top" rel="noopener">Venue map</a>
+        <a class="btn-header primary" href="./live-music-hub.html" target="_top" rel="noopener">Full hub</a>
+      </div>
+    </header>
+
+    <div class="helper-grid">
+      <section class="helper-col" aria-label="Venue alerts">
+        <div class="col-head">
+          <h2>Venue alerts</h2>
+          <p>Jams, open mics &amp; events — synced to map area</p>
+        </div>
+        <div class="col-frame">
+          <iframe id="frameStatus" title="Live music scene status" src="" loading="lazy"></iframe>
+        </div>
+      </section>
+      <section class="helper-col helper-col--main" aria-label="Artist guide">
+        <div class="col-head">
+          <h2>Live Music Artist Guide</h2>
+          <p>Ask about venues, jams, sign-up &amp; gigs</p>
+        </div>
+        <div class="col-frame">
+          <iframe id="frameGuide" title="Live music artist guide" src="" loading="lazy"></iframe>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    function helperHubEmbedHref(file, query) {
+      const qs = query ? (query.indexOf('?') === 0 ? query : '?' + query) : '';
+      const p = location.pathname || '';
+      if (p.indexOf('/live-music/') === 0) {
+        if (file === 'live-music-scene-status.html') return '/live-music/scene-status' + qs;
+        if (file === 'live-music-guide.html') return '/live-music/guide' + qs;
+        return '/HTMLS%20GWM%20GWB/' + file + qs;
+      }
+      if (p.indexOf('/HTMLS') === 0) return '/HTMLS%20GWM%20GWB/' + file + qs;
+      return './' + file + qs;
+    }
+
+    const frameStatus = document.getElementById('frameStatus');
+    const frameGuide = document.getElementById('frameGuide');
+    if (frameStatus) frameStatus.src = helperHubEmbedHref('live-music-scene-status.html', 'embed=1');
+    if (frameGuide) frameGuide.src = helperHubEmbedHref('live-music-guide.html', 'embed=1');
+
+    const BACKDROP_THEME_KEY = 'live_music_hub_backdrop_theme';
+    const btnBackdropTheme = document.getElementById('btnBackdropTheme');
+    function applyBackdropTheme(mode) {
+      const day = mode === 'day';
+      document.body.classList.toggle('helper-hub--day', day);
+      if (btnBackdropTheme) {
+        btnBackdropTheme.innerHTML = day
+          ? '🌙 <span class="backdrop-theme-label backdrop-theme-label--night">Night Mode</span>'
+          : '☀ <span class="backdrop-theme-label backdrop-theme-label--day">Day Mode</span>';
+        btnBackdropTheme.setAttribute('aria-pressed', day ? 'true' : 'false');
+        btnBackdropTheme.setAttribute('aria-label', day ? 'Switch to night mode (page look)' : 'Switch to day mode (page look)');
+        btnBackdropTheme.title = day ? 'Switch to night mode (page look)' : 'Switch to day mode (page look)';
+      }
+    }
+
+    function getBackdropTheme() {
+      try {
+        const saved = localStorage.getItem(BACKDROP_THEME_KEY);
+        if (saved === 'day' || saved === 'night') return saved;
+      } catch (_) { /* ignore */ }
+      return 'night';
+    }
+
+    function setBackdropTheme(mode) {
+      const next = mode === 'day' ? 'day' : 'night';
+      applyBackdropTheme(next);
+      try { localStorage.setItem(BACKDROP_THEME_KEY, next); } catch (_) { /* ignore */ }
+    }
+
+    if (btnBackdropTheme) {
+      applyBackdropTheme(getBackdropTheme());
+      btnBackdropTheme.addEventListener('click', function () {
+        setBackdropTheme(document.body.classList.contains('helper-hub--day') ? 'night' : 'day');
+      });
+    }
+
+  </script>
+</body>
+</html>

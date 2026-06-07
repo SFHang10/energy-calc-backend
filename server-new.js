@@ -103,6 +103,8 @@ const LIVE_MUSIC_FILES = [
   'live-music-finder.html',
   'live-music-guide.html',
   'live-music-news.html',
+  'live-music-scene-status.html',
+  'live-music-helper-hub.html',
   'live-events-ticker.html',
   'live-events-updates.html'
 ];
@@ -151,6 +153,14 @@ app.get('/live-music/guide', (req, res) => {
 app.get('/live-music/news', (req, res) => {
   const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
   return res.redirect(302, `/HTMLS%20GWM%20GWB/live-music-news.html${qs}`);
+});
+app.get('/live-music/scene-status', (req, res) => {
+  const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+  return res.redirect(302, `/HTMLS%20GWM%20GWB/live-music-scene-status.html${qs}`);
+});
+app.get('/live-music/helper', (req, res) => {
+  const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+  return res.redirect(302, `/HTMLS%20GWM%20GWB/live-music-helper-hub.html${qs}`);
 });
 app.get('/live-music/live-music-news.html', (req, res) => {
   const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
