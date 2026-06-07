@@ -691,6 +691,20 @@
       return HUB_BASE + 'live-music-finder.html' + qs;
     }
 
+    function hubAssetHref(relative) {
+      const clean = String(relative || '').replace(/^\.\//, '');
+      const q = clean.indexOf('?');
+      const file = q >= 0 ? clean.slice(0, q) : clean;
+      const qs = q >= 0 ? clean.slice(q) : '';
+      const p = location.pathname || '';
+      if (p.indexOf('/live-music/') === 0) {
+        if (file === 'live-music-news.html') return '/live-music/news' + qs;
+        if (file === 'live-music-finder.html') return '/live-music/map' + qs;
+        return '/HTMLS%20GWM%20GWB/' + file + qs;
+      }
+      return './' + clean;
+    }
+
     if (mapFullLink) mapFullLink.href = fullMapHref();
 
     function tabById(id) {
@@ -727,11 +741,14 @@
       activeTab = tab.id;
       toolbarLabel.textContent = tab.toolbar;
       try {
-        const openUrl = new URL(tab.openHref || './live-music-hub-render.html', window.location.href);
+        const base = hubAssetHref(tab.openHref || './live-music-hub-render.html');
+        const openUrl = base.startsWith('/')
+          ? new URL(base, location.origin)
+          : new URL(base, location.href);
         openUrl.searchParams.set('return', location.pathname + location.search);
         btnOpenTab.href = openUrl.pathname + openUrl.search;
       } catch (_) {
-        btnOpenTab.href = tab.openHref || './live-music-hub-render.html';
+        btnOpenTab.href = hubAssetHref(tab.openHref || './live-music-hub-render.html');
       }
 
       if (tab.placeholder) {
@@ -743,7 +760,7 @@
         newsPanel.classList.remove('visible');
         newsPanel.setAttribute('aria-hidden', 'true');
         if (frame.getAttribute('data-current') !== tab.id) {
-          frame.src = tab.src;
+          frame.src = hubAssetHref(tab.src);
           frame.setAttribute('data-current', tab.id);
         }
       }

@@ -143,10 +143,13 @@ npm run merge:music-discovery     # all three queues + map sync (after review)
 | **Render Version (Wix — recommended)** | `https://energy-calc-backend.onrender.com/live-music/render` |
 | Hub (dev / full page) | `/live-music/hub` or `/HTMLS%20GWM%20GWB/live-music-hub.html` |
 | **Full map (standalone)** | `https://energy-calc-backend.onrender.com/live-music/map` |
+| **Music news** | `https://energy-calc-backend.onrender.com/live-music/news` |
 | Music guide (full chat) | `https://energy-calc-backend.onrender.com/live-music/guide` |
 | Map file path (direct) | `/HTMLS%20GWM%20GWB/live-music-finder.html` |
 
 **Full map link rule (May 2026):** From `/live-music/render`, hub **Open full map →** must use **`/live-music/map`** (not `new URL('./live-music-finder.html', location.href)` — that wrongly resolves to `/live-music/live-music-finder.html` → 404). Server redirect added for the bad path.
+
+**Hub tab iframes (May 2026):** On `/live-music/render`, relative `./live-music-news.html` resolves to `/live-music/live-music-news.html` → 404. Use **`hubAssetHref()`** in hub shells → **`/live-music/news`**, **`/HTMLS%20GWM%20GWB/…`** for ticker/listings. Feed: **`/data/music-news-feed.json`**.
 
 Setup checklist: **`HTMLS GWM GWB/WIX-LIVE-MUSIC-EMBED.md`** · iframe height **1200–1400px** · `<meta name="wix-html-scroll" content="no-scroll">` is already on the page.
 | Ticker strip | `/HTMLS%20GWM%20GWB/live-events-ticker.html?embed=1` |

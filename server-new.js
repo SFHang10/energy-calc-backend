@@ -102,11 +102,13 @@ const LIVE_MUSIC_FILES = [
   'live-music-hub.html',
   'live-music-finder.html',
   'live-music-guide.html',
+  'live-music-news.html',
   'live-events-ticker.html',
   'live-events-updates.html'
 ];
 const LIVE_MUSIC_DATA = [
   ['live-events-feed.json', path.join(__dirname, 'data', 'live-events-feed.json')],
+  ['music-news-feed.json', path.join(__dirname, 'data', 'music-news-feed.json')],
   ['music-venues.json', path.join(__dirname, 'data', 'music-venues.json')],
   ['europe.geojson', path.join(__dirname, 'data', 'europe.geojson')]
 ];
@@ -145,6 +147,14 @@ app.get('/live-music/map', (req, res) => {
 app.get('/live-music/guide', (req, res) => {
   const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
   return res.redirect(302, `/HTMLS%20GWM%20GWB/live-music-guide.html${qs}`);
+});
+app.get('/live-music/news', (req, res) => {
+  const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+  return res.redirect(302, `/HTMLS%20GWM%20GWB/live-music-news.html${qs}`);
+});
+app.get('/live-music/live-music-news.html', (req, res) => {
+  const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+  return res.redirect(302, `/live-music/news${qs}`);
 });
 app.get('/live-music/live-music-finder.html', (req, res) => {
   const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
