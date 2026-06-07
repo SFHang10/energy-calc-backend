@@ -54,6 +54,7 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 | 🛒 **Market Manager** | `Greenways Market Manager MD.md` | Wix store, products, images |
 | 🖼️ **Media** | `Media Skill MD.md` | Find/manage product images |
 | 🌍 **Grants Finder** | `grants-schemes-finder.md` | Find energy grants & schemes |
+| 💬 **Greenways Chat Interface** | `greenways-chat-interface-skill.md` | **Foundation** for agent chat UIs — Grants Agent pilot, clone for new agents |
 | 🎬 **Video Finder** | `sustainability-video-finder.md` | Find sustainability videos |
 | 📰 **News Finder** | `sustainability-news-finder.md` | Sustainability news roundups |
 | 🧪 **New in Tech News** | `tech-news-finder.md` | Tech news roundups (green + general) |
@@ -227,6 +228,31 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 
 ---
 
+### 💬 Greenways Chat Interface (agent chats)
+
+**Activate when user says:**
+```
+"grants agent"
+"greenways grants agent"
+"chat interface"
+"agent chat"
+"clone grants agent"
+"new greenways agent"
+"scheme compare chat"
+"ask the grants agent"
+"greenways-chat-interface"
+```
+
+**Routes to:** `greenways-chat-interface-skill.md`
+
+**Performs:**
+- Grants Agent UI + API (`greenways-grants-agent.html`, `/api/grants-agent/*`)
+- Document clone checklist for the next agent (equipment, finance, sustainability, etc.)
+- Keep layout zones, interactive features, and API response shape consistent
+- Pair with `grants-schemes-finder.md` for catalogue updates, `energy-dashboard-skill.md` for dashboard embeds
+
+---
+
 ### 🎬 Sustainability Video Finder
 
 **Activate when user says:**
@@ -302,6 +328,8 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 "BNPL restaurant equipment"
 "schemes portal restaurant"
 "savings.html grants tab"
+"grants agent"
+"greenways grants agent"
 ```
 
 **Routes to:** `energy-dashboard-skill.md`

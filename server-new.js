@@ -101,6 +101,7 @@ const LIVE_MUSIC_FILES = [
   'live-music-hub-render.html',
   'live-music-hub.html',
   'live-music-finder.html',
+  'live-music-guide.html',
   'live-events-ticker.html',
   'live-events-updates.html'
 ];
@@ -141,6 +142,15 @@ app.get('/live-music/map', (req, res) => {
   const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
   return res.redirect(302, `/HTMLS%20GWM%20GWB/live-music-finder.html${qs}`);
 });
+app.get('/live-music/guide', (req, res) => {
+  const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+  return res.redirect(302, `/HTMLS%20GWM%20GWB/live-music-guide.html${qs}`);
+});
+app.get('/live-music/live-music-finder.html', (req, res) => {
+  const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+  return res.redirect(302, `/live-music/map${qs}`);
+});
+app.get('/greenways/grants-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-grants-agent.html'));
 
 LIVE_MUSIC_DATA.forEach(([name, filePath]) => {
   app.get(`/data/${name}`, (req, res) => {
@@ -310,11 +320,13 @@ try {
 console.log('Loading live music routers...');
 let musicVenuesRouter;
 let musicGuideRouter;
+let grantsAgentRouter;
 let musicVenueInquiriesRouter;
 let musicMediaCandidatesRouter;
 try {
   musicVenuesRouter = require('./routes/music-venues');
   musicGuideRouter = require('./routes/music-guide');
+  grantsAgentRouter = require('./routes/grants-agent');
   musicVenueInquiriesRouter = require('./routes/music-venue-inquiries');
   musicMediaCandidatesRouter = require('./routes/music-media-candidates');
   console.log('Live music routers loaded successfully');
@@ -322,6 +334,7 @@ try {
   console.error('❌ Failed to load live music routers:', error.message);
   musicVenuesRouter = null;
   musicGuideRouter = null;
+  grantsAgentRouter = null;
   musicVenueInquiriesRouter = null;
   musicMediaCandidatesRouter = null;
 }
@@ -395,6 +408,10 @@ function mountApiRoutes() {
   if (musicGuideRouter) {
     app.use('/api/music-guide', musicGuideRouter);
     console.log('✅ /api/music-guide route mounted');
+  }
+  if (grantsAgentRouter) {
+    app.use('/api/grants-agent', grantsAgentRouter);
+    console.log('✅ /api/grants-agent route mounted');
   }
   if (musicVenueInquiriesRouter) {
     app.use('/api/music-venue-inquiries', musicVenueInquiriesRouter);

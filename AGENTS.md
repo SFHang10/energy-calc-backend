@@ -2,7 +2,7 @@
 
 **Purpose:** Central knowledge base for AI agents working on this project  
 **Updated By:** Ralph iterations and Continuous Learning Protocol  
-**Last Updated:** 16 May 2026
+**Last Updated:** 28 May 2026
 
 ---
 
@@ -48,6 +48,9 @@
 | **Water Saving Finder** | `HTMLS GWM GWB/water-saving-finder.html` |
 | **Savings tour page** | `HTMLS GWM GWB/savings.html` — Grants tab: Restaurant portal, EU schemes, **Financial assistance** |
 | **Restaurant finance finder** | `HTMLS GWM GWB/finance-finder-restaurant.html` (draft: `Fianance Finder/Finance Finder .html`) |
+| **Grants Agent (chat)** | `HTMLS GWM GWB/greenways-grants-agent.html` — `/greenways/grants-agent`, `/api/grants-agent/*` ⭐ clone pattern: `Skills/greenways-chat-interface-skill.md` |
+| **Grants Agent intents** | `data/grants-agent-intents.json` |
+| **Grants Agent showcase products** | `data/grants-agent-showcase-products.json` |
 | **Schemes portal (restaurant)** | `HTMLS GWM GWB/Full Schemes Portal Restaurant.html` |
 | **Schemes portal (EU)** | `HTMLS GWM GWB/Full Schemes Portal html.html` |
 | **Savings projection UI** | `HTMLS GWM GWB/equipment-savings-projection.html` |
@@ -188,6 +191,9 @@ html, body {
 | `/api/shop-products` | GET | Products with shop categories |
 | `/api/product-widget/:id` | GET | Single product |
 | `/api/schemes` | GET | Grants & schemes |
+| `/api/grants-agent/ask` | POST | Grants Agent — knowledge / heuristic / optional LLM |
+| `/api/grants-agent/samples` | GET | Grant-eligible product showcase cards |
+| `/api/grants-agent/compare` | POST | Side-by-side scheme comparison (2 scheme ids) |
 | `/api/equipment-intelligence/alternatives` | GET | Marketplace + external (`sust_*`) sustainable alternatives; `?persistCatalog=1` auto-saves matches to catalog |
 | `/api/equipment-intelligence/finder-session` | POST | Same as alternatives + persist (Sustainable Product Finder runs) |
 | `/api/equipment-intelligence/sustainable-products` | GET/POST | List or upsert non-marketplace catalog rows |
@@ -367,6 +373,13 @@ html, body {
   - **`HTMLS GWM GWB/deals-ticker-hub.html`:** three marquee lanes (energy / water / sustainability) + manual search + category pills + spotlight cards; loads **`/data/deals-feed.json`** (or `../data/deals-feed.json`).
   - **`npm run build:deals-feed`:** runs `scripts/build-deals-feed.js` — merges **`data/deals-feed-seeds.json`** with product rows from **`data/deals-weekly-input.json`** and writes **`data/deals-feed.json`** (set `meta.generatedAt`). Schedule daily on host if desired.
   - **`HTMLS GWM GWB/water-saving-finder.html`:** full-page Water Saving Finder (synced from project workflow; was `water-saving-finder_1.html` in Downloads).
+
+- **💬 Greenways Chat Interface — Grants Agent pilot (May 2026)** — foundation for all future agent chats; full spec **`Skills/greenways-chat-interface-skill.md`**:
+  - **UI:** `greenways-grants-agent.html` — blue theme; **product showcase banner** (top); **`.chat-panel`** scroll area; profile filters; **10 interactive features** (follow-ups, product ask, scheme chips ?/↗/compare, profile nudge, new chat, animations, quick-reply bar, typed reveal, session memory, compare dock).
+  - **API:** `routes/grants-agent.js` — `POST /ask`, `GET /samples`, `POST /compare`; knowledge in `services/grants-agent-knowledge.js` from **`schemes.json`** + product grants overlay.
+  - **Clone:** fork HTML + intents + knowledge + routes — do not one-off new layouts. Sibling: Music Guide (`live-music-guide.html`).
+  - **Deploy:** push to Render for live `/api/grants-agent/*`; HTML includes static product fallback until API is live.
+  - **Compare dock:** collapsed by default; expands when schemes selected.
 
 - **💶 Savings projections (May 2026)** — full detail in **`Skills/energy-dashboard-skill.md`** § Savings projections:
   - **`js/savings-projection-model.js`** + **`equipment-savings-projection.html`:** payback chart (do nothing vs upgrade, grants, illustrative tax, capex to €25k product / €150k building).

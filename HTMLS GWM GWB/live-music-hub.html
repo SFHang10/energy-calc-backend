@@ -590,7 +590,7 @@
         </div>
         <div class="map-toolbar-actions">
           <small id="mapHint" class="map-toolbar-hint">Compact preview — open full map for venues, guide, photos &amp; inquiries</small>
-          <a class="map-full-link" id="mapFullLink" href="./live-music-finder.html?from=hub" target="_top" rel="noopener noreferrer">Open full map →</a>
+          <a class="map-full-link" id="mapFullLink" href="/live-music/map?from=hub" target="_top" rel="noopener noreferrer">Open full map →</a>
         </div>
       </div>
       <div class="map-frame-wrap">
@@ -646,14 +646,20 @@
     const MAP_HINT_DEFAULT = 'Compact preview — open full map for venues, guide, photos & inquiries';
 
     function fullMapHref(venueId) {
+      const params = new URLSearchParams();
+      params.set('from', 'hub');
+      const vid = venueId != null ? Number(venueId) : Number(new URLSearchParams(location.search).get('venue'));
+      if (Number.isFinite(vid) && vid > 0) params.set('venue', String(vid));
+      const qs = '?' + params.toString();
+      const p = location.pathname || '';
+      if (p.indexOf('/live-music/') === 0) return '/live-music/map' + qs;
+      if (p.indexOf('/HTMLS') === 0) return '/HTMLS%20GWM%20GWB/live-music-finder.html' + qs;
       try {
         const u = new URL('./live-music-finder.html', window.location.href);
-        u.searchParams.set('from', 'hub');
-        const vid = venueId != null ? Number(venueId) : Number(new URLSearchParams(location.search).get('venue'));
-        if (Number.isFinite(vid) && vid > 0) u.searchParams.set('venue', String(vid));
+        u.search = params.toString();
         return u.pathname + u.search;
       } catch (_) {
-        return './live-music-finder.html?from=hub';
+        return './live-music-finder.html' + qs;
       }
     }
 

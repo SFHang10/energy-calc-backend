@@ -27,6 +27,9 @@ When updating **`schemes.json`** or importing to Mongo, these pages should stay 
 | Visual savings window | `HTMLS GWM GWB/Visual Schems Savings Window.html` | Dynamic cards by region; filename has typo “Schems” |
 | Electrical schemes (styling variant) | `HTMLS GWM GWB/Electrical Schemes New.html` | Same data pipeline; replaces former hardcoded tabs |
 | Greenways equipment tab | `HTMLS GWM GWB/Greenways Interface .html` | Links out to portals with **`?q=`** when grant context matches |
+| **Grants Agent (chat)** | `HTMLS GWM GWB/greenways-grants-agent.html` | Knowledge chat over **`schemes.json`** + product grant samples; **`POST /api/grants-agent/ask`**, **`/compare`**, **`/samples`** — clone pattern: **`Skills/greenways-chat-interface-skill.md`** |
+
+**2026-05-28:** Grants Agent chat UI added as pilot for all Greenways agent interfaces (product showcase banner, scheme compare, session memory). Full pattern: **`Skills/greenways-chat-interface-skill.md`**.
 
 **2026-05-11:** Wired Visual Savings + Electrical Schemes New to shared sources; added `?q=` handling on EU + Full portals; equipment tab gold scheme pills + reorder documented in `Skills/energy-dashboard-skill.md`.
 

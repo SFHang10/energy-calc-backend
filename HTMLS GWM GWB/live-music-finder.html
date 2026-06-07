@@ -36,6 +36,12 @@
     --helper-rust: #c45e0a;
     --helper-rust-dark: #8b3a06;
     --helper-rust-border: rgba(196, 94, 10, 0.65);
+    /* Standalone full map: extra height below viewport (~4 more venue rows, same card size) */
+    --main-extra-height: 300px;
+    --map-header-offset: 72px;
+    --map-sidebar-width: 300px;
+    --map-overlay-top: calc(var(--map-header-offset) + 16px);
+    --map-overlay-center-x: calc(var(--map-sidebar-width) + (100vw - var(--map-sidebar-width)) / 2);
   }
 
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -101,6 +107,22 @@
     height: calc(100vh - 72px);
     min-height: 420px;
     overflow: hidden;
+  }
+
+  /* Standalone full map — slightly taller than viewport so sidebar shows more venues before scroll */
+  html:not(.embed-hub) .main {
+    height: calc(100vh - 72px + var(--main-extra-height));
+    min-height: calc(100vh - 72px + var(--main-extra-height));
+    overflow: hidden;
+  }
+  html:not(.embed-hub) .map-container {
+    height: 100%;
+    flex: 1 1 0;
+    min-height: 0;
+  }
+  html:not(.embed-hub) .sidebar {
+    height: 100%;
+    min-height: 0;
   }
 
   /* ── SIDEBAR ── */
@@ -169,6 +191,51 @@
     background: var(--orange);
     border-color: var(--orange);
     color: white;
+  }
+
+  .filter-label {
+    font-size: 0.68em;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-top: 10px;
+    margin-bottom: 4px;
+  }
+  .area-filter-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .area-chip {
+    font-size: 0.72em;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(75, 140, 104, 0.35);
+    background: rgba(14, 33, 23, 0.45);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .area-chip:hover:not(:disabled) {
+    border-color: rgba(75, 140, 104, 0.65);
+    color: var(--text);
+  }
+  .area-chip.active {
+    background: rgba(42, 157, 143, 0.22);
+    border-color: #2a9d8f;
+    color: #b8f0e8;
+  }
+  .area-chip.is-planned {
+    opacity: 0.45;
+    cursor: not-allowed;
+    border-style: dashed;
+  }
+  .area-filter-hint {
+    font-size: 0.68em;
+    color: var(--muted);
+    margin-top: 6px;
+    line-height: 1.35;
   }
 
   .company-list {
@@ -322,15 +389,52 @@
   .map-btn:active { transform: scale(0.96); }
 
   .map-top-actions {
-    position: absolute;
-    top: 16px;
-    left: 50%;
+    position: fixed;
+    top: var(--map-overlay-top);
+    left: var(--map-overlay-center-x);
     transform: translateX(-50%);
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 10px;
-    z-index: 260;
+    z-index: 520;
+    pointer-events: auto;
+  }
+  .map-top-actions::after {
+    content: "You can use me to scroll the page too 🙂";
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: rgba(22, 22, 22, 0.94);
+    border: 1px solid rgba(196, 94, 10, 0.45);
+    color: #ffe8dd;
+    font-size: 0.72em;
+    line-height: 1.35;
+    white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+  }
+  .map-top-actions:hover::after,
+  .map-top-actions:focus-within::after,
+  .map-top-actions.map-top-actions--scroll-hint-on::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+  @media (hover: none) {
+    .map-top-actions.map-top-actions--scroll-hint-on::after {
+      animation: map-toolbar-hint-fade 6s ease forwards;
+    }
+  }
+  @keyframes map-toolbar-hint-fade {
+    0%, 72% { opacity: 1; visibility: visible; }
+    100% { opacity: 0; visibility: hidden; }
   }
 
   .helper-btn {
@@ -352,9 +456,9 @@
   }
 
   .helper-popup {
-    position: absolute;
-    top: 58px;
-    left: 50%;
+    position: fixed;
+    top: calc(var(--map-overlay-top) + 46px);
+    left: var(--map-overlay-center-x);
     width: 340px;
     max-width: calc(100% - 36px);
     max-height: min(72vh, 420px);
@@ -375,6 +479,47 @@
     transform: translateX(-50%) translateY(0) scale(1);
     pointer-events: auto;
   }
+  .helper-popup.minimized {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+    pointer-events: auto;
+    width: 128px;
+    max-width: calc(100% - 36px);
+    max-height: none;
+    overflow: visible;
+    cursor: grab;
+    touch-action: none;
+  }
+  .helper-popup.minimized .helper-full { display: none; }
+  .helper-popup.minimized .helper-compact { display: flex; }
+  .helper-full { display: block; }
+  .helper-compact {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 12px 11px;
+    text-align: center;
+    font-family: 'DM Sans', sans-serif;
+    user-select: none;
+    position: relative;
+    width: 100%;
+  }
+  .helper-compact-expand {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffe8dd;
+    font-size: 0.85em;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .helper-compact-expand:hover { background: rgba(255, 255, 255, 0.24); }
   .helper-header {
     background: linear-gradient(135deg, #2a1309, #4a1f0d);
     border-bottom: 1px solid rgba(196, 94, 10, 0.35);
@@ -387,6 +532,13 @@
     font-family: 'Playfair Display', serif;
     font-size: 0.98em;
   }
+  .helper-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .helper-shrink,
   .helper-close {
     width: 24px;
     height: 24px;
@@ -396,6 +548,47 @@
     color: #ffe8dd;
     cursor: pointer;
     flex-shrink: 0;
+    font-size: 0.95em;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .helper-shrink:hover,
+  .helper-close:hover {
+    background: rgba(255, 255, 255, 0.28);
+  }
+  .helper-popup.minimized:hover {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 1px rgba(196, 94, 10, 0.42), 0 12px 32px rgba(0, 0, 0, 0.5);
+  }
+  .helper-popup.minimized:active { cursor: grabbing; }
+  .helper-mini-wave {
+    font-size: 1.55rem;
+    line-height: 1;
+    display: block;
+    animation: helper-wave 1.35s ease-in-out infinite;
+    transform-origin: 70% 90%;
+  }
+  @keyframes helper-wave {
+    0%, 100% { transform: rotate(0deg); }
+    20% { transform: rotate(16deg); }
+    40% { transform: rotate(-6deg); }
+    60% { transform: rotate(12deg); }
+    80% { transform: rotate(0deg); }
+  }
+  .helper-mini-text {
+    font-size: 0.62em;
+    line-height: 1.38;
+    color: #ffd9c8;
+    letter-spacing: 0.02em;
+    max-width: 9em;
+  }
+  .helper-mini-hint {
+    font-size: 0.52em;
+    color: #b58a76;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
   .helper-body {
     padding: 12px 14px 14px;
@@ -413,6 +606,52 @@
   }
   .helper-note p { margin: 0; }
   .helper-note p + p { margin-top: 10px; }
+
+  .helper-scroll-hint {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 12px;
+    padding: 9px 11px;
+    border-radius: 9px;
+    background: rgba(240, 192, 64, 0.1);
+    border: 1px solid rgba(240, 192, 64, 0.32);
+    font-size: 0.78em;
+    color: #e8d48a;
+    line-height: 1.4;
+  }
+  .helper-scroll-hint strong { color: #f5e6a8; }
+  .helper-scroll-arrow {
+    flex-shrink: 0;
+    color: #f0c040;
+    font-size: 1.35em;
+    font-weight: 700;
+    line-height: 1;
+    animation: helper-scroll-pulse 2.8s ease-in-out infinite;
+    text-shadow: 0 0 10px rgba(240, 192, 64, 0.55);
+  }
+  .helper-scroll-arrow--mini {
+    font-size: 1.05em;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 2px;
+  }
+  @keyframes helper-scroll-pulse {
+    0%, 100% { opacity: 0.4; transform: translateX(0); }
+    50% { opacity: 1; transform: translateX(4px); }
+  }
+  .helper-mini-scroll-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    font-size: 0.58em;
+    line-height: 1.35;
+    color: #e8c96a;
+    letter-spacing: 0.02em;
+    max-width: 9.5em;
+  }
 
   /* Reset view btn (paired with Help in .map-top-actions) */
   .reset-btn {
@@ -433,6 +672,36 @@
   .reset-btn:hover {
     border-color: var(--orange);
     color: var(--orange);
+  }
+  .map-full-btn {
+    position: relative;
+    top: auto;
+    right: auto;
+    background: rgba(34, 212, 255, 0.08);
+    border: 1.5px solid rgba(34, 212, 255, 0.75);
+    border-radius: 999px;
+    color: #ffcc80;
+    font-size: 0.78em;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+    white-space: nowrap;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow:
+      0 0 8px rgba(34, 212, 255, 0.35),
+      inset 0 0 12px rgba(34, 212, 255, 0.06);
+  }
+  .map-full-btn:hover {
+    border-color: #5ce8ff;
+    color: #ffe4a8;
+    background: rgba(34, 212, 255, 0.16);
+    box-shadow:
+      0 0 14px rgba(34, 212, 255, 0.55),
+      inset 0 0 14px rgba(34, 212, 255, 0.1);
   }
 
   /* ── VENUE POPUP (absolute within map — sustainable map pattern) ── */
@@ -756,6 +1025,50 @@
     margin-top: 8px;
   }
   .popup-media-row { margin-top: 10px; }
+  .popup-media-preview-wrap {
+    position: relative;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(110, 181, 255, 0.28);
+    cursor: pointer;
+  }
+  .popup-media-preview-wrap:focus-visible {
+    outline: 2px solid var(--orange);
+    outline-offset: 2px;
+  }
+  .popup-media-preview {
+    width: 100%;
+    display: block;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: #0a1420;
+  }
+  .popup-media-preview-play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: rgba(255, 255, 255, 0.92);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.65);
+    pointer-events: none;
+  }
+  .popup-media-more-badge {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 0.68em;
+    font-family: var(--mono);
+    letter-spacing: 0.03em;
+    color: #ffe8b8;
+    background: rgba(12, 8, 2, 0.78);
+    border: 1px solid rgba(240, 160, 58, 0.45);
+    pointer-events: none;
+  }
   .popup-media-btn {
     width: 100%;
     border: 1px solid rgba(110, 181, 255, 0.45);
@@ -768,6 +1081,10 @@
     padding: 9px 12px;
     cursor: pointer;
     text-align: center;
+  }
+  .popup-media-btn .media-btn-arrow {
+    color: var(--orange-lt);
+    margin-left: 4px;
   }
   .popup-media-btn:hover {
     border-color: var(--orange);
@@ -939,6 +1256,49 @@
     cursor: pointer;
   }
   .media-lb-dot.active { background: #6eb5ff; }
+  .popup-similar {
+    margin-top: 10px;
+    margin-bottom: 4px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(196, 94, 10, 0.22);
+  }
+  .popup-similar-title {
+    font-size: 0.72em;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--orange-lt);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .popup-similar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .popup-similar-item {
+    font-size: 0.78em;
+    color: var(--text);
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .popup-similar-item:hover {
+    border-color: rgba(240, 160, 58, 0.55);
+    background: rgba(196, 94, 10, 0.08);
+  }
+  .popup-similar-item small {
+    display: block;
+    font-size: 0.85em;
+    color: var(--muted);
+    margin-top: 2px;
+    line-height: 1.35;
+  }
   .popup-actions { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
   .popup-mini-btn {
     flex: 1;
@@ -1241,9 +1601,66 @@
   .guide-header {
     padding: 10px 12px;
     border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .guide-header-title {
     font-size: 0.8em;
     color: var(--orange-lt);
     font-weight: 600;
+    min-width: 0;
+  }
+  .guide-full-link {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    border: 1.5px solid rgba(34, 212, 255, 0.75);
+    background: rgba(34, 212, 255, 0.08);
+    color: #ffcc80;
+    font-size: 0.62em;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0 0 8px rgba(34, 212, 255, 0.28);
+    transition: border-color 0.2s, background 0.2s, color 0.2s;
+  }
+  .guide-full-link:hover {
+    border-color: #5ce8ff;
+    background: rgba(34, 212, 255, 0.16);
+    color: #ffe4a8;
+  }
+  .guide-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .guide-close {
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffe8dd;
+    cursor: pointer;
+    flex-shrink: 0;
+    font-size: 0.95em;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .guide-close:hover {
+    background: rgba(255, 255, 255, 0.28);
   }
   .guide-profile {
     padding: 8px 10px;
@@ -1310,12 +1727,37 @@
     white-space: nowrap;
   }
   .header-nav a:hover { color: #fff; border-bottom-color: var(--orange-lt); }
+  .back-home-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(196, 94, 10, 0.4);
+    background: rgba(196, 94, 10, 0.12);
+    color: #ffcc80 !important;
+    border-bottom: 1px solid rgba(196, 94, 10, 0.4) !important;
+    font-weight: 600;
+  }
+  .back-home-link:hover {
+    color: #fff !important;
+    border-color: var(--orange-lt) !important;
+    background: rgba(196, 94, 10, 0.22);
+  }
+  .back-home-link--from-hub {
+    box-shadow: 0 0 12px rgba(196, 94, 10, 0.2);
+  }
   /* Hub iframe embed — use % height (not vh); vh breaks inside nested iframes on Render/Wix */
   html.embed-hub,
   html.embed-hub body {
     height: 100%;
     min-height: 0;
     overflow: hidden;
+  }
+  html.embed-hub {
+    --map-header-offset: 0px;
+    --map-sidebar-width: 260px;
+    --map-overlay-top: 12px;
   }
   html.embed-hub header { display: none !important; }
   html.embed-hub .admin-link,
@@ -1352,19 +1794,28 @@
     min-height: 320px;
   }
   html.embed-hub .map-top-actions {
-    top: 12px;
-    z-index: 120;
+    position: fixed !important;
+    top: var(--map-overlay-top);
+    left: var(--map-overlay-center-x);
+    transform: translateX(-50%);
+    z-index: 520;
     display: flex !important;
   }
+  html.embed-hub .helper-popup {
+    position: fixed !important;
+    left: var(--map-overlay-center-x);
+  }
   html.embed-hub .helper-btn,
-  html.embed-hub .reset-btn {
+  html.embed-hub .reset-btn,
+  html.embed-hub .map-full-btn {
     display: inline-flex !important;
   }
   html.embed-hub .guide-toggle {
     display: inline-flex !important;
     z-index: 120;
   }
-  html.embed-hub .helper-popup { top: 54px; max-height: min(58vh, 360px); }
+  html.embed-hub .helper-popup { top: calc(var(--map-overlay-top) + 46px); max-height: min(58vh, 360px); }
+  html.embed-hub .helper-popup.minimized { max-height: none; width: 118px; }
 
   /* Mobile: wide layout + horizontal scroll (standalone + hub iframe) — same pattern as Sustainability Map */
   @media (max-width: 700px) {
@@ -1404,7 +1855,7 @@
     header .header-stats { gap: 14px; }
     .hstat-val { font-size: 1em; }
     .map-top-actions {
-      top: 12px;
+      top: max(12px, env(safe-area-inset-top, 0px));
       left: auto;
       right: max(10px, env(safe-area-inset-right, 0px));
       transform: none;
@@ -1413,8 +1864,22 @@
       justify-content: flex-end;
       max-width: calc(100vw - 20px);
     }
+    .map-top-actions::after {
+      left: auto;
+      right: 0;
+      transform: translateY(6px);
+      white-space: normal;
+      max-width: min(220px, calc(100vw - 24px));
+      text-align: center;
+    }
+    .map-top-actions:hover::after,
+    .map-top-actions:focus-within::after,
+    .map-top-actions.map-top-actions--scroll-hint-on::after {
+      transform: translateY(0);
+    }
     .helper-btn,
-    .reset-btn {
+    .reset-btn,
+    .map-full-btn {
       font-size: 0.74em;
       padding: 7px 10px;
     }
@@ -1427,13 +1892,20 @@
       max-height: min(74vh, 460px);
       transform: translateY(8px) scale(0.98);
     }
-    .helper-popup.visible {
+    .helper-popup.visible:not(.minimized) {
       transform: translateY(0) scale(1);
+    }
+    .helper-popup.minimized {
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%) translateY(0) scale(1);
+      width: 118px;
     }
     html.embed-hub .helper-popup {
       top: 54px;
       max-height: min(58vh, 360px);
     }
+    html.embed-hub .helper-popup.minimized { max-height: none; }
     .mobile-swipe-hint {
       display: inline-flex;
       align-items: center;
@@ -1458,6 +1930,84 @@
     }
     .mobile-swipe-hint.fade-out {
       opacity: 0;
+    }
+    .map-hscroll-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: fixed;
+      bottom: max(12px, env(safe-area-inset-bottom, 0px));
+      left: max(12px, env(safe-area-inset-left, 0px));
+      right: max(12px, env(safe-area-inset-right, 0px));
+      z-index: 1350;
+      padding: 8px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(196, 94, 10, 0.45);
+      background: rgba(18, 12, 8, 0.94);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      pointer-events: auto;
+    }
+    .map-hscroll-controls[hidden] { display: none !important; }
+    .map-hscroll-btn {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid rgba(196, 94, 10, 0.4);
+      background: rgba(196, 94, 10, 0.18);
+      color: #ffe0b0;
+      font-size: 1rem;
+      line-height: 1;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .map-hscroll-btn:active { background: rgba(196, 94, 10, 0.35); }
+    .map-hscroll-track {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .map-hscroll-label {
+      font-size: 0.58rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 224, 176, 0.75);
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .map-hscroll-range {
+      width: 100%;
+      height: 28px;
+      margin: 0;
+      accent-color: var(--orange-lt);
+      cursor: pointer;
+      touch-action: pan-x;
+    }
+    .mobile-swipe-hint {
+      bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+    }
+    .guide-panel {
+      bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+    }
+    html, body {
+      overflow-x: scroll;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(240, 160, 58, 0.55) rgba(10, 10, 10, 0.35);
+    }
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+      height: 10px;
+    }
+    html::-webkit-scrollbar-thumb,
+    body::-webkit-scrollbar-thumb {
+      background: rgba(240, 160, 58, 0.55);
+      border-radius: 5px;
+    }
+    html::-webkit-scrollbar-track,
+    body::-webkit-scrollbar-track {
+      background: rgba(10, 10, 10, 0.35);
     }
   }
 </style>
@@ -1524,7 +2074,16 @@
   }
 })();
 </script>
-<div class="mobile-swipe-hint" id="mobile-swipe-hint" aria-hidden="true">Swipe sideways to view the full map →</div>
+<div class="mobile-swipe-hint" id="mobile-swipe-hint" aria-hidden="true">Swipe sideways or use the scroll bar below →</div>
+
+<div class="map-hscroll-controls" id="map-hscroll-controls" hidden aria-label="Scroll map left and right">
+  <button type="button" class="map-hscroll-btn" id="map-hscroll-left" aria-label="Scroll map left">◀</button>
+  <div class="map-hscroll-track">
+    <span class="map-hscroll-label">Scroll map ↔</span>
+    <input type="range" class="map-hscroll-range" id="map-hscroll-range" min="0" max="0" value="0" step="1" aria-label="Horizontal map position">
+  </div>
+  <button type="button" class="map-hscroll-btn" id="map-hscroll-right" aria-label="Scroll map right">▶</button>
+</div>
 
 <header>
   <div>
@@ -1532,7 +2091,7 @@
     <div class="tagline">Open mic nights &amp; jam sessions for musicians</div>
   </div>
   <nav class="header-nav" aria-label="Live Music Finder tools">
-    <a href="./live-music-hub.html">All tools hub</a>
+    <a href="./live-music-hub.html" id="back-home-btn" class="back-home-link">← Back to home</a>
     <a href="./live-events-ticker.html">Events ticker</a>
   </nav>
   <div class="header-stats">
@@ -1546,7 +2105,7 @@
     </div>
     <div class="hstat">
       <div class="hstat-val" id="stat-city">Amsterdam</div>
-      <div class="hstat-lbl">City</div>
+      <div class="hstat-lbl">Areas</div>
     </div>
   </div>
 </header>
@@ -1557,6 +2116,10 @@
     <div class="sidebar-top">
       <div class="sidebar-title">Music venues <span class="count-badge" id="list-count">0</span></div>
       <input class="search-box" type="text" placeholder="Search venues, styles, or areas…" id="search-input">
+      <div class="filter-label">Areas</div>
+      <div class="area-filter-row" id="area-filter-row" role="group" aria-label="Map areas"></div>
+      <p class="area-filter-hint" id="area-filter-hint">Pick one or more cities for a jam weekend — Europe zooms the full map.</p>
+      <div class="filter-label">Music style</div>
       <div class="filter-row" id="filter-row">
         <button type="button" class="filter-btn active" data-genre="all">All</button>
       </div>
@@ -1567,23 +2130,41 @@
 
   <!-- MAP -->
   <div class="map-container" id="map-container">
-    <div class="map-top-actions" role="toolbar" aria-label="Map tools">
+    <div class="map-top-actions" role="toolbar" aria-label="Map tools" title="You can use me to scroll the page too 🙂">
       <button class="helper-btn" id="helper-btn" type="button" aria-label="How to use map">ⓘ Help</button>
       <button class="reset-btn" id="reset-btn" type="button">↺ Reset View</button>
+      <a class="map-full-btn" id="map-full-btn" href="./live-music-finder.html?from=hub" target="_top" rel="noopener noreferrer" hidden title="Preview — open full map for all venues, guide &amp; photos">⤢ Full map →</a>
     </div>
     <div class="helper-popup" id="helper-popup" role="dialog" aria-modal="false" aria-label="Map navigation help">
+      <div class="helper-compact" id="helper-compact" aria-label="Scroll the page — click to expand help">
+        <button class="helper-compact-expand" id="helper-compact-expand" type="button" aria-label="Expand help">+</button>
+        <span class="helper-mini-wave" aria-hidden="true">👋</span>
+        <span class="helper-mini-text">Zoom on map · scroll page separately</span>
+        <span class="helper-mini-scroll-line">
+          <span class="helper-scroll-arrow helper-scroll-arrow--mini" aria-hidden="true">→</span>
+          <span>Also scroll via scroll bar</span>
+        </span>
+        <span class="helper-mini-hint">Click to expand</span>
+      </div>
+      <div class="helper-full">
       <div class="helper-header">
         <span>How To Navigate The Map</span>
-        <button class="helper-close" id="helper-close" type="button" aria-label="Close help">✕</button>
+        <div class="helper-header-actions">
+          <button class="helper-shrink" id="helper-shrink" type="button" aria-label="Minimize help">−</button>
+          <button class="helper-close" id="helper-close" type="button" aria-label="Close help">✕</button>
+        </div>
       </div>
       <div class="helper-body">
         <p>
-          Use your <strong>mouse wheel</strong> or <strong>trackpad pinch</strong> to zoom in and out on the map.
-          <strong>Click and drag</strong> on the map to pan around Amsterdam.
+          On the map itself: <strong>mouse wheel</strong> or <strong>trackpad pinch</strong> zooms in and out.
+          <strong>Click and drag</strong> on the map to pan around Amsterdam — separate from scrolling the page.
         </p>
+        <div class="helper-scroll-hint" role="note">
+          <span><strong>Also scroll the page</strong> up and down with the <strong>scroll bar on the right</strong> — independent of map zoom.</span>
+          <span class="helper-scroll-arrow" aria-hidden="true" title="Scroll bar on the right">→</span>
+        </div>
         <p>
-          To scroll the whole page up and down, use the <strong>scroll bar on the right</strong>.
-          You can also scroll using the <strong>venue list on the left</strong> — swipe or drag inside the list when it is long; the selected venue scrolls into view automatically.
+          You can also scroll the page using the <strong>venue list on the left</strong> — swipe or drag inside the list when it is long; the selected venue scrolls into view automatically.
         </p>
         <p>
           When a venue is open, scroll inside its <strong>detail panel</strong> for schedule, links, and contact — the panel stays within the map and moves with pan/zoom.
@@ -1594,8 +2175,9 @@
         <div class="helper-note">
           <p>On mobile, <strong>swipe left and right</strong> to see the full map and venue list. Venue panels open <strong>centred on screen</strong> at eye level.</p>
           <p>Pinch to zoom on the map, drag to pan, then use <strong>＋ / －</strong> for step zoom. <strong>Help</strong> and <strong>Reset View</strong> stay visible at the top of the map while you scroll.</p>
-          <p>This helper appears once automatically — tap <strong>Help</strong> anytime to reopen it.</p>
+          <p>This helper appears once automatically — tap <strong>Help</strong> anytime to reopen it. Use <strong>−</strong> to shrink it; the chip reminds you about the <strong>scroll bar</strong> on the right.</p>
         </div>
+      </div>
       </div>
     </div>
     <svg id="map-svg"></svg>
@@ -1638,7 +2220,16 @@
             <iframe id="popup-video-frame" class="video-frame" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen hidden></iframe>
           </div>
           <div class="popup-media-row" id="popup-media-row" hidden>
+            <div class="popup-media-preview-wrap" id="popup-media-preview-wrap" hidden tabindex="0" role="button" aria-label="Open photos and videos">
+              <img class="popup-media-preview" id="popup-media-preview" alt="" hidden>
+              <span class="popup-media-preview-play" id="popup-media-preview-play" hidden aria-hidden="true">▶</span>
+              <span class="popup-media-more-badge" id="popup-media-more-badge" hidden></span>
+            </div>
             <button type="button" class="popup-media-btn" id="popup-media-btn">Photos &amp; videos</button>
+          </div>
+          <div class="popup-similar" id="popup-similar" hidden>
+            <div class="popup-similar-title">Others you may like</div>
+            <div class="popup-similar-list" id="popup-similar-list"></div>
           </div>
           <div class="popup-actions">
             <button type="button" class="popup-mini-btn" id="open-inquiry-btn">Send message</button>
@@ -1685,7 +2276,13 @@
 <a class="admin-link" href="./music-inquiries-admin.html" target="_blank" rel="noopener noreferrer">Open inquiries admin</a>
 <button class="guide-toggle" id="guide-toggle">🎵 Ask Music Guide</button>
 <div class="guide-panel" id="guide-panel">
-  <div class="guide-header">Music Guide Assistant</div>
+  <div class="guide-header">
+    <span class="guide-header-title">Music Guide Assistant</span>
+    <div class="guide-header-actions">
+      <a class="guide-full-link" id="guide-full-link" href="./live-music-guide.html" target="_top" rel="noopener noreferrer">Open full view</a>
+      <button type="button" class="guide-close" id="guide-close" aria-label="Close Music Guide">✕</button>
+    </div>
+  </div>
   <div class="guide-profile">
     <input id="guide-instrument" placeholder="Instrument">
     <input id="guide-style" placeholder="Style">
@@ -1773,7 +2370,7 @@
 
 <script>
 // Live Music Finder — loads data/music-venues.json (served via Express static root)
-const MUSIC_VENUES_FALLBACK = [{"id":1,"name":"Zoku Amsterdam","genre":"open-mic","format":"Open mic for musicians, live music","schedule":"Rooftop Open Mic Night; sign-up 17:30–18:00","address":"Weesperstraat 105, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.9056,"lat":52.361,"desc":"Rooftop open mic with sign-up before the session — a hotel-meets-creative-space venue welcoming musicians for live performance.","imageUrl":"https://static.wixstatic.com/media/c123de_24f207656eba41eaafc1556ced2caa0d~mv2.jpg","url":"https://livezoku.com/amsterdam/events/rooftop-open-mic-night/","contactEmail":"info@livezoku.com","verificationStatus":"unverified","lastVerified":"","source":"seed","vibeTags":["open-mic"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Weesperstraat%20105%2C%20Amsterdam","youtubeVideos":[]},{"id":2,"name":"Buurthuis de Sering","genre":"open-mic","format":"Open mic, mixed performance with music","schedule":"Monthly Open Mic Night","address":"Rhoneweg 6, 1043 AH Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8268,"lat":52.3867,"desc":"Community centre open mic mixing music with other performance — friendly neighbourhood stage for trying new material.","imageUrl":"https://static.wixstatic.com/media/c123de_61a11dc1a168478eb53aee56401f18d4~mv2.jpg","url":"https://www.iamsterdam.com/en/whats-on/calendar/concerts-and-music/concerts/sering-open-mic-night","contactEmail":"","verificationStatus":"unverified","lastVerified":"","source":"seed","vibeTags":["open-mic"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Rhoneweg%206%2C%201043%20AH%20Amsterdam","youtubeVideos":[]},{"id":3,"name":"Bimhuis","genre":"jazz","format":"Jazz jam / live music venue","schedule":"Tuesday jam/session","address":"Piet Heinkade 3, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.9136,"lat":52.3731,"desc":"Internationally known jazz venue on the waterfront — professional stage for jazz jams and live sessions.","imageUrl":"https://static.wixstatic.com/media/c123de_dbd9ce74d28640a589a494f6524ca25d~mv2.jpg","url":"https://www.bimhuis.nl","contactEmail":"info@bimhuis.nl","verificationStatus":"unverified","lastVerified":"","source":"seed","vibeTags":["jazz-club"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Piet%20Heinkade%203%2C%20Amsterdam","youtubeVideos":[]},{"id":4,"name":"Café Czaar","genre":"jazz","format":"Jazz jam","schedule":"2nd and 4th Saturday, 21:00–23:30","address":"Czaar Peterstraat 281, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.929,"lat":52.363,"desc":"Intimate café jazz jam twice a month — sit-in session for improvisers in east Amsterdam.","imageUrl":"https://static.wixstatic.com/media/c123de_0c364f5e0d324e48866aa3a9ee678eeb~mv2.jpg","url":"https://www.jazzinamsterdam.com/","contactEmail":"","verificationStatus":"unverified","lastVerified":"","source":"seed","vibeTags":["jazz-club"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Czaar%20Peterstraat%20281%2C%20Amsterdam","youtubeVideos":[]},{"id":5,"name":"Café Engelbewaarder","genre":"jazz","format":"Jazz jam","schedule":"Sunday, 16:30–20:00","address":"Kloveniersburgwal 86, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8992,"lat":52.3698,"desc":"Classic Amsterdam brown café with a long-running Sunday jazz jam in the Jordaan.","imageUrl":"https://static.wixstatic.com/media/c123de_de6397a2a69a425ca09b1bbb056a5c4e~mv2.jpg","url":"https://www.jazzinamsterdam.com/","contactEmail":"","verificationStatus":"unverified","lastVerified":"","source":"seed","vibeTags":["jazz-club"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Kloveniersburgwal%2086%2C%20Amsterdam","youtubeVideos":[],"mediaGallery":[{"type":"image","url":"https://static.wixstatic.com/media/c123de_de6397a2a69a425ca09b1bbb056a5c4e~mv2.jpg","caption":"Sunday jazz jam in the brown café"}]},{"id":6,"name":"Café de Pianist","genre":"jazz","format":"Jazz jam","schedule":"Thursday jam session","address":"Utrechtsestraat 122, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8935,"lat":52.3595,"desc":"Thursday evening jazz jam in a piano-bar setting — welcoming players for standards and improvisation.","imageUrl":"https://static.wixstatic.com/media/c123de_a33b3f22f1b64c7aaf0e0601ab1dabba~mv2.jpg","url":"https://www.jazzinamsterdam.com/","contactEmail":"","verificationStatus":"unverified","lastVerified":"","source":"seed","vibeTags":["jazz-club"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Utrechtsestraat%20122%2C%20Amsterdam","youtubeVideos":[]},{"id":7,"name":"Café Langereis","genre":"gypsy-swing","format":"Gypsy swing / jam","schedule":"Tuesday gypsy swing session","address":"Eerste Helmersstraat 9, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8725,"lat":52.3662,"desc":"Tuesday gypsy swing jam — Django-style guitars and violin-friendly session in Oud-West.","imageUrl":"https://static.wixstatic.com/media/c123de_5a25f3fab50f40b7913768ba43a8b76f~mv2.jpg","url":"https://www.jazzinamsterdam.com/","contactEmail":"","verificationStatus":"unverified","lastVerified":"","source":"seed","vibeTags":["live-music"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Eerste%20Helmersstraat%209%2C%20Amsterdam","youtubeVideos":[]},{"id":8,"name":"Café de Muurbloem","genre":"jazz","format":"Jazz jam","schedule":"Wednesday session","address":"Plantage Middenlaan 35, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.9128,"lat":52.3668,"desc":"Wednesday jazz session near Artis — relaxed café jam in the Plantage neighbourhood.","imageUrl":"https://static.wixstatic.com/media/c123de_cd0c4879cd4243bb952074de90e951ec~mv2.jpg","url":"https://www.jazzinamsterdam.com/","contactEmail":"","verificationStatus":"unverified","lastVerified":"","source":"seed","vibeTags":["jazz-club"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Plantage%20Middenlaan%2035%2C%20Amsterdam","youtubeVideos":[]},{"id":9,"name":"Studio K","genre":"jazz","format":"Jazz session","schedule":"Wednesday session","address":"Timorplein 62, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.9276,"lat":52.3663,"desc":"Cultural venue in Oost with a midweek jazz session — film-house atmosphere with live music programming.","imageUrl":"https://static.wixstatic.com/media/c123de_15aae0fb2030435d99f883c13f0423b4~mv2.jpg","url":"https://www.jazzinamsterdam.com/","contactEmail":"","verificationStatus":"unverified","lastVerified":"","source":"seed","vibeTags":["jazz-club"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Timorplein%2062%2C%20Amsterdam","youtubeVideos":[]},{"id":10,"name":"Zaal 100","genre":"jazz","format":"Jazz café / jam","schedule":"Tuesday and Thursday","address":"Piratenweg 256, Amsterdam (NDSM)","city":"Amsterdam","country":"Netherlands","lng":4.8912,"lat":52.4012,"desc":"NDSM jazz café with twice-weekly jams — creative harbour-side room for acoustic and small-combo jazz.","imageUrl":"https://static.wixstatic.com/media/c123de_2a656100aae448689d7ef6af051ed68c~mv2.jpg","url":"https://www.jazzinamsterdam.com/","contactEmail":"","verificationStatus":"unverified","lastVerified":"","source":"seed","vibeTags":["jazz-club"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Piratenweg%20256%2C%20Amsterdam%20(NDSM)","youtubeVideos":[],"mediaGallery":[{"type":"image","url":"https://static.wixstatic.com/media/c123de_2a656100aae448689d7ef6af051ed68c~mv2.jpg","caption":"NDSM terrace — jazz café atmosphere"}]},{"id":11,"name":"Posthoornkerk","genre":"jazz","format":"Jazz club / live music","schedule":"Friday and Saturday","address":"Haarlemmerstraat 110, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8931,"lat":52.3784,"desc":"Weekend jazz club in a former church space — live sets and club programming near the Haarlemmerbuurt.","imageUrl":"https://static.wixstatic.com/media/c123de_b7925e9cdf214d3a9dd226b00cc516ca~mv2.jpg","url":"https://www.jazzinamsterdam.com/","contactEmail":"","verificationStatus":"unverified","lastVerified":"","source":"seed","vibeTags":["jazz-club"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Haarlemmerstraat%20110%2C%20Amsterdam","youtubeVideos":[]},{"id":12,"name":"Kaap Amsterdam","genre":"open-jam","format":"Open jam","schedule":"Open Jam Session at 21:30 after the live set","address":"Cruquiusweg 204, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.9352,"lat":52.3648,"desc":"Open jam after the headline set — join the stage once the booked act finishes (Kaap LIVE programming).","imageUrl":"https://static.wixstatic.com/media/c123de_dbbea148814f491eb85b92a84e6e5cf5~mv2.jpg","url":"https://kaapamsterdam.nl/","contactEmail":"info@kaapamsterdam.nl","verificationStatus":"unverified","lastVerified":"","source":"seed","vibeTags":["jam-session"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Cruquiusweg%20204%2C%20Amsterdam","youtubeVideos":[]},{"id":13,"name":"Ruby Emma","genre":"open-mic","format":"Open mic / music event","schedule":"Recurring open mic/music events","address":"Amstelvlietstraat 4, 1096 GG Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.934,"lat":52.352,"desc":"Recurring open mic and music nights at this Amstel-side venue — check listings for the next sign-up slot.","imageUrl":"https://static.wixstatic.com/media/c123de_b8584b0d4c9a4f78ac2e9c59f9c3f26f~mv2.jpg","url":"https://openstageperformances.com/","contactEmail":"info@openstageperformances.com","verificationStatus":"unverified","lastVerified":"","source":"seed","vibeTags":["open-mic"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Amstelvlietstraat%204%2C%201096%20GG%20Amsterdam","youtubeVideos":[]},{"id":14,"name":"The Waterhole","genre":"open-jam","format":"Live-music bar · hosted open jams & band nights","schedule":"Mon Amsterdam Jam Collective · Wed Open Jam with Gianluca (20:30+) — plus nightly live sets; see agenda","address":"Korte Leidsedwarsstraat 49, 1017 PW Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8843,"lat":52.3636,"desc":"A cornerstone of Amsterdam's player-friendly scene, The Waterhole is a dedicated live-music bar steps from Leidseplein with rotating gigs and open jams through the week. Bring your instrument for hosted open sessions — from the long-running Open Jam with Gianluca (Wed, funk · pop · rock) to Amsterdam Jam Collective (Mon) — or catch booked bands before the floor opens up. Daily happy hour 12:00–21:00, pool tables, and a packed agenda at waterhole.nl make it an easy first stop for visiting musicians.","imageUrl":"https://static.wixstatic.com/media/c123de_6acc19b9a4074c2db0d093ad347b843b~mv2.jpg","url":"https://waterhole.nl/nl/","contactEmail":"","verificationStatus":"unverified","lastVerified":"2026-05-28","source":"venue","vibeTags":["open-jam","live-music","rock","funk","leidseplein"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Korte%20Leidsedwarsstraat%2049%2C%201017%20PW%20Amsterdam","youtubeVideos":[]},{"id":15,"name":"The Black Dog","genre":"open-jam","format":"Relaxed open jam with house band (2–3)","schedule":"Every other Monday 20:00–22:00 · from 8 Jun 2026","sessionTime":"20:00–22:00","recurrence":"Starts Monday 8 June 2026, then every other Monday","nextSession":"First jam: Monday 8 June 2026","signUpNotes":"Drop in on jam nights; reserve a table via the website if you want dinner first.","entryCost":"No jam fee · drinks & food at pub prices","skillLevel":"Small, relaxed session — welcoming atmosphere","jamDetails":"House band of 2–3 musicians hosts the night. You're welcome to join in with them or perform your own songs, with or without accompaniment.","address":"Spuistraat 223A, 1012 VN Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8894,"lat":52.3721,"desc":"Central-Dam gastro pub with streetfood, craft beer and a covered terrace. A new fortnightly Monday jam from 8 June 2026 — intimate, musician-friendly, and ideal for sitting in with the house band or playing your own material.","imageUrl":"https://static.wixstatic.com/media/c123de_fe824c71bd8a4724885bf8ca551ecc0d~mv2.jpg","url":"https://www.theblackdog.nl/","agendaUrl":"https://www.theblackdog.nl/","contactEmail":"contact@theblackdog.nl","phone":"020 770 6334","verificationStatus":"unverified","lastVerified":"2026-05-28","source":"venue","vibeTags":["open-jam","relaxed","house-band","singers-welcome","dam-square","new-session"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Spuistraat%20223A%2C%201012%20VN%20Amsterdam","youtubeVideos":[],"mediaGallery":[{"type":"image","url":"https://static.wixstatic.com/media/c123de_fe824c71bd8a4724885bf8ca551ecc0d~mv2.jpg","caption":"The Black Dog — Dam Square gastro pub"}]}];
+const MUSIC_VENUES_FALLBACK = [{"id":1,"name":"Zoku Amsterdam","genre":"open-mic","format":"Open mic for musicians, live music","schedule":"Rooftop Open Mic Night; sign-up 17:30–18:00","sessionTime":"Sign-up 17:30–18:00 (performance times on event page)","skillLevel":"Open mic — mixed levels, beginner-friendly; arrive early to sign up","signUpNotes":"Rooftop sign-up window before the session — check livezoku.com for the next date.","address":"Weesperstraat 105, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.9056,"lat":52.361,"desc":"Rooftop open mic with sign-up before the session — a hotel-meets-creative-space venue welcoming musicians for live performance.","imageUrl":"https://static.wixstatic.com/media/c123de_24f207656eba41eaafc1556ced2caa0d~mv2.jpg","url":"https://livezoku.com/amsterdam/events/rooftop-open-mic-night/","contactEmail":"info@livezoku.com","verificationStatus":"unverified","lastVerified":"","source":"seed","vibeTags":["open-mic"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Weesperstraat%20105%2C%20Amsterdam","youtubeVideos":[]},{"id":2,"name":"Buurthuis de Sering","genre":"open-mic","format":"Open mic, mixed performance with music","schedule":"Monthly Open Mic Night","sessionTime":"Monthly (date/time on desering.org/events)","skillLevel":"Community open mic — friendly neighbourhood stage, mixed performers and beginners welcome","signUpNotes":"Check desering.org for the next monthly date.","address":"Rhoneweg 6, 1043 AH Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8268,"lat":52.3867,"desc":"Community centre open mic mixing music with other performance — friendly neighbourhood stage for trying new material.","imageUrl":"https://static.wixstatic.com/media/c123de_61a11dc1a168478eb53aee56401f18d4~mv2.jpg","url":"https://desering.org/events","contactEmail":"info@desering.org","verificationStatus":"unverified","lastVerified":"2026-06-05","source":"seed","vibeTags":["open-mic"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Rhoneweg%206%2C%201043%20AH%20Amsterdam","youtubeVideos":[]},{"id":3,"name":"Bimhuis","genre":"jazz","format":"Jazz jam / live music venue","schedule":"Tuesday jam/session","sessionTime":"Tuesday (doors & set times on bimhuis.nl program)","skillLevel":"International jazz venue — professional stage; listen first, suited to experienced improvisers","signUpNotes":"Confirm Tuesday jam format and times on the English program page.","address":"Piet Heinkade 3, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.9136,"lat":52.3731,"desc":"Internationally known jazz venue on the waterfront — professional stage for jazz jams and live sessions.","imageUrl":"https://static.wixstatic.com/media/c123de_dbd9ce74d28640a589a494f6524ca25d~mv2.jpg","url":"https://www.bimhuis.nl","contactEmail":"info@bimhuis.nl","verificationStatus":"unverified","lastVerified":"2026-06-05","source":"seed","vibeTags":["jazz-club"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Piet%20Heinkade%203%2C%20Amsterdam","youtubeVideos":[{"id":"fyHTYD5i-x0","title":"Bimhuis — live jazz"}],"agendaUrl":"https://www.bimhuis.nl/en/program"},{"id":4,"name":"Café Czaar","genre":"jazz","format":"Jazz jam","schedule":"2nd and 4th Saturday, 21:00–23:30","sessionTime":"21:00–23:30","recurrence":"2nd and 4th Saturday of each month","skillLevel":"Intimate café jazz jam — sit-in session; helpful if you are comfortable improvising","address":"Czaar Peterstraat 281, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.929,"lat":52.363,"desc":"Intimate café jazz jam twice a month — sit-in session for improvisers in east Amsterdam.","imageUrl":"https://static.wixstatic.com/media/c123de_0c364f5e0d324e48866aa3a9ee678eeb~mv2.jpg","url":"https://www.czaaramsterdam.nl/agenda","contactEmail":"","verificationStatus":"unverified","lastVerified":"2026-06-05","source":"seed","vibeTags":["jazz-club"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Czaar%20Peterstraat%20281%2C%20Amsterdam","youtubeVideos":[]},{"id":5,"name":"Café Engelbewaarder","genre":"jazz","format":"Jazz jam","schedule":"Sunday, 16:30–20:00","sessionTime":"16:30–20:00","recurrence":"Every Sunday","skillLevel":"Long-running Sunday jazz jam — relaxed brown café; mixed levels, respect the house groove","address":"Kloveniersburgwal 59, 1011 JZ Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.9002,"lat":52.3701,"desc":"Classic Amsterdam brown café with a long-running Sunday jazz jam in the Jordaan.","imageUrl":"https://static.wixstatic.com/media/c123de_de6397a2a69a425ca09b1bbb056a5c4e~mv2.jpg","url":"https://cafedeengelbewaarder.nl/","contactEmail":"","verificationStatus":"unverified","lastVerified":"2026-06-05","source":"seed","vibeTags":["jazz-club"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Kloveniersburgwal%2059%2C%201011%20JZ%20Amsterdam","youtubeVideos":[],"mediaGallery":[{"type":"image","url":"https://static.wixstatic.com/media/c123de_de6397a2a69a425ca09b1bbb056a5c4e~mv2.jpg","caption":"Sunday jazz jam in the brown café"}],"phone":"020 625 3772"},{"id":6,"name":"Café de Pianist","genre":"jazz","format":"Jazz jam","schedule":"Thursday jam session","sessionTime":"Thursday evening (confirm on cafedepianist.nl)","recurrence":"Weekly Thursday","skillLevel":"Piano-bar jazz jam — welcoming for standards and improvisation; mixed levels","address":"Groen van Prinstererstraat 41, 1051 EH Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8772,"lat":52.3854,"desc":"Thursday evening jazz jam in a piano-bar setting — welcoming players for standards and improvisation.","imageUrl":"https://static.wixstatic.com/media/c123de_a33b3f22f1b64c7aaf0e0601ab1dabba~mv2.jpg","url":"https://www.cafedepianist.nl/","contactEmail":"info@cafedepianist.nl","verificationStatus":"unverified","lastVerified":"2026-06-05","source":"seed","vibeTags":["jazz-club"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Groen%20van%20Prinstererstraat%2041%2C%20Amsterdam","youtubeVideos":[],"phone":"020 737 1943"},{"id":7,"name":"Café Langereis","genre":"gypsy-swing","format":"Gypsy swing / jam","schedule":"Tuesday live music from 19:30","sessionTime":"from 19:30","recurrence":"Every Tuesday","skillLevel":"Gypsy swing jam — Django-style; guitar/violin friendly, know swing changes if sitting in","address":"Amstel 202, 1017 AH Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.9012,"lat":52.3658,"desc":"Tuesday gypsy swing jam — Django-style guitars and violin-friendly session in Oud-West.","imageUrl":"https://static.wixstatic.com/media/c123de_5a25f3fab50f40b7913768ba43a8b76f~mv2.jpg","url":"https://cafelangereis.nl/","contactEmail":"","verificationStatus":"unverified","lastVerified":"2026-06-05","source":"seed","vibeTags":["live-music"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Amstel%20202%2C%20Amsterdam","youtubeVideos":[],"phone":"020 785 0641"},{"id":8,"name":"Café de Muurbloem","genre":"jazz","format":"Jazz jam","schedule":"Wednesday jazz jam 20:00–23:00","sessionTime":"20:00–23:00","recurrence":"Every Wednesday","skillLevel":"Relaxed café jazz jam — mixed levels in Plantage neighbourhood","address":"Bloemgracht 170, 1015 TV Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8834,"lat":52.3742,"desc":"Wednesday jazz session near Artis — relaxed café jam in the Plantage neighbourhood.","imageUrl":"https://static.wixstatic.com/media/c123de_cd0c4879cd4243bb952074de90e951ec~mv2.jpg","url":"https://www.cafedemuurbloem.nl/","contactEmail":"","verificationStatus":"unverified","lastVerified":"2026-06-05","source":"seed","vibeTags":["jazz-club"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Bloemgracht%20170%2C%20Amsterdam","youtubeVideos":[]},{"id":9,"name":"Studio K","genre":"jazz","format":"Jazz session","schedule":"Wednesday session","sessionTime":"Wednesday (times on studio-k.nu agenda)","recurrence":"Weekly Wednesday","skillLevel":"Cultural-venue jazz session — check program before sitting in; film-house atmosphere","address":"Timorplein 62, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.9276,"lat":52.3663,"desc":"Cultural venue in Oost with a midweek jazz session — film-house atmosphere with live music programming.","imageUrl":"https://static.wixstatic.com/media/c123de_15aae0fb2030435d99f883c13f0423b4~mv2.jpg","url":"https://studio-k.nu/","contactEmail":"","verificationStatus":"unverified","lastVerified":"2026-06-05","source":"seed","vibeTags":["jazz-club"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Timorplein%2062%2C%20Amsterdam","youtubeVideos":[]},{"id":10,"name":"Zaal 100","genre":"jazz","format":"Jazz café / jam","schedule":"Tuesday Impro Jazzcafé from 21:00","sessionTime":"from 21:00","recurrence":"Tuesday Impro Jazzcafé (plus other jams — see zaal100.nl)","skillLevel":"Impro jazz café — acoustic small-combo; improv-friendly, harbour-side room","address":"De Wittenstraat 100, 1052 BA Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8778,"lat":52.3851,"desc":"NDSM jazz café with twice-weekly jams — creative harbour-side room for acoustic and small-combo jazz.","imageUrl":"https://static.wixstatic.com/media/c123de_2a656100aae448689d7ef6af051ed68c~mv2.jpg","url":"https://zaal100.nl/vaste-bespelers/impro-jazzcafe/","contactEmail":"zaal100@zaal100.nl","verificationStatus":"unverified","lastVerified":"2026-06-05","source":"seed","vibeTags":["jazz-club"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=De%20Wittenstraat%20100%2C%20Amsterdam","youtubeVideos":[],"mediaGallery":[{"type":"image","url":"https://static.wixstatic.com/media/c123de_2a656100aae448689d7ef6af051ed68c~mv2.jpg","caption":"NDSM terrace — jazz café atmosphere"}],"phone":"020 688 0127"},{"id":11,"name":"Posthoornkerk (Hidden Jazz Club)","genre":"jazz","format":"Pop-up jazz nights (Hidden Jazz Club)","schedule":"Friday and Saturday","sessionTime":"Friday & Saturday pop-up nights (times on hiddenjazzclub.com)","recurrence":"Pop-up dates — not a weekly open jam","skillLevel":"Ticketed Hidden Jazz Club nights — concert seating; less open-floor than café jams","signUpNotes":"Book tickets via hiddenjazzclub.com; dates vary.","agendaUrl":"https://www.hiddenjazzclub.com/amsterdam","address":"Haarlemmerstraat 124-126, 1013 EX Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8908,"lat":52.3792,"desc":"Historic Posthoornkerk hosts Hidden Jazz Club pop-up nights — intimate jazz in a landmark church space. Check hiddenjazzclub.com for dates and tickets.","imageUrl":"https://static.wixstatic.com/media/c123de_b7925e9cdf214d3a9dd226b00cc516ca~mv2.jpg","url":"https://www.hiddenjazzclub.com/amsterdam","contactEmail":"","verificationStatus":"unverified","lastVerified":"2026-06-05","source":"seed","vibeTags":["jazz-club"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Haarlemmerstraat%20124%2C%20Amsterdam","youtubeVideos":[]},{"id":12,"name":"Kaap Amsterdam","genre":"open-jam","format":"Open jam","schedule":"Open Jam Session at 21:30 after the live set","sessionTime":"21:30 (after headline set)","skillLevel":"Open jam after booked act — format varies by Kaap LIVE night; bring your instrument","signUpNotes":"Jam follows the listed live set — check kaapamsterdam.nl programming.","address":"Cruquiusweg 204, Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.9352,"lat":52.3648,"desc":"Open jam after the headline set — join the stage once the booked act finishes (Kaap LIVE programming).","imageUrl":"https://static.wixstatic.com/media/c123de_dbbea148814f491eb85b92a84e6e5cf5~mv2.jpg","url":"https://kaapamsterdam.nl/","contactEmail":"info@kaapamsterdam.nl","verificationStatus":"unverified","lastVerified":"","source":"seed","vibeTags":["jam-session"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Cruquiusweg%20204%2C%20Amsterdam","youtubeVideos":[]},{"id":13,"name":"Ruby Emma","genre":"open-mic","format":"Open mic / music event","schedule":"Recurring open mic/music events","sessionTime":"After headline set (dates on stadtklang.org)","skillLevel":"Hotel-bar open mic after Stadtklang concerts — mixed levels; confirm date first","signUpNotes":"Stadtklang events often include open mic after the headline act.","address":"Amstelvlietstraat 4, 1096 GG Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.934,"lat":52.352,"desc":"Ruby Emma Hotel & Bar on the Amstel — Stadtklang concerts often include an open mic after the headline set. Check stadtklang.org for dates.","imageUrl":"https://static.wixstatic.com/media/c123de_b8584b0d4c9a4f78ac2e9c59f9c3f26f~mv2.jpg","url":"https://www.ruby-hotels.com/en/destinations/amsterdam/ruby-emma","contactEmail":"emma@ruby-hotels.com","verificationStatus":"unverified","lastVerified":"2026-06-05","source":"seed","vibeTags":["open-mic"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Amstelvlietstraat%204%2C%201096%20GG%20Amsterdam","youtubeVideos":[],"agendaUrl":"https://www.stadtklang.org/","phone":"+31 20 245 7280"},{"id":14,"name":"The Waterhole","genre":"open-jam","format":"Live-music bar · hosted open jams & band nights","schedule":"Mon Amsterdam Jam Collective · Wed Open Jam with Gianluca (20:30+) — plus nightly live sets; see agenda","sessionTime":"Mon: Amsterdam Jam Collective · Wed: Open Jam from 20:30","recurrence":"Weekly Mon & Wed jams plus nightly live sets","skillLevel":"Player-friendly live-music bar — Mon collective & Wed funk/pop/rock open jam; welcoming to visitors","jamDetails":"Hosted open sessions Mon (Amsterdam Jam Collective) and Wed (Open Jam with Gianluca). Booked bands other nights — check waterhole.nl/gigs.","signUpNotes":"Arrive with your instrument for hosted jams; agenda lists set times.","address":"Korte Leidsedwarsstraat 49, 1017 PW Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8843,"lat":52.3636,"desc":"A cornerstone of Amsterdam's player-friendly scene, The Waterhole is a dedicated live-music bar steps from Leidseplein with rotating gigs and open jams through the week. Bring your instrument for hosted open sessions — from the long-running Open Jam with Gianluca (Wed, funk · pop · rock) to Amsterdam Jam Collective (Mon) — or catch booked bands before the floor opens up. Daily happy hour 12:00–21:00, pool tables, and a packed agenda at waterhole.nl make it an easy first stop for visiting musicians.","imageUrl":"https://static.wixstatic.com/media/c123de_6acc19b9a4074c2db0d093ad347b843b~mv2.jpg","url":"https://waterhole.nl/nl/","contactEmail":"info@waterhole.nl","verificationStatus":"unverified","lastVerified":"2026-06-05","source":"venue","vibeTags":["open-jam","live-music","rock","funk","leidseplein"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Korte%20Leidsedwarsstraat%2049%2C%201017%20PW%20Amsterdam","youtubeVideos":[],"phone":"020 620 8904","agendaUrl":"https://waterhole.nl/gigs/"},{"id":15,"name":"The Black Dog","genre":"open-jam","format":"Relaxed open jam with house band (2–3)","schedule":"Every other Monday 20:00–22:00 · from 8 Jun 2026","sessionTime":"20:00–22:00","recurrence":"Starts Monday 8 June 2026, then every other Monday","nextSession":"First jam: Monday 8 June 2026","signUpNotes":"Drop in on jam nights; reserve a table via the website if you want dinner first.","entryCost":"No jam fee · drinks & food at pub prices","skillLevel":"Small, relaxed session — welcoming atmosphere","jamDetails":"House band of 2–3 musicians hosts the night. You're welcome to join in with them or perform your own songs, with or without accompaniment.","address":"Spuistraat 223A, 1012 VN Amsterdam","city":"Amsterdam","country":"Netherlands","lng":4.8894,"lat":52.3721,"desc":"Central-Dam gastro pub with streetfood, craft beer and a covered terrace. A new fortnightly Monday jam from 8 June 2026 — intimate, musician-friendly, and ideal for sitting in with the house band or playing your own material.","imageUrl":"https://static.wixstatic.com/media/c123de_fe824c71bd8a4724885bf8ca551ecc0d~mv2.jpg","url":"https://www.theblackdog.nl/","agendaUrl":"https://www.theblackdog.nl/","contactEmail":"contact@theblackdog.nl","phone":"020 770 6334","verificationStatus":"unverified","lastVerified":"2026-05-28","source":"venue","vibeTags":["open-jam","relaxed","house-band","singers-welcome","dam-square","new-session"],"mapsUrl":"https://www.google.com/maps/search/?api=1&query=Spuistraat%20223A%2C%201012%20VN%20Amsterdam","youtubeVideos":[],"mediaGallery":[{"type":"image","url":"https://static.wixstatic.com/media/c123de_fe824c71bd8a4724885bf8ca551ecc0d~mv2.jpg","caption":"The Black Dog — Dam Square gastro pub"}]}];
 const MAP_CENTER = {"lng":4.9041,"lat":52.3676};
 
 const GENRE_COLORS = {
@@ -1805,6 +2402,40 @@ let inquiryFormOpenedAt = 0;
 let venuesReady = false;
 let mapGeoReady = false;
 
+const AREA_STORAGE_KEY = "live_music_map_areas";
+const DEFAULT_MAP_REGIONS = {
+  defaultAreaIds: ["amsterdam"],
+  defaultBasemap: "nl",
+  basemaps: {
+    nl: {
+      label: "Netherlands",
+      paths: ["/data/netherlands.geojson", "../data/netherlands.geojson", "../../data/netherlands.geojson"]
+    },
+    europe: {
+      label: "Europe",
+      paths: [
+        "/data/europe.geojson",
+        "../data/europe.geojson",
+        "../../data/europe.geojson",
+        "https://raw.githubusercontent.com/leakyMirror/map-of-europe/master/GeoJSON/europe.geojson"
+      ]
+    }
+  },
+  areas: [
+    { id: "amsterdam", label: "Amsterdam", type: "city", city: "Amsterdam", center: { lng: 4.9041, lat: 52.3676 }, defaultZoom: 8, status: "active" },
+    { id: "rotterdam", label: "Rotterdam", type: "city", city: "Rotterdam", center: { lng: 4.4777, lat: 51.9244 }, defaultZoom: 9, status: "planned" },
+    { id: "utrecht", label: "Utrecht", type: "city", city: "Utrecht", center: { lng: 5.1214, lat: 52.0907 }, defaultZoom: 9, status: "planned" },
+    { id: "europe", label: "Europe", type: "scope", basemap: "europe", center: { lng: 10.5, lat: 52.2 }, defaultZoom: 2.8, status: "active" }
+  ]
+};
+
+let mapRegions = DEFAULT_MAP_REGIONS;
+let selectedAreaIds = new Set(DEFAULT_MAP_REGIONS.defaultAreaIds);
+let currentBasemapId = DEFAULT_MAP_REGIONS.defaultBasemap;
+let mapGeoCache = {};
+let mapViewCenter = { lng: MAP_CENTER.lng, lat: MAP_CENTER.lat };
+let mapViewZoom = 8;
+
 const mapContainer = document.getElementById("map-container");
 const svg = d3.select("#map-svg");
 let width = Math.max(mapContainer.clientWidth, 640);
@@ -1813,7 +2444,11 @@ svg.attr("width", width).attr("height", height);
 
 function syncMapDimensions() {
   const w = mapContainer.clientWidth;
-  const h = mapContainer.clientHeight;
+  let h = mapContainer.clientHeight;
+  if (!document.documentElement.classList.contains("embed-hub")) {
+    const cap = Math.max(320, window.innerHeight - 72);
+    h = Math.min(h, cap);
+  }
   if (w >= 8 && h >= 8) {
     width = w;
     height = h;
@@ -1908,24 +2543,282 @@ bindMapControl(document.getElementById("zoom-in"), () => zoomMapBy(MAP_ZOOM_STEP
 bindMapControl(document.getElementById("zoom-out"), () => zoomMapBy(1 / MAP_ZOOM_STEP));
 bindMapControl(document.getElementById("reset-btn"), () => resetView());
 
+function liveMusicHubHref() {
+  const p = location.pathname || "";
+  if (p.indexOf("/live-music/") === 0) return "/live-music/render";
+  try {
+    return new URL("./live-music-hub.html", location.href).pathname;
+  } catch (_) {
+    return "./live-music-hub.html";
+  }
+}
+
+function liveMusicMapHref(extra) {
+  const q = new URLSearchParams(extra || {});
+  const qs = q.toString() ? "?" + q.toString() : "";
+  const p = location.pathname || "";
+  if (p.indexOf("/live-music/") === 0) return "/live-music/map" + qs;
+  if (p.indexOf("/HTMLS") === 0) return "/HTMLS%20GWM%20GWB/live-music-finder.html" + qs;
+  try {
+    return new URL("./live-music-finder.html", location.href).pathname + qs;
+  } catch (_) {
+    return "./live-music-finder.html" + qs;
+  }
+}
+
+function liveMusicGuideHref(extra) {
+  const q = new URLSearchParams(extra || {});
+  const qs = q.toString() ? "?" + q.toString() : "";
+  const p = location.pathname || "";
+  if (p.indexOf("/live-music/") === 0) return "/live-music/guide" + qs;
+  if (p.indexOf("/HTMLS") === 0) return "/HTMLS%20GWM%20GWB/live-music-guide.html" + qs;
+  try {
+    return new URL("./live-music-guide.html", location.href).pathname + qs;
+  } catch (_) {
+    return "./live-music-guide.html" + qs;
+  }
+}
+
+function initMapNavLinks() {
+  const pageParams = new URLSearchParams(window.location.search);
+  const isHubEmbed = document.documentElement.classList.contains("embed-hub");
+  const fullBtn = document.getElementById("map-full-btn");
+  const backBtn = document.getElementById("back-home-btn");
+  const fullParams = new URLSearchParams();
+  fullParams.set("from", "hub");
+  if (pageParams.get("venue")) fullParams.set("venue", pageParams.get("venue"));
+  if (backBtn) backBtn.href = liveMusicHubHref();
+  if (fullBtn && isHubEmbed) {
+    fullBtn.href = liveMusicMapHref(fullParams);
+    fullBtn.hidden = false;
+  }
+  if (backBtn && !isHubEmbed && pageParams.get("from") === "hub") {
+    backBtn.classList.add("back-home-link--from-hub");
+  }
+  const guideFullLink = document.getElementById("guide-full-link");
+  if (guideFullLink) {
+    guideFullLink.href = liveMusicGuideHref();
+    if (!isHubEmbed) guideFullLink.target = "_blank";
+  }
+}
+
+initMapNavLinks();
+
 const helperPopup = document.getElementById("helper-popup");
+const helperCompact = document.getElementById("helper-compact");
+const helperCompactExpand = document.getElementById("helper-compact-expand");
 const helperBtn = document.getElementById("helper-btn");
+const helperShrink = document.getElementById("helper-shrink");
 const helperClose = document.getElementById("helper-close");
 const HELPER_STORAGE_KEY = "live_music_map_helper_seen_v2";
+const HELPER_MODE_KEY = "live_music_map_helper_mode_v1";
+let helperState = "hidden";
+
+function isPopupOpen() {
+  return Boolean(popup?.classList.contains("visible"));
+}
+
+function relayHelperScrollToParent(deltaY) {
+  if (window.parent === window) return;
+  try {
+    window.parent.postMessage({ type: "live-music-helper-scroll", deltaY: deltaY }, "*");
+  } catch (_) { /* ignore */ }
+}
+
+function scrollPageBy(deltaY) {
+  const dy = Number(deltaY) || 0;
+  if (!dy) return;
+  const isHubEmbed = document.documentElement.classList.contains("embed-hub");
+  if (isHubEmbed && window.parent !== window) {
+    relayHelperScrollToParent(dy);
+    return;
+  }
+  let moved = false;
+  const tryEl = (el) => {
+    if (!el || el.scrollHeight <= el.clientHeight + 1) return false;
+    const before = el.scrollTop;
+    el.scrollTop += dy;
+    return el.scrollTop !== before;
+  };
+  const roots = [
+    document.scrollingElement,
+    document.documentElement,
+    document.body,
+    document.querySelector(".main"),
+    document.querySelector(".company-list")
+  ];
+  for (const el of roots) {
+    if (tryEl(el)) { moved = true; break; }
+  }
+  if (!moved) {
+    window.scrollBy(0, dy);
+  }
+  relayHelperScrollToParent(dy);
+}
+
+function initEmbedHubFixedChrome() {
+  if (!document.documentElement.classList.contains("embed-hub")) return;
+  const bar = document.querySelector(".map-top-actions");
+  const helper = document.getElementById("helper-popup");
+  if (bar && bar.parentElement !== document.body) document.body.appendChild(bar);
+  if (helper && helper.parentElement !== document.body) document.body.appendChild(helper);
+}
+
+function updateHelperVisibility() {
+  if (!helperPopup) return;
+  const blocked = isPopupOpen();
+  const showExpanded = helperState === "expanded" && !blocked;
+  const showMinimized = helperState === "minimized" && !blocked;
+  helperPopup.classList.toggle("visible", showExpanded);
+  helperPopup.classList.toggle("minimized", showMinimized);
+  helperPopup.setAttribute("aria-hidden", showExpanded || showMinimized ? "false" : "true");
+}
+
+function setHelperState(state, persist = false) {
+  helperState = state;
+  updateHelperVisibility();
+  if (persist) {
+    try {
+      if (state === "hidden") {
+        localStorage.setItem(HELPER_STORAGE_KEY, "1");
+        localStorage.removeItem(HELPER_MODE_KEY);
+      } else if (state === "minimized") {
+        localStorage.removeItem(HELPER_STORAGE_KEY);
+        localStorage.setItem(HELPER_MODE_KEY, "minimized");
+      } else if (state === "expanded") {
+        localStorage.removeItem(HELPER_MODE_KEY);
+      }
+    } catch (_) { /* ignore */ }
+  }
+}
 
 function openHelperPopup() {
-  if (!helperPopup) return;
-  helperPopup.classList.add("visible");
+  setHelperState("expanded");
+}
+
+function minimizeHelperPopup() {
+  setHelperState("minimized", true);
 }
 
 function closeHelperPopup(markSeen = false) {
-  if (!helperPopup) return;
-  helperPopup.classList.remove("visible");
-  if (markSeen) {
-    try {
-      localStorage.setItem(HELPER_STORAGE_KEY, "1");
-    } catch (_) { /* ignore */ }
+  setHelperState("hidden", markSeen);
+}
+
+function bindToolbarScrollRelay(el) {
+  if (!el) return;
+  el.addEventListener("wheel", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    scrollPageBy(event.deltaY);
+  }, { passive: false });
+
+  let touchStartY = 0;
+  let touchScrollActive = false;
+  el.addEventListener("touchstart", (event) => {
+    if (!event.touches.length) return;
+    if (event.target.closest("button, a")) return;
+    touchStartY = event.touches[0].clientY;
+    touchScrollActive = true;
+  }, { passive: true });
+  el.addEventListener("touchmove", (event) => {
+    if (!touchScrollActive || !event.touches.length) return;
+    const y = event.touches[0].clientY;
+    scrollPageBy(touchStartY - y);
+    touchStartY = y;
+  }, { passive: true });
+  el.addEventListener("touchend", () => {
+    touchScrollActive = false;
+  }, { passive: true });
+}
+
+const TOOLBAR_SCROLL_HINT_KEY = "live_music_toolbar_scroll_hint_seen_v1";
+const TOOLBAR_SCROLL_HINT_KEY_HUB = "live_music_toolbar_scroll_hint_seen_hub_v1";
+
+function initToolbarScrollHint() {
+  const bar = document.querySelector(".map-top-actions");
+  if (!bar) return;
+  const isHubEmbed = document.documentElement.classList.contains("embed-hub");
+  const isTouchUi = window.matchMedia("(hover: none), (max-width: 700px)").matches;
+  if (!isTouchUi && !isHubEmbed) return;
+  const hintKey = isHubEmbed ? TOOLBAR_SCROLL_HINT_KEY_HUB : TOOLBAR_SCROLL_HINT_KEY;
+  try {
+    if (localStorage.getItem(hintKey) === "1") return;
+  } catch (_) { /* ignore */ }
+  bar.classList.add("map-top-actions--scroll-hint-on");
+  window.setTimeout(() => {
+    bar.classList.remove("map-top-actions--scroll-hint-on");
+    try { localStorage.setItem(hintKey, "1"); } catch (_) { /* ignore */ }
+  }, 6000);
+}
+
+function bindHelperScrollRelay(el) {
+  if (!el) return;
+  let suppressClick = false;
+
+  function isMinimized() {
+    return el.classList.contains("minimized");
   }
+
+  el.addEventListener("wheel", (event) => {
+    if (!isMinimized()) return;
+    event.preventDefault();
+    event.stopPropagation();
+    scrollPageBy(event.deltaY);
+  }, { passive: false });
+
+  let touchStartY = 0;
+  let touchScrollActive = false;
+  el.addEventListener("touchstart", (event) => {
+    if (!isMinimized() || !event.touches.length) return;
+    touchStartY = event.touches[0].clientY;
+    touchScrollActive = true;
+    suppressClick = false;
+  }, { passive: true });
+  el.addEventListener("touchmove", (event) => {
+    if (!isMinimized() || !touchScrollActive || !event.touches.length) return;
+    const y = event.touches[0].clientY;
+    if (Math.abs(touchStartY - y) > 4) suppressClick = true;
+    scrollPageBy(touchStartY - y);
+    touchStartY = y;
+  }, { passive: true });
+  el.addEventListener("touchend", () => {
+    touchScrollActive = false;
+  }, { passive: true });
+
+  let dragStartY = 0;
+  let dragging = false;
+  el.addEventListener("mousedown", (event) => {
+    if (!isMinimized() || event.button !== 0) return;
+    if (event.target.closest(".helper-compact-expand")) return;
+    dragging = true;
+    dragStartY = event.clientY;
+    suppressClick = false;
+    event.preventDefault();
+  });
+  window.addEventListener("mousemove", (event) => {
+    if (!dragging) return;
+    const dy = dragStartY - event.clientY;
+    if (Math.abs(dy) > 2) suppressClick = true;
+    scrollPageBy(dy);
+    dragStartY = event.clientY;
+  });
+  window.addEventListener("mouseup", () => {
+    dragging = false;
+  });
+
+  el.addEventListener("click", (event) => {
+    if (!isMinimized()) return;
+    if (event.target.closest(".helper-compact-expand")) return;
+    if (suppressClick) {
+      event.preventDefault();
+      event.stopPropagation();
+      suppressClick = false;
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    openHelperPopup();
+  });
 }
 
 if (helperBtn) {
@@ -1935,6 +2828,13 @@ if (helperBtn) {
     openHelperPopup();
   });
 }
+if (helperShrink) {
+  helperShrink.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    minimizeHelperPopup();
+  });
+}
 if (helperClose) {
   helperClose.addEventListener("click", (event) => {
     event.preventDefault();
@@ -1942,13 +2842,34 @@ if (helperClose) {
     closeHelperPopup(true);
   });
 }
+if (helperCompactExpand) {
+  helperCompactExpand.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    openHelperPopup();
+  });
+}
+initEmbedHubFixedChrome();
+const mapTopActions = document.querySelector(".map-top-actions");
+if (mapTopActions) bindToolbarScrollRelay(mapTopActions);
+initToolbarScrollHint();
+if (helperPopup) {
+  bindHelperScrollRelay(helperPopup);
+}
 
 setTimeout(() => {
   try {
     const seen = localStorage.getItem(HELPER_STORAGE_KEY) === "1";
-    if (!seen) openHelperPopup();
+    const mode = localStorage.getItem(HELPER_MODE_KEY);
+    if (seen) {
+      setHelperState("hidden");
+    } else if (mode === "minimized") {
+      setHelperState("minimized");
+    } else {
+      setHelperState("expanded");
+    }
   } catch (_) {
-    openHelperPopup();
+    setHelperState("expanded");
   }
 }, 450);
 
@@ -1970,11 +2891,80 @@ function initMobileSwipeHint() {
 initMobileSwipeHint();
 window.addEventListener("resize", initMobileSwipeHint);
 
+const mapHscrollControls = document.getElementById("map-hscroll-controls");
+const mapHscrollRange = document.getElementById("map-hscroll-range");
+const mapHscrollLeft = document.getElementById("map-hscroll-left");
+const mapHscrollRight = document.getElementById("map-hscroll-right");
+
+function mapHScrollHost() {
+  return document.scrollingElement || document.documentElement;
+}
+
+function mapHScrollMax() {
+  const host = mapHScrollHost();
+  return Math.max(0, host.scrollWidth - host.clientWidth);
+}
+
+function syncMapHScrollUi() {
+  if (!mapHscrollControls || !mapHscrollRange) return;
+  const mobile = window.innerWidth <= 700;
+  const max = mapHScrollMax();
+  if (!mobile || max < 12) {
+    mapHscrollControls.hidden = true;
+    return;
+  }
+  mapHscrollControls.hidden = false;
+  mapHscrollRange.max = String(max);
+  mapHscrollRange.value = String(Math.round(mapHScrollHost().scrollLeft));
+}
+
+function setMapHScrollLeft(value) {
+  const host = mapHScrollHost();
+  const max = mapHScrollMax();
+  host.scrollLeft = Math.max(0, Math.min(max, value));
+  syncMapHScrollUi();
+}
+
+function nudgeMapHScroll(delta) {
+  setMapHScrollLeft(mapHScrollHost().scrollLeft + delta);
+}
+
+if (mapHscrollRange) {
+  mapHscrollRange.addEventListener("input", function () {
+    setMapHScrollLeft(Number(mapHscrollRange.value) || 0);
+  });
+}
+if (mapHscrollLeft) {
+  mapHscrollLeft.addEventListener("click", function () {
+    nudgeMapHScroll(-Math.round(window.innerWidth * 0.42));
+  });
+}
+if (mapHscrollRight) {
+  mapHscrollRight.addEventListener("click", function () {
+    nudgeMapHScroll(Math.round(window.innerWidth * 0.42));
+  });
+}
+
+window.addEventListener("scroll", syncMapHScrollUi, { passive: true });
+window.addEventListener("resize", syncMapHScrollUi);
+window.addEventListener("orientationchange", function () {
+  setTimeout(syncMapHScrollUi, 120);
+});
+requestAnimationFrame(syncMapHScrollUi);
+setTimeout(syncMapHScrollUi, 400);
+setTimeout(syncMapHScrollUi, 1200);
+
 window.addEventListener("keydown", (event) => {
   if (event.target.closest("input, textarea, select")) return;
-  if (event.key === "Escape" && helperPopup?.classList.contains("visible")) {
-    closeHelperPopup(true);
-    return;
+  if (event.key === "Escape") {
+    if (helperState === "expanded") {
+      minimizeHelperPopup();
+      return;
+    }
+    if (helperState === "minimized") {
+      closeHelperPopup(true);
+      return;
+    }
   }
   if (event.key === "+" || event.key === "=") {
     event.preventDefault();
@@ -1986,12 +2976,7 @@ window.addEventListener("keydown", (event) => {
 });
 
 function resetView() {
-  const [x, y] = projection([MAP_CENTER.lng, MAP_CENTER.lat]);
-  const scale = 8;
-  svg.transition().duration(650).ease(d3.easeCubicInOut).call(
-    zoomBehaviour.transform,
-    d3.zoomIdentity.translate(width / 2 - scale * x, height / 2 - scale * y).scale(scale)
-  );
+  applyMapScope({ animate: true });
 }
 
 function genreColor(v) {
@@ -2395,16 +3380,168 @@ function requestVenueFocus(id) {
   if (venuesReady && mapGeoReady) selectVenue(venueId);
   else window.__pendingVenueId = venueId;
 }
-async function fetchMapGeo() {
+async function loadMapRegions() {
+  const origin = resolveMusicApiOrigin();
+  const paths = [];
+  if (origin) paths.push(origin + "/data/music-map-regions.json");
+  paths.push(
+    "/data/music-map-regions.json",
+    "../data/music-map-regions.json",
+    "../../data/music-map-regions.json"
+  );
+  for (const p of paths) {
+    try {
+      const r = await fetch(p);
+      if (r.ok) {
+        const data = await r.json();
+        if (data && Array.isArray(data.areas) && data.areas.length) return data;
+      }
+    } catch (_) { /* try next */ }
+  }
+  return DEFAULT_MAP_REGIONS;
+}
+
+function initSelectedAreas() {
+  const validIds = new Set((mapRegions.areas || []).map((a) => a.id));
+  let stored = [];
+  try {
+    const raw = localStorage.getItem(AREA_STORAGE_KEY);
+    if (raw) stored = JSON.parse(raw);
+  } catch (_) { /* ignore */ }
+  if (Array.isArray(stored) && stored.length) {
+    const picked = stored.filter((id) => validIds.has(id));
+    if (picked.length) {
+      selectedAreaIds = new Set(picked);
+      return;
+    }
+  }
+  selectedAreaIds = new Set(mapRegions.defaultAreaIds || ["amsterdam"]);
+}
+
+function broadcastAreaSync() {
+  const payload = {
+    type: "live-music-area-sync",
+    areaIds: [...selectedAreaIds],
+    areaLabel: areaSelectionLabel()
+  };
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage(payload, "*");
+    }
+  } catch (_) { /* ignore */ }
+}
+
+function persistSelectedAreas() {
+  try {
+    localStorage.setItem(AREA_STORAGE_KEY, JSON.stringify([...selectedAreaIds]));
+  } catch (_) { /* ignore */ }
+  broadcastAreaSync();
+}
+
+function areaById(id) {
+  return (mapRegions.areas || []).find((a) => a.id === id);
+}
+
+function resolveVenueAreaIds(venue) {
+  if (Array.isArray(venue.areas) && venue.areas.length) return venue.areas;
+  const city = (venue.city || "").trim().toLowerCase();
+  const matched = (mapRegions.areas || [])
+    .filter((a) => a.type === "city" && a.city && a.city.toLowerCase() === city)
+    .map((a) => a.id);
+  return matched.length ? matched : ["amsterdam"];
+}
+
+function venueMatchesSelectedAreas(venue) {
+  const activeIds = [...selectedAreaIds].filter((id) => {
+    const area = areaById(id);
+    return area && area.status === "active";
+  });
+  if (!activeIds.length) return true;
+
+  const cityIds = activeIds.filter((id) => areaById(id)?.type === "city");
+  if (!cityIds.length) return activeIds.includes("europe");
+
+  const venueAreas = resolveVenueAreaIds(venue);
+  return cityIds.some((id) => venueAreas.includes(id));
+}
+
+function getActiveBasemapId() {
+  if (selectedAreaIds.has("europe")) return "europe";
+  return mapRegions.defaultBasemap || "nl";
+}
+
+function getAreaFilteredVenues() {
+  return venues.filter(venueMatchesSelectedAreas);
+}
+
+function getViewTarget() {
+  const cityIds = [...selectedAreaIds].filter((id) => {
+    const area = areaById(id);
+    return area && area.type === "city" && area.status === "active";
+  });
+  const areaVenues = getAreaFilteredVenues().filter((v) => {
+    const matchGenre = currentFilter === "all" || v.genre === currentFilter;
+    const q = searchTerm;
+    const hay = [v.name, v.city, v.country, v.address, v.format, v.schedule, v.desc, v.genre]
+      .filter(Boolean).join(" ").toLowerCase();
+    return matchGenre && (!q || hay.includes(q));
+  });
+
+  if (cityIds.length > 1 && areaVenues.length) {
+    const lngs = areaVenues.map((v) => v.lng);
+    const lats = areaVenues.map((v) => v.lat);
+    return {
+      center: {
+        lng: (Math.min(...lngs) + Math.max(...lngs)) / 2,
+        lat: (Math.min(...lats) + Math.max(...lats)) / 2
+      },
+      zoom: 7.2
+    };
+  }
+
+  if (cityIds.length === 1) {
+    const area = areaById(cityIds[0]);
+    if (area?.center) {
+      return { center: area.center, zoom: area.defaultZoom || 8 };
+    }
+  }
+
+  if (selectedAreaIds.has("europe")) {
+    const europe = areaById("europe");
+    return {
+      center: europe?.center || { lng: 10.5, lat: 52.2 },
+      zoom: europe?.defaultZoom || 2.8
+    };
+  }
+
+  const fallback = areaById("amsterdam");
+  return {
+    center: fallback?.center || MAP_CENTER,
+    zoom: fallback?.defaultZoom || 8
+  };
+}
+
+function applyProjectionCenter(center) {
+  mapViewCenter = center;
+  projection.center([center.lng, center.lat]);
+}
+
+function areaSelectionLabel() {
+  const labels = [...selectedAreaIds]
+    .map((id) => areaById(id)?.label)
+    .filter(Boolean);
+  if (!labels.length) return "Amsterdam";
+  if (labels.length <= 2) return labels.join(" · ");
+  return labels.length + " areas";
+}
+
+async function fetchGeoFromPaths(paths) {
   const origin = resolveMusicApiOrigin();
   const urls = [];
-  if (origin) urls.push(origin + "/data/europe.geojson");
-  urls.push(
-    "/data/europe.geojson",
-    "../data/europe.geojson",
-    "../../data/europe.geojson",
-    "https://raw.githubusercontent.com/leakyMirror/map-of-europe/master/GeoJSON/europe.geojson"
-  );
+  (paths || []).forEach((p) => {
+    if (origin && p.startsWith("/")) urls.push(origin + p);
+    urls.push(p);
+  });
   for (const url of urls) {
     try {
       const r = await fetch(url);
@@ -2414,34 +3551,123 @@ async function fetchMapGeo() {
   return null;
 }
 
+async function ensureBasemap(basemapId) {
+  if (mapGeoCache[basemapId]) return mapGeoCache[basemapId];
+  const cfg = mapRegions.basemaps?.[basemapId];
+  const data = await fetchGeoFromPaths(cfg?.paths || []);
+  mapGeoCache[basemapId] = data;
+  return data;
+}
+
+function renderBasemapFeatures(data) {
+  g.selectAll(".company-marker").remove();
+  g.selectAll(".country-path").remove();
+  g.selectAll(".country-label").remove();
+  if (!data || !data.features) return;
+  g.selectAll(".country-path")
+    .data(data.features)
+    .enter()
+    .append("path")
+    .attr("class", "country-path")
+    .attr("d", path);
+  g.selectAll(".country-label")
+    .data(data.features.filter((f) => f.properties && f.properties.NAME))
+    .enter()
+    .append("text")
+    .attr("class", "country-label")
+    .attr("transform", (d) => {
+      const c = path.centroid(d);
+      return `translate(${c[0]},${c[1]})`;
+    })
+    .text((d) => {
+      const name = d.properties.NAME;
+      if (name === "Netherlands") return "NL";
+      return name && name.length <= 6 ? name : "";
+    });
+}
+
+async function applyMapScope(options = {}) {
+  const { animate = false } = options;
+  const basemapId = getActiveBasemapId();
+  const target = getViewTarget();
+  applyProjectionCenter(target.center);
+  mapViewZoom = target.zoom;
+  syncMapDimensions();
+
+  if (basemapId !== currentBasemapId || !g.selectAll(".country-path").size()) {
+    currentBasemapId = basemapId;
+    const data = await ensureBasemap(basemapId);
+    renderBasemapFeatures(data);
+  } else {
+    g.selectAll(".country-path").attr("d", path);
+    g.selectAll(".country-label").attr("transform", (d) => {
+      const c = path.centroid(d);
+      return `translate(${c[0]},${c[1]})`;
+    });
+  }
+
+  const [x, y] = projection([target.center.lng, target.center.lat]);
+  const scale = target.zoom;
+  const transform = d3.zoomIdentity.translate(width / 2 - scale * x, height / 2 - scale * y).scale(scale);
+  svg.interrupt();
+  if (animate) {
+    svg.transition().duration(650).ease(d3.easeCubicInOut).call(zoomBehaviour.transform, transform);
+  } else {
+    svg.call(zoomBehaviour.transform, transform);
+  }
+
+  renderDots();
+  renderSidebar();
+  updateStats();
+  renderAreaFilters();
+}
+
+function renderAreaFilters() {
+  const row = document.getElementById("area-filter-row");
+  if (!row) return;
+  row.innerHTML = (mapRegions.areas || []).map((area) => {
+    const active = selectedAreaIds.has(area.id);
+    const planned = area.status === "planned";
+    const cls = ["area-chip", active ? "active" : "", planned ? "is-planned" : ""].filter(Boolean).join(" ");
+    const title = planned
+      ? "Coming soon — jam venues for " + area.label
+      : (area.type === "scope" ? "Wider map view" : "Include " + area.label + " venues");
+    return `<button type="button" class="${cls}" data-area="${area.id}" ${planned ? "disabled" : ""} title="${escapeAttr(title)}" aria-pressed="${active}">${escapeHtml(area.label)}</button>`;
+  }).join("");
+
+  const hint = document.getElementById("area-filter-hint");
+  if (hint) {
+    const planned = (mapRegions.areas || []).filter((a) => a.status === "planned").map((a) => a.label);
+    const plannedNote = planned.length
+      ? " " + planned.join(", ") + " coming soon."
+      : "";
+    hint.textContent = "Pick one or more cities for a jam weekend — Europe zooms the full map." + plannedNote;
+  }
+}
+
+async function onAreaFilterClick(areaId) {
+  const area = areaById(areaId);
+  if (!area || area.status === "planned") return;
+
+  if (selectedAreaIds.has(areaId)) {
+    const activeSelectable = [...selectedAreaIds].filter((id) => {
+      const a = areaById(id);
+      return a && a.status === "active";
+    });
+    if (activeSelectable.length <= 1 && activeSelectable[0] === areaId) return;
+    selectedAreaIds.delete(areaId);
+  } else {
+    selectedAreaIds.add(areaId);
+  }
+
+  persistSelectedAreas();
+  await applyMapScope({ animate: true });
+}
+
 function initMap() {
-  fetchMapGeo()
-    .then(data => {
-      if (!data || !data.features) {
-        mapGeoReady = true;
-        afterDataReady();
-        return;
-      }
-      g.selectAll(".country-path")
-        .data(data.features)
-        .enter()
-        .append("path")
-        .attr("class", "country-path")
-        .attr("d", path);
-      g.selectAll(".country-label")
-        .data(data.features.filter(f => f.properties && f.properties.NAME))
-        .enter()
-        .append("text")
-        .attr("class", "country-label")
-        .attr("transform", d => {
-          const c = path.centroid(d);
-          return `translate(${c[0]},${c[1]})`;
-        })
-        .text(d => {
-          const name = d.properties.NAME;
-          if (name === "Netherlands") return "NL";
-          return name && name.length <= 6 ? name : "";
-        });
+  ensureBasemap(getActiveBasemapId())
+    .then((data) => {
+      renderBasemapFeatures(data);
       mapGeoReady = true;
       afterDataReady();
     })
@@ -2452,13 +3678,15 @@ function initMap() {
 }
 
 function afterDataReady() {
+  renderAreaFilters();
   renderFilterButtons();
   renderDots();
   updateStats();
   renderSidebar();
   renderLegend();
+  broadcastAreaSync();
   const hasVenueTarget = window.__pendingVenueId != null || getDeepLinkVenueId() != null;
-  if (!hasVenueTarget) resetView();
+  if (!hasVenueTarget) applyMapScope({ animate: false });
   else tryFocusPendingVenue();
 }
 
@@ -2470,7 +3698,8 @@ function renderFilterButtons() {
 }
 
 function getFiltered() {
-  return venues.filter(v => {
+  return venues.filter((v) => {
+    if (!venueMatchesSelectedAreas(v)) return false;
     const matchGenre = currentFilter === "all" || v.genre === currentFilter;
     const q = searchTerm;
     const hay = [v.name, v.city, v.country, v.address, v.format, v.schedule, v.desc, v.genre]
@@ -2537,6 +3766,7 @@ function scrollMapTowardVenue(venue) {
     const host = document.scrollingElement || document.documentElement;
     const target = sidebarW + Math.max(0, x - window.innerWidth * 0.38);
     host.scrollLeft = Math.max(0, target);
+    syncMapHScrollUi();
   });
 }
 
@@ -2623,6 +3853,98 @@ function selectVenue(id) {
     .on("end", showAtVenue);
 }
 
+const RELATED_GENRES = {
+  jazz: ["gypsy-swing", "open-jam", "mixed"],
+  "gypsy-swing": ["jazz", "open-jam"],
+  "open-mic": ["open-jam", "live-music", "mixed"],
+  "open-jam": ["open-mic", "jazz", "live-music"],
+  "live-music": ["open-jam", "open-mic"],
+  mixed: ["jazz", "open-mic", "open-jam"]
+};
+
+function sharedVibeCount(a, b) {
+  const tags = new Set((a.vibeTags || []).map((t) => String(t).toLowerCase()));
+  let n = 0;
+  (b.vibeTags || []).forEach((t) => {
+    if (tags.has(String(t).toLowerCase())) n++;
+  });
+  return n;
+}
+
+function similarVenueHint(v) {
+  const schedule = typeof v.schedule === "string" ? v.schedule.trim() : "";
+  if (schedule) return schedule.length > 56 ? schedule.slice(0, 53) + "…" : schedule;
+  const format = typeof v.format === "string" ? v.format.trim() : "";
+  if (format) return format.length > 56 ? format.slice(0, 53) + "…" : format;
+  return genreLabel(v.genre) + " · " + (v.city || "Amsterdam");
+}
+
+function getSimilarVenues(venue, limit = 4) {
+  const related = new Set(RELATED_GENRES[venue.genre] || []);
+  const pool = venues.filter((v) => v.id !== venue.id && venueMatchesSelectedAreas(v));
+
+  const scored = pool
+    .map((c) => {
+      let score = 0;
+      if (c.genre === venue.genre) score += 6;
+      else if (related.has(c.genre)) score += 3;
+      score += sharedVibeCount(venue, c) * 3;
+      if ((c.city || "").toLowerCase() === (venue.city || "").toLowerCase()) score += 2;
+      const jamRe = /\b(jam|open mic|session|sit-in|improv)\b/i;
+      const venueJam = jamRe.test([venue.format, venue.schedule, venue.desc].join(" "));
+      const candJam = jamRe.test([c.format, c.schedule, c.desc].join(" "));
+      if (venueJam && candJam) score += 2;
+      return { c, score };
+    })
+    .sort((a, b) => b.score - a.score);
+
+  const out = [];
+  const seen = new Set([venue.id]);
+  for (const { c, score } of scored) {
+    if (score > 0 && out.length < limit) {
+      out.push(c);
+      seen.add(c.id);
+    }
+  }
+  for (const { c } of scored) {
+    if (out.length >= limit) break;
+    if (!seen.has(c.id)) {
+      out.push(c);
+      seen.add(c.id);
+    }
+  }
+  return out.slice(0, limit);
+}
+
+function renderPopupSimilar(venue) {
+  const block = document.getElementById("popup-similar");
+  const list = document.getElementById("popup-similar-list");
+  if (!block || !list) return;
+
+  const sim = getSimilarVenues(venue, 4);
+  if (!sim.length) {
+    block.hidden = true;
+    list.innerHTML = "";
+    return;
+  }
+
+  block.hidden = false;
+  list.innerHTML = sim
+    .map((v) => (
+      `<button type="button" class="popup-similar-item" data-similar-id="${escapeAttr(v.id)}">` +
+        `${escapeHtml(v.name)}<small>${escapeHtml(similarVenueHint(v))}</small>` +
+      `</button>`
+    ))
+    .join("");
+
+  list.querySelectorAll(".popup-similar-item").forEach((btn) => {
+    btn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      selectVenue(parseInt(btn.dataset.similarId, 10));
+    });
+  });
+}
+
 function showPopup(venue, px, py) {
   activeVenue = venue;
   document.getElementById("popup-name").textContent = venue.name;
@@ -2688,22 +4010,80 @@ function showPopup(venue, px, py) {
   const galleryItems = buildVenueMediaGallery(venue);
   const mediaRow = document.getElementById("popup-media-row");
   const mediaBtn = document.getElementById("popup-media-btn");
+  const previewWrap = document.getElementById("popup-media-preview-wrap");
+  const previewImg = document.getElementById("popup-media-preview");
+  const previewPlay = document.getElementById("popup-media-preview-play");
+  const moreBadge = document.getElementById("popup-media-more-badge");
   const videoSection = document.getElementById("popup-video-section");
+  const openGalleryFromPopup = () => openMediaLightbox(venue, 0);
+
   if (galleryItems.length && mediaRow && mediaBtn) {
     mediaRow.hidden = false;
     const n = galleryItems.length;
     const vidCount = galleryItems.filter((i) => i.type === "youtube").length;
     const photoCount = n - vidCount;
+    const first = galleryItems[0];
     let label = "Photos & videos";
     if (n === 1 && vidCount === 1) label = "Watch jam video";
     else if (n === 1 && photoCount === 1) label = "View photo";
     else label = `Photos & videos (${n})`;
-    mediaBtn.textContent = label;
-    mediaBtn.onclick = () => openMediaLightbox(venue, 0);
+    if (n > 1) {
+      mediaBtn.innerHTML = `${escapeHtml(label)} <span class="media-btn-arrow" aria-hidden="true">→</span>`;
+    } else {
+      mediaBtn.textContent = label;
+    }
+    mediaBtn.onclick = openGalleryFromPopup;
+
+    if (previewWrap && previewImg && first) {
+      previewWrap.hidden = false;
+      previewWrap.onclick = openGalleryFromPopup;
+      previewWrap.onkeydown = (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openGalleryFromPopup();
+        }
+      };
+      if (first.type === "youtube" && first.id) {
+        previewImg.src = `https://img.youtube.com/vi/${encodeURIComponent(first.id)}/hqdefault.jpg`;
+        previewImg.alt = first.title || "Jam video preview";
+        previewImg.hidden = false;
+        if (previewPlay) previewPlay.hidden = false;
+      } else if (first.type === "image" && first.url) {
+        previewImg.src = first.url;
+        previewImg.alt = first.caption || venue.name || "Venue photo";
+        previewImg.hidden = false;
+        if (previewPlay) previewPlay.hidden = true;
+      } else {
+        previewWrap.hidden = true;
+      }
+      if (moreBadge) {
+        if (n > 1) {
+          const extra = n - 1;
+          moreBadge.textContent = `+${extra} more`;
+          moreBadge.hidden = false;
+        } else {
+          moreBadge.hidden = true;
+          moreBadge.textContent = "";
+        }
+      }
+    } else if (previewWrap) {
+      previewWrap.hidden = true;
+    }
+
     if (videoSection) videoSection.hidden = true;
   } else {
     if (mediaRow) mediaRow.hidden = true;
     if (mediaBtn) mediaBtn.onclick = null;
+    if (previewWrap) {
+      previewWrap.hidden = true;
+      previewWrap.onclick = null;
+    }
+    if (previewImg) {
+      previewImg.hidden = true;
+      previewImg.removeAttribute("src");
+    }
+    if (previewPlay) previewPlay.hidden = true;
+    if (moreBadge) moreBadge.hidden = true;
     const videoThumb = document.getElementById("popup-video-thumb");
     const videoFrame = document.getElementById("popup-video-frame");
     if (videoFrame) {
@@ -2730,6 +4110,8 @@ function showPopup(venue, px, py) {
     }
   }
 
+  renderPopupSimilar(venue);
+
   popup.classList.remove("visible");
   popup.style.left = "0px";
   popup.style.top = "0px";
@@ -2747,6 +4129,7 @@ function showPopup(venue, px, py) {
       popup.classList.add("visible");
       positionVenuePanelInView(true);
       scrollActiveVenueIntoView(true);
+      updateHelperVisibility();
       return;
     }
     repositionPopupAt(px, py);
@@ -2754,10 +4137,11 @@ function showPopup(venue, px, py) {
     if (document.documentElement.classList.contains("embed-hub")) {
       positionVenuePanelInView(false);
     }
+    updateHelperVisibility();
   });
 }
 
-document.getElementById("popup-close").onclick = () => {
+function closeVenuePopup() {
   closeMediaLightbox();
   popup.classList.remove("visible");
   popup.classList.remove("mobile-overlay");
@@ -2766,16 +4150,14 @@ document.getElementById("popup-close").onclick = () => {
   activeVenue = null;
   renderSidebar();
   renderDots();
+  updateHelperVisibility();
+}
+
+document.getElementById("popup-close").onclick = () => {
+  closeVenuePopup();
 };
 svg.on("click", () => {
-  closeMediaLightbox();
-  popup.classList.remove("visible");
-  popup.classList.remove("mobile-overlay");
-  if (popup.parentElement === document.body) mapContainer.appendChild(popup);
-  activeId = null;
-  activeVenue = null;
-  renderSidebar();
-  renderDots();
+  closeVenuePopup();
 });
 bindMediaLightboxControls();
 
@@ -2823,14 +4205,36 @@ document.getElementById("inq-send-btn").addEventListener("click", async () => {
   }
 });
 
-document.getElementById("open-guide-btn").addEventListener("click", () => {
+function closeGuidePanel() {
+  document.getElementById("guide-panel").classList.remove("open");
+}
+
+function openGuidePanel() {
   document.getElementById("guide-panel").classList.add("open");
   document.getElementById("guide-input").focus();
+}
+
+document.getElementById("open-guide-btn").addEventListener("click", () => {
+  openGuidePanel();
 });
 
 document.getElementById("guide-toggle").addEventListener("click", () => {
   const panel = document.getElementById("guide-panel");
   panel.classList.toggle("open");
+  if (panel.classList.contains("open")) {
+    document.getElementById("guide-input").focus();
+  }
+});
+
+document.getElementById("guide-close").addEventListener("click", (e) => {
+  e.stopPropagation();
+  closeGuidePanel();
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  const panel = document.getElementById("guide-panel");
+  if (panel && panel.classList.contains("open")) closeGuidePanel();
 });
 
 async function sendGuideQuestion() {
@@ -2899,6 +4303,12 @@ document.getElementById("search-input").addEventListener("input", e => {
   renderDots();
 });
 
+document.getElementById("area-filter-row").addEventListener("click", (e) => {
+  const btn = e.target.closest(".area-chip");
+  if (!btn || btn.disabled) return;
+  onAreaFilterClick(btn.dataset.area);
+});
+
 document.getElementById("filter-row").addEventListener("click", e => {
   const btn = e.target.closest(".filter-btn");
   if (!btn) return;
@@ -2923,9 +4333,12 @@ function renderLegend() {
 }
 
 function updateStats() {
-  document.getElementById("stat-venues").textContent = venues.length;
+  const visible = getFiltered();
+  document.getElementById("stat-venues").textContent = visible.length;
   document.getElementById("stat-genres").textContent =
-    new Set(venues.map(v => v.genre)).size;
+    new Set(visible.map((v) => v.genre)).size;
+  const cityEl = document.getElementById("stat-city");
+  if (cityEl) cityEl.textContent = areaSelectionLabel();
 }
 
 document.getElementById("add-company-btn").onclick = () =>
@@ -3019,6 +4432,7 @@ document.getElementById("modal-save").onclick = async () => {
   selectVenue(savedVenue.id);
 };
 
+let relayoutMapTimer = null;
 function relayoutMap() {
   if (!syncMapDimensions()) return;
   g.selectAll(".country-path").attr("d", path);
@@ -3028,14 +4442,23 @@ function relayoutMap() {
   });
   renderDots();
 }
+function scheduleRelayoutMap() {
+  if (relayoutMapTimer) clearTimeout(relayoutMapTimer);
+  relayoutMapTimer = setTimeout(() => {
+    relayoutMapTimer = null;
+    relayoutMap();
+  }, 80);
+}
 
-window.addEventListener("resize", relayoutMap);
+window.addEventListener("resize", scheduleRelayoutMap);
 if (typeof ResizeObserver !== "undefined") {
-  new ResizeObserver(() => relayoutMap()).observe(mapContainer);
+  new ResizeObserver(scheduleRelayoutMap).observe(mapContainer);
 }
 requestAnimationFrame(() => relayoutMap());
 
-loadVenues().then(items => {
+Promise.all([loadVenues(), loadMapRegions()]).then(([items, regions]) => {
+  mapRegions = regions || DEFAULT_MAP_REGIONS;
+  initSelectedAreas();
   venues = items;
   venuesReady = true;
   initMap();

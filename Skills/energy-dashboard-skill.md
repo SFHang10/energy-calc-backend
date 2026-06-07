@@ -269,9 +269,29 @@ Do **not** re-add the removed **Classic portal backdrop** toggle on savings unle
 2. **`node product-grants-integrator.js`** after catalogue changes.
 3. Portals pick up new count on refresh (hard-refresh if cached).
 
+### Grants Agent chat (May 2026)
+
+**Purpose:** Conversational grants layer on top of **`schemes.json`** — foundation for future Greenways agent chats.
+
+| File | Role |
+|------|------|
+| `HTMLS GWM GWB/greenways-grants-agent.html` | Full chat UI (blue theme): product banner, profile filters, compare dock, quick replies |
+| `routes/grants-agent.js` | `/api/grants-agent/ask`, `/samples`, `/compare` |
+| `services/grants-agent-knowledge.js` | Intents → answers; product samples from `products-with-grants*.json` |
+| `data/grants-agent-intents.json` | Question patterns |
+| `data/grants-agent-showcase-products.json` | Curated 3 marketplace entice cards |
+
+**Short URL:** `/greenways/grants-agent` · **Embed:** `?embed=1`
+
+**Clone pattern for next agents:** **`Skills/greenways-chat-interface-skill.md`** (do not one-off a new layout).
+
+**TODO (dashboard):** compact embed tab on `Greenways Interface .html` when user wants agents on buildings overview.
+
 ### Local URLs
 
 ```text
+http://localhost:4000/greenways/grants-agent
+http://localhost:4000/HTMLS%20GWM%20GWB/greenways-grants-agent.html
 http://localhost:4000/HTMLS%20GWM%20GWB/finance-finder-restaurant.html
 http://localhost:4000/HTMLS%20GWM%20GWB/savings.html  → Grants & schemes tab
 http://localhost:4000/HTMLS%20GWM%20GWB/Full%20Schemes%20Portal%20Restaurant.html

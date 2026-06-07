@@ -140,9 +140,13 @@ npm run merge:music-discovery     # all three queues + map sync (after review)
 
 | Embed | URL |
 |-------|-----|
-| **Render Version (Wix — recommended)** | `https://energy-calc-backend.onrender.com/HTMLS%20GWM%20GWB/live-music-hub-render.html` |
-| Hub (dev / full page) | `/HTMLS%20GWM%20GWB/live-music-hub.html` |
-| Map only | `/HTMLS%20GWM%20GWB/live-music-finder.html` |
+| **Render Version (Wix — recommended)** | `https://energy-calc-backend.onrender.com/live-music/render` |
+| Hub (dev / full page) | `/live-music/hub` or `/HTMLS%20GWM%20GWB/live-music-hub.html` |
+| **Full map (standalone)** | `https://energy-calc-backend.onrender.com/live-music/map` |
+| Music guide (full chat) | `https://energy-calc-backend.onrender.com/live-music/guide` |
+| Map file path (direct) | `/HTMLS%20GWM%20GWB/live-music-finder.html` |
+
+**Full map link rule (May 2026):** From `/live-music/render`, hub **Open full map →** must use **`/live-music/map`** (not `new URL('./live-music-finder.html', location.href)` — that wrongly resolves to `/live-music/live-music-finder.html` → 404). Server redirect added for the bad path.
 
 Setup checklist: **`HTMLS GWM GWB/WIX-LIVE-MUSIC-EMBED.md`** · iframe height **1200–1400px** · `<meta name="wix-html-scroll" content="no-scroll">` is already on the page.
 | Ticker strip | `/HTMLS%20GWM%20GWB/live-events-ticker.html?embed=1` |
@@ -337,6 +341,8 @@ Track ideas here; check off as shipped. **Do not** build a native app unless req
 - [ ] Add 3rd clip for Engelbewaarder & Café de Pianist if needed after review
 
 ### Music guide — local knowledge (May 2026)
+
+**Chat foundation:** Same architectural family as **Grants Agent** — see **`Skills/greenways-chat-interface-skill.md`** when aligning compact/full guide UX (intents → knowledge → optional LLM). Music Guide is the earlier sibling; Grants Agent is the richer UI template for new agents.
 
 **Status:** partial — venue facts live in **`data/music-venues.json`**; guide now collates common questions without LLM when intents match.
 

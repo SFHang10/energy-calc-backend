@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Live Music Artist Guide — Amsterdam jams &amp; venues</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<script>
+(function () {
+  var p = location.pathname || "";
+  if (location.protocol !== "file:" && (p.indexOf("/live-music/") === 0 || p.indexOf("/HTMLS") === 0)) {
+    var base = document.createElement("base");
+    base.href = location.origin + "/HTMLS%20GWM%20GWB/";
+    document.head.appendChild(base);
+  }
+  if (new URLSearchParams(location.search).get("embed") === "1") {
+    document.documentElement.classList.add("embed-wix");
+  }
+})();
+</script>
+<style>
+  :root {
+    --bg: #0c1220;
+    --panel: #111a2e;
+    --panel2: #162038;
+    --bubble-in: #4f5fd6;
+    --bubble-in-edge: #6b7af0;
+    --bubble-out: #1a2744;
+    --border: rgba(99, 130, 210, 0.22);
+    --text: #e8edf8;
+    --muted: #8b9bb8;
+    --accent: #c45e0a;
+    --accent-lt: #f0a03a;
+    --send: #4f6ef7;
+    --radius: 14px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow: hidden;
+  }
+  html.embed-wix, html.embed-wix body {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .guide-app {
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    height: 100%;
+    min-height: 420px;
+    max-height: 100vh;
+  }
+
+  .guide-main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    background: linear-gradient(180deg, #0d1528 0%, #0a101c 100%);
+    border-right: 1px solid var(--border);
+  }
+
+  .guide-top {
+    flex-shrink: 0;
+    padding: 14px 18px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .guide-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .guide-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-dk, #8b3a06), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    box-shadow: 0 0 16px rgba(196, 94, 10, 0.35);
+  }
+  .guide-brand h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+  }
+  .guide-brand p {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .guide-profile {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .guide-profile input,
+  .guide-profile select {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 6px 9px;
+    font-size: 0.72rem;
+    font-family: inherit;
+    min-width: 88px;
+  }
+  .guide-profile input::placeholder { color: #6a7a96; }
+  .guide-profile select { cursor: pointer; }
+
+  .chat-thread {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 18px 18px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .chat-thread::-webkit-scrollbar { width: 5px; }
+  .chat-thread::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+
+  .welcome-card {
+    align-self: center;
+    max-width: 520px;
+    text-align: center;
+    padding: 22px 20px;
+    border-radius: var(--radius);
+    background: rgba(22, 32, 56, 0.65);
+    border: 1px solid var(--border);
+  }
+  .welcome-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .welcome-card p {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.55;
+    margin-bottom: 14px;
+  }
+  .welcome-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+  .welcome-tag {
+    font-size: 0.74rem;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(79, 111, 247, 0.12);
+    color: #c8d4f8;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .welcome-tag:hover {
+    background: rgba(79, 111, 247, 0.24);
+    border-color: rgba(107, 138, 255, 0.45);
+  }
+
+  .msg-row {
+    display: flex;
+    flex-direction: column;
+    max-width: 88%;
+    animation: msg-in 0.25s ease;
+  }
+  @keyframes msg-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .msg-row.user { align-self: flex-end; align-items: flex-end; }
+  .msg-row.guide { align-self: flex-start; align-items: flex-start; }
+
+  .msg-meta {
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-bottom: 5px;
+    padding: 0 4px;
+  }
+
+  .msg-bubble {
+    position: relative;
+    padding: 12px 14px;
+    border-radius: var(--radius);
+    font-size: 0.84rem;
+    line-height: 1.55;
+    word-break: break-word;
+  }
+  .msg-row.guide .msg-bubble {
+    background: linear-gradient(135deg, var(--bubble-in), #5a4fc8);
+    color: #f4f6ff;
+    border-top-left-radius: 4px;
+    box-shadow: 0 8px 24px rgba(79, 95, 214, 0.22);
+  }
+  .msg-row.user .msg-bubble {
+    background: var(--bubble-out);
+    color: #dce6ff;
+    border: 1px solid var(--border);
+    border-top-right-radius: 4px;
+  }
+  .msg-bubble strong { color: #fff; font-weight: 600; }
+  .msg-bubble p + p { margin-top: 8px; }
+
+  .msg-avatar {
+    position: absolute;
+    top: -6px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+    background: linear-gradient(135deg, #8b3a06, var(--accent-lt));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+  }
+  .msg-row.guide .msg-bubble { padding-right: 20px; }
+  .msg-row.guide .msg-avatar { right: -8px; }
+
+  .typing-dots {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px 0;
+  }
+  .typing-dots span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.55);
+    animation: dot-pulse 1.2s ease-in-out infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes dot-pulse {
+    0%, 80%, 100% { opacity: 0.35; transform: scale(0.85); }
+    40% { opacity: 1; transform: scale(1); }
+  }
+
+  .venue-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .venue-chip {
+    font-size: 0.72rem;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.22);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #fff;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .venue-chip:hover { background: rgba(0,0,0,0.38); }
+
+  .source-pill {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.55);
+  }
+
+  .chat-compose {
+    flex-shrink: 0;
+    padding: 12px 16px 14px;
+    border-top: 1px solid var(--border);
+    background: rgba(8, 12, 22, 0.92);
+  }
+  .compose-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 8px 10px 8px 14px;
+  }
+  .compose-row textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.84rem;
+    line-height: 1.45;
+    resize: none;
+    max-height: 120px;
+    min-height: 22px;
+  }
+  .compose-row textarea::placeholder { color: #6a7a96; }
+  .send-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: var(--send);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 14px rgba(79, 110, 247, 0.4);
+  }
+  .send-btn:hover:not(:disabled) { transform: scale(1.05); }
+  .send-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .compose-hint {
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-top: 7px;
+    padding-left: 4px;
+  }
+
+  .guide-sidebar {
+    background: var(--panel);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .sidebar-section {
+    padding: 14px 14px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .helper-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    flex: 1 1 0;
+    min-height: 0;
+    padding: 0 14px 14px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .helper-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 12px;
+    background: var(--panel2);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    text-align: left;
+    width: 100%;
+    font-family: inherit;
+    color: inherit;
+  }
+  .helper-card:hover {
+    border-color: rgba(79, 111, 247, 0.35);
+    background: #1a2a48;
+  }
+  .helper-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(79, 111, 247, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .helper-card-body { min-width: 0; flex: 1; }
+  .helper-card-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.25;
+  }
+  .helper-card-desc {
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-top: 2px;
+    line-height: 1.35;
+  }
+  .helper-ask-btn {
+    font-size: 0.65rem;
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: none;
+    background: var(--send);
+    color: #fff;
+    cursor: pointer;
+    flex-shrink: 0;
+    font-family: inherit;
+  }
+
+  .sidebar-link {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.72rem;
+    color: var(--accent-lt);
+    text-decoration: none;
+  }
+  .sidebar-link:hover { text-decoration: underline; }
+
+  .status-bar {
+    padding: 8px 14px;
+    font-size: 0.68rem;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .status-bar.ok { color: #7dcea0; }
+  .status-bar.warn { color: #e8b86d; }
+
+  @media (max-width: 720px) {
+    .guide-app {
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr auto;
+    }
+    .guide-sidebar {
+      order: 2;
+      max-height: 180px;
+      border-top: 1px solid var(--border);
+    }
+    .helper-list {
+      flex-direction: row;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 10px;
+    }
+    .helper-card {
+      min-width: 200px;
+      flex-shrink: 0;
+    }
+    .guide-top { padding: 10px 12px; }
+    .guide-profile { width: 100%; }
+    .guide-profile input,
+    .guide-profile select { flex: 1; min-width: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="guide-app">
+  <main class="guide-main">
+    <header class="guide-top">
+      <div class="guide-brand">
+        <div class="guide-avatar" aria-hidden="true">🎵</div>
+        <div>
+          <h1>Live Music Artist Guide</h1>
+          <p>Amsterdam jams, open mics &amp; venue tips</p>
+        </div>
+      </div>
+      <div class="guide-profile" aria-label="Your musician profile">
+        <input id="profile-instrument" type="text" placeholder="Instrument" autocomplete="off">
+        <input id="profile-style" type="text" placeholder="Style" autocomplete="off">
+        <select id="profile-level" aria-label="Skill level">
+          <option value="">Any level</option>
+          <option value="beginner">Beginner</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="advanced">Advanced</option>
+          <option value="pro">Pro</option>
+        </select>
+      </div>
+    </header>
+
+    <div class="chat-thread" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
+      <div class="welcome-card" id="welcome-card">
+        <h2>Ask the Music Guide</h2>
+        <p>Combines venue data, jam schedules, and map tips. Connect your LLM on the server when ready — answers work now with smart matching.</p>
+        <div class="welcome-tags">
+          <button type="button" class="welcome-tag" data-prompt="Where can I play jazz on Tuesday in Amsterdam?">Jazz on Tuesday</button>
+          <button type="button" class="welcome-tag" data-prompt="Best open mic nights for beginners?">Open mic beginners</button>
+          <button type="button" class="welcome-tag" data-prompt="Gypsy swing jam sessions near centre?">Gypsy swing jams</button>
+          <button type="button" class="welcome-tag" data-prompt="How do I sign up for a jam night?">Sign-up tips</button>
+          <button type="button" class="welcome-tag" data-prompt="How do I scroll the map vs zoom?">Map scroll vs zoom</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-compose">
+      <div class="compose-row">
+        <textarea id="chat-input" rows="1" placeholder="Ask about jam nights, venues, styles, or gigs…" aria-label="Your question"></textarea>
+        <button type="button" class="send-btn" id="send-btn" aria-label="Send message" title="Send">➤</button>
+      </div>
+      <div class="compose-hint">Enter to send · Shift+Enter new line</div>
+    </div>
+  </main>
+
+  <aside class="guide-sidebar" aria-label="Guide helpers">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Guide helpers</div>
+      <p style="font-size:0.72rem;color:var(--muted);line-height:1.45;">Tap a helper to ask a focused question. More specialists can be added later.</p>
+      <a class="sidebar-link" href="./live-music-finder.html" target="_top" rel="noopener">Open venue map →</a>
+    </div>
+    <div class="helper-list" id="helper-list"></div>
+    <div class="status-bar" id="status-bar">Ready · heuristic mode until LLM key is set</div>
+  </aside>
+</div>
+
+<script>
+(function () {
+  const HELPERS = [
+    { id: "jam", icon: "🎸", name: "Jam Finder", desc: "Open jams & session nights", prompt: "Where are the best open jam sessions this week in Amsterdam?" },
+    { id: "openmic", icon: "🎤", name: "Open Mic Guide", desc: "Sign-up & beginner-friendly", prompt: "Which open mic nights are best for beginners and how do I sign up?" },
+    { id: "jazz", icon: "🎷", name: "Jazz Navigator", desc: "Jazz clubs & Tuesday sessions", prompt: "Recommend jazz venues and jam sessions in Amsterdam." },
+    { id: "venue", icon: "📍", name: "Venue Scout", desc: "Match style & instrument", prompt: "I play guitar — where fits my style in Amsterdam?" },
+    { id: "map", icon: "🗺️", name: "Map Coach", desc: "Scroll, zoom & navigation", prompt: "How do I scroll the page versus zoom the map?" },
+    { id: "gig", icon: "🎫", name: "Gig & Events", desc: "What's on & ticket links", prompt: "What live music events are coming up in Amsterdam?" }
+  ];
+
+  const thread = document.getElementById("chat-thread");
+  const welcomeCard = document.getElementById("welcome-card");
+  const input = document.getElementById("chat-input");
+  const sendBtn = document.getElementById("send-btn");
+  const statusBar = document.getElementById("status-bar");
+  const helperList = document.getElementById("helper-list");
+  let thinking = false;
+  let msgId = 0;
+
+  function apiBase() {
+    const h = location.hostname || "";
+    if (h === "localhost" || h === "127.0.0.1" || h.indexOf("energy-calc-backend") !== -1) return "";
+    return "https://energy-calc-backend.onrender.com";
+  }
+
+  function mapHref(venueId) {
+    const q = venueId ? "?venue=" + encodeURIComponent(venueId) : "";
+    return "./live-music-finder.html" + q;
+  }
+
+  function nowLabel() {
+    const d = new Date();
+    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
+
+  function escapeHtml(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function formatAnswer(text) {
+    let t = escapeHtml(text);
+    t = t.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    t = t.replace(/\n\n/g, "</p><p>");
+    t = t.replace(/\n/g, "<br>");
+    return "<p>" + t + "</p>";
+  }
+
+  function hideWelcome() {
+    if (welcomeCard && welcomeCard.parentNode) welcomeCard.remove();
+  }
+
+  function appendMessage(role, html, extra) {
+    hideWelcome();
+    const id = "msg-" + (++msgId);
+    const row = document.createElement("div");
+    row.className = "msg-row " + role;
+    row.id = id;
+    const label = role === "user" ? "You" : "Music Guide";
+    let inner = '<div class="msg-meta">' + label + " · " + nowLabel() + '</div>';
+    inner += '<div class="msg-bubble">';
+    if (role === "guide") inner += '<span class="msg-avatar" aria-hidden="true">🎵</span>';
+    inner += html;
+    if (extra) inner += extra;
+    inner += "</div>";
+    row.innerHTML = inner;
+    thread.appendChild(row);
+    thread.scrollTop = thread.scrollHeight;
+    return id;
+  }
+
+  function appendThinking() {
+    hideWelcome();
+    const id = "msg-" + (++msgId);
+    const row = document.createElement("div");
+    row.className = "msg-row guide";
+    row.id = id;
+    row.innerHTML =
+      '<div class="msg-meta">Music Guide · ' + nowLabel() + '</div>' +
+      '<div class="msg-bubble"><span class="msg-avatar" aria-hidden="true">🎵</span>' +
+      '<span class="typing-dots" aria-label="Thinking"><span></span><span></span><span></span></span></div>';
+    thread.appendChild(row);
+    thread.scrollTop = thread.scrollHeight;
+    return id;
+  }
+
+  function venueChipsHtml(suggestions) {
+    if (!Array.isArray(suggestions) || !suggestions.length) return "";
+    const chips = suggestions.slice(0, 5).map(function (v) {
+      const name = escapeHtml(v.name || "Venue");
+      const id = v.id != null ? v.id : "";
+      return '<a class="venue-chip" href="' + mapHref(id) + '" target="_top" rel="noopener">' + name + "</a>";
+    }).join("");
+    return '<div class="venue-chips">' + chips + "</div>";
+  }
+
+  function getProfile() {
+    return {
+      instrument: document.getElementById("profile-instrument").value.trim(),
+      style: document.getElementById("profile-style").value.trim(),
+      level: document.getElementById("profile-level").value
+    };
+  }
+
+  function setStatus(text, kind) {
+    statusBar.textContent = text;
+    statusBar.className = "status-bar" + (kind ? " " + kind : "");
+  }
+
+  async function sendQuestion(question) {
+    const q = String(question || "").trim();
+    if (!q || thinking) return;
+    thinking = true;
+    sendBtn.disabled = true;
+    appendMessage("user", escapeHtml(q));
+    const thinkingId = appendThinking();
+    setStatus("Thinking…", "");
+
+    try {
+      const res = await fetch(apiBase() + "/api/music-guide/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: q, profile: getProfile() })
+      });
+      const data = await res.json().catch(function () { return {}; });
+      const el = document.getElementById(thinkingId);
+      if (!res.ok || !data.ok) throw new Error(data.error || "Request failed");
+
+      const answer = data.answer || "I could not answer that yet.";
+      const source = data.source === "llm" ? "AI enhanced" : "venue match";
+      const extra = venueChipsHtml(data.suggestions) +
+        '<span class="source-pill">' + source + "</span>";
+
+      if (el) {
+        el.querySelector(".msg-bubble").innerHTML =
+          '<span class="msg-avatar" aria-hidden="true">🎵</span>' +
+          formatAnswer(answer) + extra;
+      }
+      setStatus("Answered · " + source, data.source === "llm" ? "ok" : "warn");
+    } catch (err) {
+      const el = document.getElementById(thinkingId);
+      const msg = "Could not reach the guide right now. Try again or open the venue map.";
+      if (el) {
+        el.querySelector(".msg-bubble").innerHTML =
+          '<span class="msg-avatar" aria-hidden="true">🎵</span><p>' + escapeHtml(msg) + "</p>";
+      }
+      setStatus("Offline — check server / Render deploy", "warn");
+    } finally {
+      thinking = false;
+      sendBtn.disabled = false;
+      thread.scrollTop = thread.scrollHeight;
+    }
+  }
+
+  function autoResize(el) {
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 120) + "px";
+  }
+
+  sendBtn.addEventListener("click", function () {
+    sendQuestion(input.value);
+    input.value = "";
+    autoResize(input);
+  });
+
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendQuestion(input.value);
+      input.value = "";
+      autoResize(input);
+    }
+  });
+  input.addEventListener("input", function () { autoResize(input); });
+
+  document.querySelectorAll(".welcome-tag").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      sendQuestion(btn.getAttribute("data-prompt"));
+    });
+  });
+
+  HELPERS.forEach(function (h) {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "helper-card";
+    card.innerHTML =
+      '<span class="helper-icon" aria-hidden="true">' + h.icon + "</span>" +
+      '<span class="helper-card-body">' +
+      '<span class="helper-card-name">' + escapeHtml(h.name) + "</span>" +
+      '<span class="helper-card-desc">' + escapeHtml(h.desc) + "</span></span>" +
+      '<span class="helper-ask-btn">Ask</span>';
+    card.addEventListener("click", function () { sendQuestion(h.prompt); });
+    helperList.appendChild(card);
+  });
+
+  var params = new URLSearchParams(location.search);
+  var boot = params.get("q") || params.get("prompt");
+  if (boot) setTimeout(function () { sendQuestion(boot); }, 400);
+
+})();
+</script>
+</body>
+</html>
