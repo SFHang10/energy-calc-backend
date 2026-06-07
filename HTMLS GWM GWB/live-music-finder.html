@@ -1617,8 +1617,10 @@
 
   .venue-tab-hint {
     display: none;
+    flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    text-align: center;
     position: fixed;
     left: max(10px, env(safe-area-inset-left, 0px));
     top: 44%;
@@ -1649,8 +1651,8 @@
     animation: venue-tab-hint-nudge 1.6s ease-in-out infinite;
   }
   @keyframes venue-tab-hint-nudge {
-    0%, 100% { transform: translateX(0); opacity: 0.75; }
-    50% { transform: translateX(7px); opacity: 1; }
+    0%, 100% { transform: translateY(0); opacity: 0.75; }
+    50% { transform: translateY(6px); opacity: 1; }
   }
 
   .guide-toggle {
@@ -1946,10 +1948,14 @@
       touch-action: pan-x pan-y;
     }
     .venue-tab-hint.is-on {
-      top: auto;
-      bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+      top: max(108px, calc(var(--map-header-offset, 0px) + 88px));
+      bottom: auto;
+      left: max(8px, env(safe-area-inset-left, 0px));
       transform: none;
-      max-width: min(250px, 58vw);
+      max-width: min(210px, 52vw);
+    }
+    html.embed-hub .venue-tab-hint.is-on {
+      top: max(72px, calc(var(--map-header-offset, 0px) + 56px));
     }
     .page-scroll-hint.is-on {
       top: auto;
@@ -2208,7 +2214,7 @@
 
 <div class="venue-tab-hint" id="venue-tab-hint" aria-hidden="true">
   <span>Click a venue tab to find out more on the venue and event</span>
-  <span class="venue-tab-hint-arrow" aria-hidden="true">→</span>
+  <span class="venue-tab-hint-arrow" aria-hidden="true">↓</span>
 </div>
 
 <div class="page-scroll-hint" id="page-scroll-hint" aria-hidden="true">
