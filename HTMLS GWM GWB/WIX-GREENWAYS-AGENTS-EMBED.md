@@ -74,3 +74,26 @@ https://energy-calc-backend.onrender.com/greenways/deals-agent?q=What+product+de
 ## After backend changes
 
 Push GitHub → wait for Render deploy → test `/health` → hard-refresh Wix page (iframe cache).
+
+**Full-page iframe (recommended):** use the agent URL **without** `?embed=1` and set Wix height **900–1100px** — sidebar + compose stay visible. Example:
+
+```
+https://energy-calc-backend.onrender.com/greenways/deals-agent
+```
+
+---
+
+## Prototypes — character + compact embed (saved for later)
+
+Not used in production now (full iframe is simpler), but kept in the repo for per-agent experiments.
+
+| File | Local open | Render (when deployed) |
+|------|------------|------------------------|
+| `greenways-deals-agent-embed-test.html` | Simulated Wix page: Zara art beside a **480px** iframe + parent expand script | `/greenways/deals-agent-embed-test` |
+| `greenways-deals-agent-wix-frame.html` | **One embed**: character column + inner chat iframe | `/greenways/deals-agent-wix-frame` |
+| `js/greenways-agent-embed-expand.js` | **⛶ Full chat** in agent header (`?embed=1`) | same path under `/HTMLS GWM GWB/js/` |
+| `js/wix-greenways-embed-parent.js` | Wix page listener — resizes outer iframe | same path under `/HTMLS GWM GWB/js/` |
+| `wix-zara-expand-snippet.html` | Copy-paste HTML embed for Wix parent script | — |
+
+**Clone pattern for another agent:** copy the wix-frame + embed-test pair, swap portrait URL, inner iframe slug, and `agent: "deals"` in `postMessage` payloads.
+
