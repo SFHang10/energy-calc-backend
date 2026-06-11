@@ -6,6 +6,8 @@
 <meta name="wix-html-scroll" content="no-scroll">
 <title>Greenways Sustainable Products Agent — water, electricity &amp; gas</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="js/greenways-agent-turn-ui.css">
+<script src="js/greenways-agent-turn-ui.js"></script>
 <script>
 (function () {
   var p = location.pathname || "";
@@ -1080,6 +1082,36 @@
     t = t.replace(/\n/g, "<br>");
     return "<p>" + t + "</p>";
   }
+  var TurnUi = window.GreenwaysAgentTurnUi;
+  var AGENT_TURN_AVATAR = "🌿";
+
+  function buildAgentTurnParts(rawAnswer, suggestions, blocks, meta) {
+    return TurnUi.buildParts(rawAnswer, suggestions, blocks, meta, {
+      escapeHtml: escapeHtml,
+      formatAnswer: formatAnswer
+    });
+  }
+
+  function applySplitRowClasses(row, bubble, useSplit) {
+    TurnUi.applySplitClasses(row, bubble, useSplit);
+  }
+
+  function renderAgentBubbleContent(turn) {
+    var profile = getProfile();
+    var parts = buildAgentTurnParts(
+      turn.answer || "",
+      turn.suggestions || [],
+      turn.blocks || [],
+      {
+        footHtml:
+          followUpChips(turn.intentId, profile, turn.question || "") +
+          '<span class="source-pill">' + escapeHtml(sourceLabel(turn.source)) + "</span>"
+      }
+    );
+    return TurnUi.layoutHtml(parts, AGENT_TURN_AVATAR);
+  }
+
+
 
   function hideWelcome() {
     const card = document.getElementById("welcome-card");
@@ -1118,50 +1150,6 @@
     thread.appendChild(row);
     thread.scrollTop = thread.scrollHeight;
     return id;
-  }
-
-  function encodeSchemePayload(scheme) {
-    return encodeURIComponent(JSON.stringify(scheme || {}));
-  }
-
-  function finderLaneChipsHtml(lane) {
-    if (!lane) return "";
-    const map = {
-      water: { href: "./water-saving-finder.html", icon: "💧", label: "Open Water Saving Finder" },
-      electricity: { href: "./sustainable_product_deal_finder_portal.html", icon: "⚡", label: "Open Sustainable Product Finder" },
-      gas: { href: "./sustainable_product_deal_finder_portal.html", icon: "🔥", label: "Open Product Finder (gas lane)" }
-    };
-    const item = map[lane] || map.electricity;
-    return (
-      '<div class="finder-lane-chips-hint">Utility lane for this answer — open the full finder page</div>' +
-      '<div class="finder-lane-chips" aria-label="Product finder pages">' +
-      '<a class="finder-lane-chip" href="' + escapeHtml(item.href) + '" target="_top" rel="noopener">' +
-      '<span aria-hidden="true">' + item.icon + "</span><span>" + escapeHtml(item.label) + "</span></a></div>"
-    );
-  }
-
-  function schemeChipsHtml(suggestions) {
-    if (!Array.isArray(suggestions) || !suggestions.length) return "";
-    const chips = suggestions.slice(0, 6).map(function (s) {
-      const title = escapeHtml(s.title || "Scheme");
-      const payload = encodeSchemePayload(s);
-      const url = s.url ? escapeHtml(String(s.url)) : "";
-      const askPrompt = "Explain " + String(s.title || "this scheme") + " for my business profile";
-      const ext = url
-        ? '<a class="scheme-chip-ext" href="' + url + '" target="_blank" rel="noopener" title="Official link" aria-label="Open official link">↗</a>'
-        : "";
-      return (
-        '<span class="scheme-chip-wrap">' +
-        '<button type="button" class="scheme-chip-btn" data-scheme="' + payload + '" title="Select to compare">' + title + "</button>" +
-        '<button type="button" class="scheme-chip-ask" data-prompt="' + escapeHtml(askPrompt) + '" title="Ask about this scheme">?</button>' +
-        ext +
-        "</span>"
-      );
-    }).join("");
-    return (
-      '<div class="scheme-chips">' + chips + "</div>" +
-      '<div class="scheme-chips-hint">Tap scheme to select · ? asks the agent · ↗ official site · pick 2 then Compare below</div>'
-    );
   }
 
   function followUpChips(intentId, profile, question) {
@@ -1415,13 +1403,17 @@
       paintBannerProducts(payload.productSamples);
     }
 
-    const tail =
-      finderLaneChipsHtml(payload.lane || profile.lane || null) +
-      schemeChipsHtml(payload.suggestions || []) +
-      followUpChips(intentId, profile, payload.question || lastQuestion) +
-      '<span class="source-pill">' + escapeHtml(src) + "</span>";
+    const parts = buildAgentTurnParts(answer, suggestions, blocks, {
+      footHtml:
+        followUpChips(intentId, profile, payload.question || lastQuestion) +
+        '<span class="source-pill">' + escapeHtml(src) + "</span>"
+    });
 
-    revealTypedAnswer(el, answer, tail, function () {
+    TurnUi.revealTyped(el, parts, {
+      thread: thread,
+      formatAnswer: formatAnswer,
+      avatarEmoji: AGENT_TURN_AVATAR
+    }, function () {
       showQuickReplies(intentId, profile);
       sessionTurns.push({
         role: "agent",
@@ -1486,18 +1478,23 @@
         if (turn.role === "user") {
           appendMessage("user", escapeHtml(turn.text || ""));
         } else if (turn.role === "agent") {
-          const id = appendMessage("agent", formatAnswer(turn.answer || ""), "");
+          const id = appendMessage("agent", "", "");
           const el = document.getElementById(id);
           if (el) {
             const bubble = el.querySelector(".msg-bubble");
             if (bubble) {
-              bubble.innerHTML =
-                '<span class="msg-avatar" aria-hidden="true">♻️</span>' +
-                formatAnswer(turn.answer || "") +
-                finderLaneChipsHtml(turn.lane || getProfile().lane || null) +
-                schemeChipsHtml(turn.suggestions || []) +
-                followUpChips(turn.intentId, getProfile(), turn.question || "") +
-                '<span class="source-pill">' + escapeHtml(sourceLabel(turn.source)) + "</span>";
+              bubble.innerHTML = renderAgentBubbleContent(turn);
+              const parts = buildAgentTurnParts(
+                turn.answer || "",
+                turn.suggestions || [],
+                turn.blocks || [],
+                {
+                  footHtml:
+                    followUpChips(turn.intentId, getProfile(), turn.question || "") +
+                    '<span class="source-pill">' + escapeHtml(sourceLabel(turn.source)) + "</span>"
+                }
+              );
+              applySplitRowClasses(el, bubble, parts.useSplit);
             }
           }
           sessionTurns.push(turn);

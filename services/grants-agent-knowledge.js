@@ -91,10 +91,6 @@ function toSuggestion(scheme) {
   };
 }
 
-function compareField(label, left, right) {
-  return `- **${label}:** ${left || '—'} · ${right || '—'}`;
-}
-
 async function compareSchemesByIds(idA, idB, profile = {}) {
   const schemes = await loadSchemes();
   const a = schemes.find((s) => s.id === idA);
@@ -106,18 +102,13 @@ async function compareSchemesByIds(idA, idB, profile = {}) {
   const regionLabel = REGION_LABELS[profile.region] || profile.region || 'your region';
   const sectorLabel = profile.sector || 'your sector';
 
-  const answer =
-    `**${a.title}** vs **${b.title}** — side-by-side for **${regionLabel}** / **${sectorLabel}**:\n\n` +
-    `${compareField('Region', String(a.region || '').toUpperCase(), String(b.region || '').toUpperCase())}\n` +
-    `${compareField('Type', a.type, b.type)}\n` +
-    `${compareField('Deadline', a.deadline, b.deadline)}\n` +
-    `${compareField('Relevance', a.relevance, b.relevance)}\n\n` +
-    `**${a.title}:** ${String(a.description || '').slice(0, 180)}\n\n` +
-    `**${b.title}:** ${String(b.description || '').slice(0, 180)}\n\n` +
-    `**Requirements snapshot:**\n` +
-    `- ${a.title}: ${String(a.requirements || 'See official link').slice(0, 140)}\n` +
-    `- ${b.title}: ${String(b.requirements || 'See official link').slice(0, 140)}\n\n` +
-    `**Official links:** ${primaryLink(a)} · ${primaryLink(b)}\n\n_${tip}_`;
+  const answer = withTip(
+    `Here is a side-by-side look at **${a.title}** and **${b.title}** for your **${regionLabel}** / **${sectorLabel}** profile.\n\n` +
+      `**${a.title}** is listed as a **${a.type || 'scheme'}**${a.deadline ? ` (deadline noted: ${a.deadline})` : ''}. ` +
+      `**${b.title}** is a **${b.type || 'scheme'}**${b.deadline ? ` (deadline noted: ${b.deadline})` : ''}.\n\n` +
+      'Use the scheme cards on the right for descriptions, official links, and follow-up questions.',
+    tip
+  );
 
   return {
     answer,
@@ -208,24 +199,76 @@ function formatSchemeBullets(schemes, max = 8) {
   }).join('\n');
 }
 
+function withTip(body, tip) {
+  const text = String(body || '').trim();
+  if (!tip) return text;
+  return `${text}\n\n_${tip}_`;
+}
+
+function toLinkItem(title, url, description) {
+  return {
+    title: String(title || '').trim(),
+    url: String(url || '').trim(),
+    description: String(description || '').slice(0, 160)
+  };
+}
+
+function portalLinkItems() {
+  return [
+    toLinkItem(
+      'Restaurant schemes portal',
+      PORTAL_LINKS.restaurant,
+      'Hospitality and restaurant grants in one browseable portal'
+    ),
+    toLinkItem(
+      'EU schemes portal',
+      PORTAL_LINKS.eu,
+      'EU-wide programmes and cross-border funding'
+    ),
+    toLinkItem(
+      'Finance finder',
+      PORTAL_LINKS.finance,
+      'Grants, BNPL, equipment finance and loans'
+    ),
+    toLinkItem(
+      'Savings tour · Financial assistance',
+      PORTAL_LINKS.savings,
+      'Grants tab with finance pathways and tools'
+    ),
+    toLinkItem(
+      'business.gov.nl subsidies finder',
+      'https://business.gov.nl/subsidies-and-schemes/?subject=environmental-impact&subject=products-services-and-innovations&subject=international-business',
+      'Official Dutch government search hub for subsidies and schemes'
+    )
+  ];
+}
+
+function browsePortalLinks() {
+  return [
+    toLinkItem('Restaurant schemes portal', PORTAL_LINKS.restaurant, 'Browse all restaurant & hospitality schemes'),
+    toLinkItem('Finance finder', PORTAL_LINKS.finance, 'Loans, BNPL and equipment finance')
+  ];
+}
+
 function buildOverviewAnswer(schemes, tip) {
   const byRegion = {};
   for (const s of schemes) {
     const r = String(s.region || 'eu').toLowerCase();
     byRegion[r] = (byRegion[r] || 0) + 1;
   }
-  const lines = Object.keys(byRegion)
+  const statItems = Object.keys(byRegion)
     .sort()
-    .map((r) => `- **${REGION_LABELS[r] || r.toUpperCase()}:** ${byRegion[r]} schemes`);
-  const hub = schemes.find((s) => s.id === 'nl-business-gov-finder');
-  const hubLine = hub
-    ? `\n\n**NL starting point:** ${hub.title} — official Dutch subsidies finder.\n→ ${primaryLink(hub)}`
-    : '';
+    .map((r) => ({
+      label: REGION_LABELS[r] || r.toUpperCase(),
+      value: String(byRegion[r])
+    }));
   return {
-    answer:
-      `**Greenways grants catalogue** — **${schemes.length}** active schemes in \`schemes.json\`:\n\n${lines.join('\n')}` +
-      hubLine +
-      `\n\n**On-site tools:** Restaurant schemes portal · EU schemes portal · Finance finder (loans & BNPL).\n\n_${tip}_`,
+    answer: withTip(
+      `Good question — we track **${schemes.length}** active funding schemes in the Greenways catalogue, across several regions.\n\n` +
+        'On the right you will see how they break down by country, plus a shortlist of priority schemes that are often a sensible place to start.',
+      tip
+    ),
+    blocks: [{ type: 'stat', items: statItems }],
     suggestions: schemes.filter((s) => s.priority).slice(0, 6).map(toSuggestion)
   };
 }
@@ -235,12 +278,12 @@ function buildNlHubAnswer(schemes, tip) {
   const nlTop = schemes
     .filter((s) => s.region === 'nl' && s.id !== 'nl-business-gov-finder')
     .slice(0, 6);
-  const hubBlock = hub
-    ? `**${hub.title}**\n${hub.description}\n\n→ ${primaryLink(hub)}`
-    : 'Use https://business.gov.nl/subsidies-and-schemes/';
-  const bullets = nlTop.length ? `\n\n**Also in our NL catalogue:**\n${formatSchemeBullets(nlTop, 6)}` : '';
+  const intro = hub
+    ? `For Dutch subsidies, **${hub.title}** is the best official starting point — ${String(hub.description || '').slice(0, 160).trim()}\n\n` +
+      'I have also pulled related schemes from our NL catalogue on the right — tap a card to open the official page or ask a follow-up.'
+    : 'For Dutch subsidies, start with **business.gov.nl** — the official government finder. Related NL schemes from our catalogue are on the right.';
   return {
-    answer: `${hubBlock}${bullets}\n\n_${tip}_`,
+    answer: withTip(intro, tip),
     suggestions: [hub, ...nlTop].filter(Boolean).map(toSuggestion)
   };
 }
@@ -252,13 +295,18 @@ function buildRegionAnswer(schemes, region, question, profile, tip) {
   const picked = ranked.length ? ranked : matches.slice(0, 8);
   if (!picked.length) {
     return {
-      answer: `No schemes tagged for **${label}** in the catalogue right now. Try the EU portal or widen your region filter.`,
+      answer:
+        `I could not find schemes tagged for **${label}** in our catalogue just now.\n\n` +
+        'Try widening your region filter, or browse the EU schemes portal on the right-hand helpers.',
       suggestions: []
     };
   }
   return {
-    answer:
-      `**${label} schemes** (${picked.length} shown) — matched to your question:\n\n${formatSchemeBullets(picked)}\n\n_${tip}_`,
+    answer: withTip(
+      `I found **${picked.length}** **${label}** scheme${picked.length === 1 ? '' : 's'} that fit what you are asking about.\n\n` +
+        'Each card on the right has a summary and official link — tap **Ask about this** if you want a deeper explanation.',
+      tip
+    ),
     suggestions: picked.map(toSuggestion)
   };
 }
@@ -274,9 +322,12 @@ function buildSectorAnswer(schemes, sector, question, profile, tip) {
   const ranked = rankSchemes(matches, question, { ...profile, sector }, 8);
   const picked = ranked.length ? ranked : matches.slice(0, 8);
   return {
-    answer:
-      `**Restaurant & hospitality funding** — schemes that mention your sector:\n\n${formatSchemeBullets(picked)}\n\n` +
-      `**Browse all:** Restaurant schemes portal (${PORTAL_LINKS.restaurant}) · Finance finder (${PORTAL_LINKS.finance})\n\n_${tip}_`,
+    answer: withTip(
+      `For **restaurant and hospitality** businesses, these **${picked.length}** schemes mention your sector in our catalogue.\n\n` +
+        'Scheme cards are on the right — plus quick links if you want to browse the full restaurant portal or finance finder.',
+      tip
+    ),
+    blocks: [{ type: 'link', items: browsePortalLinks() }],
     suggestions: picked.map(toSuggestion)
   };
 }
@@ -287,9 +338,11 @@ function buildEquipmentAnswer(schemes, question, profile, tip) {
   const ranked = rankSchemes(matches, question, { ...profile, focus: 'equipment' }, 8);
   const picked = ranked.length ? ranked : matches.slice(0, 8);
   return {
-    answer:
-      `**Equipment & appliance grants** — subsidies and tax incentives for upgrades:\n\n${formatSchemeBullets(picked)}\n\n` +
-      `**Tip:** Open a product on the marketplace or equipment deep dive — grants are attached per product ID after \`product-grants-integrator.js\` enrichment.\n\n_${tip}_`,
+    answer: withTip(
+      `Upgrading **kitchen equipment or appliances**? These **${picked.length}** schemes from our catalogue often relate to kit, efficiency, or green investment.\n\n` +
+        'When you browse a specific product on the marketplace or equipment deep dive, we also attach matched grants to that item — handy once you know what you are buying.',
+      tip
+    ),
     suggestions: picked.map(toSuggestion)
   };
 }
@@ -300,40 +353,45 @@ function buildDeadlinesAnswer(schemes, tip) {
     .sort((a, b) => String(a.deadline).localeCompare(String(b.deadline)));
   if (!withDeadline.length) {
     return {
-      answer: `No fixed deadlines are recorded in \`schemes.json\` for current rows. Check each scheme's official link for open/close dates.\n\n_${tip}_`,
+      answer: withTip(
+        'We do not have fixed deadlines recorded for current schemes in the catalogue.\n\n' +
+          'That does not mean there is no deadline — open each scheme’s official link to check whether it is open, closing soon, or paused.',
+        tip
+      ),
       suggestions: []
     };
   }
-  const bullets = withDeadline.slice(0, 12).map((s) => {
-    return `- **${s.title}** — deadline **${s.deadline}** (${s.region?.toUpperCase() || 'EU'})`;
-  }).join('\n');
   return {
-    answer: `**Schemes with recorded deadlines** (verify on official sites):\n\n${bullets}\n\n_${tip}_`,
+    answer: withTip(
+      `These **${withDeadline.length}** schemes have a **deadline noted** in our catalogue.\n\n` +
+        'Treat the dates on the right as a guide only — always confirm on the official site before you plan around them.',
+      tip
+    ),
     suggestions: withDeadline.slice(0, 6).map(toSuggestion)
   };
 }
 
 function buildPortalsAnswer(tip) {
   return {
-    answer:
-      `**Greenways grant & finance tools:**\n\n` +
-      `- Restaurant schemes portal — ${PORTAL_LINKS.restaurant}\n` +
-      `- EU schemes portal — ${PORTAL_LINKS.eu}\n` +
-      `- Finance finder (grants, BNPL, loans) — ${PORTAL_LINKS.finance}\n` +
-      `- Savings tour / Financial assistance — ${PORTAL_LINKS.savings}\n\n` +
-      `**Official NL hub:** https://business.gov.nl/subsidies-and-schemes/?subject=environmental-impact&subject=products-services-and-innovations&subject=international-business\n\n_${tip}_`,
-    suggestions: []
+    answer: withTip(
+      'Not sure where to browse? Greenways keeps a few dedicated tools in one place — restaurant and EU scheme portals, a finance finder for loans and BNPL, and the official Dutch government hub.\n\n' +
+        'Pick a tile on the right to jump straight in.',
+      tip
+    ),
+    blocks: [{ type: 'link', items: portalLinkItems() }]
   };
 }
 
 function buildProductGrantsAnswer(tip) {
   return {
     answer:
-      `**Product-linked grants on Greenways:**\n\n` +
-      `1. Canonical schemes live in **\`schemes.json\`** (62+ rows).\n` +
-      `2. Run **\`node product-grants-integrator.js\`** after scheme updates → **\`products-with-grants.json\`**.\n` +
-      `3. Marketplace widget, equipment deep dive, and **\`/api/product-widget/:id\`** show grants per **ETL product ID**.\n\n` +
-      `Sample marketplace products with grants attached are shown below — open a card to see the full overlay.\n\n_${tip}_`,
+      '**How product grants work on Greenways**\n\n' +
+      'Think of it in three simple steps:\n\n' +
+      '1. **Schemes live in one catalogue** — we maintain 62+ grants and subsidies in our master schemes list.\n' +
+      '2. **Products get matched automatically** — when schemes are updated, we run an enrichment step so each marketplace product can show the grants that apply to it.\n' +
+      '3. **You see grants where you shop** — open any product on the marketplace or equipment deep dive and the funding options appear on that page.\n\n' +
+      'Sample grant-eligible products are highlighted in the banner above — tap a photo to see a real example.\n\n' +
+      `_${tip}_`,
     suggestions: []
   };
 }
@@ -526,8 +584,11 @@ function buildKeywordFallback(schemes, question, profile, tip) {
   const ranked = rankSchemes(schemes, question, profile, 8);
   const picked = ranked.length ? ranked : schemes.filter((s) => s.priority).slice(0, 6);
   return {
-    answer:
-      `**Best scheme matches** for "${question}":\n\n${formatSchemeBullets(picked)}\n\n_${tip}_`,
+    answer: withTip(
+      `Based on what you asked — *"${question}"* — here are **${picked.length}** scheme${picked.length === 1 ? '' : 's'} from our catalogue that look like the best fit.\n\n` +
+        'Browse the cards on the right and tap **Ask about this** if you want help choosing between them.',
+      tip
+    ),
     suggestions: picked.map(toSuggestion),
     source: 'heuristic'
   };

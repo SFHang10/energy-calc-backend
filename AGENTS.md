@@ -398,7 +398,7 @@ html, body {
   - **`HTMLS GWM GWB/water-saving-finder.html`:** full-page Water Saving Finder (synced from project workflow; was `water-saving-finder_1.html` in Downloads).
 
 - **💬 Greenways Chat Interface — Grants Agent pilot (May 2026)** — foundation for all future agent chats; full spec **`Skills/greenways-chat-interface-skill.md`**:
-  - **UI:** `greenways-grants-agent.html` — blue theme; **product showcase banner** (top); **`.chat-panel`** scroll area; profile filters; **10 interactive features** (follow-ups, product ask, scheme chips ?/↗/compare, profile nudge, new chat, animations, quick-reply bar, typed reveal, session memory, compare dock).
+  - **UI:** `greenways-grants-agent.html` — blue theme; **split turn layout** (friendly intro left, scheme/link/stat tablets + *Things to be aware of* right) via shared `HTMLS GWM GWB/js/greenways-agent-turn-ui.js` + `.css` — **same module wired on all seven chat agents** (Grants, Finance, Equipment, Deals, Media, Sustainable Products; Systems uses assets where applicable).
   - **API:** `routes/grants-agent.js` — `POST /ask`, `GET /samples`, `POST /compare`; knowledge in `services/grants-agent-knowledge.js` from **`schemes.json`** + product grants overlay.
   - **Clone:** fork HTML + intents + knowledge + routes — do not one-off new layouts. Sibling: Music Guide (`live-music-guide.html`).
   - **Deploy:** push to Render for live `/api/grants-agent/*`; HTML includes static product fallback until API is live.

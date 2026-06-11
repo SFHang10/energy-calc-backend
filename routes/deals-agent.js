@@ -35,6 +35,7 @@ router.post('/ask', async (req, res) => {
         ok: true,
         answer: knowledge.answer,
         suggestions: knowledge.suggestions || [],
+        blocks: knowledge.blocks || [],
         productSamples: knowledge.productSamples || [],
         source: knowledge.source || 'knowledge',
         intentId: knowledge.intentId || null
@@ -46,6 +47,7 @@ router.post('/ask', async (req, res) => {
       answer:
         `No deals intent matched "${question}". Try energy tariffs, water savings, or sustainability product deals.`,
       suggestions: [],
+      blocks: [],
       productSamples: await getDefaultProductSamples(3),
       source: 'heuristic'
     });

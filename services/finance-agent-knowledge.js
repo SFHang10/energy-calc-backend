@@ -9,6 +9,8 @@ const {
   rankSchemes,
   formatSchemeBullets,
   toSuggestion,
+  withTip,
+  toLinkItem,
   pickProductSamples,
   getDefaultProductSamples
 } = require('./greenways-agent-shared');
@@ -89,7 +91,10 @@ async function buildOverviewAnswer(schemes, profile, tip) {
 function buildTabAnswer(tabLabel, body, schemes, tip) {
   const related = rankSchemes(financeSchemes(schemes), tabLabel, {}, 6);
   return {
-    answer: `${body}\n\n**Related schemes:**\n${formatSchemeBullets(related, 5) || '_See finance finder for curated examples._'}\n\n_${tip}_`,
+    answer: withTip(
+      `${String(body || '').trim()}\n\nI found **${related.length}** related scheme${related.length === 1 ? '' : 's'} in our catalogue — see the cards on the right.`,
+      tip
+    ),
     suggestions: related.map(toSuggestion)
   };
 }
@@ -111,19 +116,24 @@ function buildCategoryAnswer(category, schemes, profile, tip) {
   };
 }
 
+function financePortalLinks() {
+  return [
+    toLinkItem('Finance finder', PORTAL_LINKS.finance, 'Grants, BNPL, equipment finance and green loans'),
+    toLinkItem('Energy price ticker', PORTAL_LINKS.energyTicker, 'Wholesale guide — useful when building an upgrade case'),
+    toLinkItem('Utility detail', PORTAL_LINKS.utilityDetail + '?type=electricity', 'Site electricity, gas and water views'),
+    toLinkItem('Tariff compare portal', PORTAL_LINKS.europeanEnergy, 'Compare business energy packages by region'),
+    toLinkItem('Savings projection', PORTAL_LINKS.savingsProjection, 'Payback chart for equipment upgrades'),
+    toLinkItem('Grants Agent', '/greenways/grants-agent', 'Schemes and subsidies catalogue chat')
+  ];
+}
+
 function buildPortalsAnswer(tip) {
   return {
-    answer:
-      `**On-site finance & energy tools:**\n\n` +
-      `- **Finance finder (restaurant):** ${PORTAL_LINKS.finance}\n` +
-      `- **Energy price ticker:** ${PORTAL_LINKS.energyTicker}\n` +
-      `- **Utility detail (elec / gas / water):** ${PORTAL_LINKS.utilityDetail}?type=electricity\n` +
-      `- **Tariff & deals compare:** ${PORTAL_LINKS.europeanEnergy}\n` +
-      `- **Savings projection:** ${PORTAL_LINKS.savingsProjection}\n` +
-      `- **Savings hub — Financial assistance:** ${PORTAL_LINKS.savings}\n` +
-      `- **Grants Agent:** /greenways/grants-agent\n` +
-      `- **Equipment Agent:** ${PORTAL_LINKS.equipmentAgent}\n\n_${tip}_`,
-    suggestions: []
+    answer: withTip(
+      'Here are the main **finance and energy tools** on Greenways — open a tile on the right to jump in.',
+      tip
+    ),
+    blocks: [{ type: 'link', items: financePortalLinks() }]
   };
 }
 

@@ -37,6 +37,7 @@ router.post('/ask', async (req, res) => {
         ok: true,
         answer: knowledge.answer,
         suggestions: knowledge.suggestions || [],
+        blocks: knowledge.blocks || [],
         productSamples: knowledge.productSamples || [],
         source: knowledge.source || 'knowledge',
         intentId: knowledge.intentId || null,
@@ -49,6 +50,7 @@ router.post('/ask', async (req, res) => {
       answer:
         `No product finder match for "${question}". Try **water savings**, **efficient fridge**, **gas fryer**, or **open product finder**.`,
       suggestions: [],
+      blocks: [],
       productSamples: await getDefaultProductSamples(3),
       source: 'heuristic'
     });

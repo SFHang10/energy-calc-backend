@@ -35,6 +35,7 @@ router.post('/ask', async (req, res) => {
         ok: true,
         answer: knowledge.answer,
         suggestions: knowledge.suggestions || [],
+        blocks: knowledge.blocks || [],
         productSamples: knowledge.productSamples || [],
         source: knowledge.source || 'knowledge',
         intentId: knowledge.intentId || null
@@ -46,6 +47,7 @@ router.post('/ask', async (req, res) => {
       answer:
         `I could not match a finance intent for "${question}". Try asking about BNPL, green loans, equipment finance, or open the finance finder.`,
       suggestions: [],
+      blocks: [],
       productSamples: await getDefaultProductSamples(3),
       source: 'heuristic'
     });

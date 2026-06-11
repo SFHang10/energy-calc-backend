@@ -179,6 +179,20 @@ function formatSchemeBullets(schemes, max = 8) {
   }).join('\n');
 }
 
+function withTip(body, tip) {
+  const text = String(body || '').trim();
+  if (!tip) return text;
+  return `${text}\n\n_${tip}_`;
+}
+
+function toLinkItem(title, url, description) {
+  return {
+    title: String(title || '').trim(),
+    url: String(url || '').trim(),
+    description: String(description || '').slice(0, 160)
+  };
+}
+
 async function loadProductsWithGrants() {
   if (productsWithGrantsCache) return productsWithGrantsCache;
   for (const filePath of PRODUCT_FILES) {
@@ -361,6 +375,8 @@ module.exports = {
   scoreScheme,
   rankSchemes,
   formatSchemeBullets,
+  withTip,
+  toLinkItem,
   loadProductsWithGrants,
   normalizeImageUrl,
   marketplaceHref,

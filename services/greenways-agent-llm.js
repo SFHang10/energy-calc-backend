@@ -96,7 +96,16 @@ async function callAnthropic({ apiKey, model, systemPrompt, userPayload, maxToke
   return data?.content?.[0]?.text || '';
 }
 
-async function callOpenAiCompatible({ chatUrl, apiKey, model, systemPrompt, userPayload, maxTokens, useOpenRouter }) {
+async function callOpenAiCompatible({
+  chatUrl,
+  apiKey,
+  model,
+  systemPrompt,
+  userPayload,
+  maxTokens,
+  useOpenRouter,
+  useCortecs
+}) {
   const headers = {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${apiKey}`
@@ -107,20 +116,44 @@ async function callOpenAiCompatible({ chatUrl, apiKey, model, systemPrompt, user
     headers['X-OpenRouter-Title'] = process.env.OPENROUTER_APP_TITLE || 'Greenways Agents';
   }
 
+  const body = {
+    model,
+    max_tokens: maxTokens,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: JSON.stringify(userPayload) }
+    ]
+  };
+  if (useCortecs) {
+    body.preference = process.env.CORTECS_PREFERENCE || 'balanced';
+  }
+
+  const providerLabel = useCortecs ? 'cortecs' : useOpenRouter ? 'openrouter' : 'openai';
+
   const res = await fetch(chatUrl, {
     method: 'POST',
     headers,
-    body: JSON.stringify({
-      model,
-      max_tokens: maxTokens,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: JSON.stringify(userPayload) }
-      ]
-    })
+    body: JSON.stringify(body)
   });
   if (!res.ok) {
-    console.warn('Greenways LLM chat error:', res.status, useOpenRouter ? 'openrouter' : 'openai');
+    let detail = '';
+    try {
+      const errJson = await res.json();
+      detail = String(errJson?.error?.message || errJson?.error || errJson?.message || '').slice(0, 160);
+    } catch (_) {
+      try {
+        detail = String(await res.text()).slice(0, 160);
+      } catch (_) {
+        detail = '';
+      }
+    }
+    console.warn(
+      'Greenways LLM chat error:',
+      res.status,
+      providerLabel,
+      `model=${model}`,
+      detail || ''
+    );
     return '';
   }
   const data = await res.json();
@@ -158,7 +191,8 @@ async function maybeCallGreenwaysLlm({ systemPrompt, userPayload, maxTokens = 90
         systemPrompt,
         userPayload,
         maxTokens,
-        useOpenRouter: cfg.useOpenRouter
+        useOpenRouter: cfg.useOpenRouter,
+        useCortecs: cfg.useCortecs
       });
     }
 

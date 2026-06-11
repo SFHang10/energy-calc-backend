@@ -6,6 +6,8 @@
 <meta name="wix-html-scroll" content="no-scroll">
 <title>Greenways Grants Agent — schemes &amp; funding</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="js/greenways-agent-turn-ui.css">
+<script src="js/greenways-agent-turn-ui.js"></script>
 <script>
 (function () {
   var p = location.pathname || "";
@@ -353,6 +355,10 @@
   .msg-row { display: flex; flex-direction: column; max-width: 92%; }
   .msg-row.user { align-self: flex-end; align-items: flex-end; }
   .msg-row.agent { align-self: flex-start; }
+  .msg-row.agent.has-split {
+    max-width: min(820px, 98%);
+    width: 100%;
+  }
   .msg-meta {
     font-size: 0.62rem;
     color: var(--muted);
@@ -396,6 +402,71 @@
     font-size: 0.75rem;
   }
   .msg-row.agent .msg-bubble { padding-right: 20px; }
+  .msg-row.agent .msg-bubble.has-split-layout {
+    padding: 14px 16px 12px;
+    min-width: 0;
+  }
+
+  .agent-turn-split {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: 14px;
+    align-items: start;
+  }
+  .agent-turn-left {
+    font-size: 0.82rem;
+    line-height: 1.55;
+    min-width: 0;
+  }
+  .agent-turn-left p { margin: 0; }
+  .agent-turn-left p + p { margin-top: 8px; }
+  .agent-turn-right {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .agent-turn-right .scheme-tablets,
+  .agent-turn-right .agent-blocks,
+  .agent-turn-right .link-tablets {
+    margin-top: 0;
+  }
+  .agent-turn-foot {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .awareness-panel {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.32);
+    border: 1px solid rgba(252, 211, 77, 0.32);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .awareness-panel-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fcd34d;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .awareness-panel-list {
+    margin: 0;
+    padding: 0 0 0 14px;
+    font-size: 0.72rem;
+    line-height: 1.45;
+    color: #fde68a;
+  }
+  .awareness-panel-list li + li { margin-top: 6px; }
+
+  @media (max-width: 560px) {
+    .msg-row.agent.has-split { max-width: 92%; }
+    .agent-turn-split {
+      grid-template-columns: 1fr;
+    }
+  }
 
   .typing-dots {
     display: inline-flex;
@@ -497,6 +568,244 @@
   }
   .scheme-chip-ask:hover { background: rgba(37, 99, 235, 0.38); }
 
+  .scheme-tablets {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+    width: 100%;
+  }
+  .scheme-tablet {
+    position: relative;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: linear-gradient(
+      155deg,
+      rgba(8, 16, 32, 0.78) 0%,
+      rgba(12, 22, 42, 0.72) 52%,
+      rgba(6, 12, 24, 0.82) 100%
+    );
+    border: 1px solid rgba(59, 130, 246, 0.32);
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(14px) saturate(1.2);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    overflow: hidden;
+  }
+  .scheme-tablet::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(90% 70% at 0% 0%, rgba(96, 165, 250, 0.12), transparent 58%);
+    pointer-events: none;
+  }
+  .scheme-tablet > * {
+    position: relative;
+    z-index: 1;
+  }
+  .scheme-tablet-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .scheme-tablet-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    max-width: 100%;
+    white-space: normal;
+    text-align: left;
+    line-height: 1.35;
+    color: #e0f2fe;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(96, 165, 250, 0.28);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+  .scheme-tablet-title:hover {
+    background: rgba(0, 0, 0, 0.38);
+    color: #fff;
+  }
+  .scheme-tablet-title.is-selected {
+    background: rgba(37, 99, 235, 0.42);
+    border-color: rgba(191, 219, 254, 0.55);
+  }
+  .scheme-tablet-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .scheme-tablet-badge {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  .scheme-tablet-badge.region {
+    background: rgba(37, 99, 235, 0.32);
+    color: #dbeafe;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .scheme-tablet-badge.type {
+    background: rgba(0, 0, 0, 0.32);
+    color: #c4b5fd;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .scheme-tablet-deadline {
+    font-size: 0.62rem;
+    color: #fde68a;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(252, 211, 77, 0.16);
+    border: 1px solid rgba(252, 211, 77, 0.32);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .scheme-tablet-desc {
+    font-size: 0.74rem;
+    line-height: 1.45;
+    color: #b8c9e8;
+    margin: 0 0 10px;
+  }
+  .scheme-tablet-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .scheme-tablet .scheme-tablet-ask.scheme-chip-ask {
+    color: #6ee7b7;
+  }
+  .scheme-tablet .scheme-tablet-ask.scheme-chip-ask:hover {
+    color: #a7f3d0;
+  }
+  .scheme-tablet-ask {
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 999px;
+    width: auto;
+    height: auto;
+    color: #6ee7b7;
+    background: rgba(0, 0, 0, 0.32);
+    border: 1px solid rgba(52, 211, 153, 0.38);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .scheme-tablet-ask:hover {
+    background: rgba(16, 185, 129, 0.22);
+    color: #a7f3d0;
+    border-color: rgba(110, 231, 183, 0.55);
+  }
+  .scheme-tablet-link {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #fcd34d;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(252, 211, 77, 0.38);
+    background: rgba(0, 0, 0, 0.32);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .scheme-tablet-link:hover {
+    background: rgba(252, 211, 77, 0.14);
+    color: #fde68a;
+    border-color: rgba(253, 224, 71, 0.55);
+  }
+
+  .agent-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+    width: 100%;
+  }
+  .agent-stat-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .agent-stat-chip {
+    font-size: 0.68rem;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.32);
+    border: 1px solid rgba(96, 165, 250, 0.32);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #bfdbfe;
+  }
+  .agent-stat-chip strong {
+    color: #e0f2fe;
+    font-weight: 700;
+    margin-right: 4px;
+  }
+  .link-tablets {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+  .link-tablet {
+    position: relative;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: linear-gradient(
+      155deg,
+      rgba(8, 16, 32, 0.78) 0%,
+      rgba(12, 22, 42, 0.72) 52%,
+      rgba(6, 12, 24, 0.82) 100%
+    );
+    border: 1px solid rgba(59, 130, 246, 0.28);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(14px) saturate(1.2);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  }
+  .link-tablet-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #e0f2fe;
+    margin: 0 0 6px;
+    line-height: 1.35;
+  }
+  .link-tablet-desc {
+    font-size: 0.72rem;
+    line-height: 1.45;
+    color: #b8c9e8;
+    margin: 0 0 10px;
+  }
+  .link-tablet-open {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #fcd34d;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(252, 211, 77, 0.38);
+    background: rgba(0, 0, 0, 0.32);
+    display: inline-block;
+  }
+  .link-tablet-open:hover {
+    background: rgba(252, 211, 77, 0.14);
+    color: #fde68a;
+    border-color: rgba(253, 224, 71, 0.55);
+  }
+
   .follow-up-chips, .quick-reply-bar {
     display: flex;
     flex-wrap: wrap;
@@ -523,6 +832,23 @@
   }
   .follow-up-chip:hover, .quick-reply-chip:hover {
     background: rgba(37, 99, 235, 0.28);
+  }
+  .follow-up-chip-neon {
+    font-weight: 600;
+    color: #c084fc;
+    border: 1px solid rgba(192, 132, 252, 0.42);
+    background: rgba(0, 0, 0, 0.32);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    text-shadow: none;
+    box-shadow: none;
+  }
+  .follow-up-chip-neon:hover {
+    color: #e9d5ff;
+    background: rgba(168, 85, 247, 0.22);
+    border-color: rgba(216, 180, 254, 0.55);
+    text-shadow: none;
+    box-shadow: none;
   }
 
   .profile-nudge {
@@ -919,7 +1245,7 @@
 
     <div class="compare-dock is-collapsed" id="compare-dock">
       <div class="compare-dock-head" id="compare-dock-toggle" title="Expand compare panel">
-        <span>Compare schemes — select 2 chips in answers <span class="compare-dock-badge" id="compare-dock-badge">0/2</span></span>
+        <span>Compare schemes — tap 2 scheme titles in answers <span class="compare-dock-badge" id="compare-dock-badge">0/2</span></span>
         <button type="button" class="compare-clear-btn" id="compare-clear-btn">Clear</button>
       </div>
       <div class="compare-dock-body">
@@ -1049,6 +1375,36 @@
     t = t.replace(/\n/g, "<br>");
     return "<p>" + t + "</p>";
   }
+  var TurnUi = window.GreenwaysAgentTurnUi;
+  var AGENT_TURN_AVATAR = "🏛️";
+
+  function buildAgentTurnParts(rawAnswer, suggestions, blocks, meta) {
+    return TurnUi.buildParts(rawAnswer, suggestions, blocks, meta, {
+      escapeHtml: escapeHtml,
+      formatAnswer: formatAnswer
+    });
+  }
+
+  function applySplitRowClasses(row, bubble, useSplit) {
+    TurnUi.applySplitClasses(row, bubble, useSplit);
+  }
+
+  function renderAgentBubbleContent(turn) {
+    var profile = getProfile();
+    var parts = buildAgentTurnParts(
+      turn.answer || "",
+      turn.suggestions || [],
+      turn.blocks || [],
+      {
+        footHtml:
+          followUpChips(turn.intentId, profile, turn.question || "") +
+          '<span class="source-pill">' + escapeHtml(sourceLabel(turn.source)) + "</span>"
+      }
+    );
+    return TurnUi.layoutHtml(parts, AGENT_TURN_AVATAR);
+  }
+
+
 
   function hideWelcome() {
     const card = document.getElementById("welcome-card");
@@ -1089,37 +1445,15 @@
     return id;
   }
 
-  function encodeSchemePayload(scheme) {
-    return encodeURIComponent(JSON.stringify(scheme || {}));
-  }
-
-  function schemeChipsHtml(suggestions) {
-    if (!Array.isArray(suggestions) || !suggestions.length) return "";
-    const chips = suggestions.slice(0, 6).map(function (s) {
-      const title = escapeHtml(s.title || "Scheme");
-      const payload = encodeSchemePayload(s);
-      const url = s.url ? escapeHtml(String(s.url)) : "";
-      const askPrompt = "Explain " + String(s.title || "this scheme") + " for my business profile";
-      const ext = url
-        ? '<a class="scheme-chip-ext" href="' + url + '" target="_blank" rel="noopener" title="Official link" aria-label="Open official link">↗</a>'
-        : "";
-      return (
-        '<span class="scheme-chip-wrap">' +
-        '<button type="button" class="scheme-chip-btn" data-scheme="' + payload + '" title="Select to compare">' + title + "</button>" +
-        '<button type="button" class="scheme-chip-ask" data-prompt="' + escapeHtml(askPrompt) + '" title="Ask about this scheme">?</button>' +
-        ext +
-        "</span>"
-      );
-    }).join("");
-    return (
-      '<div class="scheme-chips">' + chips + "</div>" +
-      '<div class="scheme-chips-hint">Tap scheme to select · ? asks the agent · ↗ official site · pick 2 then Compare below</div>'
-    );
-  }
-
   function followUpChips(intentId, profile, question) {
     const region = profile.region || "nl";
     const sector = profile.sector || "restaurant";
+    const neonLabels = new Set([
+      "Tell me about MIA / Vamil",
+      "NL equipment subsidies",
+      "Product grants on marketplace",
+      "EU programmes"
+    ]);
     const pool = [];
     if (intentId === "nl_hub" || intentId === "nl_schemes" || region === "nl") {
       pool.push({ label: "Tell me about MIA / Vamil", prompt: "Explain MIA and Vamil for a Dutch restaurant" });
@@ -1150,7 +1484,8 @@
       items.push({ label: sector + " grants", prompt: "What grants fit a " + sector + " in " + (region || "EU") + "?" });
     }
     const chips = items.map(function (item) {
-      return '<button type="button" class="follow-up-chip" data-prompt="' + escapeHtml(item.prompt) + '">' + escapeHtml(item.label) + "</button>";
+      const neonClass = neonLabels.has(item.label) ? " follow-up-chip-neon" : "";
+      return '<button type="button" class="follow-up-chip' + neonClass + '" data-prompt="' + escapeHtml(item.prompt) + '">' + escapeHtml(item.label) + "</button>";
     }).join("");
     return '<div class="follow-up-chips" aria-label="Suggested follow-ups">' + chips + "</div>";
   }
@@ -1221,11 +1556,9 @@
 
   function offlineProductGrantsAnswer() {
     return (
-      "**Product-linked grants on Greenways:**\n\n" +
-      "1. Canonical schemes live in **schemes.json** (62+ rows).\n" +
-      "2. **product-grants-integrator.js** attaches matching grants to each ETL product ID.\n" +
-      "3. Open a marketplace product card for the full grant overlay.\n\n" +
-      "Sample grant-eligible products are highlighted in the banner above — tap a photo to open the marketplace page."
+      "**How product grants work on Greenways**\n\n" +
+      "In short: we maintain one master list of schemes, match them to marketplace products automatically, and show the results on each product page.\n\n" +
+      "Tap a sample product in the banner above to see a real grant overlay on the marketplace."
     );
   }
 
@@ -1312,35 +1645,61 @@
   }
 
   function offlineCompareAnswer(a, b, profile) {
-    const regionLabel = profile.region ? profile.region.toUpperCase() : "ALL";
+    const regionLabel = profile.region ? profile.region.toUpperCase() : "your region";
     return (
-      "**" + a.title + "** vs **" + b.title + "** (" + regionLabel + " profile):\n\n" +
-      "- **Region:** " + (a.region || "—").toUpperCase() + " · " + (b.region || "—").toUpperCase() + "\n" +
-      "- **Type:** " + (a.type || "—") + " · " + (b.type || "—") + "\n" +
-      "- **Deadline:** " + (a.deadline || "Not recorded") + " · " + (b.deadline || "Not recorded") + "\n\n" +
-      "**" + a.title + ":** " + String(a.description || "").slice(0, 160) + "\n\n" +
-      "**" + b.title + ":** " + String(b.description || "").slice(0, 160) + "\n\n" +
-      "Deploy /api/grants-agent/compare for full catalogue detail."
+      "Here is a quick comparison of **" + a.title + "** and **" + b.title + "** for your **" + regionLabel + "** profile.\n\n" +
+      "Use the scheme cards on the right for full detail and official links."
     );
   }
 
-  function revealTypedAnswer(el, answer, tailHtml, done) {
+  function revealTypedAnswer(el, parts, done) {
     if (!el) return;
     const row = el.closest(".msg-row");
     if (row) row.classList.remove("is-thinking");
     const bubble = el.querySelector(".msg-bubble");
     if (!bubble) return;
-    const words = String(answer || "").split(/(\s+)/);
+
+    const useSplit = parts.useSplit;
+    applySplitRowClasses(row, bubble, useSplit);
+
+    const words = String(parts.leftText || "").split(/(\s+)/);
     let i = 0;
     let built = "";
-    bubble.innerHTML = '<span class="msg-avatar" aria-hidden="true">🏛️</span><span class="typed-body"></span>';
+
+    if (useSplit) {
+      bubble.innerHTML =
+        '<span class="msg-avatar" aria-hidden="true">🏛️</span>' +
+        '<div class="agent-turn-split">' +
+        '<div class="agent-turn-left"><span class="typed-body"></span></div>' +
+        "</div>" +
+        '<div class="agent-turn-foot agent-turn-foot-pending" hidden></div>';
+    } else {
+      bubble.innerHTML = '<span class="msg-avatar" aria-hidden="true">🏛️</span><span class="typed-body"></span>';
+    }
+
     const body = bubble.querySelector(".typed-body");
+    const footPending = bubble.querySelector(".agent-turn-foot-pending");
+
+    function finishLayout() {
+      if (useSplit) {
+        body.innerHTML = formatAnswer(parts.leftText || "");
+        const split = bubble.querySelector(".agent-turn-split");
+        if (split && parts.rightHtml) split.insertAdjacentHTML("beforeend", parts.rightHtml);
+        if (footPending) {
+          footPending.innerHTML = parts.footHtml || "";
+          footPending.hidden = false;
+          footPending.classList.remove("agent-turn-foot-pending");
+        }
+      } else {
+        body.innerHTML = (parts.leftHtml || "") + (parts.footHtml || "");
+      }
+      if (typeof done === "function") done();
+      thread.scrollTop = thread.scrollHeight;
+    }
 
     function tick() {
       if (i >= words.length) {
-        body.innerHTML = formatAnswer(answer) + (tailHtml || "");
-        if (typeof done === "function") done();
-        thread.scrollTop = thread.scrollHeight;
+        finishLayout();
         return;
       }
       built += words[i++];
@@ -1354,6 +1713,9 @@
   function finishAgentTurn(el, payload) {
     const profile = getProfile();
     const answer = payload.answer || "I could not answer that yet.";
+    const suggestions = payload.suggestions || [];
+    const blocks = payload.blocks || [];
+    const blocks = payload.blocks || [];
     const src = sourceLabel(payload.source);
     const intentId = payload.intentId || null;
     lastIntentId = intentId;
@@ -1363,18 +1725,22 @@
       paintBannerProducts(payload.productSamples);
     }
 
-    const tail =
-      schemeChipsHtml(payload.suggestions || []) +
-      followUpChips(intentId, profile, payload.question || lastQuestion) +
-      '<span class="source-pill">' + escapeHtml(src) + "</span>";
+    const parts = buildAgentTurnParts(answer, suggestions, blocks, {
+      intentId: intentId,
+      profile: profile,
+      question: payload.question || lastQuestion,
+      source: payload.source || ""
+    });
 
-    revealTypedAnswer(el, answer, tail, function () {
+    revealTypedAnswer(el, parts, function () {
+      updateCompareUi();
       showQuickReplies(intentId, profile);
       sessionTurns.push({
         role: "agent",
         question: payload.question || "",
         answer: answer,
         suggestions: payload.suggestions || [],
+        blocks: payload.blocks || [],
         source: payload.source || "",
         intentId: intentId
       });
@@ -1429,17 +1795,24 @@
         if (turn.role === "user") {
           appendMessage("user", escapeHtml(turn.text || ""));
         } else if (turn.role === "agent") {
-          const id = appendMessage("agent", formatAnswer(turn.answer || ""), "");
+          const id = appendMessage("agent", "", "");
           const el = document.getElementById(id);
           if (el) {
             const bubble = el.querySelector(".msg-bubble");
             if (bubble) {
-              bubble.innerHTML =
-                '<span class="msg-avatar" aria-hidden="true">🏛️</span>' +
-                formatAnswer(turn.answer || "") +
-                schemeChipsHtml(turn.suggestions || []) +
-                followUpChips(turn.intentId, getProfile(), turn.question || "") +
-                '<span class="source-pill">' + escapeHtml(sourceLabel(turn.source)) + "</span>";
+              bubble.innerHTML = renderAgentBubbleContent(turn);
+              const parts = buildAgentTurnParts(
+                turn.answer || "",
+                turn.suggestions || [],
+                turn.blocks || [],
+                {
+                  intentId: turn.intentId,
+                  profile: getProfile(),
+                  question: turn.question || "",
+                  source: turn.source || ""
+                }
+              );
+              applySplitRowClasses(el, bubble, parts.useSplit);
             }
           }
           sessionTurns.push(turn);

@@ -7,6 +7,8 @@ const {
   rankSchemes,
   formatSchemeBullets,
   toSuggestion,
+  withTip,
+  toLinkItem,
   pickProductSamples,
   getDefaultProductSamples: getDefaultProductSamplesFromShowcase
 } = require('./greenways-agent-shared');
@@ -51,18 +53,27 @@ function buildOverviewAnswer(tip) {
   };
 }
 
+function equipmentPortalLinks() {
+  return [
+    toLinkItem('Equipment deep dive', PORTAL_LINKS.deepDive, 'Compare current vs efficient kit with grants'),
+    toLinkItem('Intelligence tool', PORTAL_LINKS.equipmentTool, 'Marketplace alternatives and specs'),
+    toLinkItem('Sustainable renovations', PORTAL_LINKS.sustainableRenovations, 'Building retrofit pathways'),
+    toLinkItem('Insulation guide', PORTAL_LINKS.insulationGuide, 'Fabric and envelope improvements'),
+    toLinkItem('Grants Agent', '/greenways/grants-agent', 'Schemes chat for funding options'),
+    toLinkItem('Finance Agent', '/greenways/finance-agent', 'Loans, BNPL and green finance')
+  ];
+}
+
 function buildCategoryAnswer(category, schemes, question, profile, tip) {
   const tokens = CATEGORY_TOKENS[category] || [category];
   const label = category.charAt(0).toUpperCase() + category.slice(1);
   const relatedSchemes = rankSchemes(schemes, `${tokens.join(' ')} restaurant`, profile, 5);
   return {
-    answer:
-      `**${label} equipment** — browse marketplace alternatives and the deep dive for side-by-side specs.\n\n` +
-      (relatedSchemes.length
-        ? `**Funding that may apply:**\n${formatSchemeBullets(relatedSchemes, 5)}\n\n`
-        : '') +
-      `- Deep dive: ${PORTAL_LINKS.deepDive}\n` +
-      `- Intelligence tool: ${PORTAL_LINKS.equipmentTool}\n\n_${tip}_`,
+    answer: withTip(
+      `Looking at **${label.toLowerCase()} equipment**? I pulled **${relatedSchemes.length}** funding scheme${relatedSchemes.length === 1 ? '' : 's'} that may apply — cards on the right.\n\n` +
+        'For side-by-side specs, open the **equipment deep dive** or tap a product in the banner above.',
+      tip
+    ),
     suggestions: relatedSchemes.map(toSuggestion)
   };
 }
@@ -70,10 +81,10 @@ function buildCategoryAnswer(category, schemes, question, profile, tip) {
 function buildGrantsLinkAnswer(schemes, profile, tip) {
   const related = rankSchemes(schemes, 'equipment grant restaurant kitchen', profile, 6);
   return {
-    answer:
-      `**Grants on equipment** — schemes.json rows are attached to ETL product IDs via product-grants-integrator.js.\n\n` +
-      `${formatSchemeBullets(related, 6)}\n\n` +
-      `Open any banner product for the grant overlay, or use the **Grants Agent** (/greenways/grants-agent).\n\n_${tip}_`,
+    answer: withTip(
+      `Grants are attached to marketplace products automatically. Here are **${related.length}** scheme${related.length === 1 ? '' : 's'} that often relate to kitchen and equipment upgrades — or open any banner product for the full overlay.`,
+      tip
+    ),
     suggestions: related.map(toSuggestion)
   };
 }
@@ -101,16 +112,11 @@ function buildSustainableAnswer(tip) {
 
 function buildPortalsAnswer(tip) {
   return {
-    answer:
-      `**Equipment & renovation on Greenways:**\n\n` +
-      `- **Deep dive:** ${PORTAL_LINKS.deepDive}\n` +
-      `- **Intelligence tool:** ${PORTAL_LINKS.equipmentTool}\n` +
-      `- **Sustainable renovations:** ${PORTAL_LINKS.sustainableRenovations}\n` +
-      `- **Insulation guide:** ${PORTAL_LINKS.insulationGuide}\n` +
-      `- **Renovation project plans:** ${PORTAL_LINKS.renovationPlans}\n` +
-      `- **Grants Agent:** /greenways/grants-agent\n` +
-      `- **Finance Agent:** /greenways/finance-agent\n\n_${tip}_`,
-    suggestions: []
+    answer: withTip(
+      '**Equipment and renovation on Greenways** — pick a portal on the right to browse kit, deep dives, or building guides.',
+      tip
+    ),
+    blocks: [{ type: 'link', items: equipmentPortalLinks() }]
   };
 }
 

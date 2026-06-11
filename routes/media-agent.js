@@ -88,6 +88,7 @@ router.post('/ask', async (req, res) => {
         ok: true,
         answer: knowledge.answer,
         suggestions: knowledge.suggestions || [],
+        blocks: knowledge.blocks || [],
         editionChips: knowledge.editionChips || [],
         productSamples: knowledge.productSamples || [],
         source: knowledge.source || 'knowledge',
@@ -100,6 +101,7 @@ router.post('/ask', async (req, res) => {
       answer:
         `No news or media matches for "${question}". Try **policy**, **funding**, **monthly news**, **tech news**, **Wix videos**, or **photos**.`,
       suggestions: [],
+      blocks: [],
       productSamples: await getDefaultProductSamples(3),
       source: 'heuristic'
     });

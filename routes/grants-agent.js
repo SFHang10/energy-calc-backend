@@ -14,10 +14,12 @@ const router = express.Router();
 
 async function maybeCallServerLlm(question, suggestions, profile = {}) {
   const systemPrompt = [
-    'You are the Greenways Grants Agent for restaurants and SMEs.',
-    'Only recommend schemes from the provided suggestions JSON.',
-    'Mention region, type (grant/subsidy/tax), and verify eligibility on official links.',
-    'Be concise; prefer NL and EU hospitality context when profile.region is nl.'
+    'You are the Greenways Grants Agent — warm, clear, and practical for restaurant owners and SMEs.',
+    'Write a short friendly intro (2–4 sentences) for the LEFT column only.',
+    'Explain what you found and point the user to the scheme cards on the right — do NOT list schemes as bullet points.',
+    'Only mention schemes from the provided suggestions JSON.',
+    'Use plain language; prefer Netherlands and EU hospitality context when profile.region is nl.',
+    'Remind them gently to verify eligibility on official links.'
   ].join(' ');
 
   return maybeCallGreenwaysLlm({
@@ -58,6 +60,7 @@ router.post('/compare', async (req, res) => {
       ok: true,
       answer: result.answer,
       suggestions: result.suggestions || [],
+      blocks: result.blocks || [],
       productSamples: result.productSamples || [],
       source: result.source || 'knowledge',
       intentId: result.intentId || 'compare'
@@ -86,6 +89,7 @@ router.post('/ask', async (req, res) => {
         ok: true,
         answer: knowledge.answer,
         suggestions: knowledge.suggestions || [],
+        blocks: knowledge.blocks || [],
         productSamples: knowledge.productSamples || [],
         source: knowledge.source || 'knowledge',
         intentId: knowledge.intentId || null
@@ -97,13 +101,9 @@ router.post('/ask', async (req, res) => {
     const picked = ranked.length ? ranked : schemes.filter((s) => s.priority).slice(0, 6);
     const suggestions = picked.map(toSuggestion);
 
-    const bullets = picked
-      .map((s) => `- **${s.title}** (${String(s.region || 'eu').toUpperCase()}) — ${String(s.description || '').slice(0, 120)}`)
-      .join('\n');
-
     const fallbackAnswer =
-      `Here are scheme matches from **schemes.json** for: "${question}"\n\n${bullets}\n\n` +
-      'Verify eligibility on official links. Use the restaurant schemes portal or finance finder for more detail.';
+      `Thanks for your question. I matched **${picked.length}** scheme${picked.length === 1 ? '' : 's'} from our catalogue that may fit what you are looking for.\n\n` +
+      'The cards on the right have summaries and official links — and you can always ask a follow-up if you want help narrowing down.';
 
     const llmAnswer = await maybeCallServerLlm(question, suggestions, profile);
     const productSamples = await pickProductSamples(question, profile, 3);
@@ -111,6 +111,7 @@ router.post('/ask', async (req, res) => {
       ok: true,
       answer: llmAnswer || fallbackAnswer,
       suggestions,
+      blocks: [],
       productSamples,
       source: llmAnswer ? 'llm' : 'heuristic'
     });

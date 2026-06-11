@@ -66,6 +66,7 @@ router.post('/ask', async (req, res) => {
         ok: true,
         answer: knowledge.answer,
         suggestions: knowledge.suggestions || [],
+        blocks: knowledge.blocks || [],
         productSamples: knowledge.productSamples || [],
         checkReport: knowledge.checkReport || null,
         source: knowledge.source || 'knowledge',
