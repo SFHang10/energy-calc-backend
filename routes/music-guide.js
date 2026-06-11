@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs/promises');
 const { answerFromKnowledge } = require('../services/music-guide-knowledge');
+const { maybeCallGreenwaysLlm } = require('../services/greenways-agent-llm');
 
 const router = express.Router();
 const venuesPath = path.join(__dirname, '..', 'data', 'music-venues.json');
@@ -88,67 +89,24 @@ function buildHeuristicReply(question, venues, profile = {}) {
 }
 
 async function maybeCallServerLlm(question, suggestions, profile = {}) {
-  const provider = String(process.env.MUSIC_GUIDE_PROVIDER || process.env.ASSISTANT_PROVIDER || '').toLowerCase();
-  const apiKey = process.env.MUSIC_GUIDE_API_KEY || process.env.ASSISTANT_API_KEY || '';
-  const model = process.env.MUSIC_GUIDE_MODEL || process.env.ASSISTANT_MODEL || '';
-  if (!provider || !apiKey || !model) return '';
-
-  const system = [
+  const systemPrompt = [
     'You are Live Music Finder For Artists guide.',
     'You only recommend venues from provided suggestions.',
     'Be concise and practical for musicians.',
     'If uncertain, suggest contacting venue via inquiry form.'
   ].join(' ');
 
-  const userPayload = {
-    question,
-    city: 'Amsterdam',
-    profile,
-    suggestions
-  };
-
-  if (provider === 'anthropic') {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 800,
-        system,
-        messages: [{ role: 'user', content: JSON.stringify(userPayload) }]
-      })
-    });
-    if (!res.ok) return '';
-    const data = await res.json();
-    return data?.content?.[0]?.text || '';
-  }
-
-  if (provider === 'openai') {
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 800,
-        messages: [
-          { role: 'system', content: system },
-          { role: 'user', content: JSON.stringify(userPayload) }
-        ]
-      })
-    });
-    if (!res.ok) return '';
-    const data = await res.json();
-    return data?.choices?.[0]?.message?.content || '';
-  }
-
-  return '';
+  return maybeCallGreenwaysLlm({
+    prefix: 'MUSIC_GUIDE',
+    systemPrompt,
+    userPayload: {
+      question,
+      city: 'Amsterdam',
+      profile,
+      suggestions
+    },
+    maxTokens: 800
+  });
 }
 
 router.post('/ask', async (req, res) => {

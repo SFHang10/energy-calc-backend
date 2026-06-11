@@ -423,9 +423,11 @@ html, body {
   - **Pending:** `HTMLS GWM GWB/greenways-guide-agent.html`, register in **`server-new.js`**, add to **`systems-agent-health.js`** agent list. Scaffold helper: **`scripts/scaffold-guide-agent-html.js`** (manual HTML fork also fine).
   - **Not mounted** on Render until server registration — safe to leave for a later session.
 
-- **🤖 LLM per agent (May 2026)** — optional polish layer; same provider/API key, different **`{AGENT}_AGENT_MODEL`** + system prompt per chat:
-  - **Grants:** `GRANTS_AGENT_PROVIDER` / `GRANTS_AGENT_API_KEY` / `GRANTS_AGENT_MODEL` → fallback `ASSISTANT_*` — **`routes/grants-agent.js`** `maybeCallServerLlm()` (grounded in `suggestions` JSON only).
-  - **Other agents:** knowledge-first today; copy Grants pattern when enabling. **Guide** → small/fast model for routing; **Grants/Finance** → stronger model. See chat skill § **LLM per agent**.
+- **🤖 LLM per agent (May 2026)** — optional polish layer; shared **`services/greenways-agent-llm.js`** (Cortecs / OpenRouter / OpenAI / Anthropic):
+  - **Cortecs (primary):** `ASSISTANT_PROVIDER=cortecs`, JWT from **`HTMLS GWM GWB/Contl2 .txt`**, `ASSISTANT_MODEL=…` — API **`https://api.cortecs.ai/v1/chat/completions`** ([docs](https://docs.cortecs.ai/api-overview/chat-completions.md)).
+  - **Render env template:** **`.env.example`**; never commit keys from `HTMLS GWM GWB/*.txt`.
+  - **Grants / Music Guide / dashboard assistant** wired; per-agent override `GRANTS_AGENT_*`, `MUSIC_GUIDE_*` → fallback `ASSISTANT_*`.
+  - **Agent Zero** = separate future business stack, not this path.
 
 - **🗺️ Media Agent + sustainability map (May 2026)**:
   - **`services/media-agent-companies.js`** ranks **`data/companies.json`** (500+ orgs) for profile/sector — energy savings examples, payback stats, techniques to benchmark.

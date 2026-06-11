@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const { DashboardLiveService } = require('../services/dashboard-live-service');
 const { buildAssistantSiteContext } = require('../services/assistant-site-context');
+const { maybeCallGreenwaysLlm } = require('../services/greenways-agent-llm');
 
 const router = express.Router();
 const service = new DashboardLiveService();
@@ -213,62 +214,19 @@ const ASSISTANT_SYSTEM_PROMPT = `You are a practical energy operations advisor f
 Prioritise recommendations that align with restaurantProfile.priorityUtilities (for example gas tariffs and burner efficiency before generic electricity tips when gas is first). When you mention deals or schemes, treat them as starting points and tell the operator to verify on official portals. Use the provided structured data; do not invent meter readings. Be concise; lead with ranked actions.`;
 
 async function maybeCallServerLlm(question, context, location, siteContext) {
-  const provider = String(process.env.ASSISTANT_PROVIDER || '').toLowerCase();
-  const apiKey = process.env.ASSISTANT_API_KEY || '';
-  const model = process.env.ASSISTANT_MODEL || '';
-  if (!provider || !apiKey || !model) return '';
-
-  const prompt = {
-    question,
-    location,
-    energyContext: context,
-    restaurantProfile: siteContext?.restaurantProfile,
-    dealsContext: siteContext?.dealsContext,
-    schemesContext: siteContext?.schemesContext
-  };
-
-  if (provider === 'anthropic') {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 1200,
-        system: ASSISTANT_SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: JSON.stringify(prompt) }]
-      })
-    });
-    if (!res.ok) return '';
-    const data = await res.json();
-    return data?.content?.[0]?.text || '';
-  }
-
-  if (provider === 'openai') {
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 1200,
-        messages: [
-          { role: 'system', content: ASSISTANT_SYSTEM_PROMPT },
-          { role: 'user', content: JSON.stringify(prompt) }
-        ]
-      })
-    });
-    if (!res.ok) return '';
-    const data = await res.json();
-    return data?.choices?.[0]?.message?.content || '';
-  }
-
-  return '';
+  return maybeCallGreenwaysLlm({
+    prefix: '',
+    systemPrompt: ASSISTANT_SYSTEM_PROMPT,
+    userPayload: {
+      question,
+      location,
+      energyContext: context,
+      restaurantProfile: siteContext?.restaurantProfile,
+      dealsContext: siteContext?.dealsContext,
+      schemesContext: siteContext?.schemesContext
+    },
+    maxTokens: 1200
+  });
 }
 
 router.get('/context', async (req, res) => {

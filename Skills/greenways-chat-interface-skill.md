@@ -283,12 +283,26 @@ Render may lag local HTML. Grants Agent includes:
 
 **Pattern:** one API key / provider; **different model or system prompt per agent**. Knowledge + JSON retrieval always runs first; LLM only polishes or narrates grounded facts.
 
+**Shared module:** `services/greenways-agent-llm.js` — used by Grants, Music Guide, dashboard assistant.
+
 | Agent | Env vars (example) | Fallback | Notes |
 |-------|-------------------|----------|--------|
-| **Grants** | `GRANTS_AGENT_PROVIDER`, `GRANTS_AGENT_API_KEY`, `GRANTS_AGENT_MODEL` | `ASSISTANT_*` | Implemented in `routes/grants-agent.js` → `maybeCallServerLlm()`; system prompt restricts to `suggestions` JSON |
-| **Music Guide** | `MUSIC_GUIDE_MODEL` (+ provider/key) | `ASSISTANT_*` | `routes/music-guide.js` |
+| **Grants** | `GRANTS_AGENT_PROVIDER`, `GRANTS_AGENT_API_KEY`, `GRANTS_AGENT_MODEL` | `ASSISTANT_*` | `routes/grants-agent.js`; system prompt restricts to `suggestions` JSON |
+| **Music Guide** | `MUSIC_GUIDE_PROVIDER`, `MUSIC_GUIDE_API_KEY`, `MUSIC_GUIDE_MODEL` | `ASSISTANT_*` | `routes/music-guide.js` |
 | **Dashboard assistant** | `ASSISTANT_PROVIDER`, `ASSISTANT_API_KEY`, `ASSISTANT_MODEL` | — | `routes/assistant.js` |
-| **Finance, Equipment, Deals, …** | `{AGENT}_AGENT_MODEL` (recommended) | `ASSISTANT_*` | Knowledge-only today — copy Grants pattern when enabling |
+| **Finance, Equipment, Deals, …** | `{AGENT}_AGENT_*` (recommended) | `ASSISTANT_*` | Knowledge-only today — copy Grants pattern when enabling |
+
+**Providers:** `cortecs` (JWT from **`HTMLS GWM GWB/Contl2 .txt`** → [Cortecs API](https://docs.cortecs.ai/api-overview/chat-completions.md), base `https://api.cortecs.ai/v1`), `openrouter`, `openai`, `anthropic`.
+
+**Render setup (Cortecs + credited account):**
+
+```bash
+ASSISTANT_PROVIDER=cortecs
+ASSISTANT_API_KEY=<JWT from Contl2 .txt>
+ASSISTANT_MODEL=anthropic/claude-3.5-sonnet
+```
+
+List models: `GET https://api.cortecs.ai/v1/models` with same Bearer JWT. OpenRouter `sk-or-v1-…` keys remain a fallback (see `.env.example`). Agent Zero = separate future stack.
 
 **Recommended split:**
 

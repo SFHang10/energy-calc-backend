@@ -8,66 +8,24 @@ const {
   getDefaultProductSamples,
   compareSchemesByIds
 } = require('../services/grants-agent-knowledge');
+const { maybeCallGreenwaysLlm } = require('../services/greenways-agent-llm');
 
 const router = express.Router();
 
 async function maybeCallServerLlm(question, suggestions, profile = {}) {
-  const provider = String(process.env.GRANTS_AGENT_PROVIDER || process.env.ASSISTANT_PROVIDER || '').toLowerCase();
-  const apiKey = process.env.GRANTS_AGENT_API_KEY || process.env.ASSISTANT_API_KEY || '';
-  const model = process.env.GRANTS_AGENT_MODEL || process.env.ASSISTANT_MODEL || '';
-  if (!provider || !apiKey || !model) return '';
-
-  const system = [
+  const systemPrompt = [
     'You are the Greenways Grants Agent for restaurants and SMEs.',
     'Only recommend schemes from the provided suggestions JSON.',
     'Mention region, type (grant/subsidy/tax), and verify eligibility on official links.',
     'Be concise; prefer NL and EU hospitality context when profile.region is nl.'
   ].join(' ');
 
-  const userPayload = { question, profile, suggestions };
-
-  if (provider === 'anthropic') {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 900,
-        system,
-        messages: [{ role: 'user', content: JSON.stringify(userPayload) }]
-      })
-    });
-    if (!res.ok) return '';
-    const data = await res.json();
-    return data?.content?.[0]?.text || '';
-  }
-
-  if (provider === 'openai') {
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 900,
-        messages: [
-          { role: 'system', content: system },
-          { role: 'user', content: JSON.stringify(userPayload) }
-        ]
-      })
-    });
-    if (!res.ok) return '';
-    const data = await res.json();
-    return data?.choices?.[0]?.message?.content || '';
-  }
-
-  return '';
+  return maybeCallGreenwaysLlm({
+    prefix: 'GRANTS_AGENT',
+    systemPrompt,
+    userPayload: { question, profile, suggestions },
+    maxTokens: 900
+  });
 }
 
 router.get('/samples', async (req, res) => {
