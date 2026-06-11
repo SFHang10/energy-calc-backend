@@ -2,6 +2,7 @@
 
 **Skill type:** UI + API pattern (clone for new agents)  
 **Pilot implementation:** **Grants Agent** (May 2026)  
+**Shared turn UI:** All seven chat agents (May 2026) — `HTMLS GWM GWB/js/greenways-agent-turn-ui.js` + `.css`  
 **Sibling reference:** **Music Guide** (`live-music-guide.html` / compact panel in `live-music-finder.html`)  
 **Status:** Use this as the **canonical foundation** when building the next Greenways chat interfaces (equipment, finance, sustainability, etc.)
 
@@ -214,20 +215,58 @@ Top → bottom inside `.guide-main`:
 
 ---
 
-## Interactive features (Grants Agent pilot — replicate on clones)
+## Shared turn UI (all chat agents — May 2026)
+
+**Module:** `HTMLS GWM GWB/js/greenways-agent-turn-ui.js` + `greenways-agent-turn-ui.css` — exposed as `window.GreenwaysAgentTurnUi`.
+
+**Wired on:** Grants, Finance, Equipment, Deals, Media, Sustainable Products, Systems (CSS/JS linked; Systems has a simpler chat shell).
+
+**Sync helpers:** `node scripts/sync-greenways-agent-turn-ui.js` (inject assets + `finishAgentTurn` hook) · `node scripts/fix-greenways-agent-finish-turn.js` (repair after bulk sync).
+
+### Split turn layout
+
+| Column | Content |
+|--------|---------|
+| **Left** | Friendly intro only (`answer` markdown — no duplicate bullet lists when `suggestions[]` or `blocks[]` present) |
+| **Right** | *Things to be aware of* (tip from `_italic footer_` in answer) + frosted **tablets** for schemes/links/stats |
+| **Foot** | Follow-up pills + source badge |
+
+Stacks to one column below **560px** (`.turn-split` → `.turn-split--stack`).
+
+### Block types (`blocks[]` from API)
+
+Knowledge services return structured right-column content; HTML builds tablets via `TurnUi.buildParts()` + `TurnUi.layoutHtml()`.
+
+| `type` | Renders as |
+|--------|------------|
+| `stat` | Compact stat chips (overview counts, lane summaries) |
+| `link` | Frosted link tablets — green **Ask about this**, gold **Official site ↗** |
+
+**Grants / Finance / Equipment** knowledge services emit `blocks[]` today. Deals, Media, Sustainable Products use the same UI shell; copy/blocks refresh can follow incrementally.
+
+### Tablet styling (Grants pilot — inherited by all)
+
+- Dark frosted cards (not pill chips)
+- Purple neon follow-up pills for high-intent shortcuts (Grants: MIA/Vamil, NL equipment, marketplace grants, EU programmes)
+- Compare dock scheme selection uses shared `.scheme-tablet` chrome
+
+---
+
+## Interactive features (replicate on clones)
 
 | # | Feature | Implementation notes |
 |---|---------|----------------------|
 | 1 | Follow-up chips | `followUpChips(intentId, profile, question)` under each agent bubble |
 | 2 | Showcase → chat | **Ask about grants** on product cards (`data-prompt`) |
-| 3 | Scheme chips | Tap = select for compare · **?** = ask agent · **↗** = official link |
+| 3 | Scheme / link tablets | Tap = select for compare (Grants) · **Ask about this** = ask agent · **Official site ↗** = external link |
 | 4 | Profile nudge | `change` on profile selects → `#profile-nudge` + tailored prompt |
 | 5 | New chat | `#new-chat-btn` (`.header-ghost-btn`) → `clearChat()` — resets `sessionTurns`, `msgId`, welcome card, `quick-reply-bar`, `SESSION_KEY`; see `greenways-grants-agent.html` ~L1453 |
 | 6 | Message motion | `.msg-row` slide-in; `.is-thinking` avatar pulse |
 | 7 | Quick-reply bar | `#quick-reply-bar` after first answer |
-| 8 | Typed reveal | `revealTypedAnswer()` word-by-word before chips |
-| 9 | Session memory | `sessionStorage` key `gw-grants-agent-session-v1` (rename per agent) |
-| 10 | Compare | Select 2 scheme chips → `POST /api/grants-agent/compare` (offline table fallback) |
+| 8 | Typed reveal | `TurnUi.revealTyped()` word-by-word before chips (via `finishAgentTurn`) |
+| 9 | Session memory | `sessionStorage` key `gw-{agent}-agent-session-v1` (rename per agent) |
+| 10 | Compare | Select 2 scheme tablets → `POST /api/grants-agent/compare` (offline table fallback) |
+| 11 | Split turn | `finishAgentTurn({ answer, suggestions, blocks, … })` → shared layout module |
 
 ---
 
@@ -236,8 +275,9 @@ Top → bottom inside `.guide-main`:
 ```json
 {
   "ok": true,
-  "answer": "markdown string",
+  "answer": "markdown string — intro + optional _italic footer_ tip when suggestions/blocks present",
   "suggestions": [{ "id", "title", "region", "type", "url", "description", "deadline" }],
+  "blocks": [{ "type": "stat | link", "items": [{ "label", "value", "href", "prompt", … }] }],
   "productSamples": [{ "id", "name", "imageUrl", "marketplaceHref", "grantsCount", "topGrants" }],
   "source": "knowledge | heuristic | llm | offline | orchestrator",
   "intentId": "nl_schemes | equipment | compare | …",
@@ -246,6 +286,8 @@ Top → bottom inside `.guide-main`:
   "primaryAgent": "finance"
 }
 ```
+
+**`blocks[]`:** optional structured right column — all agent routes pass through when knowledge service sets them. **`suggestions[]`:** scheme/product rows rendered as frosted tablets on the right (Grants compare flow unchanged).
 
 **Guide Agent only:** `agentHandoffs`, `routedTo`, `primaryAgent`, `source: "orchestrator"`.
 
@@ -318,14 +360,15 @@ List models: `GET https://api.cortecs.ai/v1/models` with same Bearer JWT. OpenRo
 ## Cloning checklist (next agent)
 
 1. Copy `greenways-grants-agent.html` → `greenways-{name}-agent.html`.
-2. Copy `data/grants-agent-intents.json` → new intents; point `answerType` handlers at your catalogue.
-3. Copy `services/grants-agent-knowledge.js` → new service reading **one canonical JSON** (do not duplicate scheme rows in HTML).
-4. Copy `routes/grants-agent.js` → mount at `/api/{name}-agent`.
-5. Register in `server-new.js` + optional `/greenways/{name}-agent` short route.
-6. Update showcase JSON + `STATIC_*` fallback in HTML if the banner shows entities (products, venues, schemes).
-7. Rename `SESSION_KEY` and status copy.
-8. Add row to **`AGENTS.md`** + this skill’s agent table.
-9. Link from parent hub (e.g. Greenways dashboard tab, savings tour, finance finder).
+2. Ensure `<link>` + `<script>` for `js/greenways-agent-turn-ui.css` / `.js` (or run `node scripts/sync-greenways-agent-turn-ui.js`).
+3. Copy `data/grants-agent-intents.json` → new intents; point `answerType` handlers at your catalogue.
+4. Copy `services/grants-agent-knowledge.js` → new service reading **one canonical JSON** (do not duplicate scheme rows in HTML). Use `withTip()` + `blocks[]` for intro-only answers when tablets carry detail.
+5. Copy `routes/grants-agent.js` → mount at `/api/{name}-agent`; forward `blocks` on `/ask` and `/compare`.
+6. Register in `server-new.js` + optional `/greenways/{name}-agent` short route.
+7. Update showcase JSON + `STATIC_*` fallback in HTML if the banner shows entities (products, venues, schemes).
+8. Rename `SESSION_KEY` and status copy.
+9. Add row to **`AGENTS.md`** + this skill’s agent table.
+10. Link from parent hub (e.g. Greenways dashboard tab, savings tour, finance finder).
 
 **Avoid:** seven full iframes open at once on one page — use tabs / lazy-load one active agent.
 

@@ -179,9 +179,19 @@
     };
   }
 
-  function layoutHtml(parts, avatarEmoji) {
-    const emoji = avatarEmoji != null ? avatarEmoji : "🤖";
-    let html = '<span class="msg-avatar" aria-hidden="true">' + emoji + "</span>";
+  function avatarMarkup(avatar) {
+    if (avatar && typeof avatar === "object" && avatar.imageUrl) {
+      const alt = avatar.name || avatar.alt || "Agent";
+      return (
+        '<img class="msg-avatar agent-avatar-img" src="' + String(avatar.imageUrl) + '" alt="' + alt + '" width="28" height="28" decoding="async">'
+      );
+    }
+    const emoji = avatar != null ? avatar : "🤖";
+    return '<span class="msg-avatar" aria-hidden="true">' + emoji + "</span>";
+  }
+
+  function layoutHtml(parts, avatar) {
+    let html = avatarMarkup(avatar);
     if (parts.useSplit) {
       html +=
         '<div class="agent-turn-split">' +
@@ -214,7 +224,8 @@
     if (!bubble) return;
 
     const useSplit = parts.useSplit;
-    const avatarEmoji = ctx.avatarEmoji != null ? ctx.avatarEmoji : "🤖";
+    const avatar = ctx.avatar != null ? ctx.avatar : ctx.avatarEmoji != null ? ctx.avatarEmoji : "🤖";
+    const avatarHtml = avatarMarkup(avatar);
     applySplitClasses(row, bubble, useSplit);
 
     const words = String(parts.leftText || "").split(/(\s+)/);
@@ -223,14 +234,13 @@
 
     if (useSplit) {
       bubble.innerHTML =
-        '<span class="msg-avatar" aria-hidden="true">' + avatarEmoji + "</span>" +
+        avatarHtml +
         '<div class="agent-turn-split">' +
         '<div class="agent-turn-left"><span class="typed-body"></span></div>' +
         "</div>" +
         '<div class="agent-turn-foot agent-turn-foot-pending" hidden></div>';
     } else {
-      bubble.innerHTML =
-        '<span class="msg-avatar" aria-hidden="true">' + avatarEmoji + '</span><span class="typed-body"></span>';
+      bubble.innerHTML = avatarHtml + '<span class="typed-body"></span>';
     }
 
     const body = bubble.querySelector(".typed-body");
@@ -267,6 +277,7 @@
   }
 
   window.GreenwaysAgentTurnUi = {
+    avatarMarkup: avatarMarkup,
     buildParts: buildParts,
     layoutHtml: layoutHtml,
     applySplitClasses: applySplitClasses,

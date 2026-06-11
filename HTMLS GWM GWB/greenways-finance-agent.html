@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="wix-html-scroll" content="no-scroll">
-<title>Greenways Finance Agent — loans, BNPL &amp; green funding</title>
+<title>Vincent — Greenways Finance Agent</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="js/greenways-agent-turn-ui.css">
 <script src="js/greenways-agent-turn-ui.js"></script>
@@ -90,13 +90,18 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #8b6914, var(--accent-lt));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.15rem;
     flex-shrink: 0;
+    overflow: hidden;
     box-shadow: 0 0 16px rgba(201, 169, 97, 0.35);
+    border: 2px solid rgba(201, 169, 97, 0.5);
+  }
+  .guide-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 12%;
+    display: block;
+    image-rendering: -webkit-optimize-contrast;
   }
   .guide-brand h1 {
     font-family: 'Playfair Display', serif;
@@ -396,6 +401,13 @@
     align-items: center;
     justify-content: center;
     font-size: 0.75rem;
+  }
+  .msg-avatar.agent-avatar-img {
+    padding: 0;
+    display: block;
+    object-fit: cover;
+    object-position: center 12%;
+    box-shadow: 0 0 10px rgba(201, 169, 97, 0.35);
   }
   .msg-row.agent .msg-bubble { padding-right: 20px; }
 
@@ -860,10 +872,12 @@
   <main class="guide-main">
     <header class="guide-top">
       <div class="guide-brand">
-        <div class="guide-avatar" aria-hidden="true">💶</div>
+        <div class="guide-avatar" aria-hidden="true">
+          <img class="guide-avatar-img" src="https://static.wixstatic.com/media/c123de_63359ab891354966aa9ff792fe998677~mv2.png" alt="" width="40" height="40" decoding="async">
+        </div>
         <div>
-          <h1>Greenways Finance Agent</h1>
-          <p>Funding, energy prices &amp; the case for efficient upgrades</p>
+          <h1>Vincent</h1>
+          <p>Finance Agent · funding, energy prices &amp; payback</p>
         </div>
       </div>
       <button type="button" class="header-ghost-btn" id="new-chat-btn" title="Start a new conversation">↺ New chat</button>
@@ -902,7 +916,7 @@
     <div class="chat-panel">
       <div class="chat-thread" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
         <div class="welcome-card" id="welcome-card">
-          <h2>Ask the Finance Agent</h2>
+          <h2>Ask Vincent</h2>
           <p>Answers cover the <strong>finance finder</strong> (grants, BNPL, equipment finance, green loans) <strong>and energy prices</strong> — use tariff moves to explain why efficient kit plus funding beats waiting.</p>
           <div class="welcome-tags">
             <button type="button" class="welcome-tag" data-prompt="Why should I upgrade to efficient equipment when energy prices are changing?">Prices → upgrade case</button>
@@ -1043,7 +1057,20 @@
     return "<p>" + t + "</p>";
   }
   var TurnUi = window.GreenwaysAgentTurnUi;
-  var AGENT_TURN_AVATAR = "💶";
+  var AGENT_PROFILE = {
+    name: "Vincent",
+    role: "Finance Agent",
+    imageUrl: "https://static.wixstatic.com/media/c123de_63359ab891354966aa9ff792fe998677~mv2.png"
+  };
+  var AGENT_TURN_AVATAR = AGENT_PROFILE;
+
+  function agentAvatarHtml() {
+    return TurnUi.avatarMarkup(AGENT_PROFILE);
+  }
+
+  function agentChatLabel() {
+    return AGENT_PROFILE.name;
+  }
 
   function buildAgentTurnParts(rawAnswer, suggestions, blocks, meta) {
     return TurnUi.buildParts(rawAnswer, suggestions, blocks, meta, {
@@ -1084,10 +1111,10 @@
     const row = document.createElement("div");
     row.className = "msg-row " + role;
     row.id = id;
-    const label = role === "user" ? "You" : "Finance Agent";
+    const label = role === "user" ? "You" : agentChatLabel();
     let inner = '<div class="msg-meta">' + label + " · " + nowLabel() + '</div>';
     inner += '<div class="msg-bubble">';
-    if (role === "agent") inner += '<span class="msg-avatar" aria-hidden="true">💶</span>';
+    if (role === "agent") inner += agentAvatarHtml();
     inner += html;
     if (extra) inner += extra;
     inner += "</div>";
@@ -1104,8 +1131,8 @@
     row.className = "msg-row agent is-thinking";
     row.id = id;
     row.innerHTML =
-      '<div class="msg-meta">Finance Agent · ' + nowLabel() + '</div>' +
-      '<div class="msg-bubble"><span class="msg-avatar" aria-hidden="true">💶</span>' +
+      '<div class="msg-meta">' + agentChatLabel() + " · " + nowLabel() + '</div>' +
+      '<div class="msg-bubble">' + agentAvatarHtml() +
       '<span class="typing-dots" aria-label="Thinking"><span></span><span></span><span></span></span></div>';
     thread.appendChild(row);
     thread.scrollTop = thread.scrollHeight;
@@ -1328,7 +1355,7 @@
     const words = String(answer || "").split(/(\s+)/);
     let i = 0;
     let built = "";
-    bubble.innerHTML = '<span class="msg-avatar" aria-hidden="true">💶</span><span class="typed-body"></span>';
+    bubble.innerHTML = agentAvatarHtml() + '<span class="typed-body"></span>';
     const body = bubble.querySelector(".typed-body");
 
     function tick() {
@@ -1349,6 +1376,8 @@
   function finishAgentTurn(el, payload) {
     const profile = getProfile();
     const answer = payload.answer || "I could not answer that yet.";
+    const suggestions = payload.suggestions || [];
+    const blocks = payload.blocks || [];
     const src = sourceLabel(payload.source);
     const intentId = payload.intentId || null;
     lastIntentId = intentId;
@@ -1367,7 +1396,7 @@
     TurnUi.revealTyped(el, parts, {
       thread: thread,
       formatAnswer: formatAnswer,
-      avatarEmoji: AGENT_TURN_AVATAR
+      avatar: AGENT_TURN_AVATAR
     }, function () {
       showQuickReplies(intentId, profile);
       sessionTurns.push({
@@ -1375,6 +1404,7 @@
         question: payload.question || "",
         answer: answer,
         suggestions: payload.suggestions || [],
+        blocks: payload.blocks || [],
         source: payload.source || "",
         intentId: intentId
       });
@@ -1466,7 +1496,7 @@
     card.className = "welcome-card";
     card.id = "welcome-card";
     card.innerHTML =
-      '<h2>Ask the Finance Agent</h2>' +
+      '<h2>Ask Vincent</h2>' +
       '<p>Funding paths plus <strong>energy price context</strong> — use tariff moves to explain why efficient kit and finance stack together.</p>' +
       '<div class="welcome-tags">' +
       '<button type="button" class="welcome-tag" data-prompt="Why should I upgrade to efficient equipment when energy prices are changing?">Prices → upgrade case</button>' +
@@ -1549,7 +1579,7 @@
         const msg = "Could not reach the finance agent. Deploy /api/finance-agent to Render for live answers.";
         if (thinkingEl) {
           thinkingEl.querySelector(".msg-bubble").innerHTML =
-            '<span class="msg-avatar" aria-hidden="true">💶</span><p>' + escapeHtml(msg) + "</p>";
+            agentAvatarHtml() + "<p>" + escapeHtml(msg) + "</p>";
         }
         setStatus("Offline — check server", "warn");
       }

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="wix-html-scroll" content="no-scroll">
-<title>Greenways Systems Agent — health &amp; freshness</title>
+<title>Edwardo — Greenways Systems Agent</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="js/greenways-agent-turn-ui.css">
 <script src="js/greenways-agent-turn-ui.js"></script>
@@ -47,7 +47,8 @@
   .guide-main { display: flex; flex-direction: column; min-width: 0; background: linear-gradient(180deg, #14181e 0%, #0a0c10 100%); border-right: 1px solid var(--border); }
   .guide-top { flex-shrink: 0; padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
   .guide-brand { display: flex; align-items: center; gap: 10px; }
-  .guide-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #475569, var(--accent-lt)); display: flex; align-items: center; justify-content: center; font-size: 1.15rem; box-shadow: 0 0 16px rgba(245, 158, 11, 0.3); }
+  .guide-avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; overflow: hidden; box-shadow: 0 0 16px rgba(245, 158, 11, 0.3); border: 2px solid rgba(251, 191, 36, 0.45); }
+  .guide-avatar-img { width: 100%; height: 100%; object-fit: cover; object-position: center 12%; display: block; image-rendering: -webkit-optimize-contrast; }
   .guide-brand h1 { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: #fff; }
   .guide-brand p { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
   .header-ghost-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 6px 10px; font-size: 0.72rem; cursor: pointer; }
@@ -76,7 +77,9 @@
   .msg-row.user { justify-content: flex-end; }
   .msg-bubble { max-width: min(92%, 560px); padding: 10px 14px; border-radius: var(--radius); font-size: 0.8rem; line-height: 1.5; }
   .msg-row.user .msg-bubble { background: var(--bubble-out); border: 1px solid var(--border); }
-  .msg-row.agent .msg-bubble { background: linear-gradient(135deg, rgba(100, 116, 139, 0.35), rgba(71, 85, 105, 0.2)); border: 1px solid rgba(148, 163, 184, 0.3); }
+  .msg-row.agent .msg-bubble { background: linear-gradient(135deg, rgba(100, 116, 139, 0.35), rgba(71, 85, 105, 0.2)); border: 1px solid rgba(148, 163, 184, 0.3); position: relative; padding-right: 20px; }
+  .msg-avatar { position: absolute; top: -6px; right: -8px; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--bg); background: linear-gradient(135deg, #475569, var(--accent-lt)); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; }
+  .msg-avatar.agent-avatar-img { padding: 0; display: block; object-fit: cover; object-position: center 12%; box-shadow: 0 0 10px rgba(245, 158, 11, 0.35); }
   .msg-bubble strong { color: #fff; }
   .msg-bubble a { color: var(--accent-lt); }
   .source-pill { display: inline-block; margin-top: 8px; font-size: 0.62rem; color: var(--muted); }
@@ -117,10 +120,12 @@
   <main class="guide-main">
     <header class="guide-top">
       <div class="guide-brand">
-        <div class="guide-avatar" aria-hidden="true">🔧</div>
+        <div class="guide-avatar" aria-hidden="true">
+          <img class="guide-avatar-img" src="https://static.wixstatic.com/media/c123de_eeb61cbf84bd402eb642e28b2b457c76~mv2.png" alt="" width="40" height="40" decoding="async">
+        </div>
         <div>
-          <h1>Greenways Systems Agent</h1>
-          <p>Grants · products · catalog · deals — verify status</p>
+          <h1>Edwardo</h1>
+          <p>Systems Agent · health checks &amp; verify</p>
         </div>
       </div>
       <button type="button" class="header-ghost-btn" id="new-chat-btn">↺ New chat</button>
@@ -137,7 +142,7 @@
     <div class="chat-panel">
       <div class="chat-thread" id="chat-thread">
         <div class="welcome-card" id="welcome-card">
-          <h2>Ask the Systems Agent</h2>
+          <h2>Ask Edwardo</h2>
           <p>Lightweight <strong>health checks</strong> — grants vs <code>schemes.json</code>, product export dates, sustainable catalog, deals feed, and news KB. <strong>Verify selected</strong> in the sidebar re-checks without running build scripts.</p>
           <div class="welcome-tags">
             <button type="button" class="welcome-tag" data-prompt="Give me a full system health overview">Full status</button>
@@ -179,6 +184,16 @@
 <script>
 (function () {
   const SESSION_KEY = "gw-systems-agent-session-v1";
+  const TurnUi = window.GreenwaysAgentTurnUi;
+  const AGENT_PROFILE = {
+    name: "Edwardo",
+    role: "Systems Agent",
+    imageUrl: "https://static.wixstatic.com/media/c123de_eeb61cbf84bd402eb642e28b2b457c76~mv2.png"
+  };
+
+  function agentAvatarHtml() {
+    return TurnUi.avatarMarkup(AGENT_PROFILE);
+  }
   const CHECK_DEFS = [
     { id: "server", label: "API server" },
     { id: "grants", label: "Grants & schemes" },
@@ -336,7 +351,7 @@
     const row = document.createElement("div");
     row.className = "msg-row agent";
     row.innerHTML =
-      '<div class="msg-bubble">' + formatAnswer(answer) +
+      '<div class="msg-bubble">' + agentAvatarHtml() + formatAnswer(answer) +
       '<span class="source-pill">systems health</span></div>';
     thread.appendChild(row);
     thread.scrollTop = thread.scrollHeight;
@@ -368,7 +383,7 @@
       }
       setStatus("Answered", data.checkReport && data.checkReport.overall === "ok" ? "ok" : "warn");
     } catch (_) {
-      appendAgentMessage("Could not reach the Systems Agent API. Run `node server-new.js` locally or deploy to Render.");
+      appendAgentMessage("Could not reach Edwardo on the Systems Agent API. Run `node server-new.js` locally or deploy to Render.");
       setStatus("Offline", "warn");
     } finally {
       thinking = false;

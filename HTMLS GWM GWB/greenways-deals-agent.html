@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="wix-html-scroll" content="no-scroll">
-<title>Greenways Deals Agent — energy, water &amp; sustainability</title>
+<title>Zara — Greenways Deals Agent</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="js/greenways-agent-turn-ui.css">
 <script src="js/greenways-agent-turn-ui.js"></script>
@@ -90,13 +90,18 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #cc6a00, var(--accent-lt));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.15rem;
     flex-shrink: 0;
+    overflow: hidden;
     box-shadow: 0 0 16px rgba(255, 140, 26, 0.35);
+    border: 2px solid rgba(255, 140, 26, 0.45);
+  }
+  .guide-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 12%;
+    display: block;
+    image-rendering: -webkit-optimize-contrast;
   }
   .guide-brand h1 {
     font-family: 'Playfair Display', serif;
@@ -396,6 +401,13 @@
     align-items: center;
     justify-content: center;
     font-size: 0.75rem;
+  }
+  .msg-avatar.agent-avatar-img {
+    padding: 0;
+    display: block;
+    object-fit: cover;
+    object-position: center 12%;
+    box-shadow: 0 0 10px rgba(255, 140, 26, 0.35);
   }
   .msg-row.agent .msg-bubble { padding-right: 20px; }
 
@@ -860,10 +872,12 @@
   <main class="guide-main">
     <header class="guide-top">
       <div class="guide-brand">
-        <div class="guide-avatar" aria-hidden="true">🏷️</div>
+        <div class="guide-avatar" aria-hidden="true">
+          <img class="guide-avatar-img" src="https://static.wixstatic.com/media/c123de_c7cdbed4a4ee407289677a4f0079c1e5~mv2.png" alt="" width="40" height="40" decoding="async">
+        </div>
         <div>
-          <h1>Greenways Deals Agent</h1>
-          <p>Supply deals · product spotlights · weekly offers</p>
+          <h1>Zara</h1>
+          <p>Deals Agent · energy, water &amp; sustainability offers</p>
         </div>
       </div>
       <button type="button" class="header-ghost-btn" id="new-chat-btn" title="Start a new conversation">↺ New chat</button>
@@ -902,7 +916,7 @@
     <div class="chat-panel">
       <div class="chat-thread" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
         <div class="welcome-card" id="welcome-card">
-          <h2>Ask the Deals Agent</h2>
+          <h2>Ask Zara</h2>
           <p><strong>Two deal types:</strong> (1) <strong>Supply</strong> — electricity &amp; gas tariffs via the energy portal; (2) <strong>Product spotlights</strong> — weekly offers &amp; sustainability-lane product deals in the feed. Full shell: <strong>Deals.html</strong>. To <em>search</em> all efficient products, use <strong>Sustainable Products Agent</strong>.</p>
           <div class="welcome-tags">
             <button type="button" class="welcome-tag" data-prompt="What product deals and weekly spotlights are in the deals feed?">Product deal spotlights</button>
@@ -1038,7 +1052,20 @@
     return "<p>" + t + "</p>";
   }
   var TurnUi = window.GreenwaysAgentTurnUi;
-  var AGENT_TURN_AVATAR = "⚡";
+  var AGENT_PROFILE = {
+    name: "Zara",
+    role: "Deals Agent",
+    imageUrl: "https://static.wixstatic.com/media/c123de_c7cdbed4a4ee407289677a4f0079c1e5~mv2.png"
+  };
+  var AGENT_TURN_AVATAR = AGENT_PROFILE;
+
+  function agentAvatarHtml() {
+    return TurnUi.avatarMarkup(AGENT_PROFILE);
+  }
+
+  function agentChatLabel() {
+    return AGENT_PROFILE.name;
+  }
 
   function buildAgentTurnParts(rawAnswer, suggestions, blocks, meta) {
     return TurnUi.buildParts(rawAnswer, suggestions, blocks, meta, {
@@ -1079,10 +1106,10 @@
     const row = document.createElement("div");
     row.className = "msg-row " + role;
     row.id = id;
-    const label = role === "user" ? "You" : "Deals Agent";
+    const label = role === "user" ? "You" : agentChatLabel();
     let inner = '<div class="msg-meta">' + label + " · " + nowLabel() + '</div>';
     inner += '<div class="msg-bubble">';
-    if (role === "agent") inner += '<span class="msg-avatar" aria-hidden="true">🏷️</span>';
+    if (role === "agent") inner += agentAvatarHtml();
     inner += html;
     if (extra) inner += extra;
     inner += "</div>";
@@ -1099,8 +1126,8 @@
     row.className = "msg-row agent is-thinking";
     row.id = id;
     row.innerHTML =
-      '<div class="msg-meta">Deals Agent · ' + nowLabel() + '</div>' +
-      '<div class="msg-bubble"><span class="msg-avatar" aria-hidden="true">🏷️</span>' +
+      '<div class="msg-meta">' + agentChatLabel() + " · " + nowLabel() + '</div>' +
+      '<div class="msg-bubble">' + agentAvatarHtml() +
       '<span class="typing-dots" aria-label="Thinking"><span></span><span></span><span></span></span></div>';
     thread.appendChild(row);
     thread.scrollTop = thread.scrollHeight;
@@ -1320,7 +1347,7 @@
     const words = String(answer || "").split(/(\s+)/);
     let i = 0;
     let built = "";
-    bubble.innerHTML = '<span class="msg-avatar" aria-hidden="true">🏷️</span><span class="typed-body"></span>';
+    bubble.innerHTML = agentAvatarHtml() + '<span class="typed-body"></span>';
     const body = bubble.querySelector(".typed-body");
 
     function tick() {
@@ -1341,6 +1368,8 @@
   function finishAgentTurn(el, payload) {
     const profile = getProfile();
     const answer = payload.answer || "I could not answer that yet.";
+    const suggestions = payload.suggestions || [];
+    const blocks = payload.blocks || [];
     const src = sourceLabel(payload.source);
     const intentId = payload.intentId || null;
     lastIntentId = intentId;
@@ -1359,7 +1388,7 @@
     TurnUi.revealTyped(el, parts, {
       thread: thread,
       formatAnswer: formatAnswer,
-      avatarEmoji: AGENT_TURN_AVATAR
+      avatar: AGENT_TURN_AVATAR
     }, function () {
       showQuickReplies(intentId, profile);
       sessionTurns.push({
@@ -1367,6 +1396,7 @@
         question: payload.question || "",
         answer: answer,
         suggestions: payload.suggestions || [],
+        blocks: payload.blocks || [],
         source: payload.source || "",
         intentId: intentId
       });
@@ -1458,7 +1488,7 @@
     card.className = "welcome-card";
     card.id = "welcome-card";
     card.innerHTML =
-      '<h2>Ask the Deals Agent</h2>' +
+      '<h2>Ask Zara</h2>' +
       '<p><strong>Supply deals</strong> (tariffs) and <strong>product deal spotlights</strong> (weekly offers in the feed). Search the full efficient-product catalog on <strong>Sustainable Products Agent</strong>.</p>' +
       '<div class="welcome-tags">' +
       '<button type="button" class="welcome-tag" data-prompt="What product deals and weekly spotlights are in the deals feed?">Product deal spotlights</button>' +
@@ -1541,7 +1571,7 @@
         const msg = "Could not reach the deals agent. Deploy /api/deals-agent to Render for live answers.";
         if (thinkingEl) {
           thinkingEl.querySelector(".msg-bubble").innerHTML =
-            '<span class="msg-avatar" aria-hidden="true">🏷️</span><p>' + escapeHtml(msg) + "</p>";
+            agentAvatarHtml() + "<p>" + escapeHtml(msg) + "</p>";
         }
         setStatus("Offline — check server", "warn");
       }
