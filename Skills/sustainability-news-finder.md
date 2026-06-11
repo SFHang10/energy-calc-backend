@@ -10,6 +10,8 @@
 
 Generate professional sustainability news roundups covering EU policy updates, funding opportunities, circular economy developments, sustainable technology, and organization highlights. Output is prepared for review before publishing.
 
+**Consumer chat:** monthly editions and policy news surface on **Media Agent** (`/greenways/media-agent`), which cross-links **sustainability map** case studies from `data/companies.json` when assessing energy techniques and savings benchmarks. See **`greenways-chat-interface-skill.md`**.
+
 ---
 
 ## 🗂️ Output Location (MANDATORY)

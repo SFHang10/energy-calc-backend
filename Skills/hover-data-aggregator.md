@@ -1,5 +1,7 @@
 # Hover Data Aggregator Skill
 
+**Layer:** Infrastructure (not a consumer chat agent). Pairs with **`personalized-impact-hover.md`** (*why it matters*) and future **admin hover explainer** agent. Taxonomy: **`greenways-chat-interface-skill.md`** § Admin vs consumer skills.
+
 ## Purpose
 Generate a **small, safe hover cache** that links products to:
 - Marketplace product URL

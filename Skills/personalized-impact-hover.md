@@ -1,5 +1,7 @@
 # Personalized Impact Hover Skill
 
+**Layer:** Admin / member (not a public Greenways specialist agent). Works for users **with** profile/appliance data and falls back to **generic region/sector** copy when not. Pairs with **`hover-data-aggregator.md`** (grants/deals previews). Planned **hover / site explainer agent** will use similar cached explainers for dashboard tiles and KPIs. Taxonomy: **`greenways-chat-interface-skill.md`** § Admin vs consumer skills.
+
 ## Purpose
 Create a hover experience that explains **how news, grants, and product info
 affects the user personally**. This is designed to motivate membership by

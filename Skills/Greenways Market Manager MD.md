@@ -5,6 +5,8 @@
 **Output:** Product updates, image fixes, troubleshooting solutions  
 **Purpose:** Manage the Greenways Market Wix Store effectively
 
+**Admin vs consumer:** This skill is **staff-only** (Wix store, images, troubleshooting). Consumer-facing discovery of new listings is **not** Market Manager in chat — surface **“New on Greenways”** / recently added ETL cards on **Equipment**, **Deals**, or **Sustainable Products** agents **after** the mandatory pipeline: ETL → `product-grants-integrator.js` → photo → deep dive. See **`greenways-chat-interface-skill.md`** § Admin vs consumer skills.
+
 ---
 
 ## 📋 Overview

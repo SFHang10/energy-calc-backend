@@ -176,6 +176,12 @@ app.get('/live-music/live-music-finder.html', (req, res) => {
   return res.redirect(302, `/live-music/map${qs}`);
 });
 app.get('/greenways/grants-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-grants-agent.html'));
+app.get('/greenways/finance-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-agent.html'));
+app.get('/greenways/equipment-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-equipment-agent.html'));
+app.get('/greenways/deals-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-deals-agent.html'));
+app.get('/greenways/media-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-media-agent.html'));
+app.get('/greenways/sustainable-products-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-sustainable-products-agent.html'));
+app.get('/greenways/systems-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-systems-agent.html'));
 
 LIVE_MUSIC_DATA.forEach(([name, filePath]) => {
   app.get(`/data/${name}`, (req, res) => {
@@ -346,12 +352,24 @@ console.log('Loading live music routers...');
 let musicVenuesRouter;
 let musicGuideRouter;
 let grantsAgentRouter;
+let financeAgentRouter;
+let equipmentAgentRouter;
+let dealsAgentRouter;
+let mediaAgentRouter;
+let sustainableProductsAgentRouter;
+let systemsAgentRouter;
 let musicVenueInquiriesRouter;
 let musicMediaCandidatesRouter;
 try {
   musicVenuesRouter = require('./routes/music-venues');
   musicGuideRouter = require('./routes/music-guide');
   grantsAgentRouter = require('./routes/grants-agent');
+  financeAgentRouter = require('./routes/finance-agent');
+  equipmentAgentRouter = require('./routes/equipment-agent');
+  dealsAgentRouter = require('./routes/deals-agent');
+  mediaAgentRouter = require('./routes/media-agent');
+  sustainableProductsAgentRouter = require('./routes/sustainable-products-agent');
+  systemsAgentRouter = require('./routes/systems-agent');
   musicVenueInquiriesRouter = require('./routes/music-venue-inquiries');
   musicMediaCandidatesRouter = require('./routes/music-media-candidates');
   console.log('Live music routers loaded successfully');
@@ -360,6 +378,12 @@ try {
   musicVenuesRouter = null;
   musicGuideRouter = null;
   grantsAgentRouter = null;
+  financeAgentRouter = null;
+  equipmentAgentRouter = null;
+  dealsAgentRouter = null;
+  mediaAgentRouter = null;
+  sustainableProductsAgentRouter = null;
+  systemsAgentRouter = null;
   musicVenueInquiriesRouter = null;
   musicMediaCandidatesRouter = null;
 }
@@ -437,6 +461,30 @@ function mountApiRoutes() {
   if (grantsAgentRouter) {
     app.use('/api/grants-agent', grantsAgentRouter);
     console.log('✅ /api/grants-agent route mounted');
+  }
+  if (financeAgentRouter) {
+    app.use('/api/finance-agent', financeAgentRouter);
+    console.log('✅ /api/finance-agent route mounted');
+  }
+  if (equipmentAgentRouter) {
+    app.use('/api/equipment-agent', equipmentAgentRouter);
+    console.log('✅ /api/equipment-agent route mounted');
+  }
+  if (dealsAgentRouter) {
+    app.use('/api/deals-agent', dealsAgentRouter);
+    console.log('✅ /api/deals-agent route mounted');
+  }
+  if (mediaAgentRouter) {
+    app.use('/api/media-agent', mediaAgentRouter);
+    console.log('✅ /api/media-agent route mounted');
+  }
+  if (sustainableProductsAgentRouter) {
+    app.use('/api/sustainable-products-agent', sustainableProductsAgentRouter);
+    console.log('✅ /api/sustainable-products-agent route mounted');
+  }
+  if (systemsAgentRouter) {
+    app.use('/api/systems-agent', systemsAgentRouter);
+    console.log('✅ /api/systems-agent route mounted');
   }
   if (musicVenueInquiriesRouter) {
     app.use('/api/music-venue-inquiries', musicVenueInquiriesRouter);

@@ -1,5 +1,7 @@
 # HTML Content Creator Skill
 
+**Admin today; consumer future:** Staff use this skill to build Wix-ready HTML with static media URLs. A future **agent-assisted** path (not a free-form HTML editor) could let members generate pages from **JSON page specs** + locked templates fed by their Greenways data (utilities, products, grants) — see **`greenways-chat-interface-skill.md`** § Admin vs consumer skills · backlog **HTML from member data**.
+
 ## Purpose
 Create professional, interactive HTML pages for Wix sites using uploaded Wix static media images.
 

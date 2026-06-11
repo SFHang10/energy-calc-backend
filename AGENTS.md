@@ -49,6 +49,14 @@
 | **Savings tour page** | `HTMLS GWM GWB/savings.html` — Grants tab: Restaurant portal, EU schemes, **Financial assistance** |
 | **Restaurant finance finder** | `HTMLS GWM GWB/finance-finder-restaurant.html` (draft: `Fianance Finder/Finance Finder .html`) |
 | **Grants Agent (chat)** | `HTMLS GWM GWB/greenways-grants-agent.html` — `/greenways/grants-agent`, `/api/grants-agent/*` ⭐ clone pattern: `Skills/greenways-chat-interface-skill.md` |
+| **Finance Agent (chat)** | `HTMLS GWM GWB/greenways-finance-agent.html` — gold theme — funding **+ energy prices** (ticker, upgrade case, tariff compare) — `/greenways/finance-agent`, `/api/finance-agent/*` |
+| **Equipment Agent (chat)** | `HTMLS GWM GWB/greenways-equipment-agent.html` — green theme — kit upgrades **+ premises renovation** (insulation, retrofit, project plans) — `/greenways/equipment-agent`, `/api/equipment-agent/*` |
+| **Deals Agent (chat)** | `HTMLS GWM GWB/greenways-deals-agent.html` — cyan/orange theme — `/greenways/deals-agent`, `/api/deals-agent/*` — full shell: `Deals.html`, tariffs: `european_energy_deals_portal.html` |
+| **Media Agent (chat)** | `HTMLS GWM GWB/greenways-media-agent.html` — purple theme — `/greenways/media-agent`, `/api/media-agent/*` — news: `services/media-news-loader.js` (KB + monthly editions); **sustainability map:** `services/media-agent-companies.js` + `data/companies.json` → `European Company - Case Study Finder (Standalone) - Wix bundle.html`; videos: Wix Media API |
+| **Sustainable Products Agent (chat)** | `HTMLS GWM GWB/greenways-sustainable-products-agent.html` — cyan/teal theme — `/greenways/sustainable-products-agent`, `/api/sustainable-products-agent/*` — water/electricity/gas lanes; lightweight catalog + showcase (full search on finder pages) |
+| **Systems Agent (chat)** | `HTMLS GWM GWB/greenways-systems-agent.html` — slate/amber — `/greenways/systems-agent`, `/api/systems-agent/*` — read-only health: grants, products export, catalog, deals, news; **Verify selected** button |
+| **Greenways Guide (chat, WIP)** | Hub conductor — backend only: `data/guide-agent-intents.json`, `data/guide-agent-roster.json`, `services/guide-agent-knowledge.js`, `routes/guide-agent.js` — **not live** until `greenways-guide-agent.html` + `server-new.js` mount (`/greenways/guide-agent`, `/api/guide-agent/*`) |
+| **Wix agents embed (hub + per-page)** | `Skills/greenways-chat-interface-skill.md` § Wix site pattern · quick ref `HTMLS GWM GWB/WIX-GREENWAYS-AGENTS-EMBED.md` — hub may embed Guide conductor; each character page = one `/greenways/{agent}` iframe |
 | **Grants Agent intents** | `data/grants-agent-intents.json` |
 | **Grants Agent showcase products** | `data/grants-agent-showcase-products.json` |
 | **Schemes portal (restaurant)** | `HTMLS GWM GWB/Full Schemes Portal Restaurant.html` |
@@ -194,6 +202,21 @@ html, body {
 | `/api/grants-agent/ask` | POST | Grants Agent — knowledge / heuristic / optional LLM |
 | `/api/grants-agent/samples` | GET | Grant-eligible product showcase cards |
 | `/api/grants-agent/compare` | POST | Side-by-side scheme comparison (2 scheme ids) |
+| `/api/finance-agent/ask` | POST | Finance Agent — BNPL, loans, equipment finance & energy price context |
+| `/api/finance-agent/samples` | GET | Finance & product showcase cards |
+| `/api/equipment-agent/ask` | POST | Equipment Agent — marketplace, deep dive & renovation |
+| `/api/equipment-agent/samples` | GET | Equipment showcase cards |
+| `/api/deals-agent/ask` | POST | Deals Agent — energy tariffs/packages, water, sustainability feed |
+| `/api/deals-agent/samples` | GET | Deal showcase cards with images |
+| `/api/media-agent/ask` | POST | Media Agent — news, Wix videos, photos |
+| `/api/media-agent/samples` | GET | News/video/photo showcase cards |
+| `/api/media-agent/videos` | GET | Public Wix video list (no member auth) |
+| `/api/media-agent/news` | GET | Full news catalogue (`?q=`, `?category=`, `?edition=`) |
+| `/api/sustainable-products-agent/ask` | POST | Sustainable Products Agent — water / electricity / gas finder |
+| `/api/sustainable-products-agent/samples` | GET | Product showcase cards (`?lane=water|electricity|gas`) |
+| `/api/systems-agent/status` | GET | Full read-only health report |
+| `/api/systems-agent/sync` | POST | Verify selected checks `{ checks: ["grants","products",…] }` — no scripts run |
+| `/api/systems-agent/ask` | POST | Systems Agent chat |
 | `/api/equipment-intelligence/alternatives` | GET | Marketplace + external (`sust_*`) sustainable alternatives; `?persistCatalog=1` auto-saves matches to catalog |
 | `/api/equipment-intelligence/finder-session` | POST | Same as alternatives + persist (Sustainable Product Finder runs) |
 | `/api/equipment-intelligence/sustainable-products` | GET/POST | List or upsert non-marketplace catalog rows |
@@ -381,12 +404,46 @@ html, body {
   - **Deploy:** push to Render for live `/api/grants-agent/*`; HTML includes static product fallback until API is live.
   - **Compare dock:** collapsed by default; expands when schemes selected.
 
+- **🏷️ Deals Agent — energy tariffs + products (May 2026):**
+  - **Intents:** `tariff_compare`, `nl_restaurant_energy`, `uk_green_tariff`, `green_tariff`, `deals_page` in `data/deals-agent-intents.json`.
+  - **Knowledge:** `services/deals-agent-knowledge.js` — energy rows link to **`european_energy_deals_portal.html`**; full shell **`Deals.html`**.
+  - **Banner:** default showcase = three **energy-lane** feed rows (EU compare, NL hospitality, UK green) — not product ETL cards.
+  - **UI:** `greenways-deals-agent.html` — sidebar **Full Deals page** first; welcome tags for compare / NL / UK green.
+
 - **💶 Savings projections (May 2026)** — full detail in **`Skills/energy-dashboard-skill.md`** § Savings projections:
   - **`js/savings-projection-model.js`** + **`equipment-savings-projection.html`:** payback chart (do nothing vs upgrade, grants, illustrative tax, capex to €25k product / €150k building).
   - **`restaurant-equipment-deep-dive.html`:** **Savings projection** on marketplace alternative cards → modal iframe (`?popup=1&embed=1`).
   - **`restaurant-data.html`:** whole-building projection under site banner; same modal.
   - **`savings.html`:** **Savings projections** Explore tab above **Deals** — explains feature; **See example projection** opens popup only (no full-page / no tablet preview).
   - Demos: **`data/savings-projection-scenarios.json`** (`?scenario=fridge`).
+
+- **🎼 Greenways Guide Agent — hub conductor (May 2026, WIP)** — **`Skills/greenways-chat-interface-skill.md`** § Guide Agent:
+  - **Role:** Wix agents **hub** orchestrator — routes questions to Grants / Finance / Equipment / Products / Deals / Media; returns answer + **`agentHandoffs`** chips to `/greenways/{agent}?q=…`.
+  - **Done:** `data/guide-agent-intents.json`, `data/guide-agent-roster.json`, `services/guide-agent-knowledge.js`, `routes/guide-agent.js`.
+  - **Pending:** `HTMLS GWM GWB/greenways-guide-agent.html`, register in **`server-new.js`**, add to **`systems-agent-health.js`** agent list. Scaffold helper: **`scripts/scaffold-guide-agent-html.js`** (manual HTML fork also fine).
+  - **Not mounted** on Render until server registration — safe to leave for a later session.
+
+- **🤖 LLM per agent (May 2026)** — optional polish layer; same provider/API key, different **`{AGENT}_AGENT_MODEL`** + system prompt per chat:
+  - **Grants:** `GRANTS_AGENT_PROVIDER` / `GRANTS_AGENT_API_KEY` / `GRANTS_AGENT_MODEL` → fallback `ASSISTANT_*` — **`routes/grants-agent.js`** `maybeCallServerLlm()` (grounded in `suggestions` JSON only).
+  - **Other agents:** knowledge-first today; copy Grants pattern when enabling. **Guide** → small/fast model for routing; **Grants/Finance** → stronger model. See chat skill § **LLM per agent**.
+
+- **🗺️ Media Agent + sustainability map (May 2026)**:
+  - **`services/media-agent-companies.js`** ranks **`data/companies.json`** (500+ orgs) for profile/sector — energy savings examples, payback stats, techniques to benchmark.
+  - Intents: `sustainability_map`, `energy_examples`; **monthly news** answers append related map case studies.
+  - Map page: **`European Company - Case Study Finder (Standalone) - Wix bundle.html`**; showcase IDs in **`data/media-agent-showcase.json`**.
+
+- **🔀 Agent merges (May 2026)** — fewer consumer chats, clearer journeys:
+  - **Renovation** → **Equipment Agent** (`renovation`, `insulation`, `renovation_grants` intents).
+  - **Energy prices / ROI** → **Finance Agent** (`energy_prices`, `price_upgrade_case`, `compare_tariffs`).
+  - **News** → **Media Agent** (not a separate chat).
+  - **Deals** vs **Sustainable Products** stay **two agents** — Deals = spotlights/supply; Products = catalog search (`product_deals` / `product_deal_spotlights` cross-links).
+
+- **👥 Admin vs consumer skills (May 2026)** — **`Skills/greenways-chat-interface-skill.md`** § **Admin vs consumer skills**:
+  - **Consumer agents:** seven Greenways chats + Music Guide + Guide conductor (WIP) — public JSON/HTML only.
+  - **Admin / ops:** blog writer, content-ops, member-manager, Market Manager, full Systems MD, product-addition workflow.
+  - **Hover cache:** `hover-data-aggregator.md` → `build-hover-data-cache.js` → `data/hover-data.json` (grants/deals tooltips, no live API on hover).
+  - **Personalized impact:** admin/member “why it matters” — generic copy when no profile data; planned **hover / site explainer** agent (staff).
+  - **Backlog:** `historical-data-finder.md` → **Finance Agent**; **new ETL** consumer flags after enrichment pipeline; template-based HTML from member data via chat (future).
 
 ---
 

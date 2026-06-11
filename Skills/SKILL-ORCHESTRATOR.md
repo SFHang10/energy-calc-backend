@@ -12,6 +12,17 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 
 **How to Use:** Simply describe what you need and this orchestrator will route to the correct skill.
 
+### Consumer agents vs admin skills (May 2026)
+
+| Use | Route to |
+|-----|----------|
+| Public Wix chat embeds, `/greenways/{agent}` | **`greenways-chat-interface-skill.md`** — Grants, Finance, Equipment, Products, Deals, Media |
+| Staff ops, content, store, diagnostics | Skills below (blog writer, content-ops, Market Manager, Systems MD, member-manager, …) |
+| Product hovers (grants/deals tooltips) | **`hover-data-aggregator.md`** — not a chat agent |
+| “Why this matters for you” hovers | **`personalized-impact-hover.md`** — admin/member; planned hover explainer agent |
+
+Full taxonomy: **`greenways-chat-interface-skill.md`** § **Admin vs consumer skills**.
+
 ---
 
 ## 🧭 Org Chart Reference (Greenways)

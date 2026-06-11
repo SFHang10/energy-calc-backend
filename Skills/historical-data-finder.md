@@ -1,5 +1,7 @@
 # Historical Data Finder Skill
 
+**Consumer target:** merge into **Finance Agent** (prices + payback + “what you could have saved if you upgraded N months ago”). Illustrative without meter data; stronger when member/site usage exists. Taxonomy: **`greenways-chat-interface-skill.md`** § Admin vs consumer skills · backlog table.
+
 ## Purpose
 Build comparative, time-based product cost insights using energy prices and
 appliance consumption so we can show “cost today” and “cost over time” on
