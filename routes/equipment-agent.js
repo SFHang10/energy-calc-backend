@@ -34,6 +34,8 @@ router.post('/ask', async (req, res) => {
         suggestions: knowledge.suggestions || [],
         blocks: knowledge.blocks || [],
         productSamples: knowledge.productSamples || [],
+        agentHandoffs: knowledge.agentHandoffs || [],
+        spokenSummary: knowledge.spokenSummary || '',
         source: knowledge.source || 'knowledge',
         intentId: knowledge.intentId || null
       });

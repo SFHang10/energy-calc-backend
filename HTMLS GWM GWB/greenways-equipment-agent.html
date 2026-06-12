@@ -546,6 +546,20 @@
   .follow-up-chip:hover, .quick-reply-chip:hover {
     background: rgba(37, 99, 235, 0.28);
   }
+  .agent-handoff-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .agent-handoff-chip {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: #a5f3fc;
+    border: 1px solid rgba(34, 211, 255, 0.45);
+    background: rgba(34, 211, 255, 0.12);
+  }
+  .agent-handoff-chip:hover { background: rgba(34, 211, 255, 0.22); }
+  .agent-handoff-hint { font-size: 0.62rem; color: var(--muted); margin-top: 4px; }
 
   .profile-nudge {
     flex-shrink: 0;
@@ -893,7 +907,7 @@
         </div>
         <div>
           <h1>Artemis</h1>
-          <p>Equipment Agent · Arti · equipment upgrades &amp; renovation</p>
+          <p>Equipment &amp; renovation specialist · ETL verification, lifecycle value &amp; retrofit</p>
         </div>
       </div>
       <div class="guide-top-actions">
@@ -936,12 +950,15 @@
       <div class="chat-thread" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
         <div class="welcome-card" id="welcome-card">
           <h2>Ask Artemis</h2>
-          <p>Changing how your site runs — <strong>new equipment</strong> and <strong>premises renovation</strong> (insulation, retrofit, efficient equipment). Marketplace ETL products, deep dive comparisons, and renovation guides share the same grants overlay as <strong>products-with-grants.json</strong>.</p>
+          <p>Artemis balances <strong>energy efficiency</strong>, <strong>durability</strong>, and <strong>lifecycle cost</strong> — ETL-verified kit, deep dive comparisons, trajectory pages, and renovation guides on Greenways.</p>
           <div class="welcome-tags">
-            <button type="button" class="welcome-tag" data-prompt="What efficient combi steamer alternatives exist for a restaurant?">Combi steamer upgrade</button>
-            <button type="button" class="welcome-tag" data-prompt="How should I plan a sustainable restaurant renovation?">Premises renovation</button>
-            <button type="button" class="welcome-tag" data-prompt="What insulation upgrades matter most for a restaurant building?">Insulation &amp; fabric</button>
-            <button type="button" class="welcome-tag" data-prompt="How does the restaurant equipment deep dive work?">Deep dive tool</button>
+            <button type="button" class="welcome-tag" data-prompt="Why upgrade to ETL equipment and renovation together?">Why upgrade?</button>
+            <button type="button" class="welcome-tag" data-prompt="What is the Energy Technology List and why does verification matter?">What is ETL?</button>
+            <button type="button" class="welcome-tag" data-prompt="Explain lifecycle cost and durability for kitchen equipment">Lifecycle cost</button>
+            <button type="button" class="welcome-tag" data-prompt="Show me energy savings trajectory for equipment changes">Savings trajectory</button>
+            <button type="button" class="welcome-tag" data-prompt="How does the equipment intelligence tool check baseline use?">Equipment baseline</button>
+            <button type="button" class="welcome-tag" data-prompt="What efficient combi steamer alternatives exist for a restaurant?">Combi steamer</button>
+            <button type="button" class="welcome-tag" data-prompt="How does savings projection work on equipment upgrades?">Savings projection</button>
           </div>
         </div>
       </div>
@@ -1080,7 +1097,7 @@
   var TurnUi = window.GreenwaysAgentTurnUi;
   var AGENT_PROFILE = {
     name: "Artemis",
-    role: "Equipment Agent",
+    role: "Equipment & renovation specialist",
     imageUrl: "https://static.wixstatic.com/media/c123de_126830b1fc224df880dfa37ec830620e~mv2.png"
   };
   var AGENT_TURN_AVATAR = AGENT_PROFILE;
@@ -1392,6 +1409,38 @@
     tick();
   }
 
+  function welcomeCardInnerHtml() {
+    return (
+      '<h2>Ask Artemis</h2>' +
+      '<p>Artemis balances <strong>energy efficiency</strong>, <strong>durability</strong>, and <strong>lifecycle cost</strong> — ETL-verified kit, deep dive comparisons, trajectory pages, and renovation guides on Greenways.</p>' +
+      '<div class="welcome-tags">' +
+      '<button type="button" class="welcome-tag" data-prompt="Why upgrade to ETL equipment and renovation together?">Why upgrade?</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What is the Energy Technology List and why does verification matter?">What is ETL?</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Explain lifecycle cost and durability for kitchen equipment">Lifecycle cost</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Show me energy savings trajectory for equipment changes">Savings trajectory</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="How does the equipment intelligence tool check baseline use?">Equipment baseline</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What efficient combi steamer alternatives exist for a restaurant?">Combi steamer</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="How does savings projection work on equipment upgrades?">Savings projection</button>' +
+      '</div>'
+    );
+  }
+
+  function agentHandoffHref(h) {
+    if (h.href) return h.href;
+    const base = h.path || "/greenways/grants-agent";
+    const q = h.prompt || h.question || "";
+    return base + (q ? "?q=" + encodeURIComponent(q) : "");
+  }
+
+  function agentHandoffChipsHtml(handoffs) {
+    if (!Array.isArray(handoffs) || !handoffs.length) return "";
+    const chips = handoffs.map(function (h) {
+      var prompt = h.prompt || h.question || "";
+      return '<a class="agent-handoff-chip" href="' + escapeHtml(agentHandoffHref(h)) + '" target="_top" rel="noopener" data-prompt="' + escapeHtml(prompt) + '">' + escapeHtml(h.name || h.id) + "</a>";
+    }).join("");
+    return '<div class="agent-handoff-chips" aria-label="Open specialist agent">' + chips + '</div><div class="agent-handoff-hint">Opens the specialist chat with your question</div>';
+  }
+
   function finishAgentTurn(el, payload) {
     const profile = getProfile();
     const answer = payload.answer || "I could not answer that yet.";
@@ -1408,6 +1457,7 @@
 
     const parts = buildAgentTurnParts(answer, suggestions, blocks, {
       footHtml:
+        agentHandoffChipsHtml(payload.agentHandoffs) +
         followUpChips(intentId, profile, payload.question || lastQuestion) +
         '<span class="source-pill">' + escapeHtml(src) + "</span>"
     });
@@ -1424,6 +1474,7 @@
         answer: answer,
         suggestions: payload.suggestions || [],
         blocks: payload.blocks || [],
+        agentHandoffs: payload.agentHandoffs || [],
         source: payload.source || "",
         intentId: intentId
       });
@@ -1520,15 +1571,7 @@
     const card = document.createElement("div");
     card.className = "welcome-card";
     card.id = "welcome-card";
-    card.innerHTML =
-      '<h2>Ask Artemis</h2>' +
-      '<p>Answers are built from <strong>schemes.json</strong> (62+ grants) — same source as the schemes portals and product grant enrichment. Sample grant-eligible products are highlighted in the banner above.</p>' +
-      '<div class="welcome-tags">' +
-      '<button type="button" class="welcome-tag" data-prompt="What Netherlands grants fit a restaurant upgrading kitchen equipment?">NL restaurant equipment</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="What is business.gov.nl and how do I search Dutch subsidies?">business.gov.nl</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="Which schemes have deadlines coming up?">Deadlines</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="Where are the Greenways schemes portals and finance finder?">Portals &amp; finance</button>' +
-      "</div>";
+    card.innerHTML = welcomeCardInnerHtml();
     thread.appendChild(card);
     bindWelcomeTags();
     if (quickReplyBar) quickReplyBar.hidden = true;
