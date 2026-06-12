@@ -97,6 +97,19 @@
   .source-pill { display: inline-block; margin-top: 8px; font-size: 0.62rem; color: var(--muted); }
   .follow-up-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
   .follow-up-chip { background: rgba(0,0,0,0.25); border: 1px solid var(--border); color: var(--text); border-radius: 999px; padding: 5px 10px; font-size: 0.68rem; cursor: pointer; }
+  .agent-handoff-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .agent-handoff-chip {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: #fde68a;
+    border: 1px solid rgba(245, 158, 11, 0.45);
+    background: rgba(245, 158, 11, 0.12);
+  }
+  .agent-handoff-chip:hover { background: rgba(245, 158, 11, 0.22); }
   .chat-compose { flex-shrink: 0; padding: 12px 18px 14px; border-top: 1px solid var(--border); }
   .compose-row { display: flex; gap: 8px; align-items: flex-end; }
   #chat-input { flex: 1; background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); padding: 10px 12px; font-family: inherit; font-size: 0.82rem; resize: none; min-height: 42px; max-height: 120px; }
@@ -142,7 +155,7 @@
       </div>
       <div class="guide-top-actions">
         <nav class="gw-team-strip" id="gw-team-strip" aria-label="Greenways agent team" hidden></nav>
-        <button type="button" class="header-ghost-btn" id="new-chat-btn">↺ New chat</button>
+        <button type="button" class="header-ghost-btn" id="new-chat-btn" title="Start a new conversation">↺ New chat</button>
       </div>
     </header>
 
@@ -174,7 +187,7 @@
       </div>
       <div class="chat-compose">
         <div class="compose-row">
-          <textarea id="chat-input" rows="1" placeholder="Ask about grants sync, product status, catalog freshness…"></textarea>
+          <textarea id="chat-input" rows="1" placeholder="Ask about monitoring, sensors, dashboard maths, or platform health…"></textarea>
                   <button type="button" class="gw-voice-btn" id="voice-mic-btn" aria-label="Speak your question" title="Speak">🎤</button>
         <button type="button" class="gw-voice-btn" id="voice-speak-btn" aria-label="Read last answer aloud" title="Listen">🔊</button>
 <button type="button" class="send-btn" id="send-btn" title="Send">➤</button>
@@ -214,8 +227,61 @@
     imageUrl: "https://static.wixstatic.com/media/c123de_eeb61cbf84bd402eb642e28b2b457c76~mv2.png"
   };
 
+  let thinking = false;
+  let lastQuestion = "";
+  let gwVoiceHandle = null;
+
   function agentAvatarHtml() {
-    return TurnUi.avatarMarkup(AGENT_PROFILE);
+    if (TurnUi && TurnUi.avatarMarkup) return TurnUi.avatarMarkup(AGENT_PROFILE);
+    return '<span class="msg-avatar" aria-hidden="true">⚙️</span>';
+  }
+
+  function welcomeCardInnerHtml() {
+    return (
+      '<h2>Ask Edwardo</h2>' +
+      '<p><strong>Systems &amp; equipment specialist</strong> — why monitoring matters for homes and restaurants, which sensors to prioritise, and how Greenways dashboards make waste visible. Ops teams can still run read-only <strong>health checks</strong> via the status banner and <strong>Verify selected</strong>.</p>' +
+      '<div class="welcome-tags">' +
+      '<button type="button" class="welcome-tag" data-prompt="Why is energy monitoring important before I upgrade equipment?">Why monitoring?</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What sensors should a restaurant install for cookline, refrigeration, and water?">Restaurant sensors</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What home energy monitoring and sensors help consumers save money?">Home monitoring</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Review monitoring products — submetering, leak alerts, and cold chain">Monitoring reviews</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Where is the Greenways energy dashboard and what does it show?">Energy dashboard</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="How does the Greenways dashboard calculate energy cost from kWh and gas?">Dashboard maths</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Is it more economical to run kitchen equipment at different times of day?">Peak vs off-peak</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What ETL equipment savings examples apply to my energy costs?">ETL savings examples</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Explain equipment deep dive from a systems point of view">Equipment deep dive</button>' +
+      '</div>'
+    );
+  }
+
+  function bindWelcomeTags() {
+    document.querySelectorAll(".welcome-tag").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        sendQuestion(btn.getAttribute("data-prompt"));
+      });
+    });
+  }
+
+  function clearChat() {
+    lastQuestion = "";
+    thread.innerHTML = "";
+    const card = document.createElement("div");
+    card.className = "welcome-card";
+    card.id = "welcome-card";
+    card.innerHTML = welcomeCardInnerHtml();
+    thread.appendChild(card);
+    bindWelcomeTags();
+    sessionStorage.removeItem(SESSION_KEY);
+    setStatus("New chat · ready", "");
+  }
+
+  function agentHandoffChipsHtml(handoffs) {
+    if (!Array.isArray(handoffs) || !handoffs.length) return "";
+    const chips = handoffs.map(function (h) {
+      const prompt = h.prompt || "";
+      return '<a class="agent-handoff-chip" href="' + escapeHtml(h.href || "#") + '" target="_top" rel="noopener" data-prompt="' + escapeHtml(prompt) + '">' + escapeHtml(h.name || h.id) + "</a>";
+    }).join("");
+    return '<div class="agent-handoff-chips" aria-label="Open specialist agent">' + chips + "</div>";
   }
   const CHECK_DEFS = [
     { id: "server", label: "API server" },
@@ -247,7 +313,6 @@
   const overallHint = document.getElementById("overall-hint");
   const syncChecks = document.getElementById("sync-checks");
   const syncBtn = document.getElementById("sync-verify-btn");
-  let thinking = false;
 
   function apiBase() {
     if (location.protocol === "file:") return "http://localhost:4000";
@@ -374,15 +439,22 @@
     thread.scrollTop = thread.scrollHeight;
   }
 
-  function appendAgentMessage(answer) {
+  function appendAgentMessage(answer, extras) {
+    extras = extras || {};
     hideWelcome();
     const row = document.createElement("div");
     row.className = "msg-row agent";
     row.innerHTML =
       '<div class="msg-bubble">' + agentAvatarHtml() + formatAnswer(answer) +
+      agentHandoffChipsHtml(extras.agentHandoffs) +
       '<span class="source-pill">systems &amp; monitoring</span></div>';
     thread.appendChild(row);
     thread.scrollTop = thread.scrollHeight;
+    if (gwVoiceHandle && gwVoiceHandle.maybeAutoSpeak && extras.spokenSummary) {
+      gwVoiceHandle.maybeAutoSpeak(extras.spokenSummary);
+    } else if (window.GreenwaysAgentVoice && extras.spokenSummary) {
+      GreenwaysAgentVoice.setLastSpokenSummary(extras.spokenSummary);
+    }
   }
 
   async function sendQuestion(question) {
@@ -390,8 +462,9 @@
     if (!q || thinking) return;
     thinking = true;
     sendBtn.disabled = true;
+    lastQuestion = q;
     appendUserMessage(q);
-    setStatus("Checking…", "");
+    setStatus("Thinking…", "");
     try {
       const res = await fetch(apiBase() + "/api/systems-agent/ask", {
         method: "POST",
@@ -400,7 +473,10 @@
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error || "Ask failed");
-      appendAgentMessage(data.answer || "No answer.");
+      appendAgentMessage(data.answer || "No answer.", {
+        agentHandoffs: data.agentHandoffs,
+        spokenSummary: data.spokenSummary
+      });
       if (data.checkReport && data.checkReport.results) {
         renderStatusCards(
           data.checkReport.results.map(function (r) {
@@ -436,10 +512,9 @@
   input.addEventListener("keydown", function (e) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendQuestion(input.value); input.value = ""; }
   });
-  document.getElementById("new-chat-btn").addEventListener("click", function () {
-    thread.innerHTML = document.getElementById("welcome-card") ? "" : thread.innerHTML;
-    location.reload();
-  });
+  document.getElementById("new-chat-btn").addEventListener("click", clearChat);
+
+  bindWelcomeTags();
 
   document.addEventListener("click", function (e) {
     const tag = e.target.closest(".welcome-tag, .helper-card, .status-card, .follow-up-chip");
@@ -447,9 +522,7 @@
     const prompt = tag.getAttribute("data-prompt");
     if (prompt) sendQuestion(prompt);
   });
-})();
-  
-  var gwVoiceHandle = null;
+
   if (window.GreenwaysAgentVoice) {
     GreenwaysAgentVoice.init({
       input: input,
@@ -462,16 +535,16 @@
       gwVoiceHandle = handle;
     });
   }
+
   if (window.GreenwaysAgentTeam) {
     GreenwaysAgentTeam.init({
       stripMount: document.getElementById("gw-team-strip"),
       currentSlug: "systems-agent",
-      getProfile: typeof getProfile === "function" ? getProfile : null,
-      getAgentName: function () { return AGENT_PROFILE && AGENT_PROFILE.name ? AGENT_PROFILE.name : "Agent"; },
+      getAgentName: function () { return AGENT_PROFILE.name; },
       getLastSummary: function () {
         return (window.GreenwaysAgentVoice && GreenwaysAgentVoice.getLastSpokenSummary()) || "";
       },
-      getLastQuestion: function () { return typeof lastQuestion !== "undefined" ? lastQuestion : ""; }
+      getLastQuestion: function () { return lastQuestion; }
     });
   }
 
@@ -481,8 +554,7 @@
       setTimeout(function () { sendQuestion(boot); }, ev.detail.handoffBrief ? 650 : 400);
     }
   }, { once: true });
-
-
+})();
 </script>
 </body>
 </html>
