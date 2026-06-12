@@ -120,6 +120,10 @@ function applyPersona(result, ctx = {}) {
     opener = pickHandoffLine(voice, 'media', question) || opener;
   }
 
+  if (voice.handoffLines?.grants && intentId === 'grants_tab') {
+    opener = pickHandoffLine(voice, 'grants', question) || opener;
+  }
+
   if (opener && body.toLowerCase().startsWith(opener.toLowerCase().slice(0, 24))) {
     opener = '';
   }

@@ -543,6 +543,35 @@
     background: rgba(37, 99, 235, 0.28);
   }
 
+  .agent-handoff-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .agent-handoff-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--text);
+    background: rgba(201, 169, 97, 0.18);
+    border: 1px solid rgba(201, 169, 97, 0.45);
+  }
+  .agent-handoff-chip:hover {
+    background: rgba(201, 169, 97, 0.32);
+    border-color: #e8c872;
+  }
+  .agent-handoff-hint {
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-top: 4px;
+    width: 100%;
+  }
+
   .profile-nudge {
     flex-shrink: 0;
     display: flex;
@@ -932,12 +961,18 @@
       <div class="chat-thread" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
         <div class="welcome-card" id="welcome-card">
           <h2>Ask Vincent</h2>
-          <p>Answers cover the <strong>finance finder</strong> (grants, BNPL, equipment finance, green loans) <strong>and energy prices</strong> — use tariff moves to explain why efficient equipment plus funding beats waiting.</p>
+          <p>Finance paths, <strong>energy prices</strong>, and <strong>calculators</strong> — audit → payback → funding. Grant scheme detail goes to <strong>Andrieus</strong>.</p>
           <div class="welcome-tags">
             <button type="button" class="welcome-tag" data-prompt="Why should I upgrade to efficient equipment when energy prices are changing?">Prices → upgrade case</button>
             <button type="button" class="welcome-tag" data-prompt="What are current energy prices in the Netherlands?">NL energy prices</button>
             <button type="button" class="welcome-tag" data-prompt="What BNPL options exist for commercial kitchen equipment?">BNPL for kitchen equipment</button>
             <button type="button" class="welcome-tag" data-prompt="Where is the Greenways finance finder portal?">Open finance finder</button>
+            <button type="button" class="welcome-tag" data-prompt="What calculators and tools can I use for an energy upgrade business case?">Calculators &amp; tools</button>
+            <button type="button" class="welcome-tag" data-prompt="Where is the energy audit calculator for members?">Energy audit</button>
+            <button type="button" class="welcome-tag" data-prompt="How do you advise on sustainable finance and what resources shape your role?">Vincent's role</button>
+            <button type="button" class="welcome-tag" data-prompt="What are ETL products and which efficient equipment should I finance?">ETL products</button>
+            <button type="button" class="welcome-tag" data-prompt="What sustainability news affects finance and which instruments can help?">Sustainability news</button>
+            <button type="button" class="welcome-tag" data-prompt="What EU funding news is happening and how can I finance upgrades?">Funding news</button>
           </div>
         </div>
       </div>
@@ -969,6 +1004,12 @@
       <a class="sidebar-link" href="./utility-detail.html?type=electricity" target="_top" rel="noopener">Utility detail (electricity) →</a>
       <a class="sidebar-link" href="./european_energy_deals_portal.html" target="_top" rel="noopener">Tariff compare portal →</a>
       <a class="sidebar-link" href="./equipment-savings-projection.html" target="_top" rel="noopener">Savings projection →</a>
+      <a class="sidebar-link" href="./energy-savings-trajectory.html" target="_top" rel="noopener">Energy savings trajectory →</a>
+      <a class="sidebar-link" href="./energy-cost-guide.html" target="_top" rel="noopener">Energy cost guide →</a>
+      <a class="sidebar-link" href="/energy-audit-widget-main.html" target="_top" rel="noopener">Energy audit calculator →</a>
+      <a class="sidebar-link" href="./equipment_intelligence_tool.html" target="_top" rel="noopener">ETL product finder →</a>
+      <a class="sidebar-link" href="/energy-calculator/energy-calculator-enhanced-2.html" target="_top" rel="noopener">ETL energy calculator →</a>
+      <a class="sidebar-link" href="./savings.html" target="_top" rel="noopener">Savings tour hub →</a>
       <a class="sidebar-link" href="/greenways/equipment-agent" target="_top" rel="noopener">Equipment Agent →</a>
       <a class="sidebar-link" href="/greenways/grants-agent" target="_top" rel="noopener">Grants Agent →</a>
     </div>
@@ -1014,11 +1055,16 @@
 
   const HELPERS = [
     { id: "prices", icon: "📈", name: "Energy prices", desc: "Ticker & tariffs", prompt: "What are current energy prices and where is the Greenways energy ticker?" },
+    { id: "etl", icon: "✅", name: "ETL products", desc: "Verified efficient", prompt: "What are ETL products and which efficient equipment should I finance?" },
+    { id: "calc", icon: "🧮", name: "Calculators", desc: "Audit & payback", prompt: "What calculators and tools can I use for an energy upgrade business case?" },
+    { id: "audit", icon: "🔍", name: "Energy audit", desc: "Members widget", prompt: "Where is the energy audit calculator for members?" },
     { id: "upgrade", icon: "⚡", name: "Upgrade case", desc: "Prices → equipment", prompt: "Why should I upgrade to efficient equipment when energy prices are changing?" },
     { id: "bnpl", icon: "💳", name: "BNPL", desc: "Pay-later paths", prompt: "Explain BNPL options for restaurant equipment on Greenways." },
     { id: "loans", icon: "🌿", name: "Green loans", desc: "BMKB & banks", prompt: "What green loan programmes fit a Netherlands restaurant?" },
     { id: "payback", icon: "📊", name: "Payback", desc: "Savings model", prompt: "How do savings projections work for equipment upgrades?" },
-    { id: "portal", icon: "🔗", name: "Finance finder", desc: "Full portal", prompt: "Where is the finance finder and what tabs does it have?" }
+    { id: "portal", icon: "🔗", name: "Finance finder", desc: "Full portal", prompt: "Where is the finance finder and what tabs does it have?" },
+    { id: "news", icon: "📰", name: "Sustainability news", desc: "Finance lens", prompt: "What sustainability news affects finance and which instruments can help?" },
+    { id: "funding", icon: "💶", name: "Funding news", desc: "EU programmes", prompt: "What EU funding news is happening and how can I finance upgrades?" }
   ];
 
   const thread = document.getElementById("chat-thread");
@@ -1161,20 +1207,29 @@
     const sector = profile.sector || "restaurant";
     const pool = [];
     if (intentId === "energy_prices" || intentId === "price_upgrade_case" || profile.focus === "energy") {
+      pool.push({ label: "ETL products", prompt: "What are ETL products and which efficient equipment should I finance?" });
       pool.push({ label: "Upgrade case", prompt: "Why should I upgrade to efficient equipment when energy prices are changing?" });
       pool.push({ label: "Savings projection", prompt: "How do savings projections work for equipment upgrades?" });
       pool.push({ label: "Compare tariffs", prompt: "Where do I compare business energy tariffs on Greenways?" });
     }
-    if (intentId === "bnpl" || intentId === "equipment_finance") {
+    if (intentId === "bnpl" || intentId === "equipment_finance" || intentId === "etl_products") {
+      pool.push({ label: "ETL products", prompt: "What are ETL products and which efficient equipment should I finance?" });
       pool.push({ label: "Equipment finance", prompt: "What equipment finance options exist for commercial kitchens?" });
       pool.push({ label: "BNPL", prompt: "Explain BNPL options for restaurant equipment on Greenways." });
     }
     if (intentId === "green_loans" || region === "nl") {
       pool.push({ label: "Green loans NL", prompt: "What green loans and BMKB-Groen routes fit a Dutch restaurant?" });
     }
+    if (intentId === "sustainability_finance_news" || intentId === "funding_news") {
+      pool.push({ label: "Funding news", prompt: "What EU funding news is happening and how can I finance upgrades?" });
+      pool.push({ label: "Finance finder", prompt: "Where is the Greenways finance finder and what tabs does it have?" });
+      pool.push({ label: "Grants (Andrieus)", prompt: "What grants and subsidies fit my business profile?" });
+    }
     pool.push({ label: "Energy prices", prompt: "What are current energy prices for " + (region || "my region") + "?" });
     pool.push({ label: "Finance finder", prompt: "Where is the Greenways finance finder and what does it cover?" });
-    pool.push({ label: "Equipment Agent", prompt: "Where is the Equipment Agent for marketplace upgrades?" });
+    if (intentId !== "etl_products") {
+      pool.push({ label: "ETL products", prompt: "What are ETL products and which efficient equipment should I finance?" });
+    }
     if (/price|tariff|kwh/i.test(String(question || ""))) {
       pool.unshift({ label: "Energy ticker", prompt: "Where is the Greenways energy price ticker?" });
     }
@@ -1390,6 +1445,41 @@
     tick();
   }
 
+  function welcomeCardInnerHtml() {
+    return (
+      '<h2>Ask Vincent</h2>' +
+      '<p>Finance paths, <strong>energy prices</strong>, and <strong>calculators</strong> — audit → payback → funding. Grant scheme detail goes to <strong>Andrieus</strong>.</p>' +
+      '<div class="welcome-tags">' +
+      '<button type="button" class="welcome-tag" data-prompt="Why should I upgrade to efficient equipment when energy prices are changing?">Prices → upgrade case</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What are current energy prices in the Netherlands?">NL energy prices</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What BNPL options exist for commercial kitchen equipment?">BNPL for kitchen equipment</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Where is the Greenways finance finder portal?">Open finance finder</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What calculators and tools can I use for an energy upgrade business case?">Calculators &amp; tools</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Where is the energy audit calculator for members?">Energy audit</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="How do you advise on sustainable finance and what resources shape your role?">Vincent\'s role</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What are ETL products and which efficient equipment should I finance?">ETL products</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What sustainability news affects finance and which instruments can help?">Sustainability news</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What EU funding news is happening and how can I finance upgrades?">Funding news</button>' +
+      "</div>"
+    );
+  }
+
+  function agentHandoffHref(h) {
+    if (h.href) return h.href;
+    const base = h.path || "/greenways/grants-agent";
+    const q = h.prompt || h.question || "";
+    return base + (q ? "?q=" + encodeURIComponent(q) : "");
+  }
+
+  function agentHandoffChipsHtml(handoffs) {
+    if (!Array.isArray(handoffs) || !handoffs.length) return "";
+    const chips = handoffs.map(function (h) {
+      var prompt = h.prompt || h.question || "";
+      return '<a class="agent-handoff-chip" href="' + escapeHtml(agentHandoffHref(h)) + '" target="_top" rel="noopener" data-prompt="' + escapeHtml(prompt) + '">' + escapeHtml(h.name || h.id) + "</a>";
+    }).join("");
+    return '<div class="agent-handoff-chips" aria-label="Open specialist agent">' + chips + '</div><div class="agent-handoff-hint">Opens the specialist chat with your question</div>';
+  }
+
   function finishAgentTurn(el, payload) {
     const profile = getProfile();
     const answer = payload.answer || "I could not answer that yet.";
@@ -1406,6 +1496,7 @@
 
     const parts = buildAgentTurnParts(answer, suggestions, blocks, {
       footHtml:
+        agentHandoffChipsHtml(payload.agentHandoffs) +
         followUpChips(intentId, profile, payload.question || lastQuestion) +
         '<span class="source-pill">' + escapeHtml(src) + "</span>"
     });
@@ -1422,6 +1513,7 @@
         answer: answer,
         suggestions: payload.suggestions || [],
         blocks: payload.blocks || [],
+        agentHandoffs: payload.agentHandoffs || [],
         source: payload.source || "",
         intentId: intentId
       });
@@ -1518,15 +1610,7 @@
     const card = document.createElement("div");
     card.className = "welcome-card";
     card.id = "welcome-card";
-    card.innerHTML =
-      '<h2>Ask Vincent</h2>' +
-      '<p>Funding paths plus <strong>energy price context</strong> — use tariff moves to explain why efficient equipment and finance stack together.</p>' +
-      '<div class="welcome-tags">' +
-      '<button type="button" class="welcome-tag" data-prompt="Why should I upgrade to efficient equipment when energy prices are changing?">Prices → upgrade case</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="What are current energy prices in the Netherlands?">NL energy prices</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="What BNPL options exist for commercial kitchen equipment?">BNPL for kitchen equipment</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="Where is the Greenways finance finder portal?">Open finance finder</button>' +
-      "</div>";
+    card.innerHTML = welcomeCardInnerHtml();
     thread.appendChild(card);
     bindWelcomeTags();
     if (quickReplyBar) quickReplyBar.hidden = true;
