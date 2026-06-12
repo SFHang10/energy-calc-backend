@@ -6,6 +6,7 @@ const {
 } = require('../services/media-agent-knowledge');
 const { rankNewsItems } = require('../services/media-news-loader');
 const { getVideosForAgent } = require('../services/wix-media-service');
+const { buildAgentAskFallback, normalizeAskProfile } = require('../services/greenways-agent-llm-fallback');
 
 const router = express.Router();
 
@@ -73,11 +74,7 @@ router.get('/videos', async (req, res) => {
 router.post('/ask', async (req, res) => {
   try {
     const question = String(req.body?.question || '').trim();
-    const profile = {
-      region: String(req.body?.profile?.region || '').trim(),
-      sector: String(req.body?.profile?.sector || '').trim(),
-      focus: String(req.body?.profile?.focus || '').trim()
-    };
+    const profile = normalizeAskProfile(req.body);
     if (!question) {
       return res.status(400).json({ ok: false, error: 'question is required.' });
     }
@@ -96,15 +93,7 @@ router.post('/ask', async (req, res) => {
       });
     }
 
-    res.json({
-      ok: true,
-      answer:
-        `No news or media matches for "${question}". Try **policy**, **funding**, **monthly news**, **tech news**, **Wix videos**, or **photos**.`,
-      suggestions: [],
-      blocks: [],
-      productSamples: await getDefaultProductSamples(3),
-      source: 'heuristic'
-    });
+    res.json(await buildAgentAskFallback('media', question, profile));
   } catch (error) {
     console.error('Media agent ask error:', error.message);
     res.status(500).json({ ok: false, error: 'Failed to answer question.' });

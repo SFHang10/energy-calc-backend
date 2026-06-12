@@ -8,6 +8,10 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.js"></script>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.js"></script>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-team.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-team.js"></script>
 <script>
 (function () {
   var p = location.pathname || "";
@@ -863,6 +867,35 @@
     box-shadow: none;
   }
 
+  .agent-handoff-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .agent-handoff-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--text);
+    background: rgba(40, 167, 69, 0.18);
+    border: 1px solid rgba(40, 167, 69, 0.45);
+  }
+  .agent-handoff-chip:hover {
+    background: rgba(40, 167, 69, 0.32);
+    border-color: #6ee7a8;
+  }
+  .agent-handoff-hint {
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-top: 4px;
+    width: 100%;
+  }
+
   .profile-nudge {
     flex-shrink: 0;
     display: flex;
@@ -962,6 +995,14 @@
     border-style: solid;
     color: #fff;
     background: rgba(37, 99, 235, 0.15);
+  }
+
+  .guide-top-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
   }
 
   .header-ghost-btn {
@@ -1204,7 +1245,10 @@
           <p>Grants Agent · schemes, subsidies &amp; finance</p>
         </div>
       </div>
-      <button type="button" class="header-ghost-btn" id="new-chat-btn" title="Start a new conversation">↺ New chat</button>
+      <div class="guide-top-actions">
+        <nav class="gw-team-strip" id="gw-team-strip" aria-label="Greenways agent team" hidden></nav>
+        <button type="button" class="header-ghost-btn" id="new-chat-btn" title="Start a new conversation">↺ New chat</button>
+      </div>
       <div class="guide-profile" aria-label="Your business profile">
         <select id="profile-region" aria-label="Region">
           <option value="">All regions</option>
@@ -1241,10 +1285,12 @@
       <div class="chat-thread" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
         <div class="welcome-card" id="welcome-card">
           <h2>Ask Andrieus</h2>
-          <p>Answers are built from <strong>schemes.json</strong> (62+ grants) — same source as the schemes portals and product grant enrichment. Sample grant-eligible products are highlighted in the banner above.</p>
+          <p>Greenways focuses on <strong>Netherlands</strong> and <strong>UK</strong> operators — set your region above for tighter matches. Answers draw from <strong>schemes.json</strong> (62+ grants), the same source as our schemes portals and product grant enrichment.</p>
           <div class="welcome-tags">
             <button type="button" class="welcome-tag" data-prompt="What Netherlands grants fit a restaurant upgrading kitchen equipment?">NL restaurant equipment</button>
+            <button type="button" class="welcome-tag" data-prompt="What UK grants fit a restaurant upgrading kitchen equipment?">UK restaurant grants</button>
             <button type="button" class="welcome-tag" data-prompt="What is business.gov.nl and how do I search Dutch subsidies?">business.gov.nl</button>
+            <button type="button" class="welcome-tag" data-prompt="Why do subsidies matter for sustainable business?">Why subsidies matter</button>
             <button type="button" class="welcome-tag" data-prompt="Which schemes have deadlines coming up?">Deadlines</button>
             <button type="button" class="welcome-tag" data-prompt="Where are the Greenways schemes portals and finance finder?">Portals &amp; finance</button>
           </div>
@@ -1276,7 +1322,9 @@
     <div class="chat-compose">
       <div class="compose-row">
         <textarea id="chat-input" rows="1" placeholder="Ask about grants, regions, equipment funding, NL schemes…" aria-label="Your question"></textarea>
-        <button type="button" class="send-btn" id="send-btn" aria-label="Send message" title="Send">➤</button>
+                <button type="button" class="gw-voice-btn" id="voice-mic-btn" aria-label="Speak your question" title="Speak">🎤</button>
+        <button type="button" class="gw-voice-btn" id="voice-speak-btn" aria-label="Read last answer aloud" title="Listen">🔊</button>
+<button type="button" class="send-btn" id="send-btn" aria-label="Send message" title="Send">➤</button>
       </div>
       <div class="compose-hint">Enter to send · Shift+Enter new line</div>
     </div>
@@ -1344,6 +1392,37 @@
   const statusBar = document.getElementById("status-bar");
   const helperList = document.getElementById("helper-list");
   const SESSION_KEY = "gw-grants-agent-session-v1";
+
+  function welcomeCardInnerHtml() {
+    return (
+      '<h2>Ask Andrieus</h2>' +
+      '<p>Greenways focuses on <strong>Netherlands</strong> and <strong>UK</strong> operators — set your region above for tighter matches. Answers draw from <strong>schemes.json</strong> (62+ grants), the same source as our schemes portals and product grant enrichment.</p>' +
+      '<div class="welcome-tags">' +
+      '<button type="button" class="welcome-tag" data-prompt="What Netherlands grants fit a restaurant upgrading kitchen equipment?">NL restaurant equipment</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What UK grants fit a restaurant upgrading kitchen equipment?">UK restaurant grants</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What is business.gov.nl and how do I search Dutch subsidies?">business.gov.nl</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Why do subsidies matter for sustainable business?">Why subsidies matter</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Which schemes have deadlines coming up?">Deadlines</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Where are the Greenways schemes portals and finance finder?">Portals &amp; finance</button>' +
+      "</div>"
+    );
+  }
+
+  function agentHandoffHref(h) {
+    if (h.href) return h.href;
+    const base = "/greenways/media-agent";
+    const q = h.prompt || h.question || "";
+    return base + (q ? "?q=" + encodeURIComponent(q) : "");
+  }
+
+  function agentHandoffChipsHtml(handoffs) {
+    if (!Array.isArray(handoffs) || !handoffs.length) return "";
+    const chips = handoffs.map(function (h) {
+      var prompt = h.prompt || h.question || "";
+      return '<a class="agent-handoff-chip" href="' + escapeHtml(agentHandoffHref(h)) + '" target="_top" rel="noopener" data-prompt="' + escapeHtml(prompt) + '">' + escapeHtml(h.name || h.id) + "</a>";
+    }).join("");
+    return '<div class="agent-handoff-chips" aria-label="Open specialist agent">' + chips + '</div><div class="agent-handoff-hint">Opens the specialist chat with your question</div>';
+  }
   const quickReplyBar = document.getElementById("quick-reply-bar");
   const profileNudge = document.getElementById("profile-nudge");
   const profileNudgeText = document.getElementById("profile-nudge-text");
@@ -1486,6 +1565,12 @@
       pool.push({ label: "Tell me about MIA / Vamil", prompt: "Explain MIA and Vamil for a Dutch restaurant" });
       pool.push({ label: "NL equipment subsidies", prompt: "What Netherlands subsidies fit a restaurant upgrading kitchen equipment?" });
     }
+    if (intentId === "uk_schemes" || region === "uk") {
+      pool.push({ label: "UK energy schemes", prompt: "What UK grants fit energy efficiency for a restaurant?" });
+    }
+    if (intentId === "grant_news") {
+      pool.push({ label: "Open Cheryce for news", prompt: "Latest grants and sustainability policy news" });
+    }
     if (intentId === "equipment" || profile.focus === "equipment") {
       pool.push({ label: "Product grants on marketplace", prompt: "How do product grants work on Greenways marketplace?" });
     }
@@ -1520,6 +1605,7 @@
   function quickReplyChips(intentId, profile) {
     const items = [
       { label: "NL restaurant equipment", prompt: "What Netherlands grants fit a restaurant upgrading kitchen equipment?" },
+      { label: "UK restaurant grants", prompt: "What UK grants fit a restaurant upgrading kitchen equipment?" },
       { label: "Deadlines", prompt: "Which schemes have deadlines coming up?" },
       { label: "Product grants", prompt: "How do product grants work on Greenways marketplace?" },
       { label: "Portals & finance", prompt: "Where are the Greenways schemes portals and finance finder?" }
@@ -1755,6 +1841,7 @@
     const parts = buildAgentTurnParts(answer, suggestions, blocks, {
       footHtml:
         followUpChips(intentId, profile, payload.question || lastQuestion) +
+        agentHandoffChipsHtml(payload.agentHandoffs) +
         '<span class="source-pill">' + escapeHtml(src) + "</span>"
     });
 
@@ -1767,11 +1854,19 @@
         answer: answer,
         suggestions: payload.suggestions || [],
         blocks: payload.blocks || [],
+        agentHandoffs: payload.agentHandoffs || [],
+        spokenSummary: payload.spokenSummary || "",
         source: payload.source || "",
         intentId: intentId
       });
       saveSession();
     });
+      if (gwVoiceHandle && gwVoiceHandle.maybeAutoSpeak && payload.spokenSummary) {
+        gwVoiceHandle.maybeAutoSpeak(payload.spokenSummary);
+      } else if (window.GreenwaysAgentVoice && payload.spokenSummary) {
+        GreenwaysAgentVoice.setLastSpokenSummary(payload.spokenSummary);
+      }
+
 
     setStatus("Answered · " + src, payload.source === "llm" ? "ok" : "warn");
   }
@@ -1834,6 +1929,7 @@
                 {
                   footHtml:
                     followUpChips(turn.intentId, getProfile(), turn.question || "") +
+                    agentHandoffChipsHtml(turn.agentHandoffs) +
                     '<span class="source-pill">' + escapeHtml(sourceLabel(turn.source)) + "</span>"
                 }
               );
@@ -1857,15 +1953,7 @@
     const card = document.createElement("div");
     card.className = "welcome-card";
     card.id = "welcome-card";
-    card.innerHTML =
-      '<h2>Ask Andrieus</h2>' +
-      '<p>Answers are built from <strong>schemes.json</strong> (62+ grants) — same source as the schemes portals and product grant enrichment. Sample grant-eligible products are highlighted in the banner above.</p>' +
-      '<div class="welcome-tags">' +
-      '<button type="button" class="welcome-tag" data-prompt="What Netherlands grants fit a restaurant upgrading kitchen equipment?">NL restaurant equipment</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="What is business.gov.nl and how do I search Dutch subsidies?">business.gov.nl</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="Which schemes have deadlines coming up?">Deadlines</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="Where are the Greenways schemes portals and finance finder?">Portals &amp; finance</button>' +
-      "</div>";
+    card.innerHTML = welcomeCardInnerHtml();
     thread.appendChild(card);
     bindWelcomeTags();
     if (quickReplyBar) quickReplyBar.hidden = true;
@@ -2099,12 +2187,43 @@
   });
 
   updateCompareUi();
+  
+  var gwVoiceHandle = null;
+  if (window.GreenwaysAgentVoice) {
+    GreenwaysAgentVoice.init({
+      input: input,
+      micBtn: document.getElementById("voice-mic-btn"),
+      speakBtn: document.getElementById("voice-speak-btn"),
+      onTranscript: function (text) {
+        if (String(text || "").trim()) sendQuestion(text);
+      }
+    }).then(function (handle) {
+      gwVoiceHandle = handle;
+    });
+  }
+  if (window.GreenwaysAgentTeam) {
+    GreenwaysAgentTeam.init({
+      stripMount: document.getElementById("gw-team-strip"),
+      currentSlug: "grants-agent",
+      getProfile: typeof getProfile === "function" ? getProfile : null,
+      getAgentName: function () { return AGENT_PROFILE && AGENT_PROFILE.name ? AGENT_PROFILE.name : "Agent"; },
+      getLastSummary: function () {
+        return (window.GreenwaysAgentVoice && GreenwaysAgentVoice.getLastSpokenSummary()) || "";
+      },
+      getLastQuestion: function () { return typeof lastQuestion !== "undefined" ? lastQuestion : ""; }
+    });
+  }
+
+  document.addEventListener("gw-team-ready", function (ev) {
+    var boot = ev.detail && ev.detail.suggestedPrompt;
+    if (boot && typeof sendQuestion === "function") {
+      setTimeout(function () { sendQuestion(boot); }, ev.detail.handoffBrief ? 650 : 400);
+    }
+  }, { once: true });
+
+
   restoreSession();
   loadBannerProducts();
-
-  var params = new URLSearchParams(location.search);
-  var boot = params.get("q") || params.get("prompt");
-  if (boot) setTimeout(function () { sendQuestion(boot); }, 400);
 })();
 </script>
 </body>

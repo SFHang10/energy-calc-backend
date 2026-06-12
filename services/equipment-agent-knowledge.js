@@ -42,7 +42,7 @@ async function pickEquipmentSamples(question, profile = {}, limit = 3) {
 function buildOverviewAnswer(tip) {
   return {
     answer:
-      `**Greenways Equipment Agent** — kit upgrades **and premises renovation** on one path:\n\n` +
+      `**Greenways Equipment Agent** — equipment upgrades **and premises renovation** on one path:\n\n` +
       `- **Marketplace** — grant-enriched ETL product cards with specs\n` +
       `- **Equipment deep dive** — ${PORTAL_LINKS.deepDive}\n` +
       `- **Renovation & retrofit** — ${PORTAL_LINKS.sustainableRenovations}\n` +
@@ -55,7 +55,7 @@ function buildOverviewAnswer(tip) {
 
 function equipmentPortalLinks() {
   return [
-    toLinkItem('Equipment deep dive', PORTAL_LINKS.deepDive, 'Compare current vs efficient kit with grants'),
+    toLinkItem('Equipment deep dive', PORTAL_LINKS.deepDive, 'Compare current vs efficient equipment with grants'),
     toLinkItem('Intelligence tool', PORTAL_LINKS.equipmentTool, 'Marketplace alternatives and specs'),
     toLinkItem('Sustainable renovations', PORTAL_LINKS.sustainableRenovations, 'Building retrofit pathways'),
     toLinkItem('Insulation guide', PORTAL_LINKS.insulationGuide, 'Fabric and envelope improvements'),
@@ -113,7 +113,7 @@ function buildSustainableAnswer(tip) {
 function buildPortalsAnswer(tip) {
   return {
     answer: withTip(
-      '**Equipment and renovation on Greenways** — pick a portal on the right to browse kit, deep dives, or building guides.',
+      '**Equipment and renovation on Greenways** — pick a portal on the right to browse equipment, deep dives, or building guides.',
       tip
     ),
     blocks: [{ type: 'link', items: equipmentPortalLinks() }]
@@ -127,7 +127,7 @@ function buildRenovationAnswer(focus, schemes, profile, tip) {
   const relatedSchemes = rankSchemes(schemes, `${tokens.join(' ')} restaurant building`, profile, 6);
   const extra =
     focus === 'insulation'
-      ? `Start with fabric and insulation before oversized HVAC or kitchen kit — lower baseload makes equipment upgrades pay back faster.\n\n`
+      ? `Start with fabric and insulation before oversized HVAC or heavy kitchen equipment — lower baseload makes equipment upgrades pay back faster.\n\n`
       : `Combine **building improvements** (fabric, HVAC, monitoring) with **efficient equipment** swaps — same grants stack may apply across both.\n\n`;
   return {
     answer:
@@ -139,7 +139,7 @@ function buildRenovationAnswer(focus, schemes, profile, tip) {
       `**Guides:**\n` +
       `- Sustainable renovations: ${PORTAL_LINKS.sustainableRenovations}\n` +
       `- Insulation: ${PORTAL_LINKS.insulationGuide}\n` +
-      `- Equipment deep dive (kit): ${PORTAL_LINKS.deepDive}\n\n` +
+      `- Equipment deep dive: ${PORTAL_LINKS.deepDive}\n\n` +
       `For payback and loans see **Finance Agent** (/greenways/finance-agent).\n\n_${tip}_`,
     suggestions: relatedSchemes.map(toSuggestion)
   };
@@ -168,7 +168,7 @@ function buildRenovationPlanAnswer(tip) {
     answer:
       `**Renovation project planning** — phased upgrades for premises + equipment:\n\n` +
       `1. **Baseline** — current energy use and priority areas (kitchen, HVAC, fabric)\n` +
-      `2. **Quick wins** — insulation, monitoring, efficient kit with short payback\n` +
+      `2. **Quick wins** — insulation, monitoring, efficient equipment with short payback\n` +
       `3. **Grants & finance** — stack schemes before capex (Grants + Finance agents)\n` +
       `4. **Equipment** — marketplace + deep dive for ETL alternatives\n` +
       `5. **Timeline** — align grant deadlines with install windows\n\n` +

@@ -78,7 +78,7 @@ function volatilityHint(snapshot, profile) {
   const row = findMarketRow(snapshot, profile);
   const change = row ? Number(row.changePct) : NaN;
   if (Number.isFinite(change) && change > 1) {
-    return 'Wholesale prices are **rising** in your selected market — efficient kit lowers the kWh you buy, so upgrades pay back faster when unit costs climb.';
+    return 'Wholesale prices are **rising** in your selected market — efficient equipment lowers the kWh you buy, so upgrades pay back faster when unit costs climb.';
   }
   if (Number.isFinite(change) && change < -1) {
     return 'Wholesale prices are **easing** — still worth upgrading: lower consumption keeps bills down when tariffs rebound, and grants/finance are often time-limited.';

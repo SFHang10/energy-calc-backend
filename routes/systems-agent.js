@@ -5,6 +5,7 @@ const {
   runChecks
 } = require('../services/systems-agent-knowledge');
 const { loadChecksConfig } = require('../services/systems-agent-health');
+const { buildAgentAskFallback, normalizeAskProfile } = require('../services/greenways-agent-llm-fallback');
 
 const router = express.Router();
 
@@ -60,8 +61,9 @@ router.post('/ask', async (req, res) => {
       return res.status(400).json({ ok: false, error: 'question is required.' });
     }
 
-    const knowledge = await answerFromKnowledge(question, req.body?.profile || {});
-    if (knowledge?.answer) {
+    const profile = normalizeAskProfile(req.body);
+    const knowledge = await answerFromKnowledge(question, profile);
+    if (knowledge?.answer && knowledge.source !== 'heuristic') {
       return res.json({
         ok: true,
         answer: knowledge.answer,
@@ -74,12 +76,7 @@ router.post('/ask', async (req, res) => {
       });
     }
 
-    res.json({
-      ok: true,
-      answer: 'Could not build a systems status answer.',
-      productSamples: await getDefaultStatusSamples(6),
-      source: 'heuristic'
-    });
+    res.json(await buildAgentAskFallback('systems', question, profile));
   } catch (error) {
     console.error('Systems agent ask error:', error.message);
     res.status(500).json({ ok: false, error: 'Failed to answer question.' });

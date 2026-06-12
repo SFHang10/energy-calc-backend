@@ -78,7 +78,7 @@ async function buildOverviewAnswer(schemes, profile, tip) {
       `**Greenways Finance Agent** — funding **and** the energy-price story for upgrades:\n\n` +
       `- **Grants & subsidies** — non-repayable scheme support (same catalogue as Grants Agent)\n` +
       `- **BNPL** — split equipment payments where providers allow\n` +
-      `- **Equipment finance** — leases & hire purchase for kitchen kit\n` +
+      `- **Equipment finance** — leases & hire purchase for kitchen equipment\n` +
       `- **Green loans** — BMKB-Groen, warmtefonds-style bank products\n` +
       `- **Europe** — EU-wide programmes & cross-border lenders\n` +
       `- **Energy prices** — wholesale ticker + tariff tools; use moves in unit cost to justify efficient equipment\n\n` +
@@ -171,7 +171,7 @@ async function buildPriceUpgradeCaseAnswer(schemes, profile, tip) {
     answer:
       `**Why finance efficient equipment when energy prices move**\n\n` +
       `1. **Unit cost × usage** — if €/kWh or gas rates rise, every inefficient oven, fridge, or HVAC hour costs more.\n` +
-      `2. **Lower kWh first** — ETL-grade kit cuts demand; grants and green loans reduce upfront capex.\n` +
+      `2. **Lower kWh first** — ETL-grade equipment cuts demand; grants and green loans reduce upfront capex.\n` +
       `3. **Stack funding** — grants + BNPL/equipment finance + projected savings (see savings projection).\n\n` +
       `${hint}\n\n` +
       (modelling ? `${modelling}\n\n` : '') +
@@ -181,7 +181,7 @@ async function buildPriceUpgradeCaseAnswer(schemes, profile, tip) {
       `**Next steps:**\n` +
       `- Check prices: ${PORTAL_LINKS.energyTicker}\n` +
       `- Model payback: ${PORTAL_LINKS.savingsProjection}\n` +
-      `- Pick efficient kit: ${PORTAL_LINKS.equipmentAgent}\n` +
+      `- Pick efficient equipment: ${PORTAL_LINKS.equipmentAgent}\n` +
       `- Finance finder: ${PORTAL_LINKS.finance}\n\n_${tip}_`,
     suggestions: related.map(toSuggestion)
   };

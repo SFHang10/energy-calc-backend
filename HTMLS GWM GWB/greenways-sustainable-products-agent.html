@@ -8,6 +8,10 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.js"></script>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.js"></script>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-team.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-team.js"></script>
 <script>
 (function () {
   var p = location.pathname || "";
@@ -672,6 +676,14 @@
     background: rgba(37, 99, 235, 0.15);
   }
 
+  .guide-top-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+
   .header-ghost-btn {
     font-size: 0.68rem;
     padding: 6px 10px;
@@ -912,7 +924,10 @@
           <p>Sustainable Products · water, electricity &amp; gas</p>
         </div>
       </div>
-      <button type="button" class="header-ghost-btn" id="new-chat-btn" title="Start a new conversation">↺ New chat</button>
+      <div class="guide-top-actions">
+        <nav class="gw-team-strip" id="gw-team-strip" aria-label="Greenways agent team" hidden></nav>
+        <button type="button" class="header-ghost-btn" id="new-chat-btn" title="Start a new conversation">↺ New chat</button>
+      </div>
       <div class="guide-profile" aria-label="Your business profile">
         <select id="profile-region" aria-label="Region">
           <option value="">All regions</option>
@@ -955,7 +970,7 @@
       <div class="chat-thread" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
         <div class="welcome-card" id="welcome-card">
           <h2>Ask Zyanne</h2>
-          <p><strong>Search &amp; compare</strong> efficient kit across three utility lanes (<strong>On Greenways</strong> `etl_*` + <strong>Market alternative</strong> `sust_*`). For <strong>limited-time product deal spotlights</strong> (weekly feed offers), ask the <strong>Deals Agent</strong>.</p>
+          <p><strong>Search &amp; compare</strong> efficient equipment across three utility lanes (<strong>On Greenways</strong> `etl_*` + <strong>Market alternative</strong> `sust_*`). For <strong>limited-time product deal spotlights</strong> (weekly feed offers), ask the <strong>Deals Agent</strong>.</p>
           <div class="welcome-tags">
             <button type="button" class="welcome-tag" data-prompt="Find water-saving commercial dishwashers for my restaurant">Water-saving dishwasher</button>
             <button type="button" class="welcome-tag" data-prompt="What product deals and weekly spotlights are in the deals feed?">Product deal spotlights → Deals</button>
@@ -975,7 +990,9 @@
     <div class="chat-compose">
       <div class="compose-row">
         <textarea id="chat-input" rows="1" placeholder="Ask about water, electricity, or gas-saving products…" aria-label="Your question"></textarea>
-        <button type="button" class="send-btn" id="send-btn" aria-label="Send message" title="Send">➤</button>
+                <button type="button" class="gw-voice-btn" id="voice-mic-btn" aria-label="Speak your question" title="Speak">🎤</button>
+        <button type="button" class="gw-voice-btn" id="voice-speak-btn" aria-label="Read last answer aloud" title="Listen">🔊</button>
+<button type="button" class="send-btn" id="send-btn" aria-label="Send message" title="Send">➤</button>
       </div>
       <div class="compose-hint">Enter to send · Shift+Enter new line</div>
     </div>
@@ -1456,6 +1473,12 @@
       });
       saveSession();
     });
+      if (gwVoiceHandle && gwVoiceHandle.maybeAutoSpeak && payload.spokenSummary) {
+        gwVoiceHandle.maybeAutoSpeak(payload.spokenSummary);
+      } else if (window.GreenwaysAgentVoice && payload.spokenSummary) {
+        GreenwaysAgentVoice.setLastSpokenSummary(payload.spokenSummary);
+      }
+
 
     setStatus("Answered · " + src, payload.source === "llm" ? "ok" : "warn");
   }
@@ -1546,7 +1569,7 @@
     card.id = "welcome-card";
     card.innerHTML =
       '<h2>Ask Zyanne</h2>' +
-      '<p><strong>Search &amp; compare</strong> efficient kit (three utility lanes). <strong>Product deal spotlights</strong> (weekly feed offers) → <strong>Deals Agent</strong>.</p>' +
+      '<p><strong>Search &amp; compare</strong> efficient equipment (three utility lanes). <strong>Product deal spotlights</strong> (weekly feed offers) → <strong>Deals Agent</strong>.</p>' +
       '<div class="welcome-tags">' +
       '<button type="button" class="welcome-tag" data-prompt="Find water-saving commercial dishwashers for my restaurant">Water-saving dishwasher</button>' +
       '<button type="button" class="welcome-tag" data-prompt="What product deals and weekly spotlights are in the deals feed?">Product deal spotlights → Deals</button>' +
@@ -1786,12 +1809,43 @@
   });
 
   updateCompareUi();
+  
+  var gwVoiceHandle = null;
+  if (window.GreenwaysAgentVoice) {
+    GreenwaysAgentVoice.init({
+      input: input,
+      micBtn: document.getElementById("voice-mic-btn"),
+      speakBtn: document.getElementById("voice-speak-btn"),
+      onTranscript: function (text) {
+        if (String(text || "").trim()) sendQuestion(text);
+      }
+    }).then(function (handle) {
+      gwVoiceHandle = handle;
+    });
+  }
+  if (window.GreenwaysAgentTeam) {
+    GreenwaysAgentTeam.init({
+      stripMount: document.getElementById("gw-team-strip"),
+      currentSlug: "sustainable-products-agent",
+      getProfile: typeof getProfile === "function" ? getProfile : null,
+      getAgentName: function () { return AGENT_PROFILE && AGENT_PROFILE.name ? AGENT_PROFILE.name : "Agent"; },
+      getLastSummary: function () {
+        return (window.GreenwaysAgentVoice && GreenwaysAgentVoice.getLastSpokenSummary()) || "";
+      },
+      getLastQuestion: function () { return typeof lastQuestion !== "undefined" ? lastQuestion : ""; }
+    });
+  }
+
+  document.addEventListener("gw-team-ready", function (ev) {
+    var boot = ev.detail && ev.detail.suggestedPrompt;
+    if (boot && typeof sendQuestion === "function") {
+      setTimeout(function () { sendQuestion(boot); }, ev.detail.handoffBrief ? 650 : 400);
+    }
+  }, { once: true });
+
+
   restoreSession();
   loadBannerProducts();
-
-  var params = new URLSearchParams(location.search);
-  var boot = params.get("q") || params.get("prompt");
-  if (boot) setTimeout(function () { sendQuestion(boot); }, 400);
 })();
 </script>
 </body>

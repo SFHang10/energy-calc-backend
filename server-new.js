@@ -113,7 +113,9 @@ const LIVE_MUSIC_DATA = [
   ['live-events-feed.json', path.join(__dirname, 'data', 'live-events-feed.json')],
   ['music-news-feed.json', path.join(__dirname, 'data', 'music-news-feed.json')],
   ['music-venues.json', path.join(__dirname, 'data', 'music-venues.json')],
-  ['europe.geojson', path.join(__dirname, 'data', 'europe.geojson')]
+  ['europe.geojson', path.join(__dirname, 'data', 'europe.geojson')],
+  ['greenways-agent-roster.json', path.join(__dirname, 'data', 'greenways-agent-roster.json')],
+  ['greenways-agent-voice-config.json', path.join(__dirname, 'data', 'greenways-agent-voice-config.json')]
 ];
 
 function sendLiveMusicHtml(res, filename) {

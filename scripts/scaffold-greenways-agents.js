@@ -97,10 +97,10 @@ const AGENTS = [
     compareHidden: true,
     sourceKnowledge: 'equipment knowledge',
     helpers: [
-      { id: 'kitchen', icon: '🔥', name: 'Kitchen kit', desc: 'Ovens & steamers', prompt: 'What kitchen equipment upgrades save the most energy in a restaurant?' },
+      { id: 'kitchen', icon: '🔥', name: 'Kitchen equipment', desc: 'Ovens & steamers', prompt: 'What kitchen equipment upgrades save the most energy in a restaurant?' },
       { id: 'cold', icon: '❄️', name: 'Refrigeration', desc: 'Fridges & freezers', prompt: 'What refrigeration alternatives are on the Greenways marketplace?' },
       { id: 'hvac', icon: '💨', name: 'HVAC', desc: 'Ventilation', prompt: 'What HVAC and extraction upgrades fit restaurant kitchens?' },
-      { id: 'grants', icon: '🏛️', name: 'Grants on kit', desc: 'Funding overlay', prompt: 'How do grants attach to marketplace equipment products?' },
+      { id: 'grants', icon: '🏛️', name: 'Grants on equipment', desc: 'Funding overlay', prompt: 'How do grants attach to marketplace equipment products?' },
       { id: 'deep', icon: '📊', name: 'Deep dive', desc: 'Compare & project', prompt: 'How do I use the equipment deep dive and savings projection?' }
     ],
     sidebarLinks: [

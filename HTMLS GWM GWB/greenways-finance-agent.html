@@ -8,6 +8,10 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.js"></script>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.js"></script>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-team.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-team.js"></script>
 <script>
 (function () {
   var p = location.pathname || "";
@@ -640,6 +644,14 @@
     background: rgba(37, 99, 235, 0.15);
   }
 
+  .guide-top-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+
   .header-ghost-btn {
     font-size: 0.68rem;
     padding: 6px 10px;
@@ -880,7 +892,10 @@
           <p>Finance Agent · funding, energy prices &amp; payback</p>
         </div>
       </div>
-      <button type="button" class="header-ghost-btn" id="new-chat-btn" title="Start a new conversation">↺ New chat</button>
+      <div class="guide-top-actions">
+        <nav class="gw-team-strip" id="gw-team-strip" aria-label="Greenways agent team" hidden></nav>
+        <button type="button" class="header-ghost-btn" id="new-chat-btn" title="Start a new conversation">↺ New chat</button>
+      </div>
       <div class="guide-profile" aria-label="Your business profile">
         <select id="profile-region" aria-label="Region">
           <option value="">All regions</option>
@@ -917,7 +932,7 @@
       <div class="chat-thread" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
         <div class="welcome-card" id="welcome-card">
           <h2>Ask Vincent</h2>
-          <p>Answers cover the <strong>finance finder</strong> (grants, BNPL, equipment finance, green loans) <strong>and energy prices</strong> — use tariff moves to explain why efficient kit plus funding beats waiting.</p>
+          <p>Answers cover the <strong>finance finder</strong> (grants, BNPL, equipment finance, green loans) <strong>and energy prices</strong> — use tariff moves to explain why efficient equipment plus funding beats waiting.</p>
           <div class="welcome-tags">
             <button type="button" class="welcome-tag" data-prompt="Why should I upgrade to efficient equipment when energy prices are changing?">Prices → upgrade case</button>
             <button type="button" class="welcome-tag" data-prompt="What are current energy prices in the Netherlands?">NL energy prices</button>
@@ -937,7 +952,9 @@
     <div class="chat-compose">
       <div class="compose-row">
         <textarea id="chat-input" rows="1" placeholder="Ask about finance, energy prices, payback, BNPL, green loans…" aria-label="Your question"></textarea>
-        <button type="button" class="send-btn" id="send-btn" aria-label="Send message" title="Send">➤</button>
+                <button type="button" class="gw-voice-btn" id="voice-mic-btn" aria-label="Speak your question" title="Speak">🎤</button>
+        <button type="button" class="gw-voice-btn" id="voice-speak-btn" aria-label="Read last answer aloud" title="Listen">🔊</button>
+<button type="button" class="send-btn" id="send-btn" aria-label="Send message" title="Send">➤</button>
       </div>
       <div class="compose-hint">Enter to send · Shift+Enter new line</div>
     </div>
@@ -997,7 +1014,7 @@
 
   const HELPERS = [
     { id: "prices", icon: "📈", name: "Energy prices", desc: "Ticker & tariffs", prompt: "What are current energy prices and where is the Greenways energy ticker?" },
-    { id: "upgrade", icon: "⚡", name: "Upgrade case", desc: "Prices → kit", prompt: "Why should I upgrade to efficient equipment when energy prices are changing?" },
+    { id: "upgrade", icon: "⚡", name: "Upgrade case", desc: "Prices → equipment", prompt: "Why should I upgrade to efficient equipment when energy prices are changing?" },
     { id: "bnpl", icon: "💳", name: "BNPL", desc: "Pay-later paths", prompt: "Explain BNPL options for restaurant equipment on Greenways." },
     { id: "loans", icon: "🌿", name: "Green loans", desc: "BMKB & banks", prompt: "What green loan programmes fit a Netherlands restaurant?" },
     { id: "payback", icon: "📊", name: "Payback", desc: "Savings model", prompt: "How do savings projections work for equipment upgrades?" },
@@ -1410,6 +1427,12 @@
       });
       saveSession();
     });
+      if (gwVoiceHandle && gwVoiceHandle.maybeAutoSpeak && payload.spokenSummary) {
+        gwVoiceHandle.maybeAutoSpeak(payload.spokenSummary);
+      } else if (window.GreenwaysAgentVoice && payload.spokenSummary) {
+        GreenwaysAgentVoice.setLastSpokenSummary(payload.spokenSummary);
+      }
+
 
     setStatus("Answered · " + src, payload.source === "llm" ? "ok" : "warn");
   }
@@ -1497,7 +1520,7 @@
     card.id = "welcome-card";
     card.innerHTML =
       '<h2>Ask Vincent</h2>' +
-      '<p>Funding paths plus <strong>energy price context</strong> — use tariff moves to explain why efficient kit and finance stack together.</p>' +
+      '<p>Funding paths plus <strong>energy price context</strong> — use tariff moves to explain why efficient equipment and finance stack together.</p>' +
       '<div class="welcome-tags">' +
       '<button type="button" class="welcome-tag" data-prompt="Why should I upgrade to efficient equipment when energy prices are changing?">Prices → upgrade case</button>' +
       '<button type="button" class="welcome-tag" data-prompt="What are current energy prices in the Netherlands?">NL energy prices</button>' +
@@ -1737,12 +1760,43 @@
   });
 
   updateCompareUi();
+  
+  var gwVoiceHandle = null;
+  if (window.GreenwaysAgentVoice) {
+    GreenwaysAgentVoice.init({
+      input: input,
+      micBtn: document.getElementById("voice-mic-btn"),
+      speakBtn: document.getElementById("voice-speak-btn"),
+      onTranscript: function (text) {
+        if (String(text || "").trim()) sendQuestion(text);
+      }
+    }).then(function (handle) {
+      gwVoiceHandle = handle;
+    });
+  }
+  if (window.GreenwaysAgentTeam) {
+    GreenwaysAgentTeam.init({
+      stripMount: document.getElementById("gw-team-strip"),
+      currentSlug: "finance-agent",
+      getProfile: typeof getProfile === "function" ? getProfile : null,
+      getAgentName: function () { return AGENT_PROFILE && AGENT_PROFILE.name ? AGENT_PROFILE.name : "Agent"; },
+      getLastSummary: function () {
+        return (window.GreenwaysAgentVoice && GreenwaysAgentVoice.getLastSpokenSummary()) || "";
+      },
+      getLastQuestion: function () { return typeof lastQuestion !== "undefined" ? lastQuestion : ""; }
+    });
+  }
+
+  document.addEventListener("gw-team-ready", function (ev) {
+    var boot = ev.detail && ev.detail.suggestedPrompt;
+    if (boot && typeof sendQuestion === "function") {
+      setTimeout(function () { sendQuestion(boot); }, ev.detail.handoffBrief ? 650 : 400);
+    }
+  }, { once: true });
+
+
   restoreSession();
   loadBannerProducts();
-
-  var params = new URLSearchParams(location.search);
-  var boot = params.get("q") || params.get("prompt");
-  if (boot) setTimeout(function () { sendQuestion(boot); }, 400);
 })();
 </script>
 </body>

@@ -10,8 +10,8 @@ let html = fs.readFileSync(src, 'utf8');
 const STATIC_ROSTER = `  const STATIC_PRODUCT_SAMPLES = [
     { id: "grants", name: "Grants Agent", icon: "🏛️", label: "Schemes & subsidies", isSpecialist: true, marketplaceHref: "/greenways/grants-agent?q=What+grants+fit+a+restaurant+upgrading+kitchen+equipment%3F" },
     { id: "finance", name: "Finance Agent", icon: "💶", label: "Loans, BNPL & energy prices", isSpecialist: true, marketplaceHref: "/greenways/finance-agent?q=What+finance+options+exist+for+restaurant+equipment%3F" },
-    { id: "equipment", name: "Equipment Agent", icon: "🍳", label: "Kit & renovation", isSpecialist: true, marketplaceHref: "/greenways/equipment-agent?q=What+efficient+equipment+upgrades+should+a+restaurant+consider%3F" },
-    { id: "products", name: "Sustainable Products", icon: "♻️", label: "Search water / elec / gas kit", isSpecialist: true, marketplaceHref: "/greenways/sustainable-products-agent?q=Find+water-saving+commercial+dishwashers" },
+    { id: "equipment", name: "Equipment Agent", icon: "🍳", label: "Equipment & renovation", isSpecialist: true, marketplaceHref: "/greenways/equipment-agent?q=What+efficient+equipment+upgrades+should+a+restaurant+consider%3F" },
+    { id: "products", name: "Sustainable Products", icon: "♻️", label: "Search water / elec / gas equipment", isSpecialist: true, marketplaceHref: "/greenways/sustainable-products-agent?q=Find+water-saving+commercial+dishwashers" },
     { id: "deals", name: "Deals Agent", icon: "🏷️", label: "Tariffs & product spotlights", isSpecialist: true, marketplaceHref: "/greenways/deals-agent?q=What+product+deals+are+in+the+feed%3F" },
     { id: "media", name: "Media Agent", icon: "📰", label: "News, video & policy", isSpecialist: true, marketplaceHref: "/greenways/media-agent?q=What+sustainability+news+matters+for+restaurants%3F" }
   ];`;
@@ -21,7 +21,7 @@ const HELPERS = `  const HELPERS = [
     { id: "grants_finance", icon: "🏛️", name: "Grants + finance", desc: "Stack funding", prompt: "What grants and finance options fit a restaurant upgrading kitchen equipment?" },
     { id: "products", icon: "♻️", name: "Find products", desc: "Catalog search", prompt: "Find water-saving commercial dishwashers for my restaurant" },
     { id: "deals", icon: "🏷️", name: "Deals", desc: "Tariffs & spotlights", prompt: "What product deals and energy tariffs are in the feed?" },
-    { id: "equipment", icon: "🍳", name: "Equipment", desc: "Kit & renovation", prompt: "What efficient equipment upgrades should a restaurant consider?" },
+    { id: "equipment", icon: "🍳", name: "Equipment", desc: "Equipment & renovation", prompt: "What efficient equipment upgrades should a restaurant consider?" },
     { id: "news", icon: "📰", name: "Media", desc: "News & policy", prompt: "What sustainability news matters for restaurants this month?" }
   ];`;
 

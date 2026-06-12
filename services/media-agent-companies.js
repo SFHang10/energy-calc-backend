@@ -186,7 +186,7 @@ async function buildEnergyExamplesAnswer(question, profile, tip) {
     answer:
       `**Energy savings examples** from the sustainability map — real organisations with published savings, kWh, or payback figures you can use when **assessing upgrade options** (illustrative unless you have your own meter data):\n\n` +
       `${formatCompanyBullets(picks, 6) || '_Open the map for more case studies with stats._'}\n\n` +
-      `Pair with **Finance Agent** for payback on your kit, and **monthly sustainability news** for policy context.\n\n` +
+      `Pair with **Finance Agent** for payback on your equipment, and **monthly sustainability news** for policy context.\n\n` +
       `**Map:** ${MAP_PAGE_HREF}\n\n_${tip}_`,
     suggestions: [],
     intentId: 'energy_examples',

@@ -8,6 +8,10 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.js"></script>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.js"></script>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-team.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-team.js"></script>
 <script>
 (function () {
   var p = location.pathname || "";
@@ -644,6 +648,14 @@
     background: rgba(37, 99, 235, 0.15);
   }
 
+  .guide-top-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+
   .header-ghost-btn {
     font-size: 0.68rem;
     padding: 6px 10px;
@@ -881,10 +893,13 @@
         </div>
         <div>
           <h1>Artemis</h1>
-          <p>Equipment Agent · Arti · kit upgrades &amp; renovation</p>
+          <p>Equipment Agent · Arti · equipment upgrades &amp; renovation</p>
         </div>
       </div>
-      <button type="button" class="header-ghost-btn" id="new-chat-btn" title="Start a new conversation">↺ New chat</button>
+      <div class="guide-top-actions">
+        <nav class="gw-team-strip" id="gw-team-strip" aria-label="Greenways agent team" hidden></nav>
+        <button type="button" class="header-ghost-btn" id="new-chat-btn" title="Start a new conversation">↺ New chat</button>
+      </div>
       <div class="guide-profile" aria-label="Your business profile">
         <select id="profile-region" aria-label="Region">
           <option value="">All regions</option>
@@ -921,7 +936,7 @@
       <div class="chat-thread" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
         <div class="welcome-card" id="welcome-card">
           <h2>Ask Artemis</h2>
-          <p>Changing how your site runs — <strong>new equipment</strong> and <strong>premises renovation</strong> (insulation, retrofit, efficient kit). Marketplace ETL products, deep dive comparisons, and renovation guides share the same grants overlay as <strong>products-with-grants.json</strong>.</p>
+          <p>Changing how your site runs — <strong>new equipment</strong> and <strong>premises renovation</strong> (insulation, retrofit, efficient equipment). Marketplace ETL products, deep dive comparisons, and renovation guides share the same grants overlay as <strong>products-with-grants.json</strong>.</p>
           <div class="welcome-tags">
             <button type="button" class="welcome-tag" data-prompt="What efficient combi steamer alternatives exist for a restaurant?">Combi steamer upgrade</button>
             <button type="button" class="welcome-tag" data-prompt="How should I plan a sustainable restaurant renovation?">Premises renovation</button>
@@ -941,7 +956,9 @@
     <div class="chat-compose">
       <div class="compose-row">
         <textarea id="chat-input" rows="1" placeholder="Ask about equipment upgrades, renovation, insulation, deep dive…" aria-label="Your question"></textarea>
-        <button type="button" class="send-btn" id="send-btn" aria-label="Send message" title="Send">➤</button>
+                <button type="button" class="gw-voice-btn" id="voice-mic-btn" aria-label="Speak your question" title="Speak">🎤</button>
+        <button type="button" class="gw-voice-btn" id="voice-speak-btn" aria-label="Read last answer aloud" title="Listen">🔊</button>
+<button type="button" class="send-btn" id="send-btn" aria-label="Send message" title="Send">➤</button>
       </div>
       <div class="compose-hint">Enter to send · Shift+Enter new line</div>
     </div>
@@ -950,7 +967,7 @@
   <aside class="guide-sidebar" aria-label="Equipment &amp; renovation helpers">
     <div class="sidebar-section">
       <div class="sidebar-label">Quick links</div>
-      <p style="font-size:0.72rem;color:var(--muted);line-height:1.45;">Kit upgrades, renovation guides, and funding agents.</p>
+      <p style="font-size:0.72rem;color:var(--muted);line-height:1.45;">Equipment upgrades, renovation guides, and funding agents.</p>
       <a class="sidebar-link" href="./restaurant-equipment-deep-dive.html" target="_top" rel="noopener">Equipment deep dive →</a>
       <a class="sidebar-link" href="./Sustainable%20Renovations%20New%20.html" target="_top" rel="noopener">Sustainable renovations →</a>
       <a class="sidebar-link" href="./Importance%20of%20Insulation.html" target="_top" rel="noopener">Insulation guide →</a>
@@ -1000,7 +1017,7 @@
   ];
 
   const HELPERS = [
-    { id: "kitchen", icon: "🔥", name: "Kitchen kit", desc: "Ovens & steamers", prompt: "What kitchen equipment upgrades save the most energy in a restaurant?" },
+    { id: "kitchen", icon: "🔥", name: "Kitchen equipment", desc: "Ovens & steamers", prompt: "What kitchen equipment upgrades save the most energy in a restaurant?" },
     { id: "reno", icon: "🏗️", name: "Renovation", desc: "Premises upgrade", prompt: "How should I plan a sustainable restaurant renovation with new equipment?" },
     { id: "insul", icon: "🧱", name: "Insulation", desc: "Fabric & envelope", prompt: "What insulation upgrades matter most for a restaurant building?" },
     { id: "cold", icon: "❄️", name: "Refrigeration", desc: "Fridges & freezers", prompt: "What refrigeration alternatives are on the Greenways marketplace?" },
@@ -1412,6 +1429,12 @@
       });
       saveSession();
     });
+      if (gwVoiceHandle && gwVoiceHandle.maybeAutoSpeak && payload.spokenSummary) {
+        gwVoiceHandle.maybeAutoSpeak(payload.spokenSummary);
+      } else if (window.GreenwaysAgentVoice && payload.spokenSummary) {
+        GreenwaysAgentVoice.setLastSpokenSummary(payload.spokenSummary);
+      }
+
 
     setStatus("Answered · " + src, payload.source === "llm" ? "ok" : "warn");
   }
@@ -1739,12 +1762,43 @@
   });
 
   updateCompareUi();
+  
+  var gwVoiceHandle = null;
+  if (window.GreenwaysAgentVoice) {
+    GreenwaysAgentVoice.init({
+      input: input,
+      micBtn: document.getElementById("voice-mic-btn"),
+      speakBtn: document.getElementById("voice-speak-btn"),
+      onTranscript: function (text) {
+        if (String(text || "").trim()) sendQuestion(text);
+      }
+    }).then(function (handle) {
+      gwVoiceHandle = handle;
+    });
+  }
+  if (window.GreenwaysAgentTeam) {
+    GreenwaysAgentTeam.init({
+      stripMount: document.getElementById("gw-team-strip"),
+      currentSlug: "equipment-agent",
+      getProfile: typeof getProfile === "function" ? getProfile : null,
+      getAgentName: function () { return AGENT_PROFILE && AGENT_PROFILE.name ? AGENT_PROFILE.name : "Agent"; },
+      getLastSummary: function () {
+        return (window.GreenwaysAgentVoice && GreenwaysAgentVoice.getLastSpokenSummary()) || "";
+      },
+      getLastQuestion: function () { return typeof lastQuestion !== "undefined" ? lastQuestion : ""; }
+    });
+  }
+
+  document.addEventListener("gw-team-ready", function (ev) {
+    var boot = ev.detail && ev.detail.suggestedPrompt;
+    if (boot && typeof sendQuestion === "function") {
+      setTimeout(function () { sendQuestion(boot); }, ev.detail.handoffBrief ? 650 : 400);
+    }
+  }, { once: true });
+
+
   restoreSession();
   loadBannerProducts();
-
-  var params = new URLSearchParams(location.search);
-  var boot = params.get("q") || params.get("prompt");
-  if (boot) setTimeout(function () { sendQuestion(boot); }, 400);
 })();
 </script>
 </body>

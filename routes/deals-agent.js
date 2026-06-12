@@ -3,6 +3,7 @@ const {
   answerFromKnowledge,
   getDefaultProductSamples
 } = require('../services/deals-agent-knowledge');
+const { buildAgentAskFallback, normalizeAskProfile } = require('../services/greenways-agent-llm-fallback');
 
 const router = express.Router();
 
@@ -20,11 +21,7 @@ router.get('/samples', async (req, res) => {
 router.post('/ask', async (req, res) => {
   try {
     const question = String(req.body?.question || '').trim();
-    const profile = {
-      region: String(req.body?.profile?.region || '').trim(),
-      sector: String(req.body?.profile?.sector || '').trim(),
-      focus: String(req.body?.profile?.focus || '').trim()
-    };
+    const profile = normalizeAskProfile(req.body);
     if (!question) {
       return res.status(400).json({ ok: false, error: 'question is required.' });
     }
@@ -42,15 +39,7 @@ router.post('/ask', async (req, res) => {
       });
     }
 
-    res.json({
-      ok: true,
-      answer:
-        `No deals intent matched "${question}". Try energy tariffs, water savings, or sustainability product deals.`,
-      suggestions: [],
-      blocks: [],
-      productSamples: await getDefaultProductSamples(3),
-      source: 'heuristic'
-    });
+    res.json(await buildAgentAskFallback('deals', question, profile));
   } catch (error) {
     console.error('Deals agent ask error:', error.message);
     res.status(500).json({ ok: false, error: 'Failed to answer question.' });

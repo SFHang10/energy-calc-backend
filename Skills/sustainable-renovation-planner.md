@@ -21,7 +21,7 @@ Keep the **existing HTML styling** from the template; only replace content block
 
 ## ✅ When To Use
 
-**Consumer chat:** renovation / insulation / retrofit questions route through **Equipment Agent** (`/greenways/equipment-agent`) — merged with kit upgrades, not a separate Renovation agent.
+**Consumer chat:** renovation / insulation / retrofit questions route through **Equipment Agent** (`/greenways/equipment-agent`) — merged with equipment upgrades, not a separate Renovation agent.
 
 Use this skill when the user asks for:
 - renovation project plans
