@@ -155,8 +155,10 @@
     gap: 14px;
     -webkit-overflow-scrolling: touch;
   }
+  .chat-thread.is-welcome-state,
   .chat-thread:has(#welcome-card) {
     justify-content: center;
+    align-items: center;
     padding-top: 12px;
     padding-bottom: 32px;
   }
@@ -195,16 +197,16 @@
     font-size: 0.72rem;
     padding: 7px 12px;
     border-radius: 999px;
-    border: 1px solid var(--border);
-    background: rgba(37, 99, 235, 0.12);
+    border: 1px solid rgba(40, 167, 69, 0.35);
+    background: rgba(40, 167, 69, 0.12);
     color: var(--accent-lt);
     cursor: pointer;
     font-family: inherit;
     transition: background 0.15s, border-color 0.15s;
   }
   .welcome-tag:hover {
-    background: rgba(37, 99, 235, 0.22);
-    border-color: rgba(96, 165, 250, 0.45);
+    background: rgba(40, 167, 69, 0.22);
+    border-color: rgba(93, 216, 121, 0.45);
   }
 
   .product-showcase-banner {
@@ -383,10 +385,10 @@
     word-break: break-word;
   }
   .msg-row.agent .msg-bubble {
-    background: linear-gradient(135deg, var(--bubble-in), #1e40af);
+    background: linear-gradient(135deg, var(--bubble-in), #15803d);
     color: #f4f6ff;
     border-top-left-radius: 4px;
-    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.22);
+    box-shadow: 0 8px 24px rgba(40, 167, 69, 0.22);
   }
   .msg-row.user .msg-bubble {
     background: var(--bubble-out);
@@ -947,7 +949,7 @@
     </section>
 
     <div class="chat-panel">
-      <div class="chat-thread" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
+      <div class="chat-thread is-welcome-state" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
         <div class="welcome-card" id="welcome-card">
           <h2>Ask Artemis</h2>
           <p>Artemis balances <strong>energy efficiency</strong>, <strong>durability</strong>, and <strong>lifecycle cost</strong> — ETL-verified kit, deep dive comparisons, trajectory pages, and renovation guides on Greenways.</p>
@@ -1138,9 +1140,15 @@
 
 
 
+  function setWelcomeLayout(active) {
+    if (!thread) return;
+    thread.classList.toggle("is-welcome-state", !!active);
+  }
+
   function hideWelcome() {
     const card = document.getElementById("welcome-card");
     if (card && card.parentNode) card.remove();
+    setWelcomeLayout(false);
   }
 
   function appendMessage(role, html, extra) {
@@ -1573,6 +1581,7 @@
     card.id = "welcome-card";
     card.innerHTML = welcomeCardInnerHtml();
     thread.appendChild(card);
+    setWelcomeLayout(true);
     bindWelcomeTags();
     if (quickReplyBar) quickReplyBar.hidden = true;
     sessionStorage.removeItem(SESSION_KEY);
