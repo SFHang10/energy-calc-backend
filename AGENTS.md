@@ -24,7 +24,7 @@
 | **Zara** | Deals & spotlights | `deals-agent` |
 | **Cheryce** | News & media | `media-agent` |
 | **Zyanne** | Sustainable products | `sustainable-products-agent` |
-| **Edwardo** | Systems health (staff) | `systems-agent` |
+| **Edwardo** | Systems & equipment — monitoring, sensors, dashboards | `systems-agent` |
 
 **Roster + skills map:** `Skills/greenways-transition-agents.md` · **Roadmap:** `Skills/greenways-agents-roadmap.md` · **Go-live:** `Skills/greenways-agents-go-live.md` · **UI/API:** `Skills/greenways-chat-interface-skill.md` · **Wix:** `HTMLS GWM GWB/WIX-GREENWAYS-AGENTS-EMBED.md`
 
@@ -70,7 +70,7 @@
 | **Deals Agent (chat)** | `HTMLS GWM GWB/greenways-deals-agent.html` — cyan/orange theme — `/greenways/deals-agent`, `/api/deals-agent/*` — full shell: `Deals.html`, tariffs: `european_energy_deals_portal.html` |
 | **Media Agent (chat)** | `HTMLS GWM GWB/greenways-media-agent.html` — purple theme — `/greenways/media-agent`, `/api/media-agent/*` — news: `services/media-news-loader.js` (KB + monthly editions); **sustainability map:** `services/media-agent-companies.js` + `data/companies.json` → `European Company - Case Study Finder (Standalone) - Wix bundle.html`; videos: Wix Media API |
 | **Sustainable Products Agent (chat)** | `HTMLS GWM GWB/greenways-sustainable-products-agent.html` — cyan/teal theme — `/greenways/sustainable-products-agent`, `/api/sustainable-products-agent/*` — water/electricity/gas lanes; lightweight catalog + showcase (full search on finder pages) |
-| **Systems Agent (chat)** | `HTMLS GWM GWB/greenways-systems-agent.html` — slate/amber — `/greenways/systems-agent`, `/api/systems-agent/*` — read-only health: grants, products export, catalog, deals, news; **Verify selected** button |
+| **Systems Agent (chat)** | `HTMLS GWM GWB/greenways-systems-agent.html` — slate/amber — `/greenways/systems-agent`, `/api/systems-agent/*` — **consumer:** monitoring, sensors, product reviews (home/restaurant); **ops:** read-only health verify + **Verify selected** |
 | **Greenways Guide (chat, WIP)** | Hub conductor — backend only: `data/guide-agent-intents.json`, `data/guide-agent-roster.json`, `services/guide-agent-knowledge.js`, `routes/guide-agent.js` — **not live** until `greenways-guide-agent.html` + `server-new.js` mount (`/greenways/guide-agent`, `/api/guide-agent/*`) |
 | **Wix agents embed (hub + per-page)** | `Skills/greenways-chat-interface-skill.md` § Wix site pattern · quick ref `HTMLS GWM GWB/WIX-GREENWAYS-AGENTS-EMBED.md` — hub may embed Guide conductor; each character page = one `/greenways/{agent}` iframe |
 | **Grants Agent intents** | `data/grants-agent-intents.json` |

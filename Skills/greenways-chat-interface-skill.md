@@ -299,7 +299,7 @@ Knowledge services return structured right-column content; HTML builds tablets v
 
 ## Shared team strip + handoffs (May 2026)
 
-**Roster:** `data/greenways-agent-roster.json` — portraits + `/greenways/{slug}` paths (six public agents; Edwardo in `staffOnly`).
+**Roster:** `data/greenways-agent-roster.json` — portraits + `/greenways/{slug}` paths (seven agents; Edwardo = **Systems & equipment** — monitoring, sensors, dashboards).
 
 **Module:** `HTMLS GWM GWB/js/greenways-agent-team.js` + `.css` — team faces beside **New chat**, handoff brief, shared profile.
 
@@ -475,7 +475,7 @@ Base: `https://energy-calc-backend.onrender.com`
 | **Zyanne** | Efficient products (water / elec / gas) | `/greenways/sustainable-products-agent` |
 | **Zara** | Supply deals + product spotlights | `/greenways/deals-agent` |
 | **Cheryce** | News, video & policy | `/greenways/media-agent` |
-| **Edwardo** | Health checks (staff-oriented) | `/greenways/systems-agent` |
+| **Edwardo** | Monitoring, sensors & systems visibility | `/greenways/systems-agent` |
 | **Guide** (WIP) | Hub conductor — routes to specialists | `/greenways/guide-agent` — **not live** until HTML + server mount |
 
 Append **`?embed=1`** on first test if sidebar/layout needs Wix containment (adds `html.embed-wix`).

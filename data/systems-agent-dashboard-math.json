@@ -1,0 +1,137 @@
+{
+  "updatedAt": "2026-06-12",
+  "meta": {
+    "source": "HTMLS GWM GWB/js/site-energy-model.js + Greenways Interface .html + restaurant-equipment-deep-dive.html",
+    "note": "Greenways buildings dashboard is in development — Edwardo explains the model even when live embed is not yet on Render."
+  },
+  "tariffs": {
+    "electricityEurPerKwh": 0.3,
+    "gasEurPerKwhThermal": 0.11,
+    "waterEurPerLitre": 0.0025,
+    "kwhPerM3NaturalGas": 10.55,
+    "summary": "Electricity €0.30/kWh · Gas ~€1.16/m³ (10.55 kWh(th)/m³ × €0.11/kWh(th)) · Water €2.50/m³ (€0.0025/L)"
+  },
+  "formulas": [
+    {
+      "id": "monthly-electricity-cost",
+      "label": "Electricity cost",
+      "expression": "monthly_kWh × €0.30",
+      "example": "18,600 kWh/mo × €0.30 ≈ €5,580/mo (Wok To Walk Leidsestraat site data)"
+    },
+    {
+      "id": "monthly-gas-cost",
+      "label": "Gas cost",
+      "expression": "gas_m³ × 10.55 × €0.11",
+      "example": "940 m³/mo × 10.55 × €0.11 ≈ €1,090/mo thermal equivalent"
+    },
+    {
+      "id": "monthly-water-cost",
+      "label": "Water cost",
+      "expression": "water_m³ × 1000 × €0.0025",
+      "example": "214 m³/mo × 1000 × €0.0025 ≈ €535/mo"
+    },
+    {
+      "id": "baseline-delta",
+      "label": "Vs baseline",
+      "expression": "((actual − baseline) / baseline) × 100%",
+      "example": "142 kWh today vs 220 kWh baseline → ▼ 35% — dashboard KPI chips use this for traffic-light scores"
+    },
+    {
+      "id": "daily-to-monthly",
+      "label": "Site monthly → daily",
+      "expression": "monthly_kWh / 30 × period_factor",
+      "example": "Portfolio view scales site monthly totals when comparing Amsterdam HQ vs pilot sites"
+    },
+    {
+      "id": "equipment-daily-cost",
+      "label": "Deep dive line cost",
+      "expression": "(elec_kWh × €0.30) + (gas_kWh × €0.11) + (water_L × €0.0025)",
+      "example": "One wok line: gas-heavy mix — sub-meter gas and electrical aux separately for accuracy"
+    },
+    {
+      "id": "payback",
+      "label": "Upgrade payback",
+      "expression": "net_upfront / (baseline_€/mo − proposed_€/mo)",
+      "example": "€8k net capex ÷ €220/mo savings ≈ 36 months — savings projection chart on Greenways"
+    },
+    {
+      "id": "cost-leak",
+      "label": "Cost leak detector",
+      "expression": "excess_kWh/day × implied_€/kWh × 30",
+      "example": "kWh above target profile × tariff floor → €/mo leak estimate on analytics row"
+    }
+  ],
+  "timeOfUse": {
+    "headline": "When you use energy matters as much as how much",
+    "points": [
+      "Dashboard 24h trend shows peak hours (often lunch service 11:00–14:00 for restaurants) — shifting prep or HVAC pre-cool to off-peak cuts €/kWh on dynamic tariffs.",
+      "Running identical equipment at peak vs off-peak can differ 2× on some business tariffs even if kWh is the same — Vincent covers tariff compare; Edwardo ties it to visible load shapes.",
+      "Refrigeration and standby loads running 24/7 flatten the curve — efficient ETL kit lowers the baseline band, not just peak spikes.",
+      "Batch dishwash and combi-oven cycles timed away from peak electricity windows often save more than one extra efficient appliance bought but run at peak.",
+      "Gas wok lines dominate thermal cost — monitoring m³ separately from kWh avoids mis-attributing savings to the wrong fuel."
+    ]
+  },
+  "dashboardFeatures": {
+    "greenwaysInterface": {
+      "title": "Greenways buildings dashboard",
+      "href": "./Greenways%20Interface%20.html",
+      "status": "in_development",
+      "statusNote": "Portfolio KPIs and charts — embed/display still being finalised; not fully live on Render yet.",
+      "features": [
+        "KPI tiles: Electricity, Gas, Water, Cost Today — link to utility-detail",
+        "7-day trend + usage breakdown + AI insights row",
+        "Baseline vs actual targets and cost-leak detector on analytics",
+        "Equipment feed from site assets — efficiency score vs fleet average",
+        "System status panel (Live / Hold / Feed issue)"
+      ]
+    },
+    "utilityDetail": {
+      "title": "Utility detail pages",
+      "href": "./utility-detail.html",
+      "queryTypes": ["electricity", "gas", "water"],
+      "features": ["24h trend", "period compare 7/14/30/60 days", "process breakdown", "efficiency score vs baseline"]
+    },
+    "sensorDashboard": {
+      "title": "Sensor intelligence dashboard",
+      "href": "./sensor-dashboard.html",
+      "features": ["Multi-site sensor lanes", "Power / gas / water signals", "Restaurant portfolio demo"]
+    },
+    "equipmentDeepDive": {
+      "title": "Restaurant equipment deep dive",
+      "href": "./restaurant-equipment-deep-dive.html",
+      "features": [
+        "Product-level kWh, gas, water per line",
+        "Decision matrix: current vs ETL alternatives",
+        "Systems view — why certified efficient equipment saves money and resources"
+      ],
+      "exampleQuery": "?wok=glass-fridge&site=wok-to-walk&return=Greenways%20Interface%20.html"
+    }
+  },
+  "etlExamples": [
+    {
+      "title": "Motor efficiency upgrades",
+      "savings": "5–15% energy · ROI 1–3 years",
+      "source": "energy_technology_list_etl.html"
+    },
+    {
+      "title": "Smart controls retrofit",
+      "savings": "10–40% without full replacement",
+      "source": "energy_technology_list_etl.html"
+    },
+    {
+      "title": "LED conversion kits",
+      "savings": "60–80% lighting energy · £500–2,000/yr typical",
+      "source": "energy_technology_list_etl.html"
+    },
+    {
+      "title": "Power factor correction",
+      "savings": "5–15% bill reduction",
+      "source": "energy_technology_list_etl.html"
+    },
+    {
+      "title": "JD Wetherspoon CHEETAH rollout",
+      "savings": "654 sites · 7M+ kWh/yr chain savings (case study on Greenways)",
+      "source": "companies data / low energy guides"
+    }
+  ]
+}

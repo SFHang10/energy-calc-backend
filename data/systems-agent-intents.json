@@ -1,18 +1,202 @@
 {
-  "updatedAt": "2026-05-28",
+  "updatedAt": "2026-06-12",
   "meta": {
-    "title": "Greenways Systems Agent — data freshness & health",
-    "description": "Lightweight consumer/staff view of grants, products, catalog, deals, news sync status"
+    "title": "Greenways Systems Agent — monitoring, sensors & platform health",
+    "description": "Client-facing systems and equipment specialist plus read-only ops health checks."
   },
   "staticTips": [
-    "Verify selected re-checks files on disk — it does not run integrator or build scripts. Run those when status shows stale.",
-    "Full diagnostics (Wix MCP, ETL API, Render) live in Skills/Systems MD.md for staff."
+    "Measure before you buy — one incomer meter or smart-meter export often beats guessing which appliance to replace.",
+    "Restaurant peaks, overnight HVAC, and cold-chain drift are the highest-value sensor targets.",
+    "Greenways dashboard cost = kWh × €0.30 + gas m³ × ~€1.16 + water m³ × ~€2.50 — ask Edwardo for the full formula.",
+    "Verify selected (sidebar) is read-only ops — it does not run integrator or build scripts."
   ],
   "intents": [
     {
-      "id": "overview",
-      "patterns": ["overview", "system status", "health check", "is everything working", "what is the status"],
-      "answerType": "overview"
+      "id": "consumer_overview",
+      "patterns": [
+        "what do you cover",
+        "who is edwardo",
+        "systems specialist",
+        "equipment specialist",
+        "systems and equipment",
+        "what is your role",
+        "how can you help",
+        "building systems"
+      ],
+      "answerType": "consumer_overview"
+    },
+    {
+      "id": "monitoring_why",
+      "patterns": [
+        "why monitor",
+        "why monitoring",
+        "importance of monitoring",
+        "energy monitoring",
+        "measure first",
+        "baseline",
+        "submeter",
+        "sub-meter",
+        "m&v",
+        "measurement and verification"
+      ],
+      "answerType": "monitoring_why"
+    },
+    {
+      "id": "sensors_restaurant",
+      "patterns": [
+        "restaurant sensor",
+        "restaurant sensors",
+        "sensors for restaurant",
+        "sensors should a restaurant",
+        "kitchen sensor",
+        "hospitality monitoring",
+        "cookline",
+        "dishwash monitor",
+        "cold room sensor",
+        "extraction fan sensor",
+        "restaurant iot",
+        "wok to walk sensor"
+      ],
+      "answerType": "sensors_restaurant"
+    },
+    {
+      "id": "sensors_home",
+      "patterns": [
+        "home sensor",
+        "home monitoring",
+        "smart home energy",
+        "home iot",
+        "household monitoring",
+        "clamp meter",
+        "smart meter home"
+      ],
+      "answerType": "sensors_home"
+    },
+    {
+      "id": "sensors_office",
+      "patterns": [
+        "office sensor",
+        "office monitoring",
+        "tenant submeter",
+        "after hours hvac",
+        "building monitoring office"
+      ],
+      "answerType": "sensors_office"
+    },
+    {
+      "id": "monitoring_products",
+      "patterns": [
+        "monitoring product",
+        "sensor product",
+        "review monitoring",
+        "which meter",
+        "which sensor",
+        "monitoring hardware",
+        "leak alert",
+        "refrigeration monitor"
+      ],
+      "answerType": "monitoring_products"
+    },
+    {
+      "id": "greenways_dashboard",
+      "patterns": [
+        "sensor dashboard",
+        "iot dashboard",
+        "buildings dashboard",
+        "greenways dashboard",
+        "energy dashboard",
+        "utility detail",
+        "live dashboard",
+        "portfolio dashboard"
+      ],
+      "answerType": "greenways_dashboard"
+    },
+    {
+      "id": "dashboard_math",
+      "patterns": [
+        "dashboard math",
+        "dashboard maths",
+        "how is cost calculated",
+        "how does the dashboard calculate",
+        "baseline vs actual",
+        "cost formula",
+        "kwh cost",
+        "tariff model",
+        "site energy model"
+      ],
+      "answerType": "dashboard_math"
+    },
+    {
+      "id": "time_of_use",
+      "patterns": [
+        "time of use",
+        "time of day",
+        "peak hours",
+        "off peak",
+        "shift load",
+        "when to run equipment",
+        "economical time",
+        "peak electricity",
+        "lunch peak"
+      ],
+      "answerType": "time_of_use"
+    },
+    {
+      "id": "etl_systems_savings",
+      "patterns": [
+        "etl savings",
+        "etl example",
+        "certified equipment",
+        "energy technology list",
+        "why etl",
+        "etl efficient",
+        "what could this mean for my costs",
+        "what they saved"
+      ],
+      "answerType": "etl_systems_savings"
+    },
+    {
+      "id": "deep_dive_systems",
+      "patterns": [
+        "deep dive",
+        "equipment deep dive",
+        "decision matrix",
+        "compare equipment",
+        "wok line",
+        "glass fridge",
+        "product level",
+        "systems view equipment"
+      ],
+      "answerType": "deep_dive_systems"
+    },
+    {
+      "id": "role_resources",
+      "patterns": [
+        "your role",
+        "edwardo role",
+        "must know",
+        "must-know",
+        "useful links",
+        "background reading",
+        "who are you",
+        "project manager",
+        "sustainable project"
+      ],
+      "answerType": "role_resources"
+    },
+    {
+      "id": "health_overview",
+      "patterns": [
+        "health check",
+        "platform health",
+        "system health",
+        "data status",
+        "is everything working",
+        "full status",
+        "ops overview",
+        "greenways health"
+      ],
+      "answerType": "health_overview"
     },
     {
       "id": "grants_status",
@@ -22,13 +206,13 @@
     },
     {
       "id": "products_status",
-      "patterns": ["product status", "products up to date", "product info", "products-with-grants", "marketplace grants"],
+      "patterns": ["product status", "products up to date", "products-with-grants", "marketplace grants export"],
       "answerType": "check",
       "check": "products"
     },
     {
       "id": "catalog_status",
-      "patterns": ["catalog status", "sustainable catalog", "sust_", "new products catalog", "finder catalog"],
+      "patterns": ["catalog status", "sustainable catalog", "sust_", "finder catalog"],
       "answerType": "check",
       "check": "catalog"
     },
@@ -46,18 +230,18 @@
     },
     {
       "id": "agents_status",
-      "patterns": ["agents status", "chat agents", "greenways agents"],
+      "patterns": ["agents status", "chat agents", "greenways agents pages"],
       "answerType": "check",
       "check": "agents"
     },
     {
       "id": "sync_help",
-      "patterns": ["sync button", "verify selected", "how does sync work", "confirm up to date"],
+      "patterns": ["sync button", "verify selected", "how does sync work", "how does verify work"],
       "answerType": "sync_help"
     },
     {
       "id": "portals",
-      "patterns": ["staff docs", "systems skill", "full systems", "integrator", "render health"],
+      "patterns": ["staff docs", "systems skill", "full systems md", "integrator docs", "render health api"],
       "answerType": "portals"
     }
   ]

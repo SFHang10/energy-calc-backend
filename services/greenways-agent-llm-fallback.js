@@ -44,6 +44,7 @@ const {
 } = require('./sustainable-products-agent-knowledge');
 const {
   getDefaultStatusSamples,
+  getDefaultConsumerSamples,
   runChecks
 } = require('./systems-agent-knowledge');
 
@@ -113,11 +114,13 @@ const AGENT_PROFILES = {
   systems: {
     name: 'Edwardo',
     prefix: 'SYSTEMS_AGENT',
-    role: 'Greenways systems health specialist (staff-oriented)',
+    role: 'Systems and equipment specialist — monitoring, Greenways dashboard maths, ETL systems savings',
     instructions: [
-      'Summarise healthChecks honestly — ok, stale, warn, error.',
-      'Clarify that Verify selected is read-only and does not run build scripts.',
-      'Keep tone factual and brief.'
+      'Explain Greenways energy dashboard KPIs and site-energy-model tariffs (€/kWh, gas m³, water).',
+      'Cover time-of-use: peak vs off-peak and batch timing for restaurants and homes.',
+      'Link equipment deep dive and ETL examples to euro savings, not just percentages.',
+      'Note dashboard embed is in development on Render — maths and HTML pages still apply.',
+      'For ops health questions only: summarise healthChecks; Verify selected is read-only.'
     ]
   }
 };
@@ -355,23 +358,22 @@ async function buildSustainableProductsFallback(question, profile) {
 }
 
 async function buildSystemsFallback(question, profile) {
-  const report = await runChecks();
-  const productSamples = await getDefaultStatusSamples(6);
-  const healthChecks = slimChecks(report.results);
-  const heuristicAnswer =
-    `Could not match a systems intent for "${question}". Here is the latest **${String(report.overall || 'unknown').toUpperCase()}** snapshot — use **Verify selected** for a fresh read.`;
+  const { buildConsumerOverviewAnswer } = require('./systems-agent-monitoring');
+  const productSamples = await getDefaultConsumerSamples(3);
+  const heuristic = await buildConsumerOverviewAnswer(profile || {}, '');
+  const heuristicAnswer = heuristic.answer || `Ask me about **monitoring**, **restaurant sensors**, or **home energy visibility**.`;
   const llmAnswer = await callAgentLlm('systems', question, profile || {}, {
-    healthChecks,
-    overall: report.overall,
-    counts: report.counts
+    monitoringFocus: profile?.sector || 'restaurant',
+    productHighlights: slimProducts(productSamples),
+    dashboardTariffs: (await require('./systems-agent-dashboard').loadDashboardMath()).tariffs
   });
   return {
     ok: true,
     answer: llmAnswer || heuristicAnswer,
     suggestions: [],
-    blocks: [],
+    blocks: heuristic.blocks || [],
     productSamples,
-    checkReport: report,
+    agentHandoffs: heuristic.agentHandoffs || [],
     source: llmAnswer ? 'llm' : 'heuristic'
   };
 }

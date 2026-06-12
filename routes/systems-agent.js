@@ -63,13 +63,15 @@ router.post('/ask', async (req, res) => {
 
     const profile = normalizeAskProfile(req.body);
     const knowledge = await answerFromKnowledge(question, profile);
-    if (knowledge?.answer && knowledge.source !== 'heuristic') {
+    if (knowledge?.answer) {
       return res.json({
         ok: true,
         answer: knowledge.answer,
         suggestions: knowledge.suggestions || [],
         blocks: knowledge.blocks || [],
         productSamples: knowledge.productSamples || [],
+        agentHandoffs: knowledge.agentHandoffs || [],
+        spokenSummary: knowledge.spokenSummary || '',
         checkReport: knowledge.checkReport || null,
         source: knowledge.source || 'knowledge',
         intentId: knowledge.intentId || null

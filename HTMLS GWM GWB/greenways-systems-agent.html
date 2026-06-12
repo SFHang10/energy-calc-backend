@@ -137,7 +137,7 @@
         </div>
         <div>
           <h1>Edwardo</h1>
-          <p>Systems Agent · health checks &amp; verify</p>
+          <p>Systems &amp; equipment · monitoring, sensors &amp; visibility</p>
         </div>
       </div>
       <div class="guide-top-actions">
@@ -158,12 +158,17 @@
       <div class="chat-thread" id="chat-thread">
         <div class="welcome-card" id="welcome-card">
           <h2>Ask Edwardo</h2>
-          <p>Lightweight <strong>health checks</strong> — grants vs <code>schemes.json</code>, product export dates, sustainable catalog, deals feed, and news KB. <strong>Verify selected</strong> in the sidebar re-checks without running build scripts.</p>
+          <p><strong>Systems &amp; equipment specialist</strong> — why monitoring matters for homes and restaurants, which sensors to prioritise, and how Greenways dashboards make waste visible. Ops teams can still run read-only <strong>health checks</strong> via the status banner and <strong>Verify selected</strong>.</p>
           <div class="welcome-tags">
-            <button type="button" class="welcome-tag" data-prompt="Give me a full system health overview">Full status</button>
-            <button type="button" class="welcome-tag" data-prompt="Are grants and schemes in sync with products?">Grants sync</button>
-            <button type="button" class="welcome-tag" data-prompt="Is the product grants overlay up to date?">Product export</button>
-            <button type="button" class="welcome-tag" data-prompt="How does the sync verify button work?">How verify works</button>
+            <button type="button" class="welcome-tag" data-prompt="Why is energy monitoring important before I upgrade equipment?">Why monitoring?</button>
+            <button type="button" class="welcome-tag" data-prompt="What sensors should a restaurant install for cookline, refrigeration, and water?">Restaurant sensors</button>
+            <button type="button" class="welcome-tag" data-prompt="What home energy monitoring and sensors help consumers save money?">Home monitoring</button>
+            <button type="button" class="welcome-tag" data-prompt="Review monitoring products — submetering, leak alerts, and cold chain">Monitoring reviews</button>
+            <button type="button" class="welcome-tag" data-prompt="Where is the Greenways energy dashboard and what does it show?">Energy dashboard</button>
+            <button type="button" class="welcome-tag" data-prompt="How does the Greenways dashboard calculate energy cost from kWh and gas?">Dashboard maths</button>
+            <button type="button" class="welcome-tag" data-prompt="Is it more economical to run kitchen equipment at different times of day?">Peak vs off-peak</button>
+            <button type="button" class="welcome-tag" data-prompt="What ETL equipment savings examples apply to my energy costs?">ETL savings examples</button>
+            <button type="button" class="welcome-tag" data-prompt="Explain equipment deep dive from a systems point of view">Equipment deep dive</button>
           </div>
         </div>
       </div>
@@ -174,14 +179,14 @@
         <button type="button" class="gw-voice-btn" id="voice-speak-btn" aria-label="Read last answer aloud" title="Listen">🔊</button>
 <button type="button" class="send-btn" id="send-btn" title="Send">➤</button>
         </div>
-        <div class="compose-hint">Enter to send · Verify selected = read-only check (no scripts run)</div>
+        <div class="compose-hint">Enter to send · consumer monitoring questions or ops health checks</div>
       </div>
     </div>
   </main>
 
   <aside class="guide-sidebar">
     <div class="sidebar-section">
-      <div class="sidebar-label">Verify selected</div>
+      <div class="sidebar-label">Ops · verify selected</div>
       <p class="sync-note">Tick items to re-check freshness on disk.</p>
       <div class="sync-checks" id="sync-checks"></div>
       <button type="button" class="sync-verify-btn" id="sync-verify-btn">🔄 Verify selected</button>
@@ -189,12 +194,13 @@
     </div>
     <div class="sidebar-section">
       <div class="sidebar-label">Quick links</div>
-      <a class="sidebar-link" href="/health" target="_top">API /health →</a>
-      <a class="sidebar-link" href="/greenways/grants-agent" target="_top">Grants Agent →</a>
-      <a class="sidebar-link" href="/greenways/sustainable-products-agent" target="_top">Products Agent →</a>
+      <a class="sidebar-link" href="./Importance%20of%20Energy%20Monitoring.html" target="_top">Monitoring guide →</a>
+      <a class="sidebar-link" href="./sensor-dashboard.html" target="_top">Sensor dashboard →</a>
+      <a class="sidebar-link" href="/greenways/equipment-agent" target="_top">Artemis (equipment) →</a>
+      <a class="sidebar-link" href="/greenways/finance-agent" target="_top">Vincent (finance) →</a>
     </div>
     <div class="helper-list" id="helper-list"></div>
-    <div class="status-bar" id="status-bar">Ready · systems health</div>
+    <div class="status-bar" id="status-bar">Ready · systems &amp; monitoring</div>
   </aside>
 </div>
 
@@ -204,7 +210,7 @@
   const TurnUi = window.GreenwaysAgentTurnUi;
   const AGENT_PROFILE = {
     name: "Edwardo",
-    role: "Systems Agent",
+    role: "Systems & equipment Agent",
     imageUrl: "https://static.wixstatic.com/media/c123de_eeb61cbf84bd402eb642e28b2b457c76~mv2.png"
   };
 
@@ -221,11 +227,16 @@
     { id: "agents", label: "Greenways agents" }
   ];
   const HELPERS = [
-    { icon: "📊", name: "Full status", desc: "All checks", prompt: "Give me a full system health overview" },
-    { icon: "🏛️", name: "Grants sync", desc: "schemes.json", prompt: "Are grants and schemes in sync with products?" },
-    { icon: "📦", name: "Products", desc: "Export overlay", prompt: "Is the product grants overlay up to date?" },
-    { icon: "♻️", name: "Catalog", desc: "sust_* rows", prompt: "Is the sustainable products catalog up to date?" },
-    { icon: "🔄", name: "Verify button", desc: "Read-only", prompt: "How does the sync verify button work?" }
+    { icon: "📡", name: "Why monitor?", desc: "Baseline first", prompt: "Why is energy monitoring important before I upgrade equipment?" },
+    { icon: "🍳", name: "Restaurant", desc: "Kitchen sensors", prompt: "What sensors should a restaurant install for cookline, refrigeration, and water?" },
+    { icon: "🏠", name: "Home", desc: "Consumer IoT", prompt: "What home energy monitoring and sensors help consumers save money?" },
+    { icon: "🔎", name: "Reviews", desc: "Meters & alerts", prompt: "Review monitoring products — submetering, leak alerts, and cold chain" },
+    { icon: "🏢", name: "Energy dashboard", desc: "Portfolio KPIs", prompt: "Where is the Greenways energy dashboard and what does it show?" },
+    { icon: "🧮", name: "Dashboard maths", desc: "kWh → €", prompt: "How does the Greenways dashboard calculate energy cost from kWh and gas?" },
+    { icon: "⏰", name: "Peak vs off-peak", desc: "Timing loads", prompt: "Is it more economical to run kitchen equipment at different times of day?" },
+    { icon: "✅", name: "ETL examples", desc: "Certified kit", prompt: "What ETL equipment savings examples apply to my energy costs?" },
+    { icon: "🔬", name: "Deep dive", desc: "Systems view", prompt: "Explain equipment deep dive from a systems point of view" },
+    { icon: "⚙️", name: "Platform health", desc: "Ops verify", prompt: "Give me a full platform health overview" }
   ];
 
   const thread = document.getElementById("chat-thread");
@@ -369,7 +380,7 @@
     row.className = "msg-row agent";
     row.innerHTML =
       '<div class="msg-bubble">' + agentAvatarHtml() + formatAnswer(answer) +
-      '<span class="source-pill">systems health</span></div>';
+      '<span class="source-pill">systems &amp; monitoring</span></div>';
     thread.appendChild(row);
     thread.scrollTop = thread.scrollHeight;
   }

@@ -13,7 +13,8 @@
       { slug: 'equipment-agent', id: 'equipment', name: 'Artemis', shortLabel: 'Equipment', imageUrl: 'https://static.wixstatic.com/media/c123de_126830b1fc224df880dfa37ec830620e~mv2.png', path: '/greenways/equipment-agent' },
       { slug: 'deals-agent', id: 'deals', name: 'Zara', shortLabel: 'Deals', imageUrl: 'https://static.wixstatic.com/media/c123de_c7cdbed4a4ee407289677a4f0079c1e5~mv2.png', path: '/greenways/deals-agent' },
       { slug: 'media-agent', id: 'media', name: 'Cheryce', shortLabel: 'Media', imageUrl: 'https://static.wixstatic.com/media/c123de_333c90ab8930465a98b503e1d24316b4~mv2.png', path: '/greenways/media-agent' },
-      { slug: 'sustainable-products-agent', id: 'products', name: 'Zyanne', shortLabel: 'Products', imageUrl: 'https://static.wixstatic.com/media/c123de_dc5b2e3e4aef4cc4b75c7b44888281bd~mv2.png', path: '/greenways/sustainable-products-agent' }
+      { slug: 'sustainable-products-agent', id: 'products', name: 'Zyanne', shortLabel: 'Products', imageUrl: 'https://static.wixstatic.com/media/c123de_dc5b2e3e4aef4cc4b75c7b44888281bd~mv2.png', path: '/greenways/sustainable-products-agent' },
+      { slug: 'systems-agent', id: 'systems', name: 'Edwardo', shortLabel: 'Systems', role: 'Systems & equipment', imageUrl: 'https://static.wixstatic.com/media/c123de_eeb61cbf84bd402eb642e28b2b457c76~mv2.png', path: '/greenways/systems-agent' }
     ]
   };
 
@@ -129,6 +130,20 @@
     });
   }
 
+  function rosterAgentsForStrip(roster) {
+    var agents = (roster && roster.agents) ? roster.agents.slice() : [];
+    var slugs = {};
+    agents.forEach(function (a) {
+      if (a && a.slug) slugs[a.slug] = true;
+    });
+    (roster && roster.staffOnly || []).forEach(function (a) {
+      if (!a || !a.slug || slugs[a.slug]) return;
+      agents.push(Object.assign({ staff: true }, a));
+      slugs[a.slug] = true;
+    });
+    return agents;
+  }
+
   function agentRoleLabel(agent) {
     var label = String(agent.shortLabel || agent.role || '').trim();
     if (!label) return 'Agent';
@@ -138,7 +153,7 @@
 
   function renderTeamStrip(mount, roster, currentSlug) {
     if (!mount) return;
-    var agents = (roster.agents || []).slice();
+    var agents = rosterAgentsForStrip(roster);
     if (!agents.length) {
       mount.hidden = true;
       return;
@@ -149,12 +164,14 @@
       agents
         .map(function (agent) {
           var active = agent.slug === currentSlug;
-          var memberCls = 'gw-team-member' + (active ? ' is-active' : '');
+          var isStaff = !!agent.staff;
+          var memberCls = 'gw-team-member' + (active ? ' is-active' : '') + (isStaff ? ' is-staff' : '');
           var faceCls = 'gw-team-face' + (active ? ' is-active' : '');
           var roleLabel = agentRoleLabel(agent);
           var title = active
-            ? agent.name + ' — ' + roleLabel + ' (you are here)'
-            : 'Open ' + agent.name + ' — ' + roleLabel;
+            ? agent.name + ' — ' + roleLabel + (isStaff ? ' (staff)' : '') + ' (you are here)'
+            : 'Open ' + agent.name + ' — ' + roleLabel + (isStaff ? ' (staff)' : '');
+          var staffBadge = isStaff ? '<span class="gw-team-staff-badge">Staff</span>' : '';
           var faceInner =
             '<span class="' +
             faceCls +
@@ -165,7 +182,8 @@
             '"></span>' +
             '<span class="gw-team-name">' +
             escapeHtml(agent.name) +
-            '</span>';
+            '</span>' +
+            staffBadge;
           if (active) {
             return (
               '<span class="' +
