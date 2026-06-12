@@ -542,6 +542,20 @@
   .follow-up-chip:hover, .quick-reply-chip:hover {
     background: rgba(37, 99, 235, 0.28);
   }
+  .agent-handoff-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .agent-handoff-chip {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: #fed7aa;
+    border: 1px solid rgba(251, 146, 60, 0.45);
+    background: rgba(251, 146, 60, 0.12);
+  }
+  .agent-handoff-chip:hover { background: rgba(251, 146, 60, 0.22); }
+  .agent-handoff-hint { font-size: 0.62rem; color: var(--muted); margin-top: 4px; }
 
   .profile-nudge {
     flex-shrink: 0;
@@ -889,7 +903,7 @@
         </div>
         <div>
           <h1>Zara</h1>
-          <p>Deals Agent · energy, water &amp; sustainability offers</p>
+          <p>Deals specialist · match offers to usage, not cheapest price alone</p>
         </div>
       </div>
       <div class="guide-top-actions">
@@ -932,12 +946,15 @@
       <div class="chat-thread" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
         <div class="welcome-card" id="welcome-card">
           <h2>Ask Zara</h2>
-          <p><strong>Two deal types:</strong> (1) <strong>Supply</strong> — electricity &amp; gas tariffs via the energy portal; (2) <strong>Product spotlights</strong> — weekly offers &amp; sustainability-lane product deals in the feed. Full shell: <strong>Deals.html</strong>. To <em>search</em> all efficient products, use <strong>Sustainable Products Agent</strong>.</p>
+          <p>Zara matches <strong>energy, water &amp; sustainability offers</strong> to your usage — not just the cheapest deal. Tariffs, grants, spotlights, and upgrade incentives with clear pros and cons.</p>
           <div class="welcome-tags">
-            <button type="button" class="welcome-tag" data-prompt="What product deals and weekly spotlights are in the deals feed?">Product deal spotlights</button>
+            <button type="button" class="welcome-tag" data-prompt="Why use Greenways deals — not just the cheapest price?">Why Zara?</button>
+            <button type="button" class="welcome-tag" data-prompt="Explain fixed vs variable tariffs and standing charges">Tariff basics</button>
             <button type="button" class="welcome-tag" data-prompt="How do I compare energy tariffs and packages for my restaurant?">Compare tariffs</button>
-            <button type="button" class="welcome-tag" data-prompt="What NL business and hospitality energy rates are in the feed?">NL restaurant rates</button>
-            <button type="button" class="welcome-tag" data-prompt="Where is the full Greenways Deals page and energy portal?">Deals.html &amp; portals</button>
+            <button type="button" class="welcome-tag" data-prompt="Where is the Water Saving Finder on Greenways?">Water Saving Finder</button>
+            <button type="button" class="welcome-tag" data-prompt="Where is the savings portal for grants and financial assistance?">Savings portal</button>
+            <button type="button" class="welcome-tag" data-prompt="What product deals and weekly spotlights are in the deals feed?">Product spotlights</button>
+            <button type="button" class="welcome-tag" data-prompt="What grants am I eligible for?">Grant eligibility</button>
           </div>
         </div>
       </div>
@@ -1071,7 +1088,7 @@
   var TurnUi = window.GreenwaysAgentTurnUi;
   var AGENT_PROFILE = {
     name: "Zara",
-    role: "Deals Agent",
+    role: "Deals & spotlights specialist",
     imageUrl: "https://static.wixstatic.com/media/c123de_c7cdbed4a4ee407289677a4f0079c1e5~mv2.png"
   };
   var AGENT_TURN_AVATAR = AGENT_PROFILE;
@@ -1382,6 +1399,38 @@
     tick();
   }
 
+  function welcomeCardInnerHtml() {
+    return (
+      '<h2>Ask Zara</h2>' +
+      '<p>Zara matches <strong>energy, water &amp; sustainability offers</strong> to your usage — not just the cheapest deal. Tariffs, grants, spotlights, and upgrade incentives with clear pros and cons.</p>' +
+      '<div class="welcome-tags">' +
+      '<button type="button" class="welcome-tag" data-prompt="Why use Greenways deals — not just the cheapest price?">Why Zara?</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Explain fixed vs variable tariffs and standing charges">Tariff basics</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="How do I compare energy tariffs and packages for my restaurant?">Compare tariffs</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Where is the Water Saving Finder on Greenways?">Water Saving Finder</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Where is the savings portal for grants and financial assistance?">Savings portal</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What product deals and weekly spotlights are in the deals feed?">Product spotlights</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What grants am I eligible for?">Grant eligibility</button>' +
+      '</div>'
+    );
+  }
+
+  function agentHandoffHref(h) {
+    if (h.href) return h.href;
+    const base = h.path || "/greenways/sustainable-products-agent";
+    const q = h.prompt || h.question || "";
+    return base + (q ? "?q=" + encodeURIComponent(q) : "");
+  }
+
+  function agentHandoffChipsHtml(handoffs) {
+    if (!Array.isArray(handoffs) || !handoffs.length) return "";
+    const chips = handoffs.map(function (h) {
+      var prompt = h.prompt || h.question || "";
+      return '<a class="agent-handoff-chip" href="' + escapeHtml(agentHandoffHref(h)) + '" target="_top" rel="noopener" data-prompt="' + escapeHtml(prompt) + '">' + escapeHtml(h.name || h.id) + "</a>";
+    }).join("");
+    return '<div class="agent-handoff-chips" aria-label="Open specialist agent">' + chips + '</div><div class="agent-handoff-hint">Opens the specialist chat with your question</div>';
+  }
+
   function finishAgentTurn(el, payload) {
     const profile = getProfile();
     const answer = payload.answer || "I could not answer that yet.";
@@ -1398,6 +1447,7 @@
 
     const parts = buildAgentTurnParts(answer, suggestions, blocks, {
       footHtml:
+        agentHandoffChipsHtml(payload.agentHandoffs) +
         followUpChips(intentId, profile, payload.question || lastQuestion) +
         '<span class="source-pill">' + escapeHtml(src) + "</span>"
     });
@@ -1414,6 +1464,7 @@
         answer: answer,
         suggestions: payload.suggestions || [],
         blocks: payload.blocks || [],
+        agentHandoffs: payload.agentHandoffs || [],
         source: payload.source || "",
         intentId: intentId
       });
@@ -1510,15 +1561,7 @@
     const card = document.createElement("div");
     card.className = "welcome-card";
     card.id = "welcome-card";
-    card.innerHTML =
-      '<h2>Ask Zara</h2>' +
-      '<p><strong>Supply deals</strong> (tariffs) and <strong>product deal spotlights</strong> (weekly offers in the feed). Search the full efficient-product catalog on <strong>Sustainable Products Agent</strong>.</p>' +
-      '<div class="welcome-tags">' +
-      '<button type="button" class="welcome-tag" data-prompt="What product deals and weekly spotlights are in the deals feed?">Product deal spotlights</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="How do I compare energy tariffs and packages for my restaurant?">Compare tariffs</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="What NL business and hospitality energy rates are in the feed?">NL restaurant rates</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="Where is the full Greenways Deals page and energy portal?">Deals.html &amp; portals</button>' +
-      "</div>";
+    card.innerHTML = welcomeCardInnerHtml();
     thread.appendChild(card);
     bindWelcomeTags();
     if (quickReplyBar) quickReplyBar.hidden = true;
@@ -1530,8 +1573,11 @@
     const region = profile.region || "your region";
     const sector = profile.sector || "business";
     const focus = profile.focus || "general";
-    if (region === "nl" && focus === "equipment") {
-      return "What Netherlands grants fit a restaurant upgrading kitchen equipment?";
+    if (region === "nl" && (focus === "energy" || focus === "general")) {
+      return "What NL business and hospitality energy rates are in the deals feed?";
+    }
+    if (focus === "equipment") {
+      return "What product deal spotlights are in the sustainability lane?";
     }
     return "Tell me more about the deal a " + sector + " in " + region + " focused on " + focus + "?";
   }

@@ -5,14 +5,87 @@ const {
   loadIntentsFrom,
   matchIntent,
   loadProductsWithGrants,
-  normalizeImageUrl
+  normalizeImageUrl,
+  toLinkItem
 } = require('./greenways-agent-shared');
+const {
+  applyPersona,
+  loadAgentVoice,
+  pickTip
+} = require('./greenways-agent-persona');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'deals-agent-intents.json');
 const showcasePath = path.join(__dirname, '..', 'data', 'deals-agent-showcase.json');
 const dealsFeedPath = path.join(__dirname, '..', 'data', 'deals-feed.json');
+const briefingPath = path.join(__dirname, '..', 'data', 'deals-agent-briefing.json');
+const voicePath = path.join(__dirname, '..', 'data', 'deals-agent-voice.json');
+const referencesPath = path.join(__dirname, '..', 'data', 'deals-agent-references.json');
+
+const REGION_LABELS = { nl: 'Netherlands', uk: 'United Kingdom', eu: 'EU-wide' };
 
 let dealsCache = null;
+
+async function loadBriefing() {
+  try {
+    const raw = await fs.readFile(briefingPath, 'utf8');
+    return JSON.parse(raw);
+  } catch (_) {
+    return {};
+  }
+}
+
+async function loadReferences() {
+  try {
+    const raw = await fs.readFile(referencesPath, 'utf8');
+    return JSON.parse(raw);
+  } catch (_) {
+    return { internalGuides: [] };
+  }
+}
+
+function buildHandoffs(briefing, question, intentId = '') {
+  const out = [];
+  const h = briefing?.handoffs || {};
+  const q = String(question || '').trim();
+  const push = (key, defaultPrompt) => {
+    const row = h[key];
+    if (!row) return;
+    out.push({
+      id: row.agentId,
+      name: row.agentName,
+      href: row.agentPath,
+      prompt: q || defaultPrompt
+    });
+  };
+
+  if (['product_deals', 'sustainability_deals', 'sustainable'].includes(intentId) || intentId === 'category') {
+    push('productsToZyanne', 'Search water-saving and efficient products in the sustainable catalog');
+  }
+  if (['tariff_compare', 'nl_restaurant_energy', 'uk_green_tariff', 'green_tariff', 'energy_deals', 'overview', 'tariff_basics', 'payback_savings'].includes(intentId)) {
+    push('financeToVincent', 'How do current energy prices affect my upgrade payback?');
+  }
+  if (['product_deals', 'sustainability_deals', 'category'].includes(intentId)) {
+    push('equipmentToArtemis', 'What ETL equipment upgrades pair with current deals?');
+  }
+  if (['eligibility_grants', 'water_deals', 'sustainability_deals', 'savings_portal', 'water_finder'].includes(intentId)) {
+    push('grantsToAndrieus', 'What grants and rebates am I eligible for in my region?');
+  }
+  if (!out.length) {
+    push('productsToZyanne', 'Find efficient products beyond the deals feed spotlights');
+  }
+  return out.slice(0, 3);
+}
+
+function dealsPortalLinkItems() {
+  return [
+    toLinkItem('European energy portal', PORTAL_LINKS.europeanEnergy, 'Compare tariffs & packages'),
+    toLinkItem('Water Saving Finder', './water-saving-finder.html', 'Water products, tips & grants'),
+    toLinkItem('Savings portal', PORTAL_LINKS.savingsHub || './savings.html', 'Grants & financial assistance'),
+    toLinkItem('Full Deals page', PORTAL_LINKS.dealsFullPage, 'Ticker hub + sidebar portals'),
+    toLinkItem('Deals ticker hub', PORTAL_LINKS.deals, 'Three lanes + search'),
+    toLinkItem('Sustainable Products Agent', PORTAL_LINKS.sustainableProductsAgent, 'Full catalog search')
+  ];
+}
 
 async function loadIntents() {
   return loadIntentsFrom(intentsPath);
@@ -170,22 +243,186 @@ function isProductDealRow(deal) {
   return tags.includes('product') || tags.includes('weekly');
 }
 
-function buildOverviewAnswer(deals, tip) {
+function buildOverviewAnswer(deals, feedMeta, briefing, tip) {
   const energy = filterByCategory(deals, 'energy').length;
   const water = filterByCategory(deals, 'water').length;
   const sust = filterByCategory(deals, 'sustainability').length;
   const productSpotlights = deals.filter(isProductDealRow).length;
   const newest = deals.filter((d) => d.isNew).slice(0, 4);
+  const generated = feedMeta?.generatedAt ? `\n_Feed generated: ${String(feedMeta.generatedAt).slice(0, 10)}_\n\n` : '';
+
   return {
     answer:
-      `**Greenways Deals** — **${deals.length}** rows in the deals feed:\n\n` +
+      `**Zara — Deals & spotlights**\n\n` +
+      `${briefing.roleSummary || 'Curated deals across energy, water, and sustainability lanes.'}\n\n` +
+      `**${deals.length}** rows in \`deals-feed.json\`:\n` +
       `- **Energy tariffs & packages:** ${energy}\n` +
       `- **Water savings:** ${water}\n` +
-      `- **Sustainability lane:** ${sust} (includes **${productSpotlights} product spotlight** row${productSpotlights === 1 ? '' : 's'})\n\n` +
+      `- **Sustainability lane:** ${sust} (**${productSpotlights}** product spotlight${productSpotlights === 1 ? '' : 's'})\n\n` +
+      generated +
       (newest.length ? `**Recently added:**\n${formatDealBullets(newest, 4)}\n\n` : '') +
-      `**Ask about:** supply deals (tariffs) · **product deal spotlights** (weekly offers) · water hardware links.\n` +
-      `For **searching the full efficient-product catalog**, use **Sustainable Products Agent** (${PORTAL_LINKS.sustainableProductsAgent}).` +
+      `**Two paths:** (1) **Supply** — compare tariffs on the energy portal; (2) **Product spotlights** — weekly offers here; **full catalog** → Sustainable Products Agent.\n\n` +
       portalFooter(tip),
+    blocks: [{ type: 'link', items: dealsPortalLinkItems() }],
+    suggestions: []
+  };
+}
+
+function buildWhyDealsAnswer(briefing, tip) {
+  const core = (briefing.coreUnderstandings || []).slice(0, 6);
+  const ethics = (briefing.ethicsNotes || []).slice(0, 2);
+  return {
+    answer:
+      `**Why Zara curates deals**\n\n` +
+      `${briefing.bestOfferPrinciple || ''}\n\n` +
+      `${core.map((c) => `- ${c}`).join('\n')}\n\n` +
+      (ethics.length ? `**Transparency:**\n${ethics.map((e) => `- ${e}`).join('\n')}\n\n` : '') +
+      `**Zara's rule:** confirm price, contract length, and region on the linked page — feeds curate; portals compare live.\n\n` +
+      portalFooter(tip),
+    blocks: [{ type: 'link', items: dealsPortalLinkItems().slice(0, 4) }],
+    suggestions: []
+  };
+}
+
+function buildTariffBasicsAnswer(briefing, tip) {
+  const basics = briefing.tariffBasics || [];
+  return {
+    answer:
+      `**Energy tariff basics** — what to compare before switching:\n\n` +
+      `${basics.map((b) => `- ${b}`).join('\n')}\n\n` +
+      `**Live compare:** ${PORTAL_LINKS.europeanEnergy}\n\n` +
+      `For unit-cost impact on upgrades after you pick a direction → **Vincent**.\n\n` +
+      portalFooter(tip),
+    blocks: [
+      {
+        type: 'link',
+        items: [
+          toLinkItem('European energy portal', PORTAL_LINKS.europeanEnergy, 'Postcode-style compare'),
+          toLinkItem('Finance Agent', '/greenways/finance-agent', 'Prices & payback')
+        ]
+      }
+    ],
+    suggestions: []
+  };
+}
+
+function buildEligibilityGrantsAnswer(briefing, tip) {
+  const must = (briefing.mustKnows || []).filter((m) => /eligib|grant|rebate/i.test(m)).slice(0, 4);
+  return {
+    answer:
+      `**Eligibility & grants** — many offers depend on property type, income, business size, geography, or heating system.\n\n` +
+      `${must.map((m) => `- ${m}`).join('\n')}\n\n` +
+      `**On Greenways:**\n` +
+      `- **Savings portal** — ${PORTAL_LINKS.savingsHub || './savings.html'} (Grants · EU schemes · Financial assistance)\n` +
+      `- **Andrieus (Grants Agent)** — scheme compare, deadlines, and product-linked grants\n\n` +
+      `_Zara flags deal lanes; Andrieus confirms eligibility._\n\n` +
+      portalFooter(tip),
+    suggestions: [],
+    agentHandoffs: buildHandoffs(briefing, '', 'eligibility_grants')
+  };
+}
+
+function buildPaybackSavingsAnswer(briefing, tip) {
+  return {
+    answer:
+      `**Payback & real savings**\n\n` +
+      `- **Lifetime cost** — purchase, install, maintenance, and running kWh/gas/water all count.\n` +
+      `- **Tariff direction** — compare unit rate + standing charge on ${PORTAL_LINKS.europeanEnergy}\n` +
+      `- **Upgrade stack** — businesses often pair deals with controls, heat pumps, solar, or monitoring (Artemis / Edwardo)\n` +
+      `- **Finance case** — Vincent models payback, BNPL, and green loans after numbers look sensible\n\n` +
+      `${briefing.bestOfferPrinciple || ''}\n\n` +
+      portalFooter(tip),
+    blocks: [
+      {
+        type: 'link',
+        items: [
+          toLinkItem('European energy portal', PORTAL_LINKS.europeanEnergy, 'Normalise €/kWh first'),
+          toLinkItem('Finance Agent', '/greenways/finance-agent', 'Payback & funding'),
+          toLinkItem('Equipment savings projection', PORTAL_LINKS.savingsProjection, 'Upgrade payback chart')
+        ]
+      }
+    ],
+    suggestions: []
+  };
+}
+
+function buildWaterFinderAnswer(deals, tip) {
+  const waterRows = filterByCategory(deals, 'water').slice(0, 4);
+  return {
+    answer:
+      `**Water savings on Greenways**\n\n` +
+      `**Water Saving Finder** — products, tips, grants, and savings calculator:\n` +
+      `→ ./water-saving-finder.html\n\n` +
+      (waterRows.length
+        ? `**Feed rows:**\n${formatDealBullets(waterRows, 4)}\n\n`
+        : '') +
+      `Focus: leak reduction, efficient fixtures, submetering before grant-funded retrofit.\n\n` +
+      portalFooter(tip),
+    blocks: [
+      {
+        type: 'link',
+        items: [
+          toLinkItem('Water Saving Finder', './water-saving-finder.html', 'Full water portal'),
+          toLinkItem('Grants Agent', '/greenways/grants-agent', 'Water-related schemes')
+        ]
+      }
+    ],
+    suggestions: []
+  };
+}
+
+function buildSavingsPortalAnswer(briefing, tip) {
+  const paths = briefing.portalPaths || {};
+  return {
+    answer:
+      `**Savings portal** — grants, EU schemes, and financial assistance in one hub:\n\n` +
+      `→ ${paths.savingsPortal || PORTAL_LINKS.savingsHub || './savings.html'}\n\n` +
+      `**Use with Zara when:** you have a tariff or product direction and need **funding** to implement it.\n\n` +
+      `- **Restaurant portal** · **EU schemes** · **Financial assistance** tabs\n` +
+      `- Pair with **European energy portal** for supply compare first\n\n` +
+      portalFooter(tip),
+    blocks: [
+      {
+        type: 'link',
+        items: [
+          toLinkItem('Savings portal', paths.savingsPortal || './savings.html', 'Grants & finance hub'),
+          toLinkItem('Grants Agent', '/greenways/grants-agent', 'Scheme detail'),
+          toLinkItem('Finance Agent', '/greenways/finance-agent', 'Loans & BNPL')
+        ]
+      }
+    ],
+    suggestions: []
+  };
+}
+
+function buildFeedFreshnessAnswer(feedMeta, briefing, tip) {
+  const wf = briefing.feedWorkflow || {};
+  return {
+    answer:
+      `**Deals feed freshness**\n\n` +
+      `- **Output:** \`${wf.output || 'data/deals-feed.json'}\`\n` +
+      `- **Build:** \`${wf.buildCommand || 'npm run build:deals-feed'}\`\n` +
+      `- **Sources:** ${(wf.sources || []).join(', ') || 'deals-feed-seeds.json + weekly input'}\n` +
+      (feedMeta?.generatedAt ? `- **Last generated:** ${feedMeta.generatedAt}\n` : '') +
+      `\nWeekly product spotlights merge from \`deals-weekly-input.json\`. Ops can verify freshness via **Edwardo** systems checks.\n\n` +
+      portalFooter(tip),
+    suggestions: []
+  };
+}
+
+async function buildRoleResourcesAnswer(question, briefing, tip) {
+  const refs = await loadReferences();
+  const guides = refs.internalGuides || [];
+  const must = (briefing.mustKnows || []).slice(0, 6);
+
+  return {
+    answer:
+      `**Zara — role & references**\n\n` +
+      `${briefing.roleProfile || ''}\n\n` +
+      `**Must-know:**\n${must.map((m) => `- ${m}`).join('\n')}\n\n` +
+      `**Greenways pages:**\n${guides.map((g) => `- **${g.title}** — ${g.summary}`).join('\n')}\n\n` +
+      portalFooter(tip),
+    blocks: [{ type: 'link', items: guides.slice(0, 6).map((g) => toLinkItem(g.title, g.href, g.summary)) }],
     suggestions: []
   };
 }
@@ -202,21 +439,33 @@ function buildProductDealsAnswer(deals, tip) {
       `1. **Spotlights & weekly offers** (this agent) — ${PORTAL_LINKS.dealsFullPage} · sustainability lane on ${PORTAL_LINKS.deals}\n` +
       `2. **Search all efficient products** — ${PORTAL_LINKS.sustainableProductsAgent} · ./sustainable_product_deal_finder_portal.html\n\n` +
       `_Prices and availability change — confirm on the linked page before buying._\n\n_${tip}_`,
-    suggestions: []
+    suggestions: [],
+    blocks: [
+      {
+        type: 'link',
+        items: [
+          toLinkItem('Sustainable Products Agent', PORTAL_LINKS.sustainableProductsAgent, 'Full catalog search'),
+          toLinkItem('Product deal finder', './sustainable_product_deal_finder_portal.html', 'Category search')
+        ]
+      }
+    ]
   };
 }
 
-function buildTariffCompareAnswer(deals, tip) {
+function buildTariffCompareAnswer(deals, briefing, tip) {
   const energy = filterByCategory(deals, 'energy');
   const flagship = findDealById(deals, 'energy-eu-compare') || energy[0];
   const rows = flagship ? [flagship, ...energy.filter((d) => d.id !== flagship?.id)].slice(0, 5) : energy.slice(0, 5);
+  const basics = (briefing?.tariffBasics || []).slice(0, 2);
   return {
     answer:
-      `**Compare energy tariffs & packages** — use the **European energy deals portal** for postcode-style compare (home, restaurant, office).\n\n` +
+      `**Compare energy tariffs & packages** — match supply to your **usage pattern**, not headline price alone.\n\n` +
+      (basics.length ? `${basics.map((b) => `- ${b}`).join('\n')}\n\n` : '') +
       `${formatDealBullets(rows, 5) || '_Energy lane empty — open the portal directly._'}\n\n` +
       `→ **Live compare:** ${PORTAL_LINKS.europeanEnergy}` +
       portalFooter(tip),
-    suggestions: []
+    suggestions: [],
+    blocks: [{ type: 'link', items: dealsPortalLinkItems().slice(0, 3) }]
   };
 }
 
@@ -348,27 +597,55 @@ function buildPortalsAnswer(tip) {
       `- **Water Saving Finder:** ./water-saving-finder.html\n` +
       `- **Product deal spotlights:** ask here or open sustainability lane on ${PORTAL_LINKS.deals}\n` +
       `- **Search efficient products:** ${PORTAL_LINKS.sustainableProductsAgent}\n\n_${tip}_`,
-    suggestions: []
+    suggestions: [],
+    blocks: [{ type: 'link', items: dealsPortalLinkItems() }]
   };
 }
 
 async function answerFromKnowledge(question, profile = {}) {
   const intents = await loadIntents();
+  const voice = await loadAgentVoice(voicePath);
+  const briefing = await loadBriefing();
   const feed = await loadDealsFeed();
   const deals = Array.isArray(feed.deals) ? feed.deals : [];
   if (!deals.length) return null;
 
-  const tip = (intents.staticTips || [])[0] || '';
   const intent = matchIntent(question, intents);
   if (!intent) return null;
+
+  const tip = pickTip(intents.staticTips, intent.id, { skipIntentIds: voice.skipTipIntents });
 
   let result;
   switch (intent.answerType) {
     case 'overview':
-      result = buildOverviewAnswer(deals, tip);
+      result = buildOverviewAnswer(deals, feed.meta || {}, briefing, tip);
+      break;
+    case 'why_deals':
+      result = buildWhyDealsAnswer(briefing, tip);
+      break;
+    case 'tariff_basics':
+      result = buildTariffBasicsAnswer(briefing, tip);
+      break;
+    case 'eligibility_grants':
+      result = buildEligibilityGrantsAnswer(briefing, tip);
+      break;
+    case 'payback_savings':
+      result = buildPaybackSavingsAnswer(briefing, tip);
+      break;
+    case 'water_finder':
+      result = buildWaterFinderAnswer(deals, tip);
+      break;
+    case 'savings_portal':
+      result = buildSavingsPortalAnswer(briefing, tip);
+      break;
+    case 'feed_freshness':
+      result = buildFeedFreshnessAnswer(feed.meta || {}, briefing, tip);
+      break;
+    case 'role_resources':
+      result = await buildRoleResourcesAnswer(question, briefing, tip);
       break;
     case 'tariff_compare':
-      result = buildTariffCompareAnswer(deals, tip);
+      result = buildTariffCompareAnswer(deals, briefing, tip);
       break;
     case 'nl_restaurant_energy':
       result = buildNlRestaurantEnergyAnswer(deals, tip);
@@ -381,6 +658,7 @@ async function answerFromKnowledge(question, profile = {}) {
       break;
     case 'category':
       result = buildCategoryAnswer(intent.category, deals, tip);
+      result.intentId = intent.id === 'energy_deals' ? 'energy_deals' : intent.id;
       break;
     case 'region':
       result = buildRegionAnswer(intent.region, deals, tip);
@@ -403,8 +681,18 @@ async function answerFromKnowledge(question, profile = {}) {
 
   if (result?.answer) {
     result.source = 'knowledge';
-    result.intentId = intent.id;
+    result.intentId = result.intentId || intent.id;
+    result.agentHandoffs = buildHandoffs(briefing, question, result.intentId);
     result.productSamples = await pickDealSamples(question, profile, 3);
+    applyPersona(result, {
+      voice,
+      intentId: result.intentId,
+      question,
+      profile,
+      staticTips: intents.staticTips,
+      regionLabels: REGION_LABELS,
+      tip
+    });
   }
   return result;
 }
@@ -412,5 +700,7 @@ async function answerFromKnowledge(question, profile = {}) {
 module.exports = {
   answerFromKnowledge,
   pickDealSamples,
+  loadBriefing,
+  loadReferences,
   getDefaultProductSamples: (limit = 3) => pickDealSamples('', {}, limit)
 };
