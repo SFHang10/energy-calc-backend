@@ -1,10 +1,26 @@
 # Greenways Chat Interface — Foundation Skill
 
 **Skill type:** UI + API pattern (clone for new agents)  
-**Pilot implementation:** **Grants Agent** (May 2026)  
+**Agent roster (names):** **`greenways-transition-agents.md`** — Andrieus, Vincent, Artemis, Zara, Cheryce, Zyanne, Edwardo  
 **Shared turn UI:** All seven chat agents (May 2026) — `HTMLS GWM GWB/js/greenways-agent-turn-ui.js` + `.css`  
 **Sibling reference:** **Music Guide** (`live-music-guide.html` / compact panel in `live-music-finder.html`)  
-**Status:** Use this as the **canonical foundation** when building the next Greenways chat interfaces (equipment, finance, sustainability, etc.)
+**Status:** Foundation for **built** Transition Agent shells; deepen knowledge per agent incrementally.
+
+---
+
+## Named agents (refer by character)
+
+| Name | Slug | HTML |
+|------|------|------|
+| **Andrieus** | `grants-agent` | `greenways-grants-agent.html` |
+| **Vincent** | `finance-agent` | `greenways-finance-agent.html` |
+| **Artemis** | `equipment-agent` | `greenways-equipment-agent.html` |
+| **Zara** | `deals-agent` | `greenways-deals-agent.html` |
+| **Cheryce** | `media-agent` | `greenways-media-agent.html` |
+| **Zyanne** | `sustainable-products-agent` | `greenways-sustainable-products-agent.html` |
+| **Edwardo** | `systems-agent` | `greenways-systems-agent.html` |
+
+**Agents ≠ skills:** Skills in `Skills/` are capabilities; agents are who users meet on Wix. Full map: **`greenways-transition-agents.md`**.
 
 ---
 
@@ -17,6 +33,8 @@ One repeatable stack for Wix-embeddable agent chats:
 3. **Rich HTML shell** — product/showcase banner, scrollable chat, interactive chips, session memory, offline fallbacks.
 
 Do **not** reinvent layout per agent — fork `greenways-grants-agent.html` and swap data layer + theme accent.
+
+**Word choice:** use **equipment** (not **kit**) in agent copy and UI prose. Keep **kit** only in official supplier product names — see `AGENTS.md` § Word choice.
 
 ---
 
@@ -122,14 +140,14 @@ Energy prices are **not** a separate agent. Finance Agent uses wholesale snapsho
 | Topic | Intents | Consumer HTML |
 |-------|---------|---------------|
 | **Wholesale / ticker** | `energy_prices` | `content-ops/drafts/energy-ticker/energy-ticker-green-wire.html` |
-| **Upgrade case (prices → kit)** | `price_upgrade_case` | `equipment-savings-projection.html`, Equipment Agent |
+| **Upgrade case (prices → equipment)** | `price_upgrade_case` | `equipment-savings-projection.html`, Equipment Agent |
 | **Retail tariff compare** | `compare_tariffs` | `european_energy_deals_portal.html`, Deals Agent |
 
 Knowledge: `services/finance-agent-knowledge.js` + `services/finance-agent-energy.js`.
 
-### Equipment Agent — kit + premises renovation (May 2026)
+### Equipment Agent — equipment + premises renovation (May 2026)
 
-Renovation is **not** a separate agent. Equipment Agent covers **changing how your site runs** — new efficient kit **and** building upgrades (insulation, retrofit, phased project plans).
+Renovation is **not** a separate agent. Equipment Agent covers **changing how your site runs** — new efficient equipment **and** building upgrades (insulation, retrofit, phased project plans).
 
 | Topic | Intents | Consumer HTML |
 |-------|---------|---------------|
@@ -213,6 +231,17 @@ Top → bottom inside `.guide-main`:
 
 **Wix embed:** `?embed=1` → `html.embed-wix` + `<meta name="wix-html-scroll" content="no-scroll">` + `<base href>` when served under `/HTMLS` or `/greenways/`.
 
+### Wix embed gotchas (May 2026)
+
+| Issue | Fix |
+|-------|-----|
+| Turn-ui **404** on `/greenways/*` | Load shared CSS/JS with **absolute** paths: `/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.css` and `.js` — relative `js/...` resolves to `/greenways/js/...` before `<base>` is injected |
+| Agent **silent** (no replies) | Check F12 — broken inline JS (e.g. bad `grantLabel` ternary) stops the whole script; match Grants/Finance pattern |
+| Grants **no UI** after turn | `finishAgentTurn` must pass **`footHtml`** into `TurnUi.buildParts` |
+| Tall empty welcome area | Welcome card `justify-content: flex-start` (not centred in oversized iframe) |
+
+Character portraits: `AGENT_PROFILE.imageUrl` (Wix static) + `TurnUi.avatarMarkup()` in every agent HTML.
+
 ---
 
 ## Shared turn UI (all chat agents — May 2026)
@@ -249,6 +278,42 @@ Knowledge services return structured right-column content; HTML builds tablets v
 - Dark frosted cards (not pill chips)
 - Purple neon follow-up pills for high-intent shortcuts (Grants: MIA/Vamil, NL equipment, marketplace grants, EU programmes)
 - Compare dock scheme selection uses shared `.scheme-tablet` chrome
+
+---
+
+## Shared persona + voice (May 2026)
+
+**Persona helpers:** `services/greenways-agent-persona.js` — `pickOpener`, `pickTip`, `profileLine`, `spokenSummary`, `applyPersona()`.
+
+**Per-agent voice copy:** `data/{agent}-voice.json` (start with `data/grants-agent-voice.json` for Andrieus). Knowledge services call `applyPersona()` before returning `/ask` JSON.
+
+**API field:** `spokenSummary` — short line for TTS (1–2 sentences); full `answer` stays on screen with tablets.
+
+**Voice UI:** `HTMLS GWM GWB/js/greenways-agent-voice.js` + `.css` — mic (STT) + 🔊 read-aloud (Web Speech API). Config: `data/greenways-agent-voice-config.json` (`voiceEnabled` per slug; Group A on, B/C off by default).
+
+**Sync:** `node scripts/sync-greenways-agent-voice.js` — inject assets, compose buttons, `finishAgentTurn` hook on all seven HTML shells.
+
+**Later:** ElevenLabs / OpenAI TTS behind same module; evidence cards (`data/greenways-site-knowledge/`) Phase 2.
+
+---
+
+## Shared team strip + handoffs (May 2026)
+
+**Roster:** `data/greenways-agent-roster.json` — portraits + `/greenways/{slug}` paths (six public agents; Edwardo in `staffOnly`).
+
+**Module:** `HTMLS GWM GWB/js/greenways-agent-team.js` + `.css` — team faces beside **New chat**, handoff brief, shared profile.
+
+| Feature | Storage | Behaviour |
+|---------|---------|-----------|
+| Team strip | — | Tap another face → open that agent page; current agent highlighted |
+| Handoff brief | `sessionStorage` `gw-team-handoff-v1` | Written when user clicks **agent handoff chip**; landing agent shows green banner + auto-asks |
+| Shared profile | `sessionStorage` `gw-team-profile-v1` | Region / sector / focus sync across agents |
+
+**No back button needed** — team strip is the switcher; each agent keeps its own chat in `gw-{agent}-agent-session-v1`.
+
+**Sync:** `node scripts/sync-greenways-agent-team.js` · repair: `node scripts/fix-greenways-agent-team.js`
+
+**Event:** `gw-team-ready` — `{ handoffBrief, suggestedPrompt }` for boot question after handoff.
 
 ---
 
@@ -325,14 +390,14 @@ Render may lag local HTML. Grants Agent includes:
 
 **Pattern:** one API key / provider; **different model or system prompt per agent**. Knowledge + JSON retrieval always runs first; LLM only polishes or narrates grounded facts.
 
-**Shared module:** `services/greenways-agent-llm.js` — used by Grants, Music Guide, dashboard assistant.
+**Shared modules:** `services/greenways-agent-llm.js` (API call) + `services/greenways-agent-llm-fallback.js` (all seven Transition Agents on intent miss). Also: Music Guide, dashboard assistant.
 
 | Agent | Env vars (example) | Fallback | Notes |
 |-------|-------------------|----------|--------|
 | **Grants** | `GRANTS_AGENT_PROVIDER`, `GRANTS_AGENT_API_KEY`, `GRANTS_AGENT_MODEL` | `ASSISTANT_*` | `routes/grants-agent.js`; system prompt restricts to `suggestions` JSON |
 | **Music Guide** | `MUSIC_GUIDE_PROVIDER`, `MUSIC_GUIDE_API_KEY`, `MUSIC_GUIDE_MODEL` | `ASSISTANT_*` | `routes/music-guide.js` |
 | **Dashboard assistant** | `ASSISTANT_PROVIDER`, `ASSISTANT_API_KEY`, `ASSISTANT_MODEL` | — | `routes/assistant.js` |
-| **Finance, Equipment, Deals, …** | `{AGENT}_AGENT_*` (recommended) | `ASSISTANT_*` | Knowledge-only today — copy Grants pattern when enabling |
+| **Finance, Equipment, Deals, Media, Products, Systems** | `{AGENT}_AGENT_*` (e.g. `FINANCE_AGENT_`, `DEALS_AGENT_`) | `ASSISTANT_*` | Shared fallback: `services/greenways-agent-llm-fallback.js` |
 
 **Providers:** `cortecs` (JWT from **`HTMLS GWM GWB/Contl2 .txt`** → [Cortecs API](https://docs.cortecs.ai/api-overview/chat-completions.md), base `https://api.cortecs.ai/v1`), `openrouter`, `openai`, `anthropic`.
 
@@ -402,15 +467,15 @@ Wix: “Meet the agents” hub
 
 Base: `https://energy-calc-backend.onrender.com`
 
-| Agent | Character role (suggested Wix copy) | Chat URL |
-|-------|--------------------------------------|----------|
-| **Grants** | Schemes & funding | `/greenways/grants-agent` |
-| **Finance** | Loans, BNPL, energy prices & payback | `/greenways/finance-agent` |
-| **Equipment** | Kit upgrades & premises renovation | `/greenways/equipment-agent` |
-| **Sustainable Products** | Search efficient products (water / elec / gas) | `/greenways/sustainable-products-agent` |
-| **Deals** | Supply deals + product spotlights | `/greenways/deals-agent` |
-| **Media** | News, video & policy | `/greenways/media-agent` |
-| **Systems** | Health checks (staff-oriented) | `/greenways/systems-agent` |
+| Name | Character role (Wix copy) | Chat URL |
+|------|---------------------------|----------|
+| **Andrieus** | Schemes & funding | `/greenways/grants-agent` |
+| **Vincent** | Loans, BNPL, energy prices & payback | `/greenways/finance-agent` |
+| **Artemis** | Equipment upgrades & premises renovation | `/greenways/equipment-agent` |
+| **Zyanne** | Efficient products (water / elec / gas) | `/greenways/sustainable-products-agent` |
+| **Zara** | Supply deals + product spotlights | `/greenways/deals-agent` |
+| **Cheryce** | News, video & policy | `/greenways/media-agent` |
+| **Edwardo** | Health checks (staff-oriented) | `/greenways/systems-agent` |
 | **Guide** (WIP) | Hub conductor — routes to specialists | `/greenways/guide-agent` — **not live** until HTML + server mount |
 
 Append **`?embed=1`** on first test if sidebar/layout needs Wix containment (adds `html.embed-wix`).
@@ -453,7 +518,7 @@ Or use Wix buttons that only open the agent page; welcome tags inside the chat o
 |---------------------|----------|-----|
 | **Guide** (hub) | All specialists | Conductor → deep chat on agent page |
 | Grants | Finance, Equipment | Fund the upgrade after finding schemes |
-| Finance | Deals, Equipment | Tariffs + kit; payback story |
+| Finance | Deals, Equipment | Tariffs + equipment; payback story |
 | Equipment | Grants, Finance, Sustainable Products | Funding + catalog search |
 | Sustainable Products | **Deals** | Product **spotlights** (weekly feed) |
 | Deals | Sustainable Products, Finance | **Search** catalog vs supply/spotlights |
@@ -579,6 +644,7 @@ http://localhost:4000/greenways/finance-agent?embed=1&q=What+are+current+energy+
 
 | Date | Change |
 |------|--------|
+| 2026-05-28 | **Named Transition Agents** — roster skill `greenways-transition-agents.md`; character portraits all seven; absolute turn-ui paths; Wix silent-JS fixes; `footHtml` on Grants turns. |
 | 2026-05-28 | **Admin vs consumer taxonomy** — hover cache, personalized impact, planned hover explainer agent, historical → Finance, Market Manager consumer flags, template-based HTML from chat. |
 | 2026-05-28 | **Greenways Guide (WIP)** — orchestrator backend: `guide-agent-intents.json`, `guide-agent-roster.json`, `guide-agent-knowledge.js`, `routes/guide-agent.js`; HTML + `server-new.js` mount pending. |
 | 2026-05-28 | **LLM per agent** — documented env pattern (`GRANTS_AGENT_*`, `ASSISTANT_*` fallback); recommend different models per role from one provider. |

@@ -1,7 +1,15 @@
 const path = require('path');
 const fs = require('fs/promises');
+const {
+  applyPersona,
+  loadAgentVoice,
+  pickTip,
+  spokenSummary
+} = require('./greenways-agent-persona');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'grants-agent-intents.json');
+const briefingPath = path.join(__dirname, '..', 'data', 'grants-agent-briefing.json');
+const voicePath = path.join(__dirname, '..', 'data', 'grants-agent-voice.json');
 const schemesPath = path.join(__dirname, '..', 'schemes.json');
 const showcasePath = path.join(__dirname, '..', 'data', 'grants-agent-showcase-products.json');
 const GRANTS_PRODUCT_FILES = [
@@ -31,8 +39,20 @@ const PORTAL_LINKS = {
 };
 
 let intentsCache = null;
+let briefingCache = null;
 let productsWithGrantsCache = null;
 let showcaseCache = null;
+
+async function loadBriefing() {
+  if (briefingCache) return briefingCache;
+  try {
+    const raw = await fs.readFile(briefingPath, 'utf8');
+    briefingCache = JSON.parse(raw);
+  } catch (_) {
+    briefingCache = {};
+  }
+  return briefingCache;
+}
 
 async function loadIntents() {
   if (intentsCache) return intentsCache;
@@ -110,13 +130,24 @@ async function compareSchemesByIds(idA, idB, profile = {}) {
     tip
   );
 
-  return {
+  const result = {
     answer,
     suggestions: [toSuggestion(a), toSuggestion(b)],
     source: 'knowledge',
     intentId: 'compare',
     productSamples: await pickProductSamples(`compare ${a.title} ${b.title}`, profile, 3)
   };
+  const voice = await loadAgentVoice(voicePath);
+  applyPersona(result, {
+    voice,
+    intentId: 'compare',
+    profile,
+    question: `compare ${a.title} ${b.title}`,
+    staticTips: intents.staticTips || [],
+    tip: pickTip(intents.staticTips, 'compare', { skipIntentIds: voice.skipTipIntents }),
+    regionLabels: REGION_LABELS
+  });
+  return result;
 }
 
 function matchIntent(question, intents) {
@@ -164,6 +195,10 @@ function scoreScheme(scheme, question, profile = {}) {
 
   const pr = profileRegion(profile);
   if (pr && schemeMatchesRegion(scheme, pr)) score += 4;
+  if (!pr) {
+    const sr = String(scheme.region || 'eu').toLowerCase();
+    if (sr === 'nl' || sr === 'uk') score += 2;
+  }
 
   const sector = String(profile.sector || '').toLowerCase();
   if (sector && sector !== 'any') {
@@ -250,21 +285,43 @@ function browsePortalLinks() {
   ];
 }
 
+function buildCheryceHandoffs(question, briefing = {}) {
+  const cfg = briefing.handoffs?.newsToMedia || {};
+  const prompt = String(question || '').trim() || 'Latest grants, subsidies and sustainability policy news';
+  const base = cfg.agentPath || '/greenways/media-agent';
+  const name = cfg.agentName || 'Cheryce';
+  return [
+    {
+      id: cfg.agentId || 'media',
+      name: `${name} — Media`,
+      href: `${base}?q=${encodeURIComponent(prompt)}`,
+      prompt
+    }
+  ];
+}
+
 function buildOverviewAnswer(schemes, tip) {
   const byRegion = {};
   for (const s of schemes) {
     const r = String(s.region || 'eu').toLowerCase();
     byRegion[r] = (byRegion[r] || 0) + 1;
   }
+  const nlCount = byRegion.nl || 0;
+  const ukCount = byRegion.uk || 0;
   const statItems = Object.keys(byRegion)
     .sort()
     .map((r) => ({
       label: REGION_LABELS[r] || r.toUpperCase(),
       value: String(byRegion[r])
     }));
+  const focusLine =
+    `Greenways actively supports **Netherlands** and **United Kingdom** operators` +
+    (nlCount || ukCount ? ` (**${nlCount}** NL · **${ukCount}** UK schemes in catalogue)` : '') +
+    ' — set your region filter above for tighter matches.\n\n';
   return {
     answer: withTip(
-      `Good question — we track **${schemes.length}** active funding schemes in the Greenways catalogue, across several regions.\n\n` +
+      focusLine +
+        `We track **${schemes.length}** active funding schemes in the Greenways catalogue, across several regions.\n\n` +
         'On the right you will see how they break down by country, plus a shortlist of priority schemes that are often a sensible place to start.',
       tip
     ),
@@ -339,7 +396,7 @@ function buildEquipmentAnswer(schemes, question, profile, tip) {
   const picked = ranked.length ? ranked : matches.slice(0, 8);
   return {
     answer: withTip(
-      `Upgrading **kitchen equipment or appliances**? These **${picked.length}** schemes from our catalogue often relate to kit, efficiency, or green investment.\n\n` +
+      `Upgrading **kitchen equipment or appliances**? These **${picked.length}** schemes from our catalogue often relate to equipment, efficiency, or green investment.\n\n` +
         'When you browse a specific product on the marketplace or equipment deep dive, we also attach matched grants to that item — handy once you know what you are buying.',
       tip
     ),
@@ -382,17 +439,60 @@ function buildPortalsAnswer(tip) {
   };
 }
 
-function buildProductGrantsAnswer(tip) {
+async function buildProductGrantsAnswer(tip, question, profile) {
+  const briefing = await loadBriefing();
+  const samples = await pickProductSamples(question || 'commercial dishwasher grants', profile, 1);
+  const sample = samples[0];
+  let exampleLine =
+    briefing.productGrantExample?.narrative ||
+    'When you browse a specific product, matched grants may appear as tax relief, purchase subsidies, or regional programmes for your profile region.';
+  if (sample?.name && sample.topGrants?.length) {
+    exampleLine =
+      `For example, **${sample.name}** currently shows matched funding such as **${sample.topGrants.join('** and **')}** — open the product page to see amounts and regional eligibility.`;
+  }
+
   return {
     answer:
       '**How product grants work on Greenways**\n\n' +
       'Think of it in three simple steps:\n\n' +
-      '1. **Schemes live in one catalogue** — we maintain 62+ grants and subsidies in our master schemes list.\n' +
-      '2. **Products get matched automatically** — when schemes are updated, we run an enrichment step so each marketplace product can show the grants that apply to it.\n' +
+      '1. **Schemes live in one catalogue** — we maintain 62+ grants and subsidies in our master schemes list (Netherlands and UK are primary Greenways markets).\n' +
+      '2. **Products get matched automatically** — when schemes are updated through our proper grants workflow, enrichment attaches applicable grants to each marketplace product.\n' +
       '3. **You see grants where you shop** — open any product on the marketplace or equipment deep dive and the funding options appear on that page.\n\n' +
+      `${exampleLine}\n\n` +
       'Sample grant-eligible products are highlighted in the banner above — tap a photo to see a real example.\n\n' +
       `_${tip}_`,
     suggestions: []
+  };
+}
+
+function buildWhyGrantsAnswer(briefing, tip) {
+  const ctx = briefing.sustainabilityContext || {};
+  const examples = (ctx.exampleThemes || []).slice(0, 4).join(', ');
+  const exampleLine = examples
+    ? `Funded innovation often covers themes such as ${examples} — browse our catalogue for programmes that fit your sector and region today.`
+    : 'Browse our catalogue for programmes that fit your sector and region today.';
+
+  return {
+    answer: withTip(
+      `**Why subsidies matter for sustainable business**\n\n` +
+        `${ctx.summary || 'Subsidies lower financial barriers and reduce risk for green upgrades.'}\n\n` +
+        (ctx.innovationNote ? `${ctx.innovationNote}\n\n` : '') +
+        exampleLine,
+      tip
+    ),
+    suggestions: []
+  };
+}
+
+function buildMediaHandoffAnswer(question, briefing, tip) {
+  return {
+    answer: withTip(
+      'I keep our **scheme catalogue** and **product grant matches** up to date — that is where I am strongest.\n\n' +
+        'For **news headlines**, fresh policy announcements, and how new products or programmes relate to sustainability trends, **Cheryce** (Media agent) is the better specialist. Use the handoff chip below to continue with her — your question carries over.',
+      tip
+    ),
+    suggestions: [],
+    agentHandoffs: buildCheryceHandoffs(question, briefing)
   };
 }
 
@@ -600,6 +700,8 @@ async function answerFromKnowledge(question, profile = {}) {
   if (!schemes.length) return null;
 
   const tip = (intents.staticTips || [])[0] || '';
+  const briefing = await loadBriefing();
+  const voice = await loadAgentVoice(voicePath);
   const intent = matchIntent(question, intents);
 
   let result;
@@ -628,7 +730,13 @@ async function answerFromKnowledge(question, profile = {}) {
       result = buildPortalsAnswer(tip);
       break;
     case 'product_grants':
-      result = buildProductGrantsAnswer(tip);
+      result = await buildProductGrantsAnswer(tip, question, profile);
+      break;
+    case 'why_grants':
+      result = buildWhyGrantsAnswer(briefing, tip);
+      break;
+    case 'media_handoff':
+      result = buildMediaHandoffAnswer(question, briefing, tip);
       break;
     default:
       return null;
@@ -637,7 +745,17 @@ async function answerFromKnowledge(question, profile = {}) {
   if (result?.answer) {
     result.source = 'knowledge';
     result.intentId = intent.id;
+    if (!result.agentHandoffs) result.agentHandoffs = [];
     result.productSamples = await pickProductSamples(question, profile, 3);
+    applyPersona(result, {
+      voice,
+      intentId: intent.id,
+      profile,
+      question,
+      staticTips: intents.staticTips || [],
+      tip: pickTip(intents.staticTips, intent.id, { skipIntentIds: voice.skipTipIntents }),
+      regionLabels: REGION_LABELS
+    });
   }
   return result;
 }
@@ -646,10 +764,13 @@ module.exports = {
   answerFromKnowledge,
   loadSchemes,
   loadIntents,
+  loadBriefing,
   rankSchemes,
   matchIntent,
   toSuggestion,
   pickProductSamples,
   getDefaultProductSamples,
-  compareSchemesByIds
+  compareSchemesByIds,
+  buildCheryceHandoffs,
+  buildMediaHandoffAnswer
 };
