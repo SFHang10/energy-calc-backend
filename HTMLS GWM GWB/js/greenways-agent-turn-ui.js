@@ -58,6 +58,33 @@
     return '<div class="agent-stat-row">' + chips + "</div>";
   }
 
+  function encodeModulePayload(item) {
+    if (window.GreenwaysAgentContentModule && typeof window.GreenwaysAgentContentModule.encodePayload === "function") {
+      return window.GreenwaysAgentContentModule.encodePayload(item);
+    }
+    return encodeURIComponent(JSON.stringify(item || {}));
+  }
+
+  function moduleTabletsHtml(items, escapeHtml) {
+    if (!Array.isArray(items) || !items.length) return "";
+    const tablets = items.map(function (item) {
+      const title = escapeHtml(item.title || "Illustration");
+      const desc = escapeHtml(String(item.description || "").slice(0, 180));
+      const payload = encodeModulePayload(item);
+      const fullHref = escapeHtml(String(item.fullPageHref || item.href || "#"));
+      return (
+        '<article class="module-tablet">' +
+        '<h4 class="module-tablet-title">' + title + "</h4>" +
+        (desc ? '<p class="module-tablet-desc">' + desc + "</p>" : "") +
+        '<div class="module-tablet-actions">' +
+        '<button type="button" class="module-tablet-open" data-module-payload="' + payload + '">Open illustration</button>' +
+        '<a class="module-tablet-full" href="' + fullHref + '" target="_blank" rel="noopener">Full page ↗</a>' +
+        "</div></article>"
+      );
+    }).join("");
+    return '<div class="module-tablets">' + tablets + "</div>";
+  }
+
   function linkTabletsHtml(items, escapeHtml) {
     if (!Array.isArray(items) || !items.length) return "";
     const tablets = items.map(function (item) {
@@ -81,6 +108,7 @@
       if (!block || !block.type) return "";
       if (block.type === "stat") return statBlockHtml(block.items, escapeHtml);
       if (block.type === "link") return linkTabletsHtml(block.items, escapeHtml);
+      if (block.type === "module") return moduleTabletsHtml(block.items, escapeHtml);
       return "";
     }).filter(Boolean);
     if (!parts.length) return "";
@@ -137,6 +165,9 @@
     }
     blockList.forEach(function (block) {
       if (block && block.type === "link") ordered.push(blocksHtml([block], escapeHtml));
+    });
+    blockList.forEach(function (block) {
+      if (block && block.type === "module") ordered.push(blocksHtml([block], escapeHtml));
     });
     return ordered.join("");
   }
@@ -284,6 +315,7 @@
     revealTyped: revealTyped,
     schemeTabletsHtml: schemeTabletsHtml,
     linkTabletsHtml: linkTabletsHtml,
+    moduleTabletsHtml: moduleTabletsHtml,
     statBlockHtml: statBlockHtml,
     contentBlocksHtml: contentBlocksHtml,
     extractAwarenessFromAnswer: extractAwarenessFromAnswer,

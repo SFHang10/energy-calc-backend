@@ -14,6 +14,8 @@
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-team.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-video.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-video.js"></script>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.js"></script>
 <script>
 (function () {
   var p = location.pathname || "";
@@ -1292,6 +1294,26 @@
     }) + '"';
   }
 
+  function sustainabilityMapModuleItem() {
+    var profile = getProfile();
+    var href = "/HTMLS%20GWM%20GWB/European%20Company%20-%20Case%20Study%20Finder%20(Standalone)%20-%20Wix%20bundle.html?embed=1&popup=1";
+    if (profile.region) href += "&region=" + encodeURIComponent(profile.region);
+    if (profile.sector) href += "&sector=" + encodeURIComponent(profile.sector);
+    return {
+      moduleId: "sustainability-map",
+      title: "Sustainability map",
+      description: "514 case studies + 391 directory organisations — interactive map with savings stats.",
+      href: href,
+      fullPageHref: "/HTMLS%20GWM%20GWB/European%20Company%20-%20Case%20Study%20Finder%20(Standalone)%20-%20Wix%20bundle.html",
+      kind: "html"
+    };
+  }
+
+  function modulePayloadAttr(item) {
+    if (!window.GreenwaysAgentContentModule) return "";
+    return ' data-module-payload="' + GreenwaysAgentContentModule.encodePayload(item) + '"';
+  }
+
   function renderMediaCard(p) {
     const name = escapeHtml(p.name || p.id || "Media");
     const rawName = String(p.name || p.id || "this item");
@@ -1323,6 +1345,20 @@
     }
 
     const href = escapeHtml(p.marketplaceHref || ("product-page-v2-marketplace.html?product=" + encodeURIComponent(p.id || "") + "&fromPopup=true"));
+    if (p.source === "sustainability-map" && window.GreenwaysAgentContentModule) {
+      return (
+        '<div class="product-sample-card is-map-module">' +
+        '<button type="button" class="product-sample-link product-module-trigger"' + modulePayloadAttr(sustainabilityMapModuleItem()) + ' title="Open sustainability map">' +
+        '<div class="product-sample-img-wrap">' + img + "</div>" +
+        '<div class="product-sample-body">' +
+        '<span class="product-sample-name">' + name + "</span>" +
+        '<span class="product-sample-meta">' + meta + "</span>" +
+        '<span class="product-sample-grant">' + grantLabel + "</span>" +
+        "</div></button>" +
+        '<button type="button" class="product-ask-btn" data-prompt="' + escapeHtml(askPrompt) + '">Ask about this</button>' +
+        "</div>"
+      );
+    }
     return (
       '<div class="product-sample-card">' +
       '<a class="product-sample-link" href="' + href + '" target="_top" rel="noopener" title="Open page" style="text-decoration:none;color:inherit;display:flex;flex:1;min-width:0">' +
@@ -1844,6 +1880,11 @@
     GreenwaysAgentVideo.bindContainer(document.getElementById("top-product-samples"), function () {
       sendQuestion("What videos are in the Greenways Wix library?");
     });
+  }
+
+  if (window.GreenwaysAgentContentModule) {
+    GreenwaysAgentContentModule.bindContainer(thread);
+    GreenwaysAgentContentModule.bindContainer(document.getElementById("top-product-samples"));
   }
 
   ["profile-region", "profile-sector", "profile-focus"].forEach(function (id) {

@@ -29,6 +29,7 @@ const {
   isMapRelatedQuestion,
   companyToMediaSample
 } = require('./media-agent-companies');
+const { moduleBlockFor } = require('./greenways-content-modules');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'media-agent-intents.json');
 const showcasePath = path.join(__dirname, '..', 'data', 'media-agent-showcase.json');
@@ -164,6 +165,17 @@ async function buildEnergyTickerBlock(profile) {
     `${hint}\n` +
     `→ **Live ticker:** ${MEDIA_PAGES.energyTicker}`
   );
+}
+
+async function attachModules(result, profile, moduleIds = []) {
+  if (!result || !moduleIds.length) return result;
+  const blocks = [...(result.blocks || [])];
+  for (const id of moduleIds) {
+    const block = await moduleBlockFor(id, profile);
+    if (block) blocks.push(block);
+  }
+  if (blocks.length) result.blocks = blocks;
+  return result;
 }
 
 async function loadShowcase() {
@@ -677,12 +689,14 @@ async function answerFromKnowledge(question, profile = {}) {
     switch (intent.answerType) {
       case 'overview':
         result = await buildOverviewAnswer(catalog, videos, tip, briefing);
+        result = await attachModules(result, profile, ['sustainability-map', 'energy-prices-ticker']);
         break;
       case 'sustainability_map': {
         result = await buildSustainabilityMapAnswer(question, profile, tip, {
           localVariantNote: briefing.mapPrinciple || undefined
         });
         result.agentHandoffs = buildHandoffs(briefing, question, 'sustainability_map');
+        result = await attachModules(result, profile, ['sustainability-map']);
         break;
       }
       case 'energy_examples': {
@@ -696,12 +710,18 @@ async function answerFromKnowledge(question, profile = {}) {
         break;
       case 'monthly_news':
         result = await buildMonthlyNewsAnswer(catalog, profile, tip, briefing);
+        result = await attachModules(result, profile, [
+          'energy-prices-ticker',
+          'sustainability-news-edition',
+          'sustainability-map'
+        ]);
         break;
       case 'tech_news':
         result = await buildTechNewsAnswer(catalog, tip);
         break;
       case 'energy_prices':
         result = await buildEnergyPricesAnswer(profile, tip, briefing);
+        result = await attachModules(result, profile, ['energy-prices-ticker']);
         break;
       case 'how_this_helps':
         result = await buildHowThisHelpsAnswer(question, catalog, profile, tip);

@@ -19,6 +19,7 @@ const {
   loadAgentVoice,
   pickTip
 } = require('./greenways-agent-persona');
+const { moduleBlockFor } = require('./greenways-content-modules');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'sustainable-products-agent-intents.json');
 const showcasePath = path.join(__dirname, '..', 'data', 'sustainable-products-agent-showcase.json');
@@ -43,6 +44,17 @@ const LANE_LABELS = {
 };
 
 let catalogCache = null;
+
+async function attachModules(result, profile, moduleIds = []) {
+  if (!result || !moduleIds.length) return result;
+  const blocks = [...(result.blocks || [])];
+  for (const id of moduleIds) {
+    const block = await moduleBlockFor(id, profile);
+    if (block) blocks.push(block);
+  }
+  if (blocks.length) result.blocks = blocks;
+  return result;
+}
 
 async function loadBriefing() {
   try {
@@ -703,6 +715,7 @@ async function answerFromKnowledge(question, profile = {}) {
     switch (intent.answerType) {
       case 'overview':
         result = await buildOverviewAnswer(catalog, tip, briefing);
+        result = await attachModules(result, profile, ['eco-project-planner', 'sustainable-product-finder']);
         break;
       case 'lane':
         result = buildLaneAnswer(intent.lane, catalog, showcase, tip);
@@ -715,6 +728,7 @@ async function answerFromKnowledge(question, profile = {}) {
         break;
       case 'portals':
         result = buildPortalsAnswer(intent.portal || 'all', tip);
+        result = await attachModules(result, profile, ['water-saving-finder', 'sustainable-product-finder']);
         break;
       case 'product_deal_spotlights':
         result = buildProductDealSpotlightsAnswer(tip, briefing);
@@ -724,6 +738,7 @@ async function answerFromKnowledge(question, profile = {}) {
         break;
       case 'eco_journey':
         result = await buildEcoJourneyAnswer(profile, tip);
+        result = await attachModules(result, profile, ['eco-project-planner']);
         break;
       case 'citizen_benefits':
         result = await buildCitizenBenefitsAnswer(tip);
