@@ -1,6 +1,8 @@
 const path = require('path');
 const fs = require('fs/promises');
 
+const { toLinkItem, REGION_LABELS } = require('./greenways-agent-shared');
+
 const companiesPath = path.join(__dirname, '..', 'data', 'companies.json');
 const orgsInlinePath = path.join(__dirname, '..', 'data', 'orgs-directory-inline.js');
 
@@ -100,23 +102,15 @@ function rankCompanies(question, profile, companies, limit = 8) {
     const cSector = String(c.sector || '').toLowerCase();
     return sectorTokens.some((t) => cSector.includes(t));
   });
-  const pool = sectorFiltered.length ? sectorFiltered : companies.filter(hasMeasurableStats);
-  return pool.slice(0, limit);
+  return (sectorFiltered.length ? sectorFiltered : companies.filter(hasMeasurableStats)).slice(0, limit);
 }
 
 function formatCompanyBullet(c) {
   const stats = c.stats || {};
-  const statLine = [
-    stats.savings ? `savings ${stats.savings}` : '',
-    stats.energy ? stats.energy : '',
-    stats.co2 ? `CO₂ ${stats.co2}` : '',
-    stats.payback ? `payback ${stats.payback}` : ''
-  ]
-    .filter(Boolean)
-    .join(' · ');
+  const statLine = [stats.savings, stats.energy, stats.payback].filter(Boolean).join(' · ');
   const desc = String(c.desc || '').slice(0, 150);
   return (
-    `- **${c.name}** (${c.country || '—'}${c.sector ? ` · ${c.sector}` : ''})` +
+    `- **${c.name}** (${c.country || '—'}${c.city ? ` · ${c.city}` : ''})` +
     (statLine ? ` — _${statLine}_` : '') +
     `\n  ${desc}${String(c.desc || '').length > 150 ? '…' : ''}`
   );
@@ -194,6 +188,62 @@ function companyToMediaSample(c) {
   };
 }
 
+function companyToLinkItem(c, prefix = '') {
+  const stats = c.stats || {};
+  const statBits = [stats.savings, stats.energy, stats.payback].filter(Boolean).join(' · ');
+  const place = [c.country, c.city].filter(Boolean).join(' · ') || '—';
+  const desc = [
+    statBits,
+    String(c.desc || '').slice(0, 110)
+  ]
+    .filter(Boolean)
+    .join(' — ');
+  const title = prefix ? `${prefix}${c.name}` : c.name;
+  return toLinkItem(`${title} (${place})`, MAP_PAGE_HREF, desc);
+}
+
+function orgToLinkItem(org) {
+  const stats = org.stats || {};
+  const tagLine = [stats.energy, stats.co2, stats.savings].filter(Boolean).join(' · ');
+  const desc = [tagLine, String(org.desc || '').slice(0, 110)].filter(Boolean).join(' — ');
+  const place = [org.country, org.region].filter(Boolean).join(' · ') || 'Europe';
+  const url = org.url || MAP_PAGE_HREF;
+  return toLinkItem(`${org.name} (${place})`, url, desc);
+}
+
+function buildMapExampleLinkItems(picks, dirPicks, maxCase = 5, maxDir = 3) {
+  const items = [];
+  for (const c of picks || []) {
+    if (items.length >= maxCase) break;
+    items.push(companyToLinkItem(c, 'Case study · '));
+  }
+  const dirItems = [];
+  for (const o of dirPicks || []) {
+    if (dirItems.length >= maxDir) break;
+    dirItems.push(orgToLinkItem(o));
+  }
+  return { caseStudyLinks: items, directoryLinks: dirItems };
+}
+
+function mapFollowUpQuestion(profile = {}) {
+  const sector = String(profile.sector || '').toLowerCase();
+  if (sector === 'restaurant' || sector === 'hospitality') {
+    return 'Want me to explain how a kitchen or HVAC technique from these examples could work for you — or match equipment with **Artemis**?';
+  }
+  return 'Should I explain any terms in these stories, or find examples closer to your sector?';
+}
+
+function mapAnswerBlocks(caseStudyLinks, directoryLinks) {
+  const blocks = [];
+  if (caseStudyLinks?.length) {
+    blocks.push({ type: 'link', items: caseStudyLinks });
+  }
+  if (directoryLinks?.length) {
+    blocks.push({ type: 'link', items: directoryLinks });
+  }
+  return blocks;
+}
+
 function resolveShowcaseCompanies(showcaseRows, allCompanies, limit = 3) {
   const byId = new Map(allCompanies.map((c) => [c.id, c]));
   const samples = [];
@@ -211,33 +261,35 @@ function resolveShowcaseCompanies(showcaseRows, allCompanies, limit = 3) {
   return samples;
 }
 
-async function buildSustainabilityMapAnswer(question, profile, tip, options = {}) {
+async function buildSustainabilityMapExplainedAnswer(question, profile, tip, intentId = 'sustainability_map_explained') {
   const { caseStudies, directory } = await loadMapCatalog();
-  const picks = rankCompanies(question, profile, caseStudies, 5);
-  const dirPicks = rankDirectoryOrgs(question, profile, directory, 3);
-  const sectors = getSectorSummary(caseStudies);
-  const regionLabel = profile.region ? String(profile.region).toUpperCase() : 'your region';
-  const localNote = options.localVariantNote || LOCAL_VARIANT_NOTE;
-  const directoryBlock = dirPicks.length
-    ? `\n\n**Directory organisations** (networks & sector leaders to learn from):\n${dirPicks.map(formatDirectoryBullet).join('\n\n')}`
-    : '';
+  const ranked = rankCompanies(question, profile, caseStudies, 10);
+  const bannerPicks = ranked.slice(0, 3);
+  const blockPicks = ranked.slice(3, 8);
+  const dirPicks = rankDirectoryOrgs(question, profile, directory, 4);
+  const regionLabel = profile.region
+    ? REGION_LABELS[profile.region] || String(profile.region).toUpperCase()
+    : 'your region';
+  const sectorLabel =
+    profile.sector && profile.sector !== 'any' ? profile.sector : 'your sector';
+  const { caseStudyLinks, directoryLinks } = buildMapExampleLinkItems(blockPicks, dirPicks, 5, 3);
+
   return {
     answer:
-      `**Sustainability map** — **${caseStudies.length}** case studies + **${directory.length}** directory organisations:\n\n` +
-      `**Case-study sectors:** ${sectors}\n\n` +
-      `**Examples for ${regionLabel}**${
-        profile.sector ? ` · ${profile.sector}` : ''
-      } — measurable savings and techniques:\n\n` +
-      `${formatCompanyBullets(picks, 5) || '_Browse the map for organisations in your sector._'}` +
-      `${directoryBlock}\n\n` +
-      `${localNote}\n\n` +
-      `**Open the interactive map:** ${MAP_PAGE_HREF}\n` +
-      `**Data:** \`/data/companies.json\` (case studies) · \`/data/orgs-directory-inline.js\` (directory)\n\n` +
-      `Cross-check techniques with **monthly sustainability news** and **energy prices ticker** when timing upgrades.\n\n_${tip}_`,
+      `The **sustainability map** is Greenways’ interactive atlas of **companies and organisations worldwide** making a measurable impact on energy, water, and the circular economy — **${caseStudies.length} case studies** with savings stats and **${directory.length} directory leaders** (networks, banks, NGOs, and innovators).\n\n` +
+      `It helps you **learn before you invest**: see how others achieve results through **products, equipment, and processes**, and use those stories as inspiration for your own site. If an example is not in your region, treat it as a **playbook** — the same technique often works with local suppliers, ETL products, or grants.\n\n` +
+      `For **${regionLabel}** and **${sectorLabel}**, I've picked a few headline examples above and more case studies and directory organisations on the right. When you're ready for the full interactive atlas, use **Open map** below.\n\n` +
+      `${mapFollowUpQuestion(profile)}\n\n_${tip}_`,
     suggestions: [],
-    intentId: 'sustainability_map',
-    source: 'sustainability-map'
+    intentId,
+    source: 'sustainability-map',
+    productSamples: bannerPicks.map(companyToMediaSample),
+    blocks: mapAnswerBlocks(caseStudyLinks, directoryLinks)
   };
+}
+
+async function buildSustainabilityMapAnswer(question, profile, tip) {
+  return buildSustainabilityMapExplainedAnswer(question, profile, tip, 'sustainability_map');
 }
 
 async function buildEnergyExamplesAnswer(question, profile, tip) {
@@ -247,29 +299,31 @@ async function buildEnergyExamplesAnswer(question, profile, tip) {
     question || 'energy savings payback kwh case study techniques',
     profile,
     withStats,
-    6
+    5
   );
+  const caseStudyLinks = picks.map((c) => companyToLinkItem(c, 'Example · '));
+
   return {
     answer:
-      `**Energy savings examples** from the sustainability map — real organisations with published savings, kWh, or payback figures you can use when **assessing upgrade options** (illustrative unless you have your own meter data):\n\n` +
-      `${formatCompanyBullets(picks, 6) || '_Open the map for more case studies with stats._'}\n\n` +
-      `Pair with **Finance Agent** for payback on your equipment, and **monthly sustainability news** for policy context.\n\n` +
-      `**Map:** ${MAP_PAGE_HREF}\n\n_${tip}_`,
+      `These are **real energy savings examples** from the sustainability map — organisations with published kWh, € savings, or payback you can use as **benchmarks** when comparing upgrades (illustrative until you have your own meter data).\n\n` +
+      `Each story shows **products, equipment, or processes** that made the difference. Open the cards on the right for the map entry, or ask me to explain how a technique could translate to your site.\n\n` +
+      `${mapFollowUpQuestion(profile)}\n\n_${tip}_`,
     suggestions: [],
     intentId: 'energy_examples',
-    source: 'sustainability-map'
+    source: 'sustainability-map',
+    productSamples: picks.slice(0, 3).map(companyToMediaSample),
+    blocks: caseStudyLinks.length ? [{ type: 'link', items: caseStudyLinks }] : []
   };
 }
 
-async function buildMapNewsCrosslinkBlock(profile, question, limit = 3) {
+async function buildMapNewsCrosslinkBlock() {
+  return '';
+}
+
+async function buildMapNewsCrosslinkItems(profile, question, limit = 3) {
   const companies = await loadCompanies();
   const picks = rankCompanies(question, profile, companies, limit);
-  if (!picks.length) return '';
-  return (
-    `\n\n**Related case studies on the sustainability map** (techniques & savings benchmarks):\n` +
-    `${formatCompanyBullets(picks, limit)}\n` +
-    `→ ${MAP_PAGE_HREF}`
-  );
+  return picks.map((c) => companyToLinkItem(c, 'Related · '));
 }
 
 function isMapRelatedQuestion(question) {
@@ -289,10 +343,13 @@ module.exports = {
   formatCompanyBullets,
   formatDirectoryBullet,
   companyToMediaSample,
+  companyToLinkItem,
+  buildMapExampleLinkItems,
   resolveShowcaseCompanies,
   buildSustainabilityMapAnswer,
+  buildSustainabilityMapExplainedAnswer,
   buildEnergyExamplesAnswer,
   buildMapNewsCrosslinkBlock,
-  isMapRelatedQuestion,
-  hasMeasurableStats
+  buildMapNewsCrosslinkItems,
+  isMapRelatedQuestion
 };

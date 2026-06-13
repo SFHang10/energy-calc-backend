@@ -422,6 +422,29 @@ List models: `GET https://api.cortecs.ai/v1/models` with same Bearer JWT. OpenRo
 
 ---
 
+## Conversational answer pattern (Zara-style) — all agents
+
+**Reference:** [Zara (Deals Agent)](https://energy-calc-backend.onrender.com/greenways/deals-agent) — short left summary + **link tablets** / **module blocks** on the right.
+
+| Rule | Left column (chat prose) | Right column / banner |
+|------|--------------------------|------------------------|
+| **Summarise, don't dump** | 2–4 friendly paragraphs — what it is, why it matters, how it could affect bills or planning | Concrete examples, portals, editions |
+| **No long lists** | Avoid markdown bullet catalogues of articles, schemes, deals, or case studies | Move rows to `blocks[]` (`type: "link"`) or `productSamples` banner cards |
+| **No raw HTML paths** | Never `→ ./some-page.html` in prose | Use `toLinkItem(title, url, description)` in blocks |
+| **Explain & invite** | Offer follow-ups: _"Should I explain CBAM?"_ / _"Want examples for your sector?"_ | Module shell for maps, finders, tickers (`attachModules`) |
+| **Helper tone** | Friendly curator — not a search engine | User opens **Open ↗** or map module when ready |
+
+**Implementation:**
+
+- Shared rules: `services/greenways-agent-shared.js` → `CONVERSATIONAL_ANSWER_RULES`, `conversationalSystemLines()`.
+- LLM polish: `services/greenways-agent-llm-fallback.js` — all seven agents inherit the same left-column rules.
+- Turn UI: when `blocks[]` exist, `greenways-agent-turn-ui.js` shows **intro only** on the left (`introFromAnswer` strips bullets after first list).
+- **Cheryce pilot (Jun 2026):** `buildSustainabilityMapAnswer` / `buildMonthlyNewsAnswer` in `media-agent-companies.js` + `media-agent-knowledge.js` — map summary + example link tablets; news roundup caps at 4 story cards on the right.
+
+When adding a new intent handler, return `{ answer, blocks?, productSamples?, suggestions? }` — not a long `answer` string alone.
+
+---
+
 ## Cloning checklist (next agent)
 
 1. Copy `greenways-grants-agent.html` → `greenways-{name}-agent.html`.

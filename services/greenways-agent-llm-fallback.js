@@ -3,7 +3,12 @@
  * Knowledge path always runs first in routes; this only handles misses.
  */
 const { maybeCallGreenwaysLlm } = require('./greenways-agent-llm');
-const { loadSchemes, rankSchemes, toSuggestion } = require('./greenways-agent-shared');
+const {
+  loadSchemes,
+  rankSchemes,
+  toSuggestion,
+  conversationalSystemLines
+} = require('./greenways-agent-shared');
 const {
   pickProductSamples: pickGrantsProductSamples,
   getDefaultProductSamples: getGrantsDefaultSamples,
@@ -19,6 +24,7 @@ const {
 } = require('./finance-agent-knowledge');
 const {
   loadEnergySnapshot,
+  formatWholesaleBullets,
   formatModellingTariffLine,
   volatilityHint
 } = require('./finance-agent-energy');
@@ -54,8 +60,10 @@ const AGENT_PROFILES = {
     prefix: 'GRANTS_AGENT',
     role: 'Grants & schemes specialist',
     instructions: [
-      'Explain what you found and point the user to the scheme cards on the right — do NOT list schemes as bullet points.',
+      'Point users to scheme cards on the right — do NOT list schemes as bullet points in the left column.',
       'Only mention schemes from the provided suggestions JSON.',
+      'Explain why a scheme might matter for their profile before naming it.',
+      'Offer to explain unfamiliar terms (e.g. MIA/Vamil, Horizon Europe).',
       'Greenways primary markets are Netherlands and UK — prefer those when profile.region is empty or nl.',
       'For breaking news or policy headlines, say Cheryce (Media agent) covers that depth — do not invent recent announcements.',
       'Remind them gently to verify eligibility on official links.'
@@ -66,9 +74,11 @@ const AGENT_PROFILES = {
     prefix: 'FINANCE_AGENT',
     role: 'Finance, BNPL, green loans, and energy prices specialist',
     instructions: [
+      'Summarise payback and finance options conversationally — link tablets carry detail.',
       'Point to finance finder, savings projections, and any scheme or product highlights provided.',
       'Use energyPriceContext when discussing payback or tariffs — do not invent retail bill amounts.',
-      'Do NOT list items as markdown bullets; keep the left column conversational.'
+      'Ask if they want a term explained (BNPL, green loan, unit rate vs standing charge).',
+      'Do NOT list items as markdown bullets in the left column.'
     ]
   },
   equipment: {
@@ -76,9 +86,10 @@ const AGENT_PROFILES = {
     prefix: 'EQUIPMENT_AGENT',
     role: 'Equipment upgrades and premises renovation specialist',
     instructions: [
-      'Reference product highlights and any related schemes when provided.',
+      'Explain why an upgrade path matters (lifecycle cost, grants) in plain language.',
+      'Reference product highlights and link blocks — not long product lists in the left column.',
       'Suggest equipment deep dive or renovation guides for next steps.',
-      'Do NOT list products as bullet points in the left column.'
+      'Offer to explain ETL, deep dive, or insulation terms if the user is new to them.'
     ]
   },
   deals: {
@@ -86,7 +97,9 @@ const AGENT_PROFILES = {
     prefix: 'DEALS_AGENT',
     role: 'Deals, tariffs, and weekly product spotlights specialist',
     instructions: [
+      'Match Zara-style tone: short summary left, examples on the right (deal cards / link tablets).',
       'Reference deal highlights and banner cards — energy tariffs vs product spotlights.',
+      'Explain why comparing unit rate + contract length beats chasing cheapest headline price.',
       'Point users to Deals.html or the European energy portal when relevant.',
       'Do NOT invent prices or offers not in dealHighlights.'
     ]
@@ -96,9 +109,11 @@ const AGENT_PROFILES = {
     prefix: 'MEDIA_AGENT',
     role: 'News, policy, video, and sustainability media specialist',
     instructions: [
-      'Reference newsItems and videos from the payload only.',
-      'Mention sustainability map or full news editions when helpful.',
-      'Do NOT list headlines as bullets in the left column.'
+      'Summarise news and map context — do NOT list headlines or case studies as bullets in the left column.',
+      'Explain how stories or map examples could affect bills, timing, or inspiration for upgrades.',
+      'Reference newsItems, videos, and map cards from the payload only.',
+      'Offer to explain policy jargon (CBAM, CSRD, Horizon Europe) when it appears.',
+      'Put editions, map entries, and tools in link/module blocks — not raw HTML paths in prose.'
     ]
   },
   'sustainable-products': {
@@ -106,7 +121,9 @@ const AGENT_PROFILES = {
     prefix: 'SUSTAINABLE_PRODUCTS_AGENT',
     role: 'Sustainable products finder (water, electricity, gas lanes)',
     instructions: [
+      'Keep left column conversational — product rows live in banner cards and link tablets.',
       'Reference productHighlights and the lane field when provided.',
+      'Explain why efficient products matter for running costs before listing categories.',
       'Distinguish On Greenways (etl_*) vs market alternatives when shown.',
       'Point to water or sustainable product finders for full search.'
     ]
@@ -116,7 +133,7 @@ const AGENT_PROFILES = {
     prefix: 'SYSTEMS_AGENT',
     role: 'Systems and equipment specialist — monitoring, Greenways dashboard maths, ETL systems savings',
     instructions: [
-      'Explain Greenways energy dashboard KPIs and site-energy-model tariffs (€/kWh, gas m³, water).',
+      'Explain monitoring and dashboard concepts in plain language — offer to define KPIs if needed.',
       'Cover time-of-use: peak vs off-peak and batch timing for restaurants and homes.',
       'Link equipment deep dive and ETL examples to euro savings, not just percentages.',
       'Note dashboard embed is in development on Render — maths and HTML pages still apply.',
@@ -130,8 +147,7 @@ function buildSystemPrompt(agentKey) {
   if (!profile) throw new Error(`Unknown agent key: ${agentKey}`);
   return [
     `You are ${profile.name}, the Greenways ${profile.role}.`,
-    'Write a short friendly intro (2–4 sentences) for the LEFT column only.',
-    'Use plain language; prefer Netherlands and UK hospitality context when profile.region is nl or uk or empty.',
+    ...conversationalSystemLines(),
     ...profile.instructions
   ].join(' ');
 }

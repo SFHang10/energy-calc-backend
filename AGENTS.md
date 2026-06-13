@@ -467,7 +467,8 @@ html, body {
 
 - **🗺️ Media Agent + sustainability map (May 2026)**:
   - **`services/media-agent-companies.js`** ranks **`data/companies.json`** (500+ orgs) for profile/sector — energy savings examples, payback stats, techniques to benchmark.
-  - Intents: `sustainability_map`, `energy_examples`; **monthly news** answers append related map case studies.
+  - Intents: `sustainability_map`, `energy_examples`; **monthly news** uses story link tablets (not long bullet lists).
+  - **Conversational answers (Jun 2026):** all agents — **`Skills/greenways-chat-interface-skill.md`** § Conversational answer pattern (Zara-style). Cheryce map: summary left, example cards + **Open map** module right — `buildSustainabilityMapAnswer` in `media-agent-companies.js`.
   - Map page: **`European Company - Case Study Finder (Standalone) - Wix bundle.html`**; showcase IDs in **`data/media-agent-showcase.json`**.
 
 - **🔀 Agent merges (May 2026)** — fewer consumer chats, clearer journeys:

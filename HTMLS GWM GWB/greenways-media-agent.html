@@ -327,15 +327,28 @@
   }
   .product-samples--banner .product-sample-link {
     flex: 1;
+    display: flex;
     flex-direction: row;
     align-items: stretch;
     min-width: 0;
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    text-align: inherit;
+    cursor: pointer;
   }
   .product-samples--banner .product-sample-img-wrap {
     flex: 0 0 92px;
     width: 92px;
     height: auto;
-    min-height: 100%;
+    min-height: 86px;
+    max-height: 108px;
+    align-self: stretch;
+    position: relative;
     border-right: 1px solid rgba(96, 165, 250, 0.18);
     padding: 10px 8px;
   }
@@ -363,6 +376,17 @@
   .product-samples--banner .product-sample-grant {
     align-self: center;
     max-width: calc(100% - 4px);
+  }
+  .product-samples--banner .product-sample-card.is-map-module .product-sample-meta,
+  .product-samples--banner .product-sample-card.is-video .product-sample-meta {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .product-samples--banner .product-sample-card.is-map-module .gw-module-open-badge {
+    font-size: 0.55rem;
+    padding: 4px 8px;
   }
 
   .msg-row { display: flex; flex-direction: column; max-width: 92%; }
@@ -898,6 +922,17 @@
     text-decoration: none;
   }
   .sidebar-link:hover { text-decoration: underline; }
+  .sidebar-link-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    padding: 0;
+  }
   .status-bar {
     padding: 8px 14px;
     font-size: 0.68rem;
@@ -984,6 +1019,13 @@
         <span class="product-showcase-hint">Stories &amp; photos open pages · videos — tap ▶ to watch</span>
       </div>
       <div class="product-samples product-samples--banner" id="top-product-samples"></div>
+      <div class="map-module-launch-bar" id="map-module-launch-bar" hidden>
+        <div class="map-module-launch-preview" id="map-module-launch-preview" aria-live="polite"></div>
+        <div class="map-module-launch-actions">
+          <button type="button" class="map-module-launch-btn" id="map-module-open-btn" data-map-open="1">Open map</button>
+          <button type="button" class="map-module-launch-close" id="map-module-launch-dismiss" aria-label="Dismiss map bar">×</button>
+        </div>
+      </div>
     </section>
 
     <div class="chat-panel">
@@ -993,7 +1035,8 @@
           <p>I explain <strong>how sustainability news helps you</strong> — monthly editions, <strong>514+ map case studies</strong>, <strong>391 directory organisations</strong>, <strong>Wix videos</strong>, and <strong>energy price ticker</strong> context.</p>
           <div class="welcome-tags">
             <button type="button" class="welcome-tag" data-prompt="Give me a sustainability news roundup with energy prices">News + energy prices</button>
-            <button type="button" class="welcome-tag" data-prompt="Show organisations on the sustainability map doing great things in sustainability">Sustainability map</button>
+            <button type="button" class="welcome-tag" data-map-open="1" title="Open sustainability map in module">Sustainability map</button>
+            <button type="button" class="welcome-tag" data-prompt="Explain what the Greenways sustainability map is and how it can help me find inspiration from companies and organisations worldwide">Sustainability map explained</button>
             <button type="button" class="welcome-tag" data-prompt="How does CBAM policy news help my restaurant?">How this helps</button>
             <button type="button" class="welcome-tag" data-prompt="What is happening with energy prices right now?">Energy ticker</button>
             <button type="button" class="welcome-tag" data-prompt="Show restaurant and kitchen energy saving videos">Wix videos</button>
@@ -1028,7 +1071,7 @@
       <a class="sidebar-link" href="./Importance%20of%20Energy%20Monitoring.html" target="_top" rel="noopener">Energy monitoring guide →</a>
       <a class="sidebar-link" href="./water-saving-finder.html" target="_top" rel="noopener">Water saving finder →</a>
       <a class="sidebar-link" href="./deals-ticker-hub.html" target="_top" rel="noopener">Deals hub →</a>
-      <a class="sidebar-link" href="./European%20Company%20-%20Case%20Study%20Finder%20(Standalone)%20-%20Wix%20bundle.html" target="_top" rel="noopener">Sustainability map →</a>
+      <button type="button" class="sidebar-link sidebar-link-btn" id="sidebar-open-map" data-map-open="1">Sustainability map →</button>
     </div>
     <div class="helper-list" id="helper-list"></div>
     <div class="status-bar" id="status-bar">Ready · media knowledge (news + Wix videos)</div>
@@ -1075,9 +1118,22 @@
     { id: "video", icon: "🎬", name: "Wix videos", desc: "By topic", prompt: "What videos are in the Greenways Wix library?" },
     { id: "rest", icon: "🍳", name: "Restaurant media", desc: "Kitchen savings", prompt: "Show restaurant and kitchen energy saving videos" },
     { id: "news", icon: "📰", name: "News pages", desc: "Full roundups", prompt: "Where are the sustainability news pages on Greenways?" },
-    { id: "map", icon: "🗺️", name: "Sustainability map", desc: "Case studies", prompt: "Show organisations on the sustainability map for energy savings ideas" }
+    { id: "map", icon: "🗺️", name: "Sustainability map", desc: "What it is & examples", prompt: "Explain what the Greenways sustainability map is and how it can help me find inspiration from companies and organisations worldwide" }
   ];
 
+  const MAP_LAUNCH_FALLBACK = {
+    id: "map-spotlight-ikea-nl",
+    name: "IKEA Netherlands",
+    subcategory: "CASE STUDY",
+    type: "company",
+    source: "sustainability-map",
+    imageUrl: "https://static.wixstatic.com/media/c123de_cdf6d4209eeb4dd190dd900b5b5d4263~mv2.jpeg",
+    label: "Smart energy systems across restaurant & kitchen operations — 514 case studies + 391 directory organisations on the map.",
+    topGrants: ["Netherlands", "30,000+ kWh"],
+    marketplaceHref: "./European%20Company%20-%20Case%20Study%20Finder%20(Standalone)%20-%20Wix%20bundle.html"
+  };
+
+  var lastMapPreviewSample = null;
   const thread = document.getElementById("chat-thread");
   const welcomeCard = document.getElementById("welcome-card");
   const input = document.getElementById("chat-input");
@@ -1125,7 +1181,20 @@
   function formatAnswer(text) {
     let t = escapeHtml(text);
     t = t.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-    t = t.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:#93c5fd">$1</a>');
+    t = t.replace(
+      /(\.\/European(?:%20| )Company[^\s<]*Case(?:%20| )Study(?:%20| )Finder[^\s<]*\.html[^\s<]*)/gi,
+      '<button type="button" class="inline-map-open" data-map-open="1">Open sustainability map</button>'
+    );
+    t = t.replace(
+      /(\/HTMLS(?:%20| )GW(?:%20| )GWB\/European[^\s<]*Case(?:%20| )Study(?:%20| )Finder[^\s<]*\.html[^\s<]*)/gi,
+      '<button type="button" class="inline-map-open" data-map-open="1">Open sustainability map</button>'
+    );
+    t = t.replace(/(https?:\/\/[^\s<]+)/g, function (url) {
+      if (/Case(?:%20| )Study(?:%20| )Finder|European(?:%20| )Company/i.test(url)) {
+        return '<button type="button" class="inline-map-open" data-map-open="1">Open sustainability map</button>';
+      }
+      return '<a href="' + url + '" target="_blank" rel="noopener noreferrer" style="color:#93c5fd">' + url + "</a>";
+    });
     t = t.replace(/\n\n/g, "</p><p>");
     t = t.replace(/\n/g, "<br>");
     return "<p>" + t + "</p>";
@@ -1166,7 +1235,7 @@
       {
         footHtml:
           followUpChips(turn.intentId, profile, turn.question || "") +
-          '<span class="source-pill">' + escapeHtml(sourceLabel(turn.source)) + "</span>"
+          '<span class="source-pill">' + escapeHtml(sourceLabel(turn.source, turn.intentId, turn.knowledgeVersion)) + "</span>"
       }
     );
     return TurnUi.layoutHtml(parts, AGENT_TURN_AVATAR);
@@ -1294,24 +1363,215 @@
     }) + '"';
   }
 
+  function isMapHref(href) {
+    return /Case(?:%20| )Study(?:%20| )Finder|Case Study Finder|European(?:%20| )Company.*Finder/i.test(String(href || ""));
+  }
+
   function sustainabilityMapModuleItem() {
     var profile = getProfile();
+    var agentReturn = location.origin + "/greenways/media-agent";
     var href = "/HTMLS%20GWM%20GWB/European%20Company%20-%20Case%20Study%20Finder%20(Standalone)%20-%20Wix%20bundle.html?embed=1&popup=1";
     if (profile.region) href += "&region=" + encodeURIComponent(profile.region);
     if (profile.sector) href += "&sector=" + encodeURIComponent(profile.sector);
+    href += "&return=" + encodeURIComponent(agentReturn);
     return {
       moduleId: "sustainability-map",
       title: "Sustainability map",
       description: "514 case studies + 391 directory organisations — interactive map with savings stats.",
       href: href,
       fullPageHref: "/HTMLS%20GWM%20GWB/European%20Company%20-%20Case%20Study%20Finder%20(Standalone)%20-%20Wix%20bundle.html",
-      kind: "html"
+      kind: "html",
+      openSize: "near-full",
+      agentName: AGENT_PROFILE.name,
+      theme: "media"
     };
   }
 
+  function openMapFromTrigger(el) {
+    if (window.GreenwaysAgentContentModule && el) {
+      var raw = el.getAttribute("data-module-payload");
+      if (raw) {
+        var item = GreenwaysAgentContentModule.parsePayload(raw);
+        if (item) {
+          GreenwaysAgentContentModule.open(Object.assign({}, sustainabilityMapModuleItem(), item, {
+            agentName: AGENT_PROFILE.name,
+            theme: "media"
+          }));
+          return true;
+        }
+      }
+    }
+    return openSustainabilityMapModule();
+  }
+
+  function openSustainabilityMapModule() {
+    if (window.GreenwaysAgentContentModule) {
+      paintMapLaunchBarPreview(pickMapPreviewSample(null));
+      showMapModuleBar(true);
+      GreenwaysAgentContentModule.open(sustainabilityMapModuleItem());
+      return false;
+    }
+    alert("Map module shell is still loading — try again in a moment.");
+    return false;
+  }
+  window.openSustainabilityMapModule = openSustainabilityMapModule;
+
+  function interceptPortalHtmlNav(e) {
+    var mapOpen = e.target.closest("[data-map-open], .product-module-trigger, .module-tablet-open, .inline-map-open");
+    if (mapOpen) {
+      e.preventDefault();
+      e.stopPropagation();
+      openMapFromTrigger(mapOpen);
+      return;
+    }
+    var a = e.target.closest("a[href]");
+    if (!a || a.classList.contains("module-tablet-full")) return;
+    var href = String(a.getAttribute("href") || a.href || "");
+    if (isMapHref(href)) {
+      e.preventDefault();
+      e.stopPropagation();
+      openSustainabilityMapModule();
+      return;
+    }
+    if (a.classList.contains("product-sample-link") && a.getAttribute("target") === "_top") {
+      e.preventDefault();
+      e.stopPropagation();
+      window.open(a.href, "_blank", "noopener,noreferrer");
+    }
+  }
+
+  function isMapSample(p) {
+    if (!p) return false;
+    if (p.source === "sustainability-map" || p.type === "company") return true;
+    var h = String(p.marketplaceHref || p.href || "");
+    return isMapHref(h);
+  }
+
+  function hasMapModuleBlock(blocks) {
+    return Array.isArray(blocks) && blocks.some(function (b) {
+      return b && b.type === "module" && Array.isArray(b.items) && b.items.some(function (item) {
+        return item && item.moduleId === "sustainability-map";
+      });
+    });
+  }
+
+  function hasMapSamples(samples) {
+    return Array.isArray(samples) && samples.some(function (p) {
+      return p && (p.source === "sustainability-map" || p.type === "company");
+    });
+  }
+
+  function rememberMapPreview(samples) {
+    if (!Array.isArray(samples)) return;
+    var mapOne = samples.find(isMapSample);
+    if (mapOne) lastMapPreviewSample = mapOne;
+  }
+
+  function pickMapPreviewSample(payload) {
+    if (payload && Array.isArray(payload.productSamples)) {
+      var fromPayload = payload.productSamples.find(isMapSample);
+      if (fromPayload) return fromPayload;
+    }
+    if (lastMapPreviewSample) return lastMapPreviewSample;
+    var bannerList = document.getElementById("top-product-samples");
+    if (bannerList) {
+      var cards = bannerList.querySelectorAll(".product-sample-card.is-map-module");
+      if (cards.length) {
+        var img = cards[0].querySelector(".product-sample-img-wrap img");
+        var nameEl = cards[0].querySelector(".product-sample-name");
+        var metaEl = cards[0].querySelector(".product-sample-meta");
+        var grantEl = cards[0].querySelector(".product-sample-grant");
+        if (nameEl) {
+          return {
+            name: nameEl.textContent || "Sustainability map",
+            label: metaEl ? metaEl.textContent : "",
+            imageUrl: img ? img.getAttribute("src") : "",
+            topGrants: grantEl ? [grantEl.textContent] : ["Case study"],
+            source: "sustainability-map",
+            type: "company"
+          };
+        }
+      }
+    }
+    return MAP_LAUNCH_FALLBACK;
+  }
+
+  function renderMapLaunchBarPreview(p) {
+    var sample = p || MAP_LAUNCH_FALLBACK;
+    var name = escapeHtml(sample.name || "Sustainability map");
+    var meta = escapeHtml(
+      sample.label ||
+      sample.description ||
+      "Case studies and directory organisations worldwide — tap Open map for the interactive atlas."
+    );
+    var chip = (sample.topGrants && sample.topGrants[0])
+      ? escapeHtml(sample.topGrants[0])
+      : "Case study";
+    var img = sample.imageUrl
+      ? '<img src="' + escapeHtml(sample.imageUrl) + '" alt="" loading="lazy">'
+      : '<span aria-hidden="true">🗺️</span>';
+    return (
+      '<div class="map-module-launch-card">' +
+      '<div class="map-module-launch-img">' + img + '<span class="gw-module-open-badge">Map</span></div>' +
+      '<div class="map-module-launch-body">' +
+      '<span class="map-module-launch-title">' + name + "</span>" +
+      '<span class="map-module-launch-meta">' + meta + "</span>" +
+      '<span class="map-module-launch-chip">' + chip + "</span>" +
+      '<span class="map-module-launch-foot">514 case studies + 391 organisations — opens in Cheryce’s module panel (chat stays open).</span>' +
+      "</div></div>"
+    );
+  }
+
+  function paintMapLaunchBarPreview(payloadOrSample) {
+    var preview = document.getElementById("map-module-launch-preview");
+    if (!preview) return;
+    var sample = payloadOrSample && (payloadOrSample.productSamples || payloadOrSample.name)
+      ? (payloadOrSample.productSamples ? pickMapPreviewSample(payloadOrSample) : payloadOrSample)
+      : pickMapPreviewSample(payloadOrSample);
+    if (sample && isMapSample(sample)) lastMapPreviewSample = sample;
+    preview.innerHTML = renderMapLaunchBarPreview(sample);
+  }
+
+  function showMapModuleBar(force) {
+    var bar = document.getElementById("map-module-launch-bar");
+    if (!bar) return;
+    if (force === false) {
+      bar.hidden = true;
+      return;
+    }
+    bar.hidden = false;
+  }
+
+  function updateMapModuleBar(payload) {
+    var intentId = payload && payload.intentId;
+    var show =
+      intentId === "sustainability_map" ||
+      intentId === "sustainability_map_explained" ||
+      intentId === "energy_examples" ||
+      hasMapModuleBlock(payload && payload.blocks) ||
+      hasMapSamples(payload && payload.productSamples);
+    if (show) paintMapLaunchBarPreview(payload);
+    showMapModuleBar(show);
+  }
+
   function modulePayloadAttr(item) {
-    if (!window.GreenwaysAgentContentModule) return "";
-    return ' data-module-payload="' + GreenwaysAgentContentModule.encodePayload(item) + '"';
+    if (!window.GreenwaysAgentContentModule) return ' data-map-open="1"';
+    return ' data-map-open="1" data-module-payload="' + GreenwaysAgentContentModule.encodePayload(item) + '"';
+  }
+
+  function renderMapSampleCard(p, name, img, meta, grantLabel, askPrompt) {
+    return (
+      '<div class="product-sample-card is-map-module">' +
+      '<button type="button" class="product-sample-link product-module-trigger"' + modulePayloadAttr(sustainabilityMapModuleItem()) + ' title="Open sustainability map in module">' +
+      '<div class="product-sample-img-wrap">' + img + '<span class="gw-module-open-badge">Map</span></div>' +
+      '<div class="product-sample-body">' +
+      '<span class="product-sample-name">' + name + "</span>" +
+      '<span class="product-sample-meta">' + meta + "</span>" +
+      '<span class="product-sample-grant">' + grantLabel + "</span>" +
+      "</div></button>" +
+      '<button type="button" class="product-ask-btn" data-prompt="' + escapeHtml(askPrompt) + '">Ask about this</button>' +
+      "</div>"
+    );
   }
 
   function renderMediaCard(p) {
@@ -1320,7 +1580,7 @@
     const askPrompt = "Tell me more about " + rawName + " for my business profile?";
     const img = p.imageUrl
       ? '<img src="' + escapeHtml(p.imageUrl) + '" alt="" loading="lazy">'
-      : '<span aria-hidden="true">🎬</span>';
+      : '<span aria-hidden="true">' + (isMapSample(p) ? "🗺️" : "🎬") + "</span>";
     const meta = escapeHtml(p.label || p.subcategory || "Media");
     const grantLabel = (p.topGrants && p.topGrants[0])
       ? escapeHtml(p.topGrants[0])
@@ -1345,23 +1605,12 @@
     }
 
     const href = escapeHtml(p.marketplaceHref || ("product-page-v2-marketplace.html?product=" + encodeURIComponent(p.id || "") + "&fromPopup=true"));
-    if (p.source === "sustainability-map" && window.GreenwaysAgentContentModule) {
-      return (
-        '<div class="product-sample-card is-map-module">' +
-        '<button type="button" class="product-sample-link product-module-trigger"' + modulePayloadAttr(sustainabilityMapModuleItem()) + ' title="Open sustainability map">' +
-        '<div class="product-sample-img-wrap">' + img + "</div>" +
-        '<div class="product-sample-body">' +
-        '<span class="product-sample-name">' + name + "</span>" +
-        '<span class="product-sample-meta">' + meta + "</span>" +
-        '<span class="product-sample-grant">' + grantLabel + "</span>" +
-        "</div></button>" +
-        '<button type="button" class="product-ask-btn" data-prompt="' + escapeHtml(askPrompt) + '">Ask about this</button>' +
-        "</div>"
-      );
+    if (isMapSample(p)) {
+      return renderMapSampleCard(p, name, img, meta, grantLabel, askPrompt);
     }
     return (
       '<div class="product-sample-card">' +
-      '<a class="product-sample-link" href="' + href + '" target="_top" rel="noopener" title="Open page" style="text-decoration:none;color:inherit;display:flex;flex:1;min-width:0">' +
+      '<a class="product-sample-link" href="' + href + '" target="_blank" rel="noopener noreferrer" title="Open page" style="text-decoration:none;color:inherit;display:flex;flex:1;min-width:0">' +
       '<div class="product-sample-img-wrap">' + img + "</div>" +
       '<div class="product-sample-body">' +
       '<span class="product-sample-name">' + name + "</span>" +
@@ -1386,9 +1635,13 @@
   function paintBannerProducts(samples) {
     const list = document.getElementById("top-product-samples");
     if (!list) return;
-    const cards = renderProductCards(resolveProductSamples(samples));
+    const resolved = resolveProductSamples(samples);
+    rememberMapPreview(resolved);
+    const cards = renderProductCards(resolved);
     if (!cards) return;
     list.innerHTML = cards;
+    var bar = document.getElementById("map-module-launch-bar");
+    if (bar && !bar.hidden) paintMapLaunchBarPreview(null);
   }
 
   function isProductGrantsQuestion(question) {
@@ -1434,9 +1687,14 @@
     statusBar.className = "status-bar" + (kind ? " " + kind : "");
   }
 
-  function sourceLabel(source) {
+  function sourceLabel(source, intentId, knowledgeVersion) {
     if (source === "llm") return "AI enhanced";
-    if (source === "knowledge") return "media knowledge";
+    if (source === "knowledge") {
+      var bits = ["media knowledge"];
+      if (intentId) bits.push(intentId.replace(/_/g, " "));
+      if (knowledgeVersion) bits.push(knowledgeVersion);
+      return bits.join(" · ");
+    }
     return "scheme match";
   }
 
@@ -1548,7 +1806,7 @@
     const answer = payload.answer || "I could not answer that yet.";
     const suggestions = payload.suggestions || [];
     const blocks = payload.blocks || [];
-    const src = sourceLabel(payload.source);
+    const src = sourceLabel(payload.source, intentId, payload.knowledgeVersion);
     const intentId = payload.intentId || null;
     lastIntentId = intentId;
     lastQuestion = payload.question || lastQuestion;
@@ -1556,6 +1814,7 @@
     if (payload.productSamples && payload.productSamples.length) {
       paintBannerProducts(payload.productSamples);
     }
+    updateMapModuleBar(payload);
 
     const parts = buildAgentTurnParts(answer, suggestions, blocks, {
       footHtml:
@@ -1578,7 +1837,8 @@
         blocks: payload.blocks || [],
         editionChips: payload.editionChips || [],
         source: payload.source || "",
-        intentId: intentId
+        intentId: intentId,
+        knowledgeVersion: payload.knowledgeVersion || ""
       });
       saveSession();
     });
@@ -1650,7 +1910,7 @@
                 {
                   footHtml:
                     followUpChips(turn.intentId, getProfile(), turn.question || "") +
-                    '<span class="source-pill">' + escapeHtml(sourceLabel(turn.source)) + "</span>"
+                    '<span class="source-pill">' + escapeHtml(sourceLabel(turn.source, turn.intentId, turn.knowledgeVersion)) + "</span>"
                 }
               );
               applySplitRowClasses(el, bubble, parts.useSplit);
@@ -1661,6 +1921,8 @@
       });
       lastIntentId = data.lastIntentId || null;
       showQuickReplies(lastIntentId, getProfile());
+      var lastAgent = (data.turns || []).slice().reverse().find(function (t) { return t.role === "agent"; });
+      if (lastAgent) updateMapModuleBar({ intentId: lastAgent.intentId, blocks: lastAgent.blocks });
     } catch (_) {}
   }
 
@@ -1669,6 +1931,7 @@
     lastIntentId = null;
     lastQuestion = "";
     msgId = 0;
+    showMapModuleBar(false);
     thread.innerHTML = "";
     const card = document.createElement("div");
     card.className = "welcome-card";
@@ -1678,7 +1941,8 @@
       '<p>I explain <strong>how sustainability news helps you</strong> — monthly editions, <strong>map case studies</strong>, <strong>directory organisations</strong>, <strong>Wix videos</strong>, and <strong>energy price ticker</strong> context.</p>' +
       '<div class="welcome-tags">' +
       '<button type="button" class="welcome-tag" data-prompt="Give me a sustainability news roundup with energy prices">News + energy prices</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="Show organisations on the sustainability map doing great things in sustainability">Sustainability map</button>' +
+      '<button type="button" class="welcome-tag" data-map-open="1" title="Open sustainability map in module">Sustainability map</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Explain what the Greenways sustainability map is and how it can help me find inspiration from companies and organisations worldwide">Sustainability map explained</button>' +
       '<button type="button" class="welcome-tag" data-prompt="How does sustainability policy news help my business?">How this helps</button>' +
       '<button type="button" class="welcome-tag" data-prompt="What is happening with energy prices right now?">Energy ticker</button>' +
       '<button type="button" class="welcome-tag" data-prompt="Show restaurant and kitchen energy saving videos">Wix videos</button>' +
@@ -1813,6 +2077,10 @@
   function bindWelcomeTags() {
     document.querySelectorAll(".welcome-tag").forEach(function (btn) {
       btn.addEventListener("click", function () {
+        if (btn.hasAttribute("data-map-open")) {
+          openSustainabilityMapModule();
+          return;
+        }
         sendQuestion(btn.getAttribute("data-prompt"));
       });
     });
@@ -1883,8 +2151,31 @@
   }
 
   if (window.GreenwaysAgentContentModule) {
+    GreenwaysAgentContentModule.init({
+      agentName: AGENT_PROFILE.name,
+      agentSlug: "media-agent",
+      theme: "media",
+      returnLabel: "← Back to chat"
+    });
     GreenwaysAgentContentModule.bindContainer(thread);
     GreenwaysAgentContentModule.bindContainer(document.getElementById("top-product-samples"));
+    GreenwaysAgentContentModule.bindContainer(document.getElementById("map-module-launch-bar"));
+    GreenwaysAgentContentModule.bindContainer(document.body);
+  }
+
+  document.addEventListener("click", interceptPortalHtmlNav, true);
+
+  var mapOpenBtn = document.getElementById("map-module-open-btn");
+  if (mapOpenBtn) {
+    mapOpenBtn.addEventListener("click", function () {
+      openSustainabilityMapModule();
+    });
+  }
+  var mapDismissBtn = document.getElementById("map-module-launch-dismiss");
+  if (mapDismissBtn) {
+    mapDismissBtn.addEventListener("click", function () {
+      showMapModuleBar(false);
+    });
   }
 
   ["profile-region", "profile-sector", "profile-focus"].forEach(function (id) {
@@ -1924,7 +2215,9 @@
       '<span class="helper-card-name">' + escapeHtml(h.name) + "</span>" +
       '<span class="helper-card-desc">' + escapeHtml(h.desc) + "</span></span>" +
       '<span class="helper-ask-btn">Ask</span>';
-    card.addEventListener("click", function () { sendQuestion(h.prompt); });
+    card.addEventListener("click", function () {
+      sendQuestion(h.prompt);
+    });
     helperList.appendChild(card);
   });
 
@@ -1966,6 +2259,17 @@
 
   restoreSession();
   loadBannerProducts();
+
+  (function autoOpenModuleFromQuery() {
+    try {
+      var q = new URLSearchParams(window.location.search);
+      if (q.get("openModule") === "sustainability-map") {
+        setTimeout(function () {
+          openSustainabilityMapModule();
+        }, 500);
+      }
+    } catch (_) {}
+  })();
 })();
 </script>
 </body>

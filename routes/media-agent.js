@@ -2,7 +2,8 @@ const express = require('express');
 const {
   answerFromKnowledge,
   getDefaultProductSamples,
-  loadFullNewsCatalog
+  loadFullNewsCatalog,
+  MEDIA_KNOWLEDGE_VERSION
 } = require('../services/media-agent-knowledge');
 const { rankNewsItems } = require('../services/media-news-loader');
 const { getVideosForAgent } = require('../services/wix-media-service');
@@ -91,7 +92,8 @@ router.post('/ask', async (req, res) => {
         agentHandoffs: knowledge.agentHandoffs || [],
         spokenSummary: knowledge.spokenSummary || null,
         source: knowledge.source || 'knowledge',
-        intentId: knowledge.intentId || null
+        intentId: knowledge.intentId || null,
+        knowledgeVersion: MEDIA_KNOWLEDGE_VERSION
       });
     }
 

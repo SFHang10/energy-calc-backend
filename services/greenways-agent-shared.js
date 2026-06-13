@@ -212,6 +212,29 @@ function toLinkItem(title, url, description) {
   };
 }
 
+/** Copy rules for all Greenways agents — left = summary; right = blocks/banner. See Skills/greenways-chat-interface-skill.md */
+const CONVERSATIONAL_ANSWER_RULES = {
+  leftColumn: [
+    'Summarise in plain language — explain why it matters and how it can affect bills, timing, or planning.',
+    'Do not dump long bullet lists, raw HTML paths, or article catalogues in the left column.',
+    'Offer a follow-up when jargon may be unfamiliar (e.g. "Should I explain CBAM and what it means for your imports?").'
+  ],
+  rightColumn: [
+    'Put concrete examples, portals, and editions in link tablets (blocks) or banner cards — Zara-style.',
+    'Use module blocks for heavy HTML (maps, finders, tickers); chat stays open behind.'
+  ]
+};
+
+function conversationalSystemLines() {
+  return [
+    'LEFT column only: 2–4 short paragraphs — friendly helper tone, not a catalogue dump.',
+    'Do NOT list articles, deals, schemes, or products as markdown bullets in the left column.',
+    'Point users to link tablets, module blocks, or banner cards on the right for examples.',
+    'Explain unfamiliar sustainability terms briefly or offer to explain them.',
+    'End with an optional follow-up question when it helps the user decide next step.'
+  ];
+}
+
 async function loadProductsWithGrants() {
   if (productsWithGrantsCache) return productsWithGrantsCache;
   for (const filePath of PRODUCT_FILES) {
@@ -396,6 +419,8 @@ module.exports = {
   formatSchemeBullets,
   withTip,
   toLinkItem,
+  CONVERSATIONAL_ANSWER_RULES,
+  conversationalSystemLines,
   loadProductsWithGrants,
   normalizeImageUrl,
   marketplaceHref,

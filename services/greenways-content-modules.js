@@ -92,7 +92,8 @@ function toModuleItem(module, profile = {}, overrides = {}) {
     href: modalHref,
     fullPageHref: fullPageHref(baseHref),
     openMode: module.openMode || 'modal',
-    kind: module.kind || 'html'
+    kind: module.kind || 'html',
+    openSize: overrides.openSize || module.defaultOpenSize || ''
   };
 }
 

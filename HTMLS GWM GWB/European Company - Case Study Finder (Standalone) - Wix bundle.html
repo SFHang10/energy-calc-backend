@@ -3,6 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<script>
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var embed = params.get("embed") === "1" || params.get("popup") === "1";
+  var inFrame = window.self !== window.top;
+  if (embed || inFrame) {
+    document.documentElement.classList.add("gw-map-embed-module");
+    if (inFrame) document.documentElement.classList.add("gw-map-in-portal");
+  }
+  if ((embed || params.get("popup") === "1") && window.self === window.top) {
+    var agentReturn = params.get("return") || "/greenways/media-agent";
+    var join = agentReturn.indexOf("?") >= 0 ? "&" : "?";
+    window.location.replace(agentReturn + join + "openModule=sustainability-map");
+    return;
+  }
+  if (inFrame) {
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest('a[target="_top"], a[target="_parent"], a[target="_blank"]');
+      if (!a) return;
+      var t = (a.getAttribute("target") || "").toLowerCase();
+      if (t === "_top" || t === "_parent") {
+        e.preventDefault();
+        a.setAttribute("target", "_blank");
+        a.setAttribute("rel", "noopener");
+        window.open(a.href, "_blank", "noopener");
+      }
+    }, true);
+    document.addEventListener("DOMContentLoaded", function () {
+      setTimeout(function () {
+        try {
+          window.parent.postMessage(
+            { type: "gw-module-embed-ready", moduleId: "sustainability-map" },
+            "*"
+          );
+        } catch (_) {}
+      }, 700);
+    });
+  }
+})();
+</script>
 <title>Greenways — Sustainability Map</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
@@ -28,6 +69,17 @@
   }
 
   * { margin:0; padding:0; box-sizing:border-box; }
+
+  html.gw-map-in-portal,
+  html.gw-map-in-portal body {
+    height: 100%;
+    overflow: auto;
+    overflow-x: hidden;
+  }
+
+  html.gw-map-in-portal .helper-popup.visible {
+    display: none;
+  }
 
   body {
     font-family: 'DM Sans', sans-serif;
@@ -2088,6 +2140,17 @@ let companies = mergeWithDirectory(
 );
 let mapReady = false;
 
+function notifyEmbedReady() {
+  try {
+    if (window.self !== window.top) {
+      window.parent.postMessage(
+        { type: "gw-module-embed-ready", moduleId: "sustainability-map" },
+        "*"
+      );
+    }
+  } catch (_) {}
+}
+
 const toast = document.getElementById("save-toast");
 const helperPopup = document.getElementById("helper-popup");
 const helperBtn = document.getElementById("helper-btn");
@@ -2358,12 +2421,14 @@ fetch(geoUrl)
 
     mapReady = true;
     refreshCompaniesUI();
+    notifyEmbedReady();
   })
   .catch(() => {
     // Fallback: show basic rectangle if fetch fails
     g.append("rect").attr("width",width).attr("height",height).attr("fill","#0b2a3d");
     mapReady = true;
     refreshCompaniesUI();
+    notifyEmbedReady();
   });
 
 loadCompaniesFromApi();
@@ -2390,6 +2455,7 @@ if (insightClose) {
   });
 }
 setTimeout(() => {
+  if (document.documentElement.classList.contains("gw-map-in-portal")) return;
   try {
     const seen = localStorage.getItem(HELPER_STORAGE_KEY) === "1";
     if (!seen) openHelperPopup();

@@ -12,7 +12,6 @@ const { getVideosForAgent } = require('./wix-media-service');
 const {
   loadFullNewsCatalog,
   rankNewsItems,
-  formatNewsBullets,
   filterByCategory,
   getLatestEdition,
   pickEditionChips
@@ -24,8 +23,10 @@ const {
   rankCompanies,
   resolveShowcaseCompanies,
   buildSustainabilityMapAnswer,
+  buildSustainabilityMapExplainedAnswer,
   buildEnergyExamplesAnswer,
   buildMapNewsCrosslinkBlock,
+  buildMapNewsCrosslinkItems,
   isMapRelatedQuestion,
   companyToMediaSample
 } = require('./media-agent-companies');
@@ -36,6 +37,8 @@ const showcasePath = path.join(__dirname, '..', 'data', 'media-agent-showcase.js
 const briefingPath = path.join(__dirname, '..', 'data', 'media-agent-briefing.json');
 const voicePath = path.join(__dirname, '..', 'data', 'media-agent-voice.json');
 const referencesPath = path.join(__dirname, '..', 'data', 'media-agent-references.json');
+
+const MEDIA_KNOWLEDGE_VERSION = '2026-05-28-conversational-blocks';
 
 const REGION_LABELS = { nl: 'Netherlands', uk: 'United Kingdom', eu: 'EU-wide' };
 
@@ -105,7 +108,7 @@ function buildHandoffs(briefing, question, intentId = '') {
     push('financeToVincent', 'How do current energy prices affect my upgrade payback?');
     push('dealsToZara', 'What energy or sustainability deals are live this week?');
   }
-  if (['sustainability_map', 'energy_examples', 'restaurant_videos'].includes(intentId)) {
+  if (['sustainability_map', 'sustainability_map_explained', 'energy_examples', 'restaurant_videos'].includes(intentId)) {
     push('equipmentToArtemis', 'What ETL equipment matches this map case study?');
     push('productsToZyanne', 'Find efficient products like those in the map examples');
   }
@@ -191,6 +194,50 @@ function findNewsById(items, id) {
   return items.find((n) => n.id === id);
 }
 
+function editionToLinkItems(catalog) {
+  const items = [];
+  const sust = getLatestEdition(catalog.editions, 'sustainability');
+  const tech = getLatestEdition(catalog.editions, 'tech');
+  if (sust?.pageHref) {
+    items.push(
+      toLinkItem(
+        `Sustainability news (${sust.edition})`,
+        sust.pageHref,
+        `${sust.storyCount || 0} stories — full monthly edition`
+      )
+    );
+  }
+  if (tech?.pageHref) {
+    items.push(
+      toLinkItem(
+        `Tech news (${tech.edition})`,
+        tech.pageHref,
+        `${tech.storyCount || 0} stories — innovation roundup`
+      )
+    );
+  }
+  if (!items.length) {
+    items.push(toLinkItem('Sustainability news', MEDIA_PAGES.sustainabilityNews, 'Site news page'));
+  }
+  return items;
+}
+
+function newsItemToLinkItem(item) {
+  const impact = (item.impact || []).slice(0, 2).join(' · ');
+  const desc = [
+    String(item.summary || '').slice(0, 100),
+    impact ? `Why: ${impact}` : ''
+  ]
+    .filter(Boolean)
+    .join(' — ');
+  const url =
+    item.pageHref ||
+    item.moreLink ||
+    (item.sources && item.sources[0]) ||
+    MEDIA_PAGES.sustainabilityNews;
+  return toLinkItem(item.title, url, desc);
+}
+
 function editionLinksBlock(catalog) {
   const sust = getLatestEdition(catalog.editions, 'sustainability');
   const tech = getLatestEdition(catalog.editions, 'tech');
@@ -205,6 +252,21 @@ function editionLinksBlock(catalog) {
     lines.push(`- **Site news page:** ${MEDIA_PAGES.sustainabilityNews}`);
   }
   return lines.join('\n');
+}
+
+function newsBlocksFromItems(storyItems, catalog, maxStories = 6) {
+  const storyLinks = (storyItems || []).slice(0, maxStories).map(newsItemToLinkItem);
+  const editionItems = editionToLinkItems(catalog).slice(0, 2);
+  const items = [...storyLinks, ...editionItems];
+  return items.length ? [{ type: 'link', items: items.slice(0, 8) }] : [];
+}
+
+function isMapExplainQuestion(question) {
+  const q = String(question || '').toLowerCase();
+  return (
+    /sustainability map|company map|case stud|organisations map|organizations map/.test(q) &&
+    /explain|what is|what the|how (can|does)|tell me about|how it can help|map explained/.test(q)
+  );
 }
 
 function toMediaSample(item) {
@@ -394,44 +456,49 @@ async function pickMediaSamples(question, profile = {}, limit = 3) {
 async function buildOverviewAnswer(catalog, videos, tip, briefing) {
   const b = briefing || (await loadBriefing());
   const { caseStudies, directory } = await loadMapCatalog();
-  const cats = [...new Set(catalog.items.map((i) => i.newsCategory).filter(Boolean))];
-  const tickerBlock = await buildEnergyTickerBlock({});
   return {
     answer:
-      `**Cheryce — sustainability news & media**\n\n` +
-      `${b.roleSummary || ''}\n\n` +
-      `- **News catalogue:** ${catalog.stats.total} items (${catalog.stats.knowledgeBase} policy/funding KB + ${catalog.stats.monthlyEditions} monthly editions)\n` +
-      `- **Categories:** ${cats.slice(0, 8).join(', ')}${cats.length > 8 ? '…' : ''}\n` +
-      `- **Sustainability map:** ${caseStudies.length} case studies + ${directory.length} directory organisations\n` +
-      `- **Wix videos:** ${videos.length} available (${videos[0]?.source === 'wix' ? 'live from Wix Media' : 'sample cards until Wix API connected'})\n\n` +
-      `I explain **how this helps you** on each story — not links alone.\n\n` +
-      `**Latest editions:**\n${editionLinksBlock(catalog)}\n\n` +
-      `${tickerBlock}\n\n` +
-      `**Map:** ${MAP_PAGE_HREF}\n\n_${tip}_`,
+      `I'm **Cheryce** — I turn sustainability headlines into **practical context**: what changed, why it matters for your bills or upgrades, and where to go next on Greenways.\n\n` +
+      `Ask about **monthly news**, the **sustainability map** (${caseStudies.length} case studies + ${directory.length} organisations), **Wix videos**, or the **energy price ticker**. I summarise here and put editions, map examples, and tools on the right.\n\n` +
+      `Not sure where to start? Try "latest sustainability roundup" or "organisations on the map for restaurant savings".\n\n_${tip}_`,
     suggestions: [],
-    agentHandoffs: buildHandoffs(b, '', 'overview')
+    agentHandoffs: buildHandoffs(b, '', 'overview'),
+    blocks: [
+      {
+        type: 'link',
+        items: [
+          ...editionToLinkItems(catalog).slice(0, 2),
+          toLinkItem('Sustainability map', MAP_PAGE_HREF, 'Case studies + directory — open in module'),
+          toLinkItem('Energy prices ticker', MEDIA_PAGES.energyTicker, 'Wholesale context for timing upgrades')
+        ]
+      }
+    ]
   };
 }
 
 async function buildNewsCategoryAnswer(category, catalog, tip) {
   const rows = filterByCategory(catalog.items, category);
-  const kbCount = rows.filter((r) => r.catalogSource?.includes('kb')).length;
-  const editionCount = rows.filter((r) => r.catalogSource === 'content-ops-html').length;
   const label = category.charAt(0).toUpperCase() + category.slice(1);
-  const ranked = rows.slice(0, 12);
+  const ranked = rows.slice(0, 6);
   return {
     answer:
-      `**${label} news** — ${rows.length} items (${kbCount} knowledge base + ${editionCount} from monthly editions):\n\n` +
-      `${formatNewsBullets(ranked, 6) || '_No items in this category yet._'}\n\n` +
-      `**Editions & pages:**\n${editionLinksBlock(catalog)}\n\n_${tip}_`,
-    suggestions: []
+      `Here is **${label.toLowerCase()} news** from Greenways — ${rows.length} items in the library.\n\n` +
+      `I picked a few headlines that stand out; **open the cards on the right** for full stories and monthly editions.\n\n_${tip}_`,
+    suggestions: [],
+    intentId: `news_${category}`,
+    blocks: newsBlocksFromItems(ranked, catalog, 6)
   };
 }
 
 async function buildMonthlyNewsAnswer(catalog, profile, tip, briefing) {
   const sust = getLatestEdition(catalog.editions, 'sustainability');
   const editionStories = sust
-    ? catalog.items.filter((i) => i.edition === sust.edition && i.editionType === 'sustainability' && i.catalogSource === 'content-ops-html')
+    ? catalog.items.filter(
+        (i) =>
+          i.edition === sust.edition &&
+          i.editionType === 'sustainability' &&
+          i.catalogSource === 'content-ops-html'
+      )
     : [];
   const fallback = rankNewsItems(
     catalog.items.filter((i) => i.editionType !== 'tech'),
@@ -439,20 +506,25 @@ async function buildMonthlyNewsAnswer(catalog, profile, tip, briefing) {
     8
   );
   const highlights = editionStories.length ? editionStories.slice(0, 8) : fallback;
-  const mapBlock = await buildMapNewsCrosslinkBlock(profile, 'sustainability energy savings case study', 3);
-  const tickerBlock = await buildEnergyTickerBlock(profile);
+  const topStories = highlights.slice(0, 4);
+  const mapExamples = await buildMapNewsCrosslinkItems(
+    profile,
+    'sustainability energy savings case study',
+    2
+  );
   const b = briefing || (await loadBriefing());
+  const storyLinks = topStories.map(newsItemToLinkItem);
+  const linkItems = [...storyLinks, ...mapExamples].slice(0, 6);
+
   return {
     answer:
-      `**Sustainability news roundup**${sust ? ` — **${sust.edition}** edition` : ''}:\n\n` +
-      `Each item includes **how this helps you** (_Why it matters_ lines below).\n\n` +
-      `${formatNewsBullets(highlights, 8)}\n\n` +
-      `**Read full edition:**\n${editionLinksBlock(catalog)}\n` +
-      `Related: ${MEDIA_PAGES.sustainableReferences}` +
-      `${mapBlock}\n\n` +
-      `${tickerBlock}\n\n_${tip}_`,
+      `Here is what stands out in **sustainability news**${sust ? ` (${sust.edition} edition)` : ''} for your profile.\n\n` +
+      `I focus on **why each story matters** — policy, funding, and equipment angles that can change your upgrade timing or running costs. ` +
+      `${topStories.length ? `I've picked **${topStories.length} headlines** to start; open the cards on the right for full story pages.` : 'Browse the latest edition on the right when you want every story.'}\n\n` +
+      `Want me to explain a term (CBAM, CSRD, Horizon Europe) or tie a headline to the **sustainability map**?\n\n_${tip}_`,
     suggestions: [],
-    agentHandoffs: buildHandoffs(b, '', 'monthly_news')
+    agentHandoffs: buildHandoffs(b, '', 'monthly_news'),
+    blocks: linkItems.length ? [{ type: 'link', items: linkItems }] : []
   };
 }
 
@@ -461,13 +533,14 @@ async function buildTechNewsAnswer(catalog, tip) {
   const techStories = tech
     ? catalog.items.filter((i) => i.edition === tech.edition && i.editionType === 'tech')
     : catalog.items.filter((i) => i.editionType === 'tech' || i.catalogSource === 'tech-kb');
-  const highlights = techStories.slice(0, 8);
+  const highlights = techStories.slice(0, 6);
   return {
     answer:
-      `**Tech & innovation news** — ${techStories.length} items${tech ? ` (latest edition **${tech.edition}**)` : ''}:\n\n` +
-      `${formatNewsBullets(highlights, 8) || '_Browse the tech news editions on Greenways._'}\n\n` +
-      `**Editions:**\n${editionLinksBlock(catalog)}\n\n_${tip}_`,
-    suggestions: []
+      `Here is **tech & innovation news**${tech ? ` from the **${tech.edition}** edition` : ''}.\n\n` +
+      `I keep the chat short — **open the cards on the right** for full headlines and edition pages.\n\n_${tip}_`,
+    suggestions: [],
+    intentId: 'tech_news',
+    blocks: newsBlocksFromItems(highlights, catalog, 6)
   };
 }
 
@@ -476,12 +549,13 @@ async function buildStorySearchAnswer(question, catalog, tip) {
   if (!ranked.length) return null;
   return {
     answer:
-      `**News matches** for _"${question}"_:\n\n` +
-      `${formatNewsBullets(ranked, 8)}\n\n` +
-      `**Monthly editions:**\n${editionLinksBlock(catalog)}\n\n_${tip}_`,
+      `Here are the **headlines** closest to your question.\n\n` +
+      `Details live on the **cards to the right** — not as a long list here. ` +
+      `Ask me to explain a term or tie a story to the **sustainability map**.\n\n_${tip}_`,
     suggestions: [],
     source: 'news-search',
-    intentId: 'story_search'
+    intentId: 'story_search',
+    blocks: newsBlocksFromItems(ranked, catalog, 6)
   };
 }
 
@@ -587,11 +661,11 @@ async function buildHowThisHelpsAnswer(question, catalog, profile, tip) {
   const pool = withImpact.length ? withImpact : ranked;
   return {
     answer:
-      `**How this helps you** — impact lines from the sustainability knowledge base:\n\n` +
-      `${formatNewsBullets(pool, 6) || '_Browse monthly editions for full how-this-helps sections._'}\n\n` +
-      `Full newsletters live in **content-ops/drafts/sustainability-news** and published edition pages.\n\n_${tip}_`,
+      `**How this helps you** — I picked stories with clear **impact lines** (bills, compliance, upgrade timing).\n\n` +
+      `Open the **cards on the right** for each headline; full newsletters are in the monthly editions.\n\n_${tip}_`,
     suggestions: [],
-    intentId: 'how_this_helps'
+    intentId: 'how_this_helps',
+    blocks: newsBlocksFromItems(pool, catalog, 6)
   };
 }
 
@@ -691,10 +765,14 @@ async function answerFromKnowledge(question, profile = {}) {
         result = await buildOverviewAnswer(catalog, videos, tip, briefing);
         result = await attachModules(result, profile, ['sustainability-map', 'energy-prices-ticker']);
         break;
+      case 'sustainability_map_explained': {
+        result = await buildSustainabilityMapExplainedAnswer(question, profile, tip);
+        result.agentHandoffs = buildHandoffs(briefing, question, 'sustainability_map_explained');
+        result = await attachModules(result, profile, ['sustainability-map']);
+        break;
+      }
       case 'sustainability_map': {
-        result = await buildSustainabilityMapAnswer(question, profile, tip, {
-          localVariantNote: briefing.mapPrinciple || undefined
-        });
+        result = await buildSustainabilityMapAnswer(question, profile, tip);
         result.agentHandoffs = buildHandoffs(briefing, question, 'sustainability_map');
         result = await attachModules(result, profile, ['sustainability-map']);
         break;
@@ -749,6 +827,14 @@ async function answerFromKnowledge(question, profile = {}) {
   }
 
   if (!result) {
+    if (isMapExplainQuestion(question)) {
+      result = await buildSustainabilityMapExplainedAnswer(question, profile, tip);
+      result.agentHandoffs = buildHandoffs(briefing, question, 'sustainability_map_explained');
+      result = await attachModules(result, profile, ['sustainability-map']);
+    }
+  }
+
+  if (!result) {
     result = await buildStorySearchAnswer(question, catalog, tip);
   }
 
@@ -768,6 +854,7 @@ async function answerFromKnowledge(question, profile = {}) {
         intent.id === 'restaurant_videos' ||
         intent.id === 'energy_videos' ||
         intent.id === 'water_videos');
+    const keepSamples = Array.isArray(result.productSamples) && result.productSamples.length;
     if (videoIntent || isVideoQuestion(question)) {
       result.productSamples = await pickVideoSamples(
         question,
@@ -775,7 +862,7 @@ async function answerFromKnowledge(question, profile = {}) {
         3,
         intent?.category || null
       );
-    } else {
+    } else if (!keepSamples) {
       result.productSamples = await pickMediaSamples(question, profile, 3);
     }
     applyPersona(result, {
@@ -798,5 +885,6 @@ module.exports = {
   getDefaultProductSamples: (limit = 3) => pickMediaSamples('', {}, limit),
   loadFullNewsCatalog,
   loadBriefing,
-  loadReferences
+  loadReferences,
+  MEDIA_KNOWLEDGE_VERSION
 };

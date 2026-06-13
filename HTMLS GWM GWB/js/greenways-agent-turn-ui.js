@@ -72,13 +72,22 @@
       const desc = escapeHtml(String(item.description || "").slice(0, 180));
       const payload = encodeModulePayload(item);
       const fullHref = escapeHtml(String(item.fullPageHref || item.href || "#"));
+      const moduleId = String(item.moduleId || "");
+      const openLabel =
+        moduleId === "sustainability-map"
+          ? "Open map"
+          : moduleId === "eco-project-planner"
+            ? "Open eco planner"
+            : "Open illustration";
+      const tabletClass =
+        moduleId === "sustainability-map" ? "module-tablet module-tablet--map" : "module-tablet";
       return (
-        '<article class="module-tablet">' +
+        '<article class="' + tabletClass + '">' +
         '<h4 class="module-tablet-title">' + title + "</h4>" +
         (desc ? '<p class="module-tablet-desc">' + desc + "</p>" : "") +
         '<div class="module-tablet-actions">' +
-        '<button type="button" class="module-tablet-open" data-module-payload="' + payload + '">Open illustration</button>' +
-        '<a class="module-tablet-full" href="' + fullHref + '" target="_blank" rel="noopener">Full page ↗</a>' +
+        '<button type="button" class="module-tablet-open module-tablet-open--primary" data-module-payload="' + payload + '">' + openLabel + "</button>" +
+        '<a class="module-tablet-full" href="' + fullHref + '" target="_blank" rel="noopener noreferrer">New tab ↗</a>' +
         "</div></article>"
       );
     }).join("");
