@@ -949,9 +949,12 @@
     border: none;
     cursor: pointer;
     font: inherit;
-    color: inherit;
+    color: var(--accent-lt);
     padding: 0;
+    margin-top: 8px;
+    font-size: 0.72rem;
   }
+  .sidebar-link-btn:hover { text-decoration: underline; }
   .status-bar {
     padding: 8px 14px;
     font-size: 0.68rem;
@@ -1055,7 +1058,7 @@
           <div class="welcome-tags">
             <button type="button" class="welcome-tag" data-prompt="Give me a sustainability news roundup with energy prices">News + energy prices</button>
             <button type="button" class="welcome-tag" data-map-open="1" title="Open sustainability map in module">Sustainability map</button>
-            <button type="button" class="welcome-tag" data-prompt="Explain what the Greenways sustainability map is and how it can help me find inspiration from companies and organisations worldwide">Sustainability map explained</button>
+            <button type="button" class="welcome-tag" data-prompt="Explain the sustainability map and how it helps me find inspiration from companies worldwide">Sustainability map explained</button>
             <button type="button" class="welcome-tag" data-prompt="How does CBAM policy news help my restaurant?">How this helps</button>
             <button type="button" class="welcome-tag" data-prompt="What is happening with energy prices right now?">Energy ticker</button>
             <button type="button" class="welcome-tag" data-prompt="Show restaurant and kitchen energy saving videos">Wix videos</button>
@@ -1085,11 +1088,11 @@
     <div class="sidebar-section">
       <div class="sidebar-label">Quick links</div>
       <p style="font-size:0.72rem;color:var(--muted);line-height:1.45;">News pages, videos &amp; visual guides.</p>
-      <button type="button" class="sidebar-link sidebar-link-btn" data-gwb-file="January%20Sustainable%20News%20Original%20.html" data-gwb-title="Sustainability news">Sustainability news →</button>
-      <button type="button" class="sidebar-link sidebar-link-btn" data-gwb-file="Sustainable%20References%20.HTML" data-gwb-title="Sustainable references">Sustainable references →</button>
-      <button type="button" class="sidebar-link sidebar-link-btn" data-gwb-file="Importance%20of%20Energy%20Monitoring.html" data-gwb-title="Energy monitoring guide">Energy monitoring guide →</button>
-      <button type="button" class="sidebar-link sidebar-link-btn" data-gwb-file="water-saving-finder.html" data-gwb-title="Water Saving Finder">Water saving finder →</button>
-      <button type="button" class="sidebar-link sidebar-link-btn" data-gwb-file="deals-ticker-hub.html" data-gwb-title="Deals hub">Deals hub →</button>
+      <a class="sidebar-link" data-gwb-file="January%20Sustainable%20News%20Original%20.html" href="#" target="_top" rel="noopener">Sustainability news →</a>
+      <a class="sidebar-link" data-gwb-file="Sustainable%20References%20.HTML" href="#" target="_top" rel="noopener">Sustainable references →</a>
+      <a class="sidebar-link" data-gwb-file="Importance%20of%20Energy%20Monitoring.html" href="#" target="_top" rel="noopener">Energy monitoring guide →</a>
+      <a class="sidebar-link" data-gwb-file="water-saving-finder.html" href="#" target="_top" rel="noopener">Water saving finder →</a>
+      <a class="sidebar-link" data-gwb-file="deals-ticker-hub.html" href="#" target="_top" rel="noopener">Deals hub →</a>
       <button type="button" class="sidebar-link sidebar-link-btn" id="sidebar-open-map" data-map-open="1">Sustainability map →</button>
     </div>
     <div class="helper-list" id="helper-list"></div>
@@ -1131,13 +1134,15 @@
     }
   ];
 
+  const MAP_EXPLAIN_PROMPT = "Explain the sustainability map and how it helps me find inspiration from companies worldwide";
+
   const HELPERS = [
     { id: "policy", icon: "📜", name: "Policy news", desc: "EU & UK rules", prompt: "What EU policy news should restaurants know about?" },
     { id: "funding", icon: "💶", name: "Funding news", desc: "Horizon & grants", prompt: "What funding and Horizon Europe news is on file?" },
     { id: "video", icon: "🎬", name: "Wix videos", desc: "By topic", prompt: "What videos are in the Greenways Wix library?" },
     { id: "rest", icon: "🍳", name: "Restaurant media", desc: "Kitchen savings", prompt: "Show restaurant and kitchen energy saving videos" },
     { id: "news", icon: "📰", name: "News pages", desc: "Full roundups", prompt: "Where are the sustainability news pages on Greenways?" },
-    { id: "map", icon: "🗺️", name: "Sustainability map", desc: "What it is & examples", prompt: "Explain the sustainability map and how it helps me find inspiration from companies worldwide" }
+    { id: "map", icon: "🗺️", name: "Sustainability map", desc: "What it is & examples", prompt: MAP_EXPLAIN_PROMPT }
   ];
 
   const MAP_LAUNCH_FALLBACK = {
@@ -1406,30 +1411,23 @@
     };
   }
 
+  function contentBase() {
+    const h = location.hostname || "";
+    if (h === "localhost" || h === "127.0.0.1" || h.indexOf("energy-calc-backend") !== -1) return location.origin || "";
+    return "https://energy-calc-backend.onrender.com";
+  }
+
   function gwbPageHref(filename) {
     var file = String(filename || "").replace(/^\.\//, "");
     if (location.protocol === "file:") return "./" + file;
-    return (location.origin || "") + "/HTMLS%20GWM%20GWB/" + file;
+    return contentBase() + "/HTMLS%20GWM%20GWB/" + file;
   }
 
-  function openGwbPage(filename, title) {
-    var href = gwbPageHref(filename);
-    var join = href.indexOf("?") >= 0 ? "&" : "?";
-    var moduleHref = href + join + "embed=1&popup=1";
-    if (window.GreenwaysAgentContentModule) {
-      GreenwaysAgentContentModule.open({
-        title: title || "Greenways page",
-        description: "Opens in Cheryce's module panel — chat stays open behind.",
-        href: moduleHref,
-        fullPageHref: href,
-        kind: "html",
-        openSize: "near-full",
-        agentName: AGENT_PROFILE.name,
-        theme: "media"
-      });
-      return;
-    }
-    window.open(href, "_blank", "noopener,noreferrer");
+  function initSidebarGwbLinks() {
+    document.querySelectorAll(".sidebar-link[data-gwb-file]").forEach(function (el) {
+      var file = el.getAttribute("data-gwb-file");
+      if (file) el.href = gwbPageHref(file);
+    });
   }
 
   function openMapFromTrigger(el) {
@@ -1462,13 +1460,6 @@
   window.openSustainabilityMapModule = openSustainabilityMapModule;
 
   function interceptPortalHtmlNav(e) {
-    var sidebarPage = e.target.closest(".guide-sidebar .sidebar-link[data-gwb-file]");
-    if (sidebarPage) {
-      e.preventDefault();
-      e.stopPropagation();
-      openGwbPage(sidebarPage.getAttribute("data-gwb-file"), sidebarPage.getAttribute("data-gwb-title"));
-      return;
-    }
     var helperCard = e.target.closest(".helper-list .helper-card");
     if (helperCard) {
       return;
@@ -1998,7 +1989,7 @@
       '<div class="welcome-tags">' +
       '<button type="button" class="welcome-tag" data-prompt="Give me a sustainability news roundup with energy prices">News + energy prices</button>' +
       '<button type="button" class="welcome-tag" data-map-open="1" title="Open sustainability map in module">Sustainability map</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="Explain what the Greenways sustainability map is and how it can help me find inspiration from companies and organisations worldwide">Sustainability map explained</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="' + escapeHtml(MAP_EXPLAIN_PROMPT) + '">Sustainability map explained</button>' +
       '<button type="button" class="welcome-tag" data-prompt="How does sustainability policy news help my business?">How this helps</button>' +
       '<button type="button" class="welcome-tag" data-prompt="What is happening with energy prices right now?">Energy ticker</button>' +
       '<button type="button" class="welcome-tag" data-prompt="Show restaurant and kitchen energy saving videos">Wix videos</button>' +
@@ -2030,7 +2021,7 @@
     if (profileNudge) profileNudge.hidden = false;
   }
 
-  const AGENT_FETCH_TIMEOUT_MS = 75000;
+  const AGENT_FETCH_TIMEOUT_MS = 90000;
 
   async function requestAgent(endpoint, body, questionLabel, options) {
     const opts = options || {};
@@ -2051,8 +2042,11 @@
       return data;
     } catch (err) {
       clearTimeout(timer);
-      if (err && err.name === "AbortError" && attempt < 1) {
-        setStatus("Server waking up — retrying…", "warn");
+      const isAbort = err && err.name === "AbortError";
+      const isNetwork = err && String(err.message || "").toLowerCase().indexOf("fetch") >= 0;
+      if ((isAbort || isNetwork) && attempt < 2) {
+        setStatus(isAbort ? "Server waking up — retrying…" : "Connection issue — retrying…", "warn");
+        await new Promise(function (resolve) { setTimeout(resolve, 2000); });
         return requestAgent(endpoint, body, questionLabel, { attempt: attempt + 1 });
       }
       throw err;
@@ -2069,7 +2063,7 @@
     if (!opts.silentUser) appendMessage("user", escapeHtml(q));
     const thinkingId = appendThinking();
     const thinkingEl = document.getElementById(thinkingId);
-    setStatus("Thinking…", "");
+    setStatus("Thinking… (first question may take up to a minute on Render)", "");
 
     try {
       const data = await requestAgent("/api/media-agent/ask", { question: q, profile: getProfile() }, q);
@@ -2089,9 +2083,12 @@
         setStatus("Offline answer · sample products shown", "warn");
       } else {
         const isTimeout = err && err.name === "AbortError";
+        const serverErr = err && err.data && (err.data.error || err.data.message);
         const msg = isTimeout
           ? "The server took too long to respond — Render may be waking from sleep. Wait a few seconds and try again."
-          : "Could not reach the media agent. Check your connection or try again in a moment.";
+          : serverErr
+            ? String(serverErr) + " — try again in a moment."
+            : "Could not reach the media agent. Check your connection or try again in a moment.";
         if (thinkingEl) {
           thinkingEl.querySelector(".msg-bubble").innerHTML =
             agentAvatarHtml() + "<p>" + escapeHtml(msg) + "</p>";
@@ -2295,6 +2292,7 @@
     helperList.appendChild(card);
   });
 
+  initSidebarGwbLinks();
   updateCompareUi();
   
   var gwVoiceHandle = null;
