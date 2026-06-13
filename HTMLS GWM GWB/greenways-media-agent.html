@@ -12,6 +12,8 @@
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-team.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-team.js"></script>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-video.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-video.js"></script>
 <script>
 (function () {
   var p = location.pathname || "";
@@ -738,6 +740,21 @@
     50% { box-shadow: 0 0 14px 4px rgba(96, 165, 250, 0.55); }
   }
 
+  .agent-handoff-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .agent-handoff-chip {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: #e9d5ff;
+    border: 1px solid rgba(168, 85, 247, 0.45);
+    background: rgba(168, 85, 247, 0.14);
+  }
+  .agent-handoff-chip:hover { background: rgba(168, 85, 247, 0.24); }
+  .agent-handoff-hint { font-size: 0.62rem; color: var(--muted); margin-top: 4px; }
+
   .source-pill {
     display: inline-block;
     margin-top: 8px;
@@ -928,7 +945,7 @@
         </div>
         <div>
           <h1>Cheryce</h1>
-          <p>Media Agent · news, video &amp; sustainability map</p>
+          <p>Sustainability news &amp; media · map examples · energy ticker</p>
         </div>
       </div>
       <div class="guide-top-actions">
@@ -962,7 +979,7 @@
     <section class="product-showcase-banner" id="product-showcase-banner" aria-label="News, video and photo showcase">
       <div class="product-showcase-head">
         <span class="product-showcase-label">News &amp; media picks</span>
-        <span class="product-showcase-hint">Stories, videos &amp; photos — tap to open</span>
+        <span class="product-showcase-hint">Stories &amp; photos open pages · videos — tap ▶ to watch</span>
       </div>
       <div class="product-samples product-samples--banner" id="top-product-samples"></div>
     </section>
@@ -971,12 +988,13 @@
       <div class="chat-thread" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
         <div class="welcome-card" id="welcome-card">
           <h2>Ask Cheryce</h2>
-          <p><strong>News</strong> (monthly editions + policy), <strong>Wix videos</strong>, and the <strong>sustainability map</strong> — organisations &amp; case studies for energy techniques and savings benchmarks.</p>
+          <p>I explain <strong>how sustainability news helps you</strong> — monthly editions, <strong>514+ map case studies</strong>, <strong>391 directory organisations</strong>, <strong>Wix videos</strong>, and <strong>energy price ticker</strong> context.</p>
           <div class="welcome-tags">
-            <button type="button" class="welcome-tag" data-prompt="What EU policy news should restaurants know about?">Policy news</button>
-            <button type="button" class="welcome-tag" data-prompt="Give me a sustainability news roundup">Monthly roundup</button>
-            <button type="button" class="welcome-tag" data-prompt="Show organisations on the sustainability map that could help with energy savings">Sustainability map</button>
-            <button type="button" class="welcome-tag" data-prompt="What hospitality energy savings examples are on the map?">Energy examples</button>
+            <button type="button" class="welcome-tag" data-prompt="Give me a sustainability news roundup with energy prices">News + energy prices</button>
+            <button type="button" class="welcome-tag" data-prompt="Show organisations on the sustainability map doing great things in sustainability">Sustainability map</button>
+            <button type="button" class="welcome-tag" data-prompt="How does CBAM policy news help my restaurant?">How this helps</button>
+            <button type="button" class="welcome-tag" data-prompt="What is happening with energy prices right now?">Energy ticker</button>
+            <button type="button" class="welcome-tag" data-prompt="Show restaurant and kitchen energy saving videos">Wix videos</button>
           </div>
         </div>
       </div>
@@ -1031,10 +1049,12 @@
       id: "fallback-restaurant",
       name: "Restaurant Energy Savings",
       subcategory: "VIDEO",
+      type: "video",
       imageUrl: "https://static.wixstatic.com/media/c123de_988c141478e044d5ba8d137d2a451713~mv2.png",
       label: "Commercial kitchen efficiency — Wix video topic",
       topGrants: ["restaurant", "video"],
-      marketplaceHref: "./January%20Sustainable%20News%20Original%20.html"
+      videoUrl: "",
+      source: "fallback"
     },
     {
       id: "photo-water",
@@ -1257,29 +1277,69 @@
     quickReplyBar.hidden = false;
   }
 
-  function renderProductCards(samples) {
-    if (!Array.isArray(samples) || !samples.length) return "";
-    return samples.slice(0, 3).map(function (p) {
-      const name = escapeHtml(p.name || p.id || "Product");
-      const rawName = String(p.name || p.id || "this product");
-      const href = escapeHtml(p.marketplaceHref || ("product-page-v2-marketplace.html?product=" + encodeURIComponent(p.id || "") + "&fromPopup=true"));
-      const askPrompt = "Tell me more about " + rawName + " for my business profile?";
-      const img = p.imageUrl ? '<img src="' + escapeHtml(p.imageUrl) + '" alt="" loading="lazy">' : '<span aria-hidden="true">📦</span>';
-      const grantLabel = (p.topGrants && p.topGrants[0]) ? escapeHtml(p.topGrants[0]) : (p.grantsCount ? (p.grantsCount + " grant" + (p.grantsCount === 1 ? "" : "s")) : "Grants on file");
-      const meta = escapeHtml(p.label || p.subcategory || "Marketplace");
+  function isVideoSample(p) {
+    return p && (p.type === "video" || p.subcategory === "VIDEO");
+  }
+
+  function videoPayloadAttr(p) {
+    if (!window.GreenwaysAgentVideo) return "";
+    return ' data-video-payload="' + GreenwaysAgentVideo.encodePayload({
+      title: p.name || p.id,
+      videoUrl: p.videoUrl || "",
+      description: p.label || "",
+      source: p.source || "",
+      duration: p.duration || ""
+    }) + '"';
+  }
+
+  function renderMediaCard(p) {
+    const name = escapeHtml(p.name || p.id || "Media");
+    const rawName = String(p.name || p.id || "this item");
+    const askPrompt = "Tell me more about " + rawName + " for my business profile?";
+    const img = p.imageUrl
+      ? '<img src="' + escapeHtml(p.imageUrl) + '" alt="" loading="lazy">'
+      : '<span aria-hidden="true">🎬</span>';
+    const meta = escapeHtml(p.label || p.subcategory || "Media");
+    const grantLabel = (p.topGrants && p.topGrants[0])
+      ? escapeHtml(p.topGrants[0])
+      : (p.type === "video" || p.subcategory === "VIDEO" ? "Wix video" : "Open");
+
+    if (isVideoSample(p)) {
+      const durationHtml = p.duration
+        ? '<span class="gw-video-duration">' + escapeHtml(p.duration) + "</span>"
+        : "";
       return (
-        '<div class="product-sample-card">' +
-        '<a class="product-sample-link" href="' + href + '" target="_top" rel="noopener" title="View grants on marketplace" style="text-decoration:none;color:inherit;display:flex;flex:1;min-width:0">' +
-        '<div class="product-sample-img-wrap">' + img + "</div>" +
+        '<div class="product-sample-card is-video">' +
+        '<button type="button" class="product-sample-link product-video-trigger"' + videoPayloadAttr(p) + ' title="Watch video">' +
+        '<div class="product-sample-img-wrap">' + img + '<span class="gw-video-play-badge" aria-hidden="true">▶</span>' + durationHtml + "</div>" +
         '<div class="product-sample-body">' +
         '<span class="product-sample-name">' + name + "</span>" +
         '<span class="product-sample-meta">' + meta + "</span>" +
         '<span class="product-sample-grant">' + grantLabel + "</span>" +
-        "</div></a>" +
+        "</div></button>" +
         '<button type="button" class="product-ask-btn" data-prompt="' + escapeHtml(askPrompt) + '">Ask about this</button>' +
         "</div>"
       );
-    }).join("");
+    }
+
+    const href = escapeHtml(p.marketplaceHref || ("product-page-v2-marketplace.html?product=" + encodeURIComponent(p.id || "") + "&fromPopup=true"));
+    return (
+      '<div class="product-sample-card">' +
+      '<a class="product-sample-link" href="' + href + '" target="_top" rel="noopener" title="Open page" style="text-decoration:none;color:inherit;display:flex;flex:1;min-width:0">' +
+      '<div class="product-sample-img-wrap">' + img + "</div>" +
+      '<div class="product-sample-body">' +
+      '<span class="product-sample-name">' + name + "</span>" +
+      '<span class="product-sample-meta">' + meta + "</span>" +
+      '<span class="product-sample-grant">' + grantLabel + "</span>" +
+      "</div></a>" +
+      '<button type="button" class="product-ask-btn" data-prompt="' + escapeHtml(askPrompt) + '">Ask about this</button>' +
+      "</div>"
+    );
+  }
+
+  function renderProductCards(samples) {
+    if (!Array.isArray(samples) || !samples.length) return "";
+    return samples.slice(0, 3).map(renderMediaCard).join("");
   }
 
   function resolveProductSamples(samples) {
@@ -1431,6 +1491,22 @@
     tick();
   }
 
+  function agentHandoffHref(h) {
+    if (h.href) return h.href;
+    const base = h.path || "/greenways/grants-agent";
+    const q = h.prompt || h.question || "";
+    return base + (q ? "?q=" + encodeURIComponent(q) : "");
+  }
+
+  function agentHandoffChipsHtml(handoffs) {
+    if (!Array.isArray(handoffs) || !handoffs.length) return "";
+    const chips = handoffs.map(function (h) {
+      var prompt = h.prompt || h.question || "";
+      return '<a class="agent-handoff-chip" href="' + escapeHtml(agentHandoffHref(h)) + '" target="_top" rel="noopener" data-prompt="' + escapeHtml(prompt) + '">' + escapeHtml(h.name || h.id) + "</a>";
+    }).join("");
+    return '<div class="agent-handoff-chips" aria-label="Open specialist agent">' + chips + '</div><div class="agent-handoff-hint">Opens the specialist chat with your question</div>';
+  }
+
   function finishAgentTurn(el, payload) {
     const profile = getProfile();
     const answer = payload.answer || "I could not answer that yet.";
@@ -1447,6 +1523,7 @@
 
     const parts = buildAgentTurnParts(answer, suggestions, blocks, {
       footHtml:
+        agentHandoffChipsHtml(payload.agentHandoffs) +
         followUpChips(intentId, profile, payload.question || lastQuestion) +
         '<span class="source-pill">' + escapeHtml(src) + "</span>"
     });
@@ -1562,12 +1639,13 @@
     card.id = "welcome-card";
     card.innerHTML =
       '<h2>Ask Cheryce</h2>' +
-      '<p><strong>News</strong>, <strong>videos</strong>, and the <strong>sustainability map</strong> — case studies for energy techniques and monthly review context.</p>' +
+      '<p>I explain <strong>how sustainability news helps you</strong> — monthly editions, <strong>map case studies</strong>, <strong>directory organisations</strong>, <strong>Wix videos</strong>, and <strong>energy price ticker</strong> context.</p>' +
       '<div class="welcome-tags">' +
-      '<button type="button" class="welcome-tag" data-prompt="What EU policy news should restaurants know about?">Policy news</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="Give me a sustainability news roundup">Monthly roundup</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="Show organisations on the sustainability map that could help with energy savings">Sustainability map</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="What hospitality energy savings examples are on the map?">Energy examples</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Give me a sustainability news roundup with energy prices">News + energy prices</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Show organisations on the sustainability map doing great things in sustainability">Sustainability map</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="How does sustainability policy news help my business?">How this helps</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What is happening with energy prices right now?">Energy ticker</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Show restaurant and kitchen energy saving videos">Wix videos</button>' +
       "</div>";
     thread.appendChild(card);
     bindWelcomeTags();
@@ -1754,11 +1832,19 @@
 
   document.getElementById("top-product-samples").addEventListener("click", function (e) {
     const askBtn = e.target.closest(".product-ask-btn");
-    if (!askBtn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    sendQuestion(askBtn.getAttribute("data-prompt"));
+    if (askBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      sendQuestion(askBtn.getAttribute("data-prompt"));
+      return;
+    }
   });
+
+  if (window.GreenwaysAgentVideo) {
+    GreenwaysAgentVideo.bindContainer(document.getElementById("top-product-samples"), function () {
+      sendQuestion("What videos are in the Greenways Wix library?");
+    });
+  }
 
   ["profile-region", "profile-sector", "profile-focus"].forEach(function (id) {
     const el = document.getElementById(id);

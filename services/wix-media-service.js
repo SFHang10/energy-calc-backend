@@ -170,8 +170,9 @@ async function getVideosForAgent() {
       ? wixVideos
       : getFallbackVideos();
 
-  videoCache = { ...videoCache, data: videos, timestamp: now };
-  return { videos, source: videos[0]?.source || 'fallback' };
+  const payload = { videos, source: videos[0]?.source || 'fallback' };
+  videoCache = { ...videoCache, data: payload, timestamp: now };
+  return payload;
 }
 
 module.exports = {

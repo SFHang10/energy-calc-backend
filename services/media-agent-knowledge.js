@@ -1,6 +1,13 @@
 const path = require('path');
 const fs = require('fs/promises');
-const { loadIntentsFrom, matchIntent } = require('./greenways-agent-shared');
+const { loadIntentsFrom, matchIntent, PORTAL_LINKS, toLinkItem } = require('./greenways-agent-shared');
+const { applyPersona, loadAgentVoice, pickTip } = require('./greenways-agent-persona');
+const {
+  loadEnergySnapshot,
+  formatModellingTariffLine,
+  formatWholesaleBullets,
+  volatilityHint
+} = require('./finance-agent-energy');
 const { getVideosForAgent } = require('./wix-media-service');
 const {
   loadFullNewsCatalog,
@@ -13,6 +20,7 @@ const {
 const {
   MAP_PAGE_HREF,
   loadCompanies,
+  loadMapCatalog,
   rankCompanies,
   resolveShowcaseCompanies,
   buildSustainabilityMapAnswer,
@@ -24,6 +32,11 @@ const {
 
 const intentsPath = path.join(__dirname, '..', 'data', 'media-agent-intents.json');
 const showcasePath = path.join(__dirname, '..', 'data', 'media-agent-showcase.json');
+const briefingPath = path.join(__dirname, '..', 'data', 'media-agent-briefing.json');
+const voicePath = path.join(__dirname, '..', 'data', 'media-agent-voice.json');
+const referencesPath = path.join(__dirname, '..', 'data', 'media-agent-references.json');
+
+const REGION_LABELS = { nl: 'Netherlands', uk: 'United Kingdom', eu: 'EU-wide' };
 
 const MEDIA_PAGES = {
   sustainabilityNews: './January%20Sustainable%20News%20Original%20.html',
@@ -31,7 +44,8 @@ const MEDIA_PAGES = {
   importanceMonitoring: './Importance%20of%20Energy%20Monitoring.html',
   waterGuide: './water-saving-finder.html',
   dealsHub: './deals-ticker-hub.html',
-  sustainabilityMap: MAP_PAGE_HREF
+  sustainabilityMap: MAP_PAGE_HREF,
+  energyTicker: PORTAL_LINKS.energyTicker
 };
 
 const VIDEO_CATEGORIES = {
@@ -49,6 +63,108 @@ const VIDEO_CATEGORIES = {
   rooftop: 'Rooftop & urban farming',
   general: 'General sustainability'
 };
+
+async function loadBriefing() {
+  try {
+    const raw = await fs.readFile(briefingPath, 'utf8');
+    return JSON.parse(raw);
+  } catch (_) {
+    return {};
+  }
+}
+
+async function loadReferences() {
+  try {
+    const raw = await fs.readFile(referencesPath, 'utf8');
+    return JSON.parse(raw);
+  } catch (_) {
+    return { internalGuides: [] };
+  }
+}
+
+function buildHandoffs(briefing, question, intentId = '') {
+  const out = [];
+  const h = briefing?.handoffs || {};
+  const q = String(question || '').trim();
+  const push = (key, defaultPrompt) => {
+    const row = h[key];
+    if (!row) return;
+    out.push({
+      id: row.agentId,
+      name: row.agentName,
+      href: row.agentPath,
+      prompt: q || defaultPrompt
+    });
+  };
+
+  if (['funding_news', 'policy_news', 'country_news', 'monthly_news', 'how_this_helps'].includes(intentId)) {
+    push('grantsToAndrieus', 'What grants apply from this sustainability news in my region?');
+  }
+  if (['energy_prices', 'monthly_news', 'energy_examples', 'overview'].includes(intentId)) {
+    push('financeToVincent', 'How do current energy prices affect my upgrade payback?');
+    push('dealsToZara', 'What energy or sustainability deals are live this week?');
+  }
+  if (['sustainability_map', 'energy_examples', 'restaurant_videos'].includes(intentId)) {
+    push('equipmentToArtemis', 'What ETL equipment matches this map case study?');
+    push('productsToZyanne', 'Find efficient products like those in the map examples');
+  }
+  if (!out.length) {
+    push('productsToZyanne', 'What efficient products relate to this sustainability topic?');
+    push('financeToVincent', 'How do energy prices affect acting on this news?');
+  }
+  const seen = new Set();
+  return out
+    .filter((row) => {
+      const key = row.id || row.name;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, 3);
+}
+
+function rankReferences(refs, question, limit = 6) {
+  const q = String(question || '').toLowerCase();
+  const pool = [...(refs.external || []), ...(refs.internalGuides || [])];
+  if (!q.trim()) return pool.slice(0, limit);
+  const scored = pool.map((ref) => {
+    const hay = [ref.title, ref.summary, ...(ref.topics || [])].join(' ').toLowerCase();
+    let score = 0;
+    q.split(/\s+/).filter((t) => t.length >= 3).forEach((token) => {
+      if (hay.includes(token)) score += 3;
+    });
+    if (/map|case|company|organisation|organization/.test(q) && /map|case|directory/.test(hay)) score += 5;
+    if (/news|headline|monthly/.test(q) && /news/.test(hay)) score += 4;
+    if (/video|watch/.test(q) && /video/.test(hay)) score += 4;
+    if (/price|ticker|wholesale|tariff/.test(q) && /ticker|price|energy/.test(hay)) score += 5;
+    return { ref, score };
+  });
+  return scored
+    .filter((r) => r.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map((r) => r.ref)
+    .slice(0, limit);
+}
+
+async function buildEnergyTickerBlock(profile) {
+  const snapshot = await loadEnergySnapshot();
+  const bullets = formatWholesaleBullets(snapshot, profile, 3);
+  const modelling = formatModellingTariffLine(snapshot.modellingTariffs);
+  const hint = volatilityHint(snapshot, profile);
+  if (!bullets.length && !modelling) {
+    return (
+      `**Energy prices ticker:** ${MEDIA_PAGES.energyTicker}\n` +
+      `API: \`/api/energy-ticker\` on Render when ENTSO-E is configured.`
+    );
+  }
+  return (
+    `**Energy prices context** (wholesale — pair with sustainability news):\n` +
+    `${bullets.join('\n')}\n` +
+    (modelling ? `${modelling}\n` : '') +
+    `${hint}\n` +
+    `→ **Live ticker:** ${MEDIA_PAGES.energyTicker}`
+  );
+}
 
 async function loadShowcase() {
   try {
@@ -81,6 +197,9 @@ function editionLinksBlock(catalog) {
 
 function toMediaSample(item) {
   const tags = item.topGrants || item.tags || [];
+  const type =
+    item.type ||
+    (item.videoUrl ? 'video' : item.subcategory === 'PHOTO' ? 'photo' : 'news');
   return {
     id: item.id,
     name: item.name || item.title || item.id,
@@ -89,10 +208,67 @@ function toMediaSample(item) {
     imageUrl: item.imageUrl || item.thumbnail || '',
     topGrants: Array.isArray(tags) ? tags.slice(0, 2) : [item.newsCategory || 'News'],
     grantsCount: 0,
-    marketplaceHref: item.href || item.videoUrl || item.moreLink || item.pageHref || MEDIA_PAGES.sustainabilityNews,
+    marketplaceHref: item.href || item.moreLink || item.pageHref || MEDIA_PAGES.sustainabilityNews,
     videoUrl: item.videoUrl || '',
+    duration: item.duration || '',
+    category: item.category || '',
+    type,
     source: item.source || 'knowledge'
   };
+}
+
+function videoToSample(v, videoSource) {
+  return toMediaSample({
+    id: v.id,
+    name: v.title,
+    label: v.description,
+    thumbnail: v.thumbnail,
+    videoUrl: v.videoUrl,
+    category: v.category,
+    duration: v.duration,
+    tags: v.tags,
+    subcategory: 'VIDEO',
+    type: 'video',
+    source: v.source || videoSource
+  });
+}
+
+function isVideoQuestion(question) {
+  return /video|watch|wix|kitchen|hospitality|commercial kitchen/.test(String(question || '').toLowerCase());
+}
+
+async function pickVideoSamples(question, profile = {}, limit = 3, categoryHint = null) {
+  const { videos, source } = await getVideosForAgent();
+  let pool = videos;
+  if (categoryHint) {
+    const matches = videos.filter(
+      (v) => v.category === categoryHint || (categoryHint === 'energy' && v.category === 'general')
+    );
+    if (matches.length) pool = matches;
+  }
+  if (profile.sector === 'restaurant' && !categoryHint) {
+    const rest = pool.filter((v) => v.category === 'restaurant');
+    if (rest.length) pool = rest;
+  }
+
+  const q = String(question || '').toLowerCase();
+  if (isVideoQuestion(q)) {
+    const ranked = pool
+      .map((v) => {
+        const hay = [v.title, v.description, v.category, ...(v.tags || [])].join(' ').toLowerCase();
+        let score = 0;
+        q.split(/\s+/).filter((t) => t.length >= 3).forEach((t) => {
+          if (hay.includes(t)) score += 3;
+        });
+        return { v, score };
+      })
+      .sort((a, b) => b.score - a.score);
+    const withScore = ranked.filter((r) => r.score > 0).map((r) => r.v);
+    const picked = (withScore.length ? withScore : pool).slice(0, limit);
+    return picked.map((v) => videoToSample(v, source));
+  }
+
+  return pool.slice(0, limit).map((v) => videoToSample(v, source));
 }
 
 async function pickMediaSamples(question, profile = {}, limit = 3) {
@@ -167,31 +343,10 @@ async function pickMediaSamples(question, profile = {}, limit = 3) {
     return samples.slice(0, limit);
   }
 
-  const q = question.toLowerCase();
-  if (/video|watch|wix/.test(q)) {
-    const ranked = videos
-      .map((v) => {
-        const hay = [v.title, v.description, v.category, ...(v.tags || [])].join(' ').toLowerCase();
-        let score = 0;
-        q.split(/\s+/).filter((t) => t.length >= 3).forEach((t) => {
-          if (hay.includes(t)) score += 3;
-        });
-        return { v, score };
-      })
-      .filter((r) => r.score > 0)
-      .sort((a, b) => b.score - a.score);
-    for (const { v } of ranked.slice(0, limit)) {
-      samples.push(
-        toMediaSample({
-          id: v.id,
-          name: v.title,
-          label: v.description,
-          thumbnail: v.thumbnail,
-          videoUrl: v.videoUrl,
-          category: v.category,
-          type: 'video'
-        })
-      );
+  if (isVideoQuestion(question)) {
+    const videoSamples = await pickVideoSamples(question, profile, limit);
+    for (const sample of videoSamples) {
+      if (!samples.some((s) => s.id === sample.id)) samples.push(sample);
     }
   }
 
@@ -224,21 +379,25 @@ async function pickMediaSamples(question, profile = {}, limit = 3) {
   return samples.slice(0, limit);
 }
 
-async function buildOverviewAnswer(catalog, videos, tip) {
+async function buildOverviewAnswer(catalog, videos, tip, briefing) {
+  const b = briefing || (await loadBriefing());
+  const { caseStudies, directory } = await loadMapCatalog();
   const cats = [...new Set(catalog.items.map((i) => i.newsCategory).filter(Boolean))];
-  const companies = await loadCompanies();
+  const tickerBlock = await buildEnergyTickerBlock({});
   return {
     answer:
-      `**Greenways Media Agent** — news, video, and **sustainability map** case studies:\n\n` +
+      `**Cheryce — sustainability news & media**\n\n` +
+      `${b.roleSummary || ''}\n\n` +
       `- **News catalogue:** ${catalog.stats.total} items (${catalog.stats.knowledgeBase} policy/funding KB + ${catalog.stats.monthlyEditions} monthly editions)\n` +
       `- **Categories:** ${cats.slice(0, 8).join(', ')}${cats.length > 8 ? '…' : ''}\n` +
-      `- **Sustainability map:** ${companies.length} organisations — energy techniques, savings & payback examples\n` +
-      `- **Product links:** ${catalog.stats.withProductLinks} stories tied to Greenways products\n` +
+      `- **Sustainability map:** ${caseStudies.length} case studies + ${directory.length} directory organisations\n` +
       `- **Wix videos:** ${videos.length} available (${videos[0]?.source === 'wix' ? 'live from Wix Media' : 'sample cards until Wix API connected'})\n\n` +
+      `I explain **how this helps you** on each story — not links alone.\n\n` +
       `**Latest editions:**\n${editionLinksBlock(catalog)}\n\n` +
-      `**Map:** ${MAP_PAGE_HREF}\n\n` +
-      `Ask about policy, monthly roundups, case studies, or organisations worth benchmarking for energy savings.\n\n_${tip}_`,
-    suggestions: []
+      `${tickerBlock}\n\n` +
+      `**Map:** ${MAP_PAGE_HREF}\n\n_${tip}_`,
+    suggestions: [],
+    agentHandoffs: buildHandoffs(b, '', 'overview')
   };
 }
 
@@ -257,7 +416,7 @@ async function buildNewsCategoryAnswer(category, catalog, tip) {
   };
 }
 
-async function buildMonthlyNewsAnswer(catalog, profile, tip) {
+async function buildMonthlyNewsAnswer(catalog, profile, tip, briefing) {
   const sust = getLatestEdition(catalog.editions, 'sustainability');
   const editionStories = sust
     ? catalog.items.filter((i) => i.edition === sust.edition && i.editionType === 'sustainability' && i.catalogSource === 'content-ops-html')
@@ -269,14 +428,19 @@ async function buildMonthlyNewsAnswer(catalog, profile, tip) {
   );
   const highlights = editionStories.length ? editionStories.slice(0, 8) : fallback;
   const mapBlock = await buildMapNewsCrosslinkBlock(profile, 'sustainability energy savings case study', 3);
+  const tickerBlock = await buildEnergyTickerBlock(profile);
+  const b = briefing || (await loadBriefing());
   return {
     answer:
       `**Sustainability news roundup**${sust ? ` — **${sust.edition}** edition` : ''}:\n\n` +
+      `Each item includes **how this helps you** (_Why it matters_ lines below).\n\n` +
       `${formatNewsBullets(highlights, 8)}\n\n` +
       `**Read full edition:**\n${editionLinksBlock(catalog)}\n` +
       `Related: ${MEDIA_PAGES.sustainableReferences}` +
-      `${mapBlock}\n\n_${tip}_`,
-    suggestions: []
+      `${mapBlock}\n\n` +
+      `${tickerBlock}\n\n_${tip}_`,
+    suggestions: [],
+    agentHandoffs: buildHandoffs(b, '', 'monthly_news')
   };
 }
 
@@ -369,12 +533,84 @@ function buildPortalsAnswer(catalog, tip) {
       `**Monthly editions (content-ops):**\n${editionLinksBlock(catalog)}\n\n` +
       `- **Sustainability news (site):** ${MEDIA_PAGES.sustainabilityNews}\n` +
       `- **Sustainable references:** ${MEDIA_PAGES.sustainableReferences}\n` +
+      `- **Energy prices ticker:** ${MEDIA_PAGES.energyTicker}\n` +
       `- **Energy monitoring guide:** ${MEDIA_PAGES.importanceMonitoring}\n` +
       `- **Water saving finder:** ${MEDIA_PAGES.waterGuide}\n` +
       `- **Deals & offers hub:** ${MEDIA_PAGES.dealsHub}\n` +
-      `- **Sustainability map (case studies):** ${MEDIA_PAGES.sustainabilityMap}\n\n` +
+      `- **Sustainability map (case studies + directory):** ${MEDIA_PAGES.sustainabilityMap}\n\n` +
       `Videos: Wix Media library (site video sections by topic).\n\n_${tip}_`,
     suggestions: []
+  };
+}
+
+async function buildEnergyPricesAnswer(profile, tip, briefing) {
+  const b = briefing || (await loadBriefing());
+  const tickerBlock = await buildEnergyTickerBlock(profile);
+  const region = profile.region ? REGION_LABELS[profile.region] || profile.region : 'your market';
+  return {
+    answer:
+      `**Energy prices & sustainability news** (${region})\n\n` +
+      `Wholesale moves change how urgently efficient equipment and grants matter — I pair the **energy ticker** with monthly sustainability headlines.\n\n` +
+      `${tickerBlock}\n\n` +
+      `**Also on Greenways:**\n` +
+      `- Deals ticker hub: ${MEDIA_PAGES.dealsHub}\n` +
+      `- Finance Agent for payback modelling\n\n_${tip}_`,
+    suggestions: [],
+    blocks: [
+      {
+        type: 'link',
+        items: [
+          toLinkItem('Energy prices ticker', MEDIA_PAGES.energyTicker, 'Wholesale context for news timing'),
+          toLinkItem('Deals ticker hub', MEDIA_PAGES.dealsHub, 'Offers when prices shift')
+        ]
+      }
+    ],
+    agentHandoffs: buildHandoffs(b, '', 'energy_prices')
+  };
+}
+
+async function buildHowThisHelpsAnswer(question, catalog, profile, tip) {
+  const ranked = rankNewsItems(catalog.items, question || 'policy funding impact', 6);
+  const withImpact = ranked.filter((i) => (i.impact || []).length);
+  const pool = withImpact.length ? withImpact : ranked;
+  return {
+    answer:
+      `**How this helps you** — impact lines from the sustainability knowledge base:\n\n` +
+      `${formatNewsBullets(pool, 6) || '_Browse monthly editions for full how-this-helps sections._'}\n\n` +
+      `Full newsletters live in **content-ops/drafts/sustainability-news** and published edition pages.\n\n_${tip}_`,
+    suggestions: [],
+    intentId: 'how_this_helps'
+  };
+}
+
+async function buildRoleResourcesAnswer(question, profile, tip) {
+  const briefing = await loadBriefing();
+  const refs = await loadReferences();
+  const ranked = rankReferences(refs, question, 8);
+  const picks = ranked.length
+    ? ranked
+    : [...(refs.external || []).slice(0, 2), ...(refs.internalGuides || []).slice(0, 6)];
+  const { caseStudies, directory } = await loadMapCatalog();
+  const mustKnows = (briefing.mustKnows || []).slice(0, 6);
+  const core = (briefing.coreUnderstandings || []).slice(0, 4);
+  const region = profile.region ? REGION_LABELS[profile.region] || profile.region : 'your region';
+
+  return {
+    answer:
+      `**Cheryce — role & references** (${region})\n\n` +
+      `${briefing.roleProfile || briefing.roleSummary || ''}\n\n` +
+      `**Map data:** ${caseStudies.length} case studies · ${directory.length} directory organisations\n\n` +
+      `**Must-know themes:**\n${mustKnows.map((m) => `- ${m}`).join('\n')}\n\n` +
+      `**How I advise:**\n${core.map((c) => `- ${c}`).join('\n')}\n\n` +
+      `**Curated links:**\n${picks.map((r) => `- **${r.title}** — ${r.summary || ''}`).join('\n')}\n\n_${tip}_`,
+    blocks: [
+      {
+        type: 'link',
+        items: picks.slice(0, 6).map((r) => toLinkItem(r.title, r.url || r.href, r.summary || ''))
+      }
+    ],
+    suggestions: [],
+    agentHandoffs: buildHandoffs(briefing, question, 'role_resources')
   };
 }
 
@@ -429,34 +665,51 @@ function citedItemsForIntent(intent, catalog, question) {
 
 async function answerFromKnowledge(question, profile = {}) {
   const intents = await loadIntentsFrom(intentsPath);
+  const voice = await loadAgentVoice(voicePath);
+  const briefing = await loadBriefing();
   const catalog = await loadFullNewsCatalog();
   const { videos } = await getVideosForAgent();
-  const tip = (intents.staticTips || [])[0] || '';
   const intent = matchIntent(question, intents);
+  const tip = pickTip(intents.staticTips, intent?.id, { skipIntentIds: voice.skipTipIntents });
 
   let result;
   if (intent) {
     switch (intent.answerType) {
       case 'overview':
-        result = await buildOverviewAnswer(catalog, videos, tip);
+        result = await buildOverviewAnswer(catalog, videos, tip, briefing);
         break;
-      case 'sustainability_map':
-        result = await buildSustainabilityMapAnswer(question, profile, tip);
+      case 'sustainability_map': {
+        result = await buildSustainabilityMapAnswer(question, profile, tip, {
+          localVariantNote: briefing.mapPrinciple || undefined
+        });
+        result.agentHandoffs = buildHandoffs(briefing, question, 'sustainability_map');
         break;
-      case 'energy_examples':
+      }
+      case 'energy_examples': {
         result = await buildEnergyExamplesAnswer(question, profile, tip);
+        result.agentHandoffs = buildHandoffs(briefing, question, 'energy_examples');
         break;
+      }
       case 'news_category':
         result = await buildNewsCategoryAnswer(intent.category, catalog, tip);
+        result.agentHandoffs = buildHandoffs(briefing, question, intent.id);
         break;
       case 'monthly_news':
-        result = await buildMonthlyNewsAnswer(catalog, profile, tip);
+        result = await buildMonthlyNewsAnswer(catalog, profile, tip, briefing);
         break;
       case 'tech_news':
         result = await buildTechNewsAnswer(catalog, tip);
         break;
+      case 'energy_prices':
+        result = await buildEnergyPricesAnswer(profile, tip, briefing);
+        break;
+      case 'how_this_helps':
+        result = await buildHowThisHelpsAnswer(question, catalog, profile, tip);
+        result.agentHandoffs = buildHandoffs(briefing, question, 'how_this_helps');
+        break;
       case 'video_category':
         result = await buildVideoCategoryAnswer(intent.category, tip);
+        result.agentHandoffs = buildHandoffs(briefing, question, intent.id);
         break;
       case 'wix_videos':
         result = await buildWixVideosAnswer(tip);
@@ -466,6 +719,9 @@ async function answerFromKnowledge(question, profile = {}) {
         break;
       case 'portals':
         result = buildPortalsAnswer(catalog, tip);
+        break;
+      case 'role_resources':
+        result = await buildRoleResourcesAnswer(question, profile, tip);
         break;
       default:
         result = null;
@@ -482,7 +738,35 @@ async function answerFromKnowledge(question, profile = {}) {
     result.source = result.source || 'knowledge';
     result.intentId = intentId;
     result.editionChips = pickEditionChips(catalog, { citedItems: cited, intentId });
-    result.productSamples = await pickMediaSamples(question, profile, 3);
+    if (!result.agentHandoffs?.length) {
+      result.agentHandoffs = buildHandoffs(briefing, question, intentId || 'overview');
+    }
+    const videoIntent =
+      intent &&
+      (intent.answerType === 'video_category' ||
+        intent.answerType === 'wix_videos' ||
+        intent.id === 'restaurant_videos' ||
+        intent.id === 'energy_videos' ||
+        intent.id === 'water_videos');
+    if (videoIntent || isVideoQuestion(question)) {
+      result.productSamples = await pickVideoSamples(
+        question,
+        profile,
+        3,
+        intent?.category || null
+      );
+    } else {
+      result.productSamples = await pickMediaSamples(question, profile, 3);
+    }
+    applyPersona(result, {
+      voice,
+      intentId: intentId || 'overview',
+      question,
+      profile,
+      staticTips: intents.staticTips,
+      regionLabels: REGION_LABELS,
+      tip
+    });
   }
   return result;
 }
@@ -490,6 +774,9 @@ async function answerFromKnowledge(question, profile = {}) {
 module.exports = {
   answerFromKnowledge,
   pickMediaSamples,
+  pickVideoSamples,
   getDefaultProductSamples: (limit = 3) => pickMediaSamples('', {}, limit),
-  loadFullNewsCatalog
+  loadFullNewsCatalog,
+  loadBriefing,
+  loadReferences
 };

@@ -11,12 +11,23 @@ const {
   loadIntentsFrom,
   matchIntent,
   normalizeImageUrl,
-  marketplaceHref
+  marketplaceHref,
+  toLinkItem
 } = require('./greenways-agent-shared');
+const {
+  applyPersona,
+  loadAgentVoice,
+  pickTip
+} = require('./greenways-agent-persona');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'sustainable-products-agent-intents.json');
 const showcasePath = path.join(__dirname, '..', 'data', 'sustainable-products-agent-showcase.json');
 const catalogPath = path.join(__dirname, '..', 'data', 'sustainable-products-catalog.json');
+const briefingPath = path.join(__dirname, '..', 'data', 'sustainable-products-agent-briefing.json');
+const voicePath = path.join(__dirname, '..', 'data', 'sustainable-products-agent-voice.json');
+const referencesPath = path.join(__dirname, '..', 'data', 'sustainable-products-agent-references.json');
+
+const REGION_LABELS = { nl: 'Netherlands', uk: 'United Kingdom', eu: 'EU-wide' };
 
 const FINDER_LINKS = {
   water: './water-saving-finder.html',
@@ -32,6 +43,114 @@ const LANE_LABELS = {
 };
 
 let catalogCache = null;
+
+async function loadBriefing() {
+  try {
+    const raw = await fs.readFile(briefingPath, 'utf8');
+    return JSON.parse(raw);
+  } catch (_) {
+    return {};
+  }
+}
+
+async function loadReferences() {
+  try {
+    const raw = await fs.readFile(referencesPath, 'utf8');
+    return JSON.parse(raw);
+  } catch (_) {
+    return { internalGuides: [] };
+  }
+}
+
+function buildHandoffs(briefing, question, intentId = '') {
+  const out = [];
+  const h = briefing?.handoffs || {};
+  const q = String(question || '').trim();
+  const push = (key, defaultPrompt) => {
+    const row = h[key];
+    if (!row) return;
+    out.push({
+      id: row.agentId,
+      name: row.agentName,
+      href: row.agentPath,
+      prompt: q || defaultPrompt
+    });
+  };
+
+  if (intentId === 'product_deal_spotlights') {
+    push('dealsToZara', 'What product deal spotlights are live this week?');
+  }
+  if (
+    ['find_fridge', 'find_combi', 'find_wok', 'find_fryer', 'electricity_lane', 'gas_lane', 'product_search'].includes(
+      intentId
+    )
+  ) {
+    push('equipmentToArtemis', 'Explain ETL lifecycle cost for this equipment upgrade');
+    if (!['water_lane', 'find_dishwasher'].includes(intentId)) {
+      push('grantsToAndrieus', 'What grants apply to these marketplace products in my region?');
+    }
+  }
+  if (['water_lane', 'find_dishwasher'].includes(intentId)) {
+    push('grantsToAndrieus', 'What water-saving grants apply in my region?');
+  }
+  if (['overview', 'role_resources', 'marketplace_explainer', 'portals'].includes(intentId)) {
+    push('dealsToZara', 'What weekly product deal spotlights are in the deals feed?');
+  }
+  if (intentId === 'product_deal_spotlights' || intentId === 'overview') {
+    push('financeToVincent', 'How does payback work after I pick efficient products?');
+  }
+  if (intentId === 'product_grants') {
+    push('grantsToAndrieus', 'What grants apply to these marketplace products in my region?');
+  }
+  if (intentId === 'eco_journey') {
+    push('equipmentToArtemis', 'What equipment upgrades fit my restaurant eco plan?');
+    push('grantsToAndrieus', 'What grants support my eco project in my region?');
+  }
+  if (intentId === 'recycling') {
+    push('equipmentToArtemis', 'How do I spec replacement equipment after trade-in?');
+  }
+  if (!out.length) {
+    push('equipmentToArtemis', 'How does ETL equipment compare for my kitchen upgrade?');
+    push('dealsToZara', 'Are there weekly deal spotlights for efficient products?');
+  }
+  const seen = new Set();
+  return out.filter((row) => {
+    const key = row.id || row.name;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, 3);
+}
+
+function rankReferences(refs, question, limit = 6) {
+  const q = String(question || '').toLowerCase();
+  const pool = [...(refs.external || []), ...(refs.internalGuides || [])];
+  if (!q.trim()) return pool.slice(0, limit);
+  const scored = pool.map((ref) => {
+    const hay = [ref.title, ref.summary, ...(ref.topics || [])].join(' ').toLowerCase();
+    let score = 0;
+    q.split(/\s+/).filter((t) => t.length >= 3).forEach((token) => {
+      if (hay.includes(token)) score += 3;
+    });
+    if (/water|dishwasher|aerator/.test(q) && /water/.test(hay)) score += 4;
+    if (/fridge|refrig|etl|electric/.test(q) && /electric|etl|refrig/.test(hay)) score += 4;
+    if (/wok|fryer|gas/.test(q) && /gas/.test(hay)) score += 4;
+    if (/deal|spotlight/.test(q) && /deal/.test(hay)) score += 4;
+    if (/recycl|circular|trade/.test(q) && /recycl|circular/.test(hay)) score += 5;
+    if (/journey|planner|eco|start/.test(q) && /journey|planner|eco/.test(hay)) score += 5;
+    if (/citizen|benefit|co2|climate/.test(q) && /citizen|benefit/.test(hay)) score += 4;
+    if (/news|headline|latest/.test(q) && /news/.test(hay)) score += 5;
+    if (/transition|impact|field/.test(q) && /transition|impact/.test(hay)) score += 4;
+    if (/european|building|case/.test(q) && /european|building|case/.test(hay)) score += 4;
+    if (/credential|etl|deep/.test(q) && /credential|etl|deep/.test(hay)) score += 4;
+    return { ref, score };
+  });
+  return scored
+    .filter((r) => r.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map((r) => r.ref)
+    .slice(0, limit);
+}
 
 async function loadCatalog() {
   if (catalogCache) return catalogCache;
@@ -281,36 +400,214 @@ async function pickProductSamples(question, profile = {}, limit = 3) {
   return samples.slice(0, limit);
 }
 
-function buildProductDealSpotlightsAnswer(tip) {
+function buildProductDealSpotlightsAnswer(tip, briefing) {
   return {
     answer:
       `**Product deal spotlights** are curated rows in the deals feed (weekly offers, limited-time product links) — not the same as searching this catalog.\n\n` +
-      `→ **Deals Agent:** ${PORTAL_LINKS.dealsAgent}\n` +
+      `→ **Deals Agent (Zara):** ${PORTAL_LINKS.dealsAgent}\n` +
       `→ **Full Deals page:** ${PORTAL_LINKS.dealsFullPage}\n` +
       `→ **Sustainability lane ticker:** ${PORTAL_LINKS.deals}\n\n` +
-      `Stay on **this agent** when you want to **find and compare** efficient products (water / electricity / gas lanes, \`etl_*\` vs \`sust_*\`).\n\n_${tip}_`,
-    suggestions: []
+      `Stay on **Zyanne** when you want to **find and compare** efficient products (water / electricity / gas lanes, \`etl_*\` vs \`sust_*\`).\n\n_${tip}_`,
+    suggestions: [],
+    agentHandoffs: buildHandoffs(briefing || {}, '', 'product_deal_spotlights')
   };
 }
 
-function buildOverviewAnswer(catalog, tip) {
+async function buildRoleResourcesAnswer(question, profile, tip) {
+  const briefing = await loadBriefing();
+  const refs = await loadReferences();
+  const ranked = rankReferences(refs, question, 8);
+  const picks = ranked.length
+    ? ranked
+    : [...(refs.external || []).slice(0, 2), ...(refs.internalGuides || []).slice(0, 5)];
+  const mustKnows = (briefing.mustKnows || []).slice(0, 5);
+  const core = (briefing.coreUnderstandings || []).slice(0, 4);
+  const region = profile.region ? REGION_LABELS[profile.region] || profile.region : 'your region';
+
+  return {
+    answer:
+      `**Zyanne — sustainable products specialist** (${region})\n\n` +
+      `${briefing.roleProfile || briefing.roleSummary || ''}\n\n` +
+      `**Must-know themes:**\n${mustKnows.map((m) => `- ${m}`).join('\n')}\n\n` +
+      `**How I advise:**\n${core.map((c) => `- ${c}`).join('\n')}\n\n` +
+      `**Curated links:**\n${picks.map((r) => `- **${r.title}** — ${r.summary || ''}`).join('\n')}\n\n_${tip}_`,
+    blocks: [
+      {
+        type: 'link',
+        items: picks.slice(0, 6).map((r) => toLinkItem(r.title, r.url || r.href, r.summary || ''))
+      }
+    ],
+    suggestions: [],
+    agentHandoffs: buildHandoffs(briefing, question, 'role_resources')
+  };
+}
+
+async function buildOverviewAnswer(catalog, tip, briefing) {
   const rows = catalog.products || [];
   const water = rows.filter((p) => catalogMatchesLane(p, 'water')).length;
   const elec = rows.filter((p) => catalogMatchesLane(p, 'electricity')).length;
   const gas = rows.filter((p) => catalogMatchesLane(p, 'gas')).length;
+  const b = briefing || (await loadBriefing());
+  const paths = b.guidePaths || {};
+  const journey = b.journeyPrinciple || '';
   return {
     answer:
-      `**Greenways Sustainable Products Agent** — one chat, **three utility lanes**:\n\n` +
+      `**Zyanne — sustainable products specialist**\n\n` +
+      `${b.roleSummary || ''}\n\n` +
+      `**Three utility lanes:**\n` +
       `- ${LANE_LABELS.water} — ${water} \`sust_*\` catalog rows + marketplace dishwashers & aerators\n` +
       `- ${LANE_LABELS.electricity} — ${elec} rows + ETL refrigeration & cooking\n` +
       `- ${LANE_LABELS.gas} — ${gas} rows + wok, fryer & cooking retrofits\n\n` +
+      `${journey ? `**Journey:** ${journey}\n\n` : ''}` +
       `Chat shows **On Greenways** showcase picks + **Market alternative** catalog rows. ` +
-      `Open the full finders for complete marketplace search.\n\n` +
-      `**Limited-time product deals:** curated **spotlights & weekly offers** live on **Deals Agent** (${PORTAL_LINKS.dealsAgent}) — sustainability lane on ${PORTAL_LINKS.deals}. Ask here to **search** the catalog; ask Deals for **what's on offer this week**.\n\n` +
+      `I explain **how** products help — not only links. Open finders for full marketplace search.\n\n` +
+      `**Toolbox:** eco planner ${paths.ecoProjectPlanning || PORTAL_LINKS.ecoProjectPlanning} · ` +
+      `case studies ${paths.europeanBuildings || './sustainable_european_buildings_eco_materials.html'} · ` +
+      `recycling ${paths.recycling || '../HTMLs/Recycling.html'}\n\n` +
+      `**Deal spotlights:** **Zara** (${PORTAL_LINKS.dealsAgent}) — I search the full catalog here.\n\n` +
       `**Full finders:**\n` +
       `- ${FINDER_LINKS.water}\n` +
       `- ${FINDER_LINKS.products}\n\n_${tip}_`,
-    suggestions: []
+    suggestions: [],
+    agentHandoffs: buildHandoffs(b, '', 'overview')
+  };
+}
+
+function guideLinkBlock(title, href, narrative, tip) {
+  return {
+    answer:
+      `**${title}**\n\n` +
+      `${narrative}\n\n` +
+      `→ **Open guide:** ${href}\n\n_${tip}_`,
+    suggestions: [],
+    blocks: [{ type: 'link', items: [toLinkItem(title, href, narrative)] }]
+  };
+}
+
+async function buildEcoJourneyAnswer(profile, tip) {
+  const briefing = await loadBriefing();
+  const paths = briefing.guidePaths || {};
+  const href = paths.ecoProjectPlanning || PORTAL_LINKS.ecoProjectPlanning;
+  const narrative = briefing.guideNarratives?.ecoJourney || '';
+  const region = profile.region ? REGION_LABELS[profile.region] || profile.region : 'your region';
+  const sector = String(profile.sector || 'restaurant').toLowerCase();
+  const site =
+    sector === 'restaurant' || sector === 'hospitality'
+      ? 'Restaurant'
+      : /home|domestic/.test(sector)
+        ? 'Home'
+        : 'Office / SME';
+  return {
+    answer:
+      `**Eco project journey** (${site} · ${region})\n\n` +
+      `${narrative}\n\n` +
+      `**Practical path:**\n` +
+      `1. Set your region and site type (Home · Restaurant · Office)\n` +
+      `2. Pick a utility lane — water, electricity, or gas\n` +
+      `3. Shortlist efficient products here; open finders for full compare\n` +
+      `4. Stack grants via **Andrieus** and deals via **Zara** when timing matters\n\n` +
+      `→ **Eco project planner:** ${href}\n\n_${tip}_`,
+    suggestions: [],
+    blocks: [{ type: 'link', items: [toLinkItem('Eco project planning guide', href, narrative)] }],
+    agentHandoffs: buildHandoffs(briefing, '', 'eco_journey')
+  };
+}
+
+async function buildCitizenBenefitsAnswer(tip) {
+  const briefing = await loadBriefing();
+  const paths = briefing.guidePaths || {};
+  const href = paths.citizenBenefits || '../HTMLs/Citizen%20benefits%20Guide%202%20brown.html';
+  const narrative = briefing.guideNarratives?.citizenBenefits || '';
+  return guideLinkBlock('Citizen benefits of sustainability', href, narrative, tip);
+}
+
+async function buildRecyclingAnswer(tip) {
+  const briefing = await loadBriefing();
+  const paths = briefing.guidePaths || {};
+  const href = paths.recycling || '../HTMLs/Recycling.html';
+  const narrative =
+    briefing.guideNarratives?.recycling ||
+    'Recycling old equipment improves your sustainability profile and can return value through trade-in or collection paths.';
+  const out = guideLinkBlock('Recycling & circular economy', href, narrative, tip);
+  out.agentHandoffs = buildHandoffs(briefing, '', 'recycling');
+  return out;
+}
+
+async function buildProductTransitionAnswer(tip) {
+  const briefing = await loadBriefing();
+  const paths = briefing.guidePaths || {};
+  const href = paths.productTransition || '../HTMLs/Product%20Transition.html';
+  const narrative = briefing.guideNarratives?.productTransition || '';
+  return guideLinkBlock('Product transition & field impact', href, narrative, tip);
+}
+
+async function buildLowEnergyExamplesAnswer(tip) {
+  const briefing = await loadBriefing();
+  const paths = briefing.guidePaths || {};
+  const href = paths.lowEnergyExamples || '../HTMLs/low-energy-equipment-savings.html';
+  const narrative = briefing.guideNarratives?.lowEnergyExamples || '';
+  return guideLinkBlock('Low-energy equipment examples', href, narrative, tip);
+}
+
+async function buildEuropeanBuildingsAnswer(tip) {
+  const briefing = await loadBriefing();
+  const paths = briefing.guidePaths || {};
+  const href = paths.europeanBuildings || './sustainable_european_buildings_eco_materials.html';
+  const narrative = briefing.guideNarratives?.europeanBuildings || '';
+  return guideLinkBlock('European buildings & eco materials', href, narrative, tip);
+}
+
+async function buildProductCredentialsAnswer(tip) {
+  const briefing = await loadBriefing();
+  const paths = briefing.guidePaths || {};
+  const legacy = paths.productDeepDiveLegacy || '../HTMLs/Product%20Deep%20Dive.html';
+  const live = FINDER_LINKS.deepDive;
+  const narrative = briefing.guideNarratives?.productCredentials || '';
+  return {
+    answer:
+      `**Product credentials & ETL deep dive**\n\n` +
+      `${narrative}\n\n` +
+      `**Live compare (Greenways):** ${live}\n` +
+      `**Credentials guide:** ${legacy}\n\n` +
+      `Verified \`etl_*\` rows carry scheme overlays — **Andrieus** confirms grant fit in your region.\n\n_${tip}_`,
+    suggestions: [],
+    blocks: [
+      {
+        type: 'link',
+        items: [
+          toLinkItem('Restaurant equipment deep dive', live, 'Side-by-side alternatives with grants'),
+          toLinkItem('Product Deep Dive guide', legacy, 'ETL credentials framing')
+        ]
+      }
+    ],
+    agentHandoffs: buildHandoffs(briefing, '', 'product_credentials')
+  };
+}
+
+async function buildSustainabilityNewsAnswer(tip) {
+  const briefing = await loadBriefing();
+  const paths = briefing.guidePaths || {};
+  const href = paths.sustainabilityNews || '../content-ops/drafts/sustainability-news/2026-04-sustainability-news.html';
+  const narrative = briefing.guideNarratives?.sustainabilityNews || '';
+  return guideLinkBlock('Sustainability news', href, narrative, tip);
+}
+
+async function buildProductGrantsAnswer(question, profile, tip) {
+  const briefing = await loadBriefing();
+  const note =
+    briefing.productGrantsNote ||
+    'Scheme detail lives with Andrieus — I flag products while we keep searching here.';
+  const region = profile.region ? REGION_LABELS[profile.region] || profile.region : 'your region';
+  return {
+    answer:
+      `**Grants on marketplace products** (${region})\n\n` +
+      `${note}\n\n` +
+      `**On Greenways** \`etl_*\` rows include grants overlay when enriched from \`schemes.json\`. ` +
+      `Ask with a product name or lane — I shortlist kit here and open **Andrieus** with your product context.\n\n` +
+      `→ **Grants Agent:** ${PORTAL_LINKS.grantsAgent}\n` +
+      `→ **Deep dive compare:** ${FINDER_LINKS.deepDive}\n\n_${tip}_`,
+    suggestions: [],
+    agentHandoffs: buildHandoffs(briefing, question, 'product_grants')
   };
 }
 
@@ -395,15 +692,17 @@ async function buildFallbackSearchAnswer(question, profile, catalog, showcase, t
 
 async function answerFromKnowledge(question, profile = {}) {
   const intents = await loadIntentsFrom(intentsPath);
+  const voice = await loadAgentVoice(voicePath);
+  const briefing = await loadBriefing();
   const [catalog, showcase] = await Promise.all([loadCatalog(), loadShowcase()]);
-  const tip = (intents.staticTips || [])[0] || '';
   const intent = matchIntent(question, intents);
+  const tip = pickTip(intents.staticTips, intent?.id, { skipIntentIds: voice.skipTipIntents });
 
   let result;
   if (intent) {
     switch (intent.answerType) {
       case 'overview':
-        result = buildOverviewAnswer(catalog, tip);
+        result = await buildOverviewAnswer(catalog, tip, briefing);
         break;
       case 'lane':
         result = buildLaneAnswer(intent.lane, catalog, showcase, tip);
@@ -418,7 +717,37 @@ async function answerFromKnowledge(question, profile = {}) {
         result = buildPortalsAnswer(intent.portal || 'all', tip);
         break;
       case 'product_deal_spotlights':
-        result = buildProductDealSpotlightsAnswer(tip);
+        result = buildProductDealSpotlightsAnswer(tip, briefing);
+        break;
+      case 'role_resources':
+        result = await buildRoleResourcesAnswer(question, profile, tip);
+        break;
+      case 'eco_journey':
+        result = await buildEcoJourneyAnswer(profile, tip);
+        break;
+      case 'citizen_benefits':
+        result = await buildCitizenBenefitsAnswer(tip);
+        break;
+      case 'recycling':
+        result = await buildRecyclingAnswer(tip);
+        break;
+      case 'product_transition':
+        result = await buildProductTransitionAnswer(tip);
+        break;
+      case 'low_energy_examples':
+        result = await buildLowEnergyExamplesAnswer(tip);
+        break;
+      case 'european_buildings':
+        result = await buildEuropeanBuildingsAnswer(tip);
+        break;
+      case 'product_credentials':
+        result = await buildProductCredentialsAnswer(tip);
+        break;
+      case 'sustainability_news':
+        result = await buildSustainabilityNewsAnswer(tip);
+        break;
+      case 'product_grants':
+        result = await buildProductGrantsAnswer(question, profile, tip);
         break;
       default:
         result = null;
@@ -430,12 +759,25 @@ async function answerFromKnowledge(question, profile = {}) {
   }
 
   if (result?.answer) {
-    const lane = intent?.lane || detectLane(question, profile);
+    const lane = intent?.lane || result.lane || detectLane(question, profile);
     const profileWithLane = { ...profile, lane, searchType: intent?.searchType };
+    const intentId = result.intentId || intent?.id || null;
     result.source = result.source || 'knowledge';
-    result.intentId = result.intentId || intent?.id || null;
+    result.intentId = intentId;
     result.lane = lane;
+    if (!result.agentHandoffs?.length) {
+      result.agentHandoffs = buildHandoffs(briefing, question, intentId || 'product_search');
+    }
     result.productSamples = await pickProductSamples(question, profileWithLane, 3);
+    applyPersona(result, {
+      voice,
+      intentId: intentId || 'overview',
+      question,
+      profile,
+      staticTips: intents.staticTips,
+      regionLabels: REGION_LABELS,
+      tip
+    });
   }
   return result;
 }
@@ -444,6 +786,8 @@ module.exports = {
   answerFromKnowledge,
   pickProductSamples,
   pickShowcaseSamplesOnly,
+  loadBriefing,
+  loadReferences,
   getDefaultProductSamples: (limit = 3, lane = 'electricity') =>
     pickShowcaseSamplesOnly({ lane: lane || 'electricity' }, limit),
   detectLane,

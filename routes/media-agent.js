@@ -88,6 +88,8 @@ router.post('/ask', async (req, res) => {
         blocks: knowledge.blocks || [],
         editionChips: knowledge.editionChips || [],
         productSamples: knowledge.productSamples || [],
+        agentHandoffs: knowledge.agentHandoffs || [],
+        spokenSummary: knowledge.spokenSummary || null,
         source: knowledge.source || 'knowledge',
         intentId: knowledge.intentId || null
       });

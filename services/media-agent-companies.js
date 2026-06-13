@@ -2,9 +2,13 @@ const path = require('path');
 const fs = require('fs/promises');
 
 const companiesPath = path.join(__dirname, '..', 'data', 'companies.json');
+const orgsInlinePath = path.join(__dirname, '..', 'data', 'orgs-directory-inline.js');
 
 const MAP_PAGE_HREF =
   './European%20Company%20-%20Case%20Study%20Finder%20(Standalone)%20-%20Wix%20bundle.html';
+
+const LOCAL_VARIANT_NOTE =
+  'If the example is not in your geography, treat it as a **playbook** — the same product category, technique, or sector approach often works with a more local supplier or grant path.';
 
 const SECTOR_ALIASES = {
   restaurant: ['hospitality', 'restaurant', 'food', 'catering'],
@@ -22,6 +26,7 @@ const REGION_COUNTRY = {
 };
 
 let companiesCache = null;
+let orgsCache = null;
 
 async function loadCompanies() {
   if (companiesCache) return companiesCache;
@@ -29,6 +34,23 @@ async function loadCompanies() {
   const parsed = JSON.parse(raw);
   companiesCache = Array.isArray(parsed) ? parsed : parsed.items || [];
   return companiesCache;
+}
+
+async function loadOrgsDirectory() {
+  if (orgsCache) return orgsCache;
+  try {
+    const raw = await fs.readFile(orgsInlinePath, 'utf8');
+    const match = raw.match(/ORGS_DIRECTORY_INLINE=(\[[\s\S]*\]);/);
+    orgsCache = match ? JSON.parse(match[1]) : [];
+  } catch (_) {
+    orgsCache = [];
+  }
+  return orgsCache;
+}
+
+async function loadMapCatalog() {
+  const [caseStudies, directory] = await Promise.all([loadCompanies(), loadOrgsDirectory()]);
+  return { caseStudies, directory };
 }
 
 function profileSectorTokens(profile = {}) {
@@ -87,6 +109,7 @@ function formatCompanyBullet(c) {
   const statLine = [
     stats.savings ? `savings ${stats.savings}` : '',
     stats.energy ? stats.energy : '',
+    stats.co2 ? `CO₂ ${stats.co2}` : '',
     stats.payback ? `payback ${stats.payback}` : ''
   ]
     .filter(Boolean)
@@ -97,6 +120,43 @@ function formatCompanyBullet(c) {
     (statLine ? ` — _${statLine}_` : '') +
     `\n  ${desc}${String(c.desc || '').length > 150 ? '…' : ''}`
   );
+}
+
+function formatDirectoryBullet(org) {
+  const stats = org.stats || {};
+  const tagLine = [stats.energy, stats.co2, stats.savings].filter(Boolean).join(' · ');
+  const desc = String(org.desc || '').slice(0, 140);
+  const link = org.url ? `\n  → ${org.url}` : '';
+  return (
+    `- **${org.name}** (${org.country || '—'}${org.region ? ` · ${org.region}` : ''})` +
+    (tagLine ? ` — _${tagLine}_` : '') +
+    `\n  ${desc}${String(org.desc || '').length > 140 ? '…' : ''}${link}`
+  );
+}
+
+function rankDirectoryOrgs(question, profile, orgs, limit = 4) {
+  const q = String(question || '').toLowerCase();
+  const region = String(profile.region || '').toLowerCase();
+  const regionTokens = REGION_COUNTRY[region] || [];
+
+  const scored = orgs
+    .map((o) => {
+      let score = 0;
+      const hay = [o.name, o.desc, o.country, o.region, o.sector].join(' ').toLowerCase();
+      q.split(/\s+/)
+        .filter((t) => t.length >= 3)
+        .forEach((t) => {
+          if (hay.includes(t)) score += t.length >= 6 ? 3 : 2;
+        });
+      if (/directory|organisation|organization|ngo|foundation|network/i.test(q)) score += 3;
+      if (regionTokens.some((t) => hay.includes(t))) score += 4;
+      return { o, score };
+    })
+    .filter((row) => row.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  if (scored.length) return scored.slice(0, limit).map((row) => row.o);
+  return orgs.slice(0, limit);
 }
 
 function formatCompanyBullets(companies, limit = 6) {
@@ -151,22 +211,29 @@ function resolveShowcaseCompanies(showcaseRows, allCompanies, limit = 3) {
   return samples;
 }
 
-async function buildSustainabilityMapAnswer(question, profile, tip) {
-  const companies = await loadCompanies();
-  const picks = rankCompanies(question, profile, companies, 6);
-  const sectors = getSectorSummary(companies);
+async function buildSustainabilityMapAnswer(question, profile, tip, options = {}) {
+  const { caseStudies, directory } = await loadMapCatalog();
+  const picks = rankCompanies(question, profile, caseStudies, 5);
+  const dirPicks = rankDirectoryOrgs(question, profile, directory, 3);
+  const sectors = getSectorSummary(caseStudies);
+  const regionLabel = profile.region ? String(profile.region).toUpperCase() : 'your region';
+  const localNote = options.localVariantNote || LOCAL_VARIANT_NOTE;
+  const directoryBlock = dirPicks.length
+    ? `\n\n**Directory organisations** (networks & sector leaders to learn from):\n${dirPicks.map(formatDirectoryBullet).join('\n\n')}`
+    : '';
   return {
     answer:
-      `**Sustainability map** — **${companies.length}** organisations with case-study style examples (energy techniques, savings figures, and sectors to benchmark against):\n\n` +
-      `**Sectors on the map:** ${sectors}\n\n` +
-      `**Picks for your profile**${
-        profile.sector || profile.region
-          ? ` (${[profile.sector, profile.region].filter(Boolean).join(' · ')})`
-          : ''
-      }:\n\n` +
-      `${formatCompanyBullets(picks, 6) || '_Browse the map for organisations in your sector._'}\n\n` +
-      `**Open the interactive map:** ${MAP_PAGE_HREF}\n\n` +
-      `Use these examples when assessing **energy cost savings** — compare published savings/payback to your site, and cross-check techniques with **monthly sustainability news** roundups.\n\n_${tip}_`,
+      `**Sustainability map** — **${caseStudies.length}** case studies + **${directory.length}** directory organisations:\n\n` +
+      `**Case-study sectors:** ${sectors}\n\n` +
+      `**Examples for ${regionLabel}**${
+        profile.sector ? ` · ${profile.sector}` : ''
+      } — measurable savings and techniques:\n\n` +
+      `${formatCompanyBullets(picks, 5) || '_Browse the map for organisations in your sector._'}` +
+      `${directoryBlock}\n\n` +
+      `${localNote}\n\n` +
+      `**Open the interactive map:** ${MAP_PAGE_HREF}\n` +
+      `**Data:** \`/data/companies.json\` (case studies) · \`/data/orgs-directory-inline.js\` (directory)\n\n` +
+      `Cross-check techniques with **monthly sustainability news** and **energy prices ticker** when timing upgrades.\n\n_${tip}_`,
     suggestions: [],
     intentId: 'sustainability_map',
     source: 'sustainability-map'
@@ -213,9 +280,14 @@ function isMapRelatedQuestion(question) {
 
 module.exports = {
   MAP_PAGE_HREF,
+  LOCAL_VARIANT_NOTE,
   loadCompanies,
+  loadOrgsDirectory,
+  loadMapCatalog,
   rankCompanies,
+  rankDirectoryOrgs,
   formatCompanyBullets,
+  formatDirectoryBullet,
   companyToMediaSample,
   resolveShowcaseCompanies,
   buildSustainabilityMapAnswer,

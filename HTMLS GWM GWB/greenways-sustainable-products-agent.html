@@ -574,6 +574,20 @@
   .follow-up-chip:hover, .quick-reply-chip:hover {
     background: rgba(37, 99, 235, 0.28);
   }
+  .agent-handoff-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .agent-handoff-chip {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: #99f6e4;
+    border: 1px solid rgba(45, 212, 191, 0.45);
+    background: rgba(20, 184, 166, 0.12);
+  }
+  .agent-handoff-chip:hover { background: rgba(20, 184, 166, 0.22); }
+  .agent-handoff-hint { font-size: 0.62rem; color: var(--muted); margin-top: 4px; }
 
   .profile-nudge {
     flex-shrink: 0;
@@ -921,7 +935,7 @@
         </div>
         <div>
           <h1>Zyanne</h1>
-          <p>Sustainable Products · water, electricity &amp; gas</p>
+          <p>Sustainability journey guide · water, electricity &amp; gas products</p>
         </div>
       </div>
       <div class="guide-top-actions">
@@ -970,12 +984,16 @@
       <div class="chat-thread" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
         <div class="welcome-card" id="welcome-card">
           <h2>Ask Zyanne</h2>
-          <p><strong>Search &amp; compare</strong> efficient equipment across three utility lanes (<strong>On Greenways</strong> `etl_*` + <strong>Market alternative</strong> `sust_*`). For <strong>limited-time product deal spotlights</strong> (weekly feed offers), ask the <strong>Deals Agent</strong>.</p>
+          <p><strong>Search &amp; compare</strong> efficient products across <strong>water</strong>, <strong>electricity</strong>, and <strong>gas</strong> — <strong>On Greenways</strong> <code>etl_*</code> plus <strong>Market alternative</strong> <code>sust_*</code>. Weekly <strong>deal spotlights</strong> → <strong>Zara</strong>.</p>
           <div class="welcome-tags">
+            <button type="button" class="welcome-tag" data-prompt="Give me an overview of sustainable product search on Greenways">How search works</button>
+            <button type="button" class="welcome-tag" data-prompt="What water-saving products should a restaurant prioritise?">💧 Water lane</button>
+            <button type="button" class="welcome-tag" data-prompt="What efficient refrigeration and ETL cooking options are on Greenways?">⚡ Electricity lane</button>
+            <button type="button" class="welcome-tag" data-prompt="What gas cooking upgrades exist for wok and fryer lines?">🔥 Gas lane</button>
             <button type="button" class="welcome-tag" data-prompt="Find water-saving commercial dishwashers for my restaurant">Water-saving dishwasher</button>
-            <button type="button" class="welcome-tag" data-prompt="What product deals and weekly spotlights are in the deals feed?">Product deal spotlights → Deals</button>
-            <button type="button" class="welcome-tag" data-prompt="What efficient refrigeration options are on Greenways?">Efficient refrigeration</button>
+            <button type="button" class="welcome-tag" data-prompt="What is the difference between On Greenways and Market alternative products?">Two product columns</button>
             <button type="button" class="welcome-tag" data-prompt="Where are the water and sustainable product finders?">Open product finders</button>
+            <button type="button" class="welcome-tag" data-prompt="What product deals and weekly spotlights are in the deals feed?">Deal spotlights → Zara</button>
           </div>
         </div>
       </div>
@@ -1116,7 +1134,7 @@
   var TurnUi = window.GreenwaysAgentTurnUi;
   var AGENT_PROFILE = {
     name: "Zyanne",
-    role: "Sustainable Products Agent",
+    role: "Sustainable products specialist",
     imageUrl: "https://static.wixstatic.com/media/c123de_dc5b2e3e4aef4cc4b75c7b44888281bd~mv2.png"
   };
   var AGENT_TURN_AVATAR = AGENT_PROFILE;
@@ -1435,6 +1453,42 @@
     tick();
   }
 
+  function welcomeCardInnerHtml() {
+    return (
+      '<h2>Ask Zyanne</h2>' +
+      '<p>I help with your <strong>sustainability journey</strong> — efficient products across <strong>water</strong>, <strong>electricity</strong>, and <strong>gas</strong>, with stories about <strong>benefits</strong> and <strong>savings</strong>, not just links. <strong>On Greenways</strong> <code>etl_*</code> + <strong>Market alternative</strong> <code>sust_*</code>. Deal spotlights → <strong>Zara</strong>; grants on products → <strong>Andrieus</strong>.</p>' +
+      '<div class="welcome-tags">' +
+      '<button type="button" class="welcome-tag" data-prompt="Give me an overview of sustainable product search on Greenways">How search works</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Help me plan my eco project for a restaurant in the Netherlands">Eco journey planner</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What are the citizen benefits of sustainable products?">Citizen benefits</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="How can recycling old equipment improve my sustainability profile?">Recycling &amp; trade-in</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What water-saving products should a restaurant prioritise?">💧 Water lane</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What efficient refrigeration and ETL cooking options are on Greenways?">⚡ Electricity lane</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What gas cooking upgrades exist for wok and fryer lines?">🔥 Gas lane</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Find water-saving commercial dishwashers for my restaurant">Water-saving dishwasher</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What is the difference between On Greenways and Market alternative products?">Two product columns</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Where are the water and sustainable product finders?">Open product finders</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="What product deals and weekly spotlights are in the deals feed?">Deal spotlights → Zara</button>' +
+      '</div>'
+    );
+  }
+
+  function agentHandoffHref(h) {
+    if (h.href) return h.href;
+    const base = h.path || "/greenways/grants-agent";
+    const q = h.prompt || h.question || "";
+    return base + (q ? "?q=" + encodeURIComponent(q) : "");
+  }
+
+  function agentHandoffChipsHtml(handoffs) {
+    if (!Array.isArray(handoffs) || !handoffs.length) return "";
+    const chips = handoffs.map(function (h) {
+      var prompt = h.prompt || h.question || "";
+      return '<a class="agent-handoff-chip" href="' + escapeHtml(agentHandoffHref(h)) + '" target="_top" rel="noopener" data-prompt="' + escapeHtml(prompt) + '">' + escapeHtml(h.name || h.id) + "</a>";
+    }).join("");
+    return '<div class="agent-handoff-chips" aria-label="Open specialist agent">' + chips + '</div><div class="agent-handoff-hint">Opens the specialist chat with your question</div>';
+  }
+
   function finishAgentTurn(el, payload) {
     const profile = getProfile();
     const answer = payload.answer || "I could not answer that yet.";
@@ -1451,6 +1505,7 @@
 
     const parts = buildAgentTurnParts(answer, suggestions, blocks, {
       footHtml:
+        agentHandoffChipsHtml(payload.agentHandoffs) +
         followUpChips(intentId, profile, payload.question || lastQuestion) +
         '<span class="source-pill">' + escapeHtml(src) + "</span>"
     });
@@ -1467,6 +1522,7 @@
         answer: answer,
         suggestions: payload.suggestions || [],
         blocks: payload.blocks || [],
+        agentHandoffs: payload.agentHandoffs || [],
         lane: payload.lane || profile.lane || "",
         source: payload.source || "",
         intentId: intentId
@@ -1567,15 +1623,7 @@
     const card = document.createElement("div");
     card.className = "welcome-card";
     card.id = "welcome-card";
-    card.innerHTML =
-      '<h2>Ask Zyanne</h2>' +
-      '<p><strong>Search &amp; compare</strong> efficient equipment (three utility lanes). <strong>Product deal spotlights</strong> (weekly feed offers) → <strong>Deals Agent</strong>.</p>' +
-      '<div class="welcome-tags">' +
-      '<button type="button" class="welcome-tag" data-prompt="Find water-saving commercial dishwashers for my restaurant">Water-saving dishwasher</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="What product deals and weekly spotlights are in the deals feed?">Product deal spotlights → Deals</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="What efficient refrigeration options are on Greenways?">Efficient refrigeration</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="Where are the water and sustainable product finders?">Open product finders</button>' +
-      "</div>";
+    card.innerHTML = welcomeCardInnerHtml();
     thread.appendChild(card);
     bindWelcomeTags();
     if (quickReplyBar) quickReplyBar.hidden = true;
