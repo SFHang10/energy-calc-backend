@@ -47,7 +47,12 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; overflow: hidden; }
-  .guide-app { display: grid; grid-template-columns: 1fr 280px; height: 100%; min-height: 420px; max-height: 100vh; }
+  html.embed-wix, html.embed-wix body {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .guide-app { display: grid; grid-template-columns: 1fr 260px; height: 100%; min-height: 420px; max-height: 100vh; }
   .guide-main {
     display: flex;
     flex-direction: column;
@@ -56,8 +61,8 @@
     background: linear-gradient(180deg, #14181e 0%, #0a0c10 100%);
     border-right: 1px solid var(--border);
   }
-  .guide-top { flex-shrink: 0; padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-  .guide-brand { display: flex; align-items: center; gap: 10px; }
+  .guide-top { flex-shrink: 0; padding: 14px 18px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .guide-brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
   .guide-avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; overflow: hidden; box-shadow: 0 0 16px rgba(245, 158, 11, 0.3); border: 2px solid rgba(251, 191, 36, 0.45); }
   .guide-avatar-img { width: 100%; height: 100%; object-fit: cover; object-position: center 12%; display: block; image-rendering: -webkit-optimize-contrast; }
   .guide-brand h1 { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: #fff; }
@@ -105,18 +110,15 @@
   }
   .chat-thread.is-welcome-state,
   .chat-thread:has(#welcome-card) {
-    justify-content: center;
-    align-items: center;
-    padding-top: 12px;
-    padding-bottom: 32px;
+    padding-top: 16px;
+    padding-bottom: 24px;
   }
   .welcome-card {
-    align-self: center;
-    width: 100%;
+    width: min(100%, 520px);
     max-width: 520px;
     text-align: center;
     padding: 20px 18px;
-    margin: 0 auto;
+    margin-inline: auto;
     flex-shrink: 0;
     border-radius: var(--radius);
     background: rgba(28, 34, 41, 0.65);
