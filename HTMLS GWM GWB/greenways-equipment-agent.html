@@ -155,18 +155,19 @@
     gap: 14px;
     -webkit-overflow-scrolling: touch;
   }
-  .chat-thread.is-welcome-state,
   .chat-thread:has(#welcome-card) {
-    padding-top: 16px;
-    padding-bottom: 24px;
+    justify-content: center;
+    padding-top: 12px;
+    padding-bottom: 32px;
   }
 
   .welcome-card {
-    width: min(100%, 520px);
+    align-self: center;
+    width: 100%;
     max-width: 520px;
     text-align: center;
     padding: 20px 18px;
-    margin-inline: auto;
+    margin: 0 auto;
     flex-shrink: 0;
     border-radius: var(--radius);
     background: rgba(21, 34, 56, 0.65);
@@ -946,7 +947,7 @@
     </section>
 
     <div class="chat-panel">
-      <div class="chat-thread is-welcome-state" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
+      <div class="chat-thread" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
         <div class="welcome-card" id="welcome-card">
           <h2>Ask Artemis</h2>
           <p>Artemis balances <strong>energy efficiency</strong>, <strong>durability</strong>, and <strong>lifecycle cost</strong> — ETL-verified kit, deep dive comparisons, trajectory pages, and renovation guides on Greenways.</p>
@@ -1137,15 +1138,9 @@
 
 
 
-  function setWelcomeLayout(active) {
-    if (!thread) return;
-    thread.classList.toggle("is-welcome-state", !!active);
-  }
-
   function hideWelcome() {
     const card = document.getElementById("welcome-card");
     if (card && card.parentNode) card.remove();
-    setWelcomeLayout(false);
   }
 
   function appendMessage(role, html, extra) {
@@ -1578,7 +1573,6 @@
     card.id = "welcome-card";
     card.innerHTML = welcomeCardInnerHtml();
     thread.appendChild(card);
-    setWelcomeLayout(true);
     bindWelcomeTags();
     if (quickReplyBar) quickReplyBar.hidden = true;
     sessionStorage.removeItem(SESSION_KEY);
