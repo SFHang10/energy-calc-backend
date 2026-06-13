@@ -559,20 +559,32 @@ async function buildStorySearchAnswer(question, catalog, tip) {
   };
 }
 
-async function buildVideoCategoryAnswer(category, tip) {
+function videoToLinkItem(v) {
+  const desc = [v.duration, String(v.description || '').slice(0, 90)]
+    .filter(Boolean)
+    .join(' · ');
+  return toLinkItem(v.title || 'Video', v.videoUrl || '#', desc || 'Wix video');
+}
+
+async function buildVideoCategoryAnswer(category, tip, question, profile = {}) {
   const { videos, source } = await getVideosForAgent();
   const label = VIDEO_CATEGORIES[category] || category;
   const matches = videos.filter((v) => v.category === category || (category === 'energy' && v.category === 'general'));
-  const list = (matches.length ? matches : videos).slice(0, 5);
-  const bullets = list
-    .map((v) => `- **${v.title}**${v.duration ? ` (${v.duration})` : ''}${v.videoUrl ? `\n  → ${v.videoUrl}` : ''}`)
-    .join('\n');
+  const list = (matches.length ? matches : videos).slice(0, 6);
+  const samples = await pickVideoSamples(question || category, profile, 3, category);
   return {
     answer:
-      `**${label}** — videos from the Greenways library:\n\n` +
-      `${bullets || '_No videos tagged for this topic yet — browse all Wix videos on site._'}\n\n` +
-      `_Source: ${source === 'wix' ? 'Wix Media API' : 'sample showcase (configure Wix credentials on Render for live library)'}_\n\n_${tip}_`,
-    suggestions: []
+      `Here are **${label}** picks from the Greenways video library.\n\n` +
+      `Tap **▶** on a banner card or open a link on the right to watch. ` +
+      `Ask me to explain any topic in plain language.\n\n` +
+      (source !== 'wix'
+        ? '_Sample showcase until Wix credentials are configured on Render._\n\n'
+        : '') +
+      `_${tip}_`,
+    suggestions: [],
+    intentId: `video_${category}`,
+    blocks: list.length ? [{ type: 'link', items: list.map(videoToLinkItem) }] : [],
+    productSamples: samples.length ? samples : list.slice(0, 3).map((v) => videoToSample(v, source))
   };
 }
 
@@ -806,7 +818,7 @@ async function answerFromKnowledge(question, profile = {}) {
         result.agentHandoffs = buildHandoffs(briefing, question, 'how_this_helps');
         break;
       case 'video_category':
-        result = await buildVideoCategoryAnswer(intent.category, tip);
+        result = await buildVideoCategoryAnswer(intent.category, tip, question, profile);
         result.agentHandoffs = buildHandoffs(briefing, question, intent.id);
         break;
       case 'wix_videos':

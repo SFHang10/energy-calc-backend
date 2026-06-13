@@ -363,10 +363,14 @@
     flex: 1;
     min-width: 0;
     min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
     text-align: center;
     align-items: center;
     justify-content: center;
     padding: 10px 12px;
+    background: transparent;
   }
   .product-samples--banner .product-sample-name,
   .product-samples--banner .product-sample-meta {
@@ -387,6 +391,19 @@
   .product-samples--banner .product-sample-card.is-map-module .gw-module-open-badge {
     font-size: 0.55rem;
     padding: 4px 8px;
+  }
+  .product-samples--banner .product-sample-card.is-video .product-sample-link,
+  .product-samples--banner .product-sample-card.is-map-module .product-sample-link {
+    appearance: none;
+    -webkit-appearance: none;
+    background: rgba(10, 18, 32, 0.75);
+    color: inherit;
+  }
+  .product-samples--banner .product-sample-card.is-video .product-sample-img-wrap {
+    background: #0d1524;
+  }
+  .product-samples--banner .product-ask-btn {
+    display: none;
   }
 
   .msg-row { display: flex; flex-direction: column; max-width: 92%; }
@@ -1974,20 +1991,33 @@
     if (profileNudge) profileNudge.hidden = false;
   }
 
-  async function requestAgent(endpoint, body, questionLabel) {
+  const AGENT_FETCH_TIMEOUT_MS = 75000;
+
+  async function requestAgent(endpoint, body, questionLabel, options) {
+    const opts = options || {};
+    const attempt = opts.attempt || 0;
     const ctrl = new AbortController();
-    const timer = setTimeout(function () { ctrl.abort(); }, 25000);
-    const res = await fetch(apiBase() + endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: ctrl.signal
-    });
-    clearTimeout(timer);
-    const data = await res.json().catch(function () { return {}; });
-    if (!res.ok || !data.ok) throw Object.assign(new Error(data.error || "Request failed"), { data: data, res: res });
-    data.question = questionLabel;
-    return data;
+    const timer = setTimeout(function () { ctrl.abort(); }, AGENT_FETCH_TIMEOUT_MS);
+    try {
+      const res = await fetch(apiBase() + endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: ctrl.signal
+      });
+      clearTimeout(timer);
+      const data = await res.json().catch(function () { return {}; });
+      if (!res.ok || !data.ok) throw Object.assign(new Error(data.error || "Request failed"), { data: data, res: res });
+      data.question = questionLabel;
+      return data;
+    } catch (err) {
+      clearTimeout(timer);
+      if (err && err.name === "AbortError" && attempt < 1) {
+        setStatus("Server waking up — retrying…", "warn");
+        return requestAgent(endpoint, body, questionLabel, { attempt: attempt + 1 });
+      }
+      throw err;
+    }
   }
 
   async function sendQuestion(question, options) {
@@ -2019,12 +2049,15 @@
         });
         setStatus("Offline answer · sample products shown", "warn");
       } else {
-        const msg = "Could not reach the media agent. Deploy /api/media-agent to Render for live answers.";
+        const isTimeout = err && err.name === "AbortError";
+        const msg = isTimeout
+          ? "The server took too long to respond — Render may be waking from sleep. Wait a few seconds and try again."
+          : "Could not reach the media agent. Check your connection or try again in a moment.";
         if (thinkingEl) {
           thinkingEl.querySelector(".msg-bubble").innerHTML =
             agentAvatarHtml() + "<p>" + escapeHtml(msg) + "</p>";
         }
-        setStatus("Offline — check server", "warn");
+        setStatus(isTimeout ? "Timeout — retry shortly" : "Offline — check server", "warn");
       }
     } finally {
       thinking = false;
