@@ -87,6 +87,19 @@ async function runLocalSmokes() {
   }
   console.log('OK buildAgentHandoff:', handoffs.map((h) => h.name).join(', '));
 
+  const financeMod = require(path.join(ROOT, 'services/finance-agent-knowledge'));
+  const energyHit = await financeMod.answerFromKnowledge('energy prices payback', profile);
+  if (!energyHit?.agentHandoffs?.some((h) => /cheryc|media/i.test(h.name || h.id || ''))) {
+    throw new Error('Vincent energy_prices: expected Cheryce handoff chip');
+  }
+  console.log('OK Vincent handoffs energy_prices → Cheryce chip');
+
+  const bnplHit = await financeMod.answerFromKnowledge('BNPL restaurant equipment', profile);
+  if (!bnplHit?.blocks?.length || bnplHit.blocks[0].type !== 'link') {
+    throw new Error('Vincent bnpl: expected link blocks[]');
+  }
+  console.log('OK Vincent bnpl conversational blocks');
+
   let hits = 0;
   for (const agent of AGENT_SMOOKES) {
     const mod = agent.load();

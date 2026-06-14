@@ -530,14 +530,32 @@ const MEDIA_HANDOFF_RULES = [
 
 const FINANCE_HANDOFF_RULES = [
   {
-    intents: ['grants_link', 'scheme_finance', 'grant'],
+    intents: [
+      'grants_tab',
+      'funding_news',
+      'overview',
+      'price_upgrade_case',
+      'etl_products',
+      'green_loans',
+      'equipment_finance',
+      'bnpl',
+      'category'
+    ],
     keys: ['grantsToAndrieus'],
     prompts: { grantsToAndrieus: 'Which grants and subsidies fit my upgrade and region?' }
   },
   {
-    intents: ['energy_prices', 'price_upgrade_case', 'compare_tariffs', 'payback', 'savings_projection'],
+    intents: [
+      'energy_prices',
+      'price_upgrade_case',
+      'compare_tariffs',
+      'sustainability_finance_news',
+      'funding_news'
+    ],
     keys: ['mediaToCheryce'],
-    prompts: { mediaToCheryce: 'What sustainability news affects energy prices and finance timing?' }
+    prompts: {
+      mediaToCheryce: 'What sustainability news affects energy prices and finance timing?'
+    }
   }
 ];
 

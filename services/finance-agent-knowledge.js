@@ -12,7 +12,9 @@ const {
   withTip,
   toLinkItem,
   pickProductSamples,
-  getDefaultProductSamples
+  getDefaultProductSamples,
+  buildAgentHandoff,
+  FINANCE_HANDOFF_RULES
 } = require('./greenways-agent-shared');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'finance-agent-intents.json');
@@ -104,17 +106,15 @@ async function loadReferences() {
   }
 }
 
-function buildAndrieusHandoffs(question, briefing) {
-  const h = briefing?.handoffs?.grantsToAndrieus;
-  if (!h) return [];
-  return [
-    {
-      id: h.agentId || 'grants',
-      name: h.agentName || 'Andrieus',
-      href: h.agentPath || PORTAL_LINKS.grantsAgent,
-      prompt: String(question || '').trim() || 'What grants and subsidies fit my business profile?'
-    }
-  ];
+function attachFinanceHandoffs(result, briefing, question, intentId) {
+  if (!result) return result;
+  result.agentHandoffs = buildAgentHandoff(briefing, {
+    question,
+    intentId,
+    rules: FINANCE_HANDOFF_RULES,
+    fallbackKeys: ['grantsToAndrieus']
+  });
+  return result;
 }
 
 function rankReferences(refs, question, limit = 6) {
@@ -301,28 +301,12 @@ async function buildEtlProductsAnswer(question, profile, tip) {
   const briefing = await loadBriefing();
   const etl = briefing?.etlProducts || {};
   const samples = await pickFinanceSamples(question || 'etl efficient equipment', profile, 3);
-  const sampleLines = samples
-    .slice(0, 3)
-    .map(
-      (p) =>
-        `- **${p.name}**${p.label ? ` — ${p.label}` : ''}\n  → ${p.marketplaceHref || PORTAL_LINKS.productMarketplace}`
-    )
-    .join('\n');
 
   return {
     answer:
       `**ETL products — Europe's verified efficient-equipment path on Greenways**\n\n` +
       `${etl.summary || 'ETL-listed products are independently verified for energy performance — the benchmark to use when building an upgrade finance case.'}\n\n` +
-      `**Why Vincent leads here:**\n` +
-      `- **Verified savings** — not generic “eco” claims\n` +
-      `- **Grant overlays** — matched schemes on each \`etl_*\` product (detail → **Andrieus**)\n` +
-      `- **Finance stack** — BNPL, equipment finance, or green loans after payback math\n\n` +
-      (sampleLines ? `**Examples for your profile:**\n${sampleLines}\n\n` : '') +
-      `**Browse:**\n` +
-      `- Equipment intelligence / finder: ${PORTAL_LINKS.etlMarketplace}\n` +
-      `- ETL calculator compare: ${PORTAL_LINKS.energyCalculator}\n` +
-      `- Deep dive hub: ${PORTAL_LINKS.deepDive}\n` +
-      `- Model payback: ${PORTAL_LINKS.savingsProjection}\n\n_${tip}_`,
+      `Vincent leads here because verified savings beat generic “eco” claims, grant overlays attach to each \`etl_*\` row, and you can stack BNPL, equipment finance, or green loans after payback math. Banner cards above show examples; open the tiles for browse paths.\n\n_${tip}_`,
     blocks: [
       {
         type: 'link',
@@ -366,21 +350,30 @@ function buildPortalsAnswer(tip) {
 
 async function buildEnergyPricesAnswer(profile, tip) {
   const snapshot = await loadEnergySnapshot();
-  const bullets = formatWholesaleBullets(snapshot, profile, 4).join('\n');
+  const bullets = formatWholesaleBullets(snapshot, profile, 4);
   const modelling = formatModellingTariffLine(snapshot.modellingTariffs);
   const regionLabel = REGION_LABELS[profile.region] || 'your market';
+  const headline = bullets.length
+    ? bullets[0].replace(/^-\s*/, '')
+    : 'Open the ticker for the latest wholesale snapshot.';
+
   return {
     answer:
-      `**Energy prices (${regionLabel})** — wholesale guide from the Greenways ticker (retail tariffs vary by contract):\n\n` +
-      `${bullets || '_Open the ticker for the latest snapshot._'}\n\n` +
+      `**Energy prices (${regionLabel})** — wholesale €/MWh helps you time upgrades and tariff reviews. Your bill also depends on supplier, pass-through clauses, and time-of-use, so retail contracts can move differently from the ticker.\n\n` +
+      `${headline}\n\n` +
       (modelling ? `${modelling}\n\n` : '') +
-      `**Tools:**\n` +
-      `- Live ticker: ${PORTAL_LINKS.energyTicker} (also on the buildings dashboard)\n` +
-      `- Ticker API: \`/api/energy-ticker\` (Render — live ENTSO-E when configured)\n` +
-      `- Site utility view: ${PORTAL_LINKS.utilityDetail}?type=electricity\n` +
-      `- Business tariff compare: ${PORTAL_LINKS.europeanEnergy}\n` +
-      `- Deals Agent: ${PORTAL_LINKS.dealsAgent}\n\n` +
-      `_Wholesale €/MWh is a market signal — your bill also depends on supplier, pass-through clauses, and time-of-use._\n\n_${tip}_`,
+      `When unit costs rise, **ETL-listed equipment** lowers the kWh you still buy — use the tiles on the right for the ticker, site view, and tariff compare.\n\n_${tip}_`,
+    blocks: [
+      {
+        type: 'link',
+        items: [
+          toLinkItem('Energy price ticker', PORTAL_LINKS.energyTicker, 'Wholesale guide — dashboard embed'),
+          toLinkItem('Utility detail — electricity', `${PORTAL_LINKS.utilityDetail}?type=electricity`, 'Site-level usage view'),
+          toLinkItem('European energy deals', PORTAL_LINKS.europeanEnergy, 'Compare business tariffs'),
+          toLinkItem('Deals Agent', PORTAL_LINKS.dealsAgent, 'Tariff lanes and supply deals')
+        ]
+      }
+    ],
     suggestions: []
   };
 }
@@ -388,30 +381,74 @@ async function buildEnergyPricesAnswer(profile, tip) {
 async function buildPriceUpgradeCaseAnswer(schemes, profile, tip) {
   const snapshot = await loadEnergySnapshot();
   const hint = volatilityHint(snapshot, profile);
-  const modelling = formatModellingTariffLine(snapshot.modellingTariffs);
   const related = rankSchemes(
     schemes,
     'equipment grant subsidy restaurant energy efficiency',
     profile,
     5
   );
+
   return {
     answer:
       `**Why finance efficient equipment when energy prices move**\n\n` +
-      `1. **Unit cost × usage** — if €/kWh or gas rates rise, every inefficient oven, fridge, or HVAC hour costs more.\n` +
-      `2. **Lower kWh first** — **ETL-listed** equipment cuts verified demand; grants and green loans reduce upfront capex.\n` +
-      `3. **Stack funding** — pick an \`etl_*\` product → savings projection → BNPL / equipment finance / green loans.\n\n` +
+      `Unit cost × usage drives your bill — when €/kWh or gas rates rise, every inefficient hour on ovens, refrigeration, or HVAC costs more. **ETL-listed products** cut verified demand; grants and green loans can reduce upfront capex.\n\n` +
       `${hint}\n\n` +
-      (modelling ? `${modelling}\n\n` : '') +
       (related.length
-        ? `**Schemes that may help fund the upgrade:**\n${formatSchemeBullets(related, 4)}\n\n`
+        ? `I found **${related.length}** scheme${related.length === 1 ? '' : 's'} that may help fund the upgrade — see the cards on the right.\n\n`
         : '') +
-      `**Next steps:**\n` +
-      `- Check prices: ${PORTAL_LINKS.energyTicker}\n` +
-      `- Model payback: ${PORTAL_LINKS.savingsProjection}\n` +
-      `- **Browse ETL products:** ${PORTAL_LINKS.etlMarketplace}\n` +
-      `- ETL calculator: ${PORTAL_LINKS.energyCalculator}\n` +
-      `- Finance finder: ${PORTAL_LINKS.finance}\n\n_${tip}_`,
+      `Typical stack: pick an \`etl_*\` product → savings projection → BNPL, equipment finance, or green loans.\n\n_${tip}_`,
+    blocks: [
+      {
+        type: 'link',
+        items: [
+          toLinkItem('Energy price ticker', PORTAL_LINKS.energyTicker, 'Check current wholesale signal'),
+          toLinkItem('Savings projection', PORTAL_LINKS.savingsProjection, 'Payback chart'),
+          toLinkItem('ETL product finder', PORTAL_LINKS.etlMarketplace, 'Verified efficient equipment'),
+          toLinkItem('Finance finder', PORTAL_LINKS.finance, 'BNPL, equipment finance, green loans')
+        ]
+      }
+    ],
+    suggestions: related.map(toSuggestion)
+  };
+}
+
+function buildBnplAnswer(schemes, profile, tip) {
+  const related = rankSchemes(financeSchemes(schemes), 'bnpl equipment restaurant', profile, 6);
+  return {
+    answer:
+      `**BNPL for restaurant equipment** — pay-later or split-payment paths can spread capex when a verified upgrade makes sense. Confirm merchant fees, credit checks, and who holds title before you sign.\n\n` +
+      `Pair BNPL with **ETL-listed products** so verified savings and grant overlays support the business case. Open the finance finder **BNPL** tab for provider tiles, or stack with **equipment finance** for larger kitchen refits.\n\n_${tip}_`,
+    blocks: [
+      {
+        type: 'link',
+        items: [
+          toLinkItem('Finance finder', PORTAL_LINKS.finance, 'BNPL, equipment finance, green loans'),
+          toLinkItem('ETL product finder', PORTAL_LINKS.etlMarketplace, 'Verified efficient equipment'),
+          toLinkItem('Savings projection', PORTAL_LINKS.savingsProjection, 'Payback before you commit'),
+          toLinkItem('Grants Agent (Andrieus)', PORTAL_LINKS.grantsAgent, 'Scheme detail on product grants')
+        ]
+      }
+    ],
+    suggestions: related.map(toSuggestion)
+  };
+}
+
+function buildGreenLoansAnswer(schemes, profile, tip) {
+  const related = rankSchemes(financeSchemes(schemes), 'green loan bmkb warmtefonds', profile, 6);
+  return {
+    answer:
+      `**Green loans** — bank products tagged for sustainability (e.g. BMKB-Groen, national warmtefonds routes). They often stack with grants on the same upgrade, so model payback before you borrow.\n\n` +
+      `Start in the finance finder **Green loans** tab with your region set, then confirm eligibility and rates with the lender.\n\n_${tip}_`,
+    blocks: [
+      {
+        type: 'link',
+        items: [
+          toLinkItem('Finance finder', PORTAL_LINKS.finance, 'Green loans and grants tabs'),
+          toLinkItem('Savings projection', PORTAL_LINKS.savingsProjection, 'Payback model'),
+          toLinkItem('Grants Agent (Andrieus)', PORTAL_LINKS.grantsAgent, 'Non-repayable support to stack with loans')
+        ]
+      }
+    ],
     suggestions: related.map(toSuggestion)
   };
 }
@@ -451,12 +488,7 @@ async function answerFromKnowledge(question, profile = {}) {
       );
       break;
     case 'bnpl':
-      result = buildTabAnswer(
-        'bnpl equipment',
-        '**BNPL tab** — split payments for eligible equipment where providers offer pay-later terms. Confirm merchant fees and credit checks.',
-        schemes,
-        tip
-      );
+      result = buildBnplAnswer(schemes, profile, tip);
       break;
     case 'equipment_finance':
       result = buildTabAnswer(
@@ -467,12 +499,7 @@ async function answerFromKnowledge(question, profile = {}) {
       );
       break;
     case 'green_loans':
-      result = buildTabAnswer(
-        'green loan bmkb warmtefonds',
-        '**Green loans tab** — bank products tagged for sustainability (e.g. BMKB-Groen, national warmtefonds routes). Often stack with grants.',
-        schemes,
-        tip
-      );
+      result = buildGreenLoansAnswer(schemes, profile, tip);
       break;
     case 'europe_finance':
       result = buildTabAnswer(
@@ -527,9 +554,7 @@ async function answerFromKnowledge(question, profile = {}) {
     if (!result.productSamples?.length) {
       result.productSamples = await pickFinanceSamples(question, profile, 3);
     }
-    if (intent.id === 'grants_tab' || intent.id === 'funding_news') {
-      result.agentHandoffs = buildAndrieusHandoffs(question, briefing);
-    }
+    attachFinanceHandoffs(result, briefing, question, intent.id);
     applyPersona(result, {
       voice,
       intentId: intent.id,
@@ -550,5 +575,5 @@ module.exports = {
   loadFinanceTools,
   loadBriefing,
   loadReferences,
-  buildAndrieusHandoffs
+  attachFinanceHandoffs
 };
