@@ -440,6 +440,7 @@ List models: `GET https://api.cortecs.ai/v1/models` with same Bearer JWT. OpenRo
 - LLM polish: `services/greenways-agent-llm-fallback.js` — all seven agents inherit the same left-column rules.
 - Turn UI: when `blocks[]` exist, `greenways-agent-turn-ui.js` shows **intro only** on the left (`introFromAnswer` strips bullets after first list).
 - **Cheryce pilot (Jun 2026):** `buildSustainabilityMapAnswer` / `buildMonthlyNewsAnswer` in `media-agent-companies.js` + `media-agent-knowledge.js` — map summary + example link tablets; news roundup caps at 4 story cards on the right.
+- **Cheryce sidebar + Wix (Jun 2026, commit `c517979`):** Quick links must be `<a target="_top">` with **`contentBase()`** → `https://energy-calc-backend.onrender.com/HTMLS%20GWM%20GWB/...` — **not** relative `./` from `/greenways/media-agent` (wrong path) and **not** the purple module shell for news/finder pages. Only **Sustainability map →** uses `data-map-open` (module). **`initSidebarGwbLinks()`** sets hrefs on load. API from Wix: **`apiBase()`** + **`AGENT_FETCH_TIMEOUT_MS = 90000`** with retry on abort/network; status *first question may take up to a minute on Render*.
 
 When adding a new intent handler, return `{ answer, blocks?, productSamples?, suggestions? }` — not a long `answer` string alone.
 
@@ -667,6 +668,9 @@ http://localhost:4000/greenways/finance-agent?embed=1&q=What+are+current+energy+
 
 | Date | Change |
 |------|--------|
+| 2026-06-14 | **Cheryce banner images** — missing photos = no `imageUrl` in `data/companies.json`; FoodMesh fixed; `DEFAULT_COMPANY_CARD_IMAGE` fallback in `media-agent-companies.js`. |
+| 2026-06-13 | **Cheryce `finishAgentTurn` crash (`b8379c4`)** — `intentId` before `sourceLabel`; false “Could not reach” after successful API. |
+| 2026-06-13 | **Cheryce quick links + Render reliability** — sidebar opens full GWB pages (`contentBase`, `target="_top`); map explain/helper Ask: 90s timeout + retries; commit `c517979`. |
 | 2026-05-28 | **Named Transition Agents** — roster skill `greenways-transition-agents.md`; character portraits all seven; absolute turn-ui paths; Wix silent-JS fixes; `footHtml` on Grants turns. |
 | 2026-05-28 | **Admin vs consumer taxonomy** — hover cache, personalized impact, planned hover explainer agent, historical → Finance, Market Manager consumer flags, template-based HTML from chat. |
 | 2026-05-28 | **Greenways Guide (WIP)** — orchestrator backend: `guide-agent-intents.json`, `guide-agent-roster.json`, `guide-agent-knowledge.js`, `routes/guide-agent.js`; HTML + `server-new.js` mount pending. |

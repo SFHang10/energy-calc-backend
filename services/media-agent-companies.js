@@ -9,6 +9,10 @@ const orgsInlinePath = path.join(__dirname, '..', 'data', 'orgs-directory-inline
 const MAP_PAGE_HREF =
   './European%20Company%20-%20Case%20Study%20Finder%20(Standalone)%20-%20Wix%20bundle.html';
 
+/** Wix placeholder when a case study row has no imageUrl (banner cards). */
+const DEFAULT_COMPANY_CARD_IMAGE =
+  'https://static.wixstatic.com/media/c123de_cdf6d4209eeb4dd190dd900b5b5d4263~mv2.jpeg';
+
 const LOCAL_VARIANT_NOTE =
   'If the example is not in your geography, treat it as a **playbook** — the same product category, technique, or sector approach often works with a more local supplier or grant path.';
 
@@ -179,7 +183,7 @@ function companyToMediaSample(c) {
     name: c.name,
     label: String(c.desc || '').slice(0, 72) + (c.desc && c.desc.length > 72 ? '…' : ''),
     subcategory: (c.sector || 'CASE STUDY').toUpperCase(),
-    imageUrl: c.imageUrl || '',
+    imageUrl: c.imageUrl || DEFAULT_COMPANY_CARD_IMAGE,
     topGrants: tags.length ? tags : [c.country || 'Case study'],
     grantsCount: 0,
     marketplaceHref: MAP_PAGE_HREF,

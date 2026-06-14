@@ -12,13 +12,29 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 
 **How to Use:** Simply describe what you need and this orchestrator will route to the correct skill.
 
-### Consumer agents vs admin skills (May 2026)
+### Greenways Transition Agents vs Skills (May 2026)
+
+**Agents** = client-facing chat **people** on Wix (seven built). **Skills** = **capabilities** that power agents or staff ops. Skills often **share** across agents (e.g. deals skill → Zara + Zyanne) or feed all agents from Administrator workflows — document every home, not just one.
+
+| Name | Role | Slug |
+|------|------|------|
+| **Andrieus** | Grants & schemes | `grants-agent` |
+| **Vincent** | Finance, prices & payback | `finance-agent` |
+| **Artemis** | Equipment & renovation | `equipment-agent` |
+| **Zara** | Deals & spotlights | `deals-agent` |
+| **Cheryce** | News & media | `media-agent` |
+| **Zyanne** | Sustainable products | `sustainable-products-agent` |
+| **Edwardo** | Systems health (staff) | `systems-agent` |
+
+**Canonical roster + skill→agent map:** **`greenways-transition-agents.md`**  
+**Roadmap (phases, public/member AI, site knowledge):** **`greenways-agents-roadmap.md`**  
+**UI/API foundation:** **`greenways-chat-interface-skill.md`**
 
 | Use | Route to |
 |-----|----------|
-| Public Wix chat embeds, `/greenways/{agent}` | **`greenways-chat-interface-skill.md`** — Grants, Finance, Equipment, Products, Deals, Media |
-| Staff ops, content, store, diagnostics | Skills below (blog writer, content-ops, Market Manager, Systems MD, member-manager, …) |
-| Product hovers (grants/deals tooltips) | **`hover-data-aggregator.md`** — not a chat agent |
+| Agent by **name** (Andrieus, Zara, …) or `/greenways/{slug}` | **`greenways-transition-agents.md`** → **`greenways-chat-interface-skill.md`** |
+| Staff ops, content, store, full diagnostics | Skills below (blog writer, content-ops, Market Manager, **Systems MD**, member-manager, …) |
+| Product hovers (grants/deals tooltips) | **`hover-data-aggregator.md`** — infrastructure, not an agent |
 | “Why this matters for you” hovers | **`personalized-impact-hover.md`** — admin/member; planned hover explainer agent |
 
 Full taxonomy: **`greenways-chat-interface-skill.md`** § **Admin vs consumer skills**.
@@ -65,7 +81,12 @@ Full taxonomy: **`greenways-chat-interface-skill.md`** § **Admin vs consumer sk
 | 🛒 **Market Manager** | `Greenways Market Manager MD.md` | Wix store, products, images |
 | 🖼️ **Media** | `Media Skill MD.md` | Find/manage product images |
 | 🌍 **Grants Finder** | `grants-schemes-finder.md` | Find energy grants & schemes |
-| 💬 **Greenways Chat Interface** | `greenways-chat-interface-skill.md` | **Foundation** for agent chat UIs — Grants Agent pilot, clone for new agents |
+| 🤖 **Greenways Transition Agents** | `greenways-transition-agents.md` | **Roster** — Andrieus, Vincent, Artemis, Zara, Cheryce, Zyanne, Edwardo; agents vs skills map |
+| 🗺️ **Agents roadmap** | `greenways-agents-roadmap.md` | Phases, public LLM limits, membership tier, site knowledge cards, scale |
+| 🚀 **Agents go-live** | `greenways-agents-go-live.md` | Gradual Wix rollout, per-agent smoke tests, tiers A/B/C |
+| 🔧 **Skills backend automation** | `skills-backend-automation.md` | Optional enhancements (research/parse/email); never replace integrators |
+| 📎 **SkillBoss (reference)** | `../docs/reference/skillboss-evaluation.md` | Vendor evaluation — not implemented |
+| 💬 **Greenways Chat Interface** | `greenways-chat-interface-skill.md` | **Foundation** for agent chat UIs — turn UI, API shape, Wix embeds |
 | 🎬 **Video Finder** | `sustainability-video-finder.md` | Find sustainability videos |
 | 📰 **News Finder** | `sustainability-news-finder.md` | Sustainability news roundups |
 | 🧪 **New in Tech News** | `tech-news-finder.md` | Tech news roundups (green + general) |
@@ -239,28 +260,74 @@ Full taxonomy: **`greenways-chat-interface-skill.md`** § **Admin vs consumer sk
 
 ---
 
-### 💬 Greenways Chat Interface (agent chats)
+### 🤖 Greenways Transition Agents (named roster)
 
 **Activate when user says:**
 ```
-"grants agent"
-"greenways grants agent"
+"Andrieus" "Vincent" "Artemis" "Zara" "Cheryce" "Zyanne" "Edwardo"
+"Greenways agents" "Transition Agents"
+"grants agent" "deals agent" "finance agent"
+"which agent handles"
+"agent roster"
+"agents roadmap"
+"greenways agents roadmap"
+"agent go live"
+"launch Andrieus"
+"agents rollout"
+"agent not working" "could not reach" "agent troubleshoot"
+"Edwardo triage" "document this fix"
+```
+
+**Routes to:** `greenways-transition-agents.md` (roster + skill homes) · `greenways-agents-roadmap.md` (phases/plan) → `greenways-chat-interface-skill.md` (UI/API) · **`SKILL-ORCHESTRATOR.md` § Greenways Agents operations runbook** (triage + fixes)
+
+**Performs:**
+- Seven consumer agents on `/greenways/{slug}` — refer by **character name**, not only slug
+- Distinguish **built agents** from **skills** (capabilities that find a home with an agent or Administrator)
+- Map skills → Andrieus, Vincent, Artemis, Zara, Cheryce, Zyanne, Edwardo
+- **Triage user-reported chat/embed issues** via operations runbook; append learnings after every fix
+
+---
+
+### 🔧 Skills backend automation (optional enhancements)
+
+**Activate when user says:**
+```
+"skills backend"
+"skill automation"
+"enhance skills backend"
+"SkillBoss for skills"
+"automate grants research"
+```
+
+**Routes to:** `skills-backend-automation.md` · `docs/reference/skillboss-evaluation.md`
+
+**Performs:**
+- Reference only — **enhance** existing pipelines, do not replace integrators or knowledge-first agents
+- Pilot order: grants research → news → content-ops parse → secretary email
+- No implementation unless user explicitly requests a pilot script
+
+---
+
+### 💬 Greenways Chat Interface (agent UI & API)
+
+**Activate when user says:**
+```
 "chat interface"
-"agent chat"
-"clone grants agent"
-"new greenways agent"
+"agent chat UI"
+"clone agent"
+"turn UI" "split tablet"
+"Wix agent embed"
 "scheme compare chat"
-"ask the grants agent"
 "greenways-chat-interface"
 ```
 
 **Routes to:** `greenways-chat-interface-skill.md`
 
 **Performs:**
-- Grants Agent UI + API (`greenways-grants-agent.html`, `/api/grants-agent/*`)
-- Document clone checklist for the next agent (equipment, finance, sustainability, etc.)
-- Keep layout zones, interactive features, and API response shape consistent
-- Pair with `grants-schemes-finder.md` for catalogue updates, `energy-dashboard-skill.md` for dashboard embeds
+- Shared turn UI (`greenways-agent-turn-ui.js`), layout zones, API response shape
+- Clone checklist for new agent HTML + routes
+- Wix embed pattern (`WIX-GREENWAYS-AGENTS-EMBED.md`)
+- Pair with `grants-schemes-finder.md` for Andrieus catalogue updates, `energy-dashboard-skill.md` for dashboard embeds
 
 ---
 
@@ -1126,8 +1193,8 @@ If no clear skill match is found:
 
 ---
 
-**Last Updated:** January 2026  
-**Version:** 2.0
+**Last Updated:** 28 May 2026  
+**Version:** 2.1
 
 ---
 
@@ -1295,8 +1362,85 @@ git commit -m "📚 Update SKILL-ORCHESTRATOR: Add new trigger phrases for styli
 
 ---
 
+## 🛟 Greenways Agents — operations runbook (Edwardo + Orchestrator)
+
+**Purpose:** Single memory for **all seven consumer agents** — fixes, triage, deploy checks, and processes. Use this when users report chat/embed issues **even if they do not say “Orchestrator”**; agents should **append learnings here** + **`AGENTS.md`** + **`greenways-chat-interface-skill.md`** changelog after every agent fix.
+
+**Edwardo** (`systems-agent`, staff-facing) should route user problems through this runbook first, then `/api/systems-agent` health checks.
+
+### Agent index
+
+| Name | Slug | Chat URL | API | HTML |
+|------|------|----------|-----|------|
+| Andrieus | `grants-agent` | `/greenways/grants-agent` | `/api/grants-agent/*` | `greenways-grants-agent.html` |
+| Vincent | `finance-agent` | `/greenways/finance-agent` | `/api/finance-agent/*` | `greenways-finance-agent.html` |
+| Artemis | `equipment-agent` | `/greenways/equipment-agent` | `/api/equipment-agent/*` | `greenways-equipment-agent.html` |
+| Zara | `deals-agent` | `/greenways/deals-agent` | `/api/deals-agent/*` | `greenways-deals-agent.html` |
+| **Cheryce** | `media-agent` | `/greenways/media-agent` | `/api/media-agent/*` | `greenways-media-agent.html` |
+| Zyanne | `sustainable-products-agent` | `/greenways/sustainable-products-agent` | `/api/sustainable-products-agent/*` | `greenways-sustainable-products-agent.html` |
+| Edwardo | `systems-agent` | `/greenways/systems-agent` | `/api/systems-agent/*` | `greenways-systems-agent.html` |
+
+**Production base:** `https://energy-calc-backend.onrender.com`  
+**Wix embed:** `Embed a site` → `/greenways/{slug}` (not uploaded HTML). Guide: `HTMLS GWM GWB/WIX-GREENWAYS-AGENTS-EMBED.md`  
+**Smoke prompts per agent:** `Skills/greenways-agents-go-live.md`
+
+### Triage flow (user reports an issue)
+
+1. **Which agent?** Name or page URL.
+2. **Symptom class** — use table below.
+3. **Verify deploy** — `/health` OK; live HTML contains expected markers (grep deployed page).
+4. **Verify API** — `POST /api/{slug}/ask` with JSON body file (PowerShell `curl` often breaks JSON — use `-d @file.json`).
+5. **Hard refresh** Wix page (`Ctrl+F5`) — iframe caches old JS.
+6. **Fix → document** — orchestrator learnings + `AGENTS.md` + chat-interface changelog + go-live smoke row if new symptom.
+
+### Common symptoms → cause → fix
+
+| Symptom | Likely cause | Fix |
+|---------|----------------|-----|
+| **“Could not reach the media agent”** but network OK | (a) Render cold start, (b) **JS crash after successful API** | (a) 90s timeout + retries in HTML; wake with `GET /api/media-agent/samples`. (b) Check `finishAgentTurn` — **`intentId` must be declared before `sourceLabel()`** (`b8379c4`). |
+| Quick links open wrong page / purple module | Sidebar opened GWB pages in module shell | Quick links = `<a target="_top">` + `contentBase()` → `/HTMLS%20GWM%20GWB/...`; only **Sustainability map →** uses module (`c517979`). |
+| Map **Ask** works but **Open map** does not | Module shell / iframe loader | `GreenwaysAgentContentModule`, `data-map-open`, `gw-module-embed-ready` fallback. |
+| Banner card **missing photo** (e.g. FoodMesh) | `data/companies.json` row missing `imageUrl` | Add Wix URL; see `scripts/apply-companies-inline-images.js` name map; fallback in `media-agent-companies.js` `DEFAULT_COMPANY_CARD_IMAGE`. |
+| Old answer style (“News matches for…”) | Stale Render deploy or cached iframe | Source pill should show `knowledgeVersion: 2026-05-28-conversational-blocks`; redeploy + hard refresh. |
+| Wix videos empty locally | Expected — no Wix env | Render needs `WIX_APP_TOKEN` + `WIX_SITE_ID`; local uses fallback samples. |
+| API 404 on Render | Deploy not finished or route missing | Check `server-new.js` mount for `/api/{slug}`; wait 2–3 min after push. |
+
+### Cheryce reference fixes (Jun 2026)
+
+| Commit | What |
+|--------|------|
+| `a8887f8` | Conversational answers + map module UX |
+| `ebc08f7` | 75s→90s timeout, video routing |
+| `c517979` | Quick links full pages, `contentBase()`, helper clicks |
+| `b8379c4` | `finishAgentTurn` `intentId` order — false “Could not reach” |
+
+### After every agent change — document in
+
+1. **`Skills/SKILL-ORCHESTRATOR.md`** § Recent Learnings (this file)
+2. **`AGENTS.md`** learnings log
+3. **`Skills/greenways-chat-interface-skill.md`** changelog + gotchas
+4. **`Skills/greenways-agents-go-live.md`** smoke row if user-facing
+5. Push → Render deploy → verify `/health` + one smoke `POST /ask`
+
+### Trigger phrases (route here automatically)
+
+```
+"agent not working" "Cheryce broken" "could not reach"
+"quick links wrong" "photo missing" "banner image"
+"Wix embed agent" "agent troubleshoot" "Edwardo triage"
+"orchestrator" "document this fix"
+```
+
+**Routes to:** this section · `greenways-chat-interface-skill.md` · `greenways-agents-go-live.md` · `Systems MD.md` (platform health)
+
+---
+
 ## 🧾 Recent Learnings (Append Here)
 
+- **Cheryce banner photos (Jun 2026):** Missing thumbnails = empty `imageUrl` on `data/companies.json` case study (e.g. **FoodMesh** id 134). Wix URLs in `scripts/apply-companies-inline-images.js`; server fallback `DEFAULT_COMPANY_CARD_IMAGE` in `media-agent-companies.js`.
+- **Cheryce false “Could not reach” (`b8379c4`):** API succeeded; `finishAgentTurn` referenced `intentId` before `const` — fix order; improve catch to surface `err.message`.
+- **Cheryce sidebar + API (`c517979`):** Quick links = full GWB pages via `contentBase()` + `target="_top"`; map-only stays in module. Render cold start: 90s client timeout + retries on `/api/media-agent/ask`. Skill detail: **`greenways-chat-interface-skill.md`** § Conversational pattern + changelog.
+- **Greenways Transition Agents (May 2026):** Seven **built** consumer agents — **Andrieus**, **Vincent**, **Artemis**, **Zara**, **Cheryce**, **Zyanne**, **Edwardo**. **Skills** are capabilities with an agent or Administrator home; roster: `greenways-transition-agents.md`. Say agent **names** in requests; say **Orchestrator** for skill routing.
 - **Membership videos (MongoDB)**: Ensure Wix video integration exists in `routes/members-mongodb.js`, not just SQLite.
 - **Preferences compatibility**: API should return `{ id, name }` interests for UI mapping.
 - **Render secrets**: Wix video feed requires `WIX_APP_TOKEN` (or `WIX_APP_ID`/`WIX_APP_SECRET`/`WIX_INSTANCE_ID`) and `WIX_SITE_ID`.

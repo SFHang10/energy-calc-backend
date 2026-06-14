@@ -468,7 +468,10 @@ html, body {
 - **🗺️ Media Agent + sustainability map (May 2026)**:
   - **`services/media-agent-companies.js`** ranks **`data/companies.json`** (500+ orgs) for profile/sector — energy savings examples, payback stats, techniques to benchmark.
   - Intents: `sustainability_map`, `energy_examples`; **monthly news** uses story link tablets (not long bullet lists).
-  - **Conversational answers (Jun 2026):** all agents — **`Skills/greenways-chat-interface-skill.md`** § Conversational answer pattern (Zara-style). Cheryce map: summary left, example cards + **Open map** module right — `buildSustainabilityMapAnswer` in `media-agent-companies.js`.
+  - **Conversational answers (Jun 2026):** all agents — **`Skills/greenways-chat-interface-skill.md`** § Conversational answer pattern (Zara-style). Cheryce map: summary left, example cards + **Open map** module right — `buildSustainabilityMapExplainedAnswer` in `media-agent-companies.js`.
+  - **Cheryce banner photos (Jun 2026):** Case study cards read `imageUrl` from **`data/companies.json`** via `media-agent-companies.js`. Empty field = blank thumbnail (e.g. FoodMesh). Fix: add Wix URL (`scripts/apply-companies-inline-images.js` name map); server uses `DEFAULT_COMPANY_CARD_IMAGE` when missing.
+  - **Cheryce sidebar + Wix (Jun 2026, `c517979`):** Quick links use `contentBase()` + `target="_top"` to full `/HTMLS%20GWM%20GWB/` pages; only map link opens module. Client: 90s timeout + retry on Render cold start for `/api/media-agent/ask`.
+  - **Cheryce false connection error (`b8379c4`):** `finishAgentTurn` used `intentId` before declaration — API OK but UI showed “Could not reach the media agent.”
   - Map page: **`European Company - Case Study Finder (Standalone) - Wix bundle.html`**; showcase IDs in **`data/media-agent-showcase.json`**.
 
 - **🔀 Agent merges (May 2026)** — fewer consumer chats, clearer journeys:
