@@ -144,6 +144,14 @@ async function runLocalSmokes() {
   }
   console.log('OK Artemis deep dive module tablets');
 
+  const mediaMod = require(path.join(ROOT, 'services/media-agent-knowledge'));
+  const mediaPortalHit = await mediaMod.answerFromKnowledge('where is news page', profile);
+  const mediaPortalMod = (mediaPortalHit?.blocks || []).find((b) => b.type === 'module');
+  if (!mediaPortalMod?.items?.some((i) => i.moduleId === 'water-saving-finder' || i.moduleId === 'sustainability-news-page')) {
+    throw new Error('Cheryce portals: expected media portal module items');
+  }
+  console.log('OK Cheryce portals module tablets');
+
   let hits = 0;
   for (const agent of AGENT_SMOOKES) {
     const mod = agent.load();

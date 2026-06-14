@@ -52,6 +52,9 @@
     ["restuarant%20appliance%20comparison", "appliance-comparison"],
     ["restaurant-data", "restaurant-data"],
     ["importance%20of%20energy%20monitoring", "energy-monitoring"],
+    ["january%20sustainable%20news", "sustainability-news-page"],
+    ["sustainable%20references", "sustainable-references"],
+    ["european%20company%20-%20case%20study", "sustainability-map"],
     ["discover%20energy%20savings", "discover-savings"],
     ["europes%20energy%20saving", "europe-savings"],
     ["sustaniability%20quick%20benefits", "sustainability-quick-benefits"],
@@ -147,6 +150,18 @@
       description: "Why fabric improvements come before heavy equipment or HVAC overspend.",
       usageHint: "Read insulation sections for your premises, then model payback in savings projection.",
       href: "./Importance%20of%20Insulation.html",
+      defaultOpenSize: "near-full"
+    },
+    "sustainability-news-page": {
+      id: "sustainability-news-page",
+      title: "Sustainability news",
+      href: "./January%20Sustainable%20News%20Original%20.html",
+      defaultOpenSize: "near-full"
+    },
+    "sustainable-references": {
+      id: "sustainable-references",
+      title: "Sustainable references",
+      href: "./Sustainable%20References%20.HTML",
       defaultOpenSize: "near-full"
     }
   };

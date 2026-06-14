@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs/promises');
-const { loadIntentsFrom, matchIntent, PORTAL_LINKS, toLinkItem } = require('./greenways-agent-shared');
+const { loadIntentsFrom, matchIntent, PORTAL_LINKS, toLinkItem, toModuleItem } = require('./greenways-agent-shared');
+const { mergeModuleRow } = require('./greenways-content-modules');
 const { applyPersona, loadAgentVoice, pickTip } = require('./greenways-agent-persona');
 const {
   loadEnergySnapshot,
@@ -30,7 +31,6 @@ const {
   isMapRelatedQuestion,
   companyToMediaSample
 } = require('./media-agent-companies');
-const { moduleBlockFor } = require('./greenways-content-modules');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'media-agent-intents.json');
 const showcasePath = path.join(__dirname, '..', 'data', 'media-agent-showcase.json');
@@ -51,6 +51,86 @@ const MEDIA_PAGES = {
   sustainabilityMap: MAP_PAGE_HREF,
   energyTicker: PORTAL_LINKS.energyTicker
 };
+
+const MEDIA_MODULE = { theme: 'media', agentName: 'Cheryce' };
+
+const PORTAL_PATH_MODULE_IDS = [
+  ['january%20sustainable%20news', 'sustainability-news-page'],
+  ['sustainable%20references', 'sustainable-references'],
+  ['importance%20of%20energy%20monitoring', 'energy-monitoring'],
+  ['water-saving-finder', 'water-saving-finder'],
+  ['deals-ticker-hub', 'deals-ticker'],
+  ['energy-ticker-green-wire', 'energy-ticker'],
+  ['european%20company%20-%20case%20study', 'sustainability-map'],
+  ['sustainability-news/', 'sustainability-news-edition'],
+  ['content-ops/drafts/sustainability-news', 'sustainability-news-edition']
+];
+
+function isAgentChatPath(path) {
+  return /^\/greenways\//.test(String(path || '').trim());
+}
+
+function portalPathToModuleId(path) {
+  const hay = String(path || '').toLowerCase();
+  if (!hay || isAgentChatPath(path)) return '';
+  for (const [needle, moduleId] of PORTAL_PATH_MODULE_IDS) {
+    if (hay.includes(needle.toLowerCase())) return moduleId;
+  }
+  return '';
+}
+
+function mediaModuleBlock(rows) {
+  return {
+    type: 'module',
+    items: rows.map((row) => toModuleItem({ ...MEDIA_MODULE, ...mergeModuleRow(row) }))
+  };
+}
+
+function linkOrModuleBlocks(items) {
+  const modules = [];
+  const links = [];
+  for (const item of items) {
+    if (/^https?:\/\//i.test(item.url)) {
+      links.push(item);
+      continue;
+    }
+    const moduleId = portalPathToModuleId(item.url);
+    if (moduleId) {
+      modules.push({
+        moduleId,
+        title: item.title,
+        openSize: moduleId === 'energy-prices-ticker' || moduleId === 'energy-ticker' ? 'expanded' : 'near-full'
+      });
+    } else {
+      links.push(item);
+    }
+  }
+  const blocks = [];
+  if (modules.length) blocks.push(mediaModuleBlock(modules));
+  if (links.length) blocks.push({ type: 'link', items: links });
+  return blocks;
+}
+
+function splitReferenceBlocks(picks) {
+  const modules = [];
+  const links = [];
+  for (const ref of picks) {
+    if (ref.url && /^https?:\/\//i.test(ref.url)) {
+      links.push(toLinkItem(ref.title, ref.url, ref.summary || ''));
+      continue;
+    }
+    const moduleId = portalPathToModuleId(ref.href || ref.url);
+    if (moduleId) {
+      modules.push({ moduleId, title: ref.title, openSize: 'near-full' });
+    } else if (ref.href || ref.url) {
+      links.push(toLinkItem(ref.title, ref.href || ref.url, ref.summary || ''));
+    }
+  }
+  const blocks = [];
+  if (modules.length) blocks.push(mediaModuleBlock(modules));
+  if (links.length) blocks.push({ type: 'link', items: links });
+  return blocks;
+}
 
 const VIDEO_CATEGORIES = {
   restaurant: 'Restaurant Energy Savings',
@@ -172,11 +252,12 @@ async function buildEnergyTickerBlock(profile) {
 
 async function attachModules(result, profile, moduleIds = []) {
   if (!result || !moduleIds.length) return result;
+  const rows = moduleIds.map((id) => ({
+    moduleId: id,
+    openSize: id === 'energy-prices-ticker' || id === 'energy-ticker' ? 'expanded' : 'near-full'
+  }));
   const blocks = [...(result.blocks || [])];
-  for (const id of moduleIds) {
-    const block = await moduleBlockFor(id, profile);
-    if (block) blocks.push(block);
-  }
+  blocks.push(mediaModuleBlock(rows));
   if (blocks.length) result.blocks = blocks;
   return result;
 }
@@ -258,7 +339,7 @@ function newsBlocksFromItems(storyItems, catalog, maxStories = 6) {
   const storyLinks = (storyItems || []).slice(0, maxStories).map(newsItemToLinkItem);
   const editionItems = editionToLinkItems(catalog).slice(0, 2);
   const items = [...storyLinks, ...editionItems];
-  return items.length ? [{ type: 'link', items: items.slice(0, 8) }] : [];
+  return items.length ? linkOrModuleBlocks(items.slice(0, 8)) : [];
 }
 
 function isMapExplainQuestion(question) {
@@ -463,16 +544,11 @@ async function buildOverviewAnswer(catalog, videos, tip, briefing) {
       `Not sure where to start? Try "latest sustainability roundup" or "organisations on the map for restaurant savings".\n\n_${tip}_`,
     suggestions: [],
     agentHandoffs: buildHandoffs(b, '', 'overview'),
-    blocks: [
-      {
-        type: 'link',
-        items: [
-          ...editionToLinkItems(catalog).slice(0, 2),
-          toLinkItem('Sustainability map', MAP_PAGE_HREF, 'Case studies + directory — open in module'),
-          toLinkItem('Energy prices ticker', MEDIA_PAGES.energyTicker, 'Wholesale context for timing upgrades')
-        ]
-      }
-    ]
+    blocks: linkOrModuleBlocks([
+      ...editionToLinkItems(catalog).slice(0, 2),
+      toLinkItem('Sustainability map', MAP_PAGE_HREF, 'Case studies + directory — open in module'),
+      toLinkItem('Energy prices ticker', MEDIA_PAGES.energyTicker, 'Wholesale context for timing upgrades')
+    ])
   };
 }
 
@@ -524,7 +600,7 @@ async function buildMonthlyNewsAnswer(catalog, profile, tip, briefing) {
       `Want me to explain a term (CBAM, CSRD, Horizon Europe) or tie a headline to the **sustainability map**?\n\n_${tip}_`,
     suggestions: [],
     agentHandoffs: buildHandoffs(b, '', 'monthly_news'),
-    blocks: linkItems.length ? [{ type: 'link', items: linkItems }] : []
+    blocks: linkItems.length ? linkOrModuleBlocks(linkItems) : []
   };
 }
 
@@ -627,17 +703,19 @@ async function buildPhotosAnswer(tip) {
 function buildPortalsAnswer(catalog, tip) {
   return {
     answer:
-      `**Media & news on Greenways:**\n\n` +
+      `**Media & news on Greenways** — pick a portal on the right to browse editions, references, the map, ticker, or finders.\n\n` +
       `**Monthly editions (content-ops):**\n${editionLinksBlock(catalog)}\n\n` +
-      `- **Sustainability news (site):** ${MEDIA_PAGES.sustainabilityNews}\n` +
-      `- **Sustainable references:** ${MEDIA_PAGES.sustainableReferences}\n` +
-      `- **Energy prices ticker:** ${MEDIA_PAGES.energyTicker}\n` +
-      `- **Energy monitoring guide:** ${MEDIA_PAGES.importanceMonitoring}\n` +
-      `- **Water saving finder:** ${MEDIA_PAGES.waterGuide}\n` +
-      `- **Deals & offers hub:** ${MEDIA_PAGES.dealsHub}\n` +
-      `- **Sustainability map (case studies + directory):** ${MEDIA_PAGES.sustainabilityMap}\n\n` +
       `Videos: Wix Media library (site video sections by topic).\n\n_${tip}_`,
-    suggestions: []
+    suggestions: [],
+    blocks: linkOrModuleBlocks([
+      toLinkItem('Sustainability news', MEDIA_PAGES.sustainabilityNews, 'Site news page'),
+      toLinkItem('Sustainable references', MEDIA_PAGES.sustainableReferences, 'Curated link library'),
+      toLinkItem('Energy prices ticker', MEDIA_PAGES.energyTicker, 'Wholesale context'),
+      toLinkItem('Energy monitoring guide', MEDIA_PAGES.importanceMonitoring, 'Why baseline first'),
+      toLinkItem('Water Saving Finder', MEDIA_PAGES.waterGuide, 'Water lane products'),
+      toLinkItem('Deals ticker hub', MEDIA_PAGES.dealsHub, 'Offers and search'),
+      toLinkItem('Sustainability map', MEDIA_PAGES.sustainabilityMap, 'Case studies + directory')
+    ])
   };
 }
 
@@ -654,15 +732,10 @@ async function buildEnergyPricesAnswer(profile, tip, briefing) {
       `- Deals ticker hub: ${MEDIA_PAGES.dealsHub}\n` +
       `- Finance Agent for payback modelling\n\n_${tip}_`,
     suggestions: [],
-    blocks: [
-      {
-        type: 'link',
-        items: [
-          toLinkItem('Energy prices ticker', MEDIA_PAGES.energyTicker, 'Wholesale context for news timing'),
-          toLinkItem('Deals ticker hub', MEDIA_PAGES.dealsHub, 'Offers when prices shift')
-        ]
-      }
-    ],
+    blocks: linkOrModuleBlocks([
+      toLinkItem('Energy prices ticker', MEDIA_PAGES.energyTicker, 'Wholesale context for news timing'),
+      toLinkItem('Deals ticker hub', MEDIA_PAGES.dealsHub, 'Offers when prices shift')
+    ]),
     agentHandoffs: buildHandoffs(b, '', 'energy_prices')
   };
 }
@@ -701,12 +774,7 @@ async function buildRoleResourcesAnswer(question, profile, tip) {
       `**Must-know themes:**\n${mustKnows.map((m) => `- ${m}`).join('\n')}\n\n` +
       `**How I advise:**\n${core.map((c) => `- ${c}`).join('\n')}\n\n` +
       `**Curated links:**\n${picks.map((r) => `- **${r.title}** — ${r.summary || ''}`).join('\n')}\n\n_${tip}_`,
-    blocks: [
-      {
-        type: 'link',
-        items: picks.slice(0, 6).map((r) => toLinkItem(r.title, r.url || r.href, r.summary || ''))
-      }
-    ],
+    blocks: splitReferenceBlocks(picks.slice(0, 6)),
     suggestions: [],
     agentHandoffs: buildHandoffs(briefing, question, 'role_resources')
   };
