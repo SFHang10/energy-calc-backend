@@ -668,6 +668,7 @@ http://localhost:4000/greenways/finance-agent?embed=1&q=What+are+current+energy+
 
 | Date | Change |
 |------|--------|
+| 2026-06-14 | **Scheme tablet Ask button** — fix vertical “Ask about” text on Vincent/Artemis/etc.: higher-specificity pill styles in `greenways-agent-turn-ui.css` beat per-agent inline `.scheme-chip-ask` 22px circle. |
 | 2026-06-14 | **Cheryce banner images** — missing photos = no `imageUrl` in `data/companies.json`; FoodMesh fixed; `DEFAULT_COMPANY_CARD_IMAGE` fallback in `media-agent-companies.js`. |
 | 2026-06-13 | **Cheryce `finishAgentTurn` crash (`b8379c4`)** — `intentId` before `sourceLabel`; false “Could not reach” after successful API. |
 | 2026-06-13 | **Cheryce quick links + Render reliability** — sidebar opens full GWB pages (`contentBase`, `target="_top`); map explain/helper Ask: 90s timeout + retries; commit `c517979`. |

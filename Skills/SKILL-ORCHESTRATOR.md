@@ -1401,6 +1401,7 @@ git commit -m "📚 Update SKILL-ORCHESTRATOR: Add new trigger phrases for styli
 | Quick links open wrong page / purple module | Sidebar opened GWB pages in module shell | Quick links = `<a target="_top">` + `contentBase()` → `/HTMLS%20GWM%20GWB/...`; only **Sustainability map →** uses module (`c517979`). |
 | Map **Ask** works but **Open map** does not | Module shell / iframe loader | `GreenwaysAgentContentModule`, `data-map-open`, `gw-module-embed-ready` fallback. |
 | Banner card **missing photo** (e.g. FoodMesh) | `data/companies.json` row missing `imageUrl` | Add Wix URL; see `scripts/apply-companies-inline-images.js` name map; fallback in `media-agent-companies.js` `DEFAULT_COMPANY_CARD_IMAGE`. |
+| **“Ask about” vertical letters** on scheme tablets (Vincent, Artemis, …) | Agent inline `.scheme-chip-ask { width:22px }` overrides shared tablet pill button | **`greenways-agent-turn-ui.css`** — `.scheme-tablet .scheme-tablet-ask.scheme-chip-ask { width:auto; … }` must beat inline chip styles (higher specificity). |
 | Old answer style (“News matches for…”) | Stale Render deploy or cached iframe | Source pill should show `knowledgeVersion: 2026-05-28-conversational-blocks`; redeploy + hard refresh. |
 | Wix videos empty locally | Expected — no Wix env | Render needs `WIX_APP_TOKEN` + `WIX_SITE_ID`; local uses fallback samples. |
 | API 404 on Render | Deploy not finished or route missing | Check `server-new.js` mount for `/api/{slug}`; wait 2–3 min after push. |
