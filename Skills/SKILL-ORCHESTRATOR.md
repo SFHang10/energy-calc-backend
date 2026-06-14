@@ -82,7 +82,7 @@ Full taxonomy: **`greenways-chat-interface-skill.md`** § **Admin vs consumer sk
 | 🖼️ **Media** | `Media Skill MD.md` | Find/manage product images |
 | 🌍 **Grants Finder** | `grants-schemes-finder.md` | Find energy grants & schemes |
 | 🤖 **Greenways Transition Agents** | `greenways-transition-agents.md` | **Roster** — Andrieus, Vincent, Artemis, Zara, Cheryce, Zyanne, Edwardo; agents vs skills map |
-| 🗺️ **Agents roadmap** | `greenways-agents-roadmap.md` | Phases, public LLM limits, membership tier, site knowledge cards, scale |
+| 🗺️ **Agents roadmap** | `greenways-agents-roadmap.md` | Phases, **launch mode (Jun 2026)**, public/member AI, site knowledge |
 | 🚀 **Agents go-live** | `greenways-agents-go-live.md` | Gradual Wix rollout, per-agent smoke tests, tiers A/B/C |
 | 🔧 **Skills backend automation** | `skills-backend-automation.md` | Optional enhancements (research/parse/email); never replace integrators |
 | 📎 **SkillBoss (reference)** | `../docs/reference/skillboss-evaluation.md` | Vendor evaluation — not implemented |
@@ -1368,7 +1368,21 @@ git commit -m "📚 Update SKILL-ORCHESTRATOR: Add new trigger phrases for styli
 
 **Edwardo** (`systems-agent`, staff-facing) should route user problems through this runbook first, then `/api/systems-agent` health checks.
 
-### Agent index
+### Launch mode (Jun 2026 — active)
+
+**Goal:** Wow Wix visitors — **LLM polish + fallback on**; **quotas off** until membership / usage review. Full policy: **`greenways-agents-roadmap.md`** § Launch mode.
+
+| Do now | Defer |
+|--------|--------|
+| Enable `ASSISTANT_*` / per-agent LLM env on Render | LLM quota middleware |
+| Track A shared helpers → **Vincent** first (Track B) | Strict public daily LLM caps |
+| Knowledge + `blocks[]` on every hit | Site knowledge cards until Vincent pilot |
+| Log `source` + `intentId` on `/ask` | Member tier verification |
+| go-live smokes after each deploy | UI “enhanced replies left” |
+
+**Implementing agents:** Pick 3–5 intents per agent · one deploy at a time · document here + `AGENTS.md` · accuracy gates apply even when LLM polishes prose.
+
+---
 
 | Name | Slug | Chat URL | API | HTML |
 |------|------|----------|-----|------|
@@ -1430,6 +1444,7 @@ git commit -m "📚 Update SKILL-ORCHESTRATOR: Add new trigger phrases for styli
 "quick links wrong" "photo missing" "banner image"
 "Wix embed agent" "agent troubleshoot" "Edwardo triage"
 "orchestrator" "document this fix"
+"launch mode" "agent rollout" "LLM polish"
 ```
 
 **Routes to:** this section · `greenways-chat-interface-skill.md` · `greenways-agents-go-live.md` · `Systems MD.md` (platform health)
@@ -1438,6 +1453,7 @@ git commit -m "📚 Update SKILL-ORCHESTRATOR: Add new trigger phrases for styli
 
 ## 🧾 Recent Learnings (Append Here)
 
+- **Launch mode (Jun 2026):** Wix launch — LLM polish + fallback encouraged; quotas deferred; Track A/B/C in **`greenways-agents-roadmap.md`** § Launch mode. Facts stay grounded; subscriptions meter LLM later.
 - **Cheryce banner photos (Jun 2026):** Missing thumbnails = empty `imageUrl` on `data/companies.json` case study (e.g. **FoodMesh** id 134). Wix URLs in `scripts/apply-companies-inline-images.js`; server fallback `DEFAULT_COMPANY_CARD_IMAGE` in `media-agent-companies.js`.
 - **Cheryce false “Could not reach” (`b8379c4`):** API succeeded; `finishAgentTurn` referenced `intentId` before `const` — fix order; improve catch to surface `err.message`.
 - **Cheryce sidebar + API (`c517979`):** Quick links = full GWB pages via `contentBase()` + `target="_top"`; map-only stays in module. Render cold start: 90s client timeout + retries on `/api/media-agent/ask`. Skill detail: **`greenways-chat-interface-skill.md`** § Conversational pattern + changelog.

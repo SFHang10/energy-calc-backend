@@ -2,12 +2,13 @@
  * Shared LLM fallback when agent knowledge intents do not match.
  * Knowledge path always runs first in routes; this only handles misses.
  */
-const { maybeCallGreenwaysLlm } = require('./greenways-agent-llm');
+const { maybeCallGreenwaysLlm, resolveLlmConfig } = require('./greenways-agent-llm');
 const {
   loadSchemes,
   rankSchemes,
   toSuggestion,
-  conversationalSystemLines
+  conversationalSystemLines,
+  meaningForProfile
 } = require('./greenways-agent-shared');
 const {
   pickProductSamples: pickGrantsProductSamples,
@@ -404,6 +405,124 @@ const FALLBACK_BUILDERS = {
   systems: buildSystemsFallback
 };
 
+function polishAllowlist() {
+  const raw = String(process.env.GREENWAYS_AGENT_POLISH_AGENTS || 'finance').trim();
+  if (raw === 'all') return null;
+  return new Set(
+    raw
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+  );
+}
+
+function isPolishEnabled(agentKey) {
+  if (process.env.GREENWAYS_AGENT_POLISH === '0') return false;
+  const prefix = AGENT_PROFILES[agentKey]?.prefix;
+  if (prefix && process.env[`${prefix}_POLISH`] === '0') return false;
+  if (process.env.GREENWAYS_AGENT_POLISH === '1') return true;
+  const list = polishAllowlist();
+  if (list && !list.has(agentKey)) return false;
+  return Boolean(resolveLlmConfig(prefix));
+}
+
+function slimKnowledgeForPolish(knowledge) {
+  return {
+    intentId: knowledge.intentId || null,
+    suggestions: (knowledge.suggestions || []).slice(0, 6).map((s) => ({
+      id: s.id,
+      title: s.title,
+      region: s.region
+    })),
+    blockTypes: (knowledge.blocks || []).map((b) => b.type || b.id || 'block').slice(0, 8),
+    productCount: (knowledge.productSamples || []).length,
+    handoffCount: (knowledge.agentHandoffs || []).length
+  };
+}
+
+function buildPolishSystemPrompt(agentKey) {
+  return [
+    buildSystemPrompt(agentKey),
+    'TASK: Rewrite originalAnswer only — warmer, clearer, 2–4 short paragraphs.',
+    'Do NOT add schemes, products, URLs, prices, or dates not in groundedFacts or originalAnswer.',
+    'Do NOT use markdown bullet lists in the reply.',
+    'Keep all factual claims from originalAnswer; you may reorder and explain jargon.',
+    'Return plain markdown prose only — no JSON wrapper.'
+  ].join(' ');
+}
+
+/**
+ * Optional LLM polish on knowledge hits (launch mode Track A). Blocks/suggestions unchanged.
+ */
+async function maybePolishKnowledgeAnswer(agentKey, knowledge, question, profile = {}) {
+  if (!knowledge?.answer || !isPolishEnabled(agentKey)) return knowledge;
+
+  const polished = await maybeCallGreenwaysLlm({
+    prefix: AGENT_PROFILES[agentKey].prefix,
+    systemPrompt: buildPolishSystemPrompt(agentKey),
+    userPayload: {
+      task: 'polish_knowledge_answer',
+      question,
+      profile,
+      originalAnswer: knowledge.answer,
+      meaningLine: knowledge.meaningLine || '',
+      groundedFacts: slimKnowledgeForPolish(knowledge)
+    },
+    maxTokens: 700
+  });
+
+  const text = String(polished || '').trim();
+  if (!text || text.length < 40) return knowledge;
+
+  return {
+    ...knowledge,
+    answer: text,
+    source: knowledge.source === 'knowledge' ? 'knowledge+llm' : knowledge.source
+  };
+}
+
+function enrichWithMeaning(knowledge, profile, context = {}) {
+  if (!knowledge?.answer) return knowledge;
+  if (/what this means|for your (business|site|restaurant|profile)/i.test(knowledge.answer)) {
+    return knowledge;
+  }
+  const meaningLine = meaningForProfile(profile, {
+    intentId: knowledge.intentId,
+    topic: context.topic
+  });
+  if (!meaningLine) return knowledge;
+  return {
+    ...knowledge,
+    meaningLine,
+    answer: `${String(knowledge.answer).trim()}\n\n_${meaningLine}_`
+  };
+}
+
+/**
+ * Standard knowledge-hit response for agent routes (meaning line + optional polish).
+ */
+async function finishKnowledgeAskResponse(agentKey, knowledge, question, profile = {}, context = {}) {
+  if (!knowledge?.answer) return null;
+  const withMeaning =
+    process.env.GREENWAYS_AGENT_MEANING === '0'
+      ? knowledge
+      : enrichWithMeaning(knowledge, profile, context);
+  const final = await maybePolishKnowledgeAnswer(agentKey, withMeaning, question, profile);
+  return {
+    ok: true,
+    answer: final.answer,
+    suggestions: final.suggestions || [],
+    blocks: final.blocks || [],
+    productSamples: final.productSamples || [],
+    agentHandoffs: final.agentHandoffs || [],
+    editionChips: final.editionChips || [],
+    spokenSummary: final.spokenSummary || '',
+    source: final.source || 'knowledge',
+    intentId: final.intentId || null,
+    meaningLine: final.meaningLine || ''
+  };
+}
+
 async function buildAgentAskFallback(agentKey, question, profile = {}) {
   const builder = FALLBACK_BUILDERS[agentKey];
   if (!builder) {
@@ -425,5 +544,9 @@ module.exports = {
   AGENT_PROFILES,
   buildAgentAskFallback,
   normalizeAskProfile,
-  buildGrantsFallback
+  buildGrantsFallback,
+  maybePolishKnowledgeAnswer,
+  finishKnowledgeAskResponse,
+  enrichWithMeaning,
+  isPolishEnabled
 };

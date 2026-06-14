@@ -9,7 +9,7 @@ const {
 const { loadEnergySnapshot, formatWholesaleBullets, formatModellingTariffLine } = require('../services/finance-agent-energy');
 const { loadFullNewsCatalog } = require('../services/media-news-loader');
 const { rankFinanceNews } = require('../services/finance-agent-news');
-const { buildAgentAskFallback, normalizeAskProfile } = require('../services/greenways-agent-llm-fallback');
+const { buildAgentAskFallback, normalizeAskProfile, finishKnowledgeAskResponse } = require('../services/greenways-agent-llm-fallback');
 
 const router = express.Router();
 
@@ -115,19 +115,9 @@ router.post('/ask', async (req, res) => {
     }
 
     const knowledge = await answerFromKnowledge(question, profile);
-    if (knowledge?.answer) {
-      return res.json({
-        ok: true,
-        answer: knowledge.answer,
-        suggestions: knowledge.suggestions || [],
-        blocks: knowledge.blocks || [],
-        productSamples: knowledge.productSamples || [],
-        agentHandoffs: knowledge.agentHandoffs || [],
-        editionChips: knowledge.editionChips || [],
-        spokenSummary: knowledge.spokenSummary || '',
-        source: knowledge.source || 'knowledge',
-        intentId: knowledge.intentId || null
-      });
+    const response = await finishKnowledgeAskResponse('finance', knowledge, question, profile);
+    if (response) {
+      return res.json(response);
     }
 
     res.json(await buildAgentAskFallback('finance', question, profile));

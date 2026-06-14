@@ -403,6 +403,144 @@ async function getDefaultProductSamples(showcasePath, limit = 3, options = {}) {
   return pickProductSamples(showcasePath, '', {}, limit, options);
 }
 
+/**
+ * One-line "what this means for you" from profile + intent context (launch mode Track A).
+ * @param {object} profile — region, sector, focus
+ * @param {object} [context] — topic, intentId, subject
+ */
+function meaningForProfile(profile = {}, context = {}) {
+  const region = profileRegion(profile);
+  const sector = String(profile.sector || '').trim().toLowerCase();
+  const focus = String(profile.focus || '').trim().toLowerCase();
+  const topic = String(context.topic || context.intentId || '').replace(/_/g, ' ').trim();
+
+  const where =
+    region && REGION_LABELS[region]
+      ? `In **${REGION_LABELS[region]}**`
+      : 'For your profile';
+
+  let audience = '';
+  if (sector === 'restaurant') {
+    audience = 'a **restaurant**';
+  } else if (sector && sector !== 'any') {
+    audience = `a **${sector}** site`;
+  }
+
+  const focusHint =
+    focus === 'equipment'
+      ? 'equipment upgrades and lifecycle cost'
+      : focus === 'energy'
+        ? 'energy use and tariffs'
+        : focus === 'water'
+          ? 'water and utility bills'
+          : 'running costs and upgrade timing';
+
+  const topicHint = topic
+    ? `this **${topic}** topic`
+    : 'these options';
+
+  if (audience) {
+    return `${where}, ${topicHint} usually affects **${focusHint}** for ${audience} — not just headline savings.`;
+  }
+  return `${where}, ${topicHint} is about **${focusHint}** and what you can act on next.`;
+}
+
+/**
+ * Shared handoff chip builder — replaces duplicated buildHandoffs() per agent over time.
+ * @param {object} briefing — agent briefing with handoffs map
+ * @param {object} opts
+ * @param {string} [opts.question]
+ * @param {string} [opts.intentId]
+ * @param {Array<{ intents?: string[], keys: string[], prompts?: Record<string,string> }>} [opts.rules]
+ * @param {string[]} [opts.fallbackKeys]
+ * @param {number} [opts.limit=3]
+ */
+function buildAgentHandoff(briefing, opts = {}) {
+  const h = briefing?.handoffs || {};
+  const q = String(opts.question || '').trim();
+  const intentId = String(opts.intentId || '').trim();
+  const rules = Array.isArray(opts.rules) ? opts.rules : [];
+  const fallbackKeys = Array.isArray(opts.fallbackKeys) ? opts.fallbackKeys : [];
+  const limit = Math.min(4, Math.max(1, Number(opts.limit) || 3));
+  const keys = [];
+
+  for (const rule of rules) {
+    const intents = rule.intents || [];
+    if (intents.length && !intents.includes(intentId)) continue;
+    for (const key of rule.keys || []) {
+      if (!keys.includes(key)) keys.push(key);
+    }
+  }
+  if (!keys.length) {
+    for (const key of fallbackKeys) {
+      if (!keys.includes(key)) keys.push(key);
+    }
+  }
+
+  const out = [];
+  const seen = new Set();
+  for (const key of keys) {
+    const row = h[key];
+    if (!row) continue;
+    const id = row.agentId || key;
+    if (seen.has(id)) continue;
+    seen.add(id);
+    let defaultPrompt = `Ask ${row.agentName || id} about this topic for my profile`;
+    for (const rule of rules) {
+      if (rule.prompts?.[key]) {
+        defaultPrompt = rule.prompts[key];
+        break;
+      }
+    }
+    out.push({
+      id,
+      name: row.agentName || id,
+      href: row.agentPath || '',
+      prompt: q || defaultPrompt
+    });
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
+/** Preset handoff rules — pass to buildAgentHandoff when migrating an agent. */
+const MEDIA_HANDOFF_RULES = [
+  {
+    intents: ['funding_news', 'policy_news', 'country_news', 'monthly_news', 'how_this_helps'],
+    keys: ['grantsToAndrieus'],
+    prompts: { grantsToAndrieus: 'What grants apply from this sustainability news in my region?' }
+  },
+  {
+    intents: ['energy_prices', 'monthly_news', 'energy_examples', 'overview'],
+    keys: ['financeToVincent', 'dealsToZara'],
+    prompts: {
+      financeToVincent: 'How do current energy prices affect my upgrade payback?',
+      dealsToZara: 'What energy or sustainability deals are live this week?'
+    }
+  },
+  {
+    intents: ['sustainability_map', 'sustainability_map_explained', 'energy_examples', 'restaurant_videos'],
+    keys: ['equipmentToArtemis', 'productsToZyanne'],
+    prompts: {
+      equipmentToArtemis: 'What ETL equipment matches this map case study?',
+      productsToZyanne: 'Find efficient products like those in the map examples'
+    }
+  }
+];
+
+const FINANCE_HANDOFF_RULES = [
+  {
+    intents: ['grants_link', 'scheme_finance', 'grant'],
+    keys: ['grantsToAndrieus'],
+    prompts: { grantsToAndrieus: 'Which grants and subsidies fit my upgrade and region?' }
+  },
+  {
+    intents: ['energy_prices', 'price_upgrade_case', 'compare_tariffs', 'payback', 'savings_projection'],
+    keys: ['mediaToCheryce'],
+    prompts: { mediaToCheryce: 'What sustainability news affects energy prices and finance timing?' }
+  }
+];
+
 module.exports = {
   REGION_LABELS,
   PORTAL_LINKS,
@@ -427,5 +565,9 @@ module.exports = {
   deepDiveHref,
   toProductSample,
   pickProductSamples,
-  getDefaultProductSamples
+  getDefaultProductSamples,
+  meaningForProfile,
+  buildAgentHandoff,
+  MEDIA_HANDOFF_RULES,
+  FINANCE_HANDOFF_RULES
 };
