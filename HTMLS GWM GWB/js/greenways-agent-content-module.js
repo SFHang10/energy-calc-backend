@@ -51,7 +51,9 @@
     ["importance%20of%20insulation", "insulation-guide"],
     ["renovation%20project%20plans", "renovation-plans"],
     ["restuarant%20appliance%20comparison", "appliance-comparison"],
-    ["restaurant-data", "restaurant-data"],
+    ["sensor-dashboard", "sensor-dashboard"],
+    ["greenways%20interface", "greenways-dashboard"],
+    ["utility-detail", "utility-detail"],
     ["importance%20of%20energy%20monitoring", "energy-monitoring"],
     ["january%20sustainable%20news", "sustainability-news-page"],
     ["sustainable%20references", "sustainable-references"],
@@ -151,6 +153,22 @@
       description: "Why fabric improvements come before heavy equipment or HVAC overspend.",
       usageHint: "Read insulation sections for your premises, then model payback in savings projection.",
       href: "./Importance%20of%20Insulation.html",
+      defaultOpenSize: "near-full"
+    },
+    "sensor-dashboard": {
+      id: "sensor-dashboard",
+      title: "Sensor intelligence dashboard",
+      description: "Demo power, gas, water, and equipment signals for a multi-site restaurant portfolio.",
+      usageHint: "Scan live-style lanes per site, then open utility detail or the buildings dashboard for KPI context.",
+      href: "./sensor-dashboard.html",
+      defaultOpenSize: "near-full"
+    },
+    "greenways-dashboard": {
+      id: "greenways-dashboard",
+      title: "Greenways buildings dashboard",
+      description: "Portfolio electricity, gas, and water KPIs with site overview and drill-down entry points.",
+      usageHint: "Review KPI tiles and trends, open utility detail per type, then pair with sensor dashboard or equipment deep dive.",
+      href: "./Greenways%20Interface%20.html",
       defaultOpenSize: "near-full"
     },
     "sustainability-news-page": {

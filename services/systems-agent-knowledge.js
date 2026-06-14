@@ -50,14 +50,81 @@ function buildHealthOverviewAnswer(report, tip) {
   };
 }
 
-function buildSingleCheckAnswer(result, tip) {
-  const icons = { ok: '✅', warn: '⚠️', stale: '🔄', error: '❌' };
-  const action = result.action ? `\n\n**Ops action:** \`${result.action}\`` : '';
+function formatCheckTimestamp(iso) {
+  if (!iso) return 'unknown date';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return String(iso).slice(0, 10);
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function formatCheckSummary(result) {
+  if (result.id === 'deals' && result.dealCount != null) {
+    const when = formatCheckTimestamp(result.generatedAt);
+    let line = `**${result.dealCount}** deals in the feed · last built **${when}**`;
+    if (result.ageDays != null && result.status !== 'ok') {
+      line += ` (${Math.round(result.ageDays)} days ago)`;
+    }
+    return line;
+  }
+  return result.summary;
+}
+
+function checkStatusPhrase(status) {
+  const map = {
+    ok: 'looks up to date',
+    warn: 'may need a refresh soon',
+    stale: 'is stale — refresh recommended',
+    error: 'needs attention'
+  };
+  return map[status] || String(status || 'unknown');
+}
+
+function buildDealsFeedCheckAnswer(result) {
+  const when = formatCheckTimestamp(result.generatedAt);
+  const ageNote =
+    result.ageDays != null && result.status !== 'ok'
+      ? ` — about **${Math.round(result.ageDays)} days** ago`
+      : '';
+  const statusExplain = {
+    ok: 'The deals export looks current. Zara’s hub and tickers should show these spotlights.',
+    warn: 'The deals export is ageing. Spotlights may not reflect the latest offers.',
+    stale: 'The deals export is out of date. Deal spotlights in the hub may not be current.',
+    error: 'The deals export could not be read. Deal spotlights may be unavailable.'
+  };
+  const { linkOrModuleBlocks } = require('./systems-agent-module-blocks');
   return {
     answer:
-      `${icons[result.status] || '•'} **${result.label}**\n\n` +
-      `${result.summary}${action}\n\n` +
-      `_Checked ${result.checkedAt}_\n\n_${tip}_`,
+      `**Deals feed** (read-only check)\n\n` +
+      `This is the **weekly deal spotlights** file Zara uses in the **Deals hub** and ticker — not live tariff switching.\n\n` +
+      `**${statusExplain[result.status] || 'Status unknown.'}**\n\n` +
+      `**${result.dealCount ?? 0}** deals · last updated **${when}**${ageNote}\n\n` +
+      `Edwardo only **reads** this file on disk. He does not refresh or rebuild the feed.\n\n` +
+      `_To browse deals, open **Zara (Deals Agent)** or the Deals hub._`,
+    suggestions: [],
+    blocks: linkOrModuleBlocks([
+      { title: 'Deals ticker hub', url: './deals-ticker-hub.html', description: 'Search and marquee lanes' },
+      { title: 'Full Deals page', url: './Deals.html', description: 'Ticker + sidebar portals' }
+    ]),
+    agentHandoffs: [
+      {
+        id: 'dealsToZara',
+        name: 'Zara (Deals)',
+        href: '/greenways/deals-agent',
+        prompt: 'What deal spotlights are in the weekly feed?'
+      }
+    ],
+    checkReport: { results: [result], overall: result.status }
+  };
+}
+
+function buildSingleCheckAnswer(result, tip) {
+  const detail = formatCheckSummary(result);
+  const tail = tip ? `\n\n_${tip}_` : '\n\n_Read-only check — no scripts were run from this chat._';
+  return {
+    answer:
+      `**${result.label}** ${checkStatusPhrase(result.status)}.\n\n` +
+      `${detail}\n\n` +
+      `Edwardo only **reads** files on disk — he does not run builds or change exports.${tail}`,
     suggestions: [],
     checkReport: { results: [result], overall: result.status }
   };
@@ -149,12 +216,15 @@ async function answerFromKnowledge(question, profile = {}) {
       case 'health_overview':
         result = buildHealthOverviewAnswer(report, tip);
         break;
-      case 'check':
-        result = buildSingleCheckAnswer(
-          report.results.find((r) => r.id === intent.check) || report.results[0],
-          tip
-        );
+      case 'check': {
+        const checkResult =
+          report.results.find((r) => r.id === intent.check) || report.results[0];
+        result =
+          intent.check === 'deals'
+            ? buildDealsFeedCheckAnswer(checkResult)
+            : buildSingleCheckAnswer(checkResult, tip);
         break;
+      }
       case 'sync_help':
         result = buildSyncHelpAnswer(tip);
         break;
@@ -192,12 +262,19 @@ async function answerFromKnowledge(question, profile = {}) {
     }
 
     applyPersona(result, {
-      voice,
+      voice: isOps
+        ? {
+            ...voice,
+            skipOpenerIntents: [
+              ...new Set([...(voice.skipOpenerIntents || []), result.intentId, 'consumer_overview'])
+            ]
+          }
+        : voice,
       intentId: result.intentId,
       question,
       profile,
       staticTips: intents.staticTips,
-      tip: pickTip(intents.staticTips, result.intentId, { skipIntentIds: voice.skipTipIntents })
+      tip: isOps ? '' : pickTip(intents.staticTips, result.intentId, { skipIntentIds: voice.skipTipIntents })
     });
   }
 

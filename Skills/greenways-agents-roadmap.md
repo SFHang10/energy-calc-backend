@@ -260,6 +260,7 @@ User (Wix public or Member)
 | Date | Change |
 |------|--------|
 | 2026-06-14 | **Track B — Zyanne** — module tablets (`theme: products`); finder/deep-dive/eco planner intents → `module` blocks; sidebar `moduleOpen`; intercept + in-panel quick links |
+| 2026-06-14 | **Track B — Edwardo** — module tablets (`theme: systems`); monitoring/dashboard intents → `module` blocks; sidebar `moduleOpen` on guides + dashboards; **Ops verify** sidebar block unchanged; TurnUi split for chat tablets |
 | 2026-06-14 | **Track B — Zara** — module tablets (`theme: deals`); registry id **`deals-full-page`**; portal intents → `module` blocks; sidebar `moduleOpen` for Deals page, energy portal, ticker, water finder |
 | 2026-06-14 | **Track B — Cheryce** — module tablets (`theme: media`); sidebar `moduleOpen` for news, references, monitoring, water, deals, ticker; map stays `mapOpen`; portal intents → `module` blocks |
 | 2026-06-14 | **Track B — Artemis** — module tablets (`theme: equipment`); registry rows for renovations, insulation, renovation plans, appliance comparison; deep dive / portal intents → `module` blocks |

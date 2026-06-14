@@ -503,8 +503,9 @@ function enrichWithMeaning(knowledge, profile, context = {}) {
  */
 async function finishKnowledgeAskResponse(agentKey, knowledge, question, profile = {}, context = {}) {
   if (!knowledge?.answer) return null;
+  const skipMeaning = Boolean(knowledge.checkReport) || /_status$/.test(knowledge.intentId || '');
   const withMeaning =
-    process.env.GREENWAYS_AGENT_MEANING === '0'
+    skipMeaning || process.env.GREENWAYS_AGENT_MEANING === '0'
       ? knowledge
       : enrichWithMeaning(knowledge, profile, context);
   const final = await maybePolishKnowledgeAnswer(agentKey, withMeaning, question, profile);

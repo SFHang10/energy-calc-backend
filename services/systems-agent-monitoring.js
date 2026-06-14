@@ -4,7 +4,8 @@
 
 const path = require('path');
 const fs = require('fs/promises');
-const { PORTAL_LINKS, toLinkItem, pickProductSamples } = require('./greenways-agent-shared');
+const { PORTAL_LINKS, pickProductSamples } = require('./greenways-agent-shared');
+const { toolsToModuleBlocks } = require('./systems-agent-module-blocks');
 
 const guidePath = path.join(__dirname, '..', 'data', 'systems-agent-monitoring-guide.json');
 const briefingPath = path.join(__dirname, '..', 'data', 'systems-agent-briefing.json');
@@ -70,7 +71,7 @@ function rankByQuestion(items, question, textKeys = ['title', 'summary', 'tags']
 }
 
 function toolsToBlocks(tools, max = 5) {
-  return [{ type: 'link', items: tools.slice(0, max).map((t) => toLinkItem(t.title, t.href, t.summary)) }];
+  return toolsToModuleBlocks(tools, max);
 }
 
 function buildHandoffs(briefing, question) {

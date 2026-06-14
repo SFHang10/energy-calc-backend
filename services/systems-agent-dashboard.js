@@ -4,7 +4,8 @@
 
 const path = require('path');
 const fs = require('fs/promises');
-const { PORTAL_LINKS, toLinkItem } = require('./greenways-agent-shared');
+const { PORTAL_LINKS } = require('./greenways-agent-shared');
+const { linkOrModuleBlocks, guidesToModuleBlocks, systemsModuleBlock } = require('./systems-agent-module-blocks');
 
 const mathPath = path.join(__dirname, '..', 'data', 'systems-agent-dashboard-math.json');
 const referencesPath = path.join(__dirname, '..', 'data', 'systems-agent-references.json');
@@ -57,17 +58,12 @@ async function buildGreenwaysDashboardAnswer(profile, tip) {
       `- **Equipment deep dive** — ${PORTAL_LINKS.deepDive} (product-level systems math)\n\n` +
       `**Tariff model behind the numbers:** ${math.tariffs?.summary || '€0.30/kWh elec · gas & water per site-energy-model.js'}\n\n` +
       `_Ask me how the dashboard calculates cost, baseline deltas, or why timing equipment use matters._\n\n_${tip}_`,
-    blocks: [
-      {
-        type: 'link',
-        items: [
-          toLinkItem('Buildings dashboard', dash.href || PORTAL_LINKS.greenwaysDashboard, 'Portfolio KPIs'),
-          toLinkItem('Utility detail', `${PORTAL_LINKS.utilityDetail}?type=electricity`, 'One utility at a time'),
-          toLinkItem('Sensor dashboard', sensor.href || PORTAL_LINKS.sensorDashboard, 'IoT-style signals'),
-          toLinkItem('Equipment deep dive', PORTAL_LINKS.deepDive, 'ETL vs current asset')
-        ]
-      }
-    ],
+    blocks: linkOrModuleBlocks([
+      { title: 'Buildings dashboard', url: dash.href || PORTAL_LINKS.greenwaysDashboard, description: 'Portfolio KPIs' },
+      { title: 'Utility detail', url: `${PORTAL_LINKS.utilityDetail}?type=electricity`, description: 'One utility at a time' },
+      { title: 'Sensor dashboard', url: sensor.href || PORTAL_LINKS.sensorDashboard, description: 'IoT-style signals' },
+      { title: 'Equipment deep dive', url: PORTAL_LINKS.deepDive, description: 'ETL vs current asset' }
+    ]),
     suggestions: []
   };
 }
@@ -116,16 +112,11 @@ async function buildEtlSystemsSavingsAnswer(question, tip) {
       `- **Deep dive:** ${PORTAL_LINKS.deepDive} — compare your line vs \`etl_*\` alternatives with daily € model\n` +
       `- **Savings projection:** ${PORTAL_LINKS.savingsProjection}\n\n` +
       `_Example framing: “Site X saved Y kWh/mo — at €0.30/kWh that is €Z/mo off your bill.” Ask for a specific appliance._\n\n_${tip}_`,
-    blocks: [
-      {
-        type: 'link',
-        items: [
-          toLinkItem('ETL technology list', './energy_technology_list_etl.html', 'Certified equipment savings ranges'),
-          toLinkItem('Equipment deep dive', PORTAL_LINKS.deepDive, 'Per-line systems comparison'),
-          toLinkItem('Low energy guide', PORTAL_LINKS.lowEnergyGuide, 'Real-site examples')
-        ]
-      }
-    ],
+    blocks: linkOrModuleBlocks([
+      { title: 'ETL technology list', url: './energy_technology_list_etl.html', description: 'Certified equipment savings ranges' },
+      { title: 'Equipment deep dive', url: PORTAL_LINKS.deepDive, description: 'Per-line systems comparison' },
+      { title: 'Low energy guide', url: PORTAL_LINKS.lowEnergyGuide, description: 'Real-site examples' }
+    ]),
     suggestions: []
   };
 }
@@ -144,6 +135,7 @@ async function buildDeepDiveSystemsAnswer(profile, tip) {
       `- **Why ETL:** verified efficiency → lower baseline in charts → faster payback in projection\n\n` +
       `**Open:** ${dd.href || PORTAL_LINKS.deepDive}${dd.exampleQuery ? dd.exampleQuery.replace('?', '?') : ''}\n\n` +
       `From the **Greenways dashboard** equipment tab you can jump into deep dive for a selected appliance — return path keeps site context.\n\n_${tip}_`,
+    blocks: [systemsModuleBlock([{ moduleId: 'equipment-deep-dive', openSize: 'near-full' }])],
     suggestions: []
   };
 }
@@ -167,7 +159,7 @@ async function buildRoleResourcesAnswer(question, tip) {
       `**Must-know themes:**\n${(briefing.mustKnows || []).slice(0, 6).map((m) => `- ${m}`).join('\n')}\n\n` +
       `**Core lens:**\n${(briefing.coreUnderstandings || []).slice(0, 4).map((c) => `- ${c}`).join('\n')}\n\n` +
       `**Greenways guides:**\n${picks.map((g) => `- **${g.title}** — ${g.summary}\n  → ${g.href}`).join('\n')}\n\n_${tip}_`,
-    blocks: [{ type: 'link', items: picks.map((g) => toLinkItem(g.title, g.href, g.summary)) }],
+    blocks: guidesToModuleBlocks(picks),
     suggestions: []
   };
 }

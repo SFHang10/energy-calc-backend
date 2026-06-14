@@ -8,6 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.js"></script>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-team.css">
@@ -161,9 +163,76 @@
     border-color: rgba(251, 191, 36, 0.45);
   }
   .msg-row { display: flex; flex-direction: column; max-width: 92%; }
-  .msg-row.user { align-self: flex-end; align-items: flex-end; }
   .msg-row.agent { align-self: flex-start; }
+  .msg-row.agent.has-split { max-width: min(820px, 98%); width: 100%; }
   .msg-bubble { max-width: min(92%, 560px); padding: 10px 14px; border-radius: var(--radius); font-size: 0.8rem; line-height: 1.5; }
+  .msg-row.agent .msg-bubble.has-split-layout { max-width: 100%; padding: 14px 16px 12px; }
+
+  .agent-turn-right .module-tablet,
+  .agent-turn-right .link-tablet {
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: linear-gradient(
+      155deg,
+      rgba(24, 20, 12, 0.78) 0%,
+      rgba(32, 26, 14, 0.72) 52%,
+      rgba(18, 14, 8, 0.82) 100%
+    );
+    border: 1px solid rgba(245, 158, 11, 0.32);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(14px) saturate(1.2);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  }
+
+  .agent-turn-right .module-tablet-title,
+  .agent-turn-right .link-tablet-title {
+    font-size: 0.82rem;
+    color: #fde68a;
+    margin-bottom: 6px;
+  }
+
+  .agent-turn-right .module-tablet-desc,
+  .agent-turn-right .link-tablet-desc {
+    font-size: 0.72rem;
+    color: #d6d3d1;
+    margin-bottom: 8px;
+  }
+
+  .agent-turn-right .module-tablet-usage {
+    font-size: 0.7rem;
+    color: #fbbf24;
+    font-style: normal;
+    margin-bottom: 10px;
+  }
+
+  .agent-turn-right .module-tablet-open--primary,
+  .agent-turn-right .link-tablet-open {
+    border-color: rgba(251, 191, 36, 0.45);
+    background: rgba(217, 119, 6, 0.28);
+    color: #fef3c7;
+  }
+
+  .agent-turn-right .module-tablet-open--primary:hover,
+  .agent-turn-right .link-tablet-open:hover {
+    background: rgba(245, 158, 11, 0.42);
+    border-color: rgba(253, 224, 71, 0.65);
+    color: #fffbeb;
+  }
+
+  .typing-dots { display: inline-flex; gap: 4px; align-items: center; min-height: 1.2em; }
+  .typing-dots span {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,0.55);
+    animation: dot-pulse 1.2s ease-in-out infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes dot-pulse {
+    0%, 80%, 100% { opacity: 0.35; transform: scale(0.85); }
+    40% { opacity: 1; transform: scale(1); }
+  }
+
+  .msg-row.user { align-self: flex-end; align-items: flex-end; }
   .msg-row.user .msg-bubble { background: var(--bubble-out); border: 1px solid var(--border); }
   .msg-row.agent .msg-bubble { background: linear-gradient(135deg, rgba(100, 116, 139, 0.35), rgba(71, 85, 105, 0.2)); border: 1px solid rgba(148, 163, 184, 0.3); position: relative; padding-right: 20px; }
   .msg-avatar { position: absolute; top: -6px; right: -8px; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--bg); background: linear-gradient(135deg, #475569, var(--accent-lt)); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; }
@@ -307,10 +376,19 @@
     role: "Systems & equipment Agent",
     imageUrl: "https://static.wixstatic.com/media/c123de_eeb61cbf84bd402eb642e28b2b457c76~mv2.png"
   };
+  const AGENT_TURN_AVATAR = AGENT_PROFILE;
 
   let thinking = false;
   let lastQuestion = "";
   let gwVoiceHandle = null;
+  let msgId = 0;
+
+  function buildAgentTurnParts(rawAnswer, suggestions, blocks, meta) {
+    return TurnUi.buildParts(rawAnswer, suggestions, blocks, meta, {
+      escapeHtml: escapeHtml,
+      formatAnswer: formatAnswer
+    });
+  }
 
   function agentAvatarHtml() {
     if (TurnUi && TurnUi.avatarMarkup) return TurnUi.avatarMarkup(AGENT_PROFILE);
@@ -422,7 +500,10 @@
     }
     statusCards.innerHTML = samples.map(function (s) {
       const st = (s.status || (s.topGrants && s.topGrants[0]) || "unknown").toLowerCase();
-      const prompt = "Explain status for " + (s.name || s.id);
+      const prompt =
+        s.id === "deals"
+          ? "deals feed status"
+          : "What is the status of " + (s.name || s.id) + "?";
       return (
         '<div class="status-card" data-prompt="' + escapeHtml(prompt) + '">' +
         '<div class="status-card-name">' + escapeHtml(s.name || s.id) + "</div>" +
@@ -520,22 +601,56 @@
     thread.scrollTop = thread.scrollHeight;
   }
 
-  function appendAgentMessage(answer, extras) {
-    extras = extras || {};
+  function appendThinking() {
     hideWelcome();
+    const id = "msg-" + (++msgId);
     const row = document.createElement("div");
-    row.className = "msg-row agent";
+    row.className = "msg-row agent is-thinking";
+    row.id = id;
     row.innerHTML =
-      '<div class="msg-bubble">' + agentAvatarHtml() + formatAnswer(answer) +
-      agentHandoffChipsHtml(extras.agentHandoffs) +
-      '<span class="source-pill">systems &amp; monitoring</span></div>';
+      '<div class="msg-bubble">' + agentAvatarHtml() +
+      '<span class="typing-dots" aria-label="Thinking"><span></span><span></span><span></span></span></div>';
     thread.appendChild(row);
     thread.scrollTop = thread.scrollHeight;
-    if (gwVoiceHandle && gwVoiceHandle.maybeAutoSpeak && extras.spokenSummary) {
-      gwVoiceHandle.maybeAutoSpeak(extras.spokenSummary);
-    } else if (window.GreenwaysAgentVoice && extras.spokenSummary) {
-      GreenwaysAgentVoice.setLastSpokenSummary(extras.spokenSummary);
-    }
+    return id;
+  }
+
+  function finishAgentTurn(el, payload) {
+    payload = payload || {};
+    const parts = buildAgentTurnParts(
+      payload.answer || "No answer.",
+      payload.suggestions || [],
+      payload.blocks || [],
+      {
+        footHtml:
+          agentHandoffChipsHtml(payload.agentHandoffs) +
+          '<span class="source-pill">systems &amp; monitoring</span>'
+      }
+    );
+    TurnUi.revealTyped(el, parts, {
+      thread: thread,
+      formatAnswer: formatAnswer,
+      avatar: AGENT_TURN_AVATAR
+    }, function () {
+      if (gwVoiceHandle && gwVoiceHandle.maybeAutoSpeak && payload.spokenSummary) {
+        gwVoiceHandle.maybeAutoSpeak(payload.spokenSummary);
+      } else if (window.GreenwaysAgentVoice && payload.spokenSummary) {
+        GreenwaysAgentVoice.setLastSpokenSummary(payload.spokenSummary);
+      }
+    });
+  }
+
+  function appendAgentMessage(answer, extras) {
+    extras = extras || {};
+    const thinkingId = appendThinking();
+    const thinkingEl = document.getElementById(thinkingId);
+    finishAgentTurn(thinkingEl, {
+      answer: answer,
+      suggestions: extras.suggestions || [],
+      blocks: extras.blocks || [],
+      agentHandoffs: extras.agentHandoffs,
+      spokenSummary: extras.spokenSummary
+    });
   }
 
   async function sendQuestion(question) {
@@ -546,6 +661,8 @@
     lastQuestion = q;
     appendUserMessage(q);
     setStatus("Thinking…", "");
+    const thinkingId = appendThinking();
+    const thinkingEl = document.getElementById(thinkingId);
     try {
       const res = await fetch(apiBase() + "/api/systems-agent/ask", {
         method: "POST",
@@ -554,10 +671,7 @@
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error || "Ask failed");
-      appendAgentMessage(data.answer || "No answer.", {
-        agentHandoffs: data.agentHandoffs,
-        spokenSummary: data.spokenSummary
-      });
+      finishAgentTurn(thinkingEl, data);
       if (data.checkReport && data.checkReport.results) {
         renderStatusCards(
           data.checkReport.results.map(function (r) {
@@ -568,7 +682,9 @@
       }
       setStatus("Answered", data.checkReport && data.checkReport.overall === "ok" ? "ok" : "warn");
     } catch (_) {
-      appendAgentMessage("Could not reach Edwardo on the Systems Agent API. Run `node server-new.js` locally or deploy to Render.");
+      finishAgentTurn(thinkingEl, {
+        answer: "Could not reach Edwardo on the Systems Agent API. Run `node server-new.js` locally or deploy to Render."
+      });
       setStatus("Offline", "warn");
     } finally {
       thinking = false;
@@ -577,10 +693,24 @@
   }
 
   document.getElementById("new-chat-btn").addEventListener("click", clearChat);
+
+  if (window.GreenwaysAgentContentModule) {
+    GreenwaysAgentContentModule.init({
+      agentName: AGENT_PROFILE.name,
+      agentSlug: "systems-agent",
+      theme: "systems",
+      returnLabel: "← Back to Edwardo"
+    });
+    GreenwaysAgentContentModule.bindDocumentIntercept();
+    GreenwaysAgentContentModule.bindContainer(thread);
+    GreenwaysAgentContentModule.bindContainer(document.getElementById("gw-agent-quick-links"));
+    GreenwaysAgentContentModule.bindContainer(document.body);
+  }
+
   if (window.GreenwaysAgentSidebar) {
     GreenwaysAgentSidebar.init({
-      quickLinks: [{"icon":"📡","name":"Monitoring guide","desc":"Why baseline","href":"./Importance%20of%20Energy%20Monitoring.html"},{"icon":"📊","name":"Sensor dashboard","desc":"Live view","href":"./sensor-dashboard.html"},{"icon":"🔧","name":"Equipment Agent","desc":"Artemis · upgrades","href":"/greenways/equipment-agent","agent":true},{"icon":"💶","name":"Finance Agent","desc":"Vincent · payback","href":"/greenways/finance-agent","agent":true}],
-      linksHint: "Monitoring guides, dashboard, and agent handoffs.",
+      quickLinks: [{"icon":"📡","name":"Monitoring guide","desc":"Why baseline","moduleOpen":true,"moduleId":"energy-monitoring","href":"./Importance%20of%20Energy%20Monitoring.html","action":"Open"},{"icon":"📊","name":"Sensor dashboard","desc":"Live view","moduleOpen":true,"moduleId":"sensor-dashboard","href":"./sensor-dashboard.html","action":"Open"},{"icon":"🏢","name":"Buildings dashboard","desc":"Portfolio KPIs","moduleOpen":true,"moduleId":"greenways-dashboard","href":"./Greenways%20Interface%20.html","action":"Open"},{"icon":"🔧","name":"Equipment Agent","desc":"Artemis · upgrades","href":"/greenways/equipment-agent","agent":true},{"icon":"💶","name":"Finance Agent","desc":"Vincent · payback","href":"/greenways/finance-agent","agent":true}],
+      linksHint: "Portals open in-panel — chat stays open behind. Ops verify block unchanged above.",
       helpersHint: "Sensors, dashboards, peak timing, and ETL.",
       helpers: HELPERS,
       onAsk: function (prompt) { sendQuestion(prompt); },

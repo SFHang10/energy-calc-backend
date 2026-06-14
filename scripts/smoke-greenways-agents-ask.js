@@ -168,6 +168,14 @@ async function runLocalSmokes() {
   }
   console.log('OK Zyanne portals module tablets');
 
+  const systemsMod = require(path.join(ROOT, 'services/systems-agent-knowledge'));
+  const dashHit = await systemsMod.answerFromKnowledge('Where is the Greenways energy dashboard?', profile);
+  const dashMod = (dashHit?.blocks || []).find((b) => b.type === 'module');
+  if (!dashMod?.items?.some((i) => i.moduleId === 'greenways-dashboard' || i.moduleId === 'sensor-dashboard')) {
+    throw new Error('Edwardo dashboard: expected greenways-dashboard or sensor-dashboard module items');
+  }
+  console.log('OK Edwardo dashboard module tablets');
+
   let hits = 0;
   for (const agent of AGENT_SMOOKES) {
     const mod = agent.load();
