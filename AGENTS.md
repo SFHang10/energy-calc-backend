@@ -436,6 +436,7 @@ html, body {
   - **Deploy:** push to Render for live `/api/grants-agent/*`; HTML includes static product fallback until API is live.
   - **Compare dock:** collapsed by default; expands when schemes selected.
   - **Right panel sidebar (Jun 2026):** default agents — **Ask about** first, **Quick links** second (`greenways-agent-sidebar.css`). **Exception:** **Edwardo** (`systems-agent`) keeps ops-first layout (verify → links → ask). Detail: **`Skills/greenways-chat-interface-skill.md`** § Right panel sidebar order.
+  - **Vincent Product Calculator (Jun 2026):** Display as **Product Calculator** (Greenways compare tool; ETL-listed products are one input lane — not an ETL-owned calculator). Module id `etl-calculator` unchanged for links.
 
 - **🏷️ Deals Agent — energy tariffs + products (May 2026):**
   - **Intents:** `tariff_compare`, `nl_restaurant_energy`, `uk_green_tariff`, `green_tariff`, `deals_page` in `data/deals-agent-intents.json`.

@@ -94,6 +94,14 @@
       title: "Savings tour hub",
       href: "./savings.html",
       defaultOpenSize: "near-full"
+    },
+    "etl-calculator": {
+      id: "etl-calculator",
+      title: "Product Calculator",
+      description: "Greenways product calculator — compare energy use of efficient products vs standard models.",
+      usageHint: "Enter current equipment and usage, compare product options (including ETL-listed rows), then use savings figures in finance or grants conversations.",
+      href: "/energy-calculator/energy-calculator-enhanced-2.html",
+      defaultOpenSize: "near-full"
     }
   };
 

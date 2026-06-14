@@ -278,6 +278,8 @@ Stacks to one column below **560px** (`.turn-split` → `.turn-split--stack`).
 
 **When forking a new agent:** copy Vincent/Andrieus sidebar HTML order; wire `GreenwaysAgentSidebar.init()` unchanged.
 
+**Product Calculator naming (Vincent, Jun 2026):** Module id stays `etl-calculator` (internal path map only). **Display title:** **Product Calculator** — Greenways-owned compare tool for product energy use (includes ETL-listed products today; not an ETL-branded calculator). Registry: `data/greenways-content-modules.json` + `data/finance-agent-tools.json` (`energy-calculator` tool row).
+
 ### Block types (`blocks[]` from API)
 
 Knowledge services return structured right-column content; HTML builds tablets via `TurnUi.buildParts()` + `TurnUi.layoutHtml()`.

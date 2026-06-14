@@ -100,7 +100,7 @@
                             : moduleId === "energy-audit"
                               ? "Open audit"
                               : moduleId === "etl-calculator"
-                                ? "Open calculator"
+                                ? "Open product calculator"
                                 : moduleId === "savings-tour"
                                   ? "Open savings tour"
                                   : moduleId === "low-energy-equipment"

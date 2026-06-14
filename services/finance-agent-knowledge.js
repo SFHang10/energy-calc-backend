@@ -327,7 +327,7 @@ async function buildOverviewAnswer(schemes, profile, tip) {
       `- **Green loans** — BMKB-Groen, warmtefonds-style bank products\n` +
       `- **Europe** — EU-wide programmes & cross-border lenders\n` +
       `- **Energy prices** — wholesale ticker + tariff tools\n` +
-      `- **Calculators** — audit, savings projection, trajectory, cost guide\n` +
+      `- **Product Calculator** — Greenways compare tool (efficient products incl. ETL-listed); plus audit, projection, trajectory, cost guide\n` +
       `- **ETL products** — verified European efficient-equipment benchmark (\`etl_*\` marketplace rows)\n` +
       `- **Sustainability news** — shared catalogue with Cheryce; Vincent maps headlines to grants, loans, BNPL, and ETL finance paths\n\n` +
       (workflow ? `**Typical workflow:**\n${workflow}\n\n` : '') +
@@ -395,7 +395,8 @@ async function buildCalculatorsAnswer(question, tip) {
   const andrieus = briefing?.handoffs?.grantsToAndrieus;
   return {
     answer:
-      `**Greenways calculators & finance tools** — Vincent's registry (canonical paths, not draft copies):\n\n` +
+      `**Greenways calculators & finance tools** — Vincent's registry (canonical paths, not draft copies).\n\n` +
+      `**Product Calculator** is Greenways' compare tool — it models energy use for efficient products (including ETL-listed rows today; more product lanes over time). It is not an ETL-owned calculator.\n\n` +
       `${formatToolsBullets(picks.slice(0, 6))}\n\n` +
       `**Audit → business case flow:**\n` +
       `1. **Energy audit** (${PORTAL_LINKS.energyAudit}) — baseline appliances (members on Render)\n` +
