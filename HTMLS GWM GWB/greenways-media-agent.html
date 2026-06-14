@@ -1853,8 +1853,8 @@
     const answer = payload.answer || "I could not answer that yet.";
     const suggestions = payload.suggestions || [];
     const blocks = payload.blocks || [];
-    const src = sourceLabel(payload.source, intentId, payload.knowledgeVersion);
     const intentId = payload.intentId || null;
+    const src = sourceLabel(payload.source, intentId, payload.knowledgeVersion);
     lastIntentId = intentId;
     lastQuestion = payload.question || lastQuestion;
 
@@ -2084,11 +2084,14 @@
       } else {
         const isTimeout = err && err.name === "AbortError";
         const serverErr = err && err.data && (err.data.error || err.data.message);
+        const clientErr = err && err.message && !isTimeout && !serverErr ? String(err.message) : "";
         const msg = isTimeout
           ? "The server took too long to respond — Render may be waking from sleep. Wait a few seconds and try again."
           : serverErr
             ? String(serverErr) + " — try again in a moment."
-            : "Could not reach the media agent. Check your connection or try again in a moment.";
+            : clientErr
+              ? "Something went wrong while showing the answer (" + clientErr + "). Try again."
+              : "Could not reach the media agent. Check your connection or try again in a moment.";
         if (thinkingEl) {
           thinkingEl.querySelector(".msg-bubble").innerHTML =
             agentAvatarHtml() + "<p>" + escapeHtml(msg) + "</p>";
