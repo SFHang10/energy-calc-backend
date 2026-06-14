@@ -8,6 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.js"></script>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-team.css">
@@ -1789,10 +1791,25 @@
     });
   }
   document.getElementById("new-chat-btn").addEventListener("click", clearChat);
+
+  if (window.GreenwaysAgentContentModule) {
+    GreenwaysAgentContentModule.init({
+      agentName: AGENT_PROFILE.name,
+      agentSlug: "equipment-agent",
+      theme: "equipment",
+      returnLabel: "← Back to Artemis"
+    });
+    GreenwaysAgentContentModule.bindDocumentIntercept();
+    GreenwaysAgentContentModule.bindContainer(thread);
+    GreenwaysAgentContentModule.bindContainer(document.getElementById("top-product-samples"));
+    GreenwaysAgentContentModule.bindContainer(document.getElementById("gw-agent-quick-links"));
+    GreenwaysAgentContentModule.bindContainer(document.body);
+  }
+
   if (window.GreenwaysAgentSidebar) {
     GreenwaysAgentSidebar.init({
-      quickLinks: [{"icon":"📊","name":"Equipment deep dive","desc":"Compare & project","href":"./restaurant-equipment-deep-dive.html"},{"icon":"🏗️","name":"Renovations","desc":"Premises upgrade","href":"./Sustainable%20Renovations%20New%20.html"},{"icon":"🧱","name":"Insulation guide","desc":"Fabric savings","href":"./Importance%20of%20Insulation.html"},{"icon":"📋","name":"Renovation plans","desc":"Project templates","href":"../HTMLs/Renovation%20project%20plans.html"},{"icon":"🔍","name":"ETL finder","desc":"Marketplace search","href":"./equipment_intelligence_tool.html"},{"icon":"🏛️","name":"Grants Agent","desc":"Andrieus · schemes","href":"/greenways/grants-agent","agent":true},{"icon":"💶","name":"Finance Agent","desc":"Vincent · payback","href":"/greenways/finance-agent","agent":true}],
-      linksHint: "Deep dive, renovation guides, and marketplace tools.",
+      quickLinks: [{"icon":"📊","name":"Equipment deep dive","desc":"Compare & project","moduleOpen":true,"moduleId":"equipment-deep-dive","href":"./restaurant-equipment-deep-dive.html","action":"Open"},{"icon":"🏗️","name":"Renovations","desc":"Premises upgrade","moduleOpen":true,"moduleId":"sustainable-renovations","href":"./Sustainable%20Renovations%20New%20.html","action":"Open"},{"icon":"🧱","name":"Insulation guide","desc":"Fabric savings","moduleOpen":true,"moduleId":"insulation-guide","href":"./Importance%20of%20Insulation.html","action":"Open"},{"icon":"📋","name":"Renovation plans","desc":"Project templates","moduleOpen":true,"moduleId":"renovation-plans","href":"../HTMLs/Renovation%20project%20plans.html","action":"Open"},{"icon":"📈","name":"Savings projection","desc":"Payback chart","moduleOpen":true,"moduleId":"savings-projection","href":"./equipment-savings-projection.html","action":"Open"},{"icon":"🔍","name":"ETL finder","desc":"Marketplace search","moduleOpen":true,"moduleId":"etl-finder","href":"./equipment_intelligence_tool.html","action":"Open"},{"icon":"🏛️","name":"Grants Agent","desc":"Andrieus · schemes","href":"/greenways/grants-agent","agent":true},{"icon":"💶","name":"Finance Agent","desc":"Vincent · payback","href":"/greenways/finance-agent","agent":true}],
+      linksHint: "Portals open in-panel with a short guide — chat stays open behind.",
       helpersHint: "Kitchen, renovation, insulation, and HVAC.",
       helpers: HELPERS,
       onAsk: function (prompt) { sendQuestion(prompt); },

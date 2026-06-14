@@ -11,8 +11,10 @@ const {
   withTip,
   toLinkItem,
   pickProductSamples,
-  getDefaultProductSamples: getDefaultProductSamplesFromShowcase
+  getDefaultProductSamples: getDefaultProductSamplesFromShowcase,
+  toModuleItem
 } = require('./greenways-agent-shared');
+const { mergeModuleRow } = require('./greenways-content-modules');
 const {
   applyPersona,
   loadAgentVoice,
@@ -43,6 +45,124 @@ const RENOVATION_FOCUS = {
   building: ['heat pump', 'building', 'fabric', 'retrofit', 'hvac', 'solar'],
   general: ['renovation', 'retrofit', 'upgrade', 'equipment', 'kitchen', 'efficient']
 };
+
+const EQUIPMENT_MODULE = { theme: 'equipment', agentName: 'Artemis' };
+
+const REF_MODULE_IDS = {
+  projection: 'savings-projection',
+  trajectory: 'savings-trajectory',
+  'trajectory-baseline': 'savings-trajectory',
+  intelligence: 'etl-finder',
+  'deep-dive': 'equipment-deep-dive',
+  comparison: 'appliance-comparison',
+  renovations: 'sustainable-renovations',
+  insulation: 'insulation-guide'
+};
+
+const PORTAL_PATH_MODULE_IDS = [
+  ['restaurant-equipment-deep-dive', 'equipment-deep-dive'],
+  ['equipment_intelligence_tool', 'etl-finder'],
+  ['sustainable%20renovations', 'sustainable-renovations'],
+  ['importance%20of%20insulation', 'insulation-guide'],
+  ['renovation%20project%20plans', 'renovation-plans'],
+  ['equipment-savings-projection', 'savings-projection'],
+  ['energy-savings-trajectory', 'savings-trajectory'],
+  ['restuarant%20appliance%20comparison', 'appliance-comparison'],
+  ['sustainable_product_deal_finder', 'sustainable-product-finder'],
+  ['water-saving-finder', 'water-saving-finder'],
+  ['eco_project_planning_guide', 'eco-project-planner']
+];
+
+function isAgentChatPath(path) {
+  return /^\/greenways\//.test(String(path || '').trim());
+}
+
+function portalPathToModuleId(path) {
+  const hay = String(path || '').toLowerCase();
+  if (!hay || isAgentChatPath(path)) return '';
+  for (const [needle, moduleId] of PORTAL_PATH_MODULE_IDS) {
+    if (hay.includes(needle.toLowerCase())) return moduleId;
+  }
+  return '';
+}
+
+function equipmentModuleBlock(rows) {
+  return {
+    type: 'module',
+    items: rows.map((row) => toModuleItem({ ...EQUIPMENT_MODULE, ...mergeModuleRow(row) }))
+  };
+}
+
+function linkOrModuleBlocks(items) {
+  const modules = [];
+  const links = [];
+  for (const item of items) {
+    if (/^https?:\/\//i.test(item.url)) {
+      links.push(item);
+      continue;
+    }
+    const moduleId = portalPathToModuleId(item.url);
+    if (moduleId) {
+      modules.push({ moduleId, title: item.title, openSize: 'near-full' });
+    } else {
+      links.push(item);
+    }
+  }
+  const blocks = [];
+  if (modules.length) blocks.push(equipmentModuleBlock(modules));
+  if (links.length) blocks.push({ type: 'link', items: links });
+  return blocks;
+}
+
+function toolRowToModuleRow(tool = {}) {
+  const moduleId = REF_MODULE_IDS[tool.id] || portalPathToModuleId(tool.href);
+  if (!moduleId) return null;
+  const row = { moduleId, title: tool.title, openSize: 'near-full' };
+  const href = String(tool.href || '');
+  if (href.includes('?')) row.query = href.split('?').slice(1).join('?');
+  return row;
+}
+
+function toolsToModuleBlocks(tools, max = 6) {
+  const modules = [];
+  const links = [];
+  for (const tool of (tools || []).slice(0, max)) {
+    const row = toolRowToModuleRow(tool);
+    if (row) modules.push(row);
+    else if (tool.href) links.push(toLinkItem(tool.title, tool.href, tool.summary));
+  }
+  const blocks = [];
+  if (modules.length) blocks.push(equipmentModuleBlock(modules));
+  if (links.length) blocks.push({ type: 'link', items: links });
+  return blocks;
+}
+
+function referenceToModuleRow(ref = {}) {
+  const moduleId = REF_MODULE_IDS[ref.id] || portalPathToModuleId(ref.href || ref.url);
+  if (!moduleId) return null;
+  const row = { moduleId, title: ref.title, openSize: 'near-full' };
+  const href = String(ref.href || '');
+  if (href.includes('?')) row.query = href.split('?').slice(1).join('?');
+  return row;
+}
+
+function splitReferenceBlocks(picks) {
+  const modules = [];
+  const links = [];
+  for (const ref of picks) {
+    if (ref.url && /^https?:\/\//i.test(ref.url)) {
+      links.push(toLinkItem(ref.title, ref.url, ref.summary || ''));
+      continue;
+    }
+    const row = referenceToModuleRow(ref);
+    if (row) modules.push(row);
+    else if (ref.href || ref.url) links.push(toLinkItem(ref.title, ref.href || ref.url, ref.summary || ''));
+  }
+  const blocks = [];
+  if (modules.length) blocks.push(equipmentModuleBlock(modules));
+  if (links.length) blocks.push({ type: 'link', items: links });
+  return blocks;
+}
 
 async function loadBriefing() {
   try {
@@ -127,7 +247,7 @@ function rankReferences(refs, question, limit = 6) {
 }
 
 function toolsToBlocks(tools, max = 6) {
-  return [{ type: 'link', items: tools.slice(0, max).map((t) => toLinkItem(t.title, t.href, t.summary)) }];
+  return toolsToModuleBlocks(tools, max);
 }
 
 function equipmentPortalLinks() {
@@ -165,7 +285,7 @@ async function buildOverviewAnswer(profile, tip) {
       `**Typical path:**\n${steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}\n\n` +
       `**Greenways tools:**\n${tools.map((t) => `- **${t.title}** — ${t.summary}\n  → ${t.href}`).join('\n')}\n\n` +
       `_Ask about a **${profile.sector || 'restaurant'}** category, renovation, deep dive, or savings projection._\n\n_${tip}_`,
-    blocks: toolsToBlocks(tools, 6),
+    blocks: toolsToModuleBlocks(tools, 6),
     suggestions: [],
     agentHandoffs: buildHandoffs(briefing, '', 'overview')
   };
@@ -189,7 +309,7 @@ async function buildWhyEquipmentAnswer(profile, tip) {
         ? `**See it on Greenways:**\n${demos.map((d) => `- **${d.title}** → ${d.href}`).join('\n')}\n\n`
         : '') +
       `_${tip}_`,
-    blocks: demos.length ? toolsToBlocks(demos, 5) : [],
+    blocks: demos.length ? toolsToModuleBlocks(demos, 5) : [],
     suggestions: [],
     agentHandoffs: buildHandoffs(briefing, '', 'why_equipment')
   };
@@ -216,15 +336,10 @@ async function buildLifecycleCostAnswer(tip) {
       `Model **total value** with ${PORTAL_LINKS.savingsProjection} or ${PORTAL_LINKS.energySavingsTrajectory} — then **Vincent** for finance.\n\n_${tip}_`,
     suggestions: [],
     agentHandoffs: buildHandoffs(briefing, '', 'lifecycle_cost'),
-    blocks: [
-      {
-        type: 'link',
-        items: [
-          toLinkItem('Savings projection', PORTAL_LINKS.savingsProjection, 'Medium-term payback chart'),
-          toLinkItem('Energy savings trajectory', PORTAL_LINKS.energySavingsTrajectory, 'Equipment change over time')
-        ]
-      }
-    ]
+    blocks: linkOrModuleBlocks([
+      toLinkItem('Savings projection', PORTAL_LINKS.savingsProjection, 'Medium-term payback chart'),
+      toLinkItem('Energy savings trajectory', PORTAL_LINKS.energySavingsTrajectory, 'Equipment change over time')
+    ]),
   };
 }
 
@@ -245,16 +360,11 @@ async function buildEtlVerificationAnswer(profile, tip) {
         : '') +
       `Search products: ${etl.paths?.marketplaceFinder || PORTAL_LINKS.equipmentTool}\n\n_${tip}_`,
     suggestions: [],
-    blocks: [
-      {
-        type: 'link',
-        items: [
-          toLinkItem('ETL product search (UK)', 'https://etl.energysecurity.gov.uk/products', 'Official register'),
-          toLinkItem('Equipment intelligence tool', PORTAL_LINKS.equipmentTool, 'Greenways finder'),
-          toLinkItem('Deep dive', PORTAL_LINKS.deepDive, 'Compare current vs ETL alternatives')
-        ]
-      }
-    ],
+    blocks: linkOrModuleBlocks([
+      toLinkItem('ETL product search (UK)', 'https://etl.energysecurity.gov.uk/products', 'Official register'),
+      toLinkItem('Equipment intelligence tool', PORTAL_LINKS.equipmentTool, 'Greenways finder'),
+      toLinkItem('Deep dive', PORTAL_LINKS.deepDive, 'Compare current vs ETL alternatives')
+    ]),
     agentHandoffs: buildHandoffs(briefing, '', 'etl_verification')
   };
 }
@@ -275,7 +385,7 @@ async function buildTrajectoryAnswer(tip) {
       `- **With dashboard baseline:** ${paths.trajectoryBaseline || paths.trajectory}\n\n` +
       `Use trajectory for stakeholder stories; use projection for grant + tax bands on a single upgrade.\n\n_${tip}_`,
     suggestions: [],
-    blocks: toolsToBlocks(demos.length ? demos : guide.demonstrationTools || [], 5),
+    blocks: toolsToModuleBlocks(demos.length ? demos : guide.demonstrationTools || [], 5),
     agentHandoffs: buildHandoffs(briefing, '', 'trajectory')
   };
 }
@@ -293,16 +403,11 @@ async function buildBaselineEquipmentAnswer(tip) {
       `Without baseline, lifecycle payback is guesswork — **Edwardo** helps monitoring and dashboard maths when live data is thin.\n\n_${tip}_`,
     suggestions: [],
     agentHandoffs: buildHandoffs(briefing, '', 'baseline_equipment'),
-    blocks: [
-      {
-        type: 'link',
-        items: [
-          toLinkItem('Equipment intelligence tool', PORTAL_LINKS.equipmentTool, 'Check expected baseline use'),
-          toLinkItem('Trajectory baseline example', paths.trajectoryBaseline || PORTAL_LINKS.energySavingsTrajectory, 'Dashboard-linked demo'),
-          toLinkItem('Edwardo (Systems)', '/greenways/systems-agent', 'Monitoring & dashboard maths')
-        ]
-      }
-    ]
+    blocks: linkOrModuleBlocks([
+      toLinkItem('Equipment intelligence tool', PORTAL_LINKS.equipmentTool, 'Check expected baseline use'),
+      toLinkItem('Trajectory baseline example', paths.trajectoryBaseline || PORTAL_LINKS.energySavingsTrajectory, 'Dashboard-linked demo'),
+      toLinkItem('Edwardo (Systems)', '/greenways/systems-agent', 'Monitoring & dashboard maths')
+    ]),
   };
 }
 
@@ -316,16 +421,11 @@ async function buildEquipmentIntelligenceAnswer(tip) {
       `**Why it matters:** consumers see how efficient kit differs from what they run today before committing capex.\n\n` +
       `Pair with **deep dive** for grants and decision matrix, or **appliance comparison** for visual standard vs ETL stories.\n\n_${tip}_`,
     suggestions: [],
-    blocks: [
-      {
-        type: 'link',
-        items: [
-          toLinkItem('Open intelligence tool', PORTAL_LINKS.equipmentTool, 'Marketplace + alternatives'),
-          toLinkItem('Appliance comparison (marketplace)', './Restuarant%20Appliance%20Comparison%20-%20Marketplace%20variant.html', 'Illustrated savings'),
-          toLinkItem('Deep dive', PORTAL_LINKS.deepDive, 'Full compare + projection')
-        ]
-      }
-    ],
+    blocks: linkOrModuleBlocks([
+      toLinkItem('Open intelligence tool', PORTAL_LINKS.equipmentTool, 'Marketplace + alternatives'),
+      toLinkItem('Appliance comparison (marketplace)', './Restuarant%20Appliance%20Comparison%20-%20Marketplace%20variant.html', 'Illustrated savings'),
+      toLinkItem('Deep dive', PORTAL_LINKS.deepDive, 'Full compare + projection')
+    ]),
     agentHandoffs: buildHandoffs(briefing, '', 'equipment_intelligence')
   };
 }
@@ -351,6 +451,7 @@ function buildCategoryAnswer(category, schemes, question, profile, tip, guide) {
       tip
     ),
     suggestions: relatedSchemes.map(toSuggestion),
+    blocks: [equipmentModuleBlock([{ moduleId: 'equipment-deep-dive', openSize: 'near-full' }])],
     agentHandoffs: buildHandoffs({}, question, category === 'kitchen' ? 'kitchen' : 'overview')
   };
 }
@@ -376,15 +477,10 @@ function buildDeepDiveAnswer(tip) {
       `Each profile includes decision-matrix rows, marketplace links, and optional \`sust_*\` external options.\n\n` +
       `Ask about a specific appliance (combi steamer, wok, freezer) and I'll surface matching picks in the banner.\n\n_${tip}_`,
     suggestions: [],
-    blocks: [
-      {
-        type: 'link',
-        items: [
-          toLinkItem('Open deep dive', PORTAL_LINKS.deepDive, 'Restaurant equipment profiles'),
-          toLinkItem('Savings projection demo', `${PORTAL_LINKS.savingsProjection}?scenario=fridge`, 'Example payback chart')
-        ]
-      }
-    ]
+    blocks: linkOrModuleBlocks([
+      toLinkItem('Open deep dive', PORTAL_LINKS.deepDive, 'Restaurant equipment profiles'),
+      toLinkItem('Savings projection demo', `${PORTAL_LINKS.savingsProjection}?scenario=fridge`, 'Example payback chart')
+    ])
   };
 }
 
@@ -398,15 +494,10 @@ function buildSavingsProjectionAnswer(tip) {
       `Use projection to build the case — then **Vincent** for BNPL, equipment finance, or green loans.\n\n_${tip}_`,
     suggestions: [],
     agentHandoffs: buildHandoffs({}, '', 'savings_projection'),
-    blocks: [
-      {
-        type: 'link',
-        items: [
-          toLinkItem('Equipment savings projection', PORTAL_LINKS.savingsProjection, 'Payback chart UI'),
-          toLinkItem('Finance Agent', '/greenways/finance-agent', 'Stack funding after payback')
-        ]
-      }
-    ]
+    blocks: linkOrModuleBlocks([
+      toLinkItem('Equipment savings projection', PORTAL_LINKS.savingsProjection, 'Payback chart UI'),
+      toLinkItem('Finance Agent', '/greenways/finance-agent', 'Stack funding after payback')
+    ])
   };
 }
 
@@ -418,16 +509,11 @@ function buildProductComparisonAnswer(tip) {
       `- **Marketplace variant** (illustrations + savings stories): ./Restuarant%20Appliance%20Comparison%20-%20Marketplace%20variant.html\n\n` +
       `Use comparison for stakeholder buy-in; use **deep dive** for grants, decision matrix, and savings projection.\n\n_${tip}_`,
     suggestions: [],
-    blocks: [
-      {
-        type: 'link',
-        items: [
-          toLinkItem('Appliance comparison', './Restuarant%20Appliance%20Comparison.html', 'Side-by-side visuals'),
-          toLinkItem('Marketplace variant', './Restuarant%20Appliance%20Comparison%20-%20Marketplace%20variant.html', 'Product illustrations'),
-          toLinkItem('Equipment deep dive', PORTAL_LINKS.deepDive, 'Grants + projection detail')
-        ]
-      }
-    ]
+    blocks: linkOrModuleBlocks([
+      toLinkItem('Appliance comparison', './Restuarant%20Appliance%20Comparison.html', 'Side-by-side visuals'),
+      toLinkItem('Marketplace variant', './Restuarant%20Appliance%20Comparison%20-%20Marketplace%20variant.html', 'Product illustrations'),
+      toLinkItem('Equipment deep dive', PORTAL_LINKS.deepDive, 'Grants + projection detail')
+    ])
   };
 }
 
@@ -440,6 +526,10 @@ function buildSustainableAnswer(question, tip) {
       `- API: GET /api/equipment-intelligence/sustainable-products\n\n` +
       `Marketplace **etl_*** rows and **sust_*** catalog cover different lanes — both can sit on one upgrade plan.\n\n_${tip}_`,
     suggestions: [],
+    blocks: linkOrModuleBlocks([
+      toLinkItem('Sustainable product finder', './sustainable_product_deal_finder_portal.html', 'Catalog search'),
+      toLinkItem('Water Saving Finder', './water-saving-finder.html', 'Water lane products')
+    ]),
     agentHandoffs: buildHandoffs({}, question, 'sustainable')
   };
 }
@@ -463,7 +553,7 @@ function buildPortalsAnswer(tip) {
       '**Equipment and renovation on Greenways** — pick a portal on the right to browse equipment, comparisons, or building guides.',
       tip
     ),
-    blocks: [{ type: 'link', items: equipmentPortalLinks() }]
+    blocks: linkOrModuleBlocks(equipmentPortalLinks())
   };
 }
 
@@ -489,6 +579,11 @@ function buildRenovationAnswer(focus, schemes, profile, tip) {
       `- Equipment deep dive: ${PORTAL_LINKS.deepDive}\n\n` +
       `For payback and loans see **Vincent** (/greenways/finance-agent).\n\n_${tip}_`,
     suggestions: relatedSchemes.map(toSuggestion),
+    blocks: linkOrModuleBlocks([
+      toLinkItem('Sustainable renovations', PORTAL_LINKS.sustainableRenovations, 'Building retrofit pathways'),
+      toLinkItem('Insulation guide', PORTAL_LINKS.insulationGuide, 'Fabric and envelope improvements'),
+      toLinkItem('Equipment deep dive', PORTAL_LINKS.deepDive, 'Compare efficient alternatives')
+    ]),
     agentHandoffs: buildHandoffs({}, '', focus === 'insulation' ? 'insulation' : 'renovation')
   };
 }
@@ -529,6 +624,10 @@ async function buildRenovationPlanAnswer(tip) {
       `**Project plan template:** ${PORTAL_LINKS.renovationPlans}\n` +
       `**Sustainable renovations hub:** ${PORTAL_LINKS.sustainableRenovations}\n\n_${tip}_`,
     suggestions: [],
+    blocks: linkOrModuleBlocks([
+      toLinkItem('Renovation project plans', PORTAL_LINKS.renovationPlans, 'Phased upgrade templates'),
+      toLinkItem('Sustainable renovations', PORTAL_LINKS.sustainableRenovations, 'Building retrofit hub')
+    ]),
     agentHandoffs: buildHandoffs(briefing, '', 'renovation_plan')
   };
 }
@@ -551,12 +650,7 @@ async function buildRoleResourcesAnswer(question, profile, tip) {
       `**Must-know themes:**\n${mustKnows.map((m) => `- ${m}`).join('\n')}\n\n` +
       `**How I advise:**\n${core.map((c) => `- ${c}`).join('\n')}\n\n` +
       `**Curated links:**\n${picks.map((r) => `- **${r.title}** — ${r.summary || ''}`).join('\n')}\n\n_${tip}_`,
-    blocks: [
-      {
-        type: 'link',
-        items: picks.slice(0, 6).map((r) => toLinkItem(r.title, r.url || r.href, r.summary || ''))
-      }
-    ],
+    blocks: splitReferenceBlocks(picks.slice(0, 6)),
     suggestions: [],
     agentHandoffs: buildHandoffs(briefing, question, 'role_resources')
   };

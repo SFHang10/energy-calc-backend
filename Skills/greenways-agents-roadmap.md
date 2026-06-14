@@ -259,6 +259,7 @@ User (Wix public or Member)
 
 | Date | Change |
 |------|--------|
+| 2026-06-14 | **Track B — Artemis** — module tablets (`theme: equipment`); registry rows for renovations, insulation, renovation plans, appliance comparison; deep dive / portal intents → `module` blocks |
 | 2026-06-14 | **Track B — Andrieus** — module tablets (`theme: grants`); `schemes-portal-restaurant` + `schemes-portal-eu` registry rows; portal/sector/equipment intents → `module` blocks; sidebar `moduleOpen` quick links |
 | 2026-06-14 | **Track B — Vincent** — `FINANCE_HANDOFF_RULES` wired via `buildAgentHandoff`; conversational polish on `energy_prices`, `bnpl`, `green_loans`, `price_upgrade_case`, `etl_products` |
 | 2026-06-14 | **Track A1** — `finishKnowledgeAskResponse` on all seven `/ask` routes |

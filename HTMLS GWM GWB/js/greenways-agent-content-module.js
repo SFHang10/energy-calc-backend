@@ -46,6 +46,10 @@
     ["savings.html", "savings-tour"],
     ["deals-ticker-hub", "deals-ticker"],
     ["restaurant-equipment-deep-dive", "equipment-deep-dive"],
+    ["sustainable%20renovations", "sustainable-renovations"],
+    ["importance%20of%20insulation", "insulation-guide"],
+    ["renovation%20project%20plans", "renovation-plans"],
+    ["restuarant%20appliance%20comparison", "appliance-comparison"],
     ["restaurant-data", "restaurant-data"],
     ["importance%20of%20energy%20monitoring", "energy-monitoring"],
     ["discover%20energy%20savings", "discover-savings"],
@@ -119,6 +123,30 @@
       description: "EU-wide programmes and cross-border funding in one browse view.",
       usageHint: "Scan EU-wide rows, then pair with the restaurant portal or finance finder when you need stacked funding paths.",
       href: "./Full%20Schemes%20Portal%20html.html",
+      defaultOpenSize: "near-full"
+    },
+    "equipment-deep-dive": {
+      id: "equipment-deep-dive",
+      title: "Restaurant equipment deep dive",
+      description: "Side-by-side alternatives with grants and savings projection entry points.",
+      usageHint: "Pick an asset class, compare standard vs efficient options, then open savings projection from an alternative card.",
+      href: "./restaurant-equipment-deep-dive.html",
+      defaultOpenSize: "near-full"
+    },
+    "sustainable-renovations": {
+      id: "sustainable-renovations",
+      title: "Sustainable renovations",
+      description: "Building retrofit pathways paired with efficient equipment.",
+      usageHint: "Follow renovation sections for your building type, then open deep dive or grants chat before you commit capex.",
+      href: "./Sustainable%20Renovations%20New%20.html",
+      defaultOpenSize: "near-full"
+    },
+    "insulation-guide": {
+      id: "insulation-guide",
+      title: "Insulation guide",
+      description: "Why fabric improvements come before heavy equipment or HVAC overspend.",
+      usageHint: "Read insulation sections for your premises, then model payback in savings projection.",
+      href: "./Importance%20of%20Insulation.html",
       defaultOpenSize: "near-full"
     }
   };

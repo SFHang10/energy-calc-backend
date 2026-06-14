@@ -136,6 +136,14 @@ async function runLocalSmokes() {
   }
   console.log('OK Andrieus portals module tablets');
 
+  const equipMod = require(path.join(ROOT, 'services/equipment-agent-knowledge'));
+  const deepDiveHit = await equipMod.answerFromKnowledge('equipment deep dive compare alternatives', profile);
+  const deepDiveMod = (deepDiveHit?.blocks || []).find((b) => b.type === 'module');
+  if (!deepDiveMod?.items?.some((i) => i.moduleId === 'equipment-deep-dive')) {
+    throw new Error('Artemis deep_dive: expected equipment-deep-dive module item');
+  }
+  console.log('OK Artemis deep dive module tablets');
+
   let hits = 0;
   for (const agent of AGENT_SMOOKES) {
     const mod = agent.load();
