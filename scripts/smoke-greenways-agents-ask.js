@@ -160,6 +160,14 @@ async function runLocalSmokes() {
   }
   console.log('OK Zara portals module tablets');
 
+  const productsMod = require(path.join(ROOT, 'services/sustainable-products-agent-knowledge'));
+  const productsPortalHit = await productsMod.answerFromKnowledge('open portal finder', profile);
+  const productsPortalMod = (productsPortalHit?.blocks || []).find((b) => b.type === 'module');
+  if (!productsPortalMod?.items?.some((i) => i.moduleId === 'water-saving-finder' || i.moduleId === 'sustainable-product-finder')) {
+    throw new Error('Zyanne portals: expected product finder module items');
+  }
+  console.log('OK Zyanne portals module tablets');
+
   let hits = 0;
   for (const agent of AGENT_SMOOKES) {
     const mod = agent.load();

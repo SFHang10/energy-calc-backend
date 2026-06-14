@@ -12,14 +12,15 @@ const {
   matchIntent,
   normalizeImageUrl,
   marketplaceHref,
-  toLinkItem
+  toLinkItem,
+  toModuleItem
 } = require('./greenways-agent-shared');
 const {
   applyPersona,
   loadAgentVoice,
   pickTip
 } = require('./greenways-agent-persona');
-const { moduleBlockFor } = require('./greenways-content-modules');
+const { mergeModuleRow, loadRegistrySync, getModuleById } = require('./greenways-content-modules');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'sustainable-products-agent-intents.json');
 const showcasePath = path.join(__dirname, '..', 'data', 'sustainable-products-agent-showcase.json');
@@ -30,12 +31,124 @@ const referencesPath = path.join(__dirname, '..', 'data', 'sustainable-products-
 
 const REGION_LABELS = { nl: 'Netherlands', uk: 'United Kingdom', eu: 'EU-wide' };
 
+const PRODUCTS_MODULE = { theme: 'products', agentName: 'Zyanne' };
+
 const FINDER_LINKS = {
   water: './water-saving-finder.html',
   products: './sustainable_product_deal_finder_portal.html',
   deepDive: './restaurant-equipment-deep-dive.html',
   equipmentTool: './equipment_intelligence_tool.html'
 };
+
+const PORTAL_PATH_MODULE_IDS = [
+  ['water-saving-finder', 'water-saving-finder'],
+  ['sustainable_product_deal_finder_portal', 'sustainable-product-finder'],
+  ['restaurant-equipment-deep-dive', 'equipment-deep-dive'],
+  ['equipment_intelligence_tool', 'etl-finder'],
+  ['eco_project_planning_guide', 'eco-project-planner'],
+  ['deals.html', 'deals-full-page'],
+  ['deals-ticker-hub', 'deals-ticker']
+];
+
+function isAgentChatPath(path) {
+  return /^\/greenways\//.test(String(path || '').trim());
+}
+
+function portalPathToModuleId(path) {
+  const hay = String(path || '').toLowerCase();
+  if (!hay || isAgentChatPath(path)) return '';
+  for (const [needle, moduleId] of PORTAL_PATH_MODULE_IDS) {
+    if (hay.includes(needle.toLowerCase())) return moduleId;
+  }
+  return '';
+}
+
+function productsModuleBlock(rows) {
+  const registry = loadRegistrySync();
+  return {
+    type: 'module',
+    items: rows.map((row) => {
+      const mod = getModuleById(registry, row.moduleId);
+      const punch = String(row.usageHint || '').trim();
+      const registryUsage = String(mod?.usageHint || '').trim();
+      const merged = mergeModuleRow({ ...row, usageHint: '' });
+      if (punch && punch !== merged.description) {
+        merged.usageHint = registryUsage && registryUsage !== punch
+          ? `${punch} — ${registryUsage}`
+          : (registryUsage || punch);
+      }
+      return toModuleItem({ ...PRODUCTS_MODULE, ...merged });
+    })
+  };
+}
+
+function linkOrModuleBlocks(items) {
+  const modules = [];
+  const links = [];
+  for (const item of items) {
+    if (/^https?:\/\//i.test(item.url)) {
+      links.push(item);
+      continue;
+    }
+    const moduleId = portalPathToModuleId(item.url);
+    if (moduleId) {
+      modules.push({
+        moduleId,
+        title: item.title,
+        usageHint: item.description || '',
+        openSize: 'near-full'
+      });
+    } else {
+      links.push(item);
+    }
+  }
+  const blocks = [];
+  if (modules.length) blocks.push(productsModuleBlock(modules));
+  if (links.length) blocks.push({ type: 'link', items: links });
+  return blocks;
+}
+
+function portalLinkItems(portal = 'all') {
+  const items = [];
+  if (portal === 'water' || portal === 'all') {
+    items.push(toLinkItem('Water Saving Finder', FINDER_LINKS.water, 'Water products, tips & grants'));
+  }
+  if (portal === 'products' || portal === 'all') {
+    items.push(toLinkItem('Sustainable Product Finder', FINDER_LINKS.products, 'Category search across appliances'));
+  }
+  items.push(
+    toLinkItem('Equipment deep dive', FINDER_LINKS.deepDive, 'Side-by-side alternatives with grants'),
+    toLinkItem('ETL product finder', FINDER_LINKS.equipmentTool, 'Verified efficient equipment catalog')
+  );
+  return items;
+}
+
+function laneModuleIds(lane) {
+  if (lane === 'water') return ['water-saving-finder', 'sustainable-product-finder'];
+  if (lane === 'gas') return ['sustainable-product-finder', 'equipment-deep-dive'];
+  return ['sustainable-product-finder', 'equipment-deep-dive', 'etl-finder'];
+}
+
+function attachModules(result, moduleIds = [], extraLinkItems = []) {
+  if (!result) return result;
+  const rows = moduleIds.map((id) => ({ moduleId: id, openSize: 'near-full' }));
+  for (const item of extraLinkItems) {
+    const moduleId = portalPathToModuleId(item.url);
+    if (moduleId) {
+      rows.push({
+        moduleId,
+        title: item.title,
+        usageHint: item.description || '',
+        openSize: 'near-full'
+      });
+    }
+  }
+  if (!rows.length) return result;
+  const blocks = (result.blocks || []).filter((b) => b.type !== 'link');
+  blocks.push(productsModuleBlock(rows));
+  result.blocks = blocks;
+  return result;
+}
 
 const LANE_LABELS = {
   water: '💧 Water savings',
@@ -44,17 +157,6 @@ const LANE_LABELS = {
 };
 
 let catalogCache = null;
-
-async function attachModules(result, profile, moduleIds = []) {
-  if (!result || !moduleIds.length) return result;
-  const blocks = [...(result.blocks || [])];
-  for (const id of moduleIds) {
-    const block = await moduleBlockFor(id, profile);
-    if (block) blocks.push(block);
-  }
-  if (blocks.length) result.blocks = blocks;
-  return result;
-}
 
 async function loadBriefing() {
   try {
@@ -325,7 +427,14 @@ function formatSearchAnswer(result, lane, tip) {
       `**Full search (all marketplace rows):**\n` +
       `- Water: ${FINDER_LINKS.water}\n` +
       `- Products: ${FINDER_LINKS.products}\n\n_${tip}_`,
-    suggestions: []
+    suggestions: [],
+    blocks: linkOrModuleBlocks(
+      lane === 'water'
+        ? portalLinkItems('water')
+        : portalLinkItems('products').concat([
+            toLinkItem('Equipment deep dive', FINDER_LINKS.deepDive, 'Side-by-side alternatives with grants')
+          ])
+    )
   };
 }
 
@@ -421,6 +530,10 @@ function buildProductDealSpotlightsAnswer(tip, briefing) {
       `→ **Sustainability lane ticker:** ${PORTAL_LINKS.deals}\n\n` +
       `Stay on **Zyanne** when you want to **find and compare** efficient products (water / electricity / gas lanes, \`etl_*\` vs \`sust_*\`).\n\n_${tip}_`,
     suggestions: [],
+    blocks: linkOrModuleBlocks([
+      toLinkItem('Deals ticker hub', PORTAL_LINKS.deals, 'Weekly product spotlights lane'),
+      toLinkItem('Full Deals page', PORTAL_LINKS.dealsFullPage, 'Ticker + sidebar portals')
+    ]),
     agentHandoffs: buildHandoffs(briefing || {}, '', 'product_deal_spotlights')
   };
 }
@@ -443,12 +556,9 @@ async function buildRoleResourcesAnswer(question, profile, tip) {
       `**Must-know themes:**\n${mustKnows.map((m) => `- ${m}`).join('\n')}\n\n` +
       `**How I advise:**\n${core.map((c) => `- ${c}`).join('\n')}\n\n` +
       `**Curated links:**\n${picks.map((r) => `- **${r.title}** — ${r.summary || ''}`).join('\n')}\n\n_${tip}_`,
-    blocks: [
-      {
-        type: 'link',
-        items: picks.slice(0, 6).map((r) => toLinkItem(r.title, r.url || r.href, r.summary || ''))
-      }
-    ],
+    blocks: linkOrModuleBlocks(
+      picks.slice(0, 6).map((r) => toLinkItem(r.title, r.url || r.href, r.summary || ''))
+    ),
     suggestions: [],
     agentHandoffs: buildHandoffs(briefing, question, 'role_resources')
   };
@@ -477,10 +587,12 @@ async function buildOverviewAnswer(catalog, tip, briefing) {
       `case studies ${paths.europeanBuildings || './sustainable_european_buildings_eco_materials.html'} · ` +
       `recycling ${paths.recycling || '../HTMLs/Recycling.html'}\n\n` +
       `**Deal spotlights:** **Zara** (${PORTAL_LINKS.dealsAgent}) — I search the full catalog here.\n\n` +
-      `**Full finders:**\n` +
-      `- ${FINDER_LINKS.water}\n` +
-      `- ${FINDER_LINKS.products}\n\n_${tip}_`,
+      `**Full finders:** open the modules on the right for water and product search.\n\n_${tip}_`,
     suggestions: [],
+    blocks: linkOrModuleBlocks([
+      ...portalLinkItems('all'),
+      toLinkItem('Eco project planner', paths.ecoProjectPlanning || PORTAL_LINKS.ecoProjectPlanning, 'Home · Restaurant · Office journey')
+    ]),
     agentHandoffs: buildHandoffs(b, '', 'overview')
   };
 }
@@ -492,7 +604,7 @@ function guideLinkBlock(title, href, narrative, tip) {
       `${narrative}\n\n` +
       `→ **Open guide:** ${href}\n\n_${tip}_`,
     suggestions: [],
-    blocks: [{ type: 'link', items: [toLinkItem(title, href, narrative)] }]
+    blocks: linkOrModuleBlocks([toLinkItem(title, href, narrative)])
   };
 }
 
@@ -583,15 +695,11 @@ async function buildProductCredentialsAnswer(tip) {
       `**Credentials guide:** ${legacy}\n\n` +
       `Verified \`etl_*\` rows carry scheme overlays — **Andrieus** confirms grant fit in your region.\n\n_${tip}_`,
     suggestions: [],
-    blocks: [
-      {
-        type: 'link',
-        items: [
-          toLinkItem('Restaurant equipment deep dive', live, 'Side-by-side alternatives with grants'),
-          toLinkItem('Product Deep Dive guide', legacy, 'ETL credentials framing')
-        ]
-      }
-    ],
+    blocks: linkOrModuleBlocks([
+      toLinkItem('Restaurant equipment deep dive', live, 'Side-by-side alternatives with grants'),
+      toLinkItem('ETL product finder', FINDER_LINKS.equipmentTool, 'Verified efficient equipment catalog'),
+      toLinkItem('Product Deep Dive guide', legacy, 'ETL credentials framing')
+    ]),
     agentHandoffs: buildHandoffs(briefing, '', 'product_credentials')
   };
 }
@@ -643,7 +751,10 @@ function buildLaneAnswer(lane, catalog, showcase, tip) {
       `${LANE_LABELS[lane]} — efficient product paths for restaurants:\n\n` +
       `${bullets || '_Browse the full finder for your appliance type._'}\n\n` +
       `→ **Open finder:** ${finder}\n\n_${tip}_`,
-    suggestions: []
+    suggestions: [],
+    blocks: linkOrModuleBlocks(
+      lane === 'water' ? portalLinkItems('water') : portalLinkItems('products')
+    )
   };
 }
 
@@ -657,7 +768,8 @@ function buildSourcesAnswer(tip) {
       `| **Market alternative** | \`sust_*\` | Broader catalog — gas/water/retrofit options not yet on marketplace |\n\n` +
       `This chat uses showcase + catalog for fast answers. **Full marketplace search** runs on the finder HTML pages via \`/api/equipment-intelligence/alternatives\`.\n\n` +
       `**Suggest for Greenways** intake stays on finder pages (staff workflow).\n\n_${tip}_`,
-    suggestions: []
+    suggestions: [],
+    blocks: linkOrModuleBlocks(portalLinkItems('all'))
   };
 }
 
@@ -671,7 +783,8 @@ function buildPortalsAnswer(portal, tip) {
   lines.push(`- **Equipment intelligence tool:** ${FINDER_LINKS.equipmentTool}`);
   return {
     answer: `**Sustainable product finders on Greenways:**\n\n${lines.join('\n')}\n\n_${tip}_`,
-    suggestions: []
+    suggestions: [],
+    blocks: linkOrModuleBlocks(portalLinkItems(portal))
   };
 }
 
@@ -715,7 +828,6 @@ async function answerFromKnowledge(question, profile = {}) {
     switch (intent.answerType) {
       case 'overview':
         result = await buildOverviewAnswer(catalog, tip, briefing);
-        result = await attachModules(result, profile, ['eco-project-planner', 'sustainable-product-finder']);
         break;
       case 'lane':
         result = buildLaneAnswer(intent.lane, catalog, showcase, tip);
@@ -728,7 +840,6 @@ async function answerFromKnowledge(question, profile = {}) {
         break;
       case 'portals':
         result = buildPortalsAnswer(intent.portal || 'all', tip);
-        result = await attachModules(result, profile, ['water-saving-finder', 'sustainable-product-finder']);
         break;
       case 'product_deal_spotlights':
         result = buildProductDealSpotlightsAnswer(tip, briefing);
@@ -738,7 +849,7 @@ async function answerFromKnowledge(question, profile = {}) {
         break;
       case 'eco_journey':
         result = await buildEcoJourneyAnswer(profile, tip);
-        result = await attachModules(result, profile, ['eco-project-planner']);
+        result = attachModules(result, ['eco-project-planner', 'sustainable-product-finder']);
         break;
       case 'citizen_benefits':
         result = await buildCitizenBenefitsAnswer(tip);

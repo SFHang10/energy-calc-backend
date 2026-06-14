@@ -734,6 +734,57 @@
   .product-ask-btn:hover { background: rgba(37, 99, 235, 0.35); }
   .product-samples--banner .product-sample-card { padding-bottom: 0; }
 
+  .agent-turn-right .module-tablet,
+  .agent-turn-right .link-tablet {
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: linear-gradient(
+      155deg,
+      rgba(8, 20, 36, 0.78) 0%,
+      rgba(12, 28, 48, 0.72) 52%,
+      rgba(6, 14, 28, 0.82) 100%
+    );
+    border: 1px solid rgba(59, 130, 246, 0.32);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(14px) saturate(1.2);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  }
+
+  .agent-turn-right .module-tablet-title,
+  .agent-turn-right .link-tablet-title {
+    font-size: 0.82rem;
+    color: #e0f2fe;
+    margin-bottom: 6px;
+  }
+
+  .agent-turn-right .module-tablet-desc,
+  .agent-turn-right .link-tablet-desc {
+    font-size: 0.72rem;
+    color: #b8c9e8;
+    margin-bottom: 8px;
+  }
+
+  .agent-turn-right .module-tablet-usage {
+    font-size: 0.7rem;
+    color: #7dd3fc;
+    font-style: normal;
+    margin-bottom: 10px;
+  }
+
+  .agent-turn-right .module-tablet-open--primary,
+  .agent-turn-right .link-tablet-open {
+    border-color: rgba(96, 165, 250, 0.45);
+    background: rgba(37, 99, 235, 0.28);
+    color: #dbeafe;
+  }
+
+  .agent-turn-right .module-tablet-open--primary:hover,
+  .agent-turn-right .link-tablet-open:hover {
+    background: rgba(59, 130, 246, 0.42);
+    border-color: rgba(147, 197, 253, 0.65);
+    color: #f0f9ff;
+  }
+
   .msg-row {
     animation: msg-in 0.35s ease-out both;
   }
@@ -1844,10 +1895,24 @@
     });
   }
   document.getElementById("new-chat-btn").addEventListener("click", clearChat);
+  if (window.GreenwaysAgentContentModule) {
+    GreenwaysAgentContentModule.init({
+      agentName: AGENT_PROFILE.name,
+      agentSlug: "sustainable-products-agent",
+      theme: "products",
+      returnLabel: "← Back to Zyanne"
+    });
+    GreenwaysAgentContentModule.bindDocumentIntercept();
+    GreenwaysAgentContentModule.bindContainer(thread);
+    GreenwaysAgentContentModule.bindContainer(document.getElementById("top-product-samples"));
+    GreenwaysAgentContentModule.bindContainer(document.getElementById("gw-agent-quick-links"));
+    GreenwaysAgentContentModule.bindContainer(document.body);
+  }
+
   if (window.GreenwaysAgentSidebar) {
     GreenwaysAgentSidebar.init({
-      quickLinks: [{"icon":"🛍️","name":"Deal spotlights","desc":"Zara · weekly","href":"/greenways/deals-agent","agent":true},{"icon":"🏷️","name":"Full Deals page","desc":"Ticker + sidebar","href":"./Deals.html"},{"icon":"💧","name":"Water finder","desc":"Saving products","href":"./water-saving-finder.html"},{"icon":"🔍","name":"Product finder","desc":"Full portal","href":"./sustainable_product_deal_finder_portal.html"},{"icon":"📊","name":"Equipment deep dive","desc":"Compare kit","href":"./restaurant-equipment-deep-dive.html"},{"icon":"🔧","name":"Equipment Agent","desc":"Artemis · upgrades","href":"/greenways/equipment-agent","agent":true}],
-      linksHint: "Search catalog here · weekly spotlights on Deals Agent.",
+      quickLinks: [{"icon":"🛍️","name":"Deal spotlights","desc":"Zara · weekly","href":"/greenways/deals-agent","agent":true},{"icon":"🏷️","name":"Full Deals page","desc":"Ticker + sidebar","moduleOpen":true,"moduleId":"deals-full-page","href":"./Deals.html","action":"Open"},{"icon":"💧","name":"Water finder","desc":"Saving products","moduleOpen":true,"moduleId":"water-saving-finder","href":"./water-saving-finder.html","action":"Open"},{"icon":"🔍","name":"Product finder","desc":"Full portal","moduleOpen":true,"moduleId":"sustainable-product-finder","href":"./sustainable_product_deal_finder_portal.html","action":"Open"},{"icon":"📊","name":"Equipment deep dive","desc":"Compare kit","moduleOpen":true,"moduleId":"equipment-deep-dive","href":"./restaurant-equipment-deep-dive.html","action":"Open"},{"icon":"🔧","name":"Equipment Agent","desc":"Artemis · upgrades","href":"/greenways/equipment-agent","agent":true}],
+      linksHint: "Portals open in-panel with a short guide — chat stays open behind.",
       helpersHint: "Water, electricity, gas lanes, and finders.",
       helpers: HELPERS,
       onAsk: function (prompt) { sendQuestion(prompt); },
@@ -1866,10 +1931,6 @@
 
   updateCompareUi();
   
-  if (window.GreenwaysAgentContentModule) {
-    GreenwaysAgentContentModule.bindContainer(thread);
-  }
-
   var gwVoiceHandle = null;
   if (window.GreenwaysAgentVoice) {
     GreenwaysAgentVoice.init({
