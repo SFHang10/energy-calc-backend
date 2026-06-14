@@ -11,7 +11,9 @@
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-team.css">
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-sidebar.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-team.js"></script>
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-sidebar.js"></script>
 <script>
 (function () {
   var p = location.pathname || "";
@@ -1331,13 +1333,16 @@
   </main>
 
   <aside class="guide-sidebar" aria-label="Grant helpers">
-    <div class="sidebar-section">
+        <div class="sidebar-section sidebar-section--links">
       <div class="sidebar-label">Quick links</div>
-      <p style="font-size:0.72rem;color:var(--muted);line-height:1.45;">Tap a helper or open a portal for the full catalogue.</p>
-      <a class="sidebar-link" href="./Full%20Schemes%20Portal%20Restaurant.html" target="_top" rel="noopener">Restaurant schemes portal →</a>
-      <a class="sidebar-link" href="./finance-finder-restaurant.html" target="_top" rel="noopener">Finance finder →</a>
+      <p class="sidebar-hint" id="gw-sidebar-links-hint"></p>
+      <div class="gw-sidebar-ql-list" id="gw-agent-quick-links" role="navigation" aria-label="Quick links"></div>
     </div>
-    <div class="helper-list" id="helper-list"></div>
+    <div class="sidebar-block--helpers">
+      <div class="sidebar-label">Ask about</div>
+      <p class="sidebar-hint" id="gw-sidebar-helpers-hint"></p>
+      <div class="helper-list" id="helper-list"></div>
+    </div>
     <div class="status-bar" id="status-bar">Ready · knowledge mode (schemes.json)</div>
   </aside>
 </div>
@@ -2171,20 +2176,25 @@
     });
   }
   document.getElementById("new-chat-btn").addEventListener("click", clearChat);
-
-  HELPERS.forEach(function (h) {
-    const card = document.createElement("button");
-    card.type = "button";
-    card.className = "helper-card";
-    card.innerHTML =
-      '<span class="helper-icon" aria-hidden="true">' + h.icon + "</span>" +
-      '<span class="helper-card-body">' +
-      '<span class="helper-card-name">' + escapeHtml(h.name) + "</span>" +
-      '<span class="helper-card-desc">' + escapeHtml(h.desc) + "</span></span>" +
-      '<span class="helper-ask-btn">Ask</span>';
-    card.addEventListener("click", function () { sendQuestion(h.prompt); });
-    helperList.appendChild(card);
-  });
+  if (window.GreenwaysAgentSidebar) {
+    GreenwaysAgentSidebar.init({
+      quickLinks: [{"icon":"🏛️","name":"Schemes portal","desc":"Restaurant catalogue","href":"./Full%20Schemes%20Portal%20Restaurant.html"},{"icon":"💶","name":"Finance finder","desc":"Loans & BNPL","href":"./finance-finder-restaurant.html"},{"icon":"💶","name":"Finance Agent","desc":"Vincent · payback","href":"/greenways/finance-agent","agent":true}],
+      linksHint: "Tap a helper or open a portal for the full catalogue.",
+      helpersHint: "Schemes, regions, deadlines, and product overlays.",
+      helpers: HELPERS,
+      onAsk: function (prompt) { sendQuestion(prompt); },
+      compactNameLen: 16
+    });
+  } else {
+    HELPERS.forEach(function (h) {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "helper-card";
+      card.innerHTML = h.name;
+      card.addEventListener("click", function () { sendQuestion(h.prompt); });
+      document.getElementById("helper-list").appendChild(card);
+    });
+  }
 
   updateCompareUi();
   

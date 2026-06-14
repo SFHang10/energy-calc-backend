@@ -11,7 +11,9 @@
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-team.css">
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-sidebar.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-team.js"></script>
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-sidebar.js"></script>
 <script>
 (function () {
   var p = location.pathname || "";
@@ -282,14 +284,16 @@
       <button type="button" class="sync-verify-btn" id="sync-verify-btn">🔄 Verify selected</button>
       <p class="sync-note">Does not run integrator or build commands — confirms status only.</p>
     </div>
-    <div class="sidebar-section">
+    <div class="sidebar-section sidebar-section--links">
       <div class="sidebar-label">Quick links</div>
-      <a class="sidebar-link" href="./Importance%20of%20Energy%20Monitoring.html" target="_top">Monitoring guide →</a>
-      <a class="sidebar-link" href="./sensor-dashboard.html" target="_top">Sensor dashboard →</a>
-      <a class="sidebar-link" href="/greenways/equipment-agent" target="_top">Artemis (equipment) →</a>
-      <a class="sidebar-link" href="/greenways/finance-agent" target="_top">Vincent (finance) →</a>
+      <p class="sidebar-hint" id="gw-sidebar-links-hint"></p>
+      <div class="gw-sidebar-ql-list" id="gw-agent-quick-links" role="navigation" aria-label="Quick links"></div>
     </div>
-    <div class="helper-list" id="helper-list"></div>
+    <div class="sidebar-block--helpers">
+      <div class="sidebar-label">Ask about</div>
+      <p class="sidebar-hint" id="gw-sidebar-helpers-hint"></p>
+      <div class="helper-list" id="helper-list"></div>
+    </div>
     <div class="status-bar" id="status-bar">Ready · systems &amp; monitoring</div>
   </aside>
 </div>
@@ -572,14 +576,17 @@
     }
   }
 
-  document.getElementById("helper-list").innerHTML = HELPERS.map(function (h) {
-    return (
-      '<div class="helper-card" data-prompt="' + escapeHtml(h.prompt) + '">' +
-      '<span class="helper-icon">' + h.icon + "</span>" +
-      '<span><span class="helper-card-name">' + escapeHtml(h.name) + "</span>" +
-      '<span class="helper-card-desc">' + escapeHtml(h.desc) + "</span></span></div>"
-    );
-  }).join("");
+  document.getElementById("new-chat-btn").addEventListener("click", clearChat);
+  if (window.GreenwaysAgentSidebar) {
+    GreenwaysAgentSidebar.init({
+      quickLinks: [{"icon":"📡","name":"Monitoring guide","desc":"Why baseline","href":"./Importance%20of%20Energy%20Monitoring.html"},{"icon":"📊","name":"Sensor dashboard","desc":"Live view","href":"./sensor-dashboard.html"},{"icon":"🔧","name":"Equipment Agent","desc":"Artemis · upgrades","href":"/greenways/equipment-agent","agent":true},{"icon":"💶","name":"Finance Agent","desc":"Vincent · payback","href":"/greenways/finance-agent","agent":true}],
+      linksHint: "Monitoring guides, dashboard, and agent handoffs.",
+      helpersHint: "Sensors, dashboards, peak timing, and ETL.",
+      helpers: HELPERS,
+      onAsk: function (prompt) { sendQuestion(prompt); },
+      compactNameLen: 16
+    });
+  }
 
   initSyncChecks();
   loadStatusBanner();
@@ -589,7 +596,6 @@
   input.addEventListener("keydown", function (e) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendQuestion(input.value); input.value = ""; }
   });
-  document.getElementById("new-chat-btn").addEventListener("click", clearChat);
 
   bindWelcomeTags();
 

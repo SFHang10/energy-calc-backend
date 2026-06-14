@@ -465,6 +465,8 @@ html, body {
   - **Grants / Music Guide / dashboard assistant** wired; per-agent override `GRANTS_AGENT_*`, `MUSIC_GUIDE_*` → fallback `ASSISTANT_*`.
   - **Agent Zero** = separate future business stack, not this path.
 
+- **🚀 Launch mode — agents (Jun 2026):** Wix launch prioritises experience over LLM caps. Policy in **`Skills/greenways-agents-roadmap.md`** § Launch mode. **Track A:** `meaningForProfile()`, `buildAgentHandoff()`, `finishKnowledgeAskResponse()` / `maybePolishKnowledgeAnswer()` in shared services; **`npm run smoke:agents-ask`**. Vincent pilot: polish-on-hit via `GREENWAYS_AGENT_POLISH_AGENTS=finance` (default) when `FINANCE_AGENT_*` / `ASSISTANT_*` set.
+- **📋 Agent sidebar UI (Jun 2026):** Shared **`HTMLS GWM GWB/js/greenways-agent-sidebar.css`** + **`.js`** on all seven shells — compact **Quick links** block (gold border) + **Ask about** block (slate border); link config in **`data/greenways-agent-sidebar-config.json`**; sync via **`npm run sync:agent-sidebar`**.
 - **🗺️ Media Agent + sustainability map (May 2026)**:
   - **`services/media-agent-companies.js`** ranks **`data/companies.json`** (500+ orgs) for profile/sector — energy savings examples, payback stats, techniques to benchmark.
   - Intents: `sustainability_map`, `energy_examples`; **monthly news** uses story link tablets (not long bullet lists).
