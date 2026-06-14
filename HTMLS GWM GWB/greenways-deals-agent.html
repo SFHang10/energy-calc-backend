@@ -8,6 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.js"></script>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-team.css">
@@ -1784,10 +1786,24 @@
     });
   }
   document.getElementById("new-chat-btn").addEventListener("click", clearChat);
+  if (window.GreenwaysAgentContentModule) {
+    GreenwaysAgentContentModule.init({
+      agentName: AGENT_PROFILE.name,
+      agentSlug: "deals-agent",
+      theme: "deals",
+      returnLabel: "← Back to Zara"
+    });
+    GreenwaysAgentContentModule.bindDocumentIntercept();
+    GreenwaysAgentContentModule.bindContainer(thread);
+    GreenwaysAgentContentModule.bindContainer(document.getElementById("top-product-samples"));
+    GreenwaysAgentContentModule.bindContainer(document.getElementById("gw-agent-quick-links"));
+    GreenwaysAgentContentModule.bindContainer(document.body);
+  }
+
   if (window.GreenwaysAgentSidebar) {
     GreenwaysAgentSidebar.init({
-      quickLinks: [{"icon":"🏷️","name":"Full Deals page","desc":"Ticker + sidebar","href":"./Deals.html"},{"icon":"⚡","name":"Energy portal","desc":"Tariff compare","href":"./european_energy_deals_portal.html"},{"icon":"📡","name":"Deals ticker hub","desc":"Three lanes","href":"./deals-ticker-hub.html"},{"icon":"🌿","name":"Products Agent","desc":"Zyanne · catalog","href":"/greenways/sustainable-products-agent","agent":true},{"icon":"💧","name":"Water finder","desc":"Saving products","href":"./water-saving-finder.html"}],
-      linksHint: "Supply deals + product spotlights. Full catalog → Products Agent.",
+      quickLinks: [{"icon":"🏷️","name":"Full Deals page","desc":"Ticker + sidebar","moduleOpen":true,"moduleId":"deals-full-page","href":"./Deals.html","action":"Open"},{"icon":"⚡","name":"Energy portal","desc":"Tariff compare","moduleOpen":true,"moduleId":"european-energy","href":"./european_energy_deals_portal.html","action":"Open"},{"icon":"📡","name":"Deals ticker hub","desc":"Three lanes","moduleOpen":true,"moduleId":"deals-ticker","href":"./deals-ticker-hub.html","action":"Open"},{"icon":"🌿","name":"Products Agent","desc":"Zyanne · catalog","href":"/greenways/sustainable-products-agent","agent":true},{"icon":"💧","name":"Water finder","desc":"Saving products","moduleOpen":true,"moduleId":"water-saving-finder","href":"./water-saving-finder.html","action":"Open"}],
+      linksHint: "Portals open in-panel with a short guide — chat stays open behind.",
       helpersHint: "Tariffs, spotlights, water deals, and portals.",
       helpers: HELPERS,
       onAsk: function (prompt) { sendQuestion(prompt); },

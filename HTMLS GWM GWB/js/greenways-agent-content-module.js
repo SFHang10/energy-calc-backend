@@ -45,6 +45,7 @@
     ["energy-audit-widget", "energy-audit"],
     ["savings.html", "savings-tour"],
     ["deals-ticker-hub", "deals-ticker"],
+    ["deals.html", "deals-full-page"],
     ["restaurant-equipment-deep-dive", "equipment-deep-dive"],
     ["sustainable%20renovations", "sustainable-renovations"],
     ["importance%20of%20insulation", "insulation-guide"],
@@ -162,6 +163,38 @@
       id: "sustainable-references",
       title: "Sustainable references",
       href: "./Sustainable%20References%20.HTML",
+      defaultOpenSize: "near-full"
+    },
+    "deals-full-page": {
+      id: "deals-full-page",
+      title: "Full Deals page",
+      description: "Greenways Buildings deals shell — ticker hub plus sidebar portals.",
+      usageHint: "Start with the three marquee lanes or search, then open sidebar links for tariff compare or the water finder.",
+      href: "./Deals.html",
+      defaultOpenSize: "near-full"
+    },
+    "european-energy": {
+      id: "european-energy",
+      title: "European energy deals",
+      description: "Compare business and site tariffs across European markets in one portal.",
+      usageHint: "Set your market or building type, compare headline rates, then open a deal lane that matches your contract renewal timing.",
+      href: "./european_energy_deals_portal.html",
+      defaultOpenSize: "near-full"
+    },
+    "deals-ticker": {
+      id: "deals-ticker",
+      title: "Deals ticker hub",
+      description: "Marquee lanes for energy, water, and sustainability deals plus manual search.",
+      usageHint: "Watch the scrolling lanes for timely offers, filter by category pill, or search when you know the product or supplier name.",
+      href: "./deals-ticker-hub.html",
+      defaultOpenSize: "near-full"
+    },
+    "water-saving-finder": {
+      id: "water-saving-finder",
+      title: "Water Saving Finder",
+      description: "Full water-lane search, tips, and interactive product compare.",
+      usageHint: "Pick a water-saving category or tip, compare product rows, and open details when a match fits your site.",
+      href: "./water-saving-finder.html",
       defaultOpenSize: "near-full"
     }
   };

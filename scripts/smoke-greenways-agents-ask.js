@@ -152,6 +152,14 @@ async function runLocalSmokes() {
   }
   console.log('OK Cheryce portals module tablets');
 
+  const dealsMod = require(path.join(ROOT, 'services/deals-agent-knowledge'));
+  const dealsPortalHit = await dealsMod.answerFromKnowledge('open portal deals hub', profile);
+  const dealsPortalMod = (dealsPortalHit?.blocks || []).find((b) => b.type === 'module');
+  if (!dealsPortalMod?.items?.some((i) => i.moduleId === 'european-energy' || i.moduleId === 'deals-ticker' || i.moduleId === 'deals-full-page')) {
+    throw new Error('Zara portals: expected deals portal module items');
+  }
+  console.log('OK Zara portals module tablets');
+
   let hits = 0;
   for (const agent of AGENT_SMOOKES) {
     const mod = agent.load();
