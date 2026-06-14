@@ -9,7 +9,7 @@ const {
   toLinkItem,
   toModuleItem
 } = require('./greenways-agent-shared');
-const { mergeModuleRow } = require('./greenways-content-modules');
+const { mergeModuleRow, loadRegistrySync, getModuleById } = require('./greenways-content-modules');
 const {
   applyPersona,
   loadAgentVoice,
@@ -50,9 +50,21 @@ function portalPathToModuleId(path) {
 }
 
 function dealsModuleBlock(rows) {
+  const registry = loadRegistrySync();
   return {
     type: 'module',
-    items: rows.map((row) => toModuleItem({ ...DEALS_MODULE, ...mergeModuleRow(row) }))
+    items: rows.map((row) => {
+      const mod = getModuleById(registry, row.moduleId);
+      const punch = String(row.usageHint || '').trim();
+      const registryUsage = String(mod?.usageHint || '').trim();
+      const merged = mergeModuleRow({ ...row, usageHint: '' });
+      if (punch && punch !== merged.description) {
+        merged.usageHint = registryUsage && registryUsage !== punch
+          ? `${punch} — ${registryUsage}`
+          : (registryUsage || punch);
+      }
+      return toModuleItem({ ...DEALS_MODULE, ...merged });
+    })
   };
 }
 
@@ -69,6 +81,7 @@ function linkOrModuleBlocks(items) {
       modules.push({
         moduleId,
         title: item.title,
+        usageHint: item.description || item.usageHint || '',
         openSize: 'near-full'
       });
     } else {
@@ -132,6 +145,26 @@ function buildHandoffs(briefing, question, intentId = '') {
     push('productsToZyanne', 'Find efficient products beyond the deals feed spotlights');
   }
   return out.slice(0, 3);
+}
+
+function dealsTariffBlocks(limit = 3) {
+  return linkOrModuleBlocks(dealsPortalLinkItems().slice(0, limit));
+}
+
+function dealsEnergyBlocks() {
+  return linkOrModuleBlocks([
+    toLinkItem('European energy portal', PORTAL_LINKS.europeanEnergy, 'Compare tariffs & packages'),
+    toLinkItem('Full Deals page', PORTAL_LINKS.dealsFullPage, 'Ticker hub + sidebar portals'),
+    toLinkItem('Deals ticker hub', PORTAL_LINKS.deals, 'Three lanes + search')
+  ]);
+}
+
+function dealsSpotlightBlocks() {
+  return linkOrModuleBlocks([
+    toLinkItem('Full Deals page', PORTAL_LINKS.dealsFullPage, 'Ticker hub + sidebar portals'),
+    toLinkItem('Deals ticker hub', PORTAL_LINKS.deals, 'Three lanes + search'),
+    toLinkItem('Sustainable Products Agent', PORTAL_LINKS.sustainableProductsAgent, 'Full catalog search')
+  ]);
 }
 
 function dealsPortalLinkItems() {
@@ -514,7 +547,8 @@ function buildNlRestaurantEnergyAnswer(deals, tip) {
       `${formatDealBullets(blocks, 4) || '_No NL energy rows — try the European portal with NL selected._'}\n\n` +
       `→ **Compare packages:** ${PORTAL_LINKS.europeanEnergy}` +
       portalFooter(tip),
-    suggestions: []
+    suggestions: [],
+    blocks: dealsEnergyBlocks()
   };
 }
 
@@ -534,7 +568,8 @@ function buildUkGreenTariffAnswer(deals, tip) {
       `${formatDealBullets(blocks, 4) || '_No UK green rows in feed — open the energy portal._'}\n\n` +
       `→ **Green tariff compare:** ${PORTAL_LINKS.europeanEnergy}` +
       portalFooter(tip),
-    suggestions: []
+    suggestions: [],
+    blocks: dealsEnergyBlocks()
   };
 }
 
@@ -549,7 +584,8 @@ function buildGreenTariffAnswer(deals, tip) {
       `${formatDealBullets(picked, 5) || '_Browse the energy portal for green tariff filters._'}\n\n` +
       `→ **Compare green packages:** ${PORTAL_LINKS.europeanEnergy}` +
       portalFooter(tip),
-    suggestions: []
+    suggestions: [],
+    blocks: dealsEnergyBlocks()
   };
 }
 
@@ -561,7 +597,8 @@ function buildEnergyCategoryAnswer(deals, tip) {
       `${formatDealBullets(matches, 6) || '_No energy rows — open the European energy portal._'}\n\n` +
       `→ **Compare packages:** ${PORTAL_LINKS.europeanEnergy}` +
       portalFooter(tip),
-    suggestions: []
+    suggestions: [],
+    blocks: dealsEnergyBlocks()
   };
 }
 
@@ -578,7 +615,15 @@ function buildCategoryAnswer(category, deals, tip) {
         ? `\n**Product spotlights:** ask "what product deals are live?" · Full catalog search: ${PORTAL_LINKS.sustainableProductsAgent}`
         : '') +
       `\n\n_${tip}_`,
-    suggestions: []
+    suggestions: [],
+    blocks: category === 'sustainability'
+      ? dealsSpotlightBlocks()
+      : category === 'water'
+        ? linkOrModuleBlocks([
+            toLinkItem('Water Saving Finder', './water-saving-finder.html', 'Water products, tips & grants'),
+            toLinkItem('Deals ticker hub', PORTAL_LINKS.deals, 'Three lanes + search')
+          ])
+        : dealsTariffBlocks(2)
   };
 }
 
@@ -594,7 +639,8 @@ function buildRegionAnswer(region, deals, tip) {
       `${formatDealBullets(matches, 6) || '_Try EU-wide energy or water lanes for more options._'}` +
       energyNote +
       portalFooter(tip),
-    suggestions: []
+    suggestions: [],
+    blocks: region === 'NL' || region === 'UK' ? dealsEnergyBlocks() : dealsTariffBlocks(3)
   };
 }
 
@@ -604,7 +650,8 @@ function buildNewDealsAnswer(deals, tip) {
     answer:
       `**New & highlighted deals:**\n\n${formatDealBullets(newest, 8) || '_No isNew flags in feed — run build:deals-feed to refresh._'}` +
       portalFooter(tip),
-    suggestions: []
+    suggestions: [],
+    blocks: dealsSpotlightBlocks()
   };
 }
 

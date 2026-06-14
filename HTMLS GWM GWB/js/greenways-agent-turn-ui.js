@@ -36,11 +36,43 @@
     return { body: body, tips: tips };
   }
 
+  function normalizeAwarenessTip(tip) {
+    let t = String(tip || "").trim();
+    if (!t) return "";
+    if (/^_(.+)_$/s.test(t)) t = t.replace(/^_(.+)_$/s, "$1").trim();
+    t = t.replace(/\s*_+\s*/g, " ").trim();
+    return t;
+  }
+
+  function formatAwarenessTip(tip, escapeHtml) {
+    const clean = normalizeAwarenessTip(tip);
+    if (!clean) return "";
+    let t = escapeHtml(clean);
+    t = t.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    t = t.replace(/\*(.+?)\*/g, "<em>$1</em>");
+    return t;
+  }
+
   function awarenessPanelHtml(tips, escapeHtml) {
     if (!Array.isArray(tips) || !tips.length) return "";
-    const items = tips.map(function (tip) {
-      return "<li>" + escapeHtml(tip) + "</li>";
+    const normalized = tips.map(normalizeAwarenessTip).filter(Boolean);
+    const deduped = [];
+    normalized.forEach(function (tip) {
+      if (!deduped.some(function (row) { return row.toLowerCase() === tip.toLowerCase(); })) {
+        deduped.push(tip);
+      }
+    });
+    const items = deduped.slice(0, 3).map(function (tip) {
+      const isProfile =
+        /^in \*\*/i.test(tip) ||
+        /^for your /i.test(tip) ||
+        /usually affects/i.test(tip);
+      const cls = isProfile ? " awareness-panel-item--profile" : "";
+      return (
+        '<li class="awareness-panel-item' + cls + '">' + formatAwarenessTip(tip, escapeHtml) + "</li>"
+      );
     }).join("");
+    if (!items) return "";
     return (
       '<section class="awareness-panel" aria-label="Things to be aware of">' +
       '<div class="awareness-panel-label">Things to be aware of</div>' +
@@ -93,6 +125,12 @@
                         ? "Open eco planner"
                         : moduleId === "deals-ticker"
                         ? "Open deals hub"
+                        : moduleId === "deals-full-page"
+                          ? "Open deals page"
+                          : moduleId === "water-saving-finder"
+                            ? "Open water finder"
+                            : moduleId === "sustainable-product-finder"
+                              ? "Open product finder"
                         : moduleId === "savings-trajectory"
                           ? "Open trajectory"
                           : moduleId === "energy-cost-guide"

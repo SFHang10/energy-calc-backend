@@ -442,15 +442,16 @@ List models: `GET https://api.cortecs.ai/v1/models` with same Bearer JWT. OpenRo
 
 ## Conversational answer pattern (Zara-style) — all agents
 
-**Reference:** [Zara (Deals Agent)](https://energy-calc-backend.onrender.com/greenways/deals-agent) — short left summary + **link tablets** / **module blocks** on the right.
+**Reference:** [Zara (Deals Agent)](https://energy-calc-backend.onrender.com/greenways/deals-agent) — short left summary + **module tablets** (`type: "module"` blocks) on the right. **Target for all agents (Track B):** portal/finder pages open in-panel via `GreenwaysAgentContentModule`; chat keeps the split layout (left prose + right tablets + gold **Things to be aware of** panel).
 
 | Rule | Left column (chat prose) | Right column / banner |
 |------|--------------------------|------------------------|
 | **Summarise, don't dump** | 2–4 friendly paragraphs — what it is, why it matters, how it could affect bills or planning | Concrete examples, portals, editions |
-| **No long lists** | Avoid markdown bullet catalogues of articles, schemes, deals, or case studies | Move rows to `blocks[]` (`type: "link"`) or `productSamples` banner cards |
-| **No raw HTML paths** | Never `→ ./some-page.html` in prose | Use `toLinkItem(title, url, description)` in blocks |
+| **No long lists** | Avoid markdown bullet catalogues of articles, schemes, deals, or case studies | Move rows to `blocks[]` (`type: "module"` preferred; `type: "link"` when external/agent-only) or `productSamples` banner cards |
+| **No raw HTML paths** | Never `→ ./some-page.html` in prose | Use `toLinkItem` → `linkOrModuleBlocks()` or `toModuleItem` + registry copy (`description` + `usageHint`) |
 | **Explain & invite** | Offer follow-ups: _"Should I explain CBAM?"_ / _"Want examples for your sector?"_ | Module shell for maps, finders, tickers (`attachModules`) |
-| **Helper tone** | Friendly curator — not a search engine | User opens **Open ↗** or map module when ready |
+| **Helper tone** | Friendly curator — not a search engine | User opens **Open illustration** / map module when ready; **New tab ↗** stays available |
+| **Awareness panel** | Trailing `_tips_` and profile meaning lines render in the right column — **not** raw `**markdown**` | `greenways-agent-turn-ui.js` formats tips (bold, dedupe); gold label + cream body text |
 
 **Implementation:**
 
