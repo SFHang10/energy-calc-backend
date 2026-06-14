@@ -26,6 +26,30 @@ const AGENT_SMOOKES = [
     route: '/api/media-agent/ask',
     load: () => require(path.join(ROOT, 'services/media-agent-knowledge')),
     questions: ['sustainability map examples', 'monthly news']
+  },
+  {
+    key: 'equipment',
+    route: '/api/equipment-agent/ask',
+    load: () => require(path.join(ROOT, 'services/equipment-agent-knowledge')),
+    questions: ['insulation guide restaurant', 'equipment deep dive']
+  },
+  {
+    key: 'deals',
+    route: '/api/deals-agent/ask',
+    load: () => require(path.join(ROOT, 'services/deals-agent-knowledge')),
+    questions: ['deals ticker hub', 'energy tariff deals']
+  },
+  {
+    key: 'sustainable-products',
+    route: '/api/sustainable-products-agent/ask',
+    load: () => require(path.join(ROOT, 'services/sustainable-products-agent-knowledge')),
+    questions: ['water saving products', 'efficient refrigeration ETL']
+  },
+  {
+    key: 'systems',
+    route: '/api/systems-agent/ask',
+    load: () => require(path.join(ROOT, 'services/systems-agent-knowledge')),
+    questions: ['sensor dashboard monitoring', 'energy monitoring guide']
   }
 ];
 
@@ -92,8 +116,8 @@ async function runLocalSmokes() {
     }
   }
 
-  if (hits < 3) {
-    throw new Error(`Expected at least 3 knowledge hits, got ${hits}`);
+  if (hits < 8) {
+    throw new Error(`Expected at least 8 knowledge hits, got ${hits}`);
   }
   return hits;
 }

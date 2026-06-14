@@ -7,7 +7,11 @@ const {
 } = require('../services/media-agent-knowledge');
 const { rankNewsItems } = require('../services/media-news-loader');
 const { getVideosForAgent } = require('../services/wix-media-service');
-const { buildAgentAskFallback, normalizeAskProfile } = require('../services/greenways-agent-llm-fallback');
+const {
+  buildAgentAskFallback,
+  normalizeAskProfile,
+  finishKnowledgeAskResponse
+} = require('../services/greenways-agent-llm-fallback');
 
 const router = express.Router();
 
@@ -81,20 +85,11 @@ router.post('/ask', async (req, res) => {
     }
 
     const knowledge = await answerFromKnowledge(question, profile);
-    if (knowledge?.answer) {
-      return res.json({
-        ok: true,
-        answer: knowledge.answer,
-        suggestions: knowledge.suggestions || [],
-        blocks: knowledge.blocks || [],
-        editionChips: knowledge.editionChips || [],
-        productSamples: knowledge.productSamples || [],
-        agentHandoffs: knowledge.agentHandoffs || [],
-        spokenSummary: knowledge.spokenSummary || null,
-        source: knowledge.source || 'knowledge',
-        intentId: knowledge.intentId || null,
-        knowledgeVersion: MEDIA_KNOWLEDGE_VERSION
-      });
+    const response = await finishKnowledgeAskResponse('media', knowledge, question, profile, {
+      responseExtras: { knowledgeVersion: MEDIA_KNOWLEDGE_VERSION }
+    });
+    if (response) {
+      return res.json(response);
     }
 
     res.json(await buildAgentAskFallback('media', question, profile));

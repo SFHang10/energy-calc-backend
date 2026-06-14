@@ -4,7 +4,11 @@ const {
   getDefaultProductSamples,
   compareSchemesByIds
 } = require('../services/grants-agent-knowledge');
-const { buildAgentAskFallback, normalizeAskProfile } = require('../services/greenways-agent-llm-fallback');
+const {
+  buildAgentAskFallback,
+  normalizeAskProfile,
+  finishKnowledgeAskResponse
+} = require('../services/greenways-agent-llm-fallback');
 
 const router = express.Router();
 
@@ -55,18 +59,9 @@ router.post('/ask', async (req, res) => {
     }
 
     const knowledge = await answerFromKnowledge(question, profile);
-    if (knowledge?.answer) {
-      return res.json({
-        ok: true,
-        answer: knowledge.answer,
-        suggestions: knowledge.suggestions || [],
-        blocks: knowledge.blocks || [],
-        productSamples: knowledge.productSamples || [],
-        agentHandoffs: knowledge.agentHandoffs || [],
-        spokenSummary: knowledge.spokenSummary || '',
-        source: knowledge.source || 'knowledge',
-        intentId: knowledge.intentId || null
-      });
+    const response = await finishKnowledgeAskResponse('grants', knowledge, question, profile);
+    if (response) {
+      return res.json(response);
     }
 
     res.json(await buildAgentAskFallback('grants', question, profile));

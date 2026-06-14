@@ -508,7 +508,7 @@ async function finishKnowledgeAskResponse(agentKey, knowledge, question, profile
       ? knowledge
       : enrichWithMeaning(knowledge, profile, context);
   const final = await maybePolishKnowledgeAnswer(agentKey, withMeaning, question, profile);
-  return {
+  const response = {
     ok: true,
     answer: final.answer,
     suggestions: final.suggestions || [],
@@ -521,6 +521,13 @@ async function finishKnowledgeAskResponse(agentKey, knowledge, question, profile
     intentId: final.intentId || null,
     meaningLine: final.meaningLine || ''
   };
+  for (const key of ['knowledgeVersion', 'lane', 'checkReport']) {
+    if (final[key] != null && final[key] !== '') response[key] = final[key];
+  }
+  if (context.responseExtras && typeof context.responseExtras === 'object') {
+    Object.assign(response, context.responseExtras);
+  }
+  return response;
 }
 
 async function buildAgentAskFallback(agentKey, question, profile = {}) {
