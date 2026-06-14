@@ -1046,7 +1046,7 @@
       label: "On Greenways — water & energy savings",
       grantsCount: 2,
       topGrants: ["On Greenways"],
-      marketplaceHref: "product-page-v2-marketplace.html?product=etl_21_29475&fromPopup=true",
+      marketplaceHref: "/product-page-v2-marketplace.html?product=etl_21_29475&fromPopup=true",
       lane: "water"
     },
     {
@@ -1057,7 +1057,7 @@
       label: "On Greenways — efficient freezer",
       grantsCount: 2,
       topGrants: ["On Greenways"],
-      marketplaceHref: "product-page-v2-marketplace.html?product=etl_14_86293&fromPopup=true",
+      marketplaceHref: "/product-page-v2-marketplace.html?product=etl_14_86293&fromPopup=true",
       lane: "electricity"
     },
     {
@@ -1283,7 +1283,7 @@
     return samples.slice(0, 3).map(function (p) {
       const name = escapeHtml(p.name || p.id || "Product");
       const rawName = String(p.name || p.id || "this product");
-      const href = escapeHtml(p.marketplaceHref || ("product-page-v2-marketplace.html?product=" + encodeURIComponent(p.id || "") + "&fromPopup=true"));
+      const href = escapeHtml(TurnUi.normalizeMarketplaceHref(p.marketplaceHref, p.id));
       const askPrompt = "Tell me about savings and alternatives for " + rawName + " for my business profile?";
       const img = p.imageUrl ? '<img src="' + escapeHtml(p.imageUrl) + '" alt="" loading="lazy">' : '<span aria-hidden="true">📦</span>';
       const grantLabel = (p.topGrants && p.topGrants[0]) ? escapeHtml(p.topGrants[0]) : (p.grantsCount ? (p.grantsCount + " grant" + (p.grantsCount === 1 ? "" : "s")) : "Grants on file");

@@ -1358,7 +1358,7 @@
       label: "Commercial combi steamer — upgrade with scheme support",
       grantsCount: 1,
       topGrants: ["ECO4 Energy Company Obligation"],
-      marketplaceHref: "product-page-v2-marketplace.html?product=etl_22_86212&fromPopup=true"
+      marketplaceHref: "/product-page-v2-marketplace.html?product=etl_22_86212&fromPopup=true"
     },
     {
       id: "etl_14_86293",
@@ -1368,7 +1368,7 @@
       label: "Glass-door freezer — refrigeration grants on file",
       grantsCount: 2,
       topGrants: ["Nest Wales Scheme"],
-      marketplaceHref: "product-page-v2-marketplace.html?product=etl_14_86293&fromPopup=true"
+      marketplaceHref: "/product-page-v2-marketplace.html?product=etl_14_86293&fromPopup=true"
     },
     {
       id: "etl_14_59333",
@@ -1378,7 +1378,7 @@
       label: "Heat pump — stacked UK efficiency schemes",
       grantsCount: 4,
       topGrants: ["Warm Homes Plan (UK)"],
-      marketplaceHref: "product-page-v2-marketplace.html?product=etl_14_59333&fromPopup=true"
+      marketplaceHref: "/product-page-v2-marketplace.html?product=etl_14_59333&fromPopup=true"
     }
   ];
 
@@ -1635,7 +1635,7 @@
     return samples.slice(0, 3).map(function (p) {
       const name = escapeHtml(p.name || p.id || "Product");
       const rawName = String(p.name || p.id || "this product");
-      const href = escapeHtml(p.marketplaceHref || ("product-page-v2-marketplace.html?product=" + encodeURIComponent(p.id || "") + "&fromPopup=true"));
+      const href = escapeHtml(TurnUi.normalizeMarketplaceHref(p.marketplaceHref, p.id));
       const askPrompt = "What grants and schemes apply to " + rawName + " for my business profile?";
       const img = p.imageUrl ? '<img src="' + escapeHtml(p.imageUrl) + '" alt="" loading="lazy">' : '<span aria-hidden="true">📦</span>';
       const grantLabel = (p.topGrants && p.topGrants[0]) ? escapeHtml(p.topGrants[0]) : (p.grantsCount ? (p.grantsCount + " grant" + (p.grantsCount === 1 ? "" : "s")) : "Grants on file");

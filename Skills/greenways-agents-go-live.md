@@ -63,6 +63,7 @@ Use welcome chips + one freeform question from the agent table below.
 - [ ] Reply appears; no frozen “thinking” forever
 - [ ] **↺ New chat** resets thread
 - [ ] F12 console: no `SyntaxError`, no 404 on turn-ui
+- [ ] Product banner photo tap opens **`/product-page-v2-marketplace.html?product=…`** (not `/greenways/product-page-v2-marketplace.html` — 404)
 - [ ] At least one answer shows split layout or tablets (where applicable)
 
 ### Optional same day (not blocking)

@@ -43,7 +43,7 @@ const PORTAL_LINKS = {
   energyCalculator: '/energy-calculator/energy-calculator-enhanced-2.html',
   etlMarketplace: './equipment_intelligence_tool.html',
   energyTechnologyList: './energy_technology_list_etl.html',
-  productMarketplace: 'product-page-v2-marketplace.html',
+  productMarketplace: '/product-page-v2-marketplace.html',
   energyAudit: '/energy-audit-widget-main.html',
   membersSection: '/wix-integration/members-section.html',
   restaurantData: './restaurant-data.html',
@@ -262,7 +262,7 @@ function normalizeImageUrl(imageUrl) {
 }
 
 function marketplaceHref(productId) {
-  return `product-page-v2-marketplace.html?product=${encodeURIComponent(productId)}&fromPopup=true`;
+  return `/product-page-v2-marketplace.html?product=${encodeURIComponent(productId)}&fromPopup=true`;
 }
 
 function deepDiveHref(productId) {

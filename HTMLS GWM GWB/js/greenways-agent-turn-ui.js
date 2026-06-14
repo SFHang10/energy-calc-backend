@@ -316,7 +316,23 @@
     tick();
   }
 
+  /** Root-relative marketplace URL — agents live under /greenways/* so bare filenames 404. */
+  function normalizeMarketplaceHref(href, productId) {
+    var u = String(href || "").trim();
+    if (!u && productId) {
+      u =
+        "/product-page-v2-marketplace.html?product=" +
+        encodeURIComponent(productId) +
+        "&fromPopup=true";
+    }
+    if (!u) return u;
+    if (/^https?:\/\//i.test(u)) return u;
+    if (u.charAt(0) === "/") return u;
+    return "/" + u.replace(/^\.\//, "");
+  }
+
   window.GreenwaysAgentTurnUi = {
+    normalizeMarketplaceHref: normalizeMarketplaceHref,
     avatarMarkup: avatarMarkup,
     buildParts: buildParts,
     layoutHtml: layoutHtml,

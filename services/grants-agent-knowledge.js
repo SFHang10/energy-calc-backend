@@ -563,7 +563,7 @@ function normalizeImageUrl(imageUrl) {
 }
 
 function marketplaceHref(productId) {
-  return `product-page-v2-marketplace.html?product=${encodeURIComponent(productId)}&fromPopup=true`;
+  return `/product-page-v2-marketplace.html?product=${encodeURIComponent(productId)}&fromPopup=true`;
 }
 
 function toProductSample(product, label) {
