@@ -125,6 +125,17 @@ async function runLocalSmokes() {
   }
   console.log('OK Vincent portals module tablets');
 
+  const grantsMod = require(path.join(ROOT, 'services/grants-agent-knowledge'));
+  const portalGrantsHit = await grantsMod.answerFromKnowledge(
+    'Where are the Greenways schemes portals and finance finder?',
+    profile
+  );
+  const grantsPortalMod = (portalGrantsHit?.blocks || []).find((b) => b.type === 'module');
+  if (!grantsPortalMod?.items?.some((i) => i.moduleId === 'schemes-portal-restaurant')) {
+    throw new Error('Andrieus portals: expected schemes-portal-restaurant module item');
+  }
+  console.log('OK Andrieus portals module tablets');
+
   let hits = 0;
   for (const agent of AGENT_SMOOKES) {
     const mod = agent.load();

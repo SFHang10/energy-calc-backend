@@ -35,6 +35,8 @@
     ["utility-detail", "utility-detail"],
     ["european_energy_deals_portal", "european-energy"],
     ["finance-finder-restaurant", "finance-finder"],
+    ["full%20schemes%20portal%20restaurant", "schemes-portal-restaurant"],
+    ["full%20schemes%20portal%20html", "schemes-portal-eu"],
     ["equipment-savings-projection", "savings-projection"],
     ["energy-savings-trajectory", "savings-trajectory"],
     ["energy-cost-guide", "energy-cost-guide"],
@@ -101,6 +103,22 @@
       description: "Greenways product calculator — compare energy use of efficient products vs standard models.",
       usageHint: "Enter current equipment and usage, compare product options (including ETL-listed rows), then use savings figures in finance or grants conversations.",
       href: "/energy-calculator/energy-calculator-enhanced-2.html",
+      defaultOpenSize: "near-full"
+    },
+    "schemes-portal-restaurant": {
+      id: "schemes-portal-restaurant",
+      title: "Restaurant schemes portal",
+      description: "Browse hospitality and restaurant grants and subsidies in one catalogue.",
+      usageHint: "Filter by region or topic, open scheme rows for deadlines, then compare two schemes in chat.",
+      href: "./Full%20Schemes%20Portal%20Restaurant.html",
+      defaultOpenSize: "near-full"
+    },
+    "schemes-portal-eu": {
+      id: "schemes-portal-eu",
+      title: "EU schemes portal",
+      description: "EU-wide programmes and cross-border funding in one browse view.",
+      usageHint: "Scan EU-wide rows, then pair with the restaurant portal or finance finder when you need stacked funding paths.",
+      href: "./Full%20Schemes%20Portal%20html.html",
       defaultOpenSize: "near-full"
     }
   };

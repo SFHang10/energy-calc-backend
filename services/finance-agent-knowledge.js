@@ -159,6 +159,8 @@ const REF_MODULE_IDS = {
 /** Map PORTAL_LINKS-style paths to registry module ids */
 const PORTAL_PATH_MODULE_IDS = [
   ['finance-finder-restaurant', 'finance-finder'],
+  ['full%20schemes%20portal%20restaurant', 'schemes-portal-restaurant'],
+  ['full%20schemes%20portal%20html', 'schemes-portal-eu'],
   ['energy-ticker-green-wire', 'energy-ticker'],
   ['utility-detail', 'utility-detail'],
   ['european_energy_deals_portal', 'european-energy'],

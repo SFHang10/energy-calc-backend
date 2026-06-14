@@ -6,6 +6,8 @@ const {
   pickTip,
   spokenSummary
 } = require('./greenways-agent-persona');
+const { toModuleItem } = require('./greenways-agent-shared');
+const { mergeModuleRow } = require('./greenways-content-modules');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'grants-agent-intents.json');
 const briefingPath = path.join(__dirname, '..', 'data', 'grants-agent-briefing.json');
@@ -37,6 +39,53 @@ const PORTAL_LINKS = {
   finance: './finance-finder-restaurant.html',
   savings: './savings.html'
 };
+
+const GRANTS_MODULE = { theme: 'grants', agentName: 'Andrieus' };
+
+const PORTAL_PATH_MODULE_IDS = [
+  ['full%20schemes%20portal%20restaurant', 'schemes-portal-restaurant'],
+  ['full%20schemes%20portal%20html', 'schemes-portal-eu'],
+  ['finance-finder-restaurant', 'finance-finder'],
+  ['savings.html', 'savings-tour'],
+  ['equipment_intelligence_tool', 'etl-finder']
+];
+
+function portalPathToModuleId(path) {
+  const hay = String(path || '').toLowerCase();
+  if (!hay || /^\/greenways\//.test(hay)) return '';
+  for (const [needle, moduleId] of PORTAL_PATH_MODULE_IDS) {
+    if (hay.includes(needle.toLowerCase())) return moduleId;
+  }
+  return '';
+}
+
+function grantsModuleBlock(rows) {
+  return {
+    type: 'module',
+    items: rows.map((row) => toModuleItem({ ...GRANTS_MODULE, ...mergeModuleRow(row) }))
+  };
+}
+
+function linkOrModuleBlocks(items) {
+  const modules = [];
+  const links = [];
+  for (const item of items) {
+    if (/^https?:\/\//i.test(item.url)) {
+      links.push(item);
+      continue;
+    }
+    const moduleId = portalPathToModuleId(item.url);
+    if (moduleId) {
+      modules.push({ moduleId, title: item.title, openSize: 'near-full' });
+    } else {
+      links.push(item);
+    }
+  }
+  const blocks = [];
+  if (modules.length) blocks.push(grantsModuleBlock(modules));
+  if (links.length) blocks.push({ type: 'link', items: links });
+  return blocks;
+}
 
 let intentsCache = null;
 let briefingCache = null;
@@ -322,10 +371,16 @@ function buildOverviewAnswer(schemes, tip) {
     answer: withTip(
       focusLine +
         `We track **${schemes.length}** active funding schemes in the Greenways catalogue, across several regions.\n\n` +
-        'On the right you will see how they break down by country, plus a shortlist of priority schemes that are often a sensible place to start.',
+        'On the right you will see how they break down by country, plus portals to browse the full catalogue.',
       tip
     ),
-    blocks: [{ type: 'stat', items: statItems }],
+    blocks: [
+      { type: 'stat', items: statItems },
+      grantsModuleBlock([
+        { moduleId: 'schemes-portal-restaurant', openSize: 'near-full' },
+        { moduleId: 'schemes-portal-eu', openSize: 'near-full' }
+      ])
+    ],
     suggestions: schemes.filter((s) => s.priority).slice(0, 6).map(toSuggestion)
   };
 }
@@ -364,6 +419,9 @@ function buildRegionAnswer(schemes, region, question, profile, tip) {
         'Each card on the right has a summary and official link — tap **Ask about this** if you want a deeper explanation.',
       tip
     ),
+    blocks: region === 'eu'
+      ? [grantsModuleBlock([{ moduleId: 'schemes-portal-eu', openSize: 'near-full' }])]
+      : undefined,
     suggestions: picked.map(toSuggestion)
   };
 }
@@ -384,7 +442,7 @@ function buildSectorAnswer(schemes, sector, question, profile, tip) {
         'Scheme cards are on the right — plus quick links if you want to browse the full restaurant portal or finance finder.',
       tip
     ),
-    blocks: [{ type: 'link', items: browsePortalLinks() }],
+    blocks: linkOrModuleBlocks(browsePortalLinks()),
     suggestions: picked.map(toSuggestion)
   };
 }
@@ -400,6 +458,9 @@ function buildEquipmentAnswer(schemes, question, profile, tip) {
         'When you browse a specific product on the marketplace or equipment deep dive, we also attach matched grants to that item — handy once you know what you are buying.',
       tip
     ),
+    blocks: [
+      grantsModuleBlock([{ moduleId: 'etl-finder', openSize: 'near-full' }])
+    ],
     suggestions: picked.map(toSuggestion)
   };
 }
@@ -435,7 +496,7 @@ function buildPortalsAnswer(tip) {
         'Pick a tile on the right to jump straight in.',
       tip
     ),
-    blocks: [{ type: 'link', items: portalLinkItems() }]
+    blocks: linkOrModuleBlocks(portalLinkItems())
   };
 }
 
@@ -461,6 +522,9 @@ async function buildProductGrantsAnswer(tip, question, profile) {
       `${exampleLine}\n\n` +
       'Sample grant-eligible products are highlighted in the banner above — tap a photo to see a real example.\n\n' +
       `_${tip}_`,
+    blocks: [
+      grantsModuleBlock([{ moduleId: 'etl-finder', openSize: 'near-full' }])
+    ],
     suggestions: []
   };
 }
