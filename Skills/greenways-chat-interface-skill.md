@@ -262,6 +262,22 @@ Character portraits: `AGENT_PROFILE.imageUrl` (Wix static) + `TurnUi.avatarMarku
 
 Stacks to one column below **560px** (`.turn-split` → `.turn-split--stack`).
 
+### Right panel sidebar order (Jun 2026)
+
+**Default chat agents** (Andrieus, Vincent, Artemis, Zara, Cheryce, Zyanne) — `aside.guide-sidebar` block order:
+
+1. **Ask about** — `.sidebar-block--helpers` + `#helper-list` (conversation starters first)
+2. **Quick links** — `.sidebar-section--links` + `#gw-agent-quick-links` (portals / agent handoffs)
+3. **Status bar** — `#status-bar`
+
+**Rationale:** users land on chat prompts before scrolling to open-tab portals. Vincent validated this framing (Jun 2026).
+
+**Exception — Edwardo (`greenways-systems-agent.html`):** keep **Ops · verify selected** → **Quick links** → **Ask about**. System-ops layout; his compact sidebar and sync checklist stay as-is — **do not** apply ask-first reorder when cloning or syncing shells.
+
+**CSS:** `greenways-agent-sidebar.css` — `.sidebar-block--helpers:first-child { margin-top: 10px; }` (only when Ask is first; Edwardo’s first child is the ops block).
+
+**When forking a new agent:** copy Vincent/Andrieus sidebar HTML order; wire `GreenwaysAgentSidebar.init()` unchanged.
+
 ### Block types (`blocks[]` from API)
 
 Knowledge services return structured right-column content; HTML builds tablets via `TurnUi.buildParts()` + `TurnUi.layoutHtml()`.
@@ -668,6 +684,7 @@ http://localhost:4000/greenways/finance-agent?embed=1&q=What+are+current+energy+
 
 | Date | Change |
 |------|--------|
+| 2026-06-14 | **Right panel sidebar order** — default agents: **Ask about** above **Quick links** (Vincent framing); shared note in `greenways-agent-sidebar.css`. **Exception:** Edwardo (`systems-agent`) — Ops verify → Quick links → Ask about (unchanged). |
 | 2026-06-14 | **Scheme tablet Ask button** — fix vertical “Ask about” text on Vincent/Artemis/etc.: higher-specificity pill styles in `greenways-agent-turn-ui.css` beat per-agent inline `.scheme-chip-ask` 22px circle. |
 | 2026-06-14 | **Cheryce banner images** — missing photos = no `imageUrl` in `data/companies.json`; FoodMesh fixed; `DEFAULT_COMPANY_CARD_IMAGE` fallback in `media-agent-companies.js`. |
 | 2026-06-13 | **Cheryce `finishAgentTurn` crash (`b8379c4`)** — `intentId` before `sourceLabel`; false “Could not reach” after successful API. |

@@ -43,10 +43,15 @@
       var action = link.action || (isAgent ? "Chat" : "Open");
       var el;
 
-      if (link.mapOpen) {
+      if (link.mapOpen || link.moduleOpen) {
         el = document.createElement("button");
         el.type = "button";
-        el.setAttribute("data-map-open", "1");
+        if (link.mapOpen) el.setAttribute("data-map-open", "1");
+        if (link.moduleOpen) {
+          el.setAttribute("data-module-open", link.moduleId || link.id || "");
+          if (link.href) el.setAttribute("data-module-href", resolveHref(link));
+          if (link.moduleQuery) el.setAttribute("data-module-query", link.moduleQuery);
+        }
       } else {
         el = document.createElement("a");
         el.href = resolveHref(link);
@@ -78,6 +83,15 @@
         if (link.mapOpen && typeof opts.onQuickLinkClick === "function") {
           e.preventDefault();
           opts.onQuickLinkClick(link, el, e);
+          return;
+        }
+        if (link.moduleOpen && global.GreenwaysAgentContentModule) {
+          e.preventDefault();
+          if (typeof opts.onQuickLinkClick === "function") {
+            opts.onQuickLinkClick(link, el, e);
+          } else {
+            GreenwaysAgentContentModule.openFromTrigger(el);
+          }
           return;
         }
         if (typeof opts.onQuickLinkClick === "function") {

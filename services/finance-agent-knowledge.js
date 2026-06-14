@@ -14,8 +14,10 @@ const {
   pickProductSamples,
   getDefaultProductSamples,
   buildAgentHandoff,
-  FINANCE_HANDOFF_RULES
+  FINANCE_HANDOFF_RULES,
+  toModuleItem
 } = require('./greenways-agent-shared');
+const { mergeModuleRow } = require('./greenways-content-modules');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'finance-agent-intents.json');
 const showcasePath = path.join(__dirname, '..', 'data', 'finance-agent-showcase.json');
@@ -29,6 +31,7 @@ const {
   loadFinanceTools,
   rankTools,
   toolsToLinkItems,
+  toolsToModuleRows,
   formatToolsBullets
 } = require('./finance-agent-tools');
 const {
@@ -117,6 +120,133 @@ function attachFinanceHandoffs(result, briefing, question, intentId) {
   return result;
 }
 
+const VINCENT_MODULE = { theme: 'finance', agentName: 'Vincent' };
+
+function financeModuleBlock(rows) {
+  return {
+    type: 'module',
+    items: rows.map((row) => toModuleItem({ ...VINCENT_MODULE, ...mergeModuleRow(row) }))
+  };
+}
+
+function financeAgentLinkBlock(title, path, description) {
+  if (isAgentChatPath(path)) {
+    return { type: 'link', items: [toLinkItem(title, path, description)] };
+  }
+  const moduleId = portalPathToModuleId(path);
+  if (moduleId) {
+    return financeModuleBlock([{ moduleId, title, openSize: 'near-full' }]);
+  }
+  return { type: 'link', items: [toLinkItem(title, path, description)] };
+}
+
+function isAgentChatPath(path) {
+  return /^\/greenways\//.test(String(path || '').trim());
+}
+
+/** Internal guide ids from finance-agent-references.json */
+const REF_MODULE_IDS = {
+  trajectory: 'savings-trajectory',
+  'cost-guide': 'energy-cost-guide',
+  monitoring: 'energy-monitoring',
+  'low-energy': 'low-energy-equipment',
+  'discover-savings': 'discover-savings',
+  'quick-benefits': 'sustainability-quick-benefits',
+  'prices-deals': 'prices-and-deals',
+  'eco-planning': 'eco-project-planner'
+};
+
+/** Map PORTAL_LINKS-style paths to registry module ids */
+const PORTAL_PATH_MODULE_IDS = [
+  ['finance-finder-restaurant', 'finance-finder'],
+  ['energy-ticker-green-wire', 'energy-ticker'],
+  ['utility-detail', 'utility-detail'],
+  ['european_energy_deals_portal', 'european-energy'],
+  ['equipment-savings-projection', 'savings-projection'],
+  ['energy-savings-trajectory', 'savings-trajectory'],
+  ['energy-cost-guide', 'energy-cost-guide'],
+  ['equipment_intelligence_tool', 'etl-finder'],
+  ['energy-calculator-enhanced', 'etl-calculator'],
+  ['energy-audit-widget', 'energy-audit'],
+  ['savings.html', 'savings-tour'],
+  ['deals-ticker-hub', 'deals-ticker'],
+  ['restaurant-equipment-deep-dive', 'equipment-deep-dive'],
+  ['restaurant-data', 'restaurant-data'],
+  ['Importance%20of%20Energy%20Monitoring', 'energy-monitoring'],
+  ['Low%20Energy%20New', 'low-energy-equipment'],
+  ['Discover%20Energy%20Savings', 'discover-savings'],
+  ['Europes%20Energy%20Saving', 'europe-savings'],
+  ['Sustaniability%20Quick%20Benefits', 'sustainability-quick-benefits'],
+  ['Prices%20and%20Deals', 'prices-and-deals'],
+  ['eco_project_planning_guide', 'eco-project-planner'],
+  ['members-section', 'members-section']
+];
+
+function portalPathToModuleId(path) {
+  const hay = String(path || '').toLowerCase();
+  if (!hay || isAgentChatPath(path)) return '';
+  for (const [needle, moduleId] of PORTAL_PATH_MODULE_IDS) {
+    if (hay.includes(needle.toLowerCase())) return moduleId;
+  }
+  return '';
+}
+
+function referenceToModuleRow(ref) {
+  const moduleId = REF_MODULE_IDS[ref.id] || portalPathToModuleId(ref.href || ref.url);
+  if (!moduleId) return null;
+  const row = { moduleId, openSize: 'near-full' };
+  const href = String(ref.href || '');
+  if (href.includes('?')) row.query = href.split('?').slice(1).join('?');
+  return row;
+}
+
+function splitReferenceBlocks(picks) {
+  const modules = [];
+  const links = [];
+  for (const ref of picks) {
+    if (ref.url && /^https?:\/\//i.test(ref.url)) {
+      links.push(referenceToLinkItem(ref));
+      continue;
+    }
+    const row = referenceToModuleRow(ref);
+    if (row) modules.push(row);
+    else if (ref.href || ref.url) links.push(referenceToLinkItem(ref));
+  }
+  const blocks = [];
+  if (modules.length) blocks.push(financeModuleBlock(modules));
+  if (links.length) blocks.push({ type: 'link', items: links });
+  return blocks;
+}
+
+function utilityTypeForProfile(profile) {
+  const focus = String(profile.focus || '').toLowerCase();
+  if (focus === 'water') return 'water';
+  if (focus === 'energy' || focus === 'equipment') return 'electricity';
+  return 'electricity';
+}
+
+function energyToolkitModules(profile, extras = []) {
+  const utilType = utilityTypeForProfile(profile);
+  const base = [
+    { moduleId: 'energy-ticker', openSize: 'expanded' },
+    {
+      moduleId: 'utility-detail',
+      title: `Utility detail — ${utilType}`,
+      query: `type=${utilType}`
+    },
+    { moduleId: 'european-energy', openSize: 'near-full' }
+  ];
+  return financeModuleBlock(base.concat(extras));
+}
+
+function financeStackModules() {
+  return financeModuleBlock([
+    { moduleId: 'finance-finder', openSize: 'near-full' },
+    { moduleId: 'savings-projection', openSize: 'near-full' },
+    { moduleId: 'etl-finder', openSize: 'near-full' }
+  ]);
+}
+
 function rankReferences(refs, question, limit = 6) {
   const q = String(question || '').toLowerCase();
   const pool = [...(refs.external || []), ...(refs.internalGuides || [])];
@@ -176,7 +306,7 @@ async function buildRoleResourcesAnswer(question, profile, tip) {
         ? `**Sustainability news (finance lens):** ${briefing.newsAccess.summary}\n\n`
         : '') +
       `_References are curated from your role brief — not scraped live. Use calculators for numbers; **Andrieus** for grant detail._\n\n_${tip}_`,
-    blocks: [{ type: 'link', items: picks.slice(0, 6).map(referenceToLinkItem) }],
+    blocks: splitReferenceBlocks(picks.slice(0, 6)),
     suggestions: []
   };
 }
@@ -202,7 +332,15 @@ async function buildOverviewAnswer(schemes, profile, tip) {
       `- **Sustainability news** — shared catalogue with Cheryce; Vincent maps headlines to grants, loans, BNPL, and ETL finance paths\n\n` +
       (workflow ? `**Typical workflow:**\n${workflow}\n\n` : '') +
       (market ? `**Market snapshot (wholesale guide):**\n${market}\n\n` : '') +
-      `Finance finder: ${PORTAL_LINKS.finance} · Ticker: ${PORTAL_LINKS.energyTicker} · Audit: ${PORTAL_LINKS.energyAudit}\n\n_${tip}_`,
+      `Open the modules on the right for finance finder, ticker, audit, and calculators.\n\n_${tip}_`,
+    blocks: [
+      financeModuleBlock([
+        { moduleId: 'finance-finder', openSize: 'near-full' },
+        { moduleId: 'energy-ticker', openSize: 'expanded' },
+        { moduleId: 'energy-audit', openSize: 'near-full' },
+        { moduleId: 'etl-calculator', openSize: 'near-full' }
+      ])
+    ],
     suggestions: financeSchemes(schemes).slice(0, 6).map(toSuggestion)
   };
 }
@@ -214,6 +352,7 @@ function buildTabAnswer(tabLabel, body, schemes, tip) {
       `${String(body || '').trim()}\n\nI found **${related.length}** related scheme${related.length === 1 ? '' : 's'} in our catalogue — see the cards on the right.`,
       tip
     ),
+    blocks: [financeModuleBlock([{ moduleId: 'finance-finder', openSize: 'near-full' }])],
     suggestions: related.map(toSuggestion)
   };
 }
@@ -230,7 +369,8 @@ function buildCategoryAnswer(category, schemes, profile, tip) {
     answer:
       `**${label} finance** — start in the finance finder **Grants** or **Green loans** tabs with your region set.\n\n` +
       `${formatSchemeBullets(related, 6) || '_No tight scheme match — browse the finance finder categories._'}\n\n` +
-      `Portal: ${PORTAL_LINKS.finance}\n\n_${tip}_`,
+      `Open the **finance finder** module on the right with your region set.\n\n_${tip}_`,
+    blocks: [financeModuleBlock([{ moduleId: 'finance-finder', openSize: 'near-full' }])],
     suggestions: related.map(toSuggestion)
   };
 }
@@ -264,8 +404,11 @@ async function buildCalculatorsAnswer(question, tip) {
       (andrieus
         ? `4. **${andrieus.agentName}** — grants & subsidies detail (${andrieus.agentPath})\n\n`
         : '\n') +
-      `**Energy ticker API:** \`/api/energy-ticker\` · embed: ${PORTAL_LINKS.energyTicker}\n\n_${tip}_`,
-    blocks: [{ type: 'link', items: toolsToLinkItems(picks.slice(0, 6)) }],
+      `**Energy ticker API:** \`/api/energy-ticker\` — open the modules on the right for calculators and tools.\n\n_${tip}_`,
+    blocks: (() => {
+      const rows = toolsToModuleRows(picks.slice(0, 8));
+      return rows.length ? [financeModuleBlock(rows)] : [];
+    })(),
     suggestions: []
   };
 }
@@ -276,22 +419,16 @@ async function buildAuditCalculatorAnswer(tip) {
   return {
     answer:
       `**Energy audit calculator** — start your upgrade business case here:\n\n` +
-      `- **Open audit widget:** ${PORTAL_LINKS.energyAudit}\n` +
-      `- **Members entry:** ${PORTAL_LINKS.membersSection} (audit action on Render)\n` +
-      `- **Product data API:** \`/api/calculator-wix/products\` (same catalogue family as the main energy calculator)\n\n` +
-      `After the audit, use **savings projection** (${PORTAL_LINKS.savingsProjection}) or **trajectory** (${PORTAL_LINKS.energySavingsTrajectory}) to show payback, then **finance finder** for funding paths.\n\n` +
+      `After the audit, open **savings projection** or **trajectory** modules to show payback, then **finance finder** for funding paths.\n\n` +
       (audit ? `_${audit.description}_\n\n` : '') +
       `_${tip}_`,
     blocks: [
-      {
-        type: 'link',
-        items: [
-          toLinkItem('Energy audit calculator', PORTAL_LINKS.energyAudit, 'Full appliance audit widget'),
-          toLinkItem('Savings projection', PORTAL_LINKS.savingsProjection, 'Payback chart after audit'),
-          toLinkItem('Energy savings trajectory', PORTAL_LINKS.energySavingsTrajectory, 'Goal outlook illustration'),
-          toLinkItem('Members section', PORTAL_LINKS.membersSection, 'Where audit opens on Render')
-        ]
-      }
+      financeModuleBlock([
+        { moduleId: 'energy-audit', openSize: 'near-full' },
+        { moduleId: 'savings-projection', openSize: 'near-full' },
+        { moduleId: 'savings-trajectory', openSize: 'near-full' },
+        { moduleId: 'finance-finder', openSize: 'near-full' }
+      ])
     ],
     suggestions: []
   };
@@ -306,45 +443,33 @@ async function buildEtlProductsAnswer(question, profile, tip) {
     answer:
       `**ETL products — Europe's verified efficient-equipment path on Greenways**\n\n` +
       `${etl.summary || 'ETL-listed products are independently verified for energy performance — the benchmark to use when building an upgrade finance case.'}\n\n` +
-      `Vincent leads here because verified savings beat generic “eco” claims, grant overlays attach to each \`etl_*\` row, and you can stack BNPL, equipment finance, or green loans after payback math. Banner cards above show examples; open the tiles for browse paths.\n\n_${tip}_`,
-    blocks: [
-      {
-        type: 'link',
-        items: [
-          toLinkItem('ETL product finder', PORTAL_LINKS.etlMarketplace, 'Search verified efficient equipment'),
-          toLinkItem('ETL energy calculator', PORTAL_LINKS.energyCalculator, 'Compare efficient vs standard'),
-          toLinkItem('Equipment deep dive', PORTAL_LINKS.deepDive, 'Case studies and alternatives'),
-          toLinkItem('Savings projection', PORTAL_LINKS.savingsProjection, 'Payback after picking an ETL row')
-        ]
-      }
-    ],
+      `Vincent leads here because verified savings beat generic “eco” claims, grant overlays attach to each \`etl_*\` row, and you can stack BNPL, equipment finance, or green loans after payback math. Banner cards above show examples; open the modules for browse paths.\n\n_${tip}_`,
+    blocks: [financeStackModules()],
     suggestions: [],
     productSamples: samples
   };
 }
 
-function financePortalLinks() {
-  return [
-    toLinkItem('Finance finder', PORTAL_LINKS.finance, 'Grants, BNPL, equipment finance and green loans'),
-    toLinkItem('ETL product finder', PORTAL_LINKS.etlMarketplace, 'Verified efficient equipment — European benchmark'),
-    toLinkItem('ETL energy calculator', PORTAL_LINKS.energyCalculator, 'Compare efficient vs standard products'),
-    toLinkItem('Energy price ticker', PORTAL_LINKS.energyTicker, 'Wholesale guide — useful when building an upgrade case'),
-    toLinkItem('Savings projection', PORTAL_LINKS.savingsProjection, 'Equipment payback chart'),
-    toLinkItem('Energy savings trajectory', PORTAL_LINKS.energySavingsTrajectory, 'Current vs future energy outlook'),
-    toLinkItem('Energy cost guide', PORTAL_LINKS.energyCostGuide, 'Costs and change scenarios'),
-    toLinkItem('Equipment deep dive', PORTAL_LINKS.deepDive, 'ETL alternatives and case studies'),
-    toLinkItem('Energy audit calculator', PORTAL_LINKS.energyAudit, 'Appliance audit — members / Render'),
-    toLinkItem('Grants Agent (Andrieus)', PORTAL_LINKS.grantsAgent, 'Scheme detail on ETL product grants')
-  ];
-}
-
 function buildPortalsAnswer(tip) {
   return {
     answer: withTip(
-      'Here are the main **finance and energy tools** on Greenways — open a tile on the right to jump in.',
+      'Here are the main **finance and energy tools** on Greenways — open a module on the right to stay inside Vincent (description + how to use at the top).',
       tip
     ),
-    blocks: [{ type: 'link', items: financePortalLinks() }]
+    blocks: [
+      financeModuleBlock([
+        { moduleId: 'finance-finder', openSize: 'near-full' },
+        { moduleId: 'etl-finder', openSize: 'near-full' },
+        { moduleId: 'etl-calculator', openSize: 'near-full' },
+        { moduleId: 'energy-ticker', openSize: 'expanded' },
+        { moduleId: 'savings-projection', openSize: 'near-full' },
+        { moduleId: 'savings-trajectory', openSize: 'near-full' },
+        { moduleId: 'energy-cost-guide', openSize: 'near-full' },
+        { moduleId: 'equipment-deep-dive', openSize: 'near-full' },
+        { moduleId: 'energy-audit', openSize: 'near-full' }
+      ]),
+      financeAgentLinkBlock('Grants Agent (Andrieus)', PORTAL_LINKS.grantsAgent, 'Scheme detail on ETL product grants')
+    ]
   };
 }
 
@@ -362,17 +487,10 @@ async function buildEnergyPricesAnswer(profile, tip) {
       `**Energy prices (${regionLabel})** — wholesale €/MWh helps you time upgrades and tariff reviews. Your bill also depends on supplier, pass-through clauses, and time-of-use, so retail contracts can move differently from the ticker.\n\n` +
       `${headline}\n\n` +
       (modelling ? `${modelling}\n\n` : '') +
-      `When unit costs rise, **ETL-listed equipment** lowers the kWh you still buy — use the tiles on the right for the ticker, site view, and tariff compare.\n\n_${tip}_`,
+      `When unit costs rise, **ETL-listed equipment** lowers the kWh you still buy — open the modules on the right for the ticker, site utility view, and tariff compare.\n\n_${tip}_`,
     blocks: [
-      {
-        type: 'link',
-        items: [
-          toLinkItem('Energy price ticker', PORTAL_LINKS.energyTicker, 'Wholesale guide — dashboard embed'),
-          toLinkItem('Utility detail — electricity', `${PORTAL_LINKS.utilityDetail}?type=electricity`, 'Site-level usage view'),
-          toLinkItem('European energy deals', PORTAL_LINKS.europeanEnergy, 'Compare business tariffs'),
-          toLinkItem('Deals Agent', PORTAL_LINKS.dealsAgent, 'Tariff lanes and supply deals')
-        ]
-      }
+      energyToolkitModules(profile),
+      financeAgentLinkBlock('Deals Agent', PORTAL_LINKS.dealsAgent, 'Tariff lanes and supply deals')
     ],
     suggestions: []
   };
@@ -398,15 +516,10 @@ async function buildPriceUpgradeCaseAnswer(schemes, profile, tip) {
         : '') +
       `Typical stack: pick an \`etl_*\` product → savings projection → BNPL, equipment finance, or green loans.\n\n_${tip}_`,
     blocks: [
-      {
-        type: 'link',
-        items: [
-          toLinkItem('Energy price ticker', PORTAL_LINKS.energyTicker, 'Check current wholesale signal'),
-          toLinkItem('Savings projection', PORTAL_LINKS.savingsProjection, 'Payback chart'),
-          toLinkItem('ETL product finder', PORTAL_LINKS.etlMarketplace, 'Verified efficient equipment'),
-          toLinkItem('Finance finder', PORTAL_LINKS.finance, 'BNPL, equipment finance, green loans')
-        ]
-      }
+      energyToolkitModules(profile, [
+        { moduleId: 'savings-projection', openSize: 'near-full' },
+        { moduleId: 'finance-finder', openSize: 'near-full' }
+      ])
     ],
     suggestions: related.map(toSuggestion)
   };
@@ -419,15 +532,8 @@ function buildBnplAnswer(schemes, profile, tip) {
       `**BNPL for restaurant equipment** — pay-later or split-payment paths can spread capex when a verified upgrade makes sense. Confirm merchant fees, credit checks, and who holds title before you sign.\n\n` +
       `Pair BNPL with **ETL-listed products** so verified savings and grant overlays support the business case. Open the finance finder **BNPL** tab for provider tiles, or stack with **equipment finance** for larger kitchen refits.\n\n_${tip}_`,
     blocks: [
-      {
-        type: 'link',
-        items: [
-          toLinkItem('Finance finder', PORTAL_LINKS.finance, 'BNPL, equipment finance, green loans'),
-          toLinkItem('ETL product finder', PORTAL_LINKS.etlMarketplace, 'Verified efficient equipment'),
-          toLinkItem('Savings projection', PORTAL_LINKS.savingsProjection, 'Payback before you commit'),
-          toLinkItem('Grants Agent (Andrieus)', PORTAL_LINKS.grantsAgent, 'Scheme detail on product grants')
-        ]
-      }
+      financeStackModules(),
+      financeAgentLinkBlock('Grants Agent (Andrieus)', PORTAL_LINKS.grantsAgent, 'Scheme detail on product grants')
     ],
     suggestions: related.map(toSuggestion)
   };
@@ -440,14 +546,11 @@ function buildGreenLoansAnswer(schemes, profile, tip) {
       `**Green loans** — bank products tagged for sustainability (e.g. BMKB-Groen, national warmtefonds routes). They often stack with grants on the same upgrade, so model payback before you borrow.\n\n` +
       `Start in the finance finder **Green loans** tab with your region set, then confirm eligibility and rates with the lender.\n\n_${tip}_`,
     blocks: [
-      {
-        type: 'link',
-        items: [
-          toLinkItem('Finance finder', PORTAL_LINKS.finance, 'Green loans and grants tabs'),
-          toLinkItem('Savings projection', PORTAL_LINKS.savingsProjection, 'Payback model'),
-          toLinkItem('Grants Agent (Andrieus)', PORTAL_LINKS.grantsAgent, 'Non-repayable support to stack with loans')
-        ]
-      }
+      financeModuleBlock([
+        { moduleId: 'finance-finder', openSize: 'near-full' },
+        { moduleId: 'savings-projection', openSize: 'near-full' }
+      ]),
+      financeAgentLinkBlock('Grants Agent (Andrieus)', PORTAL_LINKS.grantsAgent, 'Non-repayable support to stack with loans')
     ],
     suggestions: related.map(toSuggestion)
   };
@@ -456,11 +559,15 @@ function buildGreenLoansAnswer(schemes, profile, tip) {
 function buildCompareTariffsAnswer(tip) {
   return {
     answer:
-      `**Compare tariffs & packages** — retail supply is separate from wholesale ticker moves:\n\n` +
-      `- **European energy deals portal** — postcode-style compare for home, restaurant, office: ${PORTAL_LINKS.europeanEnergy}\n` +
-      `- **Deals ticker hub** — energy / water / sustainability lanes: ${PORTAL_LINKS.deals}\n` +
-      `- **Deals Agent:** ${PORTAL_LINKS.dealsAgent}\n\n` +
-      `Even on a better tariff, **efficient equipment** lowers the kWh you buy — pair switching with upgrades.\n\n_${tip}_`,
+      `**Compare tariffs & packages** — retail supply is separate from wholesale ticker moves. Even on a better tariff, **efficient equipment** lowers the kWh you buy — pair switching with upgrades.\n\n` +
+      `Open the tariff portal and deals hub in the modules on the right, or ask **Zara** (Deals Agent) for live lanes.\n\n_${tip}_`,
+    blocks: [
+      financeModuleBlock([
+        { moduleId: 'european-energy', openSize: 'near-full' },
+        { moduleId: 'deals-ticker', openSize: 'expanded' }
+      ]),
+      financeAgentLinkBlock('Deals Agent (Zara)', PORTAL_LINKS.dealsAgent, 'Product spotlights and tariff compare')
+    ],
     suggestions: []
   };
 }

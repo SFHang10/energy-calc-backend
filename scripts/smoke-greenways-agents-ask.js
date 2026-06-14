@@ -95,10 +95,35 @@ async function runLocalSmokes() {
   console.log('OK Vincent handoffs energy_prices → Cheryce chip');
 
   const bnplHit = await financeMod.answerFromKnowledge('BNPL restaurant equipment', profile);
-  if (!bnplHit?.blocks?.length || bnplHit.blocks[0].type !== 'link') {
-    throw new Error('Vincent bnpl: expected link blocks[]');
+  if (!bnplHit?.blocks?.some((b) => b.type === 'module')) {
+    throw new Error('Vincent bnpl: expected module blocks[]');
   }
-  console.log('OK Vincent bnpl conversational blocks');
+  console.log('OK Vincent bnpl module blocks');
+
+  const priceHit = await financeMod.answerFromKnowledge('energy prices payback', profile);
+  const modBlock = (priceHit?.blocks || []).find((b) => b.type === 'module');
+  if (!modBlock?.items?.some((i) => i.moduleId === 'energy-ticker')) {
+    throw new Error('Vincent energy_prices: expected energy-ticker module item');
+  }
+  const tickerItem = modBlock.items.find((i) => i.moduleId === 'energy-ticker');
+  if (!tickerItem?.usageHint || !tickerItem?.description) {
+    throw new Error('Vincent energy_prices: expected description + usageHint on module item');
+  }
+  console.log('OK Vincent energy_prices module tablets');
+
+  const calcHit = await financeMod.answerFromKnowledge('calculators audit projection trajectory', profile);
+  const calcMod = (calcHit?.blocks || []).find((b) => b.type === 'module');
+  if (!calcMod?.items?.length) {
+    throw new Error('Vincent calculators: expected module blocks[] not link tablets');
+  }
+  console.log('OK Vincent calculators module tablets');
+
+  const portalHit = await financeMod.answerFromKnowledge('Where is the finance finder portal?', profile);
+  const portalMod = (portalHit?.blocks || []).find((b) => b.type === 'module');
+  if (!portalMod?.items?.some((i) => i.moduleId === 'finance-finder')) {
+    throw new Error('Vincent portals: expected finance-finder module item');
+  }
+  console.log('OK Vincent portals module tablets');
 
   let hits = 0;
   for (const agent of AGENT_SMOOKES) {

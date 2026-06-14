@@ -212,6 +212,50 @@ function toLinkItem(title, url, description) {
   };
 }
 
+/** Root-absolute path for agent module iframes (from PORTAL_LINKS-style paths). */
+function resolvePortalPathToRootHref(path) {
+  let p = String(path || '').trim();
+  if (!p) return '';
+  if (/^https?:\/\//i.test(p)) return p;
+  if (p.startsWith('/')) return p;
+  if (p.startsWith('./')) p = p.slice(2);
+  if (p.startsWith('../content-ops/')) return `/${p.slice(3)}`;
+  if (p.startsWith('../HTMLs/')) return `/${p.slice(3)}`;
+  return `/HTMLS%20GWM%20GWB/${p}`;
+}
+
+function moduleEmbedHref(path, extraQuery = '') {
+  const base = resolvePortalPathToRootHref(path);
+  if (!base) return '';
+  const sep = base.includes('?') ? '&' : '?';
+  const q = String(extraQuery || '')
+    .replace(/^\?/, '')
+    .replace(/^&/, '');
+  return `${base}${sep}embed=1&popup=1${q ? `&${q}` : ''}`;
+}
+
+/**
+ * Content-module tablet payload — use in blocks[] with type: "module".
+ * @see HTMLS GWM GWB/js/greenways-agent-content-module.js
+ */
+function toModuleItem(opts = {}) {
+  const path = opts.href || opts.portalPath || '';
+  const full = resolvePortalPathToRootHref(opts.fullPageHref || path);
+  const embed = opts.embedHref || moduleEmbedHref(path, opts.query || opts.extraQuery || '');
+  return {
+    moduleId: opts.moduleId || 'portal',
+    title: opts.title || 'Greenways tool',
+    description: String(opts.description || '').slice(0, 220),
+    usageHint: String(opts.usageHint || '').slice(0, 220),
+    href: embed,
+    fullPageHref: full,
+    kind: 'html',
+    openSize: opts.openSize || '',
+    theme: opts.theme || 'default',
+    agentName: opts.agentName || 'Agent'
+  };
+}
+
 /** Copy rules for all Greenways agents — left = summary; right = blocks/banner. See Skills/greenways-chat-interface-skill.md */
 const CONVERSATIONAL_ANSWER_RULES = {
   leftColumn: [
@@ -575,6 +619,9 @@ module.exports = {
   formatSchemeBullets,
   withTip,
   toLinkItem,
+  resolvePortalPathToRootHref,
+  moduleEmbedHref,
+  toModuleItem,
   CONVERSATIONAL_ANSWER_RULES,
   conversationalSystemLines,
   loadProductsWithGrants,

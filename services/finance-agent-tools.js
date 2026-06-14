@@ -55,6 +55,45 @@ function toolsToLinkItems(tools) {
   );
 }
 
+/** Map finance-agent-tools.json ids → greenways-content-modules.json ids */
+const TOOL_MODULE_IDS = {
+  'energy-ticker': 'energy-ticker',
+  'savings-projection': 'savings-projection',
+  'energy-savings-trajectory': 'savings-trajectory',
+  'savings-hub': 'savings-tour',
+  'energy-cost-guide': 'energy-cost-guide',
+  'etl-marketplace': 'etl-finder',
+  'energy-calculator': 'etl-calculator',
+  'energy-audit': 'energy-audit',
+  'finance-finder': 'finance-finder',
+  'utility-detail': 'utility-detail',
+  'restaurant-data': 'restaurant-data',
+  'tariff-compare': 'european-energy',
+  'energy-monitoring': 'energy-monitoring',
+  'low-energy-equipment': 'low-energy-equipment',
+  'discover-savings': 'discover-savings',
+  'europe-savings': 'europe-savings',
+  'quick-benefits': 'sustainability-quick-benefits',
+  'prices-and-deals': 'prices-and-deals',
+  'eco-project-planning': 'eco-project-planner',
+  'deals-hub': 'deals-ticker'
+};
+
+function toolToModuleRow(tool) {
+  if (!tool) return null;
+  const moduleId = TOOL_MODULE_IDS[tool.id];
+  if (!moduleId) return null;
+  const row = { moduleId, openSize: 'near-full' };
+  const href = String(tool.href || '');
+  const qIndex = href.indexOf('?');
+  if (qIndex >= 0) row.query = href.slice(qIndex + 1);
+  return row;
+}
+
+function toolsToModuleRows(tools) {
+  return (tools || []).map(toolToModuleRow).filter(Boolean);
+}
+
 function formatToolsBullets(tools) {
   return tools
     .map((t) => `- **${t.title}** — ${t.description}\n  → ${t.href}`)
@@ -65,5 +104,8 @@ module.exports = {
   loadFinanceTools,
   rankTools,
   toolsToLinkItems,
+  toolsToModuleRows,
+  toolToModuleRow,
+  TOOL_MODULE_IDS,
   formatToolsBullets
 };

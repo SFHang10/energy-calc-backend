@@ -32,16 +32,18 @@ https://energy-calc-backend.onrender.com/greenways/{agent}?embed=1
 
 ### Agent URLs
 
-| Agent | `{agent}` slug |
-|-------|----------------|
-| Grants | `grants-agent` |
-| Finance | `finance-agent` |
-| Equipment | `equipment-agent` |
-| Sustainable Products | `sustainable-products-agent` |
-| Deals | `deals-agent` |
-| Media | `media-agent` |
-| Systems | `systems-agent` |
-| Guide (WIP) | `guide-agent` — hub conductor, not live yet |
+| Name | Role | `{agent}` slug |
+|------|------|----------------|
+| **Andrieus** | Grants & schemes | `grants-agent` |
+| **Vincent** | Finance & payback | `finance-agent` |
+| **Artemis** | Equipment & renovation | `equipment-agent` |
+| **Zyanne** | Sustainable products | `sustainable-products-agent` |
+| **Zara** | Deals & spotlights | `deals-agent` |
+| **Cheryce** | News & media | `media-agent` |
+| **Edwardo** | Systems health | `systems-agent` |
+| Guide (WIP) | Hub conductor | `guide-agent` — not live yet |
+
+Full roster + skills map: `Skills/greenways-transition-agents.md`
 
 ---
 

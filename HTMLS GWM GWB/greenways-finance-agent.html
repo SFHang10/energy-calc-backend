@@ -8,6 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.js"></script>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-team.css">
@@ -998,15 +1000,15 @@
   </main>
 
   <aside class="guide-sidebar" aria-label="Finance &amp; energy helpers">
-    <div class="sidebar-section sidebar-section--links">
-      <div class="sidebar-label">Quick links</div>
-      <p class="sidebar-hint" id="gw-sidebar-links-hint"></p>
-      <div class="gw-sidebar-ql-list" id="gw-agent-quick-links" role="navigation" aria-label="Quick links"></div>
-    </div>
     <div class="sidebar-block--helpers">
       <div class="sidebar-label">Ask about</div>
       <p class="sidebar-hint" id="gw-sidebar-helpers-hint"></p>
       <div class="helper-list" id="helper-list"></div>
+    </div>
+    <div class="sidebar-section sidebar-section--links">
+      <div class="sidebar-label">Quick links</div>
+      <p class="sidebar-hint" id="gw-sidebar-links-hint"></p>
+      <div class="gw-sidebar-ql-list" id="gw-agent-quick-links" role="navigation" aria-label="Quick links"></div>
     </div>
     <div class="status-bar" id="status-bar">Ready · finance &amp; energy price knowledge</div>
   </aside>
@@ -1823,10 +1825,24 @@
   }
   document.getElementById("new-chat-btn").addEventListener("click", clearChat);
 
+  if (window.GreenwaysAgentContentModule) {
+    GreenwaysAgentContentModule.init({
+      agentName: AGENT_PROFILE.name,
+      agentSlug: "finance-agent",
+      theme: "finance",
+      returnLabel: "← Back to Vincent"
+    });
+    GreenwaysAgentContentModule.bindDocumentIntercept();
+    GreenwaysAgentContentModule.bindContainer(thread);
+    GreenwaysAgentContentModule.bindContainer(document.getElementById("top-product-samples"));
+    GreenwaysAgentContentModule.bindContainer(document.getElementById("gw-agent-quick-links"));
+    GreenwaysAgentContentModule.bindContainer(document.body);
+  }
+
   if (window.GreenwaysAgentSidebar) {
     GreenwaysAgentSidebar.init({
-      quickLinks: [{"icon":"🔗","name":"Finance finder","desc":"Restaurant portal","href":"./finance-finder-restaurant.html"},{"icon":"📈","name":"Energy ticker","desc":"Live prices","href":"../content-ops/drafts/energy-ticker/energy-ticker-green-wire.html"},{"icon":"⚡","name":"Utility detail","desc":"Electricity view","href":"./utility-detail.html?type=electricity"},{"icon":"🌍","name":"Tariff compare","desc":"EU portal","href":"./european_energy_deals_portal.html"},{"icon":"📊","name":"Savings projection","desc":"Payback chart","href":"./equipment-savings-projection.html"},{"icon":"📉","name":"Savings trajectory","desc":"7-day trend","href":"./energy-savings-trajectory.html"},{"icon":"💶","name":"Energy cost guide","desc":"Bill breakdown","href":"./energy-cost-guide.html"},{"icon":"🔍","name":"Energy audit","desc":"Members widget","href":"/energy-audit-widget-main.html"},{"icon":"✅","name":"ETL finder","desc":"Verified products","href":"./equipment_intelligence_tool.html"},{"icon":"🧮","name":"ETL calculator","desc":"Upgrade maths","href":"/energy-calculator/energy-calculator-enhanced-2.html"},{"icon":"🎯","name":"Savings tour","desc":"Grants & deals hub","href":"./savings.html"},{"icon":"🔧","name":"Equipment Agent","desc":"Artemis · upgrades","href":"/greenways/equipment-agent","agent":true},{"icon":"🏛️","name":"Grants Agent","desc":"Andrieus · schemes","href":"/greenways/grants-agent","agent":true}],
-      linksHint: "Funding paths, price ticker, and upgrade tools.",
+      quickLinks: [{"icon":"🔗","name":"Finance finder","desc":"Restaurant portal","moduleOpen":true,"moduleId":"finance-finder","href":"./finance-finder-restaurant.html","action":"Open"},{"icon":"📈","name":"Energy ticker","desc":"Live prices","moduleOpen":true,"moduleId":"energy-ticker","href":"../content-ops/drafts/energy-ticker/energy-ticker-green-wire.html","action":"Open"},{"icon":"⚡","name":"Utility detail","desc":"Electricity view","moduleOpen":true,"moduleId":"utility-detail","moduleQuery":"type=electricity","href":"./utility-detail.html?type=electricity","action":"Open"},{"icon":"🌍","name":"Tariff compare","desc":"EU portal","moduleOpen":true,"moduleId":"european-energy","href":"./european_energy_deals_portal.html","action":"Open"},{"icon":"📊","name":"Savings projection","desc":"Payback chart","moduleOpen":true,"moduleId":"savings-projection","href":"./equipment-savings-projection.html","action":"Open"},{"icon":"📉","name":"Savings trajectory","desc":"7-day trend","moduleOpen":true,"moduleId":"savings-trajectory","href":"./energy-savings-trajectory.html","action":"Open"},{"icon":"💶","name":"Energy cost guide","desc":"Bill breakdown","moduleOpen":true,"moduleId":"energy-cost-guide","href":"./energy-cost-guide.html","action":"Open"},{"icon":"🔍","name":"Energy audit","desc":"Members widget","moduleOpen":true,"moduleId":"energy-audit","href":"/energy-audit-widget-main.html","action":"Open"},{"icon":"✅","name":"ETL finder","desc":"Verified products","moduleOpen":true,"moduleId":"etl-finder","href":"./equipment_intelligence_tool.html","action":"Open"},{"icon":"🧮","name":"ETL calculator","desc":"Upgrade maths","moduleOpen":true,"moduleId":"etl-calculator","href":"/energy-calculator/energy-calculator-enhanced-2.html","action":"Open"},{"icon":"🎯","name":"Savings tour","desc":"Grants & deals hub","moduleOpen":true,"moduleId":"savings-tour","href":"./savings.html","action":"Open"},{"icon":"🔧","name":"Equipment Agent","desc":"Artemis · upgrades","href":"/greenways/equipment-agent","agent":true},{"icon":"🏛️","name":"Grants Agent","desc":"Andrieus · schemes","href":"/greenways/grants-agent","agent":true}],
+      linksHint: "Portals open in-panel with a short guide — chat stays open behind.",
       helpersHint: "Prices, payback, BNPL, loans, and news.",
       helpers: HELPERS,
       onAsk: function (prompt) { sendQuestion(prompt); },

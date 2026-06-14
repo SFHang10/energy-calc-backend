@@ -5,10 +5,31 @@
 
 const path = require('path');
 const fs = require('fs/promises');
+const fsSync = require('fs');
 
 const registryPath = path.join(__dirname, '..', 'data', 'greenways-content-modules.json');
 
+/** Client-facing ids that map to a canonical registry row */
+const MODULE_ID_ALIASES = {
+  'energy-ticker': 'energy-prices-ticker'
+};
+
 let registryCache = null;
+
+function resolveModuleId(moduleId) {
+  const id = String(moduleId || '').trim();
+  return MODULE_ID_ALIASES[id] || id;
+}
+
+function loadRegistrySync() {
+  if (registryCache) return registryCache;
+  try {
+    registryCache = JSON.parse(fsSync.readFileSync(registryPath, 'utf8'));
+  } catch (_) {
+    registryCache = { modules: [] };
+  }
+  return registryCache;
+}
 
 async function loadContentModules() {
   if (registryCache) return registryCache;
@@ -22,8 +43,27 @@ async function loadContentModules() {
 }
 
 function getModuleById(registry, moduleId) {
-  const id = String(moduleId || '').trim();
+  const id = resolveModuleId(moduleId);
   return (registry.modules || []).find((m) => m.id === id) || null;
+}
+
+/**
+ * Merge agent row overrides with registry copy (description + usageHint) and defaults.
+ * @param {object} row — moduleId, optional title, portalPath/href, query, openSize
+ */
+function mergeModuleRow(row = {}) {
+  const registry = loadRegistrySync();
+  const mod = getModuleById(registry, row.moduleId);
+  const requestedId = String(row.moduleId || mod?.id || '').trim();
+  return {
+    ...row,
+    moduleId: requestedId || mod?.id || 'portal',
+    title: row.title || mod?.title || 'Greenways tool',
+    description: row.description || mod?.description || '',
+    usageHint: row.usageHint || mod?.usageHint || '',
+    portalPath: row.portalPath || row.href || mod?.href || '',
+    openSize: row.openSize || mod?.defaultOpenSize || ''
+  };
 }
 
 function modulesForAgent(registry, agentKey) {
@@ -86,9 +126,10 @@ function toModuleItem(module, profile = {}, overrides = {}) {
   const baseHref = resolveModuleWebHref(overrides.href || module.href);
   const modalHref = appendEmbedParams(baseHref, profile, module);
   return {
-    moduleId: module.id,
+    moduleId: overrides.moduleId || module.id,
     title: overrides.title || module.title,
-    description: String(overrides.description || module.description || '').slice(0, 200),
+    description: String(overrides.description || module.description || '').slice(0, 220),
+    usageHint: String(overrides.usageHint || module.usageHint || '').slice(0, 220),
     href: modalHref,
     fullPageHref: fullPageHref(baseHref),
     openMode: module.openMode || 'modal',
@@ -98,9 +139,9 @@ function toModuleItem(module, profile = {}, overrides = {}) {
 }
 
 function toModuleBlock(moduleId, profile = {}, overrides = {}) {
-  const registry = registryCache || { modules: [] };
+  const registry = registryCache || loadRegistrySync();
   const module = getModuleById(registry, moduleId);
-  const item = toModuleItem(module, profile, overrides);
+  const item = toModuleItem(module, profile, { ...overrides, moduleId: overrides.moduleId || moduleId });
   if (!item) return null;
   return {
     type: 'module',
@@ -123,7 +164,10 @@ async function moduleBlocksForAgent(agentKey, profile = {}, limit = 3) {
 
 module.exports = {
   loadContentModules,
+  loadRegistrySync,
+  resolveModuleId,
   getModuleById,
+  mergeModuleRow,
   modulesForAgent,
   resolveModuleWebHref,
   appendEmbedParams,

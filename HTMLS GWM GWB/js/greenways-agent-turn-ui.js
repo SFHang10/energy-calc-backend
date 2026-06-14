@@ -70,21 +70,49 @@
     const tablets = items.map(function (item) {
       const title = escapeHtml(item.title || "Illustration");
       const desc = escapeHtml(String(item.description || "").slice(0, 180));
+      const usage = escapeHtml(String(item.usageHint || "").slice(0, 180));
       const payload = encodeModulePayload(item);
       const fullHref = escapeHtml(String(item.fullPageHref || item.href || "#"));
       const moduleId = String(item.moduleId || "");
       const openLabel =
         moduleId === "sustainability-map"
           ? "Open map"
-          : moduleId === "eco-project-planner"
-            ? "Open eco planner"
-            : "Open illustration";
+          : moduleId === "energy-ticker"
+            ? "Open ticker"
+            : moduleId === "utility-detail"
+              ? "Open utility view"
+              : moduleId === "european-energy"
+                ? "Open tariff portal"
+                : moduleId === "savings-projection"
+                  ? "Open projection"
+                  : moduleId === "finance-finder"
+                    ? "Open finance finder"
+                    : moduleId === "etl-finder"
+                      ? "Open ETL finder"
+                      : moduleId === "eco-project-planner"
+                        ? "Open eco planner"
+                        : moduleId === "deals-ticker"
+                        ? "Open deals hub"
+                        : moduleId === "savings-trajectory"
+                          ? "Open trajectory"
+                          : moduleId === "energy-cost-guide"
+                            ? "Open cost guide"
+                            : moduleId === "energy-audit"
+                              ? "Open audit"
+                              : moduleId === "etl-calculator"
+                                ? "Open calculator"
+                                : moduleId === "savings-tour"
+                                  ? "Open savings tour"
+                                  : moduleId === "low-energy-equipment"
+                                    ? "Open guide"
+                                    : "Open illustration";
       const tabletClass =
         moduleId === "sustainability-map" ? "module-tablet module-tablet--map" : "module-tablet";
       return (
         '<article class="' + tabletClass + '">' +
         '<h4 class="module-tablet-title">' + title + "</h4>" +
         (desc ? '<p class="module-tablet-desc">' + desc + "</p>" : "") +
+        (usage ? '<p class="module-tablet-usage">' + usage + "</p>" : "") +
         '<div class="module-tablet-actions">' +
         '<button type="button" class="module-tablet-open module-tablet-open--primary" data-module-payload="' + payload + '">' + openLabel + "</button>" +
         '<a class="module-tablet-full" href="' + fullHref + '" target="_blank" rel="noopener noreferrer">New tab ↗</a>' +
@@ -92,6 +120,19 @@
       );
     }).join("");
     return '<div class="module-tablets">' + tablets + "</div>";
+  }
+
+  function tryUpgradeLinkItem(item) {
+    if (!item) return null;
+    var url = String(item.url || item.href || "").trim();
+    if (!url || /^https?:\/\//i.test(url) || url.indexOf("/greenways/") >= 0) return null;
+    var CM = window.GreenwaysAgentContentModule;
+    if (!CM || typeof CM.buildModuleItemFromLink !== "function") return null;
+    return CM.buildModuleItemFromLink(url, {
+      title: item.title,
+      description: item.description,
+      openSize: "near-full"
+    });
   }
 
   function linkTabletsHtml(items, escapeHtml) {
@@ -116,7 +157,20 @@
     const parts = blocks.map(function (block) {
       if (!block || !block.type) return "";
       if (block.type === "stat") return statBlockHtml(block.items, escapeHtml);
-      if (block.type === "link") return linkTabletsHtml(block.items, escapeHtml);
+      if (block.type === "link") {
+        const items = Array.isArray(block.items) ? block.items : [];
+        const modules = [];
+        const links = [];
+        items.forEach(function (item) {
+          const upgraded = tryUpgradeLinkItem(item);
+          if (upgraded) modules.push(upgraded);
+          else links.push(item);
+        });
+        const chunks = [];
+        if (modules.length) chunks.push(moduleTabletsHtml(modules, escapeHtml));
+        if (links.length) chunks.push(linkTabletsHtml(links, escapeHtml));
+        return chunks.join("");
+      }
       if (block.type === "module") return moduleTabletsHtml(block.items, escapeHtml);
       return "";
     }).filter(Boolean);

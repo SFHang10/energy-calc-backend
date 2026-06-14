@@ -435,6 +435,7 @@ html, body {
   - **Clone:** fork HTML + intents + knowledge + routes — do not one-off new layouts. Sibling: Music Guide (`live-music-guide.html`).
   - **Deploy:** push to Render for live `/api/grants-agent/*`; HTML includes static product fallback until API is live.
   - **Compare dock:** collapsed by default; expands when schemes selected.
+  - **Right panel sidebar (Jun 2026):** default agents — **Ask about** first, **Quick links** second (`greenways-agent-sidebar.css`). **Exception:** **Edwardo** (`systems-agent`) keeps ops-first layout (verify → links → ask). Detail: **`Skills/greenways-chat-interface-skill.md`** § Right panel sidebar order.
 
 - **🏷️ Deals Agent — energy tariffs + products (May 2026):**
   - **Intents:** `tariff_compare`, `nl_restaurant_energy`, `uk_green_tariff`, `green_tariff`, `deals_page` in `data/deals-agent-intents.json`.
@@ -465,7 +466,7 @@ html, body {
   - **Grants / Music Guide / dashboard assistant** wired; per-agent override `GRANTS_AGENT_*`, `MUSIC_GUIDE_*` → fallback `ASSISTANT_*`.
   - **Agent Zero** = separate future business stack, not this path.
 
-- **🚀 Launch mode — agents (Jun 2026):** Wix launch prioritises experience over LLM caps. Policy in **`Skills/greenways-agents-roadmap.md`** § Launch mode. **Track A:** `finishKnowledgeAskResponse()` on all seven `/ask` routes; **`npm run smoke:agents-ask`**. LLM polish via `GREENWAYS_AGENT_POLISH_AGENTS` (default `finance` only). **Track B (Vincent):** `buildAgentHandoff` + `FINANCE_HANDOFF_RULES`; conversational `blocks[]` on `energy_prices`, `bnpl`, `green_loans`, `price_upgrade_case`, `etl_products`.
+- **🚀 Launch mode — agents (Jun 2026):** Wix launch prioritises experience over LLM caps. Policy in **`Skills/greenways-agents-roadmap.md`** § Launch mode. **Track A:** `finishKnowledgeAskResponse()` on all seven `/ask` routes; **`npm run smoke:agents-ask`**. LLM polish via `GREENWAYS_AGENT_POLISH_AGENTS` (default `finance` only). **Track B (Vincent):** `buildAgentHandoff` + `FINANCE_HANDOFF_RULES`; conversational `blocks[]` on `energy_prices`, `bnpl`, `green_loans`, `price_upgrade_case`, `etl_products`. **Vincent module tablets (Phase 1):** embeddable site pages open in **`GreenwaysAgentContentModule`** (`theme: finance`); copy from **`data/greenways-content-modules.json`** — **`description`** (what it is) + **`usageHint`** (how to use) in modal header and chat tablets.
 - **📋 Agent sidebar UI (Jun 2026):** Shared **`HTMLS GWM GWB/js/greenways-agent-sidebar.css`** + **`.js`** on all seven shells — compact **Quick links** block (gold border) + **Ask about** block (slate border); link config in **`data/greenways-agent-sidebar-config.json`**; sync via **`npm run sync:agent-sidebar`**.
 - **🔗 Agent product banner links (Jun 2026):** Banner cards on `/greenways/*` agents used bare `product-page-v2-marketplace.html?product=…` — browser resolved to **`/greenways/product-page-v2-marketplace.html`** (404). Product data was fine (`etl_14_59333` Ecostore). **Fix:** root-relative **`/product-page-v2-marketplace.html`** in **`marketplaceHref()`** (`greenways-agent-shared.js`) + **`TurnUi.normalizeMarketplaceHref()`** in **`greenways-agent-turn-ui.js`** on all agent `renderProductCards`.
 - **🗺️ Media Agent + sustainability map (May 2026)**:
