@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Greenways Orchestra — Wix hub frame</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    background: #080c14;
+    overflow: hidden;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+  }
+  .orch-shell {
+    display: grid;
+    grid-template-columns: minmax(140px, 34%) 1fr;
+    height: 100%;
+    min-height: 480px;
+    gap: 0;
+  }
+  .orch-team {
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 30% 15%, rgba(40, 167, 69, 0.14), transparent 55%), #0a1018;
+    border-right: 1px solid rgba(75, 140, 104, 0.25);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 16px 10px 20px;
+    text-align: center;
+  }
+  .orch-team-badge {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #28a745;
+    white-space: nowrap;
+  }
+  .orch-mosaic {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    width: 100%;
+    max-width: 200px;
+    margin-bottom: 12px;
+  }
+  .orch-mosaic img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    object-position: top center;
+    border-radius: 50%;
+    border: 2px solid rgba(75, 140, 104, 0.35);
+    display: block;
+  }
+  .orch-team h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #e8f0ec;
+    line-height: 1.25;
+    margin-bottom: 6px;
+  }
+  .orch-team p {
+    font-size: 0.72rem;
+    line-height: 1.45;
+    color: #8fa89a;
+    max-width: 200px;
+  }
+  .orch-iframe-wrap {
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    background: #0a1018;
+  }
+  .orch-iframe-wrap iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+  @media (max-width: 560px) {
+    .orch-shell {
+      grid-template-columns: 1fr;
+      grid-template-rows: 140px 1fr;
+    }
+    .orch-team {
+      border-right: none;
+      border-bottom: 1px solid rgba(75, 140, 104, 0.25);
+      flex-direction: row;
+      justify-content: center;
+      gap: 12px;
+      padding: 10px;
+    }
+    .orch-team-badge { top: 8px; }
+    .orch-mosaic { max-width: 120px; margin-bottom: 0; }
+    .orch-team h2, .orch-team p { text-align: left; max-width: 180px; }
+  }
+</style>
+</head>
+<body>
+<div class="orch-shell" id="orch-shell">
+  <aside class="orch-team" aria-label="Greenways agent team">
+    <span class="orch-team-badge">🎼 Orchestra</span>
+    <div class="orch-mosaic" id="orch-mosaic" aria-hidden="true"></div>
+    <div>
+      <h2>Seven specialists,<br>one hub</h2>
+      <p>Ask on the right — we glow the best agent. Tap their portrait to open their chat.</p>
+    </div>
+  </aside>
+  <div class="orch-iframe-wrap">
+    <iframe
+      id="orch-hub-frame"
+      title="Greenways Orchestra routing hub"
+      src="about:blank"
+      allow="clipboard-write"
+      loading="eager"></iframe>
+  </div>
+</div>
+<script>
+(function () {
+  var frame = document.getElementById("orch-hub-frame");
+  var mosaic = document.getElementById("orch-mosaic");
+  var portraits = [
+    "https://static.wixstatic.com/media/c123de_46943b6b1f8d41a59960fd8fdde4097b~mv2.png",
+    "https://static.wixstatic.com/media/c123de_63359ab891354966aa9ff792fe998677~mv2.png",
+    "https://static.wixstatic.com/media/c123de_126830b1fc224df880dfa37ec830620e~mv2.png",
+    "https://static.wixstatic.com/media/c123de_dc5b2e3e4aef4cc4b75c7b44888281bd~mv2.png",
+    "https://static.wixstatic.com/media/c123de_c7cdbed4a4ee407289677a4f0079c1e5~mv2.png",
+    "https://static.wixstatic.com/media/c123de_333c90ab8930465a98b503e1d24316b4~mv2.png"
+  ];
+  mosaic.innerHTML = portraits
+    .map(function (url) {
+      return '<img src="' + url + '" alt="" decoding="async">';
+    })
+    .join("");
+
+  var hubPath = "/greenways/orchestra-hub?embed=1";
+  if (location.protocol === "file:") {
+    frame.src = "greenways-orchestra-hub.html?embed=1";
+  } else {
+    frame.src = location.origin + hubPath;
+  }
+
+  window.addEventListener("message", function (e) {
+    var d = e && e.data;
+    if (!d || d.type !== "greenways-orchestra-navigate") return;
+    try {
+      if (d.href) {
+        if (window.top && window.top !== window) {
+          window.top.location.href = d.href;
+        } else {
+          window.location.href = d.href;
+        }
+      }
+    } catch (_) {}
+  });
+})();
+</script>
+</body>
+</html>

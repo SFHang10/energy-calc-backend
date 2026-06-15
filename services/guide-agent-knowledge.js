@@ -53,6 +53,11 @@ function scoreAgent(question, profile, agentId) {
   tokens.forEach((token) => {
     if (q.includes(token)) score += token.length >= 6 ? 3 : 2;
   });
+  if (/\bgrants?\b|\bschemes?\b|\bsubsid/.test(q) && agentId === 'grants') score += 8;
+  if (/\bdeals?\b|\btariffs?\b|\bspotlight/.test(q) && agentId === 'deals') score += 8;
+  if (/\bnews\b|\bbriefing\b|\bvideo/.test(q) && agentId === 'media') score += 8;
+  if (/\bfinance\b|\bbnpl\b|\bloans?\b|\bpayback/.test(q) && agentId === 'finance') score += 8;
+  if (/\bfind\b|\bcatalog\b|\bwater saving/.test(q) && agentId === 'products') score += 6;
   if (profile.focus === 'energy' && (agentId === 'finance' || agentId === 'deals')) score += 2;
   if (profile.focus === 'equipment' && (agentId === 'equipment' || agentId === 'products')) score += 2;
   if (profile.focus === 'building' && agentId === 'equipment') score += 2;
@@ -197,7 +202,11 @@ async function answerFromKnowledge(question, profile = {}) {
   }
 
   const forced = intent?.answerType === 'route' ? intent.agent : null;
-  const ranked = rankAgents(question, profile, roster, forced);
+  const qLower = String(question || '').toLowerCase();
+  let routeAgent = forced;
+  if (forced === 'equipment' && /\bgrants?\b|\bschemes?\b|\bsubsid/.test(qLower)) routeAgent = 'grants';
+  if (forced === 'products' && /\bgrants?\b|\bschemes?\b/.test(qLower)) routeAgent = 'grants';
+  const ranked = rankAgents(question, profile, roster, routeAgent);
 
   if (!ranked.length) {
     const overview = buildOverviewAnswer(roster, tip);
@@ -224,7 +233,7 @@ async function getDefaultRosterCards(limit = 6) {
     id: s.id,
     name: s.name,
     subcategory: s.label,
-    imageUrl: '',
+    imageUrl: s.imageUrl || '',
     label: s.label,
     icon: s.icon,
     marketplaceHref: s.path + (s.prompt ? `?q=${encodeURIComponent(s.prompt)}` : ''),

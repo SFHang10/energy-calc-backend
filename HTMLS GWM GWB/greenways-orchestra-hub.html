@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Greenways Orchestra — agent hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c14;
+    --panel: #0e1520;
+    --border: rgba(75, 140, 104, 0.22);
+    --text: #e8f0ec;
+    --muted: #8fa89a;
+    --accent: #28a745;
+    --accent-glow: rgba(40, 167, 69, 0.45);
+    --cyan: rgba(34, 212, 255, 0.4);
+    --gold: #c9a961;
+    --font: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    overflow-x: hidden;
+  }
+  body.embed-mode { overflow: hidden; height: 100%; }
+  .orchestra {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 16px 28px;
+  }
+  body.embed-mode .orchestra {
+    max-width: none;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 14px 16px;
+  }
+  .orchestra-header {
+    text-align: center;
+    margin-bottom: 18px;
+  }
+  .orchestra-header h1 {
+    font-size: clamp(1.35rem, 3vw, 1.75rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #fff 0%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .orchestra-header .tag {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .orchestra-intro {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--muted);
+    text-align: center;
+    max-width: 640px;
+    margin: 10px auto 0;
+  }
+  .profile-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin: 14px 0 18px;
+  }
+  .profile-row select {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 0.78rem;
+    font-family: inherit;
+  }
+  .agent-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .agent-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 10px 8px 12px;
+    border-radius: 14px;
+    background: linear-gradient(160deg, #0e2117 0%, #0b1a12 100%);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    cursor: pointer;
+  }
+  .agent-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(75, 140, 104, 0.45);
+  }
+  .agent-card.is-recommended {
+    border-color: rgba(34, 212, 255, 0.5);
+    box-shadow: 0 0 18px var(--cyan);
+  }
+  .agent-card.is-primary {
+    border-color: var(--accent);
+    box-shadow: 0 0 26px var(--accent-glow), 0 8px 24px rgba(0, 0, 0, 0.35);
+    transform: translateY(-3px);
+  }
+  .agent-card.is-primary .agent-face {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .agent-face {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 8px;
+    background: #1a2332;
+  }
+  .agent-face img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+  }
+  .agent-name {
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .agent-role {
+    font-size: 0.62rem;
+    color: var(--muted);
+    margin-top: 3px;
+    line-height: 1.3;
+  }
+  .agent-pick-badge {
+    display: none;
+    margin-top: 6px;
+    font-size: 0.58rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+  }
+  .agent-card.is-primary .agent-pick-badge,
+  .agent-card.is-recommended .agent-pick-badge {
+    display: block;
+  }
+  .agent-card.is-primary .agent-pick-badge { color: #5ee88a; }
+  .ask-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  }
+  body.embed-mode .ask-panel { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .ask-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+  }
+  .ask-row input {
+    flex: 1;
+    min-width: 0;
+    background: #0a1018;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  .ask-row input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
+  }
+  .ask-row button {
+    background: linear-gradient(135deg, #1e6b38, var(--accent));
+    border: none;
+    border-radius: 10px;
+    padding: 0 18px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.82rem;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .ask-row button:disabled { opacity: 0.55; cursor: wait; }
+  .answer-box {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #0a1018;
+    border: 1px solid rgba(75, 140, 104, 0.15);
+    font-size: 0.84rem;
+    line-height: 1.55;
+    min-height: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    display: none;
+  }
+  body.embed-mode .answer-box { max-height: none; flex: 1; }
+  .answer-box.is-visible { display: block; }
+  .answer-box.is-thinking { color: var(--muted); font-style: italic; }
+  .answer-box strong { color: #fff; }
+  .answer-box em { color: var(--muted); }
+  .route-hint {
+    margin-top: 10px;
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-align: center;
+  }
+  .route-hint strong { color: var(--gold); }
+  .status-bar {
+    margin-top: 8px;
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-align: center;
+  }
+  .quick-prompts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .quick-prompts button {
+    background: rgba(40, 167, 69, 0.12);
+    border: 1px solid rgba(40, 167, 69, 0.35);
+    color: var(--text);
+    border-radius: 999px;
+    padding: 5px 11px;
+    font-size: 0.68rem;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .quick-prompts button:hover {
+    background: rgba(40, 167, 69, 0.22);
+  }
+</style>
+</head>
+<body>
+<div class="orchestra" id="orchestra-root">
+  <header class="orchestra-header">
+    <div class="tag">🎼 Greenways Orchestra</div>
+    <h1>Ask — we’ll find your specialist</h1>
+    <p class="orchestra-intro">
+      Ask in plain language. We’ll suggest the best agent and glow their profile.
+      Specialists work <strong style="color:var(--text)">in tandem</strong> — they can hand you to another expert when a topic fits their lane.
+      Tap a portrait to open their full chat with your question.
+    </p>
+  </header>
+
+  <div class="profile-row" aria-label="Your profile">
+    <select id="profile-region" title="Region">
+      <option value="">Region</option>
+      <option value="nl" selected>Netherlands</option>
+      <option value="uk">United Kingdom</option>
+      <option value="eu">EU-wide</option>
+    </select>
+    <select id="profile-sector" title="Sector">
+      <option value="">Sector</option>
+      <option value="restaurant" selected>Restaurant</option>
+      <option value="office">Office</option>
+      <option value="home">Home</option>
+    </select>
+    <select id="profile-focus" title="Focus">
+      <option value="">Focus</option>
+      <option value="energy" selected>Energy</option>
+      <option value="equipment">Equipment</option>
+      <option value="building">Building</option>
+      <option value="general">General</option>
+    </select>
+  </div>
+
+  <nav class="agent-grid" id="agent-grid" aria-label="Greenways specialist agents"></nav>
+
+  <section class="ask-panel">
+    <div class="ask-row">
+      <input type="text" id="question-input" placeholder="e.g. What grants fit kitchen equipment in the Netherlands?" autocomplete="off">
+      <button type="button" id="ask-btn">Ask Orchestra</button>
+    </div>
+    <div class="quick-prompts" id="quick-prompts"></div>
+    <div class="answer-box" id="answer-box" aria-live="polite"></div>
+    <p class="route-hint" id="route-hint" hidden>
+      <strong>Tip:</strong> tap the glowing agent to continue in their chat — handoffs carry your question across agents.
+    </p>
+    <div class="status-bar" id="status-bar">Ready</div>
+  </section>
+</div>
+<script>
+(function () {
+  var isEmbed = /[?&]embed=1/.test(location.search);
+  if (isEmbed) document.body.classList.add("embed-mode");
+
+  var ROSTER_URL = "/data/greenways-agent-roster.json";
+  var FALLBACK_ROSTER = {
+    agents: [
+      { slug: "grants-agent", id: "grants", name: "Andrieus", shortLabel: "Grants", imageUrl: "https://static.wixstatic.com/media/c123de_46943b6b1f8d41a59960fd8fdde4097b~mv2.png", path: "/greenways/grants-agent" },
+      { slug: "finance-agent", id: "finance", name: "Vincent", shortLabel: "Finance", imageUrl: "https://static.wixstatic.com/media/c123de_63359ab891354966aa9ff792fe998677~mv2.png", path: "/greenways/finance-agent" },
+      { slug: "equipment-agent", id: "equipment", name: "Artemis", shortLabel: "Equipment", imageUrl: "https://static.wixstatic.com/media/c123de_126830b1fc224df880dfa37ec830620e~mv2.png", path: "/greenways/equipment-agent" },
+      { slug: "sustainable-products-agent", id: "products", name: "Zyanne", shortLabel: "Products", imageUrl: "https://static.wixstatic.com/media/c123de_dc5b2e3e4aef4cc4b75c7b44888281bd~mv2.png", path: "/greenways/sustainable-products-agent" },
+      { slug: "deals-agent", id: "deals", name: "Zara", shortLabel: "Deals", imageUrl: "https://static.wixstatic.com/media/c123de_c7cdbed4a4ee407289677a4f0079c1e5~mv2.png", path: "/greenways/deals-agent" },
+      { slug: "media-agent", id: "media", name: "Cheryce", shortLabel: "Media", imageUrl: "https://static.wixstatic.com/media/c123de_333c90ab8930465a98b503e1d24316b4~mv2.png", path: "/greenways/media-agent" },
+      { slug: "systems-agent", id: "systems", name: "Edwardo", shortLabel: "Systems", role: "Systems & equipment", imageUrl: "https://static.wixstatic.com/media/c123de_eeb61cbf84bd402eb642e28b2b457c76~mv2.png", path: "/greenways/systems-agent" }
+    ]
+  };
+
+  var SLUG_TO_HTML = {
+    "grants-agent": "greenways-grants-agent.html",
+    "finance-agent": "greenways-finance-agent.html",
+    "equipment-agent": "greenways-equipment-agent.html",
+    "sustainable-products-agent": "greenways-sustainable-products-agent.html",
+    "deals-agent": "greenways-deals-agent.html",
+    "media-agent": "greenways-media-agent.html",
+    "systems-agent": "greenways-systems-agent.html"
+  };
+
+  var QUICK = [
+    "What grants fit kitchen equipment in my region?",
+    "Find efficient refrigeration for my restaurant",
+    "What deals are in the feed this week?",
+    "Today's sustainability news briefing",
+    "How does payback work after an upgrade?"
+  ];
+
+  var grid = document.getElementById("agent-grid");
+  var input = document.getElementById("question-input");
+  var askBtn = document.getElementById("ask-btn");
+  var answerBox = document.getElementById("answer-box");
+  var routeHint = document.getElementById("route-hint");
+  var statusBar = document.getElementById("status-bar");
+  var quickMount = document.getElementById("quick-prompts");
+
+  var roster = [];
+  var lastQuestion = "";
+  var thinking = false;
+
+  function apiBase() {
+    if (location.protocol === "file:") return "";
+    if (/localhost|127\.0\.0\.1/.test(location.hostname)) return "";
+    return location.origin.indexOf("onrender.com") >= 0 ? location.origin : "https://energy-calc-backend.onrender.com";
+  }
+
+  function getProfile() {
+    return {
+      region: document.getElementById("profile-region").value,
+      sector: document.getElementById("profile-sector").value,
+      focus: document.getElementById("profile-focus").value
+    };
+  }
+
+  function agentHref(agent, question) {
+    var q = question ? "?q=" + encodeURIComponent(question) : "";
+    if (location.protocol === "file:") {
+      var html = SLUG_TO_HTML[agent.slug] || "greenways-grants-agent.html";
+      return html + q;
+    }
+    return (agent.path || "/greenways/" + agent.slug) + q;
+  }
+
+  function escapeHtml(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function simpleMarkdown(text) {
+    return escapeHtml(text)
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+      .replace(/\n/g, "<br>");
+  }
+
+  function renderGrid() {
+    grid.innerHTML = roster
+      .map(function (a) {
+        var role = a.role || a.shortLabel || "Agent";
+        return (
+          '<a class="agent-card" href="' +
+          escapeHtml(agentHref(a, lastQuestion)) +
+          '" data-agent-id="' +
+          escapeHtml(a.id) +
+          '" target="_top" rel="noopener" title="Open ' +
+          escapeHtml(a.name) +
+          " — " +
+          escapeHtml(role) +
+          '">' +
+          '<span class="agent-face"><img src="' +
+          escapeHtml(a.imageUrl) +
+          '" alt="' +
+          escapeHtml(a.name) +
+          '"></span>' +
+          '<span class="agent-name">' +
+          escapeHtml(a.name) +
+          "</span>" +
+          '<span class="agent-role">' +
+          escapeHtml(role) +
+          "</span>" +
+          '<span class="agent-pick-badge">Suggested</span>' +
+          "</a>"
+        );
+      })
+      .join("");
+  }
+
+  function highlightAgents(primaryId, routedIds) {
+    var routed = routedIds || [];
+    grid.querySelectorAll(".agent-card").forEach(function (card) {
+      var id = card.getAttribute("data-agent-id");
+      card.classList.remove("is-primary", "is-recommended");
+      var badge = card.querySelector(".agent-pick-badge");
+      if (id === primaryId) {
+        card.classList.add("is-primary");
+        if (badge) badge.textContent = "Best match";
+      } else if (routed.indexOf(id) >= 0) {
+        card.classList.add("is-recommended");
+        if (badge) badge.textContent = "Also relevant";
+      }
+    });
+    routeHint.hidden = !primaryId;
+  }
+
+  function updateCardLinks() {
+    grid.querySelectorAll(".agent-card").forEach(function (card) {
+      var id = card.getAttribute("data-agent-id");
+      var agent = roster.find(function (a) { return a.id === id; });
+      if (agent) card.setAttribute("href", agentHref(agent, lastQuestion));
+    });
+  }
+
+  async function loadRoster() {
+    try {
+      var res = await fetch(ROSTER_URL);
+      if (res.ok) {
+        var data = await res.json();
+        if (data && Array.isArray(data.agents) && data.agents.length) {
+          roster = data.agents;
+          return;
+        }
+      }
+    } catch (_) {}
+    roster = FALLBACK_ROSTER.agents;
+  }
+
+  async function askOrchestra(question) {
+    var q = String(question || "").trim();
+    if (!q || thinking) return;
+    thinking = true;
+    askBtn.disabled = true;
+    lastQuestion = q;
+    updateCardLinks();
+    answerBox.className = "answer-box is-visible is-thinking";
+    answerBox.innerHTML = "Routing to the best specialist…";
+    statusBar.textContent = "Thinking…";
+    highlightAgents(null, []);
+
+    try {
+      var base = apiBase();
+      var url = (base || "") + "/api/guide-agent/ask";
+      var res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: q, profile: getProfile() })
+      });
+      var data = await res.json().catch(function () { return {}; });
+      if (!res.ok || !data.ok) throw new Error(data.error || "Request failed");
+
+      answerBox.className = "answer-box is-visible";
+      answerBox.innerHTML = simpleMarkdown(data.answer || "No answer returned.");
+      highlightAgents(data.primaryAgent || null, data.routedTo || []);
+      statusBar.textContent =
+        data.primaryAgent
+          ? "Routed to " + (roster.find(function (a) { return a.id === data.primaryAgent; }) || {}).name || data.primaryAgent
+          : "Answered";
+    } catch (err) {
+      answerBox.className = "answer-box is-visible";
+      var offline = location.protocol === "file:" || !apiBase();
+      if (offline) {
+        var guess = guessLocalRoute(q);
+        highlightAgents(guess.primary, guess.routed);
+        answerBox.innerHTML =
+          "<strong>Offline preview</strong> — deploy <code>/api/guide-agent</code> on Render for live routing.<br><br>" +
+          simpleMarkdown(guess.message);
+        statusBar.textContent = "Offline routing preview";
+      } else {
+        answerBox.innerHTML = escapeHtml("Could not reach the Orchestra API. Try again after deploy.");
+        statusBar.textContent = "Offline";
+      }
+    } finally {
+      thinking = false;
+      askBtn.disabled = false;
+    }
+  }
+
+  function guessLocalRoute(q) {
+    var hay = q.toLowerCase();
+    var scores = {
+      grants: 0, finance: 0, equipment: 0, products: 0, deals: 0, media: 0, systems: 0
+    };
+    if (/grant|scheme|subsidy|mia|vamil/.test(hay)) scores.grants += 5;
+    if (/finance|loan|bnpl|payback/.test(hay)) scores.finance += 5;
+    if (/equipment|renovation|insulation|deep dive/.test(hay)) scores.equipment += 5;
+    if (/product|water|fridge|catalog|find/.test(hay)) scores.products += 5;
+    if (/deal|tariff|ticker|spotlight/.test(hay)) scores.deals += 5;
+    if (/news|video|policy|briefing/.test(hay)) scores.media += 5;
+    if (/monitor|sensor|dashboard|systems/.test(hay)) scores.systems += 5;
+    var sorted = Object.keys(scores).sort(function (a, b) { return scores[b] - scores[a]; });
+    var primary = sorted[0];
+    if (scores[primary] < 1) primary = "grants";
+    var name = (roster.find(function (a) { return a.id === primary; }) || {}).name || primary;
+    return {
+      primary: primary,
+      routed: sorted.filter(function (id) { return scores[id] > 0; }).slice(0, 3),
+      message: "**" + name + "** looks like the best match for your question. Tap their portrait to continue."
+    };
+  }
+
+  QUICK.forEach(function (prompt) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = prompt.length > 42 ? prompt.slice(0, 40) + "…" : prompt;
+    btn.title = prompt;
+    btn.addEventListener("click", function () {
+      input.value = prompt;
+      askOrchestra(prompt);
+    });
+    quickMount.appendChild(btn);
+  });
+
+  askBtn.addEventListener("click", function () { askOrchestra(input.value); });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); askOrchestra(input.value); }
+  });
+
+  loadRoster().then(function () {
+    renderGrid();
+    var params = new URLSearchParams(location.search);
+    var boot = params.get("q") || params.get("prompt") || "";
+    if (boot) {
+      input.value = boot;
+      askOrchestra(boot);
+    }
+  });
+})();
+</script>
+</body>
+</html>

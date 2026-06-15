@@ -112,8 +112,9 @@ Shared helpers: `services/greenways-agent-shared.js`.
 | Roster | `data/guide-agent-roster.json` | ✅ specialist cards + staff Systems row |
 | Knowledge | `services/guide-agent-knowledge.js` | ✅ token scoring → lazy `require` of one specialist `answerFromKnowledge()` |
 | API | `routes/guide-agent.js` | ✅ `POST /ask`, `GET /samples` — **not mounted** in `server-new.js` yet |
-| UI | `HTMLS GWM GWB/greenways-guide-agent.html` | ❌ not created (use `scripts/scaffold-guide-agent-html.js` or manual fork of grants/finance HTML) |
-| Short URL | `/greenways/guide-agent` | ❌ register in `server-new.js` with `/api/guide-agent` |
+| UI | `HTMLS GWM GWB/greenways-orchestra-hub.html` | ✅ agent grid + ask + glow routing |
+| Wix frame | `HTMLS GWM GWB/greenways-orchestra-hub-wix-frame.html` | ✅ mosaic left + hub iframe (Zara-frame pattern) |
+| Short URL | `/greenways/orchestra-hub` · `/greenways/guide-agent` | ✅ registered in `server-new.js` with `/api/guide-agent` |
 
 **Orchestrator API fields** (extend standard response):
 

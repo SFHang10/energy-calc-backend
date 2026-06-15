@@ -187,6 +187,16 @@ async function runLocalSmokes() {
   }
   console.log('OK Andrieus Cheryce handoff welcome →', grantsReferralHit.suggestions.length, 'schemes');
 
+  const guideMod = require(path.join(ROOT, 'services/guide-agent-knowledge'));
+  const guideHit = await guideMod.answerFromKnowledge('What grants fit kitchen equipment?', profile);
+  if (!guideHit?.answer || guideHit.source !== 'orchestrator') {
+    throw new Error('Orchestra: expected orchestrator routing for grants question');
+  }
+  if (!guideHit.primaryAgent) {
+    throw new Error('Orchestra: expected primaryAgent on routed answer');
+  }
+  console.log('OK Orchestra route grants question →', guideHit.primaryAgent);
+
   const deepDiveHit = await equipMod.answerFromKnowledge('equipment deep dive compare alternatives', profile);
   const deepDiveMod = (deepDiveHit?.blocks || []).find((b) => b.type === 'module');
   if (!deepDiveMod?.items?.some((i) => i.moduleId === 'equipment-deep-dive')) {

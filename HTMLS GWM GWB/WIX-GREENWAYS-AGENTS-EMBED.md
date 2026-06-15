@@ -6,15 +6,23 @@
 
 ---
 
-## Hub conductor (WIP)
+## Hub conductor (Orchestra)
 
-When **Greenways Guide** ships, the hub page may embed **one** chat:
+**Opening page** — one Wix embed routes visitors to specialists (no seven chat iframes on one page):
 
 ```
-https://energy-calc-backend.onrender.com/greenways/guide-agent?embed=1
+https://energy-calc-backend.onrender.com/greenways/orchestra-hub-wix-frame
 ```
 
-Routes to specialist pages — **not live** until HTML + `server-new.js` mount. See `Skills/greenways-chat-interface-skill.md` § Guide Agent.
+Character mosaic + inner hub (`orchestra-hub?embed=1`). Full hub without frame:
+
+```
+https://energy-calc-backend.onrender.com/greenways/orchestra-hub
+```
+
+Alias: `/greenways/guide-agent` → same hub HTML. API: `POST /api/guide-agent/ask` → `primaryAgent`, `routedTo`, short answer; tap glowing portrait → specialist with `?q=`.
+
+When **Greenways Guide** shipped (May 2026), see `Skills/greenways-chat-interface-skill.md` § Guide Agent.
 
 ---
 

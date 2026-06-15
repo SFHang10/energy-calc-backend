@@ -186,6 +186,9 @@ app.get('/greenways/deals-agent-embed-test', (req, res) => sendLiveMusicHtml(res
 app.get('/greenways/media-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-media-agent.html'));
 app.get('/greenways/sustainable-products-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-sustainable-products-agent.html'));
 app.get('/greenways/systems-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-systems-agent.html'));
+app.get('/greenways/orchestra-hub', (req, res) => sendLiveMusicHtml(res, 'greenways-orchestra-hub.html'));
+app.get('/greenways/orchestra-hub-wix-frame', (req, res) => sendLiveMusicHtml(res, 'greenways-orchestra-hub-wix-frame.html'));
+app.get('/greenways/guide-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-orchestra-hub.html'));
 
 LIVE_MUSIC_DATA.forEach(([name, filePath]) => {
   app.get(`/data/${name}`, (req, res) => {
@@ -362,6 +365,7 @@ let dealsAgentRouter;
 let mediaAgentRouter;
 let sustainableProductsAgentRouter;
 let systemsAgentRouter;
+let guideAgentRouter;
 let musicVenueInquiriesRouter;
 let musicMediaCandidatesRouter;
 try {
@@ -374,6 +378,7 @@ try {
   mediaAgentRouter = require('./routes/media-agent');
   sustainableProductsAgentRouter = require('./routes/sustainable-products-agent');
   systemsAgentRouter = require('./routes/systems-agent');
+  guideAgentRouter = require('./routes/guide-agent');
   musicVenueInquiriesRouter = require('./routes/music-venue-inquiries');
   musicMediaCandidatesRouter = require('./routes/music-media-candidates');
   console.log('Live music routers loaded successfully');
@@ -388,6 +393,7 @@ try {
   mediaAgentRouter = null;
   sustainableProductsAgentRouter = null;
   systemsAgentRouter = null;
+  guideAgentRouter = null;
   musicVenueInquiriesRouter = null;
   musicMediaCandidatesRouter = null;
 }
@@ -489,6 +495,10 @@ function mountApiRoutes() {
   if (systemsAgentRouter) {
     app.use('/api/systems-agent', systemsAgentRouter);
     console.log('✅ /api/systems-agent route mounted');
+  }
+  if (guideAgentRouter) {
+    app.use('/api/guide-agent', guideAgentRouter);
+    console.log('✅ /api/guide-agent route mounted');
   }
   if (musicVenueInquiriesRouter) {
     app.use('/api/music-venue-inquiries', musicVenueInquiriesRouter);
