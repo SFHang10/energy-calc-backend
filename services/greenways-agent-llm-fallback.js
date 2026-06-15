@@ -539,13 +539,18 @@ async function buildAgentAskFallback(agentKey, question, profile = {}) {
   return builder(question, profile);
 }
 
+const { normalizeHandoffContext } = require('./greenways-agent-handoff');
+
 function normalizeAskProfile(body) {
-  return {
+  const handoff = normalizeHandoffContext(body?.profile?.handoff);
+  const profile = {
     region: String(body?.profile?.region || '').trim(),
     sector: String(body?.profile?.sector || '').trim(),
     focus: String(body?.profile?.focus || '').trim(),
     lane: String(body?.profile?.lane || '').trim().toLowerCase()
   };
+  if (handoff) profile.handoff = handoff;
+  return profile;
 }
 
 module.exports = {

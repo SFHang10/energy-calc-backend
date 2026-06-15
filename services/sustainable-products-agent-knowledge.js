@@ -9,6 +9,7 @@ const fs = require('fs/promises');
 const {
   PORTAL_LINKS,
   loadIntentsFrom,
+  loadProductsWithGrants,
   matchIntent,
   normalizeImageUrl,
   marketplaceHref,
@@ -21,6 +22,13 @@ const {
   pickTip
 } = require('./greenways-agent-persona');
 const { mergeModuleRow, loadRegistrySync, getModuleById } = require('./greenways-content-modules');
+const { EquipmentIntelligenceService } = require('./equipment-intelligence-service');
+
+let equipmentIntelService = null;
+function getEquipmentIntel() {
+  if (!equipmentIntelService) equipmentIntelService = new EquipmentIntelligenceService();
+  return equipmentIntelService;
+}
 
 const intentsPath = path.join(__dirname, '..', 'data', 'sustainable-products-agent-intents.json');
 const showcasePath = path.join(__dirname, '..', 'data', 'sustainable-products-agent-showcase.json');
@@ -438,18 +446,43 @@ function formatSearchAnswer(result, lane, tip) {
   };
 }
 
-function toProductSample(item, lane, showcase) {
+function resolveSampleImageUrl(item, productById, showcaseRow) {
+  const direct = normalizeImageUrl(item?.imageUrl);
+  if (direct) return direct;
+  if (showcaseRow?.imageUrl) return normalizeImageUrl(showcaseRow.imageUrl);
+  const id = String(item?.id || '');
+  if (id.startsWith('etl_')) {
+    const product = productById.get(id);
+    if (product?.imageUrl) return normalizeImageUrl(product.imageUrl);
+  }
+  return '';
+}
+
+function enrichMarketplaceItem(item, productById, showcaseRow) {
+  const id = String(item?.id || '');
+  if (!id.startsWith('etl_')) return item;
+  const product = productById.get(id);
+  if (!product) return item;
+  return {
+    ...product,
+    ...item,
+    name: item.name || product.name || id,
+    imageUrl: item.imageUrl || product.imageUrl,
+    grants: item.grants?.length ? item.grants : product.grants || []
+  };
+}
+
+function toProductSample(item, lane, showcase, productById = new Map()) {
   const isMarket =
     item.source === 'greenways_marketplace' || String(item.id || '').startsWith('etl_');
   const curated = (showcase.products || []).find((p) => p.id === item.id);
   const grants = (item.grants || []).slice(0, 2).map((g) => g.name || g.title).filter(Boolean);
-  const laneImage = showcase.laneImages?.[lane] || '';
   return {
     id: item.id,
     name: item.name || item.id,
     label: curated?.label || (isMarket ? 'On Greenways' : 'Market alternative'),
     subcategory: (item.subcategory || item.category || lane || 'PRODUCT').toUpperCase(),
-    imageUrl: normalizeImageUrl(item.imageUrl) || laneImage,
+    imageUrl: resolveSampleImageUrl(item, productById, curated),
     topGrants: grants.length ? grants : [isMarket ? 'On Greenways' : 'Market alternative'],
     grantsCount: grants.length,
     marketplaceHref: isMarket
@@ -465,6 +498,8 @@ function toProductSample(item, lane, showcase) {
 async function pickShowcaseSamplesOnly(profile = {}, limit = 3) {
   const showcase = await loadShowcase();
   const catalog = await loadCatalog();
+  const { products } = await loadProductsWithGrants();
+  const productById = new Map(products.map((p) => [String(p.id), p]));
   const catalogById = new Map((catalog.products || []).map((p) => [String(p.id), p]));
   const lane = profile.lane || detectLane('', profile);
   const curatedRows = (showcase.products || []).filter((p) => !p.lane || p.lane === lane);
@@ -479,15 +514,25 @@ async function pickShowcaseSamplesOnly(profile = {}, limit = 3) {
         source: 'market_alternative'
       };
     } else {
-      item = {
-        id: row.id,
-        name: row.label || row.id,
-        imageUrl: showcase.laneImages?.[row.lane || lane],
-        source: 'greenways_marketplace',
-        grants: []
-      };
+      item = enrichMarketplaceItem(
+        {
+          id: row.id,
+          name: row.label || row.id,
+          source: 'greenways_marketplace',
+          grants: []
+        },
+        productById,
+        row
+      );
     }
-    samples.push(toProductSample({ ...item, source: item.source || 'greenways_marketplace' }, row.lane || lane, showcase));
+    samples.push(
+      toProductSample(
+        { ...item, source: item.source || 'greenways_marketplace' },
+        row.lane || lane,
+        showcase,
+        productById
+      )
+    );
     if (samples.length >= limit) break;
   }
   return samples.slice(0, limit);
@@ -500,13 +545,16 @@ async function pickProductSamples(question, profile = {}, limit = 3) {
 
   const showcase = await loadShowcase();
   const catalog = await loadCatalog();
+  const { products } = await loadProductsWithGrants();
+  const productById = new Map(products.map((p) => [String(p.id), p]));
   const lane = detectLane(question, profile);
   const search = searchLocalProducts(catalog, showcase, question, profile);
   const samples = [];
 
   for (const item of [...(search.marketplaceMatches || []), ...(search.externalAlternatives || [])]) {
     if (samples.length >= limit) break;
-    samples.push(toProductSample(item, lane, showcase));
+    const enriched = enrichMarketplaceItem(item, productById);
+    samples.push(toProductSample(enriched, lane, showcase, productById));
   }
 
   if (samples.length < limit) {
@@ -773,6 +821,204 @@ function buildSourcesAnswer(tip) {
   };
 }
 
+function formatBenchmarkNum(value, digits = 1) {
+  if (value === null || value === undefined || value === '') return null;
+  const n = Number(value);
+  if (Number.isNaN(n)) return null;
+  const fixed = n.toFixed(digits);
+  return fixed.replace(/\.0$/, '');
+}
+
+function parseEquipmentLookupQuery(question) {
+  const q = String(question || '').trim();
+  const out = { name: '', brand: '', model: '', serial: '', type: '' };
+  if (!q) return out;
+
+  let working = q;
+
+  const serialMatch = working.match(
+    /(?:serial\s*(?:number|no\.?|#)?|s\/n|sn)\s*:?\s*([A-Za-z0-9][A-Za-z0-9-]{2,24})/i
+  );
+  if (serialMatch) {
+    out.serial = serialMatch[1].trim();
+    working = working.replace(serialMatch[0], ' ');
+  }
+
+  const modelMatch = working.match(/(?:model\s*(?:number|no\.?|#)?|m\/n)\s*:?\s*([A-Za-z0-9][\w\s./+-]{1,40})/i);
+  if (modelMatch) {
+    out.model = modelMatch[1].trim();
+    working = working.replace(modelMatch[0], ' ');
+  }
+
+  const brandMatch = working.match(/(?:brand|make|manufacturer)\s*:?\s*([A-Za-z][A-Za-z0-9\s&.-]{1,28})/i);
+  if (brandMatch) {
+    out.brand = brandMatch[1].trim();
+    working = working.replace(brandMatch[0], ' ');
+  }
+
+  working = working
+    .replace(
+      /\b(?:look\s*up|lookup|find|search|check|benchmark|baseline|manufacturer|energy\s+baseline|typical\s+daily|how\s+much\s+energy|connected\s+load|kwh|per\s+day|my|the|please|can\s+you)\b/gi,
+      ' '
+    )
+    .replace(/[?.!,]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (working.length >= 3) {
+    if (!out.model && working.length <= 48) out.name = working;
+    else if (!out.name) out.name = working.slice(0, 80);
+  }
+
+  return out;
+}
+
+function equipmentLookupHasInput(query) {
+  return Object.values(query || {}).some((v) => String(v || '').trim().length > 0);
+}
+
+function equipmentStatItems(payload) {
+  const consumption = payload.consumption || {};
+  const benchmarks = payload.benchmarks || {};
+  const equipment = payload.equipment || {};
+  const items = [];
+
+  const dailyKwh =
+    benchmarks.typicalDailyKwhMin != null && benchmarks.typicalDailyKwhMax != null
+      ? `${formatBenchmarkNum(benchmarks.typicalDailyKwhMin)}–${formatBenchmarkNum(benchmarks.typicalDailyKwhMax)} kWh/day`
+      : consumption.kwhPerHourInUse != null
+        ? `${formatBenchmarkNum(consumption.kwhPerHourInUse)} kWh/hr in use`
+        : null;
+  if (dailyKwh) items.push({ label: 'Electricity benchmark', value: dailyKwh });
+
+  const water =
+    benchmarks.dailyWaterLitresMin != null && benchmarks.dailyWaterLitresMax != null
+      ? `${formatBenchmarkNum(benchmarks.dailyWaterLitresMin, 0)}–${formatBenchmarkNum(benchmarks.dailyWaterLitresMax, 0)} L/day`
+      : consumption.waterLitresPerCycle != null
+        ? `${formatBenchmarkNum(consumption.waterLitresPerCycle)} L/cycle`
+        : null;
+  if (water) items.push({ label: 'Water benchmark', value: water });
+
+  if (consumption.connectedLoadKw != null) {
+    items.push({ label: 'Connected load', value: `${formatBenchmarkNum(consumption.connectedLoadKw)} kW` });
+  }
+  if (benchmarks.efficiencyRating) {
+    items.push({ label: 'Efficiency', value: String(benchmarks.efficiencyRating).slice(0, 32) });
+  }
+  if (equipment.model) {
+    items.push({ label: 'Model', value: equipment.model });
+  }
+  return items.slice(0, 4);
+}
+
+function equipmentLookupModuleBlocks() {
+  return linkOrModuleBlocks([
+    toLinkItem('Sustainable product finder', FINDER_LINKS.products, 'Full marketplace + catalog search'),
+    toLinkItem('Equipment deep dive', FINDER_LINKS.deepDive, 'Side-by-side alternatives with grants'),
+    toLinkItem('Equipment intelligence tool', FINDER_LINKS.equipmentTool, 'ETL lookup & compare')
+  ]);
+}
+
+function formatSourceLine(sources) {
+  const names = (sources || []).map((s) => s.name).filter(Boolean).slice(0, 2);
+  if (!names.length) return '';
+  return `\n\n_Source references: ${names.join(' · ')}._`;
+}
+
+async function buildEquipmentLookupAnswer(question, profile, tip, parsedQuery) {
+  const query = parsedQuery || parseEquipmentLookupQuery(question);
+  if (!equipmentLookupHasInput(query)) {
+    return {
+      answer:
+        'Share a **serial number**, **model**, or **product name** (e.g. `Hobart AM15` or `serial SCC-12345`) and I will look up **manufacturer-style energy and water benchmarks** from our equipment intelligence seed.\n\n' +
+        'For full marketplace search and greener alternatives, use the finder modules on the right.\n\n' +
+        `_${tip}_`,
+      suggestions: [],
+      blocks: equipmentLookupModuleBlocks(),
+      intentId: 'equipment_lookup'
+    };
+  }
+
+  const lookup = getEquipmentIntel().search(query);
+
+  if (!lookup.success) {
+    return {
+      answer:
+        `I could not run that equipment lookup — ${lookup.message || 'try brand + model together.'}\n\n_${tip}_`,
+      suggestions: [],
+      blocks: equipmentLookupModuleBlocks(),
+      intentId: 'equipment_lookup'
+    };
+  }
+
+  if (!lookup.found) {
+    const hints = (lookup.suggestions || [])
+      .slice(0, 3)
+      .map((s) => `**${s.brand || ''} ${s.model || s.name}**`.trim())
+      .filter(Boolean)
+      .join(', ');
+    return {
+      answer:
+        `I checked our equipment intelligence catalogue but did not find a close match for **${query.serial || query.model || query.name || 'that query'}**.\n\n` +
+        (hints ? `Try one of these known profiles: ${hints}.\n\n` : '') +
+        'Add **brand + model** or a **serial prefix** for better accuracy, or open the full finders on the right.\n\n' +
+        `_${tip}_`,
+      suggestions: [],
+      blocks: equipmentLookupModuleBlocks(),
+      intentId: 'equipment_lookup'
+    };
+  }
+
+  const eq = lookup.equipment || {};
+  const label = [eq.brand, eq.model || eq.name].filter(Boolean).join(' ') || eq.name || 'Equipment';
+  const confidence = lookup.confidence || 'medium';
+  const statItems = equipmentStatItems(lookup);
+
+  let altLine = '';
+  try {
+    const alts = getEquipmentIntel().getAlternatives({
+      name: eq.name,
+      brand: eq.brand,
+      model: eq.model,
+      type: eq.type
+    });
+    if (alts.success) {
+      const n = (alts.marketplaceMatches || []).length + (alts.externalAlternatives || []).length;
+      if (n > 0) {
+        altLine = `\n\nI also found **${n}** greener **On Greenways** or **Market alternative** option${n === 1 ? '' : 's'} — use the finder modules on the right for side-by-side compare.`;
+      }
+    }
+  } catch (_) {
+    /* optional lane */
+  }
+
+  const blocks = [{ type: 'stat', items: statItems }, ...equipmentLookupModuleBlocks()];
+
+  return {
+    answer:
+      `I looked up **${label}** in our equipment intelligence data (**${confidence}** confidence).\n\n` +
+      `${String(eq.summary || 'Manufacturer benchmark profile for this appliance type.').trim()}` +
+      (statItems.length
+        ? '\n\nBenchmark chips on the right show typical electricity, water, and connected load — compare these to your meter readings over 7 days.'
+        : '') +
+      altLine +
+      formatSourceLine(lookup.sources) +
+      `\n\n_${tip}_`,
+    suggestions: [],
+    blocks,
+    intentId: 'equipment_lookup',
+    lane: detectLane(eq.type || eq.category || '', profile)
+  };
+}
+
+function shouldTryEquipmentLookup(question, intent, parsedQuery) {
+  if (intent?.answerType === 'equipment_lookup') return true;
+  if (!equipmentLookupHasInput(parsedQuery)) return false;
+  if (parsedQuery.serial || parsedQuery.model) return true;
+  const q = String(question || '').toLowerCase();
+  return /\b(serial|model\s*(?:number|no)|baseline|benchmark|connected\s+load|manufacturer)\b/.test(q);
+}
+
 function buildPortalsAnswer(portal, tip) {
   const lines = [];
   if (portal === 'water' || portal === 'all') lines.push(`- **Water Saving Finder:** ${FINDER_LINKS.water}`);
@@ -875,8 +1121,18 @@ async function answerFromKnowledge(question, profile = {}) {
       case 'product_grants':
         result = await buildProductGrantsAnswer(question, profile, tip);
         break;
+      case 'equipment_lookup':
+        result = await buildEquipmentLookupAnswer(question, profile, tip);
+        break;
       default:
         result = null;
+    }
+  }
+
+  if (!result) {
+    const equipmentQuery = parseEquipmentLookupQuery(question);
+    if (shouldTryEquipmentLookup(question, intent, equipmentQuery)) {
+      result = await buildEquipmentLookupAnswer(question, profile, tip, equipmentQuery);
     }
   }
 
@@ -914,6 +1170,8 @@ module.exports = {
   pickShowcaseSamplesOnly,
   loadBriefing,
   loadReferences,
+  parseEquipmentLookupQuery,
+  buildEquipmentLookupAnswer,
   getDefaultProductSamples: (limit = 3, lane = 'electricity') =>
     pickShowcaseSamplesOnly({ lane: lane || 'electricity' }, limit),
   detectLane,

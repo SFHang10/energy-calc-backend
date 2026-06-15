@@ -1234,6 +1234,7 @@
     .welcome-card p { font-size: 0.76rem; margin-bottom: 12px; }
   }
 </style>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-chat-shell.css">
 </head>
 <body>
 
@@ -1706,6 +1707,13 @@
     };
   }
 
+  function profileForAsk() {
+    if (window.GreenwaysAgentTeam && typeof GreenwaysAgentTeam.profileForAsk === "function") {
+      return GreenwaysAgentTeam.profileForAsk(getProfile, "grants-agent");
+    }
+    return getProfile();
+  }
+
   function setStatus(text, kind) {
     statusBar.textContent = text;
     statusBar.className = "status-bar" + (kind ? " " + kind : "");
@@ -2017,7 +2025,7 @@
     setStatus("Thinking…", "");
 
     try {
-      const data = await requestAgent("/api/grants-agent/ask", { question: q, profile: getProfile() }, q);
+      const data = await requestAgent("/api/grants-agent/ask", { question: q, profile: profileForAsk() }, q);
       finishAgentTurn(thinkingEl, data);
     } catch (err) {
       if (thinkingEl) thinkingEl.classList.remove("is-thinking");

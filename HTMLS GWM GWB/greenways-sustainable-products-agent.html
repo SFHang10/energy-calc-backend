@@ -978,6 +978,7 @@
     .welcome-card p { font-size: 0.76rem; margin-bottom: 12px; }
   }
 </style>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-chat-shell.css">
 </head>
 <body>
 
@@ -1408,6 +1409,39 @@
     };
   }
 
+  function profileForAsk() {
+    if (window.GreenwaysAgentTeam && typeof GreenwaysAgentTeam.profileForAsk === "function") {
+      return GreenwaysAgentTeam.profileForAsk(getProfile, "sustainable-products-agent");
+    }
+    return getProfile();
+  }
+
+  function handoffTopicSummary(ctx) {
+    var p = typeof getProfile === "function" ? getProfile() : {};
+    var sector = p.sector || "your site";
+    var intent = (ctx && ctx.intentId) || "";
+    var topics = {
+      equipment_lookup: "you were checking energy baseline and efficient equipment for " + sector,
+      electricity_lane: "you were exploring electricity-lane efficient products for " + sector,
+      gas_lane: "you were exploring gas-lane efficient kitchen equipment for " + sector,
+      water_lane: "you were looking at water-saving products and fixtures for " + sector,
+      find_fridge: "you were shortlisting efficient refrigeration options",
+      find_combi: "you were comparing efficient combi steamers and ovens",
+      find_wok: "you were looking at efficient wok and gas cooking options",
+      find_fryer: "you were comparing efficient fryer options",
+      find_dishwasher: "you were exploring efficient dishwasher and warewashing options",
+      product_search: "you were searching the sustainable product catalog for " + sector,
+      eco_journey: "you were planning an eco journey and equipment path for " + sector,
+      product_grants: "you were checking grants on marketplace product picks",
+      recycling: "you were exploring trade-in and replacement equipment paths",
+      product_deal_spotlights: "you were reviewing efficient product deal spotlights"
+    };
+    if (topics[intent]) return topics[intent];
+    if (ctx && ctx.summary) return ctx.summary;
+    if (ctx && ctx.question) return "you asked: " + ctx.question;
+    return "you were exploring sustainable products for " + sector;
+  }
+
   function setStatus(text, kind) {
     statusBar.textContent = text;
     statusBar.className = "status-bar" + (kind ? " " + kind : "");
@@ -1734,7 +1768,7 @@
     setStatus("Thinking…", "");
 
     try {
-      const data = await requestAgent("/api/sustainable-products-agent/ask", { question: q, profile: getProfile() }, q);
+      const data = await requestAgent("/api/sustainable-products-agent/ask", { question: q, profile: profileForAsk() }, q);
       finishAgentTurn(thinkingEl, data);
     } catch (err) {
       if (thinkingEl) thinkingEl.classList.remove("is-thinking");
@@ -1953,7 +1987,9 @@
       getLastSummary: function () {
         return (window.GreenwaysAgentVoice && GreenwaysAgentVoice.getLastSpokenSummary()) || "";
       },
-      getLastQuestion: function () { return typeof lastQuestion !== "undefined" ? lastQuestion : ""; }
+      getLastQuestion: function () { return typeof lastQuestion !== "undefined" ? lastQuestion : ""; },
+      getLastIntentId: function () { return typeof lastIntentId !== "undefined" ? lastIntentId : ""; },
+      getHandoffTopicSummary: handoffTopicSummary
     });
   }
 

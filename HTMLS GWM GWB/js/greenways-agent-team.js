@@ -84,7 +84,11 @@
       toSlug: brief.toSlug,
       question: String(brief.question || '').trim(),
       summary: String(brief.summary || '').trim(),
+      topicSummary: String(brief.topicSummary || brief.summary || '').trim(),
+      fromIntentId: String(brief.fromIntentId || '').trim(),
+      handoffKey: String(brief.handoffKey || '').trim(),
       profile: brief.profile || null,
+      apiConsumed: false,
       createdAt: new Date().toISOString()
     });
   }
@@ -93,6 +97,44 @@
     var brief = readHandoff();
     if (!brief || brief.toSlug !== currentSlug) return null;
     return brief;
+  }
+
+  function handoffPayloadForAsk(brief) {
+    if (!brief) return null;
+    return {
+      fromSlug: brief.fromSlug || '',
+      fromName: brief.fromName || 'Another specialist',
+      question: String(brief.question || '').trim(),
+      summary: String(brief.summary || '').trim(),
+      topicSummary: String(brief.topicSummary || brief.summary || '').trim(),
+      fromIntentId: String(brief.fromIntentId || '').trim(),
+      handoffKey: String(brief.handoffKey || '').trim()
+    };
+  }
+
+  function takeHandoffForAsk(currentSlug) {
+    var brief = readHandoff();
+    if (!brief || brief.toSlug !== currentSlug || brief.apiConsumed) return null;
+    brief.apiConsumed = true;
+    writeJson(HANDOFF_KEY, brief);
+    return handoffPayloadForAsk(brief);
+  }
+
+  function profileForAsk(getProfile, currentSlug) {
+    var base =
+      typeof getProfile === 'function'
+        ? getProfile()
+        : getProfile && typeof getProfile === 'object'
+          ? getProfile
+          : {};
+    var ho = takeHandoffForAsk(currentSlug || '');
+    if (!ho) return base;
+    var out = {};
+    Object.keys(base).forEach(function (k) {
+      out[k] = base[k];
+    });
+    out.handoff = ho;
+    return out;
   }
 
   function readSharedProfile() {
@@ -227,10 +269,11 @@
     banner.setAttribute('role', 'note');
 
     var fromName = brief.fromName || 'Another specialist';
-    var summary = brief.summary
-      ? '<span class="gw-handoff-banner-q">' + escapeHtml(brief.summary) + '</span>'
+    var topic = brief.topicSummary || brief.summary || '';
+    var summary = topic
+      ? '<span class="gw-handoff-banner-q">' + escapeHtml(topic) + '</span>'
       : '';
-    var question = brief.question
+    var question = !topic && brief.question
       ? '<span class="gw-handoff-banner-q">“' + escapeHtml(brief.question) + '”</span>'
       : '';
 
@@ -275,6 +318,20 @@
         summary = ctx.getLastQuestion() || '';
       }
 
+      var fromIntentId =
+        typeof ctx.getLastIntentId === 'function' ? String(ctx.getLastIntentId() || '').trim() : '';
+      var topicSummary = '';
+      if (typeof ctx.getHandoffTopicSummary === 'function') {
+        topicSummary =
+          ctx.getHandoffTopicSummary({
+            toSlug: toSlug,
+            question: question,
+            intentId: fromIntentId,
+            summary: summary
+          }) || '';
+      }
+      if (!topicSummary) topicSummary = summary;
+
       var profile = null;
       if (typeof ctx.getProfile === 'function') profile = ctx.getProfile();
 
@@ -284,6 +341,9 @@
         toSlug: toSlug,
         question: question,
         summary: summary,
+        topicSummary: topicSummary,
+        fromIntentId: fromIntentId,
+        handoffKey: link.getAttribute('data-handoff-key') || link.dataset.handoffKey || '',
         profile: profile
       });
 
@@ -299,6 +359,8 @@
    * @param {function} [opts.getAgentName]
    * @param {function} [opts.getLastSummary]
    * @param {function} [opts.getLastQuestion]
+   * @param {function} [opts.getLastIntentId]
+   * @param {function} [opts.getHandoffTopicSummary]
    */
   async function init(opts) {
     opts = opts || {};
@@ -318,7 +380,9 @@
       getProfile: opts.getProfile,
       getAgentName: opts.getAgentName,
       getLastSummary: opts.getLastSummary,
-      getLastQuestion: opts.getLastQuestion
+      getLastQuestion: opts.getLastQuestion,
+      getLastIntentId: opts.getLastIntentId,
+      getHandoffTopicSummary: opts.getHandoffTopicSummary
     };
     bindHandoffChipClicks(ctx);
 
@@ -353,6 +417,8 @@
     loadRoster: loadRoster,
     readHandoff: readHandoff,
     writeHandoff: writeHandoff,
+    takeHandoffForAsk: takeHandoffForAsk,
+    profileForAsk: profileForAsk,
     readSharedProfile: readSharedProfile,
     writeSharedProfile: writeSharedProfile,
     slugFromPath: slugFromPath

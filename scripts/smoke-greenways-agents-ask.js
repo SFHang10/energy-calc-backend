@@ -25,7 +25,7 @@ const AGENT_SMOOKES = [
     key: 'media',
     route: '/api/media-agent/ask',
     load: () => require(path.join(ROOT, 'services/media-agent-knowledge')),
-    questions: ['sustainability map examples', 'monthly news']
+    questions: ['sustainability map examples', 'monthly news', "today's sustainability news briefing"]
   },
   {
     key: 'equipment',
@@ -37,13 +37,13 @@ const AGENT_SMOOKES = [
     key: 'deals',
     route: '/api/deals-agent/ask',
     load: () => require(path.join(ROOT, 'services/deals-agent-knowledge')),
-    questions: ['deals ticker hub', 'energy tariff deals']
+    questions: ['deals ticker hub', 'energy tariff deals', 'check deals feed now for interesting offers']
   },
   {
     key: 'sustainable-products',
     route: '/api/sustainable-products-agent/ask',
     load: () => require(path.join(ROOT, 'services/sustainable-products-agent-knowledge')),
-    questions: ['water saving products', 'efficient refrigeration ETL']
+    questions: ['water saving products', 'efficient refrigeration ETL', 'SCC WE 61 manufacturer energy baseline']
   },
   {
     key: 'systems',
@@ -137,6 +137,31 @@ async function runLocalSmokes() {
   console.log('OK Andrieus portals module tablets');
 
   const equipMod = require(path.join(ROOT, 'services/equipment-agent-knowledge'));
+  const referralProfile = {
+    ...profile,
+    handoff: {
+      fromSlug: 'sustainable-products-agent',
+      fromName: 'Zyanne',
+      question: 'Explain ETL lifecycle cost for this equipment upgrade',
+      topicSummary: 'you were exploring electricity-lane efficient products for your restaurant',
+      fromIntentId: 'electricity_lane'
+    }
+  };
+  const referralHit = await equipMod.answerFromKnowledge(
+    'Explain ETL lifecycle cost for this equipment upgrade',
+    referralProfile
+  );
+  if (referralHit?.intentId !== 'agent_referral_welcome') {
+    throw new Error('Artemis referral: expected agent_referral_welcome intent');
+  }
+  if (!/Zyanne/i.test(referralHit.answer || '')) {
+    throw new Error('Artemis referral: expected Zyanne mention in welcome');
+  }
+  if (!referralHit?.productSamples?.length) {
+    throw new Error('Artemis referral: expected productSamples on welcome');
+  }
+  console.log('OK Artemis Zyanne handoff welcome →', referralHit.productSamples.length, 'samples');
+
   const deepDiveHit = await equipMod.answerFromKnowledge('equipment deep dive compare alternatives', profile);
   const deepDiveMod = (deepDiveHit?.blocks || []).find((b) => b.type === 'module');
   if (!deepDiveMod?.items?.some((i) => i.moduleId === 'equipment-deep-dive')) {

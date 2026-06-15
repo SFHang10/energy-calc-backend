@@ -129,10 +129,10 @@ function buildHandoffs(briefing, question, intentId = '') {
     });
   };
 
-  if (['product_deals', 'sustainability_deals', 'sustainable'].includes(intentId) || intentId === 'category') {
+  if (['product_deals', 'sustainability_deals', 'sustainable', 'deals_feed_scan', 'new_deals'].includes(intentId) || intentId === 'category') {
     push('productsToZyanne', 'Search water-saving and efficient products in the sustainable catalog');
   }
-  if (['tariff_compare', 'nl_restaurant_energy', 'uk_green_tariff', 'green_tariff', 'energy_deals', 'overview', 'tariff_basics', 'payback_savings'].includes(intentId)) {
+  if (['tariff_compare', 'nl_restaurant_energy', 'uk_green_tariff', 'green_tariff', 'energy_deals', 'overview', 'tariff_basics', 'payback_savings', 'deals_feed_scan'].includes(intentId)) {
     push('financeToVincent', 'How do current energy prices affect my upgrade payback?');
   }
   if (['product_deals', 'sustainability_deals', 'category'].includes(intentId)) {
@@ -644,14 +644,128 @@ function buildRegionAnswer(region, deals, tip) {
   };
 }
 
-function buildNewDealsAnswer(deals, tip) {
-  const newest = deals.filter((d) => d.isNew).slice(0, 8);
+async function buildNewDealsAnswer(deals, tip) {
+  return buildDealsFeedScanAnswer(deals, {}, {}, 'new deals this week', tip, { focus: 'new' });
+}
+
+function shouldTryDealsFeedScan(question) {
+  const q = String(question || '').toLowerCase();
+  return /\b(check|scan|look at|refresh)\b.*\b(deals?|feed)\b/.test(q) ||
+    /\b(interesting|new).*\b(deals?|market)\b/.test(q) ||
+    /\bdeals?\s+feed\s+now\b/.test(q);
+}
+
+function rankDealsForScan(deals, question, profile) {
+  return deals
+    .map((d) => ({ d, score: scoreDeal(d, question, profile) + (d.isNew ? 6 : 0) }))
+    .sort((a, b) => b.score - a.score);
+}
+
+function pickDealsForScan(deals, question, profile, limit = 5) {
+  const ranked = rankDealsForScan(deals, question, profile);
+  const pr = String(profile.region || '').toLowerCase();
+  const picks = [];
+  const seen = new Set();
+  const add = (d) => {
+    if (!d || seen.has(d.id) || picks.length >= limit) return;
+    seen.add(d.id);
+    picks.push(d);
+  };
+
+  for (const { d } of ranked) {
+    if (d.isNew) add(d);
+  }
+  if (pr) {
+    for (const { d } of ranked) {
+      const region = String(d.region || '').toLowerCase();
+      if (region === pr || region === 'eu') add(d);
+    }
+  }
+  for (const { d } of ranked) add(d);
+  return picks;
+}
+
+function dealsFeedStatItems(feedMeta, deals, profile) {
+  const generated = feedMeta?.generatedAt ? String(feedMeta.generatedAt).slice(0, 10) : '—';
+  const pr = String(profile.region || '').toLowerCase();
+  const regionPicks = pr
+    ? deals.filter((d) => String(d.region || '').toLowerCase() === pr || String(d.region || '').toUpperCase() === 'EU').length
+    : filterByCategory(deals, 'energy').length;
+  return [
+    { label: 'Feed updated', value: generated },
+    { label: 'Rows in feed', value: String(deals.length) },
+    { label: 'New highlights', value: String(deals.filter((d) => d.isNew).length) },
+    {
+      label: pr ? `${REGION_LABELS[pr] || pr.toUpperCase()} rows` : 'Energy lane',
+      value: String(regionPicks)
+    }
+  ];
+}
+
+async function dealSamplesFromDeals(dealRows, limit = 3) {
+  const showcase = await loadDealsShowcase();
+  const { products } = await loadProductsWithGrants();
+  const productById = new Map(products.map((p) => [String(p.id), p]));
+  const samples = [];
+  for (const deal of dealRows) {
+    const imageUrl = await resolveDealImage(deal, showcase, productById);
+    samples.push(toDealSample(deal, imageUrl));
+    if (samples.length >= limit) break;
+  }
+  return samples;
+}
+
+async function buildDealsFeedScanAnswer(deals, feedMeta, profile, question, tip, options = {}) {
+  const { focus = 'all' } = options;
+  const generated = feedMeta?.generatedAt ? String(feedMeta.generatedAt).slice(0, 10) : 'recently';
+  const pr = String(profile.region || '').toLowerCase();
+  const newCount = deals.filter((d) => d.isNew).length;
+  const spotlightCount = deals.filter(isProductDealRow).length;
+
+  let picks = pickDealsForScan(deals, question, profile, 5);
+  if (focus === 'new') {
+    picks = deals.filter((d) => d.isNew).slice(0, 5);
+    if (!picks.length) picks = pickDealsForScan(deals, question, profile, 5);
+  }
+
+  const statItems = dealsFeedStatItems(feedMeta, deals, profile);
+  const profileNote = pr ? ` for **${REGION_LABELS[pr] || pr.toUpperCase()}**` : '';
+
+  const intro =
+    (focus === 'new'
+      ? `I checked the deals feed for **new highlights** (last built **${generated}**).\n\n`
+      : `I checked **deals-feed.json** just now (last built **${generated}**).\n\n`) +
+    `There are **${deals.length}** curated rows — **${newCount}** flagged as new` +
+    (spotlightCount ? ` and **${spotlightCount}** product spotlight${spotlightCount === 1 ? '' : 's'}` : '') +
+    `.\n\n` +
+    `On the right are my top picks${profileNote} — open a card for tariffs, water savings, or product spotlights on the live portal.\n\n` +
+    `_Prices and contract terms change — confirm on the linked page before switching._`;
+
+  const linkItems = picks.map((d) =>
+    toLinkItem(
+      `${d.isNew ? '🆕 ' : ''}${d.title || d.id}`,
+      dealHref(d),
+      `${String(d.line || d.category || 'Deal').slice(0, 90)} · ${d.region || 'EU'}`
+    )
+  );
+
+  const blocks = [
+    { type: 'stat', items: statItems },
+    ...linkOrModuleBlocks([
+      ...linkItems,
+      toLinkItem('Deals ticker hub', PORTAL_LINKS.deals, 'Search all three lanes'),
+      toLinkItem('European energy portal', PORTAL_LINKS.europeanEnergy, 'Live tariff compare')
+    ])
+  ];
+
+  const productSamples = await dealSamplesFromDeals(picks, 3);
+
   return {
-    answer:
-      `**New & highlighted deals:**\n\n${formatDealBullets(newest, 8) || '_No isNew flags in feed — run build:deals-feed to refresh._'}` +
-      portalFooter(tip),
+    answer: `${intro}\n\n_${tip}_`,
     suggestions: [],
-    blocks: dealsSpotlightBlocks()
+    blocks,
+    productSamples,
+    intentId: focus === 'new' ? 'new_deals' : 'deals_feed_scan'
   };
 }
 
@@ -696,11 +810,18 @@ async function answerFromKnowledge(question, profile = {}) {
   if (!deals.length) return null;
 
   const intent = matchIntent(question, intents);
-  if (!intent) return null;
-
-  const tip = pickTip(intents.staticTips, intent.id, { skipIntentIds: voice.skipTipIntents });
+  const tip = pickTip(
+    intents.staticTips,
+    intent?.id,
+    { skipIntentIds: voice.skipTipIntents }
+  );
 
   let result;
+  if (!intent && shouldTryDealsFeedScan(question)) {
+    result = await buildDealsFeedScanAnswer(deals, feed.meta || {}, profile, question, tip);
+  } else if (!intent) {
+    return null;
+  } else {
   switch (intent.answerType) {
     case 'overview':
       result = buildOverviewAnswer(deals, feed.meta || {}, briefing, tip);
@@ -749,7 +870,10 @@ async function answerFromKnowledge(question, profile = {}) {
       result = buildRegionAnswer(intent.region, deals, tip);
       break;
     case 'new_deals':
-      result = buildNewDealsAnswer(deals, tip);
+      result = await buildNewDealsAnswer(deals, tip);
+      break;
+    case 'deals_feed_scan':
+      result = await buildDealsFeedScanAnswer(deals, feed.meta || {}, profile, question, tip);
       break;
     case 'deals_page':
       result = buildDealsPageAnswer(tip);
@@ -763,12 +887,15 @@ async function answerFromKnowledge(question, profile = {}) {
     default:
       return null;
   }
+  }
 
   if (result?.answer) {
     result.source = 'knowledge';
-    result.intentId = result.intentId || intent.id;
+    result.intentId = result.intentId || intent?.id;
     result.agentHandoffs = buildHandoffs(briefing, question, result.intentId);
-    result.productSamples = await pickDealSamples(question, profile, 3);
+    if (!result.productSamples?.length) {
+      result.productSamples = await pickDealSamples(question, profile, 3);
+    }
     applyPersona(result, {
       voice,
       intentId: result.intentId,
@@ -787,5 +914,6 @@ module.exports = {
   pickDealSamples,
   loadBriefing,
   loadReferences,
+  buildDealsFeedScanAnswer,
   getDefaultProductSamples: (limit = 3) => pickDealSamples('', {}, limit)
 };

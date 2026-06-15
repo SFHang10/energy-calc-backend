@@ -16,6 +16,10 @@ const {
 } = require('./greenways-agent-shared');
 const { mergeModuleRow } = require('./greenways-content-modules');
 const {
+  buildHandoffTopicSummary,
+  isReferralWelcomePair
+} = require('./greenways-agent-handoff');
+const {
   applyPersona,
   loadAgentVoice,
   pickTip
@@ -656,11 +660,86 @@ async function buildRoleResourcesAnswer(question, profile, tip) {
   };
 }
 
+async function buildReferralWelcomeAnswer(question, profile, tip) {
+  const handoff = profile.handoff;
+  if (!isReferralWelcomePair('equipment-agent', handoff)) return null;
+
+  const briefing = await loadBriefing();
+  const fromName = handoff.fromName || 'Zyanne';
+  const sector = profile.sector || 'restaurant';
+  const topic =
+    handoff.topicSummary ||
+    buildHandoffTopicSummary(
+      handoff.fromSlug,
+      handoff.fromIntentId,
+      profile,
+      handoff.question || question,
+      handoff.summary
+    );
+  const searchQ = handoff.question || question;
+  const productSamples = await pickEquipmentSamples(searchQ, profile, 4);
+
+  const blocks = [
+    equipmentModuleBlock([
+      {
+        moduleId: 'equipment-deep-dive',
+        title: 'Equipment deep dive',
+        description: 'Compare current vs efficient picks with grants',
+        openSize: 'near-full'
+      },
+      {
+        moduleId: 'equipment-intelligence',
+        title: 'Equipment intelligence',
+        description: 'Alternatives, specs, and decision matrix',
+        openSize: 'near-full'
+      }
+    ])
+  ];
+
+  return {
+    answer:
+      `**${fromName}** suggested you continue with me for equipment depth.\n\n` +
+      `From your chat: _${topic}_\n\n` +
+      `Here are **ETL-verified picks** that may fit your **${sector}** upgrade path. ` +
+      `Ask about lifecycle cost, grants stacking, or open the deep dive for side-by-side comparison.\n\n_${tip}_`,
+    blocks,
+    suggestions: [
+      toSuggestion('Explain ETL verification for these picks'),
+      toSuggestion('What grants stack on this kitchen equipment?'),
+      toSuggestion('Show savings projection for an upgrade')
+    ],
+    productSamples,
+    agentHandoffs: buildHandoffs(briefing, searchQ, 'agent_referral_welcome')
+  };
+}
+
 async function answerFromKnowledge(question, profile = {}) {
   const intents = await loadIntentsFrom(intentsPath);
   const voice = await loadAgentVoice(voicePath);
   const schemes = await loadSchemes();
   const guide = await loadRenovationGuide();
+
+  if (profile.handoff) {
+    const referralTip = pickTip(intents.staticTips, 'agent_referral_welcome', {
+      skipIntentIds: voice.skipTipIntents
+    });
+    const referral = await buildReferralWelcomeAnswer(question, profile, referralTip);
+    if (referral?.answer) {
+      referral.source = 'knowledge';
+      referral.intentId = 'agent_referral_welcome';
+      applyPersona(referral, {
+        voice,
+        intentId: 'agent_referral_welcome',
+        question,
+        profile,
+        staticTips: intents.staticTips,
+        regionLabels: REGION_LABELS,
+        tip: referralTip
+      });
+      return referral;
+    }
+  }
+
   const intent = matchIntent(question, intents);
   if (!intent) return null;
 

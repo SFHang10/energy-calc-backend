@@ -3,6 +3,7 @@
 **Skill type:** UI + API pattern (clone for new agents)  
 **Agent roster (names):** **`greenways-transition-agents.md`** — Andrieus, Vincent, Artemis, Zara, Cheryce, Zyanne, Edwardo  
 **Shared turn UI:** All seven chat agents (May 2026) — `HTMLS GWM GWB/js/greenways-agent-turn-ui.js` + `.css`  
+**Chat shell (May 2026):** `HTMLS GWM GWB/js/greenways-agent-chat-shell.css` — Edwardo-neutral chat base for all agents; subtle `--accent` wash on panel, bubbles, and compose; accent border around `.chat-panel` glows when `:has(.is-thinking)`. Load **after** each agent inline `<style>`.
 **Sibling reference:** **Music Guide** (`live-music-guide.html` / compact panel in `live-music-finder.html`)  
 **Status:** Foundation for **built** Transition Agent shells; deepen knowledge per agent incrementally.
 
@@ -325,6 +326,7 @@ Knowledge services return structured right-column content; HTML builds tablets v
 |---------|---------|-----------|
 | Team strip | — | Tap another face → open that agent page; current agent highlighted |
 | Handoff brief | `sessionStorage` `gw-team-handoff-v1` | Written when user clicks **agent handoff chip**; landing agent shows green banner + auto-asks |
+| Referral welcome | `profile.handoff` on first `/ask` | Receiving agent opens in character (e.g. Zyanne → Artemis equipment shortlist); one-shot via `takeHandoffForAsk` |
 | Shared profile | `sessionStorage` `gw-team-profile-v1` | Region / sector / focus sync across agents |
 
 **No back button needed** — team strip is the switcher; each agent keeps its own chat in `gw-{agent}-agent-session-v1`.
@@ -332,6 +334,8 @@ Knowledge services return structured right-column content; HTML builds tablets v
 **Sync:** `node scripts/sync-greenways-agent-team.js` · repair: `node scripts/fix-greenways-agent-team.js`
 
 **Event:** `gw-team-ready` — `{ handoffBrief, suggestedPrompt }` for boot question after handoff.
+
+**Referral welcome (May 2026):** `greenways-agent-team.js` enriches handoff with `topicSummary`, `fromIntentId`; first `/ask` uses `GreenwaysAgentTeam.profileForAsk(getProfile, slug)` → `profile.handoff`. **Artemis** handles **Zyanne → equipment** via `agent_referral_welcome` in `equipment-agent-knowledge.js` + `services/greenways-agent-handoff.js`. Extend pairs in `isReferralWelcomePair` when adding more agents.
 
 ---
 

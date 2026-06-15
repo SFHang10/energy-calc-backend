@@ -37,6 +37,9 @@ const showcasePath = path.join(__dirname, '..', 'data', 'media-agent-showcase.js
 const briefingPath = path.join(__dirname, '..', 'data', 'media-agent-briefing.json');
 const voicePath = path.join(__dirname, '..', 'data', 'media-agent-voice.json');
 const referencesPath = path.join(__dirname, '..', 'data', 'media-agent-references.json');
+const dailyBriefPath = path.join(__dirname, '..', 'data', 'media-daily-brief.json');
+
+let dailyBriefCache = null;
 
 const MEDIA_KNOWLEDGE_VERSION = '2026-05-28-conversational-blocks';
 
@@ -181,7 +184,7 @@ function buildHandoffs(briefing, question, intentId = '') {
     });
   };
 
-  if (['funding_news', 'policy_news', 'country_news', 'monthly_news', 'how_this_helps'].includes(intentId)) {
+  if (['funding_news', 'policy_news', 'country_news', 'monthly_news', 'daily_brief', 'how_this_helps'].includes(intentId)) {
     push('grantsToAndrieus', 'What grants apply from this sustainability news in my region?');
   }
   if (['energy_prices', 'monthly_news', 'energy_examples', 'overview'].includes(intentId)) {
@@ -317,6 +320,143 @@ function newsItemToLinkItem(item) {
     (item.sources && item.sources[0]) ||
     MEDIA_PAGES.sustainabilityNews;
   return toLinkItem(item.title, url, desc);
+}
+
+async function loadDailyBrief() {
+  if (dailyBriefCache) return dailyBriefCache;
+  try {
+    const raw = await fs.readFile(dailyBriefPath, 'utf8');
+    dailyBriefCache = JSON.parse(raw);
+  } catch (_) {
+    dailyBriefCache = { meta: {}, stories: [] };
+  }
+  return dailyBriefCache;
+}
+
+function briefStoryToLinkItem(story) {
+  const desc = [
+    String(story.summary || '').slice(0, 100),
+    story.whyItMatters ? `Why: ${story.whyItMatters}` : ''
+  ]
+    .filter(Boolean)
+    .join(' — ');
+  const url = story.href || MEDIA_PAGES.sustainabilityNews;
+  return toLinkItem(story.title, url, desc || story.newsCategory || 'News');
+}
+
+function briefStoryToMediaSample(story, showcase) {
+  const cat = story.newsCategory || 'monthly';
+  return toMediaSample({
+    id: story.id,
+    title: story.title,
+    name: story.title,
+    label: String(story.summary || '').slice(0, 90),
+    description: story.summary,
+    imageUrl: showcase?.categoryImages?.[cat] || showcase?.categoryImages?.policy || '',
+    href: story.href || MEDIA_PAGES.sustainabilityNews,
+    newsCategory: cat,
+    subcategory: 'NEWS',
+    type: 'news',
+    source: 'daily-brief'
+  });
+}
+
+function briefStatItems(brief, profile) {
+  const meta = brief.meta || {};
+  const pr = String(profile.region || '').toLowerCase();
+  return [
+    { label: 'Brief date', value: meta.briefDate || String(meta.generatedAt || '').slice(0, 10) || '—' },
+    { label: 'Headlines', value: String((brief.stories || []).length) },
+    { label: 'Edition', value: meta.edition || '—' },
+    {
+      label: pr ? `${REGION_LABELS[pr] || pr.toUpperCase()} angle` : 'Catalog',
+      value: pr ? 'Profile filter' : String(meta.catalogItems || '—')
+    }
+  ];
+}
+
+function shouldTryDailyBrief(question) {
+  const q = String(question || '').toLowerCase();
+  return (
+    (/\b(today|todays|today's)\b/.test(q) &&
+      /\b(news|briefing|brief|summary|roundup|headlines)\b/.test(q)) ||
+    /\b(daily brief|news today|today's sustainability|sustainability today)\b/.test(q) ||
+    /\b(check|scan|what's new)\b.*\b(news|headlines)\b/.test(q) ||
+    /\bnews briefing\b/.test(q)
+  );
+}
+
+async function buildDailyBriefAnswer(question, profile, tip, briefing) {
+  const brief = await loadDailyBrief();
+  const showcase = await loadShowcase();
+  const meta = brief.meta || {};
+  const stories = Array.isArray(brief.stories) ? brief.stories : [];
+  const b = briefing || (await loadBriefing());
+
+  if (!stories.length) {
+    return {
+      answer:
+        'I do not have a **daily brief** ready yet — ask for **monthly news** or open the latest sustainability edition on the right.\n\n' +
+        `_${tip}_`,
+      suggestions: [],
+      blocks: linkOrModuleBlocks([
+        toLinkItem('Sustainability news', MEDIA_PAGES.sustainabilityNews, 'Site news page')
+      ]),
+      intentId: 'daily_brief'
+    };
+  }
+
+  const briefDate = meta.briefDate || String(meta.generatedAt || '').slice(0, 10);
+  const editionNote = meta.edition ? ` (curated from **${meta.edition}** edition)` : '';
+  const pr = String(profile.region || '').toLowerCase();
+  const profileNote = pr ? ` with a **${REGION_LABELS[pr] || pr}** restaurant lens` : '';
+
+  const ranked = rankNewsItems(
+    stories.map((s) => ({
+      id: s.id,
+      title: s.title,
+      summary: s.summary,
+      impact: s.whyItMatters ? [s.whyItMatters] : [],
+      newsCategory: s.newsCategory,
+      edition: s.edition,
+      pageHref: s.href,
+      sources: s.sources || []
+    })),
+    `${question} ${profile.sector || ''} ${profile.region || ''}`,
+    5
+  );
+  const picks = ranked.length ? ranked : stories.slice(0, 5);
+
+  const linkItems = picks.map((item) => briefStoryToLinkItem(item));
+  if (meta.editionPageHref) {
+    linkItems.push(
+      toLinkItem(
+        meta.editionTitle || `Full ${meta.edition} edition`,
+        meta.editionPageHref,
+        'Complete monthly newsletter'
+      )
+    );
+  }
+  linkItems.push(
+    toLinkItem('Energy prices ticker', MEDIA_PAGES.energyTicker, 'Wholesale context for timing upgrades')
+  );
+
+  const blocks = [{ type: 'stat', items: briefStatItems(brief, profile) }, ...linkOrModuleBlocks(linkItems)];
+
+  const productSamples = picks.slice(0, 3).map((s) => briefStoryToMediaSample(s, showcase));
+
+  return {
+    answer:
+      `Here is **today's sustainability briefing** (built **${briefDate}**)${editionNote}${profileNote}.\n\n` +
+      `I pulled **${picks.length} headlines** from our curated news catalogue — not live-scraped from the web in this chat. ` +
+      `Open the story cards on the right for full pages; pair with the **energy ticker** when wholesale moves change your upgrade timing.\n\n` +
+      `Want me to explain a term (CBAM, CSRD) or tie a headline to the **sustainability map**?\n\n_${tip}_`,
+    suggestions: [],
+    blocks,
+    productSamples,
+    agentHandoffs: buildHandoffs(b, question, 'daily_brief'),
+    intentId: 'daily_brief'
+  };
 }
 
 function editionLinksBlock(catalog) {
@@ -814,6 +954,8 @@ function citedItemsForIntent(intent, catalog, question) {
           i.catalogSource === 'content-ops-html'
       );
     }
+    case 'daily_brief':
+      return rankNewsItems(catalog.items, question || 'sustainability today', 6);
     case 'tech_news': {
       const tech = getLatestEdition(catalog.editions, 'tech');
       if (!tech) {
@@ -839,8 +981,15 @@ async function answerFromKnowledge(question, profile = {}) {
   const tip = pickTip(intents.staticTips, intent?.id, { skipIntentIds: voice.skipTipIntents });
 
   let result;
-  if (intent) {
-    switch (intent.answerType) {
+  if (shouldTryDailyBrief(question)) {
+    result = await buildDailyBriefAnswer(question, profile, tip, briefing);
+    result = await attachModules(result, profile, [
+      'energy-prices-ticker',
+      'sustainability-news-edition',
+      'sustainability-map'
+    ]);
+  } else if (intent) {
+  switch (intent.answerType) {
       case 'overview':
         result = await buildOverviewAnswer(catalog, videos, tip, briefing);
         result = await attachModules(result, profile, ['sustainability-map', 'energy-prices-ticker']);
@@ -868,6 +1017,14 @@ async function answerFromKnowledge(question, profile = {}) {
         break;
       case 'monthly_news':
         result = await buildMonthlyNewsAnswer(catalog, profile, tip, briefing);
+        result = await attachModules(result, profile, [
+          'energy-prices-ticker',
+          'sustainability-news-edition',
+          'sustainability-map'
+        ]);
+        break;
+      case 'daily_brief':
+        result = await buildDailyBriefAnswer(question, profile, tip, briefing);
         result = await attachModules(result, profile, [
           'energy-prices-ticker',
           'sustainability-news-edition',
@@ -962,6 +1119,8 @@ module.exports = {
   answerFromKnowledge,
   pickMediaSamples,
   pickVideoSamples,
+  loadDailyBrief,
+  buildDailyBriefAnswer,
   getDefaultProductSamples: (limit = 3) => pickMediaSamples('', {}, limit),
   loadFullNewsCatalog,
   loadBriefing,
