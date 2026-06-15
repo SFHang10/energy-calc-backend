@@ -1731,6 +1731,33 @@
     return getProfile();
   }
 
+  function handoffTopicSummary(ctx) {
+    var p = typeof getProfile === "function" ? getProfile() : {};
+    var sector = p.sector || "your site";
+    var region = p.region || "your region";
+    var intent = (ctx && ctx.intentId) || "";
+    var topics = {
+      daily_brief: "you were reading today's sustainability news briefing",
+      funding_news: "you were following funding and subsidy headlines",
+      policy_news: "you were reading policy and compliance news",
+      country_news: "you were reading country-specific sustainability news for " + region,
+      monthly_news: "you were browsing the latest monthly sustainability edition",
+      energy_prices: "you were checking how energy prices affect upgrade timing",
+      sustainability_map: "you were exploring sustainability map case studies",
+      sustainability_map_explained: "you were learning how the sustainability map works",
+      energy_examples: "you were looking at energy-saving examples from real sites",
+      how_this_helps: "you wanted to know how the latest news applies to your business",
+      circular_news: "you were reading circular economy and recycling news",
+      tech_news: "you were catching up on green tech news",
+      restaurant_videos: "you were watching restaurant sustainability explainers",
+      overview: "you were exploring sustainability media for " + sector
+    };
+    if (topics[intent]) return topics[intent];
+    if (ctx && ctx.summary) return ctx.summary;
+    if (ctx && ctx.question) return "you asked: " + ctx.question;
+    return "you were reading sustainability news and examples for " + sector;
+  }
+
   function setStatus(text, kind) {
     statusBar.textContent = text;
     statusBar.className = "status-bar" + (kind ? " " + kind : "");
@@ -2322,7 +2349,9 @@
       getLastSummary: function () {
         return (window.GreenwaysAgentVoice && GreenwaysAgentVoice.getLastSpokenSummary()) || "";
       },
-      getLastQuestion: function () { return typeof lastQuestion !== "undefined" ? lastQuestion : ""; }
+      getLastQuestion: function () { return typeof lastQuestion !== "undefined" ? lastQuestion : ""; },
+      getLastIntentId: function () { return typeof lastIntentId !== "undefined" ? lastIntentId : ""; },
+      getHandoffTopicSummary: handoffTopicSummary
     });
   }
 

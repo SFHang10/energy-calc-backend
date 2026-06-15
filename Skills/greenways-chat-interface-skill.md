@@ -335,7 +335,7 @@ Knowledge services return structured right-column content; HTML builds tablets v
 
 **Event:** `gw-team-ready` — `{ handoffBrief, suggestedPrompt }` for boot question after handoff.
 
-**Referral welcome (May 2026):** `greenways-agent-team.js` enriches handoff with `topicSummary`, `fromIntentId`; first `/ask` uses `GreenwaysAgentTeam.profileForAsk(getProfile, slug)` → `profile.handoff`. **Artemis** handles **Zyanne → equipment** via `agent_referral_welcome` in `equipment-agent-knowledge.js` + `services/greenways-agent-handoff.js`. Extend pairs in `isReferralWelcomePair` when adding more agents.
+**Referral welcome (May 2026):** `greenways-agent-team.js` enriches handoff with `topicSummary`, `fromIntentId`; first `/ask` uses `GreenwaysAgentTeam.profileForAsk(getProfile, slug)` → `profile.handoff`. Pairs live today: **Zyanne → Artemis** (`equipment-agent-knowledge.js`) and **Cheryce → Andrieus** (`grants-agent-knowledge.js`) via `services/greenways-agent-handoff.js`. Extend `isReferralWelcomePair` for more agents.
 
 ---
 

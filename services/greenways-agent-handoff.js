@@ -26,6 +26,24 @@ const PRODUCT_INTENT_TOPICS = {
   product_deal_spotlights: () => 'you were reviewing efficient product deal spotlights'
 };
 
+const MEDIA_INTENT_TOPICS = {
+  daily_brief: () => "you were reading today's sustainability news briefing",
+  funding_news: () => 'you were following funding and subsidy headlines',
+  policy_news: () => 'you were reading policy and compliance news',
+  country_news: (profile) =>
+    `you were reading country-specific sustainability news for ${profile.region || 'your region'}`,
+  monthly_news: () => 'you were browsing the latest monthly sustainability edition',
+  energy_prices: () => 'you were checking how energy prices affect upgrade timing',
+  sustainability_map: () => 'you were exploring sustainability map case studies',
+  sustainability_map_explained: () => 'you were learning how the sustainability map works',
+  energy_examples: () => 'you were looking at energy-saving examples from real sites',
+  how_this_helps: () => 'you wanted to know how the latest news applies to your business',
+  circular_news: () => 'you were reading circular economy and recycling news',
+  tech_news: () => 'you were catching up on green tech news',
+  restaurant_videos: () => 'you were watching restaurant sustainability explainers',
+  overview: (profile) => `you were exploring sustainability media for your ${profile.sector || 'site'}`
+};
+
 /**
  * @param {object} handoff — from sessionStorage / profile.handoff
  * @returns {object|null}
@@ -64,6 +82,14 @@ function buildHandoffTopicSummary(fromSlug, fromIntentId, profile = {}, question
     return `you were exploring sustainable products for your ${sector}`;
   }
 
+  if (fromSlug === 'media-agent') {
+    const fn = MEDIA_INTENT_TOPICS[intentId];
+    if (fn) return fn(profile);
+    if (summary) return summary;
+    if (question) return `you asked: ${question}`;
+    return `you were reading sustainability news and examples for your ${sector}`;
+  }
+
   if (summary) return summary;
   if (question) return `you asked: ${question}`;
   return `you were continuing a topic for your ${sector}`;
@@ -77,6 +103,7 @@ function isReferralWelcomePair(receivingSlug, handoff) {
   const ho = normalizeHandoffContext(handoff);
   if (!ho) return false;
   if (receivingSlug === 'equipment-agent' && ho.fromSlug === 'sustainable-products-agent') return true;
+  if (receivingSlug === 'grants-agent' && ho.fromSlug === 'media-agent') return true;
   return false;
 }
 
@@ -84,5 +111,6 @@ module.exports = {
   normalizeHandoffContext,
   buildHandoffTopicSummary,
   isReferralWelcomePair,
-  PRODUCT_INTENT_TOPICS
+  PRODUCT_INTENT_TOPICS,
+  MEDIA_INTENT_TOPICS
 };

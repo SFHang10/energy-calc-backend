@@ -8,6 +8,10 @@ const {
 } = require('./greenways-agent-persona');
 const { toModuleItem } = require('./greenways-agent-shared');
 const { mergeModuleRow } = require('./greenways-content-modules');
+const {
+  buildHandoffTopicSummary,
+  isReferralWelcomePair
+} = require('./greenways-agent-handoff');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'grants-agent-intents.json');
 const briefingPath = path.join(__dirname, '..', 'data', 'grants-agent-briefing.json');
@@ -758,14 +762,78 @@ function buildKeywordFallback(schemes, question, profile, tip) {
   };
 }
 
+async function buildReferralWelcomeAnswer(question, profile, tip) {
+  const handoff = profile.handoff;
+  if (!isReferralWelcomePair('grants-agent', handoff)) return null;
+
+  const schemes = await loadSchemes();
+  if (!schemes.length) return null;
+
+  const fromName = handoff.fromName || 'Cheryce';
+  const regionLabel = REGION_LABELS[profile.region] || profile.region || 'your region';
+  const topic =
+    handoff.topicSummary ||
+    buildHandoffTopicSummary(
+      handoff.fromSlug,
+      handoff.fromIntentId,
+      profile,
+      handoff.question || question,
+      handoff.summary
+    );
+  const searchQ = [handoff.question, question, handoff.fromIntentId].filter(Boolean).join(' ');
+  const ranked = rankSchemes(schemes, searchQ, profile, 6);
+  const picked = ranked.length ? ranked : schemes.filter((s) => s.priority).slice(0, 6);
+
+  return {
+    answer: withTip(
+      `**${fromName}** suggested you continue here for **scheme detail**.\n\n` +
+        `From your chat: _${topic}_\n\n` +
+        `Here are **${picked.length}** scheme${picked.length === 1 ? '' : 's'} from our catalogue that may fit **${regionLabel}**. ` +
+        'Tap a card for the official link, or pick two schemes to compare.',
+      tip
+    ),
+    blocks: [
+      grantsModuleBlock([
+        { moduleId: 'schemes-portal-restaurant', openSize: 'near-full' },
+        { moduleId: 'finance-finder', openSize: 'near-full' }
+      ])
+    ],
+    suggestions: picked.map(toSuggestion),
+    agentHandoffs: buildCheryceHandoffs(handoff.question || question, await loadBriefing())
+  };
+}
+
 async function answerFromKnowledge(question, profile = {}) {
   const intents = await loadIntents();
   const schemes = await loadSchemes();
   if (!schemes.length) return null;
 
-  const tip = (intents.staticTips || [])[0] || '';
   const briefing = await loadBriefing();
   const voice = await loadAgentVoice(voicePath);
+  const tip = pickTip(intents.staticTips, 'agent_referral_welcome', {
+    skipIntentIds: voice.skipTipIntents
+  });
+
+  if (profile.handoff) {
+    const referral = await buildReferralWelcomeAnswer(question, profile, tip);
+    if (referral?.answer) {
+      referral.source = 'knowledge';
+      referral.intentId = 'agent_referral_welcome';
+      referral.productSamples = await pickProductSamples(question, profile, 3);
+      applyPersona(referral, {
+        voice,
+        intentId: 'agent_referral_welcome',
+        profile,
+        question,
+        staticTips: intents.staticTips || [],
+        tip,
+        regionLabels: REGION_LABELS
+      });
+      return referral;
+    }
+  }
+
+  const defaultTip = (intents.staticTips || [])[0] || '';
   const intent = matchIntent(question, intents);
 
   let result;
@@ -773,34 +841,34 @@ async function answerFromKnowledge(question, profile = {}) {
 
   switch (intent.answerType) {
     case 'overview':
-      result = buildOverviewAnswer(schemes, tip);
+      result = buildOverviewAnswer(schemes, defaultTip);
       break;
     case 'nl_hub':
-      result = buildNlHubAnswer(schemes, tip);
+      result = buildNlHubAnswer(schemes, defaultTip);
       break;
     case 'region_filter':
-      result = buildRegionAnswer(schemes, intent.region, question, profile, tip);
+      result = buildRegionAnswer(schemes, intent.region, question, profile, defaultTip);
       break;
     case 'sector_match':
-      result = buildSectorAnswer(schemes, intent.sector || 'restaurant', question, profile, tip);
+      result = buildSectorAnswer(schemes, intent.sector || 'restaurant', question, profile, defaultTip);
       break;
     case 'equipment':
-      result = buildEquipmentAnswer(schemes, question, profile, tip);
+      result = buildEquipmentAnswer(schemes, question, profile, defaultTip);
       break;
     case 'deadlines':
-      result = buildDeadlinesAnswer(schemes, tip);
+      result = buildDeadlinesAnswer(schemes, defaultTip);
       break;
     case 'portals':
-      result = buildPortalsAnswer(tip);
+      result = buildPortalsAnswer(defaultTip);
       break;
     case 'product_grants':
-      result = await buildProductGrantsAnswer(tip, question, profile);
+      result = await buildProductGrantsAnswer(defaultTip, question, profile);
       break;
     case 'why_grants':
-      result = buildWhyGrantsAnswer(briefing, tip);
+      result = buildWhyGrantsAnswer(briefing, defaultTip);
       break;
     case 'media_handoff':
-      result = buildMediaHandoffAnswer(question, briefing, tip);
+      result = buildMediaHandoffAnswer(question, briefing, defaultTip);
       break;
     default:
       return null;

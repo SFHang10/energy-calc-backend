@@ -162,6 +162,31 @@ async function runLocalSmokes() {
   }
   console.log('OK Artemis Zyanne handoff welcome →', referralHit.productSamples.length, 'samples');
 
+  const grantsReferralProfile = {
+    ...profile,
+    handoff: {
+      fromSlug: 'media-agent',
+      fromName: 'Cheryce',
+      question: 'What grants apply from this sustainability news in my region?',
+      topicSummary: "you were reading today's sustainability news briefing",
+      fromIntentId: 'daily_brief'
+    }
+  };
+  const grantsReferralHit = await grantsMod.answerFromKnowledge(
+    'What grants apply from this sustainability news in my region?',
+    grantsReferralProfile
+  );
+  if (grantsReferralHit?.intentId !== 'agent_referral_welcome') {
+    throw new Error('Andrieus referral: expected agent_referral_welcome intent');
+  }
+  if (!/Cheryce/i.test(grantsReferralHit.answer || '')) {
+    throw new Error('Andrieus referral: expected Cheryce mention in welcome');
+  }
+  if (!grantsReferralHit?.suggestions?.length) {
+    throw new Error('Andrieus referral: expected scheme suggestions on welcome');
+  }
+  console.log('OK Andrieus Cheryce handoff welcome →', grantsReferralHit.suggestions.length, 'schemes');
+
   const deepDiveHit = await equipMod.answerFromKnowledge('equipment deep dive compare alternatives', profile);
   const deepDiveMod = (deepDiveHit?.blocks || []).find((b) => b.type === 'module');
   if (!deepDiveMod?.items?.some((i) => i.moduleId === 'equipment-deep-dive')) {
