@@ -359,7 +359,11 @@
     height: 100%;
     min-height: 86px;
     max-height: 108px;
-    object-fit: contain;
+    object-fit: cover;
+    object-position: center;
+  }
+  .product-samples--banner .product-sample-card.is-news .product-sample-img-wrap {
+    background: rgba(8, 14, 28, 0.92);
   }
   .product-samples--banner .product-sample-body {
     flex: 1;
@@ -1108,10 +1112,11 @@
     {
       id: "cbam-definitive-regime",
       name: "CBAM Definitive Regime Begins",
+      type: "news",
       subcategory: "POLICY",
-      imageUrl: "https://static.wixstatic.com/media/c123de_c450180485d74e43a974b35ee0e652d5~mv2.png",
-      label: "Carbon border adjustment — efficient equipment advantage",
-      topGrants: ["policy", "EU"],
+      imageUrl: "https://static.wixstatic.com/media/c123de_390a888de6614b0b9e22ecb9613cd4b8~mv2.jpg",
+      label: "Policy — CBAM definitive regime",
+      topGrants: ["Open"],
       marketplaceHref: "./January%20Sustainable%20News%20Original%20.html"
     },
     {
@@ -1133,6 +1138,17 @@
       label: "Resource saving — water finder",
       topGrants: ["water", "photo"],
       marketplaceHref: "./water-saving-finder.html"
+    },
+    {
+      id: "company-1",
+      name: "JD Wetherspoon — The Jack Fairman",
+      type: "company",
+      source: "sustainability-map",
+      subcategory: "HOSPITALITY",
+      imageUrl: "https://static.wixstatic.com/media/c123de_cdf6d4209eeb4dd190dd900b5b5d4263~mv2.jpeg",
+      label: "Hospitality proof point — CHEETAH kitchen savings",
+      topGrants: ["€10,600"],
+      marketplaceHref: "./European%20Company%20-%20Case%20Study%20Finder%20(Standalone)%20-%20Wix%20bundle.html"
     }
   ];
 
@@ -1385,13 +1401,18 @@
   function videoPayloadAttr(p) {
     if (!window.GreenwaysAgentVideo) return "";
     return ' data-video-payload="' + GreenwaysAgentVideo.encodePayload({
+      id: p.id || "",
       title: p.name || p.id,
       videoUrl: p.videoUrl || "",
       videoId: p.videoId || "",
       description: p.label || "",
       source: p.source || "",
       duration: p.duration || "",
-      pageHref: p.pageHref || p.marketplaceHref || "https://www.greenwaysbuildings.com/greenways"
+      category: p.category || "",
+      channelId: p.channelId || "",
+      channelName: p.channelName || "",
+      pageHref: p.pageHref || p.marketplaceHref || "https://www.greenwaysbuildings.com/greenways",
+      thumbnail: p.imageUrl || ""
     }) + '"';
   }
 
@@ -1419,6 +1440,25 @@
     };
   }
 
+  function waterFinderModuleItem() {
+    return {
+      moduleId: "water-saving-finder",
+      title: "Water Saving Finder",
+      description: "Water-lane search, tips, and interactive product compare.",
+      href: "./water-saving-finder.html",
+      kind: "html",
+      openSize: "near-full",
+      agentName: AGENT_PROFILE.name,
+      theme: "media"
+    };
+  }
+
+  function isWaterFinderSample(p) {
+    if (!p) return false;
+    if (p.id === "photo-water" || p.bannerModuleId === "water-saving-finder") return true;
+    return /water-saving-finder\.html/i.test(String(p.marketplaceHref || p.href || p.pageHref || ""));
+  }
+
   function contentBase() {
     const h = location.hostname || "";
     if (h === "localhost" || h === "127.0.0.1" || h.indexOf("energy-calc-backend") !== -1) return location.origin || "";
@@ -1429,6 +1469,35 @@
     var file = String(filename || "").replace(/^\.\//, "");
     if (location.protocol === "file:") return "./" + file;
     return contentBase() + "/HTMLS%20GWM%20GWB/" + file;
+  }
+
+  function resolveSampleHref(href, productId) {
+    var u = String(href || "").trim();
+    if (!u && productId && TurnUi && TurnUi.normalizeMarketplaceHref) {
+      return TurnUi.normalizeMarketplaceHref("", productId);
+    }
+    if (!u) return u;
+    if (/^https?:\/\//i.test(u)) return u;
+    if (u.charAt(0) === "/") return contentBase() ? contentBase() + u : u;
+    if (/^\.\//.test(u) || /\.html?$/i.test(u)) return gwbPageHref(u);
+    if (TurnUi && TurnUi.normalizeMarketplaceHref) return TurnUi.normalizeMarketplaceHref(u, productId);
+    return u;
+  }
+
+  function openModuleFromTrigger(el) {
+    if (!window.GreenwaysAgentContentModule || !el) return false;
+    var raw = el.getAttribute("data-module-payload");
+    if (raw) {
+      var item = GreenwaysAgentContentModule.parsePayload(raw);
+      if (item) {
+        GreenwaysAgentContentModule.open(Object.assign({}, item, {
+          agentName: AGENT_PROFILE.name,
+          theme: "media"
+        }));
+        return true;
+      }
+    }
+    return GreenwaysAgentContentModule.openFromTrigger(el);
   }
 
   function openMapFromTrigger(el) {
@@ -1460,9 +1529,48 @@
   }
   window.openSustainabilityMapModule = openSustainabilityMapModule;
 
+  /** Banner cards: 1 news = full tab · 2 video = modal · 3 water = module · 4 map = module */
+  function handleBannerSampleClick(e) {
+    var card = e.target.closest("#top-product-samples .product-sample-card[data-banner-open]");
+    if (!card) return false;
+    var mode = card.getAttribute("data-banner-open");
+    if (mode === "full") {
+      var link = e.target.closest("a.product-sample-link[href]");
+      if (!link) return false;
+      e.preventDefault();
+      e.stopPropagation();
+      window.open(link.href, "_blank", "noopener,noreferrer");
+      return true;
+    }
+    if (mode === "modal") {
+      var videoTrigger = e.target.closest("[data-video-payload]");
+      if (!videoTrigger) return false;
+      e.preventDefault();
+      e.stopPropagation();
+      try {
+        var payload = JSON.parse(decodeURIComponent(videoTrigger.getAttribute("data-video-payload") || "%7B%7D"));
+        if (window.GreenwaysAgentVideo) GreenwaysAgentVideo.open(payload);
+      } catch (_) {}
+      return true;
+    }
+    if (mode === "module") {
+      var modTrigger = e.target.closest(".product-module-trigger, [data-module-payload], [data-module-open]");
+      if (!modTrigger) return false;
+      e.preventDefault();
+      e.stopPropagation();
+      openModuleFromTrigger(modTrigger);
+      return true;
+    }
+    return false;
+  }
+
   function interceptPortalHtmlNav(e) {
+    if (handleBannerSampleClick(e)) return;
     var helperCard = e.target.closest(".helper-list .helper-card");
     if (helperCard) {
+      return;
+    }
+    if (e.target.closest("#top-product-samples .product-sample-card[data-banner-open]")) {
       return;
     }
     var mapOpen = e.target.closest("[data-map-open], .product-module-trigger, .module-tablet-open, .inline-map-open");
@@ -1602,15 +1710,35 @@
     showMapModuleBar(show);
   }
 
-  function modulePayloadAttr(item) {
-    if (!window.GreenwaysAgentContentModule) return ' data-map-open="1"';
-    return ' data-map-open="1" data-module-payload="' + GreenwaysAgentContentModule.encodePayload(item) + '"';
+  function modulePayloadAttr(item, opts) {
+    opts = opts || {};
+    if (!window.GreenwaysAgentContentModule) {
+      return opts.map ? ' data-map-open="1"' : ' data-module-open="' + escapeHtml(String((item && item.moduleId) || "1")) + '"';
+    }
+    var mapAttr = opts.map ? ' data-map-open="1"' : "";
+    var idAttr = item && item.moduleId ? ' data-module-open="' + escapeHtml(item.moduleId) + '"' : "";
+    return mapAttr + idAttr + ' data-module-payload="' + GreenwaysAgentContentModule.encodePayload(item) + '"';
+  }
+
+  function renderModuleSampleCard(p, moduleItem, badgeLabel, name, img, meta, grantLabel, askPrompt, title) {
+    return (
+      '<div class="product-sample-card is-module" data-banner-open="module">' +
+      '<button type="button" class="product-sample-link product-module-trigger"' + modulePayloadAttr(moduleItem, { map: false }) + ' title="' + escapeHtml(title || "Open in Cheryce’s module panel") + '">' +
+      '<div class="product-sample-img-wrap">' + img + '<span class="gw-module-open-badge">' + escapeHtml(badgeLabel) + "</span></div>" +
+      '<div class="product-sample-body">' +
+      '<span class="product-sample-name">' + name + "</span>" +
+      '<span class="product-sample-meta">' + meta + "</span>" +
+      '<span class="product-sample-grant">' + grantLabel + "</span>" +
+      "</div></button>" +
+      '<button type="button" class="product-ask-btn" data-prompt="' + escapeHtml(askPrompt) + '">Ask about this</button>' +
+      "</div>"
+    );
   }
 
   function renderMapSampleCard(p, name, img, meta, grantLabel, askPrompt) {
     return (
-      '<div class="product-sample-card is-map-module">' +
-      '<button type="button" class="product-sample-link product-module-trigger"' + modulePayloadAttr(sustainabilityMapModuleItem()) + ' title="Open sustainability map in module">' +
+      '<div class="product-sample-card is-map-module" data-banner-open="module">' +
+      '<button type="button" class="product-sample-link product-module-trigger"' + modulePayloadAttr(sustainabilityMapModuleItem(), { map: true }) + ' title="Open sustainability map in module">' +
       '<div class="product-sample-img-wrap">' + img + '<span class="gw-module-open-badge">Map</span></div>' +
       '<div class="product-sample-body">' +
       '<span class="product-sample-name">' + name + "</span>" +
@@ -1622,12 +1750,23 @@
     );
   }
 
+  function normalizeBannerImageUrl(url) {
+    var u = String(url || "").trim();
+    if (!u || u.indexOf("/v1/") >= 0) return u;
+    var m = u.match(/^(https:\/\/static\.wixstatic\.com\/media\/([^~]+~mv2\.)(jpe?g|png|webp))/i);
+    if (!m) return u;
+    var fileId = m[2];
+    var ext = m[3].toLowerCase();
+    return "https://static.wixstatic.com/media/" + fileId + ext + "/v1/fill/w_280,h_280,al_c,q_90,enc_auto/" + fileId + ext;
+  }
+
   function renderMediaCard(p) {
     const name = escapeHtml(p.name || p.id || "Media");
     const rawName = String(p.name || p.id || "this item");
     const askPrompt = "Tell me more about " + rawName + " for my business profile?";
-    const img = p.imageUrl
-      ? '<img src="' + escapeHtml(p.imageUrl) + '" alt="" loading="lazy">'
+    const thumbUrl = normalizeBannerImageUrl(p.imageUrl || "");
+    const img = thumbUrl
+      ? '<img src="' + escapeHtml(thumbUrl) + '" alt="" loading="lazy">'
       : '<span aria-hidden="true">' + (isMapSample(p) ? "🗺️" : "🎬") + "</span>";
     const meta = escapeHtml(p.label || p.subcategory || "Media");
     const grantLabel = (p.topGrants && p.topGrants[0])
@@ -1639,13 +1778,11 @@
         ? '<span class="gw-video-duration">' + escapeHtml(p.duration) + "</span>"
         : "";
       const playable = isPlayableVideoSample(p);
-      const badge = playable
-        ? '<span class="gw-video-play-badge" aria-hidden="true">▶</span>'
-        : '<span class="gw-video-site-badge" aria-hidden="true">↗</span>';
-      const triggerTitle = playable ? "Watch video" : "Open on Greenways";
-      const grant = playable ? grantLabel : "Open on site";
+      const badge = '<span class="gw-video-play-badge" aria-hidden="true">▶</span>';
+      const triggerTitle = playable ? "Watch in Cheryce’s video panel" : "Browse in Cheryce’s video panel";
+      const grant = playable ? grantLabel : "Wix channel";
       return (
-        '<div class="product-sample-card is-video' + (playable ? "" : " is-site-only") + '">' +
+        '<div class="product-sample-card is-video' + (playable ? "" : " is-site-only") + '" data-banner-open="modal">' +
         '<button type="button" class="product-sample-link product-video-trigger"' + videoPayloadAttr(p) + ' title="' + triggerTitle + '">' +
         '<div class="product-sample-img-wrap">' + img + badge + durationHtml + "</div>" +
         '<div class="product-sample-body">' +
@@ -1658,12 +1795,26 @@
       );
     }
 
-    const href = escapeHtml(TurnUi.normalizeMarketplaceHref(p.marketplaceHref, p.id));
+    const href = escapeHtml(resolveSampleHref(p.marketplaceHref, p.id));
     if (isMapSample(p)) {
       return renderMapSampleCard(p, name, img, meta, grantLabel, askPrompt);
     }
+    if (isWaterFinderSample(p)) {
+      return renderModuleSampleCard(
+        p,
+        waterFinderModuleItem(),
+        "Open",
+        name,
+        img,
+        meta,
+        grantLabel,
+        askPrompt,
+        "Open Water Saving Finder in Cheryce’s module panel"
+      );
+    }
+    var newsClass = p.type === "news" ? " is-news" : "";
     return (
-      '<div class="product-sample-card">' +
+      '<div class="product-sample-card' + newsClass + '" data-banner-open="full">' +
       '<a class="product-sample-link" href="' + href + '" target="_blank" rel="noopener noreferrer" title="Open page" style="text-decoration:none;color:inherit;display:flex;flex:1;min-width:0">' +
       '<div class="product-sample-img-wrap">' + img + "</div>" +
       '<div class="product-sample-body">' +
@@ -1678,7 +1829,7 @@
 
   function renderProductCards(samples) {
     if (!Array.isArray(samples) || !samples.length) return "";
-    return samples.slice(0, 3).map(renderMediaCard).join("");
+    return samples.slice(0, 4).map(renderMediaCard).join("");
   }
 
   function resolveProductSamples(samples) {
@@ -1714,17 +1865,29 @@
 
   async function loadBannerProducts() {
     paintBannerProducts(STATIC_PRODUCT_SAMPLES);
-    try {
+    async function fetchSamples(attempt) {
       const ctrl = new AbortController();
-      const timer = setTimeout(function () { ctrl.abort(); }, 15000);
-      const res = await fetch(apiBase() + "/api/media-agent/samples?limit=3", { signal: ctrl.signal });
-      clearTimeout(timer);
-      const data = await res.json().catch(function () { return {}; });
-      if (res.ok && data.ok && data.productSamples && data.productSamples.length) {
-        paintBannerProducts(data.productSamples);
+      const timer = setTimeout(function () { ctrl.abort(); }, attempt > 1 ? 25000 : 18000);
+      try {
+        const res = await fetch(apiBase() + "/api/media-agent/samples?limit=4", { signal: ctrl.signal });
+        clearTimeout(timer);
+        const data = await res.json().catch(function () { return {}; });
+        if (res.ok && data.ok && data.productSamples && data.productSamples.length) {
+          paintBannerProducts(data.productSamples);
+          return true;
+        }
+      } catch (_) {
+        clearTimeout(timer);
       }
-    } catch (_) {
-      /* static samples already painted */
+      return false;
+    }
+    var ok = await fetchSamples(1);
+    if (!ok) {
+      await new Promise(function (r) { setTimeout(r, 2000); });
+      ok = await fetchSamples(2);
+    }
+    if (!ok && statusBar) {
+      statusBar.textContent = "Banner using offline samples — API warming up; ask a question to refresh picks.";
     }
   }
 
@@ -2257,11 +2420,21 @@
     }
   });
 
+  document.addEventListener("click", interceptPortalHtmlNav, true);
+
   if (window.GreenwaysAgentVideo) {
-    GreenwaysAgentVideo.bindContainer(document.getElementById("top-product-samples"), function (payload) {
-      var href = (payload && payload.pageHref) || "https://www.greenwaysbuildings.com/greenways";
-      window.open(href, "_blank", "noopener,noreferrer");
+    GreenwaysAgentVideo.configure({
+      apiBase: function () {
+        var base = apiBase();
+        return base || location.origin || "";
+      },
+      relatedTitle: "More in the sustainability story",
+      onAsk: function (video) {
+        var title = String((video && video.title) || "this video");
+        sendQuestion("How does " + title + " fit the sustainability story for my " + (getProfile().sector || "business") + "?");
+      }
     });
+    GreenwaysAgentVideo.bindContainer(document.getElementById("chat-thread"));
   }
 
   if (window.GreenwaysAgentContentModule) {
@@ -2273,13 +2446,10 @@
     });
     GreenwaysAgentContentModule.bindDocumentIntercept();
     GreenwaysAgentContentModule.bindContainer(thread);
-    GreenwaysAgentContentModule.bindContainer(document.getElementById("top-product-samples"));
     GreenwaysAgentContentModule.bindContainer(document.getElementById("map-module-launch-bar"));
     GreenwaysAgentContentModule.bindContainer(document.getElementById("gw-agent-quick-links"));
     GreenwaysAgentContentModule.bindContainer(document.body);
   }
-
-  document.addEventListener("click", interceptPortalHtmlNav, true);
 
   var mapOpenBtn = document.getElementById("map-module-open-btn");
   if (mapOpenBtn) {

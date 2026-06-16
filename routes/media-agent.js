@@ -3,6 +3,9 @@ const {
   answerFromKnowledge,
   getDefaultProductSamples,
   loadFullNewsCatalog,
+  pickRelatedVideos,
+  resolveVideoSeed,
+  relatedStoryLine,
   MEDIA_KNOWLEDGE_VERSION
 } = require('../services/media-agent-knowledge');
 const { rankNewsItems } = require('../services/media-news-loader');
@@ -17,7 +20,7 @@ const router = express.Router();
 
 router.get('/samples', async (req, res) => {
   try {
-    const limit = Math.min(6, Math.max(1, Number(req.query.limit) || 3));
+    const limit = Math.min(6, Math.max(1, Number(req.query.limit) || 4));
     const productSamples = await getDefaultProductSamples(limit);
     res.json({ ok: true, productSamples });
   } catch (error) {
@@ -73,6 +76,23 @@ router.get('/videos', async (req, res) => {
   } catch (error) {
     console.error('Media agent videos error:', error.message);
     res.status(500).json({ ok: false, error: 'Failed to load videos.' });
+  }
+});
+
+router.get('/videos/related', async (req, res) => {
+  try {
+    const limit = Math.min(6, Math.max(1, Number(req.query.limit) || 4));
+    const seed = await resolveVideoSeed(req.query);
+    const related = await pickRelatedVideos(seed, limit);
+    res.json({
+      ok: true,
+      related,
+      storyLine: relatedStoryLine(seed),
+      seedId: seed.id || null
+    });
+  } catch (error) {
+    console.error('Media agent related videos error:', error.message);
+    res.status(500).json({ ok: false, error: 'Failed to load related videos.' });
   }
 });
 

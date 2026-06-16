@@ -215,6 +215,134 @@ function rankVideosForQuestion(pool, question, limit = 3) {
   return (withScore.length ? withScore : pool).slice(0, limit);
 }
 
+const SUSTAINABILITY_STORY_ARCS = {
+  restaurant: 'commercial kitchen efficiency and hospitality energy savings',
+  energy: 'home and business energy savings',
+  water: 'water and resource conservation',
+  solar: 'solar and renewable power',
+  hvac: 'heating, cooling and building services',
+  lighting: 'efficient lighting and controls',
+  monitoring: 'energy monitoring and smart operations',
+  etl: 'verified efficient products and equipment upgrades',
+  news: 'sustainability news and industry reviews',
+  refurbishment: 'retrofit and refurbishment ideas',
+  building: 'green building and low-carbon construction',
+  rooftop: 'urban farming and rooftop sustainability',
+  general: 'real-world sustainability in action'
+};
+
+function whyPickRelatedVideo(seed, video) {
+  if (seed.channelId && video.channelId === seed.channelId && video.channelName) {
+    return `Same Wix channel · ${video.channelName}`;
+  }
+  if (seed.category && video.category === seed.category) {
+    return VIDEO_CATEGORIES[video.category] || video.category;
+  }
+  if (video.channelName) return video.channelName;
+  return 'Related sustainability story';
+}
+
+function relatedStoryLine(seed) {
+  const cat = seed.category || 'general';
+  const arc = SUSTAINABILITY_STORY_ARCS[cat] || SUSTAINABILITY_STORY_ARCS.general;
+  const channel = seed.channelName ? ` on **${seed.channelName}**` : '';
+  return `Cheryce suggests these next${channel} — continuing the story of **${arc}**.`;
+}
+
+function relatedVideoRow(v, seed, score) {
+  return {
+    id: v.id,
+    title: v.title,
+    description: String(v.description || '').slice(0, 140),
+    whyPick: whyPickRelatedVideo(seed, v),
+    videoUrl: v.videoUrl || '',
+    videoId: v.videoId || '',
+    thumbnail:
+      v.thumbnail || (v.videoId ? `https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg` : ''),
+    duration: v.duration || '',
+    channelName: v.channelName || '',
+    channelId: v.channelId || '',
+    category: v.category || '',
+    pageHref: v.pageHref || 'https://www.greenwaysbuildings.com/greenways',
+    source: v.source || '',
+    playable: isPlayableVideo(v),
+    score
+  };
+}
+
+async function pickRelatedVideos(seed = {}, limit = 4) {
+  const { videos } = await getVideosForAgent();
+  const seedId = String(seed.id || '').trim();
+  const haySeed = [
+    seed.title,
+    seed.description,
+    seed.category,
+    seed.channelId,
+    seed.channelName,
+    ...(Array.isArray(seed.tags) ? seed.tags : [])
+  ]
+    .join(' ')
+    .toLowerCase();
+
+  const pool = videos.filter((v) => v.id !== seedId);
+  const scored = pool
+    .map((v) => {
+      let score = 0;
+      if (seed.channelId && v.channelId === seed.channelId) score += 14;
+      if (seed.category && v.category === seed.category) score += 9;
+      if (seed.category === 'energy' && v.category === 'general') score += 4;
+      if (seed.category === 'building' && v.category === 'general') score += 3;
+      const vTags = (v.tags || []).map((t) => String(t).toLowerCase());
+      (Array.isArray(seed.tags) ? seed.tags : []).forEach((t) => {
+        const tl = String(t).toLowerCase();
+        if (vTags.some((x) => x.includes(tl) || tl.includes(x))) score += 5;
+      });
+      String(v.title || '')
+        .toLowerCase()
+        .split(/\s+/)
+        .filter((w) => w.length >= 4)
+        .forEach((w) => {
+          if (haySeed.includes(w)) score += 2;
+        });
+      if (isPlayableVideo(v)) score += 4;
+      else score += 1;
+      return { v, score };
+    })
+    .sort((a, b) => b.score - a.score);
+
+  const withScore = scored.filter((r) => r.score > 0);
+  const picks = (withScore.length ? withScore : scored).slice(0, limit);
+  return picks.map(({ v, score }) => relatedVideoRow(v, seed, score));
+}
+
+async function resolveVideoSeed(query = {}) {
+  const { videos } = await getVideosForAgent();
+  const id = String(query.id || query.videoId || '').trim();
+  if (id) {
+    const found = videos.find((v) => v.id === id);
+    if (found) {
+      return {
+        id: found.id,
+        title: found.title,
+        description: found.description,
+        category: found.category,
+        channelId: found.channelId,
+        channelName: found.channelName,
+        tags: found.tags
+      };
+    }
+  }
+  return {
+    id: id || '',
+    title: String(query.title || '').trim(),
+    description: String(query.description || '').trim(),
+    category: String(query.category || '').trim(),
+    channelId: String(query.channelId || '').trim(),
+    channelName: String(query.channelName || '').trim(),
+    tags: []
+  };
+}
+
 async function loadBriefing() {
   try {
     const raw = await fs.readFile(briefingPath, 'utf8');
@@ -556,23 +684,33 @@ function isMapExplainQuestion(question) {
 
 function toMediaSample(item) {
   const tags = item.topGrants || item.tags || [];
+  const isVideo =
+    item.type === 'video' || item.subcategory === 'VIDEO' || item.videoUrl || item.videoId;
   const type =
     item.type ||
-    (item.videoUrl || item.videoId ? 'video' : item.subcategory === 'PHOTO' ? 'photo' : 'news');
+    (isVideo ? 'video' : item.subcategory === 'PHOTO' ? 'photo' : 'news');
+  const thumb =
+    item.imageUrl ||
+    item.thumbnail ||
+    (item.videoId ? `https://img.youtube.com/vi/${item.videoId}/hqdefault.jpg` : '');
   return {
     id: item.id,
     name: item.name || item.title || item.id,
     label: item.label || item.description || '',
     subcategory: (item.subcategory || item.category || 'MEDIA').toUpperCase(),
-    imageUrl: item.imageUrl || item.thumbnail || '',
+    imageUrl: thumb,
     topGrants: Array.isArray(tags) ? tags.slice(0, 2) : [item.newsCategory || 'News'],
     grantsCount: 0,
-    marketplaceHref: item.href || item.moreLink || item.pageHref || MEDIA_PAGES.sustainabilityNews,
+    marketplaceHref: isVideo
+      ? item.pageHref || item.href || 'https://www.greenwaysbuildings.com/greenways'
+      : item.href || item.moreLink || item.pageHref || MEDIA_PAGES.sustainabilityNews,
     pageHref: item.pageHref || item.href || '',
     videoUrl: item.videoUrl || '',
     videoId: item.videoId || '',
     duration: item.duration || '',
     category: item.category || '',
+    channelId: item.channelId || '',
+    channelName: item.channelName || '',
     type,
     source: item.source || 'knowledge'
   };
@@ -589,6 +727,8 @@ function videoToSample(v, videoSource) {
     category: v.category,
     duration: v.duration,
     tags: v.tags,
+    channelId: v.channelId,
+    channelName: v.channelName,
     subcategory: 'VIDEO',
     type: 'video',
     source: v.source || videoSource,
@@ -616,6 +756,10 @@ async function pickVideoSamples(question, profile = {}, limit = 3, categoryHint 
   if (channelHint) {
     const matches = pool.filter((v) => v.channelId === channelHint);
     if (matches.length) pool = matches;
+    if (pool.length && !pool.some(isPlayableVideo)) {
+      const playableCatalog = videos.filter((v) => v.videoUrl && v.category === (pool[0].category || 'restaurant'));
+      if (playableCatalog.length) pool = [playableCatalog[0], ...pool];
+    }
   } else if (category) {
     const matches = pool.filter(
       (v) => v.category === category || (category === 'energy' && v.category === 'general')
@@ -637,7 +781,126 @@ async function pickVideoSamples(question, profile = {}, limit = 3, categoryHint 
   return playableFirst.slice(0, limit).map((v) => videoToSample(v, source));
 }
 
-async function pickMediaSamples(question, profile = {}, limit = 3) {
+function newsCategoryImage(showcase, newsCategory) {
+  return wixBannerThumb(
+    showcase.categoryImages?.news ||
+      showcase.categoryImages?.[newsCategory] ||
+      showcase.categoryImages?.policy ||
+      ''
+  );
+}
+
+/** Crop Wix static icons so banner thumbs fill the card slot (not tiny contain). */
+function wixBannerThumb(url) {
+  const u = String(url || '').trim();
+  if (!u || u.includes('/v1/')) return u;
+  const m = u.match(/^(https:\/\/static\.wixstatic\.com\/media\/([^~]+~mv2\.)(jpe?g|png|webp))/i);
+  if (!m) return u;
+  const fileId = m[2];
+  const ext = m[3].toLowerCase();
+  return `https://static.wixstatic.com/media/${fileId}${ext}/v1/fill/w_280,h_280,al_c,q_90,enc_auto/${fileId}${ext}`;
+}
+
+function bannerNewsPageHref(news, row) {
+  return row?.pageHref || news?.pageHref || MEDIA_PAGES.sustainabilityNews;
+}
+
+function pickBannerPhoto(showcase, profile, videoPick) {
+  const photos = showcase.photos || [];
+  const restaurantLane =
+    videoPick?.category === 'restaurant' || profile.sector === 'restaurant';
+  if (restaurantLane) {
+    return (
+      photos.find((p) => p.id === 'photo-water') ||
+      photos.find((p) => p.id === 'photo-kitchen') ||
+      photos[0]
+    );
+  }
+  return (
+    photos.find((p) => p.id === 'photo-solar') ||
+    photos.find((p) => p.id === 'photo-water') ||
+    photos[0]
+  );
+}
+
+async function buildDefaultBannerMix({
+  showcase,
+  newsItems,
+  videos,
+  videoSource,
+  companies,
+  profile = {},
+  question = '',
+  limit = 4
+}) {
+  const samples = [];
+  const q = String(question || '').trim();
+
+  let news = null;
+  if (q.length >= 4) {
+    const ranked = rankNewsItems(newsItems, question, 1);
+    news = ranked[0];
+  }
+  if (!news) {
+    const newsRow = (showcase.news || [])[0];
+    news = newsRow ? findNewsById(newsItems, newsRow.id) : null;
+  }
+  if (news) {
+    const row = (showcase.news || []).find((r) => r.id === news.id);
+    samples.push(
+      toMediaSample({
+        id: news.id,
+        title: news.title,
+        label: row?.label || news.summary,
+        description: news.summary,
+        imageUrl: newsCategoryImage(showcase, news.newsCategory),
+        href: bannerNewsPageHref(news, row),
+        newsCategory: news.newsCategory
+      })
+    );
+  }
+
+  const sector = profile.sector;
+  const videoPick =
+    videos.find((v) => sector === 'restaurant' && v.category === 'restaurant' && (v.videoUrl || v.videoId)) ||
+    videos.find((v) => v.category === 'restaurant' && (v.videoUrl || v.videoId)) ||
+    videos.find((v) => v.videoUrl || v.videoId) ||
+    videos[0];
+  if (videoPick) samples.push(videoToSample(videoPick, videoSource));
+
+  const photo = pickBannerPhoto(showcase, profile, videoPick);
+  if (photo) samples.push(toMediaSample({ ...photo, subcategory: 'PHOTO', type: 'photo' }));
+
+  if (samples.length < limit && (showcase.companies || []).length) {
+    const mapCards = resolveShowcaseCompanies(showcase.companies, companies, 1);
+    for (const card of mapCards) {
+      if (!samples.some((s) => s.id === card.id)) samples.push(card);
+    }
+  }
+
+  if (samples.length < limit) {
+    const extraNewsRow = (showcase.news || []).find((row) => row.id !== news?.id);
+    if (extraNewsRow) {
+      const extra = findNewsById(newsItems, extraNewsRow.id);
+      if (extra) {
+        samples.push(
+          toMediaSample({
+            id: extra.id,
+            title: extra.title,
+            label: extraNewsRow.label || extra.summary,
+            imageUrl: newsCategoryImage(showcase, extra.newsCategory),
+            href: bannerNewsPageHref(extra, extraNewsRow),
+            newsCategory: extra.newsCategory
+          })
+        );
+      }
+    }
+  }
+
+  return samples.slice(0, limit);
+}
+
+async function pickMediaSamples(question, profile = {}, limit = 4) {
   const showcase = await loadShowcase();
   const catalog = await loadFullNewsCatalog();
   const newsItems = catalog.items;
@@ -654,111 +917,21 @@ async function pickMediaSamples(question, profile = {}, limit = 3) {
     }
   }
 
-  if (!String(question || '').trim() || String(question).length < 4) {
-    // Banner default: interleave news + playable video + photo (not 3× news only).
-    if (limit >= 3) {
-      const newsRow = (showcase.news || [])[0];
-      if (newsRow) {
-        const news = findNewsById(newsItems, newsRow.id);
-        if (news) {
-          samples.push(
-            toMediaSample({
-              id: news.id,
-              title: news.title,
-              label: newsRow.label || news.summary,
-              description: news.summary,
-              imageUrl: showcase.categoryImages?.policy,
-              href: news.pageHref || (news.sources && news.sources[0]) || MEDIA_PAGES.sustainabilityNews,
-              newsCategory: news.newsCategory
-            })
-          );
-        }
-      }
-      const videoPick =
-        videos.find((v) => v.category === 'restaurant' && v.videoUrl) ||
-        videos.find((v) => v.videoUrl) ||
-        videos[0];
-      if (videoPick) {
-        samples.push(
-          toMediaSample({
-            id: videoPick.id,
-            name: videoPick.title,
-            label: videoPick.description,
-            thumbnail: videoPick.thumbnail,
-            videoUrl: videoPick.videoUrl,
-            category: videoPick.category,
-            tags: videoPick.tags,
-            subcategory: 'VIDEO',
-            type: 'video',
-            source: videoPick.source || videoSource
-          })
-        );
-      }
-      const photo = (showcase.photos || [])[0];
-      if (photo) {
-        samples.push(toMediaSample({ ...photo, subcategory: 'PHOTO', type: 'photo' }));
-      }
-      if (samples.length < limit && (showcase.companies || []).length) {
-        const mapCards = resolveShowcaseCompanies(showcase.companies, companies, 1);
-        for (const card of mapCards) {
-          if (!samples.some((s) => s.id === card.id)) samples.push(card);
-        }
-      }
-      return samples.slice(0, limit);
-    }
+  if (limit >= 3 && isVideoQuestion(question)) {
+    return pickVideoSamples(question, profile, limit);
+  }
 
-    for (const row of showcase.news || []) {
-      const news = findNewsById(newsItems, row.id);
-      if (news) {
-        samples.push(
-          toMediaSample({
-            id: news.id,
-            title: news.title,
-            label: row.label || news.summary,
-            description: news.summary,
-            imageUrl: showcase.categoryImages?.policy,
-            href: news.pageHref || (news.sources && news.sources[0]) || MEDIA_PAGES.sustainabilityNews,
-            newsCategory: news.newsCategory
-          })
-        );
-      }
-      if (samples.length >= limit) break;
-    }
-    if (samples.length < limit) {
-      for (const photo of showcase.photos || []) {
-        if (samples.length >= limit) break;
-        samples.push(toMediaSample({ ...photo, subcategory: 'PHOTO', type: 'photo' }));
-      }
-    }
-    if (samples.length < limit && videos.length) {
-      for (const v of videos.filter((vid) => vid.videoUrl).slice(0, limit - samples.length)) {
-        samples.push(
-          toMediaSample({
-            id: v.id,
-            name: v.title,
-            label: v.description,
-            thumbnail: v.thumbnail,
-            videoUrl: v.videoUrl,
-            category: v.category,
-            tags: v.tags,
-            subcategory: 'VIDEO',
-            type: 'video',
-            source: v.source || videoSource
-          })
-        );
-      }
-    }
-    if (samples.length < limit && (showcase.companies || []).length) {
-      const mapCards = resolveShowcaseCompanies(
-        showcase.companies,
-        companies,
-        limit - samples.length
-      );
-      for (const card of mapCards) {
-        if (!samples.some((s) => s.id === card.id)) samples.push(card);
-      }
-    }
-    return samples.slice(0, limit);
+  if (limit >= 3) {
+    return buildDefaultBannerMix({
+      showcase,
+      newsItems,
+      videos,
+      videoSource,
+      companies,
+      profile,
+      question,
+      limit
+    });
   }
 
   if (isVideoQuestion(question)) {
@@ -1336,7 +1509,7 @@ async function answerFromKnowledge(question, profile = {}) {
         intent?.channelId || intent?.category || null
       );
     } else if (!keepSamples) {
-      result.productSamples = await pickMediaSamples(question, profile, 3);
+      result.productSamples = await pickMediaSamples(question, profile, 4);
     }
     applyPersona(result, {
       voice,
@@ -1355,9 +1528,12 @@ module.exports = {
   answerFromKnowledge,
   pickMediaSamples,
   pickVideoSamples,
+  pickRelatedVideos,
+  resolveVideoSeed,
+  relatedStoryLine,
   loadDailyBrief,
   buildDailyBriefAnswer,
-  getDefaultProductSamples: (limit = 3) => pickMediaSamples('', {}, limit),
+  getDefaultProductSamples: (limit = 4) => pickMediaSamples('', {}, limit),
   loadFullNewsCatalog,
   loadBriefing,
   loadReferences,

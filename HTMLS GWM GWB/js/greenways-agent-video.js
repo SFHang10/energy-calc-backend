@@ -11,6 +11,34 @@
   var titleEl = null;
   var descEl = null;
   var footEl = null;
+  var relatedEl = null;
+  var relatedListEl = null;
+  var relatedStoryEl = null;
+  var currentVideo = null;
+  var relatedCache = {};
+
+  var config = {
+    apiBase: function () {
+      return "";
+    },
+    relatedTitle: "More in the sustainability story",
+    onAsk: null
+  };
+
+  function escapeHtml(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function configure(opts) {
+    if (!opts) return;
+    if (typeof opts.apiBase === "function") config.apiBase = opts.apiBase;
+    if (opts.relatedTitle) config.relatedTitle = opts.relatedTitle;
+    if (typeof opts.onAsk === "function") config.onAsk = opts.onAsk;
+  }
 
   function ensureModal() {
     if (modalEl) return modalEl;
@@ -28,6 +56,14 @@
       '<button type="button" class="gw-video-modal-close" aria-label="Close video">×</button>' +
       "</div>" +
       '<div class="gw-video-modal-stage" id="gw-video-modal-stage"></div>' +
+      '<div class="gw-video-modal-related" id="gw-video-modal-related" hidden>' +
+      '<div class="gw-video-modal-related-head">' +
+      '<span class="gw-video-modal-related-title" id="gw-video-modal-related-title"></span>' +
+      '<button type="button" class="gw-video-modal-ask-btn" id="gw-video-modal-ask-btn" hidden>Ask Cheryce</button>' +
+      "</div>" +
+      '<p class="gw-video-modal-related-story" id="gw-video-modal-related-story"></p>' +
+      '<div class="gw-video-modal-related-list" id="gw-video-modal-related-list"></div>' +
+      "</div>" +
       '<div class="gw-video-modal-foot" id="gw-video-modal-foot">Greenways Wix video library</div>' +
       "</div>";
     document.body.appendChild(modalEl);
@@ -36,6 +72,9 @@
     titleEl = modalEl.querySelector("#gw-video-modal-title");
     descEl = modalEl.querySelector("#gw-video-modal-desc");
     footEl = modalEl.querySelector("#gw-video-modal-foot");
+    relatedEl = modalEl.querySelector("#gw-video-modal-related");
+    relatedListEl = modalEl.querySelector("#gw-video-modal-related-list");
+    relatedStoryEl = modalEl.querySelector("#gw-video-modal-related-story");
 
     modalEl.querySelector(".gw-video-modal-close").addEventListener("click", close);
     modalEl.addEventListener("click", function (e) {
@@ -44,6 +83,27 @@
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && modalEl.classList.contains("is-open")) close();
     });
+
+    var askBtn = modalEl.querySelector("#gw-video-modal-ask-btn");
+    if (askBtn) {
+      askBtn.addEventListener("click", function () {
+        if (!currentVideo || typeof config.onAsk !== "function") return;
+        config.onAsk(currentVideo);
+      });
+    }
+
+    if (relatedListEl) {
+      relatedListEl.addEventListener("click", function (e) {
+        var card = e.target.closest("[data-related-video]");
+        if (!card) return;
+        e.preventDefault();
+        e.stopPropagation();
+        try {
+          var payload = JSON.parse(decodeURIComponent(card.getAttribute("data-related-video") || "%7B%7D"));
+          open(payload);
+        } catch (_) {}
+      });
+    }
 
     return modalEl;
   }
@@ -79,30 +139,25 @@
     stageEl.innerHTML = '<div class="gw-video-modal-empty">' + message + "</div>";
   }
 
-  function open(video) {
-    ensureModal();
+  function setFootSource(video) {
+    if (!footEl) return;
+    var src = video && video.source;
+    footEl.textContent =
+      src === "wix"
+        ? "Streaming from Greenways Wix Media"
+        : src === "catalog"
+          ? "Greenways video catalog (Wix MP4)"
+          : src === "wix-youtube"
+            ? "Greenways Wix Video channel (YouTube feed)"
+            : "Greenways sustainable video library";
+  }
+
+  function renderPlayer(video) {
     stopHls();
     stageEl.innerHTML = "";
-
     var title = String((video && video.title) || "Greenways video");
-    var desc = String((video && video.description) || "");
     var url = String((video && video.videoUrl) || "");
     var videoId = String((video && video.videoId) || "");
-
-    titleEl.textContent = title;
-    descEl.textContent = desc;
-    descEl.hidden = !desc;
-    if (footEl) {
-      var src = video && video.source;
-      footEl.textContent =
-        src === "wix"
-          ? "Streaming from Greenways Wix Media"
-          : src === "catalog"
-            ? "Greenways video catalog (Wix MP4)"
-            : src === "wix-youtube"
-              ? "Greenways Wix Video channel (YouTube feed)"
-              : "Greenways sustainable video library";
-    }
 
     if (url) {
       var player = document.createElement("video");
@@ -138,14 +193,138 @@
       iframe.title = title;
       stageEl.appendChild(iframe);
     } else {
-      showEmpty("This clip plays on the Greenways site — use Open on site on the card.");
+      var thumb = String((video && video.thumbnail) || "");
+      if (thumb) {
+        stageEl.innerHTML =
+          '<div class="gw-video-modal-site-preview">' +
+          '<img src="' + escapeHtml(thumb) + '" alt="">' +
+          '<p>This clip lives on the Greenways Wix Video channel. Pick a related video below or open the full library.</p>' +
+          "</div>";
+      } else {
+        showEmpty("This clip plays on the Greenways site — pick a related video below or open the library.");
+      }
       if (footEl) {
         footEl.innerHTML =
-          'Not embedded here yet. <a href="' +
-          String((video && video.pageHref) || "https://www.greenwaysbuildings.com/greenways") +
+          '<a href="' +
+          escapeHtml(String((video && video.pageHref) || "https://www.greenwaysbuildings.com/greenways")) +
           '" target="_blank" rel="noopener noreferrer">Open on Greenways ↗</a>';
       }
     }
+  }
+
+  function relatedCardHtml(row) {
+    var thumb = row.thumbnail
+      ? '<img src="' + escapeHtml(row.thumbnail) + '" alt="" loading="lazy">'
+      : '<span aria-hidden="true">🎬</span>';
+    var badge = row.playable
+      ? '<span class="gw-video-related-play" aria-hidden="true">▶</span>'
+      : '<span class="gw-video-related-site" aria-hidden="true">↗</span>';
+    var duration = row.duration
+      ? '<span class="gw-video-related-duration">' + escapeHtml(row.duration) + "</span>"
+      : "";
+    var payload = encodeURIComponent(JSON.stringify({
+      id: row.id || "",
+      title: row.title || "",
+      description: row.description || "",
+      videoUrl: row.videoUrl || "",
+      videoId: row.videoId || "",
+      source: row.source || "",
+      duration: row.duration || "",
+      category: row.category || "",
+      channelId: row.channelId || "",
+      channelName: row.channelName || "",
+      pageHref: row.pageHref || "https://www.greenwaysbuildings.com/greenways",
+      playable: row.playable !== false
+    }));
+    return (
+      '<button type="button" class="gw-video-related-card" data-related-video="' + payload + '">' +
+      '<div class="gw-video-related-thumb">' + thumb + badge + duration + "</div>" +
+      '<div class="gw-video-related-body">' +
+      '<span class="gw-video-related-name">' + escapeHtml(row.title) + "</span>" +
+      '<span class="gw-video-related-why">' + escapeHtml(row.whyPick || "Related pick") + "</span>" +
+      "</div></button>"
+    );
+  }
+
+  function renderRelated(related, storyLine) {
+    if (!relatedEl || !relatedListEl) return;
+    var titleNode = modalEl.querySelector("#gw-video-modal-related-title");
+    var askBtn = modalEl.querySelector("#gw-video-modal-ask-btn");
+    if (titleNode) titleNode.textContent = config.relatedTitle;
+    if (askBtn) askBtn.hidden = typeof config.onAsk !== "function";
+    if (!Array.isArray(related) || !related.length) {
+      relatedEl.hidden = true;
+      relatedListEl.innerHTML = "";
+      if (relatedStoryEl) relatedStoryEl.textContent = "";
+      return;
+    }
+    relatedEl.hidden = false;
+    if (relatedStoryEl) {
+      relatedStoryEl.innerHTML = String(storyLine || "")
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    }
+    relatedListEl.innerHTML = related.map(relatedCardHtml).join("");
+  }
+
+  function relatedCacheKey(video) {
+    return [
+      video.id || "",
+      video.category || "",
+      video.channelId || "",
+      video.title || ""
+    ].join("|");
+  }
+
+  function loadRelatedVideos(video) {
+    if (!relatedEl) return;
+    var key = relatedCacheKey(video);
+    if (relatedCache[key]) {
+      renderRelated(relatedCache[key].related, relatedCache[key].storyLine);
+      return;
+    }
+    renderRelated([], "Finding related sustainability videos…");
+    relatedEl.hidden = false;
+
+    var base = String(typeof config.apiBase === "function" ? config.apiBase() : config.apiBase || "").replace(/\/$/, "");
+    var qs = new URLSearchParams();
+    if (video.id) qs.set("id", video.id);
+    if (video.title) qs.set("title", video.title);
+    if (video.description) qs.set("description", String(video.description).slice(0, 180));
+    if (video.category) qs.set("category", video.category);
+    if (video.channelId) qs.set("channelId", video.channelId);
+    if (video.channelName) qs.set("channelName", video.channelName);
+    qs.set("limit", "4");
+
+    var url = (base || "") + "/api/media-agent/videos/related?" + qs.toString();
+    fetch(url)
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (!data || !data.ok) {
+          renderRelated([], "");
+          relatedEl.hidden = true;
+          return;
+        }
+        relatedCache[key] = { related: data.related || [], storyLine: data.storyLine || "" };
+        renderRelated(data.related, data.storyLine);
+      })
+      .catch(function () {
+        relatedEl.hidden = true;
+      });
+  }
+
+  function open(video) {
+    ensureModal();
+    currentVideo = video || null;
+
+    var title = String((video && video.title) || "Greenways video");
+    var desc = String((video && video.description) || "");
+
+    titleEl.textContent = title;
+    descEl.textContent = desc;
+    descEl.hidden = !desc;
+    setFootSource(video);
+    renderPlayer(video);
+    loadRelatedVideos(video || {});
 
     modalEl.classList.add("is-open");
   }
@@ -154,18 +333,24 @@
     if (!modalEl) return;
     stopHls();
     if (stageEl) stageEl.innerHTML = "";
+    currentVideo = null;
     modalEl.classList.remove("is-open");
   }
 
   function encodePayload(video) {
     return encodeURIComponent(JSON.stringify({
+      id: video.id || "",
       title: video.title || video.name || "",
       videoUrl: video.videoUrl || "",
       videoId: video.videoId || "",
       description: video.description || video.label || "",
       source: video.source || "",
       duration: video.duration || "",
-      pageHref: video.pageHref || video.marketplaceHref || "https://www.greenwaysbuildings.com/greenways"
+      category: video.category || "",
+      channelId: video.channelId || "",
+      channelName: video.channelName || "",
+      pageHref: video.pageHref || video.marketplaceHref || "https://www.greenwaysbuildings.com/greenways",
+      thumbnail: video.thumbnail || video.imageUrl || ""
     }));
   }
 
@@ -183,11 +368,6 @@
       e.stopPropagation();
       try {
         var payload = JSON.parse(decodeURIComponent(trigger.getAttribute("data-video-payload") || "%7B%7D"));
-        if (!payload.videoUrl && !payload.videoId) {
-          if (typeof onMissing === "function") onMissing(payload);
-          else openSite(payload);
-          return;
-        }
         open(payload);
       } catch (_) {}
     });
@@ -196,6 +376,7 @@
   global.GreenwaysAgentVideo = {
     open: open,
     close: close,
+    configure: configure,
     encodePayload: encodePayload,
     bindContainer: bindContainer,
     ensureModal: ensureModal,

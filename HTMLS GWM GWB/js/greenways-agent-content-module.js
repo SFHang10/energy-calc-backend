@@ -451,6 +451,7 @@
   function interceptPortalModuleNav(e) {
     if (e.target.closest(".module-tablet-full")) return;
     if (e.target.closest(".helper-list .helper-card")) return;
+    if (e.target.closest("#top-product-samples .product-sample-card[data-banner-open]")) return;
 
     var trigger = e.target.closest(
       ".module-tablet-open, [data-module-payload], [data-module-open], .product-module-trigger"
