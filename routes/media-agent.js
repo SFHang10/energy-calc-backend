@@ -61,7 +61,7 @@ router.get('/news', async (req, res) => {
 router.get('/videos', async (req, res) => {
   try {
     const category = String(req.query.category || '').trim().toLowerCase();
-    const { videos, source } = await getVideosForAgent();
+    const { videos, source, channels, youtubeCount } = await getVideosForAgent();
     let list = videos;
     if (category) {
       list = videos.filter((v) => v.category === category);
@@ -69,7 +69,7 @@ router.get('/videos', async (req, res) => {
         list = videos.filter((v) => v.category === 'general');
       }
     }
-    res.json({ ok: true, videos: list, total: list.length, source });
+    res.json({ ok: true, videos: list, total: list.length, source, channels: channels || [], youtubeCount: youtubeCount || 0 });
   } catch (error) {
     console.error('Media agent videos error:', error.message);
     res.status(500).json({ ok: false, error: 'Failed to load videos.' });

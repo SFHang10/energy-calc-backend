@@ -1,6 +1,6 @@
 /**
  * Public Wix video fetch for Media Agent (and future catalog sync).
- * Priority: live Wix API → data/wix-video-catalog.json → playable hardcoded samples.
+ * Priority: live Wix API → MP4 catalog → YouTube channel catalog → playable hardcoded samples.
  */
 
 const fs = require('fs');
@@ -8,9 +8,11 @@ const path = require('path');
 
 const WIX_SITE_ID = process.env.WIX_SITE_ID || 'd9c9c6b1-f79a-49a3-8183-4c5a8e24a413';
 const CATALOG_PATH = path.join(__dirname, '../data/wix-video-catalog.json');
+const YOUTUBE_CHANNELS_PATH = path.join(__dirname, '../data/wix-youtube-channels.json');
 
 let videoCache = { data: null, timestamp: null, ttl: 30 * 60 * 1000 };
 let fileCatalogCache = null;
+let youtubeChannelCache = null;
 
 async function getWixAuthToken() {
   const WIX_APP_TOKEN = process.env.WIX_APP_TOKEN;
@@ -120,6 +122,43 @@ function loadVideoCatalogFromFile() {
     console.error('Media Agent: wix-video-catalog.json load failed:', error.message);
     return null;
   }
+}
+
+function loadYoutubeChannelVideos() {
+  if (youtubeChannelCache) return youtubeChannelCache;
+  try {
+    if (!fs.existsSync(YOUTUBE_CHANNELS_PATH)) return { channels: [], videos: [] };
+    const raw = JSON.parse(fs.readFileSync(YOUTUBE_CHANNELS_PATH, 'utf8'));
+    const channels = raw.channels || [];
+    const channelById = Object.fromEntries(channels.map((c) => [c.id, c]));
+    const videos = (raw.videos || []).map((v) => {
+      const channel = channelById[v.channelId];
+      return {
+        ...v,
+        source: v.source || 'wix-youtube',
+        category: v.category || channel?.category || 'general',
+        channelName: channel?.name || v.channelId || '',
+        tags: [...(v.tags || []), channel?.name].filter(Boolean)
+      };
+    });
+    youtubeChannelCache = { channels, videos, meta: raw.meta || {} };
+    return youtubeChannelCache;
+  } catch (error) {
+    console.error('Media Agent: wix-youtube-channels.json load failed:', error.message);
+    return { channels: [], videos: [] };
+  }
+}
+
+function mergeVideoLibraries(primary, youtubeVideos) {
+  const seen = new Set();
+  const out = [];
+  for (const v of [...primary, ...youtubeVideos]) {
+    const key = v.videoUrl || v.videoId || v.id;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(v);
+  }
+  return out;
 }
 
 function getFallbackVideos() {
@@ -235,22 +274,32 @@ async function getVideosForAgent() {
   let videos;
   let source;
 
+  const youtubeBundle = loadYoutubeChannelVideos();
+  const youtubeVideos = youtubeBundle.videos || [];
+
   if (wixVideos && wixVideos.length) {
-    videos = wixVideos;
+    videos = mergeVideoLibraries(wixVideos, youtubeVideos);
     source = 'wix';
   } else {
     const catalogVideos = loadVideoCatalogFromFile();
     if (catalogVideos && catalogVideos.length) {
-      videos = catalogVideos;
-      source = 'catalog';
-      console.log(`📹 Media Agent: using ${catalogVideos.length} videos from wix-video-catalog.json`);
+      videos = mergeVideoLibraries(catalogVideos, youtubeVideos);
+      source = youtubeVideos.length ? 'catalog+youtube' : 'catalog';
+      console.log(
+        `📹 Media Agent: ${catalogVideos.length} MP4 catalog + ${youtubeVideos.length} Wix YouTube channel videos`
+      );
     } else {
-      videos = getFallbackVideos();
-      source = 'fallback';
+      videos = youtubeVideos.length ? youtubeVideos : getFallbackVideos();
+      source = youtubeVideos.length ? 'wix-youtube' : 'fallback';
     }
   }
 
-  const payload = { videos, source };
+  const payload = {
+    videos,
+    source,
+    channels: youtubeBundle.channels || [],
+    youtubeCount: youtubeVideos.length
+  };
   videoCache = { ...videoCache, data: payload, timestamp: now };
   return payload;
 }
@@ -258,14 +307,17 @@ async function getVideosForAgent() {
 function clearVideoCache() {
   videoCache = { data: null, timestamp: null, ttl: videoCache.ttl };
   fileCatalogCache = null;
+  youtubeChannelCache = null;
 }
 
 module.exports = {
   getVideosForAgent,
   getFallbackVideos,
   loadVideoCatalogFromFile,
+  loadYoutubeChannelVideos,
   fetchVideosFromWix,
   clearVideoCache,
   extractCategoryFromLabels,
-  CATALOG_PATH
+  CATALOG_PATH,
+  YOUTUBE_CHANNELS_PATH
 };

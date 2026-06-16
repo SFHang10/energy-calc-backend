@@ -155,6 +155,66 @@ const VIDEO_CATEGORIES = {
   general: 'General sustainability'
 };
 
+const CHANNEL_QUERY_HINTS = [
+  { channelId: 'restaurant-energy-savings', tokens: ['restaurant energy', 'kitchen video', 'hrc 2024', 'hospitality video', 'catering video', 'foodservice'] },
+  { channelId: 'sustainability-in-action', tokens: ['sustainability in action', 'rammed earth', 'tauhai', 'green building example', 'architecture tour'] },
+  { channelId: 'home-energy-savings', tokens: ['home energy', 'smart home', 'smart home guide', 'home energy saving'] },
+  { channelId: 'smart-home-energy-savings', tokens: ['smart home energy', 'smart home devices'] },
+  { channelId: 'low-energy-electrical', tokens: ['low energy electrical', 'futurebuild', 'heat pump dryer', 'household bills', 'electrical products'] },
+  { channelId: 'resource-saving', tokens: ['resource saving', 'water saving video'] },
+  { channelId: 'green-building-construction', tokens: ['green building construction', 'green building video'] },
+  { channelId: 'refurbishment-ideas', tokens: ['refurbishment', 'retrofit video'] },
+  { channelId: 'new-technology', tokens: ['new technology video', 'emerging tech'] },
+  { channelId: 'energy-monitoring', tokens: ['energy monitoring video', 'smart meter video'] },
+  { channelId: 'news-reviews', tokens: ['news review video', 'rooftop farm'] },
+  { channelId: 'eco-sustainable-materials', tokens: ['sustainable materials', 'eco materials'] },
+  { channelId: 'etl', tokens: ['etl video', 'energy technology list video'] },
+  { channelId: 'main', tokens: ['main channel video', 'greenways main video'] }
+];
+
+function resolveChannelHintFromQuestion(question, channels = []) {
+  const q = String(question || '').toLowerCase();
+  for (const ch of channels) {
+    const name = String(ch.name || '').toLowerCase();
+    if (name && q.includes(name)) return ch.id;
+    const slug = String(ch.id || '').replace(/-/g, ' ');
+    if (slug && q.includes(slug)) return ch.id;
+  }
+  for (const row of CHANNEL_QUERY_HINTS) {
+    if (row.tokens.some((t) => q.includes(t))) return row.channelId;
+  }
+  return null;
+}
+
+function isPlayableVideo(v) {
+  return Boolean(v && (v.videoUrl || v.videoId));
+}
+
+function rankVideosForQuestion(pool, question, limit = 3) {
+  const q = String(question || '').toLowerCase();
+  const ranked = pool
+    .map((v) => {
+      const hay = [
+        v.title,
+        v.description,
+        v.category,
+        v.channelName,
+        ...(v.tags || [])
+      ]
+        .join(' ')
+        .toLowerCase();
+      let score = isPlayableVideo(v) ? 1 : 0;
+      q.split(/\s+/).filter((t) => t.length >= 3).forEach((t) => {
+        if (hay.includes(t)) score += 3;
+      });
+      if (q.includes(String(v.channelName || '').toLowerCase())) score += 6;
+      return { v, score };
+    })
+    .sort((a, b) => b.score - a.score);
+  const withScore = ranked.filter((r) => r.score > 0).map((r) => r.v);
+  return (withScore.length ? withScore : pool).slice(0, limit);
+}
+
 async function loadBriefing() {
   try {
     const raw = await fs.readFile(briefingPath, 'utf8');
@@ -498,7 +558,7 @@ function toMediaSample(item) {
   const tags = item.topGrants || item.tags || [];
   const type =
     item.type ||
-    (item.videoUrl ? 'video' : item.subcategory === 'PHOTO' ? 'photo' : 'news');
+    (item.videoUrl || item.videoId ? 'video' : item.subcategory === 'PHOTO' ? 'photo' : 'news');
   return {
     id: item.id,
     name: item.name || item.title || item.id,
@@ -508,7 +568,9 @@ function toMediaSample(item) {
     topGrants: Array.isArray(tags) ? tags.slice(0, 2) : [item.newsCategory || 'News'],
     grantsCount: 0,
     marketplaceHref: item.href || item.moreLink || item.pageHref || MEDIA_PAGES.sustainabilityNews,
+    pageHref: item.pageHref || item.href || '',
     videoUrl: item.videoUrl || '',
+    videoId: item.videoId || '',
     duration: item.duration || '',
     category: item.category || '',
     type,
@@ -520,54 +582,59 @@ function videoToSample(v, videoSource) {
   return toMediaSample({
     id: v.id,
     name: v.title,
-    label: v.description,
+    label: v.channelName ? `${v.channelName} — ${v.description || ''}`.slice(0, 120) : v.description,
     thumbnail: v.thumbnail,
     videoUrl: v.videoUrl,
+    videoId: v.videoId || '',
     category: v.category,
     duration: v.duration,
     tags: v.tags,
     subcategory: 'VIDEO',
     type: 'video',
-    source: v.source || videoSource
+    source: v.source || videoSource,
+    pageHref: v.pageHref
   });
 }
 
 function isVideoQuestion(question) {
-  return /video|watch|wix|kitchen|hospitality|commercial kitchen/.test(String(question || '').toLowerCase());
+  return /video|watch|wix|kitchen|hospitality|commercial kitchen|youtube|channel|rammed earth|smart home|hrc|futurebuild/.test(
+    String(question || '').toLowerCase()
+  );
 }
 
 async function pickVideoSamples(question, profile = {}, limit = 3, categoryHint = null) {
-  const { videos, source } = await getVideosForAgent();
-  let pool = videos.filter((v) => v.videoUrl || v.videoId);
-  if (categoryHint) {
-    const matches = videos.filter(
-      (v) => v.category === categoryHint || (categoryHint === 'energy' && v.category === 'general')
+  const { videos, source, channels = [] } = await getVideosForAgent();
+  let channelHint = resolveChannelHintFromQuestion(question, channels);
+  let category = categoryHint;
+
+  if (categoryHint && channels.some((c) => c.id === categoryHint)) {
+    channelHint = categoryHint;
+    category = channels.find((c) => c.id === categoryHint)?.category || categoryHint;
+  }
+
+  let pool = [...videos];
+  if (channelHint) {
+    const matches = pool.filter((v) => v.channelId === channelHint);
+    if (matches.length) pool = matches;
+  } else if (category) {
+    const matches = pool.filter(
+      (v) => v.category === category || (category === 'energy' && v.category === 'general')
     );
     if (matches.length) pool = matches;
   }
-  if (profile.sector === 'restaurant' && !categoryHint) {
+  if (profile.sector === 'restaurant' && !channelHint && !category) {
     const rest = pool.filter((v) => v.category === 'restaurant');
     if (rest.length) pool = rest;
   }
 
   const q = String(question || '').toLowerCase();
-  if (isVideoQuestion(q)) {
-    const ranked = pool
-      .map((v) => {
-        const hay = [v.title, v.description, v.category, ...(v.tags || [])].join(' ').toLowerCase();
-        let score = 0;
-        q.split(/\s+/).filter((t) => t.length >= 3).forEach((t) => {
-          if (hay.includes(t)) score += 3;
-        });
-        return { v, score };
-      })
-      .sort((a, b) => b.score - a.score);
-    const withScore = ranked.filter((r) => r.score > 0).map((r) => r.v);
-    const picked = (withScore.length ? withScore : pool).slice(0, limit);
+  if (isVideoQuestion(q) || channelHint || category) {
+    const picked = rankVideosForQuestion(pool, question, limit);
     return picked.map((v) => videoToSample(v, source));
   }
 
-  return pool.slice(0, limit).map((v) => videoToSample(v, source));
+  const playableFirst = [...pool].sort((a, b) => Number(isPlayableVideo(b)) - Number(isPlayableVideo(a)));
+  return playableFirst.slice(0, limit).map((v) => videoToSample(v, source));
 }
 
 async function pickMediaSamples(question, profile = {}, limit = 3) {
@@ -832,10 +899,38 @@ async function buildStorySearchAnswer(question, catalog, tip) {
 }
 
 function videoToLinkItem(v) {
-  const desc = [v.duration, String(v.description || '').slice(0, 90)]
+  const desc = [
+    v.duration,
+    v.channelName,
+    String(v.description || '').slice(0, 90)
+  ]
     .filter(Boolean)
     .join(' · ');
-  return toLinkItem(v.title || 'Video', v.videoUrl || '#', desc || 'Wix video');
+  const url = v.videoUrl || (v.videoId ? `https://www.youtube.com/watch?v=${v.videoId}` : v.pageHref || '#');
+  return toLinkItem(v.title || 'Video', url, desc || 'Greenways video');
+}
+
+async function buildChannelVideosAnswer(channelId, tip, question, profile = {}) {
+  const { videos, source, channels = [] } = await getVideosForAgent();
+  const channel = channels.find((c) => c.id === channelId);
+  const label = channel?.name || channelId;
+  const list = videos.filter((v) => v.channelId === channelId);
+  const samples = await pickVideoSamples(question || label, profile, 3, channelId);
+  const playable = list.filter(isPlayableVideo).length;
+  return {
+    answer:
+      `**${label}** — **${list.length}** videos on Greenways (${playable} playable here now).\n\n` +
+      `Tap **▶** when available, or **Open on site** for the full Wix Video channel.\n\n` +
+      list
+        .slice(0, 6)
+        .map((v) => `- **${v.title}**${v.duration ? ` (${v.duration})` : ''}`)
+        .join('\n') +
+      `\n\n_${tip}_`,
+    suggestions: [],
+    intentId: `channel_${channelId}`,
+    blocks: list.length ? [{ type: 'link', items: list.slice(0, 6).map(videoToLinkItem) }] : [],
+    productSamples: samples.length ? samples : list.slice(0, 3).map((v) => videoToSample(v, source))
+  };
 }
 
 async function buildVideoCategoryAnswer(category, tip, question, profile = {}) {
@@ -847,8 +942,7 @@ async function buildVideoCategoryAnswer(category, tip, question, profile = {}) {
   return {
     answer:
       `Here are **${label}** picks from the Greenways video library.\n\n` +
-      `Tap **▶** on a banner card or open a link on the right to watch. ` +
-      `Ask me to explain any topic in plain language.\n\n` +
+      `Tap **▶** when a video plays here, or **Open on site** for the full Wix Video channel.\n\n` +
       (source === 'wix'
         ? ''
         : source === 'catalog'
@@ -863,25 +957,31 @@ async function buildVideoCategoryAnswer(category, tip, question, profile = {}) {
 }
 
 async function buildWixVideosAnswer(tip) {
-  const { videos, source } = await getVideosForAgent();
-  const byCat = {};
-  for (const v of videos) {
-    const c = v.category || 'general';
-    byCat[c] = (byCat[c] || 0) + 1;
-  }
-  const lanes = Object.entries(byCat)
-    .map(([k, n]) => `- **${VIDEO_CATEGORIES[k] || k}:** ${n} videos`)
+  const { videos, source, channels = [], youtubeCount = 0 } = await getVideosForAgent();
+  const mp4Count = videos.filter((v) => v.videoUrl).length;
+  const ytCount = videos.filter((v) => v.videoId).length;
+  const channelLines = (channels || [])
+    .map((c) => {
+      const n = videos.filter((v) => v.channelId === c.id).length;
+      return n ? `- **${c.name}:** ${n} videos` : `- **${c.name}** _(on site — export to sync titles)_`;
+    })
     .join('\n');
   return {
     answer:
-      `**Wix video library** — **${videos.length}** videos:\n\n${lanes}\n\n` +
+      `**Greenways video library** on [/greenways](https://www.greenwaysbuildings.com/greenways) — **14 Wix Video channels** (YouTube feeds) plus marketplace product demos.\n\n` +
+      `**Cheryce can see right now:** ${mp4Count} playable product MP4s + **${youtubeCount || videos.filter((v) => v.source === 'wix-youtube').length}** curated YouTube titles from your channel export (${ytCount} with ▶ embed IDs so far).\n\n` +
+      `**Your Wix Video channels:**\n${channelLines}\n\n` +
       (source === 'wix'
         ? ''
-        : source === 'catalog'
-          ? `**${videos.length} playable videos** from the Greenways catalog snapshot (marketplace & site media). Live Wix Media sync activates when \`WIX_APP_TOKEN\` + \`WIX_SITE_ID\` are set on Render.\n\n`
-          : '⚠️ **Local note:** Wix credentials may be missing — you see sample cards. On **Render** with `WIX_APP_TOKEN` (or app id/secret), live Wix videos load automatically.\n\n') +
-      `Video verification workflow (admin, like music site media scout) — **coming soon**.\n\n_${tip}_`,
-    suggestions: []
+        : source === 'catalog' || source === 'catalog+youtube'
+          ? '_Product MP4s from marketplace media; YouTube channel list from `wix-youtube-channels.json`. Re-export `/greenways` and run `npm run parse:greenways-youtube` to refresh._\n\n'
+          : '⚠️ Wix API credentials not live — showing catalog snapshot.\n\n') +
+      `Ask for a channel by name — e.g. *“Show Restaurant Energy Savings videos”* or *“Sustainability in Action examples”*.\n\n_${tip}_`,
+    suggestions: [
+      'Show Restaurant Energy Savings videos',
+      'Sustainability in Action videos',
+      'Home Energy Savings smart home videos'
+    ]
   };
 }
 
@@ -1177,6 +1277,10 @@ async function answerFromKnowledge(question, profile = {}) {
         result = await buildVideoCategoryAnswer(intent.category, tip, question, profile);
         result.agentHandoffs = buildHandoffs(briefing, question, intent.id);
         break;
+      case 'channel_videos':
+        result = await buildChannelVideosAnswer(intent.channelId, tip, question, profile);
+        result.agentHandoffs = buildHandoffs(briefing, question, intent.id);
+        break;
       case 'wix_videos':
         result = await buildWixVideosAnswer(tip);
         break;
@@ -1218,6 +1322,7 @@ async function answerFromKnowledge(question, profile = {}) {
     const videoIntent =
       intent &&
       (intent.answerType === 'video_category' ||
+        intent.answerType === 'channel_videos' ||
         intent.answerType === 'wix_videos' ||
         intent.id === 'restaurant_videos' ||
         intent.id === 'energy_videos' ||
@@ -1228,7 +1333,7 @@ async function answerFromKnowledge(question, profile = {}) {
         question,
         profile,
         3,
-        intent?.category || null
+        intent?.channelId || intent?.category || null
       );
     } else if (!keepSamples) {
       result.productSamples = await pickMediaSamples(question, profile, 3);

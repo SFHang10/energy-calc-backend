@@ -93,11 +93,15 @@
     descEl.textContent = desc;
     descEl.hidden = !desc;
     if (footEl) {
-      footEl.textContent = video && video.source === "wix"
-        ? "Streaming from Greenways Wix Media"
-        : video && video.source === "catalog"
-          ? "Greenways video catalog (Wix MP4)"
-          : "Greenways sustainable video library";
+      var src = video && video.source;
+      footEl.textContent =
+        src === "wix"
+          ? "Streaming from Greenways Wix Media"
+          : src === "catalog"
+            ? "Greenways video catalog (Wix MP4)"
+            : src === "wix-youtube"
+              ? "Greenways Wix Video channel (YouTube feed)"
+              : "Greenways sustainable video library";
     }
 
     if (url) {
@@ -134,7 +138,13 @@
       iframe.title = title;
       stageEl.appendChild(iframe);
     } else {
-      showEmpty("No playable URL yet — configure Wix Media on Render or ask Cheryce for another topic.");
+      showEmpty("This clip plays on the Greenways site — use Open on site on the card.");
+      if (footEl) {
+        footEl.innerHTML =
+          'Not embedded here yet. <a href="' +
+          String((video && video.pageHref) || "https://www.greenwaysbuildings.com/greenways") +
+          '" target="_blank" rel="noopener noreferrer">Open on Greenways ↗</a>';
+      }
     }
 
     modalEl.classList.add("is-open");
@@ -154,8 +164,14 @@
       videoId: video.videoId || "",
       description: video.description || video.label || "",
       source: video.source || "",
-      duration: video.duration || ""
+      duration: video.duration || "",
+      pageHref: video.pageHref || video.marketplaceHref || "https://www.greenwaysbuildings.com/greenways"
     }));
+  }
+
+  function openSite(payload) {
+    var href = String((payload && payload.pageHref) || "https://www.greenwaysbuildings.com/greenways");
+    window.open(href, "_blank", "noopener,noreferrer");
   }
 
   function bindContainer(container, onMissing) {
@@ -169,7 +185,7 @@
         var payload = JSON.parse(decodeURIComponent(trigger.getAttribute("data-video-payload") || "%7B%7D"));
         if (!payload.videoUrl && !payload.videoId) {
           if (typeof onMissing === "function") onMissing(payload);
-          else open(payload);
+          else openSite(payload);
           return;
         }
         open(payload);
@@ -182,6 +198,7 @@
     close: close,
     encodePayload: encodePayload,
     bindContainer: bindContainer,
-    ensureModal: ensureModal
+    ensureModal: ensureModal,
+    openSite: openSite
   };
 })(window);

@@ -1378,14 +1378,20 @@
     return p && (p.type === "video" || p.subcategory === "VIDEO");
   }
 
+  function isPlayableVideoSample(p) {
+    return Boolean(p && (p.videoUrl || p.videoId));
+  }
+
   function videoPayloadAttr(p) {
     if (!window.GreenwaysAgentVideo) return "";
     return ' data-video-payload="' + GreenwaysAgentVideo.encodePayload({
       title: p.name || p.id,
       videoUrl: p.videoUrl || "",
+      videoId: p.videoId || "",
       description: p.label || "",
       source: p.source || "",
-      duration: p.duration || ""
+      duration: p.duration || "",
+      pageHref: p.pageHref || p.marketplaceHref || "https://www.greenwaysbuildings.com/greenways"
     }) + '"';
   }
 
@@ -1632,14 +1638,20 @@
       const durationHtml = p.duration
         ? '<span class="gw-video-duration">' + escapeHtml(p.duration) + "</span>"
         : "";
+      const playable = isPlayableVideoSample(p);
+      const badge = playable
+        ? '<span class="gw-video-play-badge" aria-hidden="true">▶</span>'
+        : '<span class="gw-video-site-badge" aria-hidden="true">↗</span>';
+      const triggerTitle = playable ? "Watch video" : "Open on Greenways";
+      const grant = playable ? grantLabel : "Open on site";
       return (
-        '<div class="product-sample-card is-video">' +
-        '<button type="button" class="product-sample-link product-video-trigger"' + videoPayloadAttr(p) + ' title="Watch video">' +
-        '<div class="product-sample-img-wrap">' + img + '<span class="gw-video-play-badge" aria-hidden="true">▶</span>' + durationHtml + "</div>" +
+        '<div class="product-sample-card is-video' + (playable ? "" : " is-site-only") + '">' +
+        '<button type="button" class="product-sample-link product-video-trigger"' + videoPayloadAttr(p) + ' title="' + triggerTitle + '">' +
+        '<div class="product-sample-img-wrap">' + img + badge + durationHtml + "</div>" +
         '<div class="product-sample-body">' +
         '<span class="product-sample-name">' + name + "</span>" +
         '<span class="product-sample-meta">' + meta + "</span>" +
-        '<span class="product-sample-grant">' + grantLabel + "</span>" +
+        '<span class="product-sample-grant">' + escapeHtml(grant) + "</span>" +
         "</div></button>" +
         '<button type="button" class="product-ask-btn" data-prompt="' + escapeHtml(askPrompt) + '">Ask about this</button>' +
         "</div>"
@@ -2246,8 +2258,9 @@
   });
 
   if (window.GreenwaysAgentVideo) {
-    GreenwaysAgentVideo.bindContainer(document.getElementById("top-product-samples"), function () {
-      sendQuestion("What videos are in the Greenways Wix library?");
+    GreenwaysAgentVideo.bindContainer(document.getElementById("top-product-samples"), function (payload) {
+      var href = (payload && payload.pageHref) || "https://www.greenwaysbuildings.com/greenways";
+      window.open(href, "_blank", "noopener,noreferrer");
     });
   }
 
