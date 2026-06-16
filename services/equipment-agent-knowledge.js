@@ -665,7 +665,7 @@ async function buildReferralWelcomeAnswer(question, profile, tip) {
   if (!isReferralWelcomePair('equipment-agent', handoff)) return null;
 
   const briefing = await loadBriefing();
-  const fromName = handoff.fromName || 'Zyanne';
+  const fromName = handoff.fromName || (handoff.fromSlug === 'deals-agent' ? 'Zara' : 'Zyanne');
   const sector = profile.sector || 'restaurant';
   const topic =
     handoff.topicSummary ||
@@ -678,6 +678,10 @@ async function buildReferralWelcomeAnswer(question, profile, tip) {
     );
   const searchQ = handoff.question || question;
   const productSamples = await pickEquipmentSamples(searchQ, profile, 4);
+  const fromDeals = handoff.fromSlug === 'deals-agent';
+  const angle = fromDeals
+    ? 'ETL equipment picks that fit offers and tariff timing'
+    : 'ETL-verified equipment depth on your product lane';
 
   const blocks = [
     equipmentModuleBlock([
@@ -692,7 +696,10 @@ async function buildReferralWelcomeAnswer(question, profile, tip) {
         title: 'Equipment intelligence',
         description: 'Alternatives, specs, and decision matrix',
         openSize: 'near-full'
-      }
+      },
+      ...(fromDeals
+        ? [{ moduleId: 'deals-ticker', title: 'Deals hub', description: 'Tariff and spotlight lanes', openSize: 'expanded' }]
+        : [])
     ])
   ];
 
@@ -700,7 +707,7 @@ async function buildReferralWelcomeAnswer(question, profile, tip) {
     answer:
       `**${fromName}** suggested you continue with me for equipment depth.\n\n` +
       `From your chat: _${topic}_\n\n` +
-      `Here are **ETL-verified picks** that may fit your **${sector}** upgrade path. ` +
+      `Here are **${angle}** for your **${sector}** upgrade path. ` +
       `Ask about lifecycle cost, grants stacking, or open the deep dive for side-by-side comparison.\n\n_${tip}_`,
     blocks,
     suggestions: [

@@ -2,7 +2,7 @@
 
 **Full detail:** `Skills/greenways-chat-interface-skill.md` § **Wix site pattern**
 
-**Pattern:** Agents **hub** (character group image, links to specialists) → optional **Guide** conductor iframe (WIP) → each **agent Wix page** (character hero + **one** Render iframe).
+**Pattern:** Agents **hub** (character group image, links to specialists) → **Orchestra** conductor iframe → each **agent Wix page** (character hero + **one** Render iframe).
 
 ---
 
@@ -22,7 +22,7 @@ https://energy-calc-backend.onrender.com/greenways/orchestra-hub
 
 Alias: `/greenways/guide-agent` → same hub HTML. API: `POST /api/guide-agent/ask` → `primaryAgent`, `routedTo`, short answer; tap glowing portrait → specialist with `?q=`.
 
-When **Greenways Guide** shipped (May 2026), see `Skills/greenways-chat-interface-skill.md` § Guide Agent.
+**Referral welcomes:** team-strip handoffs pass `profile.handoff` on first `/ask` — **19 live pairs** (e.g. Zyanne→Artemis, Cheryce→Andrieus) via `services/greenways-agent-handoff.js`. Staff map: `/agents-admin-map.html`.
 
 ---
 
@@ -49,7 +49,7 @@ https://energy-calc-backend.onrender.com/greenways/{agent}?embed=1
 | **Zara** | Deals & spotlights | `deals-agent` |
 | **Cheryce** | News & media | `media-agent` |
 | **Edwardo** | Systems health | `systems-agent` |
-| Guide (WIP) | Hub conductor | `guide-agent` — not live yet |
+| **Orchestra** | Hub conductor | `orchestra-hub` or `orchestra-hub-wix-frame` |
 
 Full roster + skills map: `Skills/greenways-transition-agents.md`
 
@@ -75,7 +75,7 @@ https://energy-calc-backend.onrender.com/greenways/deals-agent?q=What+product+de
 
 ## Do not
 
-- Seven chat iframes on one Wix page (one specialist embed per agent page; hub may add **one** Guide conductor when live)
+- Seven chat iframes on one Wix page (one specialist embed per agent page; use **one** Orchestra hub embed for routing)
 - Upload agent HTML to Wix Media — breaks API paths
 - Local image paths in Wix marketing — use `static.wixstatic.com` only
 
@@ -106,4 +106,3 @@ Not used in production now (full iframe is simpler), but kept in the repo for pe
 | `wix-zara-expand-snippet.html` | Copy-paste HTML embed for Wix parent script | — |
 
 **Clone pattern for another agent:** copy the wix-frame + embed-test pair, swap portrait URL, inner iframe slug, and `agent: "deals"` in `postMessage` payloads.
-

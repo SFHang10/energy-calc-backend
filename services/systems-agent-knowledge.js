@@ -23,6 +23,10 @@ const {
   loadAgentVoice,
   pickTip
 } = require('./greenways-agent-persona');
+const {
+  buildHandoffTopicSummary,
+  isReferralWelcomePair
+} = require('./greenways-agent-handoff');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'systems-agent-intents.json');
 const voicePath = path.join(__dirname, '..', 'data', 'systems-agent-voice.json');
@@ -163,10 +167,65 @@ function buildPortalsAnswer(tip) {
   };
 }
 
+async function buildReferralWelcomeAnswer(question, profile, tip) {
+  const handoff = profile.handoff;
+  if (!isReferralWelcomePair('systems-agent', handoff)) return null;
+
+  const fromName = handoff.fromName || 'Another specialist';
+  const topic =
+    handoff.topicSummary ||
+    buildHandoffTopicSummary(
+      handoff.fromSlug,
+      handoff.fromIntentId,
+      profile,
+      handoff.question || question,
+      handoff.summary
+    );
+  const { loadBriefing } = require('./systems-agent-monitoring');
+  const briefing = await loadBriefing();
+  const overview = await buildConsumerOverviewAnswer(profile, tip);
+  const body = String(overview.answer || '').replace(/\n\n_[\s\S]*_$/, '');
+
+  return {
+    ...overview,
+    answer:
+      `**${fromName}** suggested establishing a **monitoring baseline** before upgrades.\n\n` +
+      `From your chat: _${topic}_\n\n` +
+      `${body}\n\n_${tip}_`,
+    intentId: 'agent_referral_welcome',
+    agentHandoffs: buildHandoffs(briefing, handoff.question || question)
+  };
+}
+
 async function answerFromKnowledge(question, profile = {}) {
   const intents = await loadIntentsFrom(intentsPath);
   const voice = await loadAgentVoice(voicePath);
   const tip = pickTip(intents.staticTips, null, { skipIntentIds: voice.skipTipIntents });
+
+  if (profile.handoff) {
+    const referralTip = pickTip(intents.staticTips, 'agent_referral_welcome', {
+      skipIntentIds: voice.skipTipIntents
+    });
+    const referral = await buildReferralWelcomeAnswer(question, profile, referralTip);
+    if (referral?.answer) {
+      referral.source = 'knowledge';
+      applyPersona(referral, {
+        voice: {
+          ...voice,
+          skipOpenerIntents: [
+            ...new Set([...(voice.skipOpenerIntents || []), 'agent_referral_welcome', 'consumer_overview'])
+          ]
+        },
+        intentId: 'agent_referral_welcome',
+        question,
+        profile,
+        staticTips: intents.staticTips,
+        tip: referralTip
+      });
+      return referral;
+    }
+  }
+
   const intent = matchIntent(question, intents);
 
   let result = null;

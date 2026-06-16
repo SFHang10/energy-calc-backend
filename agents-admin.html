@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Greenways Agents Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-dark: #0a0f1c;
+      --bg-card: #141b2d;
+      --accent-green: #00d26a;
+      --accent-blue: #00a8e8;
+      --accent-yellow: #ffd60a;
+      --accent-red: #ff4d4d;
+      --accent-orange: #ff9f1c;
+      --text-primary: #f1f5f9;
+      --text-secondary: #b8c5d6;
+      --text-muted: #8b9cb3;
+      --border-color: #2d3748;
+      --glass-bg: rgba(20, 27, 45, 0.92);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --font-ui: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+      --font-display: 'Space Grotesk', var(--font-ui);
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font-ui);
+      font-size: 15px;
+      line-height: 1.55;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      background-image:
+        radial-gradient(circle at 15% 85%, rgba(0, 210, 106, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 15%, rgba(0, 168, 232, 0.08) 0%, transparent 40%);
+    }
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--glass-bg);
+    }
+    .topbar h1 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+    .topbar h1 i { color: var(--accent-green); margin-right: 6px; -webkit-text-fill-color: var(--accent-green); }
+    .topbar .sub { font-size: 0.9rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.45; }
+    .top-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 18px;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .btn-primary { background: var(--accent-green); color: #0a0f1c; }
+    .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); }
+    .btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-color); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn:hover:not(:disabled) { opacity: 0.9; }
+    .phase-banner {
+      margin: 20px 32px 0;
+      padding: 14px 18px;
+      border-radius: 12px;
+      background: rgba(0, 168, 232, 0.1);
+      border: 1px solid rgba(0, 168, 232, 0.3);
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: var(--text-secondary);
+    }
+    .platform-section {
+      padding: 24px 32px 8px;
+    }
+    .platform-section h2 {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .platform-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .plat-chip {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      min-height: 96px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .plat-chip .label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 0.02em;
+    }
+    .plat-chip .val {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .plat-chip .chip-summary {
+      font-size: 0.88rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--text-primary);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 268px 1fr;
+      gap: 0;
+      min-height: calc(100vh - 220px);
+    }
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { border-right: none; border-bottom: 1px solid var(--border-color); }
+    }
+    .sidebar {
+      border-right: 1px solid var(--border-color);
+      padding: 16px 14px 24px;
+      background: rgba(10, 15, 28, 0.6);
+    }
+    .sidebar h3 {
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      padding: 10px 12px 8px;
+      margin-top: 4px;
+    }
+    .agent-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 12px 14px;
+      margin-bottom: 4px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      background: transparent;
+      color: inherit;
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+      text-align: left;
+      cursor: pointer;
+    }
+    .agent-nav:hover { background: var(--bg-card); }
+    .agent-nav.is-active {
+      background: rgba(0, 210, 106, 0.12);
+      border-color: rgba(0, 210, 106, 0.35);
+    }
+    .agent-nav img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: top center;
+    }
+    .agent-nav .meta { flex: 1; min-width: 0; }
+    .agent-nav .name { font-weight: 600; display: block; line-height: 1.3; }
+    .agent-nav .role { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; line-height: 1.35; }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-ok { background: var(--accent-green); }
+    .status-warn { background: var(--accent-yellow); }
+    .status-stale { background: var(--accent-orange); }
+    .status-error { background: var(--accent-red); }
+    .status-unknown { background: var(--text-secondary); }
+    .main { padding: 24px 32px 48px; max-width: 1100px; }
+    .card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 20px;
+    }
+    .card h2 {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+    .card p.lead {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 18px;
+    }
+    .hero-row {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .hero-row img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(0, 210, 106, 0.4);
+    }
+    .table-wrap { overflow-x: auto; margin-top: 4px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+    th {
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding-top: 0;
+    }
+    td:first-child { font-weight: 500; color: var(--text-primary); min-width: 140px; }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .badge-ok { background: rgba(0, 210, 106, 0.2); color: var(--accent-green); }
+    .badge-warn { background: rgba(255, 214, 10, 0.2); color: var(--accent-yellow); }
+    .badge-stale { background: rgba(255, 159, 28, 0.2); color: var(--accent-orange); }
+    .badge-error { background: rgba(255, 77, 77, 0.2); color: var(--accent-red); }
+    .badge-unknown { background: rgba(148, 163, 184, 0.2); color: var(--text-secondary); }
+    .mono {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: #7ec8e8;
+      word-break: break-all;
+    }
+    .handoff-list { list-style: none; font-size: 0.92rem; line-height: 1.55; }
+    .handoff-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+    .handoff-list strong { color: var(--text-primary); font-weight: 600; }
+    .meta-block {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      line-height: 1.65;
+      color: var(--text-muted);
+      margin-top: 12px;
+    }
+    .task-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .loading { padding: 48px; text-align: center; color: var(--text-secondary); font-size: 1rem; }
+    .error-box {
+      margin: 24px;
+      padding: 16px;
+      border-radius: 12px;
+      background: rgba(255, 77, 77, 0.12);
+      border: 1px solid var(--accent-red);
+      color: #ffb4b4;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1><i class="fas fa-users-gear"></i> Greenways Agents Admin</h1>
+      <p class="sub">Seven specialists · data freshness · skills registry · Phase 1 read-only</p>
+    </div>
+    <div class="top-actions">
+      <a class="btn btn-primary" href="/schemes-admin.html" target="_blank" rel="noopener">
+        <i class="fas fa-landmark"></i> Grants &amp; Schemes Admin
+      </a>
+      <a class="btn btn-secondary" href="/agents-admin-map.html" target="_blank" rel="noopener">
+        <i class="fas fa-project-diagram"></i> Network map
+      </a>
+      <a class="btn btn-secondary" href="/greenways/orchestra-hub-wix-frame" target="_blank" rel="noopener">
+        <i class="fas fa-music"></i> Orchestra Hub
+      </a>
+      <button type="button" class="btn btn-ghost" id="refresh-btn"><i class="fas fa-rotate"></i> Refresh</button>
+    </div>
+  </header>
+
+  <div class="phase-banner" id="phase-banner">
+  Phase 1 — read-only overview. Task buttons are placeholders; wiring to run scripts on Render comes in Phase 2. Auth can mirror schemes-admin later.
+  </div>
+
+  <div id="error-mount" hidden></div>
+  <div id="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading agent registry…</div>
+
+  <div id="app" hidden>
+    <div class="platform-section">
+      <h2>Platform health</h2>
+      <div class="platform-row" id="platform-row"></div>
+    </div>
+    <div class="layout">
+      <aside class="sidebar" id="sidebar"></aside>
+      <main class="main" id="main"></main>
+    </div>
+  </div>
+
+<script>
+(function () {
+  var API_BASE = location.origin;
+  var state = { overview: null, selectedId: "grants" };
+
+  function statusClass(s) {
+    return "status-" + (s || "unknown");
+  }
+  function badgeClass(s) {
+    return "badge badge-" + (s || "unknown");
+  }
+
+  function formatWhen(iso) {
+    if (!iso) return "";
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return String(iso).slice(0, 16);
+    return d.toLocaleString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+
+  function shortenSummary(text) {
+    var s = String(text || "").trim();
+    return s.replace(/\d{4}-\d{2}-\d{2}T[\d.:]+Z?/g, function (m) {
+      return formatWhen(m);
+    });
+  }
+
+  function platChip(label, status, summary) {
+    return (
+      '<div class="plat-chip">' +
+      '<div class="label">' + escapeHtml(label) + "</div>" +
+      '<div class="val"><span class="' + badgeClass(status) + '">' + escapeHtml(status) + '</span>' +
+      (summary ? '<div class="chip-summary">' + escapeHtml(shortenSummary(summary)) + "</div>" : "") +
+      "</div></div>"
+    );
+  }
+
+  async function loadOverview() {
+    document.getElementById("loading").hidden = false;
+    document.getElementById("app").hidden = true;
+    document.getElementById("error-mount").hidden = true;
+    try {
+      var res = await fetch(API_BASE + "/api/agents-admin/overview");
+      var data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || "Failed to load");
+      state.overview = data;
+      if (!state.selectedId && data.agents.length) state.selectedId = data.agents[0].id;
+      render();
+      document.getElementById("loading").hidden = true;
+      document.getElementById("app").hidden = false;
+    } catch (err) {
+      document.getElementById("loading").hidden = true;
+      var em = document.getElementById("error-mount");
+      em.hidden = false;
+      em.className = "error-box";
+      em.textContent = err.message || "Could not load overview. Is the server running with /api/agents-admin?";
+    }
+  }
+
+  function renderPlatform() {
+    var row = document.getElementById("platform-row");
+    var p = state.overview.platform || {};
+    var chips = (p.checks || []).map(function (c) {
+      return platChip(c.label, c.status, c.summary);
+    });
+    chips.unshift(
+      platChip("Platform", p.overall, "Last checked " + formatWhen(p.checkedAt))
+    );
+    row.innerHTML = chips.join("");
+  }
+
+  function renderSidebar() {
+    var sb = document.getElementById("sidebar");
+    var orch = state.overview.orchestrator;
+    var html = '<h3>Specialists</h3>';
+    state.overview.agents.forEach(function (a) {
+      html +=
+        '<button type="button" class="agent-nav' +
+        (a.id === state.selectedId ? " is-active" : "") +
+        '" data-id="' +
+        escapeHtml(a.id) +
+        '">' +
+        '<img src="' +
+        escapeHtml(a.imageUrl) +
+        '" alt="">' +
+        '<span class="meta"><span class="name">' +
+        escapeHtml(a.name) +
+        '</span><span class="role">' +
+        escapeHtml(a.shortLabel) +
+        "</span></span>" +
+        '<span class="status-dot ' +
+        statusClass(a.dataStatus) +
+        '" title="Data: ' +
+        escapeHtml(a.dataStatus) +
+        '"></span></button>';
+    });
+    if (orch) {
+      html +=
+        '<h3>Hub</h3><button type="button" class="agent-nav' +
+        (state.selectedId === "orchestrator" ? " is-active" : "") +
+        '" data-id="orchestrator"><span class="meta"><span class="name">🎼 Orchestra</span><span class="role">Guide / routing</span></span></button>';
+    }
+    sb.innerHTML = html;
+    sb.querySelectorAll(".agent-nav").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        state.selectedId = btn.getAttribute("data-id");
+        renderSidebar();
+        renderMain();
+      });
+    });
+  }
+
+  function renderMain() {
+    var main = document.getElementById("main");
+    if (state.selectedId === "orchestrator") {
+      main.innerHTML = renderOrchestratorPanel();
+      return;
+    }
+    var agent = state.overview.agents.find(function (a) {
+      return a.id === state.selectedId;
+    });
+    if (!agent) {
+      main.innerHTML = "<p>Select an agent.</p>";
+      return;
+    }
+
+    var handoffs = (agent.handoffs || [])
+      .map(function (h) {
+        return "<li><strong>" + escapeHtml(h.agentName) + "</strong> — " + escapeHtml(h.reason || "") + "</li>";
+      })
+      .join("");
+
+    var sources = (agent.dataSources || [])
+      .map(function (d) {
+        return (
+          "<tr><td>" +
+          escapeHtml(d.label) +
+          '</td><td class="mono">' +
+          escapeHtml(d.path) +
+          '</td><td><span class="' +
+          badgeClass(d.status) +
+          '">' +
+          escapeHtml(d.status) +
+          "</span></td><td>" +
+          escapeHtml(shortenSummary(d.summary)) +
+          (d.ageDays != null ? " <span style='color:var(--text-muted)'>(" + d.ageDays + " days ago)</span>" : "") +
+          "</td></tr>"
+        );
+      })
+      .join("");
+
+    var skills = (agent.skills || [])
+      .map(function (s) {
+        return '<li class="mono">' + escapeHtml(s) + "</li>";
+      })
+      .join("");
+
+    var tasks = (agent.tasks || [])
+      .concat(state.overview.globalTasks || [])
+      .map(function (t) {
+        return (
+          '<button type="button" class="btn btn-secondary" disabled title="Phase ' +
+          (t.phase || 2) +
+          " — " +
+          escapeHtml(t.command || t.label) +
+          '"><i class="fas fa-play"></i> ' +
+          escapeHtml(t.label) +
+          "</button>"
+        );
+      })
+      .join("");
+
+    main.innerHTML =
+      '<div class="card">' +
+      '<div class="hero-row">' +
+      '<img src="' +
+      escapeHtml(agent.imageUrl) +
+      '" alt="">' +
+      "<div><h2>" +
+      escapeHtml(agent.name) +
+      " · " +
+      escapeHtml(agent.shortLabel) +
+      '</h2><p class="lead">' +
+      escapeHtml(agent.roleLine) +
+      "</p>" +
+      '<a class="btn btn-primary" href="' +
+      escapeHtml(agent.chatRoute) +
+      '" target="_blank" rel="noopener"><i class="fas fa-comments"></i> Open live agent</a> ' +
+      '<a class="btn btn-ghost" href="' +
+      escapeHtml(agent.chatRoute + "?q=Hello") +
+      '" target="_blank" rel="noopener">Test chat</a>' +
+      "</div></div>" +
+      '<p class="meta-block">Briefing: ' +
+      escapeHtml(agent.briefingPath) +
+      (agent.briefingUpdatedAt ? "<br>Updated " + escapeHtml(agent.briefingUpdatedAt) : "") +
+      "<br>Knowledge: " +
+      escapeHtml(agent.knowledgeService) +
+      "</p></div>" +
+      '<div class="card"><h2>Data sources</h2><div class="table-wrap"><table><thead><tr><th>Source</th><th>Path</th><th>Status</th><th>Summary</th></tr></thead><tbody>' +
+      (sources || "<tr><td colspan=4>No sources registered</td></tr>") +
+      "</tbody></table></div></div>" +
+      (handoffs
+        ? '<div class="card"><h2>Handoffs</h2><ul class="handoff-list">' + handoffs + "</ul></div>"
+        : "") +
+      (skills
+        ? '<div class="card"><h2>Linked skills</h2><ul class="handoff-list">' + skills + "</ul></div>"
+        : "") +
+      '<div class="card"><h2>Tasks <span style="font-weight:400;color:var(--text-secondary);font-size:0.8rem">(wire in Phase 2)</span></h2><div class="task-grid">' +
+      (tasks || "<span style=color:var(--text-secondary)>No tasks yet</span>") +
+      "</div></div>";
+  }
+
+  function renderOrchestratorPanel() {
+    var o = state.overview.orchestrator;
+    var live = (state.overview.referralHandoffsLive || [])
+      .map(function (h) {
+        return "<li><strong>" + escapeHtml(h.from) + " → " + escapeHtml(h.to) + "</strong> (" + escapeHtml(h.pair) + ")</li>";
+      })
+      .join("");
+    return (
+      '<div class="card"><h2>🎼 Greenways Orchestra</h2><p class="lead">Public hub — routes questions to specialists. Not a replacement for individual agent chats.</p>' +
+      '<a class="btn btn-primary" href="' +
+      escapeHtml(state.overview.links.orchestraHub || "/greenways/orchestra-hub-wix-frame") +
+      '" target="_blank" rel="noopener">Open Orchestra (Wix frame)</a> ' +
+      '<a class="btn btn-ghost" href="' +
+      escapeHtml(o.chatRoute || "/greenways/orchestra-hub") +
+      '" target="_blank" rel="noopener">Full hub</a>' +
+      '<p class="mono" style="margin-top:12px">API: ' +
+      escapeHtml(o.apiRoute || "/api/guide-agent/ask") +
+      "<br>Roster: " +
+      escapeHtml(o.rosterPath || "") +
+      "</p></div>" +
+      '<div class="card"><h2>Live referral welcomes</h2><ul class="handoff-list">' +
+      (live || "<li>None registered</li>") +
+      "</ul></div>"
+    );
+  }
+
+  function render() {
+    renderPlatform();
+    renderSidebar();
+    renderMain();
+    var pb = document.getElementById("phase-banner");
+    if (state.overview.generatedAt) {
+      pb.textContent =
+        "Phase 1 read-only · Registry " +
+        (state.overview.registryUpdatedAt || "—") +
+        " · Snapshot " +
+        state.overview.generatedAt.slice(0, 19) +
+        "Z · Task run buttons wire in Phase 2.";
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  document.getElementById("refresh-btn").addEventListener("click", loadOverview);
+  loadOverview();
+})();
+</script>
+</body>
+</html>

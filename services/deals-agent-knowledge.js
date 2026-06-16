@@ -15,6 +15,10 @@ const {
   loadAgentVoice,
   pickTip
 } = require('./greenways-agent-persona');
+const {
+  buildHandoffTopicSummary,
+  isReferralWelcomePair
+} = require('./greenways-agent-handoff');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'deals-agent-intents.json');
 const showcasePath = path.join(__dirname, '..', 'data', 'deals-agent-showcase.json');
@@ -801,6 +805,44 @@ function buildPortalsAnswer(tip) {
   };
 }
 
+async function buildReferralWelcomeAnswer(question, profile, tip, deals, feedMeta, briefing) {
+  const handoff = profile.handoff;
+  if (!isReferralWelcomePair('deals-agent', handoff)) return null;
+  if (!deals.length) return null;
+
+  const fromName = handoff.fromName || 'Another specialist';
+  const topic =
+    handoff.topicSummary ||
+    buildHandoffTopicSummary(
+      handoff.fromSlug,
+      handoff.fromIntentId,
+      profile,
+      handoff.question || question,
+      handoff.summary
+    );
+  const searchQ = handoff.question || question;
+  const scan = await buildDealsFeedScanAnswer(deals, feedMeta, profile, searchQ, tip);
+  const fromProducts = handoff.fromSlug === 'sustainable-products-agent';
+  const fromMedia = handoff.fromSlug === 'media-agent';
+  const lead =
+    fromProducts
+      ? 'live deal spotlights that may match your product lane'
+      : fromMedia
+        ? 'tariff and offer lanes after energy-price or policy news'
+        : 'curated deals from the weekly feed';
+  const scanBody = String(scan.answer || '').replace(/\n\n_[\s\S]*_$/, '');
+
+  return {
+    ...scan,
+    answer:
+      `**${fromName}** suggested you continue with me for **${lead}**.\n\n` +
+      `From your chat: _${topic}_\n\n` +
+      `${scanBody}\n\n_${tip}_`,
+    intentId: 'agent_referral_welcome',
+    agentHandoffs: buildHandoffs(briefing, searchQ, 'agent_referral_welcome')
+  };
+}
+
 async function answerFromKnowledge(question, profile = {}) {
   const intents = await loadIntents();
   const voice = await loadAgentVoice(voicePath);
@@ -808,6 +850,32 @@ async function answerFromKnowledge(question, profile = {}) {
   const feed = await loadDealsFeed();
   const deals = Array.isArray(feed.deals) ? feed.deals : [];
   if (!deals.length) return null;
+
+  const referralTip = pickTip(intents.staticTips, 'agent_referral_welcome', {
+    skipIntentIds: voice.skipTipIntents
+  });
+  if (profile.handoff) {
+    const referral = await buildReferralWelcomeAnswer(
+      question,
+      profile,
+      referralTip,
+      deals,
+      feed.meta || {},
+      briefing
+    );
+    if (referral?.answer) {
+      referral.source = 'knowledge';
+      applyPersona(referral, {
+        voice,
+        intentId: 'agent_referral_welcome',
+        question,
+        profile,
+        staticTips: intents.staticTips,
+        tip: referralTip
+      });
+      return referral;
+    }
+  }
 
   const intent = matchIntent(question, intents);
   const tip = pickTip(

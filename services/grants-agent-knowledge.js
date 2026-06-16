@@ -10,7 +10,8 @@ const { toModuleItem } = require('./greenways-agent-shared');
 const { mergeModuleRow } = require('./greenways-content-modules');
 const {
   buildHandoffTopicSummary,
-  isReferralWelcomePair
+  isReferralWelcomePair,
+  grantsReferralAngle
 } = require('./greenways-agent-handoff');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'grants-agent-intents.json');
@@ -771,6 +772,7 @@ async function buildReferralWelcomeAnswer(question, profile, tip) {
 
   const fromName = handoff.fromName || 'Cheryce';
   const regionLabel = REGION_LABELS[profile.region] || profile.region || 'your region';
+  const angle = grantsReferralAngle(handoff.fromSlug);
   const topic =
     handoff.topicSummary ||
     buildHandoffTopicSummary(
@@ -786,7 +788,7 @@ async function buildReferralWelcomeAnswer(question, profile, tip) {
 
   return {
     answer: withTip(
-      `**${fromName}** suggested you continue here for **scheme detail**.\n\n` +
+      `**${fromName}** suggested you continue here for **${angle}**.\n\n` +
         `From your chat: _${topic}_\n\n` +
         `Here are **${picked.length}** scheme${picked.length === 1 ? '' : 's'} from our catalogue that may fit **${regionLabel}**. ` +
         'Tap a card for the official link, or pick two schemes to compare.',

@@ -366,6 +366,7 @@ let mediaAgentRouter;
 let sustainableProductsAgentRouter;
 let systemsAgentRouter;
 let guideAgentRouter;
+let agentsAdminRouter;
 let musicVenueInquiriesRouter;
 let musicMediaCandidatesRouter;
 try {
@@ -379,6 +380,7 @@ try {
   sustainableProductsAgentRouter = require('./routes/sustainable-products-agent');
   systemsAgentRouter = require('./routes/systems-agent');
   guideAgentRouter = require('./routes/guide-agent');
+  agentsAdminRouter = require('./routes/agents-admin');
   musicVenueInquiriesRouter = require('./routes/music-venue-inquiries');
   musicMediaCandidatesRouter = require('./routes/music-media-candidates');
   console.log('Live music routers loaded successfully');
@@ -394,6 +396,7 @@ try {
   sustainableProductsAgentRouter = null;
   systemsAgentRouter = null;
   guideAgentRouter = null;
+  agentsAdminRouter = null;
   musicVenueInquiriesRouter = null;
   musicMediaCandidatesRouter = null;
 }
@@ -499,6 +502,10 @@ function mountApiRoutes() {
   if (guideAgentRouter) {
     app.use('/api/guide-agent', guideAgentRouter);
     console.log('✅ /api/guide-agent route mounted');
+  }
+  if (agentsAdminRouter) {
+    app.use('/api/agents-admin', agentsAdminRouter);
+    console.log('✅ /api/agents-admin route mounted');
   }
   if (musicVenueInquiriesRouter) {
     app.use('/api/music-venue-inquiries', musicVenueInquiriesRouter);
@@ -908,6 +915,35 @@ app.get('/schemes-admin.html', (req, res) => {
     res.status(404).json({
       error: 'File not found',
       message: 'schemes-admin.html not found in deployment'
+    });
+  }
+});
+
+// Serve Greenways agents admin dashboard (Phase 1 read-only)
+app.get('/agents-admin.html', (req, res) => {
+  console.log('📂 Serving agents-admin.html');
+  const filePath = __dirname + '/agents-admin.html';
+  const fs = require('fs');
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({
+      error: 'File not found',
+      message: 'agents-admin.html not found in deployment'
+    });
+  }
+});
+
+app.get('/agents-admin-map.html', (req, res) => {
+  console.log('📂 Serving agents-admin-map.html');
+  const filePath = __dirname + '/agents-admin-map.html';
+  const fs = require('fs');
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({
+      error: 'File not found',
+      message: 'agents-admin-map.html not found in deployment'
     });
   }
 });

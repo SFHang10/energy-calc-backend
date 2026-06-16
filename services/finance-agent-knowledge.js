@@ -43,6 +43,10 @@ const {
   buildSustainabilityFinanceNewsAnswer,
   buildFundingNewsAnswer
 } = require('./finance-agent-news');
+const {
+  buildHandoffTopicSummary,
+  isReferralWelcomePair
+} = require('./greenways-agent-handoff');
 
 const briefingPath = path.join(__dirname, '..', 'data', 'finance-agent-briefing.json');
 const voicePath = path.join(__dirname, '..', 'data', 'finance-agent-voice.json');
@@ -575,10 +579,95 @@ function buildCompareTariffsAnswer(tip) {
   };
 }
 
+async function buildReferralWelcomeAnswer(question, profile, tip) {
+  const handoff = profile.handoff;
+  if (!isReferralWelcomePair('finance-agent', handoff)) return null;
+
+  const schemes = await loadSchemes();
+  if (!schemes.length) return null;
+
+  const fromName = handoff.fromName || 'Another specialist';
+  const topic =
+    handoff.topicSummary ||
+    buildHandoffTopicSummary(
+      handoff.fromSlug,
+      handoff.fromIntentId,
+      profile,
+      handoff.question || question,
+      handoff.summary
+    );
+  const searchQ = [handoff.question, question, handoff.fromIntentId].filter(Boolean).join(' ');
+  const related = rankSchemes(financeSchemes(schemes), searchQ, profile, 5);
+  const fromDeals = handoff.fromSlug === 'deals-agent';
+  const fromEquipment = handoff.fromSlug === 'equipment-agent';
+  const angle = fromDeals
+    ? 'BNPL, equipment finance, and payback after deal selection'
+    : fromEquipment
+      ? 'lifecycle payback and finance stacks for ETL equipment'
+      : 'finance paths for your upgrade';
+
+  const moduleRows = fromDeals
+    ? [
+        { moduleId: 'finance-finder', openSize: 'near-full' },
+        { moduleId: 'deals-ticker', openSize: 'expanded' },
+        { moduleId: 'savings-projection', openSize: 'near-full' }
+      ]
+    : [
+        { moduleId: 'finance-finder', openSize: 'near-full' },
+        { moduleId: 'savings-projection', openSize: 'near-full' },
+        { moduleId: 'equipment-deep-dive', openSize: 'near-full' }
+      ];
+
+  return {
+    answer:
+      `**${fromName}** suggested you continue with me for **${angle}**.\n\n` +
+      `From your chat: _${topic}_\n\n` +
+      `Open the finance finder modules on the right — stack **grants** (Andrieus), **BNPL**, **equipment finance**, or **green loans** with your savings projection.\n\n_${tip}_`,
+    blocks: [financeModuleBlock(moduleRows)],
+    suggestions: related.map(toSuggestion),
+    agentHandoffs: buildAgentHandoff(await loadBriefing(), {
+      question: handoff.question || question,
+      intentId: 'agent_referral_welcome',
+      rules: FINANCE_HANDOFF_RULES,
+      fallbackKeys: ['grantsToAndrieus']
+    })
+  };
+}
+
 async function answerFromKnowledge(question, profile = {}) {
   const intents = await loadIntents();
   const schemes = await loadSchemes();
   if (!schemes.length) return null;
+
+  const voice = await loadAgentVoice(voicePath);
+
+  if (profile.handoff) {
+    const referralTip = pickTip(intents.staticTips, 'agent_referral_welcome', {
+      skipIntentIds: voice.skipTipIntents
+    });
+    const referral = await buildReferralWelcomeAnswer(question, profile, referralTip);
+    if (referral?.answer) {
+      referral.source = 'knowledge';
+      referral.intentId = 'agent_referral_welcome';
+      if (!referral.productSamples?.length) {
+        referral.productSamples = await pickFinanceSamples(
+          profile.handoff?.question || question,
+          profile,
+          3
+        );
+      }
+      applyPersona(referral, {
+        voice,
+        intentId: 'agent_referral_welcome',
+        question,
+        profile,
+        staticTips: intents.staticTips,
+        regionLabels: REGION_LABELS,
+        tip: referralTip
+      });
+      return referral;
+    }
+  }
 
   const tip = (intents.staticTips || [])[0] || '';
   const intent = matchIntent(question, intents);

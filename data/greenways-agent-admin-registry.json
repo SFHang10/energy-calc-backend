@@ -1,0 +1,213 @@
+{
+  "updatedAt": "2026-06-15",
+  "meta": {
+    "title": "Greenways Agents Admin registry",
+    "description": "Staff cockpit — agent roles, data sources, skills, and runnable tasks (Phase 1 read-only)."
+  },
+  "links": {
+    "grantsAdmin": "/schemes-admin.html",
+    "agentsAdmin": "/agents-admin.html",
+    "agentsAdminMap": "/agents-admin-map.html",
+    "orchestraHub": "/greenways/orchestra-hub-wix-frame",
+    "orchestraHubFull": "/greenways/orchestra-hub",
+    "contentCatalogAdmin": "/wix-integration/content-catalog-admin.html",
+    "schemesAdminGuide": "SCHEMES_ADMIN_GUIDE.md"
+  },
+  "referralHandoffsLive": [
+    { "from": "Zyanne", "to": "Artemis", "pair": "sustainable-products-agent → equipment-agent" },
+    { "from": "Cheryce", "to": "Andrieus", "pair": "media-agent → grants-agent" },
+    { "from": "Zyanne", "to": "Andrieus", "pair": "sustainable-products-agent → grants-agent" },
+    { "from": "Zara", "to": "Vincent", "pair": "deals-agent → finance-agent" },
+    { "from": "Cheryce", "to": "Zyanne", "pair": "media-agent → sustainable-products-agent" },
+    { "from": "Artemis", "to": "Andrieus", "pair": "equipment-agent → grants-agent" },
+    { "from": "Artemis", "to": "Vincent", "pair": "equipment-agent → finance-agent" },
+    { "from": "Zyanne", "to": "Zara", "pair": "sustainable-products-agent → deals-agent" },
+    { "from": "Zara", "to": "Artemis", "pair": "deals-agent → equipment-agent" },
+    { "from": "Cheryce", "to": "Zara", "pair": "media-agent → deals-agent" },
+    { "from": "Andrieus", "to": "Cheryce", "pair": "grants-agent → media-agent" },
+    { "from": "Vincent", "to": "Andrieus", "pair": "finance-agent → grants-agent" },
+    { "from": "Andrieus", "to": "Edwardo", "pair": "grants-agent → systems-agent" },
+    { "from": "Vincent", "to": "Edwardo", "pair": "finance-agent → systems-agent" },
+    { "from": "Artemis", "to": "Edwardo", "pair": "equipment-agent → systems-agent" },
+    { "from": "Zyanne", "to": "Edwardo", "pair": "sustainable-products-agent → systems-agent" },
+    { "from": "Zara", "to": "Edwardo", "pair": "deals-agent → systems-agent" },
+    { "from": "Cheryce", "to": "Edwardo", "pair": "media-agent → systems-agent" }
+  ],
+  "globalTasks": [
+    {
+      "id": "product-grants-integrator",
+      "label": "Refresh product grants export",
+      "npmScript": null,
+      "command": "node product-grants-integrator.js",
+      "description": "Regenerate products-with-grants.json after schemes.json changes",
+      "phase": 2
+    },
+    {
+      "id": "build-media-daily-brief",
+      "label": "Build sustainability news brief",
+      "npmScript": "build:media-daily-brief",
+      "command": "npm run build:media-daily-brief",
+      "description": "Cheryce daily_brief intent — from latest content-ops edition",
+      "phase": 2
+    },
+    {
+      "id": "build-deals-feed",
+      "label": "Build deals feed",
+      "npmScript": "build:deals-feed",
+      "command": "npm run build:deals-feed",
+      "description": "Zara deals_feed_scan — merges seeds + weekly input",
+      "phase": 2
+    },
+    {
+      "id": "enrich-sustainable-products",
+      "label": "Enrich sustainable catalog grants",
+      "npmScript": "enrich:sustainable-products",
+      "command": "npm run enrich:sustainable-products",
+      "description": "sust_* catalog grant overlay",
+      "phase": 2
+    },
+    {
+      "id": "smoke-agents-ask",
+      "label": "Smoke test all agents",
+      "npmScript": "smoke:agents-ask",
+      "command": "npm run smoke:agents-ask",
+      "description": "Knowledge-path smoke for all seven agents",
+      "phase": 2
+    }
+  ],
+  "agents": [
+    {
+      "id": "grants",
+      "slug": "grants-agent",
+      "roleLine": "Schemes, subsidies, deadlines, and grant eligibility (Andrieus).",
+      "briefingPath": "data/grants-agent-briefing.json",
+      "intentsPath": "data/grants-agent-intents.json",
+      "voicePath": "data/grants-agent-voice.json",
+      "knowledgeService": "services/grants-agent-knowledge.js",
+      "chatRoute": "/greenways/grants-agent",
+      "skills": ["Skills/greenways-chat-interface-skill.md", "HOW-TO-ADD-MORE-GRANTS.md", "SCHEMES_ADMIN_GUIDE.md"],
+      "dataSources": [
+        { "id": "schemes", "label": "Schemes catalogue", "path": "schemes.json", "warnDays": 30, "staleDays": 90 },
+        { "id": "products-grants", "label": "Product grants export", "path": "products-with-grants-and-collection.json", "fallback": "products-with-grants.json", "warnDays": 7, "staleDays": 30 },
+        { "id": "grants-intents", "label": "Agent intents", "path": "data/grants-agent-intents.json" }
+      ],
+      "tasks": []
+    },
+    {
+      "id": "finance",
+      "slug": "finance-agent",
+      "roleLine": "Payback, BNPL, loans, green finance, energy prices (Vincent).",
+      "briefingPath": "data/finance-agent-briefing.json",
+      "intentsPath": "data/finance-agent-intents.json",
+      "voicePath": "data/finance-agent-voice.json",
+      "knowledgeService": "services/finance-agent-knowledge.js",
+      "chatRoute": "/greenways/finance-agent",
+      "skills": ["Skills/greenways-chat-interface-skill.md", "Skills/energy-dashboard-skill.md"],
+      "dataSources": [
+        { "id": "finance-tools", "label": "Finance tools registry", "path": "data/finance-agent-tools.json" },
+        { "id": "finance-refs", "label": "Finance references", "path": "data/finance-agent-references.json" },
+        { "id": "schemes", "label": "Schemes (read-only)", "path": "schemes.json" }
+      ],
+      "tasks": []
+    },
+    {
+      "id": "equipment",
+      "slug": "equipment-agent",
+      "roleLine": "ETL equipment, renovation, deep dive, lifecycle cost (Artemis).",
+      "briefingPath": "data/equipment-agent-briefing.json",
+      "intentsPath": "data/equipment-agent-intents.json",
+      "voicePath": "data/equipment-agent-voice.json",
+      "knowledgeService": "services/equipment-agent-knowledge.js",
+      "chatRoute": "/greenways/equipment-agent",
+      "skills": ["Skills/greenways-chat-interface-skill.md", "Skills/energy-dashboard-skill.md"],
+      "dataSources": [
+        { "id": "equipment-showcase", "label": "Equipment showcase", "path": "data/equipment-agent-showcase.json" },
+        { "id": "renovation-guide", "label": "Renovation guide", "path": "data/equipment-agent-renovation-guide.json" },
+        { "id": "products-grants", "label": "Product grants overlay", "path": "products-with-grants-and-collection.json", "fallback": "products-with-grants.json" },
+        { "id": "full-db", "label": "Product spec baseline", "path": "FULL-DATABASE-5554.json", "warnDays": 60, "staleDays": 180 }
+      ],
+      "tasks": []
+    },
+    {
+      "id": "products",
+      "slug": "sustainable-products-agent",
+      "roleLine": "Sustainable catalog — water, gas, electricity lanes (Zyanne).",
+      "briefingPath": "data/sustainable-products-agent-briefing.json",
+      "intentsPath": "data/sustainable-products-agent-intents.json",
+      "voicePath": "data/sustainable-products-agent-voice.json",
+      "knowledgeService": "services/sustainable-products-agent-knowledge.js",
+      "chatRoute": "/greenways/sustainable-products-agent",
+      "skills": ["Skills/greenways-chat-interface-skill.md", "Skills/product-deal-finder.md"],
+      "dataSources": [
+        { "id": "sust-catalog", "label": "Sustainable products catalog", "path": "data/sustainable-products-catalog.json", "warnDays": 14, "staleDays": 45 },
+        { "id": "products-grants", "label": "Marketplace grants overlay", "path": "products-with-grants-and-collection.json", "fallback": "products-with-grants.json" },
+        { "id": "products-showcase", "label": "Products showcase", "path": "data/sustainable-products-agent-showcase.json" }
+      ],
+      "tasks": [
+        { "id": "enrich-sustainable-products", "label": "Enrich catalog grants", "command": "npm run enrich:sustainable-products", "phase": 2 }
+      ]
+    },
+    {
+      "id": "deals",
+      "slug": "deals-agent",
+      "roleLine": "Deals feed, tariffs, weekly spotlights (Zara).",
+      "briefingPath": "data/deals-agent-briefing.json",
+      "intentsPath": "data/deals-agent-intents.json",
+      "voicePath": "data/deals-agent-voice.json",
+      "knowledgeService": "services/deals-agent-knowledge.js",
+      "chatRoute": "/greenways/deals-agent",
+      "skills": ["Skills/greenways-chat-interface-skill.md"],
+      "dataSources": [
+        { "id": "deals-feed", "label": "Deals feed", "path": "data/deals-feed.json", "warnDays": 7, "staleDays": 14 },
+        { "id": "deals-seeds", "label": "Deals feed seeds", "path": "data/deals-feed-seeds.json" },
+        { "id": "deals-weekly", "label": "Weekly deals input", "path": "data/deals-weekly-input.json" }
+      ],
+      "tasks": [
+        { "id": "build-deals-feed", "label": "Build deals feed", "command": "npm run build:deals-feed", "phase": 2 }
+      ]
+    },
+    {
+      "id": "media",
+      "slug": "media-agent",
+      "roleLine": "Sustainability news, video, map examples (Cheryce).",
+      "briefingPath": "data/media-agent-briefing.json",
+      "intentsPath": "data/media-agent-intents.json",
+      "voicePath": "data/media-agent-voice.json",
+      "knowledgeService": "services/media-agent-knowledge.js",
+      "chatRoute": "/greenways/media-agent",
+      "skills": ["Skills/greenways-chat-interface-skill.md", "Skills/sustainability-video-finder.md"],
+      "dataSources": [
+        { "id": "media-daily-brief", "label": "Daily news brief", "path": "data/media-daily-brief.json", "warnDays": 7, "staleDays": 21 },
+        { "id": "news-kb", "label": "News category knowledge", "path": "data/news-category-knowledge.json" },
+        { "id": "tech-news-kb", "label": "Tech news knowledge", "path": "data/tech-news-category-knowledge.json" }
+      ],
+      "tasks": [
+        { "id": "build-media-daily-brief", "label": "Build daily brief", "command": "npm run build:media-daily-brief", "phase": 2 }
+      ]
+    },
+    {
+      "id": "systems",
+      "slug": "systems-agent",
+      "roleLine": "Monitoring, sensors, dashboard health checks (Edwardo).",
+      "briefingPath": "data/systems-agent-briefing.json",
+      "intentsPath": "data/systems-agent-intents.json",
+      "voicePath": "data/systems-agent-voice.json",
+      "knowledgeService": "services/systems-agent-knowledge.js",
+      "chatRoute": "/greenways/systems-agent",
+      "skills": ["Skills/greenways-chat-interface-skill.md", "Skills/energy-dashboard-skill.md"],
+      "dataSources": [
+        { "id": "systems-checks", "label": "Health check config", "path": "data/systems-agent-checks.json" }
+      ],
+      "tasks": []
+    }
+  ],
+  "orchestrator": {
+    "label": "Greenways Orchestra (Guide)",
+    "imageUrl": "https://static.wixstatic.com/media/c123de_7cad20d715d045e4a9f684d5936bab3a~mv2.jpg",
+    "chatRoute": "/greenways/orchestra-hub",
+    "apiRoute": "/api/guide-agent/ask",
+    "knowledgeService": "services/guide-agent-knowledge.js",
+    "rosterPath": "data/guide-agent-roster.json",
+    "intentsPath": "data/guide-agent-intents.json"
+  }
+}

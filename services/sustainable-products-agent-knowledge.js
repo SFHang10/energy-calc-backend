@@ -23,6 +23,10 @@ const {
 } = require('./greenways-agent-persona');
 const { mergeModuleRow, loadRegistrySync, getModuleById } = require('./greenways-content-modules');
 const { EquipmentIntelligenceService } = require('./equipment-intelligence-service');
+const {
+  buildHandoffTopicSummary,
+  isReferralWelcomePair
+} = require('./greenways-agent-handoff');
 
 let equipmentIntelService = null;
 function getEquipmentIntel() {
@@ -1061,11 +1065,73 @@ async function buildFallbackSearchAnswer(question, profile, catalog, showcase, t
   return out;
 }
 
+async function buildReferralWelcomeAnswer(question, profile, tip, catalog, showcase, briefing) {
+  const handoff = profile.handoff;
+  if (!isReferralWelcomePair('sustainable-products-agent', handoff)) return null;
+
+  const fromName = handoff.fromName || 'Cheryce';
+  const topic =
+    handoff.topicSummary ||
+    buildHandoffTopicSummary(
+      handoff.fromSlug,
+      handoff.fromIntentId,
+      profile,
+      handoff.question || question,
+      handoff.summary
+    );
+  const searchQ = handoff.question || question;
+  const lane = detectLane(searchQ, profile);
+  const result = searchLocalProducts(catalog, showcase, searchQ, profile);
+  if (!(result.marketplaceMatches || []).length && !(result.externalAlternatives || []).length) {
+    const fallbackRows = (catalog.products || []).filter((p) => catalogMatchesLane(p, lane)).slice(0, 4);
+    result.externalAlternatives = fallbackRows;
+  }
+  const out = formatSearchAnswer(result, lane, tip);
+  const body = String(out.answer || '').replace(/\n\n_[\s\S]*_$/, '');
+
+  return {
+    ...out,
+    answer:
+      `**${fromName}** suggested you continue with me for **efficient product lanes**.\n\n` +
+      `From your chat: _${topic}_\n\n` +
+      `${body}\n\n_${tip}_`,
+    intentId: 'agent_referral_welcome',
+    agentHandoffs: buildHandoffs(briefing, searchQ, 'agent_referral_welcome')
+  };
+}
+
 async function answerFromKnowledge(question, profile = {}) {
   const intents = await loadIntentsFrom(intentsPath);
   const voice = await loadAgentVoice(voicePath);
   const briefing = await loadBriefing();
   const [catalog, showcase] = await Promise.all([loadCatalog(), loadShowcase()]);
+
+  if (profile.handoff) {
+    const referralTip = pickTip(intents.staticTips, 'agent_referral_welcome', {
+      skipIntentIds: voice.skipTipIntents
+    });
+    const referral = await buildReferralWelcomeAnswer(
+      question,
+      profile,
+      referralTip,
+      catalog,
+      showcase,
+      briefing
+    );
+    if (referral?.answer) {
+      referral.source = 'knowledge';
+      applyPersona(referral, {
+        voice,
+        intentId: 'agent_referral_welcome',
+        question,
+        profile,
+        staticTips: intents.staticTips,
+        tip: referralTip
+      });
+      return referral;
+    }
+  }
+
   const intent = matchIntent(question, intents);
   const tip = pickTip(intents.staticTips, intent?.id, { skipIntentIds: voice.skipTipIntents });
 

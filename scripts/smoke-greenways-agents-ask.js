@@ -236,6 +236,145 @@ async function runLocalSmokes() {
   }
   console.log('OK Edwardo dashboard module tablets');
 
+  const REFERRAL_SMOOKES = [
+    {
+      label: 'Zyanne → Andrieus',
+      load: () => grantsMod,
+      question: 'What grants apply to these efficient refrigeration picks?',
+      handoff: {
+        fromSlug: 'sustainable-products-agent',
+        fromName: 'Zyanne',
+        fromIntentId: 'find_fridge',
+        topicSummary: 'you were shortlisting efficient refrigeration options'
+      }
+    },
+    {
+      label: 'Zara → Vincent',
+      load: () => financeMod,
+      question: 'BNPL and payback after this energy deal',
+      handoff: {
+        fromSlug: 'deals-agent',
+        fromName: 'Zara',
+        fromIntentId: 'energy_deals',
+        topicSummary: 'you were comparing energy tariff and supply deals'
+      }
+    },
+    {
+      label: 'Cheryce → Zyanne',
+      load: () => productsMod,
+      question: 'efficient products from map case study',
+      handoff: {
+        fromSlug: 'media-agent',
+        fromName: 'Cheryce',
+        fromIntentId: 'sustainability_map',
+        topicSummary: 'you were exploring sustainability map case studies'
+      }
+    },
+    {
+      label: 'Artemis → Andrieus',
+      load: () => grantsMod,
+      question: 'grants for kitchen renovation equipment',
+      handoff: {
+        fromSlug: 'equipment-agent',
+        fromName: 'Artemis',
+        fromIntentId: 'renovation_grants',
+        topicSummary: 'you were linking renovation work to grant eligibility'
+      }
+    },
+    {
+      label: 'Artemis → Vincent',
+      load: () => financeMod,
+      question: 'savings projection finance path',
+      handoff: {
+        fromSlug: 'equipment-agent',
+        fromName: 'Artemis',
+        fromIntentId: 'savings_projection',
+        topicSummary: 'you were modelling savings projection for an upgrade'
+      }
+    },
+    {
+      label: 'Zyanne → Zara',
+      load: () => dealsMod,
+      question: 'deal spotlights for efficient products',
+      handoff: {
+        fromSlug: 'sustainable-products-agent',
+        fromName: 'Zyanne',
+        fromIntentId: 'product_deal_spotlights',
+        topicSummary: 'you were reviewing efficient product deal spotlights'
+      }
+    },
+    {
+      label: 'Zara → Artemis',
+      load: () => equipMod,
+      question: 'ETL equipment for deal category',
+      handoff: {
+        fromSlug: 'deals-agent',
+        fromName: 'Zara',
+        fromIntentId: 'product_deals',
+        topicSummary: 'you were reviewing product deal spotlights'
+      }
+    },
+    {
+      label: 'Cheryce → Zara',
+      load: () => dealsMod,
+      question: 'deals after energy price news',
+      handoff: {
+        fromSlug: 'media-agent',
+        fromName: 'Cheryce',
+        fromIntentId: 'energy_prices',
+        topicSummary: 'you were checking how energy prices affect upgrade timing'
+      }
+    },
+    {
+      label: 'Andrieus → Cheryce',
+      load: () => mediaMod,
+      question: 'daily brief from scheme context',
+      handoff: {
+        fromSlug: 'grants-agent',
+        fromName: 'Andrieus',
+        fromIntentId: 'product_grants',
+        topicSummary: 'you were reviewing grants and schemes for your restaurant'
+      }
+    },
+    {
+      label: 'Vincent → Andrieus',
+      load: () => grantsMod,
+      question: 'grant eligibility after finance exploration',
+      handoff: {
+        fromSlug: 'finance-agent',
+        fromName: 'Vincent',
+        fromIntentId: 'grants_tab',
+        topicSummary: 'you were checking how grants stack with finance paths'
+      }
+    },
+    {
+      label: 'Zyanne → Edwardo',
+      load: () => systemsMod,
+      question: 'monitoring before product upgrade',
+      handoff: {
+        fromSlug: 'sustainable-products-agent',
+        fromName: 'Zyanne',
+        fromIntentId: 'eco_journey',
+        topicSummary: 'you were planning an eco journey and equipment path for your restaurant'
+      }
+    }
+  ];
+
+  for (const row of REFERRAL_SMOOKES) {
+    const mod = row.load();
+    const hit = await mod.answerFromKnowledge(row.question, {
+      ...profile,
+      handoff: { ...row.handoff, question: row.question }
+    });
+    if (hit?.intentId !== 'agent_referral_welcome') {
+      throw new Error(`${row.label}: expected agent_referral_welcome, got ${hit?.intentId || 'null'}`);
+    }
+    if (!new RegExp(row.handoff.fromName, 'i').test(hit.answer || '')) {
+      throw new Error(`${row.label}: expected ${row.handoff.fromName} in welcome answer`);
+    }
+    console.log('OK referral welcome', row.label);
+  }
+
   let hits = 0;
   for (const agent of AGENT_SMOOKES) {
     const mod = agent.load();

@@ -71,7 +71,9 @@
 | **Media Agent (chat)** | `HTMLS GWM GWB/greenways-media-agent.html` — purple theme — `/greenways/media-agent`, `/api/media-agent/*` — news: `services/media-news-loader.js` (KB + monthly editions); **sustainability map:** `services/media-agent-companies.js` + `data/companies.json` → `European Company - Case Study Finder (Standalone) - Wix bundle.html`; videos: Wix Media API |
 | **Sustainable Products Agent (chat)** | `HTMLS GWM GWB/greenways-sustainable-products-agent.html` — cyan/teal theme — `/greenways/sustainable-products-agent`, `/api/sustainable-products-agent/*` — water/electricity/gas lanes; lightweight catalog + showcase (full search on finder pages) |
 | **Systems Agent (chat)** | `HTMLS GWM GWB/greenways-systems-agent.html` — slate/amber — `/greenways/systems-agent`, `/api/systems-agent/*` — **consumer:** monitoring, sensors, product reviews (home/restaurant); **ops:** read-only health verify + **Verify selected** |
-| **Greenways Guide (chat, WIP)** | Hub conductor — backend only: `data/guide-agent-intents.json`, `data/guide-agent-roster.json`, `services/guide-agent-knowledge.js`, `routes/guide-agent.js` — **not live** until `greenways-guide-agent.html` + `server-new.js` mount (`/greenways/guide-agent`, `/api/guide-agent/*`) |
+| **Agents admin (staff)** | `agents-admin.html` · `GET /api/agents-admin/overview` · `GET /api/agents-admin/graph` · `data/greenways-agent-admin-registry.json` — Phase 1 read-only; links to `schemes-admin.html` |
+| **Agents network map (staff)** | `agents-admin-map.html` — spider diagram (portraits, shared data files, briefing handoffs, **19 live referral welcomes** from `services/greenways-agent-handoff.js`) |
+| **Greenways Orchestra (hub)** | `HTMLS GWM GWB/greenways-orchestra-hub.html` · `/greenways/orchestra-hub` · `/api/guide-agent/ask` |
 | **Wix agents embed (hub + per-page)** | `Skills/greenways-chat-interface-skill.md` § Wix site pattern · quick ref `HTMLS GWM GWB/WIX-GREENWAYS-AGENTS-EMBED.md` — hub may embed Guide conductor; each character page = one `/greenways/{agent}` iframe |
 | **Grants Agent intents** | `data/grants-agent-intents.json` |
 | **Grants Agent showcase products** | `data/grants-agent-showcase-products.json` |
@@ -451,11 +453,11 @@ html, body {
   - **`savings.html`:** **Savings projections** Explore tab above **Deals** — explains feature; **See example projection** opens popup only (no full-page / no tablet preview).
   - Demos: **`data/savings-projection-scenarios.json`** (`?scenario=fridge`).
 
-- **🎼 Greenways Guide Agent — hub conductor (May 2026, WIP)** — **`Skills/greenways-chat-interface-skill.md`** § Guide Agent:
-  - **Role:** Wix agents **hub** orchestrator — routes questions to Grants / Finance / Equipment / Products / Deals / Media; returns answer + **`agentHandoffs`** chips to `/greenways/{agent}?q=…`.
-  - **Done:** `data/guide-agent-intents.json`, `data/guide-agent-roster.json`, `services/guide-agent-knowledge.js`, `routes/guide-agent.js`.
-  - **Pending:** `HTMLS GWM GWB/greenways-guide-agent.html`, register in **`server-new.js`**, add to **`systems-agent-health.js`** agent list. Scaffold helper: **`scripts/scaffold-guide-agent-html.js`** (manual HTML fork also fine).
-  - **Not mounted** on Render until server registration — safe to leave for a later session.
+- **🤝 Agent referral welcomes (Jun 2026):** `services/greenways-agent-handoff.js` — **19 live pairs** (13 specialist→specialist + any specialist→Edwardo). First `/ask` with `profile.handoff` returns `agent_referral_welcome` with grounded samples. Staff **network map:** `agents-admin-map.html` · API `GET /api/agents-admin/graph`. Smoke: `npm run smoke:agents-ask`.
+
+- **🎼 Greenways Orchestra — hub conductor (May 2026)** — **`Skills/greenways-chat-interface-skill.md`** § Guide Agent:
+  - **Live:** `HTMLS GWM GWB/greenways-orchestra-hub.html`, `greenways-orchestra-hub-wix-frame.html` — `/greenways/orchestra-hub`, `/greenways/orchestra-hub-wix-frame`, `/greenways/guide-agent`, `POST /api/guide-agent/ask`.
+  - Routes to specialists; glowing portrait → `/greenways/{agent}?q=…`.
 
 - **🎙️ Agent persona + voice (May 2026)** — `services/greenways-agent-persona.js` + `data/grants-agent-voice.json` (Andrieus pilot: openers, rotated tips, profile line, Cheryce handoff lines). **`spokenSummary`** on grants `/ask` for TTS. Shared **`greenways-agent-voice.js`** on all seven HTML shells; enable per agent in **`data/greenways-agent-voice-config.json`**. Sync: **`node scripts/sync-greenways-agent-voice.js`**.
 

@@ -38,6 +38,10 @@ const briefingPath = path.join(__dirname, '..', 'data', 'media-agent-briefing.js
 const voicePath = path.join(__dirname, '..', 'data', 'media-agent-voice.json');
 const referencesPath = path.join(__dirname, '..', 'data', 'media-agent-references.json');
 const dailyBriefPath = path.join(__dirname, '..', 'data', 'media-daily-brief.json');
+const {
+  buildHandoffTopicSummary,
+  isReferralWelcomePair
+} = require('./greenways-agent-handoff');
 
 let dailyBriefCache = null;
 
@@ -971,12 +975,83 @@ function citedItemsForIntent(intent, catalog, question) {
   }
 }
 
+async function buildReferralWelcomeAnswer(question, profile, tip, briefing) {
+  const handoff = profile.handoff;
+  if (!isReferralWelcomePair('media-agent', handoff)) return null;
+
+  const fromName = handoff.fromName || 'Andrieus';
+  const topic =
+    handoff.topicSummary ||
+    buildHandoffTopicSummary(
+      handoff.fromSlug,
+      handoff.fromIntentId,
+      profile,
+      handoff.question || question,
+      handoff.summary
+    );
+  const searchQ = handoff.question || question;
+
+  if (shouldTryDailyBrief(searchQ) || handoff.fromIntentId === 'daily_brief') {
+    const brief = await buildDailyBriefAnswer(searchQ, profile, tip, briefing);
+    const body = String(brief.answer || '').replace(/\n\n_[\s\S]*_$/, '');
+    return {
+      ...brief,
+      answer:
+        `**${fromName}** suggested you continue with me for **sustainability news context**.\n\n` +
+        `From your chat: _${topic}_\n\n` +
+        `${body}\n\n_${tip}_`,
+      intentId: 'agent_referral_welcome',
+      agentHandoffs: buildHandoffs(briefing, searchQ, 'agent_referral_welcome')
+    };
+  }
+
+  const catalog = await loadFullNewsCatalog();
+  const picks = rankNewsItems(catalog.items, searchQ, 5);
+  const linkItems = picks.slice(0, 5).map((item) =>
+    toLinkItem(item.title, item.pageHref || MEDIA_PAGES.sustainabilityNews, item.summary || '')
+  );
+
+  return {
+    answer:
+      `**${fromName}** suggested you continue with me for **news and story context**.\n\n` +
+      `From your chat: _${topic}_\n\n` +
+      `Here are **${linkItems.length}** grounded story picks from our catalogue — open a card for the full edition or map cross-links.\n\n_${tip}_`,
+    suggestions: [],
+    blocks: linkOrModuleBlocks([
+      ...linkItems,
+      toLinkItem('Sustainability map', MAP_PAGE_HREF, 'Case studies and directory')
+    ]),
+    intentId: 'agent_referral_welcome',
+    agentHandoffs: buildHandoffs(briefing, searchQ, 'agent_referral_welcome')
+  };
+}
+
 async function answerFromKnowledge(question, profile = {}) {
   const intents = await loadIntentsFrom(intentsPath);
   const voice = await loadAgentVoice(voicePath);
   const briefing = await loadBriefing();
   const catalog = await loadFullNewsCatalog();
   const { videos } = await getVideosForAgent();
+
+  if (profile.handoff) {
+    const referralTip = pickTip(intents.staticTips, 'agent_referral_welcome', {
+      skipIntentIds: voice.skipTipIntents
+    });
+    const referral = await buildReferralWelcomeAnswer(question, profile, referralTip, briefing);
+    if (referral?.answer) {
+      referral.source = 'knowledge';
+      applyPersona(referral, {
+        voice,
+        intentId: 'agent_referral_welcome',
+        question,
+        profile,
+        staticTips: intents.staticTips,
+        tip: referralTip
+      });
+      return referral;
+    }
+  }
+
   const intent = matchIntent(question, intents);
   const tip = pickTip(intents.staticTips, intent?.id, { skipIntentIds: voice.skipTipIntents });
 

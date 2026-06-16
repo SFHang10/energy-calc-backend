@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Greenways Agents Network Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-dark: #0a0f1c;
+      --bg-card: #141b2d;
+      --accent-green: #00d26a;
+      --accent-blue: #00a8e8;
+      --accent-cyan: #22d3ee;
+      --accent-gold: #c9a961;
+      --text-primary: #f1f5f9;
+      --text-secondary: #b8c5d6;
+      --text-muted: #8b9cb3;
+      --border-color: #2d3748;
+      --font-ui: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+      --font-display: 'Space Grotesk', var(--font-ui);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font-ui);
+      font-size: 15px;
+      line-height: 1.5;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      background-image:
+        radial-gradient(circle at 20% 80%, rgba(0, 210, 106, 0.07) 0%, transparent 45%),
+        radial-gradient(circle at 80% 20%, rgba(34, 211, 238, 0.06) 0%, transparent 45%);
+    }
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(20, 27, 45, 0.95);
+    }
+    .topbar h1 {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+    .topbar h1 i { color: var(--accent-cyan); margin-right: 8px; }
+    .topbar .sub { font-size: 0.88rem; color: var(--text-secondary); margin-top: 4px; }
+    .top-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-family: var(--font-ui);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      transition: opacity 0.2s;
+    }
+    .btn-primary { background: var(--accent-green); color: #0a0f1c; border-color: transparent; }
+    .btn:hover { opacity: 0.9; }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 0;
+      min-height: calc(100vh - 88px);
+    }
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+      .side-panel { border-top: 1px solid var(--border-color); }
+    }
+    .map-wrap {
+      position: relative;
+      padding: 12px;
+      overflow: hidden;
+    }
+    .map-canvas {
+      position: relative;
+    }
+    .zoom-controls {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+    }
+    .zoom-controls .zoom-row {
+      display: flex;
+      gap: 6px;
+    }
+    .zoom-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: rgba(20, 27, 45, 0.92);
+      color: var(--text-primary);
+      font-size: 1rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, opacity 0.15s;
+    }
+    .zoom-btn:hover { background: rgba(30, 40, 62, 0.98); }
+    .zoom-level {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: rgba(20, 27, 45, 0.85);
+      border: 1px solid var(--border-color);
+      min-width: 52px;
+      text-align: center;
+    }
+    .map-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      padding-left: 8px;
+    }
+    .map-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      align-items: center;
+      padding: 0 8px 12px;
+    }
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      user-select: none;
+    }
+    .toggle input { accent-color: var(--accent-green); }
+    .stats-chip {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-color);
+      background: rgba(20, 27, 45, 0.6);
+    }
+    #graph-svg {
+      width: 100%;
+      height: auto;
+      min-height: 520px;
+      max-height: calc(100vh - 180px);
+      display: block;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      background: radial-gradient(circle at center, rgba(20, 35, 50, 0.9) 0%, rgba(10, 15, 28, 0.95) 70%);
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+    #graph-svg.is-panning { cursor: grabbing; }
+    .side-panel {
+      padding: 20px;
+      border-left: 1px solid var(--border-color);
+      background: rgba(20, 27, 45, 0.5);
+      overflow-y: auto;
+    }
+    .side-panel h2 {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .detail-card {
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      margin-bottom: 16px;
+    }
+    .detail-card .name {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .detail-card .meta { font-size: 0.85rem; color: var(--text-secondary); }
+    .detail-list { list-style: none; margin-top: 10px; }
+    .detail-list li {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(45, 55, 72, 0.6);
+    }
+    .detail-list li:last-child { border-bottom: none; }
+    .legend { margin-top: 8px; }
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .legend-line {
+      width: 28px;
+      height: 0;
+      border-top: 2px solid;
+    }
+    .loading, .error-box {
+      padding: 48px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+    .error-box { color: #ff8a8a; }
+
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1><i class="fas fa-project-diagram"></i> Agents network map</h1>
+      <p class="sub">Spider view — portraits, shared data files, handoffs, and live referral welcomes</p>
+    </div>
+    <div class="top-actions">
+      <a class="btn btn-primary" href="/agents-admin.html"><i class="fas fa-table"></i> Table admin</a>
+      <a class="btn" href="/greenways/orchestra-hub-wix-frame" target="_blank" rel="noopener"><i class="fas fa-sitemap"></i> Orchestrator</a>
+      <button type="button" class="btn" id="refresh-btn"><i class="fas fa-rotate"></i> Refresh</button>
+    </div>
+  </header>
+
+  <div id="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Building network graph…</div>
+  <div id="error-mount" class="error-box" hidden></div>
+
+  <div class="layout" id="main-layout" hidden>
+    <section class="map-wrap">
+      <div class="map-toolbar">
+        <label class="toggle"><input type="checkbox" id="show-data" checked> Data sources</label>
+        <label class="toggle"><input type="checkbox" id="show-handoffs" checked> Handoffs</label>
+        <label class="toggle"><input type="checkbox" id="show-co-use" checked> Shared-tool links</label>
+        <label class="toggle"><input type="checkbox" id="show-routes" checked> Orchestra routes</label>
+        <span class="stats-chip" id="stats-chip"></span>
+        <span class="map-hint">Scroll to zoom · drag background to pan</span>
+      </div>
+      <div class="map-canvas">
+        <svg id="graph-svg" viewBox="0 0 1000 1000" role="img" aria-label="Greenways agents network diagram">
+          <g id="graph-root"></g>
+        </svg>
+        <div class="zoom-controls" aria-label="Zoom controls">
+          <button type="button" class="zoom-btn" id="zoom-in" title="Zoom in"><i class="fas fa-plus"></i></button>
+          <span class="zoom-level" id="zoom-level">100%</span>
+          <button type="button" class="zoom-btn" id="zoom-out" title="Zoom out"><i class="fas fa-minus"></i></button>
+          <button type="button" class="zoom-btn" id="zoom-reset" title="Reset view"><i class="fas fa-compress"></i></button>
+        </div>
+      </div>
+    </section>
+    <aside class="side-panel">
+      <h2>Selection</h2>
+      <div class="detail-card" id="detail-card">
+        <div class="name">Hover or click a node</div>
+        <div class="meta">Agents show portraits on the outer ring. Shared files sit inside — thicker links mean multiple agents use the same tool or dataset.</div>
+      </div>
+      <h2>Legend</h2>
+      <div class="legend">
+        <div class="legend-row"><span class="legend-line" style="border-color:rgba(0,210,106,0.55)"></span> Agent → data file</div>
+        <div class="legend-row"><span class="legend-line" style="border-color:rgba(201,169,97,0.7)"></span> Briefing handoff</div>
+        <div class="legend-row"><span class="legend-line" style="border-color:rgba(34,211,238,0.9); border-style:dashed"></span> Live referral welcome</div>
+        <div class="legend-row"><span class="legend-line" style="border-color:rgba(139,156,179,0.35)"></span> Same data source (agent ↔ agent)</div>
+        <div class="legend-row"><span class="legend-line" style="border-color:rgba(0,168,232,0.35)"></span> Orchestra routing</div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+(function () {
+  var BASE_SIZE = 1000;
+  var state = {
+    graph: null,
+    filters: { data: true, handoffs: true, coUse: true, routes: true },
+    activeId: null,
+    zoom: { k: 1, cx: 500, cy: 500 },
+    panning: false,
+    panStart: null
+  };
+
+  function resolveApiUrl(pathname) {
+    var origin = window.location.origin || '';
+    if (/energy-calc-backend\.onrender\.com/i.test(origin)) return pathname;
+    if (window.location.protocol === 'file:') return 'http://localhost:4000' + pathname;
+    if (/^https?:\/\/(localhost|127\.0\.0\.1):(5500|5501|8080|3000|5173)\b/i.test(origin)) {
+      return 'http://localhost:4000' + pathname;
+    }
+    return pathname;
+  }
+
+  function edgeVisible(edge) {
+    if (edge.type === 'uses') return state.filters.data;
+    if (edge.type === 'handoff' || edge.type === 'referral-live') return state.filters.handoffs;
+    if (edge.type === 'co-use') return state.filters.coUse;
+    if (edge.type === 'routes') return state.filters.routes;
+    return true;
+  }
+
+  function nodeById(id) {
+    return (state.graph.nodes || []).find(function (n) { return n.id === id; });
+  }
+
+  function connectedIds(nodeId) {
+    var ids = new Set([nodeId]);
+    (state.graph.edges || []).forEach(function (e) {
+      if (!edgeVisible(e)) return;
+      if (e.from === nodeId) ids.add(e.to);
+      if (e.to === nodeId) ids.add(e.from);
+    });
+    return ids;
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function statusColor(status) {
+    if (status === 'ok') return '#00d26a';
+    if (status === 'warn') return '#ffd60a';
+    if (status === 'stale') return '#ff9f1c';
+    if (status === 'error') return '#ff4d4d';
+    return '#8b9cb3';
+  }
+
+  function renderDetail(node) {
+    var card = document.getElementById('detail-card');
+    if (!node) {
+      card.innerHTML = '<div class="name">Hover or click a node</div><div class="meta">Agents show portraits on the outer ring.</div>';
+      return;
+    }
+    var html = '<div class="name">' + escapeHtml(node.label) + '</div>';
+    if (node.type === 'agent') {
+      html += '<div class="meta">' + escapeHtml(node.shortLabel) + ' · ' + escapeHtml(node.roleLine || '') + '</div>';
+      if (node.chatRoute) {
+        html += '<p style="margin-top:10px"><a class="btn btn-primary" style="font-size:0.8rem;padding:8px 12px" href="' + escapeHtml(node.chatRoute) + '" target="_blank" rel="noopener">Open chat</a></p>';
+      }
+    } else if (node.type === 'orchestrator') {
+      html += '<div class="meta">Routes questions to the right specialist.</div>';
+      html += '<p style="margin-top:10px"><a class="btn btn-primary" style="font-size:0.8rem;padding:8px 12px" href="' + escapeHtml(node.chatRoute) + '" target="_blank" rel="noopener">Open Orchestra</a></p>';
+    } else {
+      html += '<div class="meta"><code style="font-size:0.78rem">' + escapeHtml(node.path) + '</code></div>';
+      html += '<div class="meta" style="margin-top:6px">' + node.agentCount + ' agent' + (node.agentCount === 1 ? '' : 's') + (node.shared ? ' · shared' : '') + '</div>';
+    }
+    var links = (state.graph.edges || []).filter(function (e) {
+      return edgeVisible(e) && (e.from === node.id || e.to === node.id);
+    });
+    if (links.length) {
+      html += '<ul class="detail-list">';
+      links.slice(0, 12).forEach(function (e) {
+        var other = nodeById(e.from === node.id ? e.to : e.from);
+        var label = other ? other.label : e.to;
+        var note = e.reason || e.via || e.pair || e.type;
+        html += '<li><strong>' + escapeHtml(label) + '</strong> — ' + escapeHtml(note) + '</li>';
+      });
+      if (links.length > 12) html += '<li>…and ' + (links.length - 12) + ' more</li>';
+      html += '</ul>';
+    }
+    card.innerHTML = html;
+  }
+
+  function curvePath(x1, y1, x2, y2, bend) {
+    var mx = (x1 + x2) / 2 + (bend || 0) * (y2 - y1) * 0.08;
+    var my = (y1 + y2) / 2 - (bend || 0) * (x2 - x1) * 0.08;
+    return 'M' + x1 + ',' + y1 + ' Q' + mx + ',' + my + ' ' + x2 + ',' + y2;
+  }
+
+  function clampZoom(k) {
+    return Math.min(4, Math.max(0.45, k));
+  }
+
+  function applyViewBox() {
+    var svg = document.getElementById('graph-svg');
+    if (!svg) return;
+    var w = BASE_SIZE / state.zoom.k;
+    var h = BASE_SIZE / state.zoom.k;
+    var x = state.zoom.cx - w / 2;
+    var y = state.zoom.cy - h / 2;
+    svg.setAttribute('viewBox', x + ' ' + y + ' ' + w + ' ' + h);
+    var label = document.getElementById('zoom-level');
+    if (label) label.textContent = Math.round(state.zoom.k * 100) + '%';
+  }
+
+  function clientToSvg(svg, clientX, clientY) {
+    var pt = svg.createSVGPoint();
+    pt.x = clientX;
+    pt.y = clientY;
+    var ctm = svg.getScreenCTM();
+    if (!ctm) return { x: state.zoom.cx, y: state.zoom.cy };
+    return pt.matrixTransform(ctm.inverse());
+  }
+
+  function zoomAt(clientX, clientY, factor) {
+    var svg = document.getElementById('graph-svg');
+    var pt = clientToSvg(svg, clientX, clientY);
+    var newK = clampZoom(state.zoom.k * factor);
+    var ratio = state.zoom.k / newK;
+    state.zoom.cx = pt.x + (state.zoom.cx - pt.x) * ratio;
+    state.zoom.cy = pt.y + (state.zoom.cy - pt.y) * ratio;
+    state.zoom.k = newK;
+    applyViewBox();
+  }
+
+  function resetZoom() {
+    state.zoom = { k: 1, cx: 500, cy: 500 };
+    applyViewBox();
+  }
+
+  function bindZoomPan() {
+    var svg = document.getElementById('graph-svg');
+    if (!svg || svg.dataset.zoomBound) return;
+    svg.dataset.zoomBound = '1';
+
+    svg.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      var factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+      zoomAt(e.clientX, e.clientY, factor);
+    }, { passive: false });
+
+    svg.addEventListener('mousedown', function (e) {
+      if (e.button !== 0) return;
+      if (e.target.closest && e.target.closest('.node')) return;
+      state.panning = true;
+      state.panStart = {
+        x: e.clientX,
+        y: e.clientY,
+        cx: state.zoom.cx,
+        cy: state.zoom.cy
+      };
+      svg.classList.add('is-panning');
+      e.preventDefault();
+    });
+
+    window.addEventListener('mousemove', function (e) {
+      if (!state.panning || !state.panStart) return;
+      var dx = e.clientX - state.panStart.x;
+      var dy = e.clientY - state.panStart.y;
+      var rect = svg.getBoundingClientRect();
+      var scaleX = (BASE_SIZE / state.zoom.k) / rect.width;
+      var scaleY = (BASE_SIZE / state.zoom.k) / rect.height;
+      state.zoom.cx = state.panStart.cx - dx * scaleX;
+      state.zoom.cy = state.panStart.cy - dy * scaleY;
+      applyViewBox();
+    });
+
+    window.addEventListener('mouseup', function () {
+      if (!state.panning) return;
+      state.panning = false;
+      state.panStart = null;
+      svg.classList.remove('is-panning');
+    });
+
+    var pinch = { active: false, startDist: 0, startK: 1, midX: 0, midY: 0, startCx: 500, startCy: 500 };
+    svg.addEventListener('touchstart', function (e) {
+      if (e.touches.length === 2) {
+        pinch.active = true;
+        var t0 = e.touches[0];
+        var t1 = e.touches[1];
+        pinch.startDist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
+        pinch.startK = state.zoom.k;
+        pinch.midX = (t0.clientX + t1.clientX) / 2;
+        pinch.midY = (t0.clientY + t1.clientY) / 2;
+        pinch.startCx = state.zoom.cx;
+        pinch.startCy = state.zoom.cy;
+        e.preventDefault();
+      } else if (e.touches.length === 1 && !(e.target.closest && e.target.closest('.node'))) {
+        state.panning = true;
+        state.panStart = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+          cx: state.zoom.cx,
+          cy: state.zoom.cy
+        };
+      }
+    }, { passive: false });
+
+    svg.addEventListener('touchmove', function (e) {
+      if (pinch.active && e.touches.length === 2) {
+        var t0 = e.touches[0];
+        var t1 = e.touches[1];
+        var dist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
+        var factor = dist / (pinch.startDist || dist);
+        var newK = clampZoom(pinch.startK * factor);
+        var pt = clientToSvg(svg, pinch.midX, pinch.midY);
+        var ratio = pinch.startK / newK;
+        state.zoom.cx = pt.x + (pinch.startCx - pt.x) * ratio;
+        state.zoom.cy = pt.y + (pinch.startCy - pt.y) * ratio;
+        state.zoom.k = newK;
+        applyViewBox();
+        e.preventDefault();
+      } else if (state.panning && e.touches.length === 1 && state.panStart) {
+        var dx = e.touches[0].clientX - state.panStart.x;
+        var dy = e.touches[0].clientY - state.panStart.y;
+        var rect = svg.getBoundingClientRect();
+        var scaleX = (BASE_SIZE / state.zoom.k) / rect.width;
+        var scaleY = (BASE_SIZE / state.zoom.k) / rect.height;
+        state.zoom.cx = state.panStart.cx - dx * scaleX;
+        state.zoom.cy = state.panStart.cy - dy * scaleY;
+        applyViewBox();
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    svg.addEventListener('touchend', function () {
+      pinch.active = false;
+      state.panning = false;
+      state.panStart = null;
+    });
+
+    document.getElementById('zoom-in').addEventListener('click', function () {
+      var rect = svg.getBoundingClientRect();
+      zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, 1.2);
+    });
+    document.getElementById('zoom-out').addEventListener('click', function () {
+      var rect = svg.getBoundingClientRect();
+      zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, 1 / 1.2);
+    });
+    document.getElementById('zoom-reset').addEventListener('click', resetZoom);
+
+    applyViewBox();
+  }
+
+  function bindGraphInteraction() {
+    var root = document.getElementById('graph-root');
+    var svg = document.getElementById('graph-svg');
+    if (!root || !svg) return;
+
+    root.querySelectorAll('.node').forEach(function (el) {
+      el.addEventListener('mouseenter', function () {
+        state.activeId = el.getAttribute('data-id');
+        renderGraph();
+        renderDetail(nodeById(state.activeId));
+      });
+      el.addEventListener('click', function (e) {
+        e.stopPropagation();
+        state.activeId = el.getAttribute('data-id');
+        renderGraph();
+        renderDetail(nodeById(state.activeId));
+      });
+    });
+
+    if (!svg.dataset.leaveBound) {
+      svg.dataset.leaveBound = '1';
+      svg.addEventListener('mouseleave', function () {
+        if (state.panning) return;
+        state.activeId = null;
+        renderGraph();
+        renderDetail(null);
+      });
+    }
+  }
+
+  function renderGraph() {
+    var root = document.getElementById('graph-root');
+    var g = state.graph;
+    if (!root || !g) return;
+
+    var active = state.activeId ? connectedIds(state.activeId) : null;
+    var defs = '<defs>';
+    (g.nodes || []).forEach(function (n) {
+      if (n.type === 'agent' && n.imageUrl) {
+        defs += '<clipPath id="clip-' + n.id + '"><circle cx="' + n.x + '" cy="' + n.y + '" r="38"/></clipPath>';
+      }
+      if (n.type === 'orchestrator') {
+        defs += '<clipPath id="clip-orchestra" clipPathUnits="userSpaceOnUse"><circle cx="' + n.x + '" cy="' + n.y + '" r="44"/></clipPath>';
+      }
+    });
+    defs += '</defs>';
+
+    var edgesHtml = '';
+    (g.edges || []).forEach(function (e, i) {
+      if (!edgeVisible(e)) return;
+      var from = nodeById(e.from);
+      var to = nodeById(e.to);
+      if (!from || !to) return;
+      var dim = active && !active.has(e.from) && !active.has(e.to);
+      var stroke = 'rgba(139,156,179,0.25)';
+      var width = 1.2;
+      var dash = '';
+      var bend = 0;
+      if (e.type === 'uses') { stroke = 'rgba(0,210,106,0.45)'; width = e.shared ? 2 : 1.4; }
+      if (e.type === 'handoff') { stroke = 'rgba(201,169,97,0.65)'; width = 2; bend = 1; }
+      if (e.type === 'referral-live') { stroke = 'rgba(34,211,238,0.85)'; width = 2.5; dash = '6 4'; bend = -1; }
+      if (e.type === 'co-use') { stroke = 'rgba(139,156,179,0.22)'; width = 1; bend = (i % 3) - 1; }
+      if (e.type === 'routes') { stroke = 'rgba(0,168,232,0.28)'; width = 1; }
+      var opacity = dim ? 0.12 : 1;
+      var d = (e.type === 'handoff' || e.type === 'referral-live' || e.type === 'co-use')
+        ? curvePath(from.x, from.y, to.x, to.y, bend)
+        : 'M' + from.x + ',' + from.y + ' L' + to.x + ',' + to.y;
+      edgesHtml += '<path class="edge" data-from="' + e.from + '" data-to="' + e.to + '" d="' + d + '" fill="none" stroke="' + stroke + '" stroke-width="' + width + '" stroke-dasharray="' + dash + '" opacity="' + opacity + '"/>';
+    });
+
+    var nodesHtml = '';
+    (g.nodes || []).forEach(function (n) {
+      var dim = active && !active.has(n.id);
+      var opacity = dim ? 0.35 : 1;
+      if (n.type === 'agent') {
+        var ring = statusColor(n.dataStatus);
+        nodesHtml += '<g class="node agent-node" data-id="' + n.id + '" style="cursor:pointer" opacity="' + opacity + '">';
+        nodesHtml += '<circle cx="' + n.x + '" cy="' + n.y + '" r="42" fill="rgba(20,27,45,0.9)" stroke="' + ring + '" stroke-width="3"/>';
+        if (n.imageUrl) {
+          nodesHtml += '<image href="' + escapeHtml(n.imageUrl) + '" x="' + (n.x - 38) + '" y="' + (n.y - 38) + '" width="76" height="76" clip-path="url(#clip-' + n.id + ')" preserveAspectRatio="xMidYMid slice"/>';
+        }
+        nodesHtml += '<text x="' + n.x + '" y="' + (n.y + 58) + '" text-anchor="middle" fill="#f1f5f9" font-size="14" font-weight="600" font-family="Space Grotesk, sans-serif">' + escapeHtml(n.label) + '</text>';
+        nodesHtml += '<text x="' + n.x + '" y="' + (n.y + 74) + '" text-anchor="middle" fill="#8b9cb3" font-size="11" font-family="IBM Plex Sans, sans-serif">' + escapeHtml(n.shortLabel) + '</text>';
+        nodesHtml += '</g>';
+      } else if (n.type === 'orchestrator') {
+        var orchImg = n.imageUrl || 'https://static.wixstatic.com/media/c123de_7cad20d715d045e4a9f684d5936bab3a~mv2.jpg';
+        nodesHtml += '<g class="node" data-id="' + n.id + '" style="cursor:pointer" opacity="' + opacity + '">';
+        nodesHtml += '<circle cx="' + n.x + '" cy="' + n.y + '" r="52" fill="rgba(20,27,45,0.92)" stroke="rgba(0,168,232,0.65)" stroke-width="2.5"/>';
+        nodesHtml += '<g clip-path="url(#clip-orchestra)">';
+        nodesHtml += '<image href="' + escapeHtml(orchImg) + '" x="' + (n.x - 44) + '" y="' + (n.y - 44) + '" width="88" height="88" preserveAspectRatio="xMidYMid slice"/>';
+        nodesHtml += '</g>';
+        nodesHtml += '<circle cx="' + n.x + '" cy="' + n.y + '" r="44" fill="none" stroke="rgba(0,168,232,0.45)" stroke-width="1"/>';
+        nodesHtml += '<text x="' + n.x + '" y="' + (n.y + 68) + '" text-anchor="middle" fill="#b8c5d6" font-size="10" font-family="IBM Plex Sans, sans-serif">Orchestra</text>';
+        nodesHtml += '</g>';
+      } else {
+        var r = n.shared ? 22 : 16;
+        var fill = n.shared ? 'rgba(201,169,97,0.2)' : 'rgba(0,210,106,0.12)';
+        var stroke = n.shared ? 'rgba(201,169,97,0.7)' : statusColor(n.status);
+        nodesHtml += '<g class="node data-node" data-id="' + n.id + '" style="cursor:pointer" opacity="' + opacity + '">';
+        nodesHtml += '<circle cx="' + n.x + '" cy="' + n.y + '" r="' + r + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="2"/>';
+        if (n.shared && n.agentCount > 1) {
+          nodesHtml += '<text x="' + n.x + '" y="' + (n.y + 4) + '" text-anchor="middle" fill="#f1f5f9" font-size="11" font-weight="600">' + n.agentCount + '</text>';
+        }
+        var label = n.label.length > 22 ? n.label.slice(0, 20) + '…' : n.label;
+        nodesHtml += '<text x="' + n.x + '" y="' + (n.y + r + 14) + '" text-anchor="middle" fill="#b8c5d6" font-size="9" font-family="IBM Plex Sans, sans-serif">' + escapeHtml(label) + '</text>';
+        nodesHtml += '</g>';
+      }
+    });
+
+    root.innerHTML = defs + '<g class="edges">' + edgesHtml + '</g><g class="nodes">' + nodesHtml + '</g>';
+    bindGraphInteraction();
+    applyViewBox();
+  }
+
+  function bindFilters() {
+    document.getElementById('show-data').addEventListener('change', function (e) {
+      state.filters.data = e.target.checked;
+      renderGraph();
+    });
+    document.getElementById('show-handoffs').addEventListener('change', function (e) {
+      state.filters.handoffs = e.target.checked;
+      renderGraph();
+    });
+    document.getElementById('show-co-use').addEventListener('change', function (e) {
+      state.filters.coUse = e.target.checked;
+      renderGraph();
+    });
+    document.getElementById('show-routes').addEventListener('change', function (e) {
+      state.filters.routes = e.target.checked;
+      renderGraph();
+    });
+  }
+
+  async function load() {
+    document.getElementById('loading').hidden = false;
+    document.getElementById('error-mount').hidden = true;
+    document.getElementById('main-layout').hidden = true;
+    try {
+      var graphUrl = resolveApiUrl('/api/agents-admin/graph');
+      var res = await fetch(graphUrl);
+      if (!res.ok) {
+        throw new Error(
+          'HTTP ' + res.status + ' from ' + graphUrl +
+          '. Start the API with node server-new.js, open http://localhost:4000/agents-admin-map.html, or push to Render.'
+        );
+      }
+      state.graph = await res.json();
+      var s = state.graph.stats || {};
+      document.getElementById('stats-chip').textContent =
+        s.agentCount + ' agents · ' + s.sharedDataCount + ' shared files · ' + s.referralLiveCount + ' live referrals';
+      document.getElementById('loading').hidden = true;
+      document.getElementById('main-layout').hidden = false;
+      bindZoomPan();
+      renderGraph();
+      bindFilters();
+    } catch (err) {
+      document.getElementById('loading').hidden = true;
+      var em = document.getElementById('error-mount');
+      em.hidden = false;
+      em.textContent = 'Could not load network graph: ' + err.message;
+    }
+  }
+
+  document.getElementById('refresh-btn').addEventListener('click', load);
+  load();
+})();
+  </script>
+</body>
+</html>
