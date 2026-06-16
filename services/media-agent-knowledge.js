@@ -538,7 +538,7 @@ function isVideoQuestion(question) {
 
 async function pickVideoSamples(question, profile = {}, limit = 3, categoryHint = null) {
   const { videos, source } = await getVideosForAgent();
-  let pool = videos;
+  let pool = videos.filter((v) => v.videoUrl || v.videoId);
   if (categoryHint) {
     const matches = videos.filter(
       (v) => v.category === categoryHint || (categoryHint === 'energy' && v.category === 'general')
@@ -588,6 +588,58 @@ async function pickMediaSamples(question, profile = {}, limit = 3) {
   }
 
   if (!String(question || '').trim() || String(question).length < 4) {
+    // Banner default: interleave news + playable video + photo (not 3× news only).
+    if (limit >= 3) {
+      const newsRow = (showcase.news || [])[0];
+      if (newsRow) {
+        const news = findNewsById(newsItems, newsRow.id);
+        if (news) {
+          samples.push(
+            toMediaSample({
+              id: news.id,
+              title: news.title,
+              label: newsRow.label || news.summary,
+              description: news.summary,
+              imageUrl: showcase.categoryImages?.policy,
+              href: news.pageHref || (news.sources && news.sources[0]) || MEDIA_PAGES.sustainabilityNews,
+              newsCategory: news.newsCategory
+            })
+          );
+        }
+      }
+      const videoPick =
+        videos.find((v) => v.category === 'restaurant' && v.videoUrl) ||
+        videos.find((v) => v.videoUrl) ||
+        videos[0];
+      if (videoPick) {
+        samples.push(
+          toMediaSample({
+            id: videoPick.id,
+            name: videoPick.title,
+            label: videoPick.description,
+            thumbnail: videoPick.thumbnail,
+            videoUrl: videoPick.videoUrl,
+            category: videoPick.category,
+            tags: videoPick.tags,
+            subcategory: 'VIDEO',
+            type: 'video',
+            source: videoPick.source || videoSource
+          })
+        );
+      }
+      const photo = (showcase.photos || [])[0];
+      if (photo) {
+        samples.push(toMediaSample({ ...photo, subcategory: 'PHOTO', type: 'photo' }));
+      }
+      if (samples.length < limit && (showcase.companies || []).length) {
+        const mapCards = resolveShowcaseCompanies(showcase.companies, companies, 1);
+        for (const card of mapCards) {
+          if (!samples.some((s) => s.id === card.id)) samples.push(card);
+        }
+      }
+      return samples.slice(0, limit);
+    }
+
     for (const row of showcase.news || []) {
       const news = findNewsById(newsItems, row.id);
       if (news) {
@@ -612,7 +664,7 @@ async function pickMediaSamples(question, profile = {}, limit = 3) {
       }
     }
     if (samples.length < limit && videos.length) {
-      for (const v of videos.slice(0, limit - samples.length)) {
+      for (const v of videos.filter((vid) => vid.videoUrl).slice(0, limit - samples.length)) {
         samples.push(
           toMediaSample({
             id: v.id,
@@ -797,9 +849,11 @@ async function buildVideoCategoryAnswer(category, tip, question, profile = {}) {
       `Here are **${label}** picks from the Greenways video library.\n\n` +
       `Tap **▶** on a banner card or open a link on the right to watch. ` +
       `Ask me to explain any topic in plain language.\n\n` +
-      (source !== 'wix'
-        ? '_Sample showcase until Wix credentials are configured on Render._\n\n'
-        : '') +
+      (source === 'wix'
+        ? ''
+        : source === 'catalog'
+          ? '_Playing from the Greenways video catalog snapshot (full Wix library sync when API credentials are live on Render)._\n\n'
+          : '_Sample showcase until Wix credentials are configured on Render._\n\n') +
       `_${tip}_`,
     suggestions: [],
     intentId: `video_${category}`,
@@ -821,9 +875,11 @@ async function buildWixVideosAnswer(tip) {
   return {
     answer:
       `**Wix video library** — **${videos.length}** videos:\n\n${lanes}\n\n` +
-      (source !== 'wix'
-        ? '⚠️ **Local note:** Wix credentials may be missing — you see sample cards. On **Render** with `WIX_APP_TOKEN` (or app id/secret), live Wix videos load automatically.\n\n'
-        : '') +
+      (source === 'wix'
+        ? ''
+        : source === 'catalog'
+          ? `**${videos.length} playable videos** from the Greenways catalog snapshot (marketplace & site media). Live Wix Media sync activates when \`WIX_APP_TOKEN\` + \`WIX_SITE_ID\` are set on Render.\n\n`
+          : '⚠️ **Local note:** Wix credentials may be missing — you see sample cards. On **Render** with `WIX_APP_TOKEN` (or app id/secret), live Wix videos load automatically.\n\n') +
       `Video verification workflow (admin, like music site media scout) — **coming soon**.\n\n_${tip}_`,
     suggestions: []
   };
