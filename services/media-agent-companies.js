@@ -1,13 +1,27 @@
 const path = require('path');
 const fs = require('fs/promises');
 
-const { toLinkItem, REGION_LABELS } = require('./greenways-agent-shared');
+const { toLinkItem, toModuleItem, REGION_LABELS } = require('./greenways-agent-shared');
 
 const companiesPath = path.join(__dirname, '..', 'data', 'companies.json');
 const orgsInlinePath = path.join(__dirname, '..', 'data', 'orgs-directory-inline.js');
 
 const MAP_PAGE_HREF =
   './European%20Company%20-%20Case%20Study%20Finder%20(Standalone)%20-%20Wix%20bundle.html';
+
+const MEDIA_MODULE = { theme: 'media', agentName: 'Cheryce' };
+
+function mapPageHrefWithCompany(id, base = MAP_PAGE_HREF) {
+  const n = parseInt(id, 10);
+  if (!Number.isFinite(n)) return base;
+  const sep = String(base || MAP_PAGE_HREF).includes('?') ? '&' : '?';
+  return `${base}${sep}company=${n}`;
+}
+
+function parseMapCompanyId(sampleId) {
+  const m = String(sampleId || '').match(/^company-(\d+)$/);
+  return m ? parseInt(m[1], 10) : null;
+}
 
 /** Wix placeholder when a case study row has no imageUrl (banner cards). */
 const DEFAULT_COMPANY_CARD_IMAGE =
@@ -180,15 +194,38 @@ function companyToMediaSample(c) {
   const tags = [stats.savings, stats.payback].filter(Boolean);
   return {
     id: `company-${c.id}`,
+    mapCompanyId: c.id,
     name: c.name,
     label: String(c.desc || '').slice(0, 72) + (c.desc && c.desc.length > 72 ? '…' : ''),
     subcategory: (c.sector || 'CASE STUDY').toUpperCase(),
     imageUrl: c.imageUrl || DEFAULT_COMPANY_CARD_IMAGE,
     topGrants: tags.length ? tags : [c.country || 'Case study'],
     grantsCount: 0,
-    marketplaceHref: MAP_PAGE_HREF,
+    marketplaceHref: mapPageHrefWithCompany(c.id),
+    moduleHref: mapPageHrefWithCompany(c.id),
     type: 'company',
     source: 'sustainability-map'
+  };
+}
+
+function companyToModuleRow(c, prefix = '') {
+  const stats = c.stats || {};
+  const statBits = [stats.savings, stats.energy, stats.payback].filter(Boolean).join(' · ');
+  const place = [c.country, c.city].filter(Boolean).join(' · ') || '—';
+  const desc = [
+    statBits,
+    String(c.desc || '').slice(0, 110)
+  ]
+    .filter(Boolean)
+    .join(' — ');
+  const title = prefix ? `${prefix}${c.name}` : c.name;
+  return {
+    moduleId: 'sustainability-map',
+    title: `${title} (${place})`,
+    description: desc || 'Case study on the sustainability map',
+    usageHint: 'Cheryce opens this organisation zoomed in on the map — explore savings stats, then ask how it applies to your site.',
+    href: mapPageHrefWithCompany(c.id),
+    openSize: 'near-full'
   };
 }
 
@@ -203,7 +240,7 @@ function companyToLinkItem(c, prefix = '') {
     .filter(Boolean)
     .join(' — ');
   const title = prefix ? `${prefix}${c.name}` : c.name;
-  return toLinkItem(`${title} (${place})`, MAP_PAGE_HREF, desc);
+  return toLinkItem(`${title} (${place})`, mapPageHrefWithCompany(c.id), desc);
 }
 
 function orgToLinkItem(org) {
@@ -211,8 +248,25 @@ function orgToLinkItem(org) {
   const tagLine = [stats.energy, stats.co2, stats.savings].filter(Boolean).join(' · ');
   const desc = [tagLine, String(org.desc || '').slice(0, 110)].filter(Boolean).join(' — ');
   const place = [org.country, org.region].filter(Boolean).join(' · ') || 'Europe';
+  if (org.id) {
+    return toLinkItem(`${org.name} (${place})`, mapPageHrefWithCompany(org.id), desc);
+  }
   const url = org.url || MAP_PAGE_HREF;
   return toLinkItem(`${org.name} (${place})`, url, desc);
+}
+
+function buildMapExampleModuleRows(picks, dirPicks, maxCase = 5, maxDir = 3) {
+  const caseStudyRows = [];
+  for (const c of picks || []) {
+    if (caseStudyRows.length >= maxCase) break;
+    caseStudyRows.push(companyToModuleRow(c, 'Case study · '));
+  }
+  const directoryRows = [];
+  for (const o of dirPicks || []) {
+    if (directoryRows.length >= maxDir) break;
+    if (o.id) directoryRows.push(companyToModuleRow(o, 'Directory · '));
+  }
+  return { caseStudyRows, directoryRows };
 }
 
 function buildMapExampleLinkItems(picks, dirPicks, maxCase = 5, maxDir = 3) {
@@ -237,15 +291,23 @@ function mapFollowUpQuestion(profile = {}) {
   return 'Should I explain any terms in these stories, or find examples closer to your sector?';
 }
 
-function mapAnswerBlocks(caseStudyLinks, directoryLinks) {
-  const blocks = [];
-  if (caseStudyLinks?.length) {
-    blocks.push({ type: 'link', items: caseStudyLinks });
-  }
-  if (directoryLinks?.length) {
-    blocks.push({ type: 'link', items: directoryLinks });
-  }
-  return blocks;
+function mapAnswerBlocks(caseStudyRows, directoryRows) {
+  const rows = [...(caseStudyRows || []), ...(directoryRows || [])];
+  if (!rows.length) return [];
+  return [{
+    type: 'module',
+    items: rows.map((row) =>
+      toModuleItem({
+        ...MEDIA_MODULE,
+        moduleId: row.moduleId || 'sustainability-map',
+        title: row.title,
+        description: row.description,
+        usageHint: row.usageHint,
+        href: row.href,
+        openSize: row.openSize || 'near-full'
+      })
+    )
+  }];
 }
 
 function resolveShowcaseCompanies(showcaseRows, allCompanies, limit = 3) {
@@ -276,19 +338,19 @@ async function buildSustainabilityMapExplainedAnswer(question, profile, tip, int
     : 'your region';
   const sectorLabel =
     profile.sector && profile.sector !== 'any' ? profile.sector : 'your sector';
-  const { caseStudyLinks, directoryLinks } = buildMapExampleLinkItems(blockPicks, dirPicks, 5, 3);
+  const { caseStudyRows, directoryRows } = buildMapExampleModuleRows(blockPicks, dirPicks, 5, 3);
 
   return {
     answer:
       `The **sustainability map** is Greenways’ interactive atlas of **companies and organisations worldwide** making a measurable impact on energy, water, and the circular economy — **${caseStudies.length} case studies** with savings stats and **${directory.length} directory leaders** (networks, banks, NGOs, and innovators).\n\n` +
       `It helps you **learn before you invest**: see how others achieve results through **products, equipment, and processes**, and use those stories as inspiration for your own site. If an example is not in your region, treat it as a **playbook** — the same technique often works with local suppliers, ETL products, or grants.\n\n` +
-      `For **${regionLabel}** and **${sectorLabel}**, I've picked a few headline examples above and more case studies and directory organisations on the right. When you're ready for the full interactive atlas, use **Open map** below.\n\n` +
+      `For **${regionLabel}** and **${sectorLabel}**, I've picked headline examples above and **map panels on the right** that open **zoomed on each organisation**. When you're ready for the full atlas, use **Open on map** below.\n\n` +
       `${mapFollowUpQuestion(profile)}\n\n_${tip}_`,
     suggestions: [],
     intentId,
     source: 'sustainability-map',
     productSamples: bannerPicks.map(companyToMediaSample),
-    blocks: mapAnswerBlocks(caseStudyLinks, directoryLinks)
+    blocks: mapAnswerBlocks(caseStudyRows, directoryRows)
   };
 }
 
@@ -305,18 +367,18 @@ async function buildEnergyExamplesAnswer(question, profile, tip) {
     withStats,
     5
   );
-  const caseStudyLinks = picks.map((c) => companyToLinkItem(c, 'Example · '));
+  const caseStudyRows = picks.map((c) => companyToModuleRow(c, 'Example · '));
 
   return {
     answer:
       `These are **real energy savings examples** from the sustainability map — organisations with published kWh, € savings, or payback you can use as **benchmarks** when comparing upgrades (illustrative until you have your own meter data).\n\n` +
-      `Each story shows **products, equipment, or processes** that made the difference. Open the cards on the right for the map entry, or ask me to explain how a technique could translate to your site.\n\n` +
+      `Each story shows **products, equipment, or processes** that made the difference. Open Cheryce’s **map panels** on the right — each opens zoomed on that organisation.\n\n` +
       `${mapFollowUpQuestion(profile)}\n\n_${tip}_`,
     suggestions: [],
     intentId: 'energy_examples',
     source: 'sustainability-map',
     productSamples: picks.slice(0, 3).map(companyToMediaSample),
-    blocks: caseStudyLinks.length ? [{ type: 'link', items: caseStudyLinks }] : []
+    blocks: caseStudyRows.length ? mapAnswerBlocks(caseStudyRows, []) : []
   };
 }
 
@@ -327,7 +389,7 @@ async function buildMapNewsCrosslinkBlock() {
 async function buildMapNewsCrosslinkItems(profile, question, limit = 3) {
   const companies = await loadCompanies();
   const picks = rankCompanies(question, profile, companies, limit);
-  return picks.map((c) => companyToLinkItem(c, 'Related · '));
+  return picks.map((c) => companyToModuleRow(c, 'Related · '));
 }
 
 function isMapRelatedQuestion(question) {
@@ -338,6 +400,8 @@ function isMapRelatedQuestion(question) {
 
 module.exports = {
   MAP_PAGE_HREF,
+  mapPageHrefWithCompany,
+  parseMapCompanyId,
   LOCAL_VARIANT_NOTE,
   loadCompanies,
   loadOrgsDirectory,
@@ -347,8 +411,10 @@ module.exports = {
   formatCompanyBullets,
   formatDirectoryBullet,
   companyToMediaSample,
+  companyToModuleRow,
   companyToLinkItem,
   buildMapExampleLinkItems,
+  buildMapExampleModuleRows,
   resolveShowcaseCompanies,
   buildSustainabilityMapAnswer,
   buildSustainabilityMapExplainedAnswer,

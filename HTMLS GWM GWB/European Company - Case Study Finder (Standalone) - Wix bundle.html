@@ -2141,6 +2141,7 @@ let companies = mergeWithDirectory(
 let mapReady = false;
 
 function notifyEmbedReady() {
+  tryFocusPendingCompany();
   try {
     if (window.self !== window.top) {
       window.parent.postMessage(
@@ -2224,6 +2225,38 @@ function openInsightPopup(company) {
   requestAnimationFrame(() => positionInsightPopup());
 }
 
+function getDeepLinkCompanyId() {
+  const p = new URLSearchParams(window.location.search);
+  const raw = p.get("company") || p.get("companyId") || p.get("org");
+  if (!raw) return null;
+  const id = parseInt(raw, 10);
+  return Number.isFinite(id) ? id : null;
+}
+
+function requestCompanyFocus(id) {
+  const companyId = parseInt(id, 10);
+  if (!Number.isFinite(companyId)) return;
+  if (companyId === activeId) return;
+  if (mapReady && companies.some((c) => c.id === companyId)) selectCompany(companyId);
+  else window.__pendingCompanyId = companyId;
+}
+
+function tryFocusPendingCompany() {
+  if (!mapReady) return;
+  let id = window.__pendingCompanyId;
+  if (id == null) id = getDeepLinkCompanyId();
+  if (id == null) return;
+  if (!companies.some((c) => c.id === id)) return;
+  window.__pendingCompanyId = null;
+  selectCompany(id);
+}
+
+function applyDeepLinkCompany() {
+  const id = getDeepLinkCompanyId();
+  if (id == null) return;
+  requestCompanyFocus(id);
+}
+
 function refreshCompaniesUI() {
   if (!mapReady) return;
   renderDots();
@@ -2232,6 +2265,7 @@ function refreshCompaniesUI() {
   renderLegend();
   renderFilters();
   renderTopicFilters();
+  tryFocusPendingCompany();
 }
 
 async function loadCompaniesFromApi() {
@@ -2431,7 +2465,16 @@ fetch(geoUrl)
     notifyEmbedReady();
   });
 
-loadCompaniesFromApi();
+loadCompaniesFromApi().then(function () {
+  applyDeepLinkCompany();
+  tryFocusPendingCompany();
+});
+
+window.addEventListener("message", function (ev) {
+  const d = ev.data;
+  if (!d || d.type !== "gw-map-select-company") return;
+  requestCompanyFocus(d.companyId);
+});
 
 if (helperBtn) {
   helperBtn.addEventListener("click", () => {
@@ -2456,6 +2499,7 @@ if (insightClose) {
 }
 setTimeout(() => {
   if (document.documentElement.classList.contains("gw-map-in-portal")) return;
+  if (getDeepLinkCompanyId() != null) return;
   try {
     const seen = localStorage.getItem(HELPER_STORAGE_KEY) === "1";
     if (!seen) openHelperPopup();

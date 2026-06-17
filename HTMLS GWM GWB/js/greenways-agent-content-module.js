@@ -56,6 +56,10 @@
     ["utility-detail", "utility-detail"],
     ["importance%20of%20energy%20monitoring", "energy-monitoring"],
     ["january%20sustainable%20news", "sustainability-news-page"],
+    ["sustainability-news", "sustainability-news-edition"],
+    ["new-in-tech", "tech-news-edition"],
+    ["content-ops/review/sustainability-news", "sustainability-news-edition"],
+    ["content-ops/review/new-in-tech", "tech-news-edition"],
     ["sustainable%20references", "sustainable-references"],
     ["european%20company%20-%20case%20study", "sustainability-map"],
     ["discover%20energy%20savings", "discover-savings"],
@@ -174,7 +178,25 @@
     "sustainability-news-page": {
       id: "sustainability-news-page",
       title: "Sustainability news",
+      description: "Monthly sustainability news editions on Greenways.",
+      usageHint: "Browse the latest edition headlines, then ask Cheryce how a story affects your bills or upgrade timing.",
       href: "./January%20Sustainable%20News%20Original%20.html",
+      defaultOpenSize: "near-full"
+    },
+    "sustainability-news-edition": {
+      id: "sustainability-news-edition",
+      title: "Sustainability news edition",
+      description: "Latest monthly newsletter — how-this-helps framing for your sector.",
+      usageHint: "Browse stories by theme, read the impact line on each item, and follow links when a headline matches your upgrade plans.",
+      href: "../content-ops/drafts/sustainability-news/2026-04-sustainability-news.html",
+      defaultOpenSize: "near-full"
+    },
+    "tech-news-edition": {
+      id: "tech-news-edition",
+      title: "New in Tech edition",
+      description: "Latest green-tech monthly newsletter.",
+      usageHint: "Scan innovation headlines, then ask how equipment or monitoring upgrades fit your site.",
+      href: "../content-ops/review/new-in-tech/2026-04-new-in-tech.html",
       defaultOpenSize: "near-full"
     },
     "sustainable-references": {

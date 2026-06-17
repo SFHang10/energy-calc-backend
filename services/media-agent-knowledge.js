@@ -70,7 +70,11 @@ const PORTAL_PATH_MODULE_IDS = [
   ['energy-ticker-green-wire', 'energy-ticker'],
   ['european%20company%20-%20case%20study', 'sustainability-map'],
   ['sustainability-news/', 'sustainability-news-edition'],
-  ['content-ops/drafts/sustainability-news', 'sustainability-news-edition']
+  ['content-ops/drafts/sustainability-news', 'sustainability-news-edition'],
+  ['content-ops/review/sustainability-news', 'sustainability-news-edition'],
+  ['new-in-tech', 'tech-news-edition'],
+  ['content-ops/review/new-in-tech', 'tech-news-edition'],
+  ['content-ops/drafts/new-in-tech', 'tech-news-edition']
 ];
 
 function isAgentChatPath(path) {
@@ -93,11 +97,46 @@ function mediaModuleBlock(rows) {
   };
 }
 
+function isExternalNewsUrl(url) {
+  const hay = String(url || '').trim();
+  if (!/^https?:\/\//i.test(hay)) return false;
+  return !/greenwaysbuildings\.com|energy-calc-backend\.onrender\.com|localhost|127\.0\.0\.1/i.test(hay);
+}
+
+function normalizeNewsPath(url) {
+  return String(url || '')
+    .trim()
+    .replace(/^https?:\/\/[^/]+/i, '')
+    .toLowerCase();
+}
+
+function resolveNewsModuleFromUrl(url, editionType = '') {
+  const path = normalizeNewsPath(url);
+  const type = String(editionType || '').toLowerCase();
+  if (path.includes('new-in-tech') || type === 'tech') {
+    return { moduleId: 'tech-news-edition', href: url || '' };
+  }
+  if (
+    path.includes('sustainability-news') ||
+    path.includes('january%20sustainable%20news') ||
+    path.includes('january sustainable news') ||
+    type === 'sustainability'
+  ) {
+    const moduleId = path.includes('content-ops') ? 'sustainability-news-edition' : 'sustainability-news-page';
+    return { moduleId, href: url || MEDIA_PAGES.sustainabilityNews };
+  }
+  const portalId = portalPathToModuleId(url);
+  if (portalId === 'sustainability-news-page' || portalId === 'sustainability-news-edition' || portalId === 'tech-news-edition') {
+    return { moduleId: portalId, href: url || '' };
+  }
+  return null;
+}
+
 function linkOrModuleBlocks(items) {
   const modules = [];
   const links = [];
   for (const item of items) {
-    if (/^https?:\/\//i.test(item.url)) {
+    if (isExternalNewsUrl(item.url)) {
       links.push(item);
       continue;
     }
@@ -106,6 +145,8 @@ function linkOrModuleBlocks(items) {
       modules.push({
         moduleId,
         title: item.title,
+        description: item.description || '',
+        href: item.url || '',
         openSize: moduleId === 'energy-prices-ticker' || moduleId === 'energy-ticker' ? 'expanded' : 'near-full'
       });
     } else {
@@ -470,48 +511,102 @@ function findNewsById(items, id) {
   return items.find((n) => n.id === id);
 }
 
-function editionToLinkItems(catalog) {
-  const items = [];
+function editionToModuleRows(catalog) {
+  const rows = [];
   const sust = getLatestEdition(catalog.editions, 'sustainability');
   const tech = getLatestEdition(catalog.editions, 'tech');
   if (sust?.pageHref) {
-    items.push(
-      toLinkItem(
-        `Sustainability news (${sust.edition})`,
-        sust.pageHref,
-        `${sust.storyCount || 0} stories — full monthly edition`
-      )
-    );
+    rows.push({
+      moduleId: 'sustainability-news-edition',
+      title: `Sustainability news (${sust.edition})`,
+      description: `${sust.storyCount || 0} stories — Cheryce’s monthly newsletter`,
+      usageHint: 'Browse headlines by theme, read impact lines, and ask Cheryce how a story affects your bills or timing.',
+      href: sust.pageHref,
+      openSize: 'near-full'
+    });
   }
   if (tech?.pageHref) {
-    items.push(
-      toLinkItem(
-        `Tech news (${tech.edition})`,
-        tech.pageHref,
-        `${tech.storyCount || 0} stories — innovation roundup`
-      )
-    );
+    rows.push({
+      moduleId: 'tech-news-edition',
+      title: `Tech news (${tech.edition})`,
+      description: `${tech.storyCount || 0} stories — green tech innovation roundup`,
+      usageHint: 'Scan innovation headlines, then ask how equipment or monitoring upgrades fit your site.',
+      href: tech.pageHref,
+      openSize: 'near-full'
+    });
   }
-  if (!items.length) {
-    items.push(toLinkItem('Sustainability news', MEDIA_PAGES.sustainabilityNews, 'Site news page'));
+  if (!rows.length) {
+    rows.push({
+      moduleId: 'sustainability-news-page',
+      title: 'Sustainability news',
+      description: 'Monthly sustainability news editions on Greenways',
+      usageHint: 'Browse the latest edition headlines, then ask Cheryce how a story affects your bills or upgrade timing.',
+      href: MEDIA_PAGES.sustainabilityNews,
+      openSize: 'near-full'
+    });
   }
-  return items;
+  return rows;
 }
 
-function newsItemToLinkItem(item) {
+function editionToLinkItems(catalog) {
+  return editionToModuleRows(catalog).map((row) =>
+    toLinkItem(row.title, row.href, row.description || 'Monthly newsletter')
+  );
+}
+
+function newsItemDescription(item) {
   const impact = (item.impact || []).slice(0, 2).join(' · ');
-  const desc = [
+  return [
     String(item.summary || '').slice(0, 100),
     impact ? `Why: ${impact}` : ''
   ]
     .filter(Boolean)
     .join(' — ');
+}
+
+function newsItemToLinkItem(item) {
   const url =
     item.pageHref ||
     item.moreLink ||
     (item.sources && item.sources[0]) ||
     MEDIA_PAGES.sustainabilityNews;
-  return toLinkItem(item.title, url, desc);
+  return toLinkItem(item.title, url, newsItemDescription(item) || 'News');
+}
+
+function newsItemToModuleRow(item, catalog) {
+  const desc = newsItemDescription(item) || 'News story';
+  const url =
+    item.pageHref ||
+    item.moreLink ||
+    (item.sources && item.sources[0]) ||
+    '';
+  if (isExternalNewsUrl(url)) return null;
+
+  let hint = resolveNewsModuleFromUrl(url, item.editionType);
+  if (!hint) {
+    if (item.editionType === 'tech') {
+      const tech = getLatestEdition(catalog?.editions, 'tech');
+      if (tech?.pageHref) {
+        hint = { moduleId: 'tech-news-edition', href: tech.pageHref };
+      }
+    } else {
+      const sust = getLatestEdition(catalog?.editions, 'sustainability');
+      if (sust?.pageHref) {
+        hint = { moduleId: 'sustainability-news-edition', href: sust.pageHref };
+      } else {
+        hint = { moduleId: 'sustainability-news-page', href: MEDIA_PAGES.sustainabilityNews };
+      }
+    }
+  }
+
+  return {
+    moduleId: hint.moduleId,
+    title: item.title || 'News story',
+    description: desc,
+    usageHint: 'Read the full story in Cheryce’s newsletter panel, then ask how it affects your sector.',
+    href: hint.href || url || MEDIA_PAGES.sustainabilityNews,
+    openSize: 'near-full'
+  };
 }
 
 async function loadDailyBrief() {
@@ -536,8 +631,12 @@ function briefStoryToLinkItem(story) {
   return toLinkItem(story.title, url, desc || story.newsCategory || 'News');
 }
 
-function briefStoryToMediaSample(story, showcase) {
+function briefStoryToMediaSample(story, showcase, catalog) {
   const cat = story.newsCategory || 'monthly';
+  const href = story.href || MEDIA_PAGES.sustainabilityNews;
+  const moduleHint = isExternalNewsUrl(href)
+    ? null
+    : resolveNewsModuleFromUrl(href, story.editionType || 'sustainability');
   return toMediaSample({
     id: story.id,
     title: story.title,
@@ -545,7 +644,9 @@ function briefStoryToMediaSample(story, showcase) {
     label: String(story.summary || '').slice(0, 90),
     description: story.summary,
     imageUrl: showcase?.categoryImages?.[cat] || showcase?.categoryImages?.policy || '',
-    href: story.href || MEDIA_PAGES.sustainabilityNews,
+    href,
+    bannerModuleId: moduleHint?.moduleId || 'sustainability-news-edition',
+    moduleHref: moduleHint?.href || href,
     newsCategory: cat,
     subcategory: 'NEWS',
     type: 'news',
@@ -591,9 +692,7 @@ async function buildDailyBriefAnswer(question, profile, tip, briefing) {
         'I do not have a **daily brief** ready yet — ask for **monthly news** or open the latest sustainability edition on the right.\n\n' +
         `_${tip}_`,
       suggestions: [],
-      blocks: linkOrModuleBlocks([
-        toLinkItem('Sustainability news', MEDIA_PAGES.sustainabilityNews, 'Site news page')
-      ]),
+      blocks: [mediaModuleBlock(editionToModuleRows({ editions: [] }))],
       intentId: 'daily_brief'
     };
   }
@@ -619,29 +718,37 @@ async function buildDailyBriefAnswer(question, profile, tip, briefing) {
   );
   const picks = ranked.length ? ranked : stories.slice(0, 5);
 
-  const linkItems = picks.map((item) => briefStoryToLinkItem(item));
-  if (meta.editionPageHref) {
-    linkItems.push(
-      toLinkItem(
-        meta.editionTitle || `Full ${meta.edition} edition`,
-        meta.editionPageHref,
-        'Complete monthly newsletter'
-      )
-    );
+  const storyRows = picks.map((item) => newsItemToModuleRow(item, { editions: meta.edition ? [{ edition: meta.edition, type: 'sustainability', pageHref: meta.editionPageHref }] : [] })).filter(Boolean);
+  const moduleRows = [...storyRows];
+  if (meta.editionPageHref && !isExternalNewsUrl(meta.editionPageHref)) {
+    moduleRows.push({
+      moduleId: 'sustainability-news-edition',
+      title: meta.editionTitle || `Full ${meta.edition} edition`,
+      description: 'Complete monthly newsletter',
+      usageHint: 'Browse every headline in this edition, then ask Cheryce to explain terms or tie stories to your site.',
+      href: meta.editionPageHref,
+      openSize: 'near-full'
+    });
   }
-  linkItems.push(
-    toLinkItem('Energy prices ticker', MEDIA_PAGES.energyTicker, 'Wholesale context for timing upgrades')
-  );
+  moduleRows.push({
+    moduleId: 'energy-ticker',
+    title: 'Energy prices ticker',
+    description: 'Wholesale context for timing upgrades',
+    href: MEDIA_PAGES.energyTicker,
+    openSize: 'expanded'
+  });
 
-  const blocks = [{ type: 'stat', items: briefStatItems(brief, profile) }, ...linkOrModuleBlocks(linkItems)];
+  const blocks = [{ type: 'stat', items: briefStatItems(brief, profile) }];
+  if (moduleRows.length) blocks.push(mediaModuleBlock(moduleRows));
 
-  const productSamples = picks.slice(0, 3).map((s) => briefStoryToMediaSample(s, showcase));
+  const catalog = await loadFullNewsCatalog();
+  const productSamples = picks.slice(0, 3).map((s) => briefStoryToMediaSample(s, showcase, catalog));
 
   return {
     answer:
       `Here is **today's sustainability briefing** (built **${briefDate}**)${editionNote}${profileNote}.\n\n` +
       `I pulled **${picks.length} headlines** from our curated news catalogue — not live-scraped from the web in this chat. ` +
-      `Open the story cards on the right for full pages; pair with the **energy ticker** when wholesale moves change your upgrade timing.\n\n` +
+      `Open Cheryce’s **newsletter panels** on the right for each headline; pair with the **energy ticker** when wholesale moves change your upgrade timing.\n\n` +
       `Want me to explain a term (CBAM, CSRD) or tie a headline to the **sustainability map**?\n\n_${tip}_`,
     suggestions: [],
     blocks,
@@ -668,10 +775,19 @@ function editionLinksBlock(catalog) {
 }
 
 function newsBlocksFromItems(storyItems, catalog, maxStories = 6) {
-  const storyLinks = (storyItems || []).slice(0, maxStories).map(newsItemToLinkItem);
-  const editionItems = editionToLinkItems(catalog).slice(0, 2);
-  const items = [...storyLinks, ...editionItems];
-  return items.length ? linkOrModuleBlocks(items.slice(0, 8)) : [];
+  const storyRows = [];
+  const storyLinks = [];
+  for (const item of (storyItems || []).slice(0, maxStories)) {
+    const row = newsItemToModuleRow(item, catalog);
+    if (row) storyRows.push(row);
+    else storyLinks.push(newsItemToLinkItem(item));
+  }
+  const editionRows = editionToModuleRows(catalog).slice(0, 2);
+  const blocks = [];
+  const moduleRows = [...storyRows, ...editionRows].slice(0, 8);
+  if (moduleRows.length) blocks.push(mediaModuleBlock(moduleRows));
+  if (storyLinks.length) blocks.push({ type: 'link', items: storyLinks });
+  return blocks;
 }
 
 function isMapExplainQuestion(question) {
@@ -705,6 +821,8 @@ function toMediaSample(item) {
       ? item.pageHref || item.href || 'https://www.greenwaysbuildings.com/greenways'
       : item.href || item.moreLink || item.pageHref || MEDIA_PAGES.sustainabilityNews,
     pageHref: item.pageHref || item.href || '',
+    bannerModuleId: item.bannerModuleId || '',
+    moduleHref: item.moduleHref || '',
     videoUrl: item.videoUrl || '',
     videoId: item.videoId || '',
     duration: item.duration || '',
@@ -1025,18 +1143,18 @@ async function buildMonthlyNewsAnswer(catalog, profile, tip, briefing) {
     2
   );
   const b = briefing || (await loadBriefing());
-  const storyLinks = topStories.map(newsItemToLinkItem);
-  const linkItems = [...storyLinks, ...mapExamples].slice(0, 6);
+  const storyBlocks = newsBlocksFromItems(topStories, catalog, 4);
+  const mapBlocks = mapExamples.length ? [mediaModuleBlock(mapExamples)] : [];
 
   return {
     answer:
       `Here is what stands out in **sustainability news**${sust ? ` (${sust.edition} edition)` : ''} for your profile.\n\n` +
       `I focus on **why each story matters** — policy, funding, and equipment angles that can change your upgrade timing or running costs. ` +
-      `${topStories.length ? `I've picked **${topStories.length} headlines** to start; open the cards on the right for full story pages.` : 'Browse the latest edition on the right when you want every story.'}\n\n` +
+      `${topStories.length ? `I've picked **${topStories.length} headlines** to start; open Cheryce’s **newsletter panels** on the right.` : 'Browse the latest edition on the right when you want every story.'}\n\n` +
       `Want me to explain a term (CBAM, CSRD, Horizon Europe) or tie a headline to the **sustainability map**?\n\n_${tip}_`,
     suggestions: [],
     agentHandoffs: buildHandoffs(b, '', 'monthly_news'),
-    blocks: linkItems.length ? linkOrModuleBlocks(linkItems) : []
+    blocks: [...storyBlocks, ...mapBlocks]
   };
 }
 
@@ -1479,6 +1597,7 @@ async function answerFromKnowledge(question, profile = {}) {
         break;
       case 'tech_news':
         result = await buildTechNewsAnswer(catalog, tip);
+        result = await attachModules(result, profile, ['tech-news-edition']);
         break;
       case 'energy_prices':
         result = await buildEnergyPricesAnswer(profile, tip, briefing);

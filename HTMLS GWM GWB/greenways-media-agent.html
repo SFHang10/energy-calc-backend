@@ -1420,12 +1420,17 @@
     return /Case(?:%20| )Study(?:%20| )Finder|Case Study Finder|European(?:%20| )Company.*Finder/i.test(String(href || ""));
   }
 
-  function sustainabilityMapModuleItem() {
+  function sustainabilityMapModuleItem(companyId) {
     var profile = getProfile();
     var agentReturn = location.origin + "/greenways/media-agent";
     var href = "/HTMLS%20GWM%20GWB/European%20Company%20-%20Case%20Study%20Finder%20(Standalone)%20-%20Wix%20bundle.html?embed=1&popup=1";
     if (profile.region) href += "&region=" + encodeURIComponent(profile.region);
     if (profile.sector) href += "&sector=" + encodeURIComponent(profile.sector);
+    var cid = companyId != null && companyId !== "" ? companyId : null;
+    if (cid == null && companyId && typeof companyId === "object") {
+      cid = companyId.mapCompanyId || (String(companyId.id || "").match(/^company-(\d+)$/) || [])[1];
+    }
+    if (cid != null && cid !== "") href += "&company=" + encodeURIComponent(String(cid));
     href += "&return=" + encodeURIComponent(agentReturn);
     return {
       moduleId: "sustainability-map",
@@ -1436,7 +1441,8 @@
       kind: "html",
       openSize: "near-full",
       agentName: AGENT_PROFILE.name,
-      theme: "media"
+      theme: "media",
+      mapCompanyId: cid || ""
     };
   }
 
@@ -1451,6 +1457,34 @@
       agentName: AGENT_PROFILE.name,
       theme: "media"
     };
+  }
+
+  function newsModuleItemForSample(p) {
+    var href = String(p.moduleHref || p.pageHref || p.marketplaceHref || p.href || "./January%20Sustainable%20News%20Original%20.html");
+    var moduleId = String(p.bannerModuleId || "sustainability-news-page");
+    if (/new-in-tech/i.test(href)) moduleId = "tech-news-edition";
+    else if (/content-ops\/.*sustainability-news/i.test(href)) moduleId = "sustainability-news-edition";
+    else if (/january%20sustainable%20news/i.test(href)) moduleId = "sustainability-news-page";
+    return {
+      moduleId: moduleId,
+      title: p.name || p.title || "Sustainability news",
+      description: String(p.label || p.description || "Monthly sustainability newsletter"),
+      usageHint: "Cheryce opens the edition here — browse headlines, then ask how a story affects your site.",
+      href: href,
+      kind: "html",
+      openSize: "near-full",
+      agentName: AGENT_PROFILE.name,
+      theme: "media"
+    };
+  }
+
+  function isNewsSample(p) {
+    if (!p) return false;
+    if (p.type === "news" || p.subcategory === "NEWS") return true;
+    if (p.bannerModuleId) return true;
+    return /january%20sustainable%20news|sustainability-news|new-in-tech/i.test(
+      String(p.moduleHref || p.pageHref || p.marketplaceHref || p.href || "")
+    );
   }
 
   function isWaterFinderSample(p) {
@@ -1517,11 +1551,11 @@
     return openSustainabilityMapModule();
   }
 
-  function openSustainabilityMapModule() {
+  function openSustainabilityMapModule(companyId) {
     if (window.GreenwaysAgentContentModule) {
       paintMapLaunchBarPreview(pickMapPreviewSample(null));
       showMapModuleBar(true);
-      GreenwaysAgentContentModule.open(sustainabilityMapModuleItem());
+      GreenwaysAgentContentModule.open(sustainabilityMapModuleItem(companyId));
       return false;
     }
     alert("Map module shell is still loading — try again in a moment.");
@@ -1529,7 +1563,7 @@
   }
   window.openSustainabilityMapModule = openSustainabilityMapModule;
 
-  /** Banner cards: 1 news = full tab · 2 video = modal · 3 water = module · 4 map = module */
+  /** Banner cards: 1 news = module · 2 video = modal · 3 water = module · 4 map = module */
   function handleBannerSampleClick(e) {
     var card = e.target.closest("#top-product-samples .product-sample-card[data-banner-open]");
     if (!card) return false;
@@ -1736,9 +1770,10 @@
   }
 
   function renderMapSampleCard(p, name, img, meta, grantLabel, askPrompt) {
+    var mapItem = sustainabilityMapModuleItem(p.mapCompanyId || (String(p.id || "").match(/^company-(\d+)$/) || [])[1] || "");
     return (
       '<div class="product-sample-card is-map-module" data-banner-open="module">' +
-      '<button type="button" class="product-sample-link product-module-trigger"' + modulePayloadAttr(sustainabilityMapModuleItem(), { map: true }) + ' title="Open sustainability map in module">' +
+      '<button type="button" class="product-sample-link product-module-trigger"' + modulePayloadAttr(mapItem, { map: true }) + ' title="Open this organisation on Cheryce’s map">' +
       '<div class="product-sample-img-wrap">' + img + '<span class="gw-module-open-badge">Map</span></div>' +
       '<div class="product-sample-body">' +
       '<span class="product-sample-name">' + name + "</span>" +
@@ -1810,6 +1845,19 @@
         grantLabel,
         askPrompt,
         "Open Water Saving Finder in Cheryce’s module panel"
+      );
+    }
+    if (isNewsSample(p)) {
+      return renderModuleSampleCard(
+        p,
+        newsModuleItemForSample(p),
+        "News",
+        name,
+        img,
+        meta,
+        grantLabel,
+        askPrompt,
+        "Open sustainability newsletter in Cheryce’s module panel"
       );
     }
     var newsClass = p.type === "news" ? " is-news" : "";
