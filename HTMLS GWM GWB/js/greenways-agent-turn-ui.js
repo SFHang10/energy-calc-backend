@@ -190,6 +190,48 @@
     return '<div class="link-tablets">' + tablets + "</div>";
   }
 
+  function encodeVideoPayload(item) {
+    if (window.GreenwaysAgentVideo && typeof window.GreenwaysAgentVideo.encodePayload === "function") {
+      return window.GreenwaysAgentVideo.encodePayload(item);
+    }
+    return encodeURIComponent(JSON.stringify(item || {}));
+  }
+
+  function videoTabletsHtml(block, escapeHtml) {
+    const items = block && Array.isArray(block.items) ? block.items : [];
+    if (!items.length) return "";
+    const heading = block.title
+      ? '<div class="video-tablets-head">' + escapeHtml(block.title) + "</div>"
+      : "";
+    const tablets = items.map(function (item) {
+      const title = escapeHtml(item.title || "Video");
+      const desc = escapeHtml(String(item.description || "").slice(0, 180));
+      const payload = encodeVideoPayload(item);
+      const playable = Boolean(item.videoId || item.videoUrl);
+      const thumbSrc = String(item.thumbnail || "").trim();
+      const thumbInner = thumbSrc
+        ? '<img src="' + escapeHtml(thumbSrc) + '" alt="" loading="lazy">'
+        : '<span class="video-tablet-fallback" aria-hidden="true">🎬</span>';
+      const badgeClass = playable ? "gw-video-play-badge" : "gw-video-site-badge";
+      const badgeLabel = playable ? "▶" : "Site";
+      const duration = item.duration ? '<span class="gw-video-duration">' + escapeHtml(item.duration) + "</span>" : "";
+      return (
+        '<article class="video-tablet">' +
+        '<button type="button" class="video-tablet-open" data-video-payload="' + payload + '">' +
+        '<div class="video-tablet-thumb">' +
+        thumbInner +
+        '<span class="' + badgeClass + '">' + badgeLabel + "</span>" +
+        duration +
+        "</div>" +
+        '<div class="video-tablet-body">' +
+        '<h4 class="video-tablet-title">' + title + "</h4>" +
+        (desc ? '<p class="video-tablet-desc">' + desc + "</p>" : "") +
+        "</div></button></article>"
+      );
+    }).join("");
+    return '<div class="video-tablets">' + heading + '<div class="video-tablets-grid">' + tablets + "</div></div>";
+  }
+
   function blocksHtml(blocks, escapeHtml) {
     if (!Array.isArray(blocks) || !blocks.length) return "";
     const parts = blocks.map(function (block) {
@@ -210,6 +252,7 @@
         return chunks.join("");
       }
       if (block.type === "module") return moduleTabletsHtml(block.items, escapeHtml);
+      if (block.type === "video") return videoTabletsHtml(block, escapeHtml);
       return "";
     }).filter(Boolean);
     if (!parts.length) return "";
@@ -269,6 +312,9 @@
     });
     blockList.forEach(function (block) {
       if (block && block.type === "module") ordered.push(blocksHtml([block], escapeHtml));
+    });
+    blockList.forEach(function (block) {
+      if (block && block.type === "video") ordered.push(blocksHtml([block], escapeHtml));
     });
     return ordered.join("");
   }

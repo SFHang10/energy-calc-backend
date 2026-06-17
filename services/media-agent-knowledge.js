@@ -1083,26 +1083,59 @@ function videoToLinkItem(v) {
   return toLinkItem(v.title || 'Video', url, desc || 'Greenways video');
 }
 
+function videoToVideoBlockItem(v) {
+  const desc = [
+    v.duration,
+    v.channelName,
+    String(v.description || '').slice(0, 90)
+  ]
+    .filter(Boolean)
+    .join(' · ');
+  return {
+    id: v.id || v.videoId || v.title,
+    title: v.title || 'Video',
+    description: desc || 'Greenways video',
+    videoId: v.videoId || '',
+    videoUrl: v.videoUrl || '',
+    thumbnail: v.thumbnail || v.imageUrl || '',
+    channelId: v.channelId || '',
+    channelName: v.channelName || '',
+    category: v.category || '',
+    duration: v.duration || '',
+    source: v.source || '',
+    pageHref: v.pageHref || 'https://www.greenwaysbuildings.com/greenways'
+  };
+}
+
+function orderVideosForDisplay(list, max = 8) {
+  const playable = list.filter(isPlayableVideo);
+  const siteOnly = list.filter((v) => !isPlayableVideo(v));
+  return [...playable, ...siteOnly].slice(0, max);
+}
+
+function buildVideoBlocks(title, videos, max = 8) {
+  const items = orderVideosForDisplay(videos, max).map(videoToVideoBlockItem);
+  if (!items.length) return [];
+  return [{ type: 'video', title, items }];
+}
+
 async function buildChannelVideosAnswer(channelId, tip, question, profile = {}) {
-  const { videos, source, channels = [] } = await getVideosForAgent();
+  const { videos, channels = [] } = await getVideosForAgent();
   const channel = channels.find((c) => c.id === channelId);
   const label = channel?.name || channelId;
   const list = videos.filter((v) => v.channelId === channelId);
-  const samples = await pickVideoSamples(question || label, profile, 3, channelId);
   const playable = list.filter(isPlayableVideo).length;
+  const picks = orderVideosForDisplay(list, 8);
   return {
     answer:
-      `**${label}** — **${list.length}** videos on Greenways (${playable} playable here now).\n\n` +
-      `Tap **▶** when available, or **Open on site** for the full Wix Video channel.\n\n` +
-      list
-        .slice(0, 6)
-        .map((v) => `- **${v.title}**${v.duration ? ` (${v.duration})` : ''}`)
-        .join('\n') +
-      `\n\n_${tip}_`,
-    suggestions: [],
+      `**${label}** — **${list.length}** videos on Greenways (**${playable}** play here with ▶).\n\n` +
+      `I know this channel well — browse the **${picks.length} cards on the right** from the same group. ` +
+      `After you watch one, the player suggests **more from this channel**.\n\n_${tip}_`,
+    suggestions: picks.length > 1
+      ? picks.slice(1, 4).map((v) => `Tell me about ${v.title}`)
+      : [],
     intentId: `channel_${channelId}`,
-    blocks: list.length ? [{ type: 'link', items: list.slice(0, 6).map(videoToLinkItem) }] : [],
-    productSamples: samples.length ? samples : list.slice(0, 3).map((v) => videoToSample(v, source))
+    blocks: buildVideoBlocks(`${label} — channel picks`, list, 8)
   };
 }
 
@@ -1110,22 +1143,25 @@ async function buildVideoCategoryAnswer(category, tip, question, profile = {}) {
   const { videos, source } = await getVideosForAgent();
   const label = VIDEO_CATEGORIES[category] || category;
   const matches = videos.filter((v) => v.category === category || (category === 'energy' && v.category === 'general'));
-  const list = (matches.length ? matches : videos).slice(0, 6);
-  const samples = await pickVideoSamples(question || category, profile, 3, category);
+  const list = matches.length ? matches : videos;
+  const picks = orderVideosForDisplay(list, 8);
+  const syncNote =
+    source === 'wix'
+      ? ''
+      : source === 'catalog' || source === 'catalog+youtube'
+        ? '_Product MP4s + YouTube channel export — full Wix sync when API credentials are live on Render._\n\n'
+        : '_Sample showcase until Wix credentials are configured on Render._\n\n';
   return {
     answer:
-      `Here are **${label}** picks from the Greenways video library.\n\n` +
-      `Tap **▶** when a video plays here, or **Open on site** for the full Wix Video channel.\n\n` +
-      (source === 'wix'
-        ? ''
-        : source === 'catalog'
-          ? '_Playing from the Greenways video catalog snapshot (full Wix library sync when API credentials are live on Render)._\n\n'
-          : '_Sample showcase until Wix credentials are configured on Render._\n\n') +
+      `**${label}** across Greenways — **${picks.length}** picks on the right, grouped by topic. ` +
+      `Tap **▶** to watch; the player surfaces **more from the same channel** after each clip.\n\n` +
+      syncNote +
       `_${tip}_`,
-    suggestions: [],
+    suggestions: picks.length > 1
+      ? picks.slice(1, 4).map((v) => `Play ${v.title}`)
+      : [],
     intentId: `video_${category}`,
-    blocks: list.length ? [{ type: 'link', items: list.map(videoToLinkItem) }] : [],
-    productSamples: samples.length ? samples : list.slice(0, 3).map((v) => videoToSample(v, source))
+    blocks: buildVideoBlocks(`${label} — video picks`, list, 8)
   };
 }
 
@@ -1139,22 +1175,28 @@ async function buildWixVideosAnswer(tip) {
       return n ? `- **${c.name}:** ${n} videos` : `- **${c.name}** _(on site — export to sync titles)_`;
     })
     .join('\n');
+  const quickPicks = orderVideosForDisplay(videos.filter(isPlayableVideo), 6);
   return {
     answer:
       `**Greenways video library** on [/greenways](https://www.greenwaysbuildings.com/greenways) — **14 Wix Video channels** (YouTube feeds) plus marketplace product demos.\n\n` +
       `**Cheryce can see right now:** ${mp4Count} playable product MP4s + **${youtubeCount || videos.filter((v) => v.source === 'wix-youtube').length}** curated YouTube titles from your channel export (${ytCount} with ▶ embed IDs so far).\n\n` +
+      `**Quick picks** are on the right — ask for a **channel by name** and I will show **everything in that group**.\n\n` +
       `**Your Wix Video channels:**\n${channelLines}\n\n` +
       (source === 'wix'
         ? ''
         : source === 'catalog' || source === 'catalog+youtube'
           ? '_Product MP4s from marketplace media; YouTube channel list from `wix-youtube-channels.json`. Re-export `/greenways` and run `npm run parse:greenways-youtube` to refresh._\n\n'
           : '⚠️ Wix API credentials not live — showing catalog snapshot.\n\n') +
-      `Ask for a channel by name — e.g. *“Show Restaurant Energy Savings videos”* or *“Sustainability in Action examples”*.\n\n_${tip}_`,
+      `_${tip}_`,
     suggestions: [
       'Show Restaurant Energy Savings videos',
       'Sustainability in Action videos',
       'Home Energy Savings smart home videos'
-    ]
+    ],
+    intentId: 'wix_videos',
+    blocks: quickPicks.length
+      ? buildVideoBlocks('Playable now — tap ▶', quickPicks, 6)
+      : []
   };
 }
 

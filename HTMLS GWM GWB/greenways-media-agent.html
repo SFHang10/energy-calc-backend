@@ -2052,6 +2052,11 @@
     return '<div class="agent-handoff-chips" aria-label="Open specialist agent">' + chips + '</div><div class="agent-handoff-hint">Opens the specialist chat with your question</div>';
   }
 
+  function isVideoChannelIntent(intentId) {
+    if (!intentId) return false;
+    return /^channel_/.test(intentId) || /^video_/.test(intentId) || intentId === "wix_videos";
+  }
+
   function finishAgentTurn(el, payload) {
     const profile = getProfile();
     const answer = payload.answer || "I could not answer that yet.";
@@ -2062,7 +2067,7 @@
     lastIntentId = intentId;
     lastQuestion = payload.question || lastQuestion;
 
-    if (payload.productSamples && payload.productSamples.length) {
+    if (payload.productSamples && payload.productSamples.length && !isVideoChannelIntent(intentId)) {
       paintBannerProducts(payload.productSamples);
     }
     updateMapModuleBar(payload);
@@ -2428,7 +2433,7 @@
         var base = apiBase();
         return base || location.origin || "";
       },
-      relatedTitle: "More in the sustainability story",
+      relatedTitle: "More from this channel",
       onAsk: function (video) {
         var title = String((video && video.title) || "this video");
         sendQuestion("How does " + title + " fit the sustainability story for my " + (getProfile().sector || "business") + "?");
