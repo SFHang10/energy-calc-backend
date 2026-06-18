@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="wix-html-scroll" content="no-scroll">
-<title>Greenways Agents Highlights</title>
+<title>Greenways Transition Agents Portal — Highlights</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -22,20 +22,30 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body {
     min-height: 100%;
-    background: var(--bg);
+    background: #0f172a;
     color: var(--text);
     font-family: var(--font);
     overflow-x: hidden;
   }
-  body::before {
-    content: "";
+  .gw-portal-backdrop {
     position: fixed;
     inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: url("https://static.wixstatic.com/media/c123de_7b0b71bddde54e5e87499297ca4cf38a~mv2.jpeg");
+    background-size: cover;
+    background-position: center;
+    opacity: 0.46;
+    filter: saturate(1.06) brightness(0.94);
+  }
+  .gw-portal-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
     pointer-events: none;
     background:
-      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(40, 167, 69, 0.12), transparent 55%),
-      radial-gradient(ellipse 60% 40% at 100% 20%, rgba(0, 123, 255, 0.08), transparent 50%);
-    z-index: 0;
+      linear-gradient(180deg, rgba(6, 10, 16, 0.5) 0%, rgba(6, 10, 16, 0.88) 100%),
+      radial-gradient(ellipse 85% 55% at 50% -10%, rgba(40, 167, 69, 0.14), transparent 55%);
   }
   .highlights-page {
     position: relative;
@@ -113,8 +123,10 @@
     display: flex;
     flex-direction: column;
     border-radius: 16px;
-    border: 1px solid var(--border);
-    background: linear-gradient(165deg, rgba(14, 21, 32, 0.98), rgba(8, 12, 18, 0.98));
+    border: 1px solid rgba(75, 140, 104, 0.32);
+    background: linear-gradient(165deg, rgba(14, 21, 32, 0.78), rgba(8, 12, 18, 0.85));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
     overflow: hidden;
     --agent-accent: #28a745;
@@ -288,7 +300,9 @@
     padding: 20px 16px;
     border-radius: 14px;
     border: 1px dashed rgba(75, 140, 104, 0.35);
-    background: rgba(14, 21, 32, 0.6);
+    background: rgba(14, 21, 32, 0.72);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
   }
   .highlights-orchestra p {
     font-size: 0.85rem;
@@ -315,26 +329,30 @@
 </style>
 </head>
 <body>
+<div class="gw-portal-backdrop" aria-hidden="true"></div>
+<div class="gw-portal-scrim" aria-hidden="true"></div>
 <div class="highlights-page">
-  <nav class="highlights-nav" aria-label="Greenways agents pages">
-    <a href="/greenways/agents-story">Why Transition Agents →</a>
-    <a href="/greenways/orchestra-hub-wix-frame" class="is-muted">Orchestra hub</a>
+  <nav class="highlights-nav" aria-label="Greenways Transition Agents Portal">
+    <a href="/greenways/agents-story">Why this portal →</a>
+    <a href="/greenways/orchestra-hub-wix-frame" class="is-muted">Orchestra portal</a>
   </nav>
   <header class="highlights-hero">
-    <h1>Greenways Agents Highlights</h1>
-    <span class="highlights-badge" id="week-badge">Weekly snapshot</span>
+    <h1>Transition Agents Portal — Highlights</h1>
+    <span class="highlights-badge" id="week-badge">Portal · weekly snapshot</span>
     <p class="highlights-intro">
-      Seven Transition Agents — each on their own page on the site. This showcase pulls a
-      <strong>fresh answer from this week</strong> so you see an up-to-date version of what they are saying, not just a demo.
+      Welcome to the <strong>Greenways Agent Transition Portal</strong> — a digital interface where seven
+      specialists each have their own chat room. This highlights portal pulls a
+      <strong>fresh answer from this week</strong> so you see an up-to-date version of what they are saying,
+      not just a demo.
     </p>
     <p class="highlights-meta" id="profile-note"></p>
   </header>
-  <div class="highlights-loading" id="highlights-loading">Loading agent highlights…</div>
+  <div class="highlights-loading" id="highlights-loading">Loading portal highlights…</div>
   <div class="highlights-grid" id="highlights-grid" hidden></div>
   <div class="highlights-error" id="highlights-error" hidden></div>
   <aside class="highlights-orchestra" id="orchestra-cta" hidden>
-    <p>Not sure who to ask first? The Orchestra hub routes your question to the best specialist.</p>
-    <a href="/greenways/orchestra-hub-wix-frame" target="_top" rel="noopener">Open Greenways Orchestra →</a>
+    <p>Not sure who to ask first? The Orchestra portal routes your question to the best specialist inside the interface.</p>
+    <a href="/greenways/orchestra-hub-wix-frame" target="_top" rel="noopener">Open Orchestra portal →</a>
   </aside>
 </div>
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.js"></script>
@@ -432,7 +450,7 @@
         .join("") +
       "</div>" +
       '<div class="highlight-chat-wrap">' +
-      '<div class="highlight-chat-label">This week&apos;s highlight <em>Scroll inside preview ↓</em></div>' +
+      '<div class="highlight-chat-label">Portal preview · this week <em>Scroll inside ↓</em></div>' +
       '<div class="highlight-chat-viewport">' +
       '<div class="highlight-chat-scale">' +
       renderMiniTurn(agent, h) +
@@ -444,9 +462,9 @@
       "</span>" +
       '<a class="agent-highlight-cta" href="' +
       escapeHtml(agentChatHref(agent, h.question)) +
-      '" target="_top" rel="noopener">Chat with ' +
+      '" target="_top" rel="noopener">Open ' +
       escapeHtml(agent.name) +
-      " →</a></div>";
+      " portal →</a></div>";
     return card;
   }
 
