@@ -121,7 +121,7 @@ function editionLinksBlock(catalog) {
   if (sust) {
     lines.push(`- **Latest sustainability edition (${sust.edition}):** ${sust.pageHref} — ${sust.storyCount} stories`);
   }
-  lines.push(`- **Site news page:** ${HTMLS_NEWS_PAGES[0]?.href || './January%20Sustainable%20News%20Original%20.html'}`);
+  lines.push(`- **Site news page:** ${HTMLS_NEWS_PAGES[0]?.href || '/content-ops/review/sustainability-news/2026-04-sustainability-news.html'}`);
   lines.push(`- **Full media view:** ${PORTAL_LINKS.mediaAgent || '/greenways/media-agent'} (Cheryce — editions & video)`);
   return lines.join('\n');
 }

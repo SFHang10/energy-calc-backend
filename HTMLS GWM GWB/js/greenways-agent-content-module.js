@@ -180,7 +180,7 @@
       title: "Sustainability news",
       description: "Monthly sustainability news editions on Greenways.",
       usageHint: "Browse the latest edition headlines, then ask Cheryce how a story affects your bills or upgrade timing.",
-      href: "./January%20Sustainable%20News%20Original%20.html",
+      href: "../content-ops/review/sustainability-news/2026-04-sustainability-news.html",
       defaultOpenSize: "near-full"
     },
     "sustainability-news-edition": {
@@ -188,7 +188,7 @@
       title: "Sustainability news edition",
       description: "Latest monthly newsletter — how-this-helps framing for your sector.",
       usageHint: "Browse stories by theme, read the impact line on each item, and follow links when a headline matches your upgrade plans.",
-      href: "../content-ops/drafts/sustainability-news/2026-04-sustainability-news.html",
+      href: "../content-ops/review/sustainability-news/2026-04-sustainability-news.html",
       defaultOpenSize: "near-full"
     },
     "tech-news-edition": {

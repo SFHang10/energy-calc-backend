@@ -190,6 +190,12 @@ app.get('/greenways/orchestra-hub', (req, res) => sendLiveMusicHtml(res, 'greenw
 app.get('/greenways/orchestra-hub-wix-frame', (req, res) => sendLiveMusicHtml(res, 'greenways-orchestra-hub-wix-frame.html'));
 app.get('/greenways/guide-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-orchestra-hub.html'));
 
+// Legacy Wix newsletter path → deployed content-ops edition
+app.get('/HTMLS GWM GWB/January Sustainable News Original .html', (req, res) => {
+  const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+  return res.redirect(302, `/content-ops/review/sustainability-news/2026-04-sustainability-news.html${qs}`);
+});
+
 LIVE_MUSIC_DATA.forEach(([name, filePath]) => {
   app.get(`/data/${name}`, (req, res) => {
     const fsSync = require('fs');

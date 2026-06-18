@@ -15,7 +15,8 @@ const {
   rankNewsItems,
   filterByCategory,
   getLatestEdition,
-  pickEditionChips
+  pickEditionChips,
+  DEFAULT_SUSTAINABILITY_NEWS_HREF
 } = require('./media-news-loader');
 const {
   MAP_PAGE_HREF,
@@ -50,7 +51,7 @@ const MEDIA_KNOWLEDGE_VERSION = '2026-05-28-conversational-blocks';
 const REGION_LABELS = { nl: 'Netherlands', uk: 'United Kingdom', eu: 'EU-wide' };
 
 const MEDIA_PAGES = {
-  sustainabilityNews: './January%20Sustainable%20News%20Original%20.html',
+  sustainabilityNews: DEFAULT_SUSTAINABILITY_NEWS_HREF,
   sustainableReferences: './Sustainable%20References%20.HTML',
   importanceMonitoring: './Importance%20of%20Energy%20Monitoring.html',
   waterGuide: './water-saving-finder.html',
@@ -62,6 +63,7 @@ const MEDIA_PAGES = {
 const MEDIA_MODULE = { theme: 'media', agentName: 'Cheryce' };
 
 const PORTAL_PATH_MODULE_IDS = [
+  ['content-ops/review/sustainability-news', 'sustainability-news-page'],
   ['january%20sustainable%20news', 'sustainability-news-page'],
   ['sustainable%20references', 'sustainable-references'],
   ['importance%20of%20energy%20monitoring', 'energy-monitoring'],
