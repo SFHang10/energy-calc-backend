@@ -678,6 +678,25 @@
     }
   }
 
+  function applyMapIframeHeight(height) {
+    if (!activeIframe || !stageEl) return;
+    var max = Math.round(window.innerHeight * 0.82);
+    var h = Math.max(560, Math.min(Number(height) || 0, max));
+    if (!h || !isFinite(h)) h = 640;
+    activeIframe.style.position = "relative";
+    activeIframe.style.inset = "auto";
+    activeIframe.style.display = "block";
+    activeIframe.style.width = "100%";
+    activeIframe.style.height = h + "px";
+    activeIframe.style.minHeight = "560px";
+  }
+
+  function applyMapModuleChrome(item) {
+    if (!modalEl) return;
+    var isMap = item && String(item.moduleId || "") === "sustainability-map";
+    modalEl.classList.toggle("is-map-module", isMap);
+  }
+
   function applyOpenSize(item) {
     if (!modalEl) return;
     var size = String((item && item.openSize) || "").toLowerCase();
@@ -829,6 +848,7 @@
       var data = event.data;
       if (!data || typeof data !== "object" || data.type !== "gw-module-embed-ready") return;
       if (moduleId && data.moduleId && data.moduleId !== moduleId) return;
+      if (moduleId === "sustainability-map" && data.height) applyMapIframeHeight(data.height);
       finishLoadingStage();
     };
     window.addEventListener("message", embedMessageHandler);
@@ -935,7 +955,9 @@
 
     modalEl.classList.add("is-open");
     setBodyLock(true);
+    applyMapModuleChrome(item);
     applyOpenSize(item);
+    if (String(item.moduleId || "") === "sustainability-map") applyMapIframeHeight(680);
   }
 
   function close() {
@@ -944,6 +966,7 @@
     clearStage();
     modalEl.classList.remove("is-open");
     modalEl.classList.remove("is-near-full");
+    modalEl.classList.remove("is-map-module");
     setExpanded(false);
     setBodyLock(false);
   }

@@ -72,9 +72,47 @@
 
   html.gw-map-in-portal,
   html.gw-map-in-portal body {
-    height: 100%;
-    overflow: auto;
+    height: auto;
+    min-height: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  html.gw-map-in-portal body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    max-height: none;
+  }
+
+  html.gw-map-in-portal .main {
+    flex: 1 1 auto;
+    min-height: 620px;
+    height: auto;
+    overflow: visible;
+  }
+
+  html.gw-map-in-portal .sidebar {
+    max-height: none;
+    overflow: visible;
+  }
+
+  html.gw-map-in-portal .company-list {
+    flex: 1 1 auto;
+    min-height: 300px;
+    max-height: none;
+    overflow-y: auto;
     overflow-x: hidden;
+  }
+
+  html.gw-map-in-portal .map-container {
+    min-height: 480px;
+  }
+
+  html.gw-map-in-portal header {
+    padding: 10px 18px;
   }
 
   html.gw-map-in-portal .helper-popup.visible {
@@ -1248,6 +1286,16 @@
   }
 
   @media (max-width: 700px) {
+    html.gw-map-in-portal body {
+      overflow-x: auto;
+      overflow-y: auto;
+    }
+    html.gw-map-in-portal .main {
+      min-width: 0;
+      width: 100%;
+      flex-direction: column;
+      overflow: visible;
+    }
     body {
       overflow-x: auto;
       overflow-y: hidden;
@@ -2140,16 +2188,40 @@ let companies = mergeWithDirectory(
 );
 let mapReady = false;
 
+function measureEmbedHeight() {
+  return Math.ceil(
+    Math.max(
+      document.documentElement.scrollHeight || 0,
+      document.body ? document.body.scrollHeight : 0,
+      document.documentElement.offsetHeight || 0
+    )
+  );
+}
+
 function notifyEmbedReady() {
   tryFocusPendingCompany();
   try {
     if (window.self !== window.top) {
       window.parent.postMessage(
-        { type: "gw-module-embed-ready", moduleId: "sustainability-map" },
+        {
+          type: "gw-module-embed-ready",
+          moduleId: "sustainability-map",
+          height: measureEmbedHeight()
+        },
         "*"
       );
     }
   } catch (_) {}
+}
+
+let embedHeightTimer = null;
+function scheduleEmbedHeightNotify() {
+  if (!document.documentElement.classList.contains("gw-map-in-portal")) return;
+  if (embedHeightTimer) clearTimeout(embedHeightTimer);
+  embedHeightTimer = setTimeout(function () {
+    embedHeightTimer = null;
+    notifyEmbedReady();
+  }, 120);
 }
 
 const toast = document.getElementById("save-toast");
@@ -3050,6 +3122,7 @@ function renderSidebar() {
       selectCompany(parseInt(el.dataset.id));
     });
   });
+  scheduleEmbedHeightNotify();
 }
 
 // ── SEARCH & FILTER ──
