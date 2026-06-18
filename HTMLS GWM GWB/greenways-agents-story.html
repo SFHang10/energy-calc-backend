@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Why Greenways Transition Agents</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060a10;
+    --panel: #0e1520;
+    --panel2: #121a26;
+    --border: rgba(75, 140, 104, 0.22);
+    --text: #e8f0ec;
+    --muted: #8fa89a;
+    --gold: #c9a961;
+    --green: #28a745;
+    --cyan: #22d3ee;
+    --font: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    overflow-x: hidden;
+    line-height: 1.55;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 85% 55% at 50% -15%, rgba(40, 167, 69, 0.14), transparent 58%),
+      radial-gradient(ellipse 50% 35% at 0% 40%, rgba(0, 123, 255, 0.07), transparent 50%),
+      radial-gradient(ellipse 45% 30% at 100% 60%, rgba(201, 169, 97, 0.08), transparent 45%);
+    z-index: 0;
+  }
+  .story-page {
+    position: relative;
+    z-index: 1;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 28px 18px 48px;
+  }
+  .story-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  .story-nav a {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: #86efac;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(134, 239, 172, 0.3);
+    background: rgba(40, 167, 69, 0.08);
+    transition: background 0.15s, transform 0.15s;
+  }
+  .story-nav a:hover {
+    background: rgba(40, 167, 69, 0.18);
+    transform: translateY(-1px);
+  }
+  .story-nav a.is-muted {
+    color: var(--muted);
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .story-hero {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .story-hero h1 {
+    font-size: clamp(1.55rem, 4vw, 2.15rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    background: linear-gradient(135deg, #fff 0%, var(--gold) 55%, #86efac 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .story-badge {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 5px 14px;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid rgba(201, 169, 97, 0.4);
+    background: rgba(201, 169, 97, 0.08);
+  }
+  .story-lede {
+    margin-top: 16px;
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: #c5d4cc;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .story-section {
+    margin-bottom: 32px;
+    padding: 22px 22px 20px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: linear-gradient(165deg, rgba(14, 21, 32, 0.95), rgba(8, 12, 18, 0.98));
+    box-shadow: 0 10px 36px rgba(0, 0, 0, 0.28);
+  }
+  .story-section h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .story-section h2 .icon {
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+  .story-section p {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .story-section p:last-child { margin-bottom: 0; }
+  .story-section strong { color: #dde8e2; font-weight: 600; }
+  .story-section em { color: #a8c4b4; font-style: normal; }
+  .story-list {
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .story-list li {
+    position: relative;
+    padding: 8px 0 8px 18px;
+    font-size: 0.88rem;
+    color: var(--muted);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .story-list li:first-child { border-top: none; padding-top: 0; }
+  .story-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 1.05em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
+  }
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .tool-chip {
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(34, 212, 255, 0.22);
+    background: rgba(34, 212, 255, 0.06);
+    font-size: 0.78rem;
+    color: #b8e8f0;
+  }
+  .tool-chip strong {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--cyan);
+    margin-bottom: 4px;
+  }
+  .agents-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 16px;
+  }
+  .agent-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px 8px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--panel2);
+    text-decoration: none;
+    color: var(--text);
+    font-size: 0.78rem;
+    font-weight: 600;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .agent-pill:hover {
+    border-color: rgba(75, 140, 104, 0.45);
+    transform: translateY(-2px);
+  }
+  .agent-pill img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top center;
+  }
+  .agent-pill span { color: var(--muted); font-weight: 500; }
+  .story-cta {
+    text-align: center;
+    margin-top: 36px;
+    padding: 24px 20px;
+    border-radius: 16px;
+    border: 1px dashed rgba(75, 140, 104, 0.4);
+    background: rgba(14, 21, 32, 0.5);
+  }
+  .story-cta p {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin-bottom: 16px;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .story-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  .story-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 11px 20px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: filter 0.15s, transform 0.15s;
+  }
+  .story-cta-btn.primary {
+    color: #fff;
+    background: linear-gradient(135deg, #1e6b38, var(--green));
+    border: 1px solid rgba(134, 239, 172, 0.35);
+  }
+  .story-cta-btn.secondary {
+    color: var(--gold);
+    background: rgba(201, 169, 97, 0.1);
+    border: 1px solid rgba(201, 169, 97, 0.35);
+  }
+  .story-cta-btn:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+  }
+  .journey-line {
+    text-align: center;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin: 28px 0 8px;
+  }
+</style>
+</head>
+<body>
+<div class="story-page">
+  <nav class="story-nav" aria-label="Greenways agents pages">
+    <a href="/greenways/agents-highlights">Agents highlights →</a>
+    <a href="/greenways/orchestra-hub-wix-frame" class="is-muted">Orchestra hub</a>
+  </nav>
+
+  <header class="story-hero">
+    <h1>Why we built the Greenways Transition Agents</h1>
+    <span class="story-badge">The sustainability journey</span>
+    <p class="story-lede">
+      Greenways exists to help businesses move through the <strong>energy transition</strong> with clarity —
+      especially <strong>restaurants and hospitality</strong>, where equipment, bills, and building upgrades
+      all meet at once. The Transition Agents are your specialised guides on that path.
+    </p>
+  </header>
+
+  <section class="story-section">
+    <h2><span class="icon" aria-hidden="true">📊</span> See energy use — then act on it</h2>
+    <p>
+      Saving energy starts with <strong>seeing it clearly</strong>. Greenways brings together monitoring views,
+      utility breakdowns, and realistic visualisations so you can understand how your premises uses electricity,
+      gas, and water — not abstract averages, but patterns you can respond to.
+    </p>
+    <p>
+      For operators who want an <strong>active picture</strong> of performance, the buildings dashboard and
+      related tools show KPIs, trends, and drill-downs that help you spot waste, compare sites, and prioritise
+      upgrades. The agents can walk you through what each view means and what to do next.
+    </p>
+  </section>
+
+  <section class="story-section">
+    <h2><span class="icon" aria-hidden="true">🌿</span> One service, many talents</h2>
+    <p>
+      The transition is not only about meters and charts. Businesses need to stay current on
+      <strong>news and policy</strong>, find <strong>efficient products</strong>, uncover
+      <strong>grants, subsidies, and government schemes</strong>, and compare <strong>finance and payback</strong>
+      before committing to capex.
+    </p>
+    <p>
+      Rather than one generic chatbot, Greenways offers a <strong>multi-talented team</strong> — seven named
+      specialists, each focused on a lane of the journey. They hand off to one another when your question crosses
+      topics, so you always talk to someone who knows that corner of the site.
+    </p>
+  </section>
+
+  <section class="story-section">
+    <h2><span class="icon" aria-hidden="true">🧰</span> The Greenways website — tools the agents know</h2>
+    <p>
+      The Greenways site is full of interactive tools that let you explore energy savings in
+      <strong>novel, practical ways</strong>. The agents are grounded in that same catalogue: they know what each
+      tool does, when to use it, and how to get the best from it — you can ask in plain language instead of
+      hunting menus.
+    </p>
+    <ul class="story-list">
+      <li>
+        <strong>Equipment intelligence &amp; deep dive</strong> — compare baseline energy usage statistics against
+        manufacturer standards to see if a piece of equipment is running inefficiently, then browse alternatives
+        and grants on the same journey.
+      </li>
+      <li>
+        <strong>Product calculator &amp; savings projections</strong> — model payback, grants, and upgrade paths
+        with illustrative charts (do nothing vs upgrade, building vs equipment scope).
+      </li>
+      <li>
+        <strong>Schemes &amp; finance finders</strong> — restaurant and EU portals, BNPL, green loans, and
+        tariff context tied to real scheme rows.
+      </li>
+      <li>
+        <strong>Deals hub &amp; sustainable product finders</strong> — live spotlights and lane-based search
+        (water, electricity, gas).
+      </li>
+      <li>
+        <strong>News, map &amp; media</strong> — monthly editions, case-study map, and video channels for
+        staying up to date.
+      </li>
+      <li>
+        <strong>Buildings dashboard &amp; sensor views</strong> — portfolio KPIs and monitoring entry points
+        for ongoing ops.
+      </li>
+    </ul>
+    <div class="tool-grid" aria-hidden="true">
+      <div class="tool-chip"><strong>Calculators</strong> Compare products, tariffs, and ROI scenarios</div>
+      <div class="tool-chip"><strong>Grants overlay</strong> Scheme matches on marketplace equipment</div>
+      <div class="tool-chip"><strong>Energy ticker</strong> Live price context for upgrade timing</div>
+      <div class="tool-chip"><strong>Renovation guides</strong> Insulation, retrofit, and project planning</div>
+    </div>
+  </section>
+
+  <section class="story-section">
+    <h2><span class="icon" aria-hidden="true">👥</span> Seven specialists — and growing</h2>
+    <p>
+      Each Transition Agent is a <strong>character with a dedicated chat</strong> on the Greenways site (one agent
+      per page — so conversations stay focused). They are not static brochures: their
+      <strong>skill toolkits expand over time</strong> as we add schemes, products, tools, and data to the platform.
+    </p>
+    <p>
+      Think of them as a <strong>helping conduit</strong> on your sustainability journey — grounded in live
+      Greenways content, honest about limits, and ready to point you to the right tool or colleague when a
+      question needs another expert.
+    </p>
+    <div class="agents-strip" id="agents-strip">
+      <span style="color:var(--muted);font-size:0.8rem;">Loading team…</span>
+    </div>
+  </section>
+
+  <p class="journey-line">From insight → funding → equipment → ongoing ops</p>
+
+  <aside class="story-cta">
+    <p>
+      See what each agent is answering <em>this week</em>, then open a full chat with the specialist who fits
+      your question.
+    </p>
+    <div class="story-cta-row">
+      <a class="story-cta-btn primary" href="/greenways/agents-highlights">View agents highlights</a>
+      <a class="story-cta-btn secondary" href="/greenways/orchestra-hub-wix-frame">Ask the Orchestra hub</a>
+    </div>
+  </aside>
+</div>
+<script>
+(function () {
+  function contentBase() {
+    var h = location.hostname || "";
+    if (h === "localhost" || h === "127.0.0.1" || h.indexOf("energy-calc-backend") !== -1) {
+      return location.origin || "";
+    }
+    return "https://energy-calc-backend.onrender.com";
+  }
+
+  var ROLE_LINES = {
+    grants: "Grants & schemes",
+    finance: "Finance & payback",
+    equipment: "Equipment & renovation",
+    deals: "Deals & tariffs",
+    media: "News & media",
+    products: "Sustainable products",
+    systems: "Systems & monitoring"
+  };
+
+  fetch(contentBase() + "/data/greenways-agent-roster.json")
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var strip = document.getElementById("agents-strip");
+      if (!strip) return;
+      strip.innerHTML = (data.agents || [])
+        .map(function (a) {
+          var role = ROLE_LINES[a.id] || a.shortLabel || "";
+          var href = contentBase() + (a.path || "/greenways/" + a.slug);
+          return (
+            '<a class="agent-pill" href="' + href + '" target="_top" rel="noopener">' +
+            '<img src="' + a.imageUrl + '" alt="" width="32" height="32" decoding="async">' +
+            a.name + ' <span>· ' + role + "</span></a>"
+          );
+        })
+        .join("");
+    })
+    .catch(function () {
+      var strip = document.getElementById("agents-strip");
+      if (strip) strip.innerHTML = "";
+    });
+})();
+</script>
+</body>
+</html>
