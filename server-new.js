@@ -189,6 +189,7 @@ app.get('/greenways/systems-agent', (req, res) => sendLiveMusicHtml(res, 'greenw
 app.get('/greenways/orchestra-hub', (req, res) => sendLiveMusicHtml(res, 'greenways-orchestra-hub.html'));
 app.get('/greenways/orchestra-hub-wix-frame', (req, res) => sendLiveMusicHtml(res, 'greenways-orchestra-hub-wix-frame.html'));
 app.get('/greenways/guide-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-orchestra-hub.html'));
+app.get('/greenways/agents-highlights', (req, res) => sendLiveMusicHtml(res, 'greenways-agents-highlights.html'));
 
 // Legacy Wix newsletter path → deployed content-ops edition
 app.get('/HTMLS GWM GWB/January Sustainable News Original .html', (req, res) => {

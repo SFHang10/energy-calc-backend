@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Greenways Agents Highlights</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.css">
+<style>
+  :root {
+    --bg: #060a10;
+    --panel: #0e1520;
+    --border: rgba(75, 140, 104, 0.22);
+    --text: #e8f0ec;
+    --muted: #8fa89a;
+    --gold: #c9a961;
+    --font: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(40, 167, 69, 0.12), transparent 55%),
+      radial-gradient(ellipse 60% 40% at 100% 20%, rgba(0, 123, 255, 0.08), transparent 50%);
+    z-index: 0;
+  }
+  .highlights-page {
+    position: relative;
+    z-index: 1;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+  }
+  .highlights-hero {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .highlights-hero h1 {
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #fff 0%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .highlights-badge {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #86efac;
+    border: 1px solid rgba(134, 239, 172, 0.35);
+    background: rgba(40, 167, 69, 0.1);
+  }
+  .highlights-intro {
+    max-width: 680px;
+    margin: 12px auto 0;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  .highlights-meta {
+    margin-top: 10px;
+    font-size: 0.72rem;
+    color: #64748b;
+  }
+  .highlights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr));
+    gap: 18px;
+  }
+  .agent-highlight-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: linear-gradient(165deg, rgba(14, 21, 32, 0.98), rgba(8, 12, 18, 0.98));
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    --agent-accent: #28a745;
+  }
+  .agent-highlight-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .agent-highlight-portrait {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top center;
+    border: 2px solid color-mix(in srgb, var(--agent-accent) 55%, transparent);
+    flex-shrink: 0;
+  }
+  .agent-highlight-head-copy h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .agent-highlight-head-copy h2 span {
+    color: var(--agent-accent);
+  }
+  .agent-highlight-role {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .agent-skill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 18px 12px;
+  }
+  .agent-skill-chip {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 4px 9px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--agent-accent) 35%, transparent);
+    color: color-mix(in srgb, var(--agent-accent) 85%, #fff);
+    background: color-mix(in srgb, var(--agent-accent) 12%, transparent);
+  }
+  .highlight-chat-wrap {
+    margin: 0 14px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #080c14;
+    overflow: hidden;
+  }
+  .highlight-chat-label {
+    padding: 8px 12px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .highlight-chat-label em {
+    font-style: normal;
+    color: #94a3b8;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .highlight-chat-viewport {
+    height: 300px;
+    overflow: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  .highlight-chat-scale {
+    transform: scale(0.82);
+    transform-origin: top left;
+    width: 121.95%;
+    padding: 10px 12px 16px;
+    min-height: 340px;
+  }
+  .mini-thread {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .mini-thread .msg-row {
+    display: flex;
+    max-width: 100%;
+  }
+  .mini-thread .msg-row.user {
+    justify-content: flex-end;
+  }
+  .mini-thread .msg-bubble {
+    padding: 10px 12px;
+    border-radius: 14px;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    max-width: 92%;
+  }
+  .mini-thread .msg-row.user .msg-bubble {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
+  }
+  .mini-thread .msg-row.agent .msg-bubble {
+    background: color-mix(in srgb, var(--agent-accent) 18%, #0a1018);
+    border: 1px solid color-mix(in srgb, var(--agent-accent) 35%, transparent);
+    color: #eef2ff;
+  }
+  .mini-thread .msg-row.agent.has-split {
+    max-width: 100%;
+  }
+  .mini-thread .agent-turn-split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px;
+  }
+  .mini-thread .scheme-tablet,
+  .mini-thread .link-tablet,
+  .mini-thread .module-tablet {
+    pointer-events: none;
+  }
+  .mini-thread .scheme-tablet-link,
+  .mini-thread .link-tablet a {
+    pointer-events: none;
+    opacity: 0.85;
+  }
+  .agent-highlight-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 18px 16px;
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .agent-highlight-intent {
+    font-size: 0.65rem;
+    color: #64748b;
+  }
+  .agent-highlight-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: #fff;
+    background: color-mix(in srgb, var(--agent-accent) 75%, #000);
+    border: 1px solid color-mix(in srgb, var(--agent-accent) 50%, transparent);
+    white-space: nowrap;
+    transition: filter 0.15s, transform 0.15s;
+  }
+  .agent-highlight-cta:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+  }
+  .highlights-orchestra {
+    margin-top: 28px;
+    text-align: center;
+    padding: 20px 16px;
+    border-radius: 14px;
+    border: 1px dashed rgba(75, 140, 104, 0.35);
+    background: rgba(14, 21, 32, 0.6);
+  }
+  .highlights-orchestra p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .highlights-orchestra a {
+    color: #86efac;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .highlights-orchestra a:hover { text-decoration: underline; }
+  .highlights-loading,
+  .highlights-error {
+    text-align: center;
+    padding: 48px 16px;
+    color: var(--muted);
+  }
+  @media (max-width: 560px) {
+    .highlight-chat-viewport { height: 260px; }
+    .agent-highlight-foot { flex-direction: column; align-items: stretch; }
+    .agent-highlight-cta { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+<div class="highlights-page">
+  <header class="highlights-hero">
+    <h1>Greenways Agents Highlights</h1>
+    <span class="highlights-badge" id="week-badge">Weekly snapshot</span>
+    <p class="highlights-intro">
+      Seven Transition Agents — each on their own page on the site. This showcase pulls a
+      <strong>fresh answer from this week</strong> so visitors see what they are saying now, not a stale demo.
+    </p>
+    <p class="highlights-meta" id="profile-note"></p>
+  </header>
+  <div class="highlights-loading" id="highlights-loading">Loading agent highlights…</div>
+  <div class="highlights-grid" id="highlights-grid" hidden></div>
+  <div class="highlights-error" id="highlights-error" hidden></div>
+  <aside class="highlights-orchestra" id="orchestra-cta" hidden>
+    <p>Not sure who to ask first? The Orchestra hub routes your question to the best specialist.</p>
+    <a href="/greenways/orchestra-hub-wix-frame" target="_top" rel="noopener">Open Greenways Orchestra →</a>
+  </aside>
+</div>
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-turn-ui.js"></script>
+<script>
+(function () {
+  function contentBase() {
+    var h = location.hostname || "";
+    if (h === "localhost" || h === "127.0.0.1" || h.indexOf("energy-calc-backend") !== -1) {
+      return location.origin || "";
+    }
+    return "https://energy-calc-backend.onrender.com";
+  }
+
+  function escapeHtml(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function formatAnswer(text) {
+    var t = escapeHtml(String(text || "").trim());
+    t = t.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    t = t.replace(/\*(.+?)\*/g, "<em>$1</em>");
+    t = t.replace(/\n\n/g, "</p><p>");
+    t = t.replace(/\n/g, "<br>");
+    return t ? "<p>" + t + "</p>" : "";
+  }
+
+  function agentChatHref(agent, question) {
+    var base = contentBase() + (agent.path || "/greenways/" + agent.slug);
+    if (!question) return base;
+    var join = base.indexOf("?") >= 0 ? "&" : "?";
+    return base + join + "q=" + encodeURIComponent(question);
+  }
+
+  function renderMiniTurn(agent, highlight) {
+    var avatar = { name: agent.name, imageUrl: agent.imageUrl };
+    var footHtml =
+      '<span class="highlight-intent-pill">' +
+      escapeHtml(highlight.intentId || "knowledge") +
+      "</span>";
+    var parts = TurnUi.buildParts(
+      highlight.answer,
+      highlight.suggestions || [],
+      highlight.blocks || [],
+      { footHtml: footHtml },
+      { escapeHtml: escapeHtml, formatAnswer: formatAnswer }
+    );
+    var agentHtml =
+      '<div class="msg-row agent' +
+      (parts.useSplit ? " has-split" : "") +
+      '">' +
+      '<div class="msg-bubble' +
+      (parts.useSplit ? " has-split-layout" : "") +
+      '">' +
+      TurnUi.layoutHtml(parts, avatar) +
+      "</div></div>";
+    var userHtml =
+      '<div class="msg-row user"><div class="msg-bubble">' +
+      escapeHtml(highlight.question) +
+      "</div></div>";
+    return (
+      '<div class="mini-thread">' + userHtml + agentHtml + "</div>"
+    );
+  }
+
+  function renderCard(agent) {
+    var h = agent.highlight || {};
+    var card = document.createElement("article");
+    card.className = "agent-highlight-card";
+    card.style.setProperty("--agent-accent", agent.accent || "#28a745");
+    card.innerHTML =
+      '<div class="agent-highlight-head">' +
+      '<img class="agent-highlight-portrait" src="' +
+      escapeHtml(agent.imageUrl) +
+      '" alt="' +
+      escapeHtml(agent.name) +
+      '" width="56" height="56" decoding="async">' +
+      '<div class="agent-highlight-head-copy">' +
+      "<h2><span>" +
+      escapeHtml(agent.name) +
+      "</span> · " +
+      escapeHtml(agent.shortLabel || agent.roleLine) +
+      "</h2>" +
+      '<p class="agent-highlight-role">' +
+      escapeHtml(agent.roleLine || "") +
+      "</p></div></div>" +
+      '<div class="agent-skill-row">' +
+      (agent.skills || [])
+        .map(function (s) {
+          return '<span class="agent-skill-chip">' + escapeHtml(s) + "</span>";
+        })
+        .join("") +
+      "</div>" +
+      '<div class="highlight-chat-wrap">' +
+      '<div class="highlight-chat-label">This week&apos;s highlight <em>Scroll inside preview ↓</em></div>' +
+      '<div class="highlight-chat-viewport">' +
+      '<div class="highlight-chat-scale">' +
+      renderMiniTurn(agent, h) +
+      "</div></div></div>" +
+      '<div class="agent-highlight-foot">' +
+      '<span class="agent-highlight-intent">' +
+      (h.source ? escapeHtml(h.source) + " · " : "") +
+      escapeHtml(h.intentId || "highlight") +
+      "</span>" +
+      '<a class="agent-highlight-cta" href="' +
+      escapeHtml(agentChatHref(agent, h.question)) +
+      '" target="_top" rel="noopener">Chat with ' +
+      escapeHtml(agent.name) +
+      " →</a></div>";
+    return card;
+  }
+
+  function showError(msg) {
+    document.getElementById("highlights-loading").hidden = true;
+    document.getElementById("highlights-grid").hidden = true;
+    var err = document.getElementById("highlights-error");
+    err.hidden = false;
+    err.textContent = msg;
+  }
+
+  var TurnUi = window.GreenwaysAgentTurnUi;
+  if (!TurnUi) {
+    showError("Turn UI not loaded — refresh or check Render paths.");
+    return;
+  }
+
+  fetch(contentBase() + "/data/greenways-agent-highlights.json")
+    .then(function (r) {
+      if (!r.ok) throw new Error("Could not load highlights (" + r.status + ")");
+      return r.json();
+    })
+    .then(function (data) {
+      document.getElementById("highlights-loading").hidden = true;
+      var grid = document.getElementById("highlights-grid");
+      grid.hidden = false;
+      document.getElementById("orchestra-cta").hidden = false;
+
+      var meta = data.meta || {};
+      document.getElementById("week-badge").textContent =
+        meta.weekLabel || meta.weekKey || "Weekly snapshot";
+      if (meta.profileNote) {
+        document.getElementById("profile-note").textContent = meta.profileNote;
+      }
+
+      (data.agents || []).forEach(function (agent) {
+        grid.appendChild(renderCard(agent));
+      });
+    })
+    .catch(function (e) {
+      showError(e.message || "Failed to load highlights.");
+    });
+})();
+</script>
+</body>
+</html>
