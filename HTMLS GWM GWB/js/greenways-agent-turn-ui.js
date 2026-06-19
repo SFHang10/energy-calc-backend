@@ -19,7 +19,7 @@
 
   function agentDisplayAnswer(answer, suggestions, blocks) {
     if (Array.isArray(suggestions) && suggestions.length) return introFromAnswer(answer);
-    if (Array.isArray(blocks) && blocks.length) return answer;
+    if (Array.isArray(blocks) && blocks.length) return introFromAnswer(answer);
     return answer;
   }
 

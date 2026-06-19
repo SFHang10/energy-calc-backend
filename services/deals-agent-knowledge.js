@@ -364,17 +364,26 @@ function buildOverviewAnswer(deals, feedMeta, briefing, tip) {
 }
 
 function buildWhyDealsAnswer(briefing, tip) {
-  const core = (briefing.coreUnderstandings || []).slice(0, 6);
+  const core = (briefing.coreUnderstandings || []).slice(0, 5);
   const ethics = (briefing.ethicsNotes || []).slice(0, 2);
+  const statLabels = ['Usage match', 'True savings', 'Stack upgrades', 'Confirm live', 'Catalog lane'];
+  const statItems = core.slice(0, 4).map((line, i) => ({
+    label: statLabels[i] || 'Principle',
+    value: String(line).length > 52 ? `${String(line).slice(0, 49)}…` : line
+  }));
+
   return {
     answer:
       `**Why Zara curates deals**\n\n` +
       `${briefing.bestOfferPrinciple || ''}\n\n` +
-      `${core.map((c) => `- ${c}`).join('\n')}\n\n` +
-      (ethics.length ? `**Transparency:**\n${ethics.map((e) => `- ${e}`).join('\n')}\n\n` : '') +
-      `**Zara's rule:** confirm price, contract length, and region on the linked page — feeds curate; portals compare live.\n\n` +
-      portalFooter(tip),
-    blocks: linkOrModuleBlocks(dealsPortalLinkItems().slice(0, 4)),
+      `I match tariffs, grants, rebates, and upgrade offers to how you actually consume — not the loudest headline price.\n\n` +
+      (ethics.length ? `${ethics.join(' ')}\n\n` : '') +
+      `Use the portal cards on the right to compare unit rate, contract length, and region before you switch.\n\n` +
+      `_${tip}_`,
+    blocks: [
+      ...(statItems.length ? [{ type: 'stat', items: statItems }] : []),
+      ...linkOrModuleBlocks(dealsPortalLinkItems().slice(0, 4))
+    ],
     suggestions: []
   };
 }
@@ -977,11 +986,16 @@ async function answerFromKnowledge(question, profile = {}) {
   return result;
 }
 
+function getDefaultPortalBlocks(limit = 4) {
+  return linkOrModuleBlocks(dealsPortalLinkItems().slice(0, limit));
+}
+
 module.exports = {
   answerFromKnowledge,
   pickDealSamples,
   loadBriefing,
   loadReferences,
   buildDealsFeedScanAnswer,
+  getDefaultPortalBlocks,
   getDefaultProductSamples: (limit = 3) => pickDealSamples('', {}, limit)
 };

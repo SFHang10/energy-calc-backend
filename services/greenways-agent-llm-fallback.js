@@ -35,6 +35,7 @@ const {
 } = require('./equipment-agent-knowledge');
 const {
   pickDealSamples,
+  getDefaultPortalBlocks,
   getDefaultProductSamples: getDealsDefaultSamples
 } = require('./deals-agent-knowledge');
 const {
@@ -318,7 +319,7 @@ async function buildDealsFallback(question, profile) {
     ok: true,
     answer: llmAnswer || heuristicAnswer,
     suggestions: [],
-    blocks: [],
+    blocks: getDefaultPortalBlocks(4),
     productSamples,
     source: llmAnswer ? 'llm' : 'heuristic'
   };
