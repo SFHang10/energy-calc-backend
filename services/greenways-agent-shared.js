@@ -34,6 +34,8 @@ const PORTAL_LINKS = {
   sustainableRenovations: './Sustainable%20Renovations%20New%20.html',
   insulationGuide: './Importance%20of%20Insulation.html',
   renovationPlans: '../HTMLs/Renovation%20project%20plans.html',
+  retrofitRoiGuide: '../HTMLs/Retrofit-Tabbed.html',
+  restaurantDesign: '../HTMLs/Restauarant%20Design%20.html',
   energyTicker: '../content-ops/drafts/energy-ticker/energy-ticker-green-wire.html',
   utilityDetail: './utility-detail.html',
   savingsProjection: './equipment-savings-projection.html',

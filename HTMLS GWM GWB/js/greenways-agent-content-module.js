@@ -50,6 +50,8 @@
     ["sustainable%20renovations", "sustainable-renovations"],
     ["importance%20of%20insulation", "insulation-guide"],
     ["renovation%20project%20plans", "renovation-plans"],
+    ["retrofit-tabbed", "retrofit-roi-guide"],
+    ["restauarant%20design", "restaurant-design-sustainability"],
     ["restuarant%20appliance%20comparison", "appliance-comparison"],
     ["sensor-dashboard", "sensor-dashboard"],
     ["greenways%20interface", "greenways-dashboard"],
@@ -149,6 +151,22 @@
       description: "Building retrofit pathways paired with efficient equipment.",
       usageHint: "Follow renovation sections for your building type, then open deep dive or grants chat before you commit capex.",
       href: "./Sustainable%20Renovations%20New%20.html",
+      defaultOpenSize: "near-full"
+    },
+    "retrofit-roi-guide": {
+      id: "retrofit-roi-guide",
+      title: "Retrofit ROI guide",
+      description: "ETL retrofit measures with payback, savings, and carbon context.",
+      usageHint: "Compare the five retrofit tabs, then open deep dive or grants chat.",
+      href: "../HTMLs/Retrofit-Tabbed.html",
+      defaultOpenSize: "near-full"
+    },
+    "restaurant-design-sustainability": {
+      id: "restaurant-design-sustainability",
+      title: "Restaurant design & sustainability",
+      description: "Kitchen layout and ventilation design for energy and workflow savings.",
+      usageHint: "Review zone layout cards, then pair with equipment deep dive.",
+      href: "../HTMLs/Restauarant%20Design%20.html",
       defaultOpenSize: "near-full"
     },
     "insulation-guide": {

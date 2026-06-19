@@ -60,7 +60,9 @@ const REF_MODULE_IDS = {
   'deep-dive': 'equipment-deep-dive',
   comparison: 'appliance-comparison',
   renovations: 'sustainable-renovations',
-  insulation: 'insulation-guide'
+  insulation: 'insulation-guide',
+  'retrofit-roi': 'retrofit-roi-guide',
+  'restaurant-design': 'restaurant-design-sustainability'
 };
 
 const PORTAL_PATH_MODULE_IDS = [
@@ -69,6 +71,8 @@ const PORTAL_PATH_MODULE_IDS = [
   ['sustainable%20renovations', 'sustainable-renovations'],
   ['importance%20of%20insulation', 'insulation-guide'],
   ['renovation%20project%20plans', 'renovation-plans'],
+  ['retrofit-tabbed', 'retrofit-roi-guide'],
+  ['restauarant%20design', 'restaurant-design-sustainability'],
   ['equipment-savings-projection', 'savings-projection'],
   ['energy-savings-trajectory', 'savings-trajectory'],
   ['restuarant%20appliance%20comparison', 'appliance-comparison'],
@@ -257,14 +261,58 @@ function toolsToBlocks(tools, max = 6) {
 function equipmentPortalLinks() {
   return [
     toLinkItem('Equipment deep dive', PORTAL_LINKS.deepDive, 'Compare current vs efficient equipment with grants'),
+    toLinkItem('Sustainable renovations', PORTAL_LINKS.sustainableRenovations, 'Building retrofit pathways and grants'),
+    toLinkItem('Retrofit ROI guide', PORTAL_LINKS.retrofitRoiGuide, 'ETL retrofit payback and savings'),
+    toLinkItem('Restaurant design', PORTAL_LINKS.restaurantDesign, 'Kitchen layout and ventilation savings'),
+    toLinkItem('Insulation guide', PORTAL_LINKS.insulationGuide, 'Fabric and envelope improvements'),
     toLinkItem('Appliance comparison', './Restuarant%20Appliance%20Comparison.html', 'Standard vs ETL side-by-side'),
     toLinkItem('Intelligence tool', PORTAL_LINKS.equipmentTool, 'Marketplace alternatives and specs'),
-    toLinkItem('Sustainable renovations', PORTAL_LINKS.sustainableRenovations, 'Building retrofit pathways'),
-    toLinkItem('Insulation guide', PORTAL_LINKS.insulationGuide, 'Fabric and envelope improvements'),
     toLinkItem('Savings projection', PORTAL_LINKS.savingsProjection, 'Payback chart with grants'),
     toLinkItem('Grants Agent', '/greenways/grants-agent', 'Schemes chat for funding options'),
     toLinkItem('Finance Agent', '/greenways/finance-agent', 'Loans, BNPL and green finance')
   ];
+}
+
+function renovationGuideModules(profile = {}) {
+  const rows = [
+    {
+      moduleId: 'sustainable-renovations',
+      title: 'Sustainable renovations',
+      usageHint: 'Building retrofit pathways, grants, and climate resilience',
+      openSize: 'near-full'
+    },
+    {
+      moduleId: 'retrofit-roi-guide',
+      title: 'Retrofit ROI guide',
+      usageHint: 'Five ETL retrofit measures with payback ranges',
+      openSize: 'near-full'
+    },
+    {
+      moduleId: 'insulation-guide',
+      title: 'Insulation guide',
+      usageHint: 'Fabric before heavy equipment or HVAC overspend',
+      openSize: 'near-full'
+    }
+  ];
+  if (String(profile.sector || '').toLowerCase() === 'restaurant') {
+    rows.splice(2, 0, {
+      moduleId: 'restaurant-design-sustainability',
+      title: 'Restaurant design',
+      usageHint: 'Kitchen zones, layout, and ventilation savings',
+      openSize: 'near-full'
+    });
+  }
+  return rows;
+}
+
+function retrofitMeasureLinks(guide, limit = 4) {
+  return (guide.etlRetrofitMeasures || []).slice(0, limit).map((row) =>
+    toLinkItem(
+      row.title,
+      PORTAL_LINKS.retrofitRoiGuide,
+      `${row.energyReduction || ''} · payback ${row.payback || ''}`.trim()
+    )
+  );
 }
 
 async function pickEquipmentSamples(question, profile = {}, limit = 3) {
@@ -561,34 +609,119 @@ function buildPortalsAnswer(tip) {
   };
 }
 
-function buildRenovationAnswer(focus, schemes, profile, tip) {
+function buildRenovationAnswer(focus, schemes, profile, tip, guide = {}) {
   const tokens = RENOVATION_FOCUS[focus] || RENOVATION_FOCUS.general;
   const label =
     focus === 'insulation' ? 'Insulation & building fabric' : 'Premises renovation & retrofit';
   const relatedSchemes = rankSchemes(schemes, `${tokens.join(' ')} restaurant building`, profile, 6);
-  const extra =
-    focus === 'insulation'
-      ? `Start with fabric and insulation before oversized HVAC or heavy kitchen equipment — lower baseload makes equipment upgrades pay back faster.\n\n`
-      : `Combine **building improvements** (fabric, HVAC, monitoring) with **efficient equipment** swaps — same grants stack may apply across both.\n\n`;
+  const benefits = guide.buildingRetrofitBenefits || {};
+  const statItems = (benefits.highlights || []).slice(0, 4);
+  const themes = (benefits.themes || []).slice(0, 2);
+  const isRestaurant = String(profile.sector || '').toLowerCase() === 'restaurant';
+  const design = guide.restaurantDesign || {};
+
   return {
     answer:
-      `**${label}** — updating premises and how you operate:\n\n` +
-      extra +
-      (relatedSchemes.length
-        ? `**Funding that may apply:**\n${formatSchemeBullets(relatedSchemes, 5)}\n\n`
-        : '') +
-      `**Guides:**\n` +
-      `- Sustainable renovations: ${PORTAL_LINKS.sustainableRenovations}\n` +
-      `- Insulation: ${PORTAL_LINKS.insulationGuide}\n` +
-      `- Equipment deep dive: ${PORTAL_LINKS.deepDive}\n\n` +
-      `For payback and loans see **Vincent** (/greenways/finance-agent).\n\n_${tip}_`,
+      `**${label}** — fabric, HVAC, and efficient equipment together support **sustainability targets** and lower running costs.\n\n` +
+      `${benefits.summary || 'Green retrofits cut operating costs, unlock grants, and improve climate resilience alongside kWh savings.'}\n\n` +
+      (themes.length ? `${themes.join(' ')}\n\n` : '') +
+      (isRestaurant && design.summary
+        ? `**Hospitality note:** ${design.summary}\n\n`
+        : focus === 'insulation'
+          ? `Start with fabric and insulation before oversized HVAC or heavy kitchen equipment — lower baseload makes equipment upgrades pay back faster.\n\n`
+          : `Combine **building improvements** with **ETL equipment** swaps — grants may stack across both.\n\n`) +
+      `Open the renovation guides on the right for retrofit pathways, payback examples, and ${isRestaurant ? 'kitchen design' : 'building'} savings.\n\n` +
+      `For payback modelling see **Vincent**; for scheme eligibility see **Andrieus**.\n\n_${tip}_`,
     suggestions: relatedSchemes.map(toSuggestion),
-    blocks: linkOrModuleBlocks([
-      toLinkItem('Sustainable renovations', PORTAL_LINKS.sustainableRenovations, 'Building retrofit pathways'),
-      toLinkItem('Insulation guide', PORTAL_LINKS.insulationGuide, 'Fabric and envelope improvements'),
-      toLinkItem('Equipment deep dive', PORTAL_LINKS.deepDive, 'Compare efficient alternatives')
-    ]),
+    blocks: [
+      ...(statItems.length ? [{ type: 'stat', items: statItems }] : []),
+      equipmentModuleBlock(renovationGuideModules(profile)),
+      ...linkOrModuleBlocks(retrofitMeasureLinks(guide, 3))
+    ],
     agentHandoffs: buildHandoffs({}, '', focus === 'insulation' ? 'insulation' : 'renovation')
+  };
+}
+
+async function buildRetrofitBenefitsAnswer(profile, tip, guide = {}) {
+  const benefits = guide.buildingRetrofitBenefits || {};
+  const measures = guide.etlRetrofitMeasures || [];
+  const statItems = (benefits.highlights || []).slice(0, 4);
+
+  return {
+    answer:
+      `**Building retrofit benefits** — ETL-verified measures plus fabric upgrades move you toward **sustainability targets** with measurable energy and carbon savings.\n\n` +
+      `${benefits.summary || ''}\n\n` +
+      `The **Retrofit ROI guide** compares five proven ETL retrofit lanes — from economisers and burner controls to refrigeration doors and LED — with typical payback ranges. ` +
+      `Illustrative savings depend on site hours, tariffs, and baseline use — confirm on the linked pages.\n\n` +
+      `Pair quick-win retrofits (LED, fridge doors) with fabric work from the **Sustainable renovations** hub before large capex.\n\n_${tip}_`,
+    suggestions: [],
+    blocks: [
+      ...(statItems.length ? [{ type: 'stat', items: statItems }] : []),
+      equipmentModuleBlock([
+        {
+          moduleId: 'retrofit-roi-guide',
+          title: 'Retrofit ROI guide',
+          usageHint: 'Five ETL measures — payback and savings table',
+          openSize: 'near-full'
+        },
+        {
+          moduleId: 'sustainable-renovations',
+          title: 'Sustainable renovations',
+          usageHint: 'Building targets, grants, and climate resilience',
+          openSize: 'near-full'
+        }
+      ]),
+      ...linkOrModuleBlocks(
+        measures.slice(0, 5).map((row) =>
+          toLinkItem(
+            row.title,
+            PORTAL_LINKS.retrofitRoiGuide,
+            `${row.energyReduction || ''} · ${row.payback || ''}`.trim()
+          )
+        )
+      )
+    ],
+    agentHandoffs: buildHandoffs({}, '', 'retrofit_benefits')
+  };
+}
+
+async function buildRestaurantDesignAnswer(profile, tip, guide = {}) {
+  const design = guide.restaurantDesign || {};
+  const statItems = (design.stats || []).slice(0, 4);
+  const zones = (design.zones || []).slice(0, 3);
+
+  return {
+    answer:
+      `**${design.headline || 'Restaurant design & sustainability'}**\n\n` +
+      `${design.summary || ''}\n\n` +
+      (zones.length ? `**Layout principles:** ${zones.join(' ')}` : '') +
+      (zones.length ? '\n\n' : '') +
+      `Use the design guide on the right for zone layout and ventilation cards, then open **equipment deep dive** or **savings projection** for ETL alternatives and payback.\n\n_${tip}_`,
+    suggestions: [],
+    blocks: [
+      ...(statItems.length ? [{ type: 'stat', items: statItems }] : []),
+      equipmentModuleBlock([
+        {
+          moduleId: 'restaurant-design-sustainability',
+          title: 'Restaurant design',
+          usageHint: 'Kitchen zones, layout, and ventilation savings',
+          openSize: 'near-full'
+        },
+        {
+          moduleId: 'sustainable-renovations',
+          title: 'Sustainable renovations',
+          usageHint: 'Whole-building retrofit and grant context',
+          openSize: 'near-full'
+        },
+        {
+          moduleId: 'equipment-deep-dive',
+          title: 'Equipment deep dive',
+          usageHint: 'Compare efficient alternatives with grants',
+          openSize: 'near-full'
+        }
+      ])
+    ],
+    agentHandoffs: buildHandoffs({}, '', 'restaurant_design')
   };
 }
 
@@ -611,7 +744,7 @@ function buildRenovationGrantsAnswer(schemes, profile, question, tip) {
   };
 }
 
-async function buildRenovationPlanAnswer(tip) {
+async function buildRenovationPlanAnswer(tip, guide = {}) {
   const briefing = await loadBriefing();
   const steps = briefing.workflowSteps || [
     'Baseline use',
@@ -625,13 +758,31 @@ async function buildRenovationPlanAnswer(tip) {
     answer:
       `**Renovation project planning** — phased upgrades for premises + equipment:\n\n` +
       `${steps.map((s, i) => `${i + 1}. **${s}**`).join('\n')}\n\n` +
-      `**Project plan template:** ${PORTAL_LINKS.renovationPlans}\n` +
-      `**Sustainable renovations hub:** ${PORTAL_LINKS.sustainableRenovations}\n\n_${tip}_`,
+      `Use the guides on the right — **sustainable renovations** for building targets, **retrofit ROI** for ETL payback lanes, and **renovation plans** for phased templates.\n\n_${tip}_`,
     suggestions: [],
-    blocks: linkOrModuleBlocks([
-      toLinkItem('Renovation project plans', PORTAL_LINKS.renovationPlans, 'Phased upgrade templates'),
-      toLinkItem('Sustainable renovations', PORTAL_LINKS.sustainableRenovations, 'Building retrofit hub')
-    ]),
+    blocks: [
+      equipmentModuleBlock([
+        {
+          moduleId: 'renovation-plans',
+          title: 'Renovation project plans',
+          usageHint: 'Phased upgrade templates',
+          openSize: 'near-full'
+        },
+        {
+          moduleId: 'sustainable-renovations',
+          title: 'Sustainable renovations',
+          usageHint: 'Building retrofit hub',
+          openSize: 'near-full'
+        },
+        {
+          moduleId: 'retrofit-roi-guide',
+          title: 'Retrofit ROI guide',
+          usageHint: 'ETL measure payback table',
+          openSize: 'near-full'
+        }
+      ]),
+      ...linkOrModuleBlocks(retrofitMeasureLinks(guide, 3))
+    ],
     agentHandoffs: buildHandoffs(briefing, '', 'renovation_plan')
   };
 }
@@ -800,13 +951,19 @@ async function answerFromKnowledge(question, profile = {}) {
       result = buildPortalsAnswer(tip);
       break;
     case 'renovation':
-      result = buildRenovationAnswer(intent.focus || 'general', schemes, profile, tip);
+      result = buildRenovationAnswer(intent.focus || 'general', schemes, profile, tip, guide);
+      break;
+    case 'retrofit_benefits':
+      result = await buildRetrofitBenefitsAnswer(profile, tip, guide);
+      break;
+    case 'restaurant_design':
+      result = await buildRestaurantDesignAnswer(profile, tip, guide);
       break;
     case 'renovation_grants':
       result = buildRenovationGrantsAnswer(schemes, profile, question, tip);
       break;
     case 'renovation_plan':
-      result = await buildRenovationPlanAnswer(tip);
+      result = await buildRenovationPlanAnswer(tip, guide);
       break;
     case 'role_resources':
       result = await buildRoleResourcesAnswer(question, profile, tip);
