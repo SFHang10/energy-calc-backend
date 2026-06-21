@@ -2,7 +2,7 @@
 
 **Skill type:** Canonical registry (agents ≠ skills)  
 **Orchestrator:** Route agent **names** and “Greenways agents” questions here first, then to **`greenways-chat-interface-skill.md`** for UI/API detail.  
-**Last updated:** 28 May 2026
+**Last updated:** 21 Jun 2026
 
 ---
 
@@ -95,6 +95,8 @@ Hero art on Wix pages sits **above** the iframe; avatars in chat come from `AGEN
 | **Character names + portraits** | All seven `AGENT_PROFILE` blocks |
 | **Render short URLs** | `/greenways/{slug}` in `server-new.js` |
 | **Wix embed docs** | `WIX-GREENWAYS-AGENTS-EMBED.md` |
+| **Portal story + highlights** | `greenways-agents-story.html`, `greenways-agents-highlights.html` — `/greenways/agents-story`, `/greenways/agents-highlights`; shared nav to Orchestra hub |
+| **Staff admin map (portal toolkit)** | `agents-admin-map.html` — graph of agents ↔ data ↔ **content modules**; `POST /api/agents-admin/content-modules` |
 
 **Deploy note (May 2026):** Turn-ui assets must use **absolute** paths on `/greenways/*` embeds (not relative `js/...` before `<base>`) — see § **Wix embed gotchas** in `greenways-chat-interface-skill.md`.
 
@@ -140,8 +142,21 @@ Skills **power** agents; they are not interchangeable with agent names. **Shared
 | `Greenways Market Manager MD.md` | Artemis, Zara, Zyanne (flags) | — | **Administrator** | Store ops only |
 | `product-addition-workflow.md` | **All product-aware agents** | — | **Administrator** | Mandatory enrichment pipeline |
 | `content-operations.md` | Cheryce (+ site HTML) | — | **Administrator** | Publish pipeline |
+| **Portal tools registry** | **All seven** (module tablets) | — | **`agents-admin-map.html`** + edit `greenways-content-modules.json` | `description` + `usageHint` per page; sidebar via `npm run sync:agent-sidebar` |
 
 **When adding a new skill:** add a row with **all** consumer homes (or **Infrastructure**), optional **Primary**, and **Admin** if staff-only. Shared is the default — exclusive one-to-one mapping is the exception.
+
+### Register a portal page for agents (staff)
+
+| Step | Where |
+|------|--------|
+| **Visualize** who uses what | `http://localhost:4000/agents-admin-map.html` — purple nodes = portal tools; click portrait to pin |
+| **Add tool** | Sidebar **Add to toolkit** → `POST /api/agents-admin/content-modules` → appends `data/greenways-content-modules.json` |
+| **Sidebar quick link** (optional) | `data/greenways-agent-sidebar-config.json` → `npm run sync:agent-sidebar` |
+| **Intent / answer wiring** | `data/{agent}-intents.json` + `services/{agent}-agent-knowledge.js` |
+| **Deep prose / evidence** | Phase 2 — `data/greenways-site-knowledge/` (not built yet) |
+
+Agents **read** modules at runtime from JSON — no redeploy of HTML shells required after registry update; push to Render for live `/data/greenways-content-modules.json`.
 
 ---
 

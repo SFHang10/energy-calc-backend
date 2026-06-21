@@ -7,6 +7,7 @@ const { listReferralHandoffsLive } = require('./greenways-agent-handoff');
 const ROOT = path.join(__dirname, '..');
 const REGISTRY_PATH = path.join(ROOT, 'data', 'greenways-agent-admin-registry.json');
 const ROSTER_PATH = path.join(ROOT, 'data', 'greenways-agent-roster.json');
+const CONTENT_MODULES_PATH = path.join(ROOT, 'data', 'greenways-content-modules.json');
 const ORCHESTRA_MAP_IMAGE =
   'https://static.wixstatic.com/media/c123de_7cad20d715d045e4a9f684d5936bab3a~mv2.jpg';
 
@@ -129,6 +130,73 @@ async function loadRoster() {
   }
 }
 
+async function loadContentModules() {
+  try {
+    const raw = await fsPromises.readFile(CONTENT_MODULES_PATH, 'utf8');
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed.modules) ? parsed : { modules: [] };
+  } catch (_) {
+    return { modules: [] };
+  }
+}
+
+function slugifyModuleId(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+async function addContentModule(input = {}) {
+  const id = slugifyModuleId(input.id || input.title);
+  const title = String(input.title || '').trim();
+  const href = String(input.href || '').trim();
+  const agents = Array.isArray(input.agents)
+    ? [...new Set(input.agents.map((a) => String(a).trim()).filter(Boolean))]
+    : [];
+
+  if (!id) throw new Error('Module id is required.');
+  if (!title) throw new Error('Title is required.');
+  if (!href) throw new Error('Page URL or href is required.');
+  if (!agents.length) throw new Error('Assign at least one agent.');
+
+  const catalog = await loadContentModules();
+  if ((catalog.modules || []).some((row) => row.id === id)) {
+    throw new Error(`Module id "${id}" already exists.`);
+  }
+
+  const topics = Array.isArray(input.topics)
+    ? input.topics.map((t) => String(t).trim()).filter(Boolean)
+    : String(input.topics || '')
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean);
+
+  const moduleRow = {
+    id,
+    title,
+    description: String(input.description || '').trim(),
+    usageHint: String(input.usageHint || '').trim(),
+    href,
+    openMode: 'modal',
+    kind: /^https?:\/\//i.test(href) ? 'external' : 'html',
+    agents,
+    topics,
+    defaultOpenSize: 'near-full'
+  };
+
+  catalog.modules = catalog.modules || [];
+  catalog.modules.push(moduleRow);
+  catalog.updatedAt = new Date().toISOString().slice(0, 10);
+  await fsPromises.writeFile(
+    CONTENT_MODULES_PATH,
+    `${JSON.stringify(catalog, null, 2)}\n`,
+    'utf8'
+  );
+  return moduleRow;
+}
+
 async function loadBriefing(relPath) {
   try {
     const raw = await fsPromises.readFile(resolveRepoPath(relPath), 'utf8');
@@ -226,16 +294,18 @@ function agentIdFromHandoff(handoff, agents) {
   return byPath ? byPath.id : null;
 }
 
-function layoutGraph(overview) {
+async function layoutGraph(overview) {
   const CX = 500;
   const CY = 500;
   const agentRadius = 360;
   const dataRadiusShared = 175;
   const dataRadiusSolo = 240;
+  const moduleRadius = 300;
 
   const nodes = [];
   const edges = [];
   const agents = overview.agents || [];
+  const agentIds = new Set(agents.map((a) => a.id));
 
   nodes.push({
     id: 'orchestra',
@@ -360,17 +430,87 @@ function layoutGraph(overview) {
     }
   }
 
+  const contentCatalog = await loadContentModules();
+  const contentModules = (contentCatalog.modules || []).slice().sort((a, b) => {
+    const aCount = (a.agents || []).length;
+    const bCount = (b.agents || []).length;
+    if (bCount !== aCount) return bCount - aCount;
+    return String(a.title || '').localeCompare(String(b.title || ''));
+  });
+
+  contentModules.forEach((mod, i) => {
+    const linkedAgents = (mod.agents || []).filter((id) => agentIds.has(id));
+    if (!linkedAgents.length) return;
+
+    const angle = (i / Math.max(contentModules.length, 1)) * Math.PI * 2 - Math.PI / 2 + 0.08;
+    const nodeId = `mod:${mod.id}`;
+    const shared = linkedAgents.length >= 2;
+
+    nodes.push({
+      id: nodeId,
+      type: 'content-module',
+      label: mod.title || mod.id,
+      moduleId: mod.id,
+      href: mod.href || '',
+      description: mod.description || '',
+      usageHint: mod.usageHint || '',
+      topics: mod.topics || [],
+      kind: mod.kind || 'html',
+      shared,
+      agentCount: linkedAgents.length,
+      x: CX + moduleRadius * Math.cos(angle),
+      y: CY + moduleRadius * Math.sin(angle)
+    });
+
+    for (const agentId of linkedAgents) {
+      edges.push({
+        id: `module:${agentId}:${mod.id}`,
+        from: agentId,
+        to: nodeId,
+        type: 'module',
+        shared
+      });
+    }
+  });
+
+  const moduleRows = contentModules.filter((mod) =>
+    (mod.agents || []).some((id) => agentIds.has(id))
+  );
+  const sharedModuleRows = moduleRows.filter((mod) => {
+    const count = (mod.agents || []).filter((id) => agentIds.has(id)).length;
+    return count >= 2;
+  });
+  for (const mod of sharedModuleRows) {
+    const ids = (mod.agents || []).filter((id) => agentIds.has(id));
+    for (let i = 0; i < ids.length; i++) {
+      for (let j = i + 1; j < ids.length; j++) {
+        edges.push({
+          id: `co-module:${ids[i]}:${ids[j]}:${mod.id}`,
+          from: ids[i],
+          to: ids[j],
+          type: 'co-module',
+          via: mod.title || mod.id,
+          moduleId: mod.id
+        });
+      }
+    }
+  }
+
   return {
     ok: true,
     generatedAt: new Date().toISOString(),
+    contentModulesUpdatedAt: contentCatalog.updatedAt || null,
     layout: { width: 1000, height: 1000, center: { x: CX, y: CY } },
     stats: {
       agentCount: agents.length,
       dataSourceCount: dataRows.length,
       sharedDataCount: sharedRows.length,
+      contentModuleCount: moduleRows.length,
+      sharedContentModuleCount: sharedModuleRows.length,
       handoffEdgeCount: edges.filter((e) => e.type === 'handoff').length,
       referralLiveCount: edges.filter((e) => e.type === 'referral-live').length,
-      coUseEdgeCount: edges.filter((e) => e.type === 'co-use').length
+      coUseEdgeCount: edges.filter((e) => e.type === 'co-use').length,
+      moduleEdgeCount: edges.filter((e) => e.type === 'module').length
     },
     nodes,
     edges
@@ -386,5 +526,7 @@ module.exports = {
   getOverview,
   getGraph,
   loadRegistry,
+  loadContentModules,
+  addContentModule,
   statDataSource
 };

@@ -171,12 +171,16 @@
       touch-action: none;
       user-select: none;
     }
-    #graph-svg.is-panning { cursor: grabbing; }
+    #graph-svg .node { pointer-events: all; }
+    #graph-svg .node-hit { cursor: pointer; }
+    #graph-svg .node text { pointer-events: none; }
+    #graph-svg .node image { pointer-events: none; }
     .side-panel {
       padding: 20px;
       border-left: 1px solid var(--border-color);
       background: rgba(20, 27, 45, 0.5);
       overflow-y: auto;
+      max-height: calc(100vh - 88px);
     }
     .side-panel h2 {
       font-family: var(--font-display);
@@ -192,6 +196,28 @@
       border: 1px solid var(--border-color);
       background: var(--bg-card);
       margin-bottom: 16px;
+    }
+    .detail-card.is-pinned {
+      border-color: rgba(0, 210, 106, 0.45);
+      box-shadow: 0 0 24px rgba(0, 210, 106, 0.12);
+    }
+    .pin-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: var(--accent-green);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+    }
+    .btn-clear-pin {
+      margin-top: 10px;
+      width: 100%;
+      justify-content: center;
+      font-size: 0.78rem;
+      padding: 7px 10px;
     }
     .detail-card .name {
       font-family: var(--font-display);
@@ -229,13 +255,68 @@
     }
     .error-box { color: #ff8a8a; }
 
+    .add-tool-panel {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+    .add-tool-panel h2 { margin-bottom: 10px; }
+    .add-tool-panel .hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      line-height: 1.45;
+    }
+    .field { margin-bottom: 10px; }
+    .field label {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .field input,
+    .field textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: rgba(10, 15, 28, 0.6);
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      font-size: 0.82rem;
+    }
+    .field textarea { min-height: 56px; resize: vertical; }
+    .agent-picks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .agent-picks label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+    }
+    .form-msg {
+      font-size: 0.8rem;
+      margin-top: 8px;
+      min-height: 1.2em;
+    }
+    .form-msg.ok { color: var(--accent-green); }
+    .form-msg.err { color: #ff8a8a; }
+
   </style>
 </head>
 <body>
   <header class="topbar">
     <div>
       <h1><i class="fas fa-project-diagram"></i> Agents network map</h1>
-      <p class="sub">Spider view — portraits, shared data files, handoffs, and live referral welcomes</p>
+      <p class="sub">Spider view — portraits, data files, portal tools, handoffs, and live referral welcomes</p>
     </div>
     <div class="top-actions">
       <a class="btn btn-primary" href="/agents-admin.html"><i class="fas fa-table"></i> Table admin</a>
@@ -251,8 +332,10 @@
     <section class="map-wrap">
       <div class="map-toolbar">
         <label class="toggle"><input type="checkbox" id="show-data" checked> Data sources</label>
+        <label class="toggle"><input type="checkbox" id="show-modules" checked> Portal tools</label>
         <label class="toggle"><input type="checkbox" id="show-handoffs" checked> Handoffs</label>
-        <label class="toggle"><input type="checkbox" id="show-co-use" checked> Shared-tool links</label>
+        <label class="toggle"><input type="checkbox" id="show-co-use" checked> Shared data links</label>
+        <label class="toggle"><input type="checkbox" id="show-co-module" checked> Shared tool links</label>
         <label class="toggle"><input type="checkbox" id="show-routes" checked> Orchestra routes</label>
         <span class="stats-chip" id="stats-chip"></span>
         <span class="map-hint">Scroll to zoom · drag background to pan</span>
@@ -272,16 +355,56 @@
     <aside class="side-panel">
       <h2>Selection</h2>
       <div class="detail-card" id="detail-card">
-        <div class="name">Hover or click a node</div>
-        <div class="meta">Agents show portraits on the outer ring. Shared files sit inside — thicker links mean multiple agents use the same tool or dataset.</div>
+        <div class="name">Click a character to select</div>
+        <div class="meta">Click a portrait to pin it · scroll this panel while selected.</div>
       </div>
       <h2>Legend</h2>
       <div class="legend">
+        <div class="legend-row"><span class="legend-line" style="border-color:rgba(168,85,247,0.65)"></span> Agent → portal tool</div>
         <div class="legend-row"><span class="legend-line" style="border-color:rgba(0,210,106,0.55)"></span> Agent → data file</div>
         <div class="legend-row"><span class="legend-line" style="border-color:rgba(201,169,97,0.7)"></span> Briefing handoff</div>
         <div class="legend-row"><span class="legend-line" style="border-color:rgba(34,211,238,0.9); border-style:dashed"></span> Live referral welcome</div>
         <div class="legend-row"><span class="legend-line" style="border-color:rgba(139,156,179,0.35)"></span> Same data source (agent ↔ agent)</div>
+        <div class="legend-row"><span class="legend-line" style="border-color:rgba(168,85,247,0.28); border-style:dashed"></span> Same portal tool (agent ↔ agent)</div>
         <div class="legend-row"><span class="legend-line" style="border-color:rgba(0,168,232,0.35)"></span> Orchestra routing</div>
+      </div>
+      <div class="add-tool-panel" id="add-tool-panel">
+        <h2>Add portal tool</h2>
+        <p class="hint">Registers a page in <code>greenways-content-modules.json</code> so agents can open it in chat module tablets. Run <code>npm run sync:agent-sidebar</code> if you also want a sidebar quick link.</p>
+        <form id="add-tool-form">
+          <div class="field">
+            <label for="tool-id">Module id (slug)</label>
+            <input id="tool-id" name="id" placeholder="e.g. water-efficiency-guide" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="tool-title">Title</label>
+            <input id="tool-title" name="title" required placeholder="Water efficiency guide">
+          </div>
+          <div class="field">
+            <label for="tool-href">Page URL or path</label>
+            <input id="tool-href" name="href" required placeholder="./water-saving-finder.html or https://…">
+          </div>
+          <div class="field">
+            <label for="tool-desc">What it is</label>
+            <textarea id="tool-desc" name="description" placeholder="Short description for agents and staff"></textarea>
+          </div>
+          <div class="field">
+            <label for="tool-hint">How to use</label>
+            <textarea id="tool-hint" name="usageHint" placeholder="Usage hint shown in module header"></textarea>
+          </div>
+          <div class="field">
+            <label for="tool-topics">Topics (comma-separated)</label>
+            <input id="tool-topics" name="topics" placeholder="water, restaurant, savings">
+          </div>
+          <div class="field">
+            <label>Assign agents</label>
+            <div class="agent-picks" id="tool-agents"></div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:4px">
+            <i class="fas fa-plus"></i> Add to toolkit
+          </button>
+          <div class="form-msg" id="form-msg" aria-live="polite"></div>
+        </form>
       </div>
     </aside>
   </div>
@@ -291,12 +414,56 @@
   var BASE_SIZE = 1000;
   var state = {
     graph: null,
-    filters: { data: true, handoffs: true, coUse: true, routes: true },
-    activeId: null,
+    filters: { data: true, modules: true, handoffs: true, coUse: true, coModule: true, routes: true },
+    pinnedId: null,
+    hoverId: null,
+    selectedAgentId: null,
+    suppressBgClear: false,
     zoom: { k: 1, cx: 500, cy: 500 },
     panning: false,
     panStart: null
   };
+
+  function focusId() {
+    return state.pinnedId || state.hoverId;
+  }
+
+  function clearPin() {
+    state.pinnedId = null;
+    state.selectedAgentId = null;
+    renderGraph();
+    renderDetail(focusId() ? nodeById(focusId()) : null);
+    syncAgentPickDefaults();
+  }
+
+  function closestNode(el, stopAt) {
+    while (el && el !== stopAt) {
+      if (el.classList && el.classList.contains('node')) return el;
+      el = el.parentNode;
+    }
+    return null;
+  }
+
+  function pinNode(id) {
+    if (!id) return;
+    state.pinnedId = id;
+    state.hoverId = null;
+    state.suppressBgClear = true;
+    var node = nodeById(id);
+    if (node && node.type === 'agent') state.selectedAgentId = node.id;
+    renderGraph();
+    renderDetail(node);
+    syncAgentPickDefaults();
+    setTimeout(function () { state.suppressBgClear = false; }, 0);
+  }
+
+  function setHoverId(id) {
+    if (state.pinnedId) return;
+    if (state.hoverId === id) return;
+    state.hoverId = id || null;
+    renderGraph();
+    renderDetail(id ? nodeById(id) : null);
+  }
 
   function resolveApiUrl(pathname) {
     var origin = window.location.origin || '';
@@ -310,10 +477,35 @@
 
   function edgeVisible(edge) {
     if (edge.type === 'uses') return state.filters.data;
+    if (edge.type === 'module') return state.filters.modules;
     if (edge.type === 'handoff' || edge.type === 'referral-live') return state.filters.handoffs;
     if (edge.type === 'co-use') return state.filters.coUse;
+    if (edge.type === 'co-module') return state.filters.coModule;
     if (edge.type === 'routes') return state.filters.routes;
     return true;
+  }
+
+  function agentNodes() {
+    return (state.graph.nodes || []).filter(function (n) { return n.type === 'agent'; });
+  }
+
+  function syncAgentPickDefaults() {
+    var mount = document.getElementById('tool-agents');
+    if (!mount || !state.graph) return;
+    var selected = state.selectedAgentId;
+    mount.querySelectorAll('input[type=checkbox]').forEach(function (cb) {
+      if (selected) cb.checked = cb.value === selected;
+    });
+  }
+
+  function renderAgentPicks() {
+    var mount = document.getElementById('tool-agents');
+    if (!mount) return;
+    mount.innerHTML = agentNodes().map(function (a) {
+      return '<label><input type="checkbox" name="agents" value="' + escapeHtml(a.id) + '"> ' +
+        escapeHtml(a.label) + '</label>';
+    }).join('');
+    syncAgentPickDefaults();
   }
 
   function nodeById(id) {
@@ -344,11 +536,16 @@
 
   function renderDetail(node) {
     var card = document.getElementById('detail-card');
+    card.classList.toggle('is-pinned', !!(state.pinnedId && node && node.id === state.pinnedId));
     if (!node) {
-      card.innerHTML = '<div class="name">Hover or click a node</div><div class="meta">Agents show portraits on the outer ring.</div>';
+      card.innerHTML = '<div class="name">Click a character to select</div><div class="meta">Click a portrait to pin it (hover only previews). Pinned selection stays while you scroll this panel.</div>';
       return;
     }
-    var html = '<div class="name">' + escapeHtml(node.label) + '</div>';
+    var html = '';
+    if (state.pinnedId && node.id === state.pinnedId) {
+      html += '<div class="pin-badge"><i class="fas fa-thumbtack"></i> Selected</div>';
+    }
+    html += '<div class="name">' + escapeHtml(node.label) + '</div>';
     if (node.type === 'agent') {
       html += '<div class="meta">' + escapeHtml(node.shortLabel) + ' · ' + escapeHtml(node.roleLine || '') + '</div>';
       if (node.chatRoute) {
@@ -357,6 +554,25 @@
     } else if (node.type === 'orchestrator') {
       html += '<div class="meta">Routes questions to the right specialist.</div>';
       html += '<p style="margin-top:10px"><a class="btn btn-primary" style="font-size:0.8rem;padding:8px 12px" href="' + escapeHtml(node.chatRoute) + '" target="_blank" rel="noopener">Open Orchestra</a></p>';
+    } else if (node.type === 'content-module') {
+      html += '<div class="meta">Portal tool · <code style="font-size:0.78rem">' + escapeHtml(node.moduleId) + '</code></div>';
+      if (node.description) {
+        html += '<div class="meta" style="margin-top:8px">' + escapeHtml(node.description) + '</div>';
+      }
+      if (node.usageHint) {
+        html += '<div class="meta" style="margin-top:6px"><strong>How to use:</strong> ' + escapeHtml(node.usageHint) + '</div>';
+      }
+      if (node.topics && node.topics.length) {
+        html += '<div class="meta" style="margin-top:6px">Topics: ' + escapeHtml(node.topics.join(', ')) + '</div>';
+      }
+      html += '<div class="meta" style="margin-top:6px">' + node.agentCount + ' agent' + (node.agentCount === 1 ? '' : 's') + (node.shared ? ' · shared tool' : '') + '</div>';
+      if (node.href) {
+        var href = node.href;
+        if (!/^https?:\/\//i.test(href) && href.charAt(0) !== '/') {
+          href = '/HTMLS%20GWM%20GWB/' + href.replace(/^\.\//, '');
+        }
+        html += '<p style="margin-top:10px"><a class="btn btn-primary" style="font-size:0.8rem;padding:8px 12px" href="' + escapeHtml(href) + '" target="_blank" rel="noopener">Open page</a></p>';
+      }
     } else {
       html += '<div class="meta"><code style="font-size:0.78rem">' + escapeHtml(node.path) + '</code></div>';
       html += '<div class="meta" style="margin-top:6px">' + node.agentCount + ' agent' + (node.agentCount === 1 ? '' : 's') + (node.shared ? ' · shared' : '') + '</div>';
@@ -375,7 +591,12 @@
       if (links.length > 12) html += '<li>…and ' + (links.length - 12) + ' more</li>';
       html += '</ul>';
     }
+    if (state.pinnedId && node.id === state.pinnedId) {
+      html += '<button type="button" class="btn btn-clear-pin" id="clear-pin-btn"><i class="fas fa-times"></i> Clear selection</button>';
+    }
     card.innerHTML = html;
+    var clearBtn = document.getElementById('clear-pin-btn');
+    if (clearBtn) clearBtn.addEventListener('click', clearPin);
   }
 
   function curvePath(x1, y1, x2, y2, bend) {
@@ -438,7 +659,7 @@
 
     svg.addEventListener('mousedown', function (e) {
       if (e.button !== 0) return;
-      if (e.target.closest && e.target.closest('.node')) return;
+      if (closestNode(e.target, svg)) return;
       state.panning = true;
       state.panStart = {
         x: e.clientX,
@@ -482,7 +703,7 @@
         pinch.startCx = state.zoom.cx;
         pinch.startCy = state.zoom.cy;
         e.preventDefault();
-      } else if (e.touches.length === 1 && !(e.target.closest && e.target.closest('.node'))) {
+      } else if (e.touches.length === 1 && !closestNode(e.target, svg)) {
         state.panning = true;
         state.panStart = {
           x: e.touches[0].clientX,
@@ -539,34 +760,36 @@
     applyViewBox();
   }
 
-  function bindGraphInteraction() {
-    var root = document.getElementById('graph-root');
+  function bindGraphInteractionOnce() {
     var svg = document.getElementById('graph-svg');
-    if (!root || !svg) return;
+    if (!svg || svg.dataset.interactionBound) return;
+    svg.dataset.interactionBound = '1';
 
-    root.querySelectorAll('.node').forEach(function (el) {
-      el.addEventListener('mouseenter', function () {
-        state.activeId = el.getAttribute('data-id');
-        renderGraph();
-        renderDetail(nodeById(state.activeId));
-      });
-      el.addEventListener('click', function (e) {
-        e.stopPropagation();
-        state.activeId = el.getAttribute('data-id');
-        renderGraph();
-        renderDetail(nodeById(state.activeId));
-      });
+    svg.addEventListener('pointerdown', function (e) {
+      var nodeEl = closestNode(e.target, svg);
+      if (!nodeEl) return;
+      if (e.button !== 0) return;
+      e.stopPropagation();
+      pinNode(nodeEl.getAttribute('data-id'));
     });
 
-    if (!svg.dataset.leaveBound) {
-      svg.dataset.leaveBound = '1';
-      svg.addEventListener('mouseleave', function () {
-        if (state.panning) return;
-        state.activeId = null;
-        renderGraph();
-        renderDetail(null);
-      });
-    }
+    svg.addEventListener('pointermove', function (e) {
+      if (state.pinnedId) return;
+      var nodeEl = closestNode(e.target, svg);
+      setHoverId(nodeEl ? nodeEl.getAttribute('data-id') : null);
+    });
+
+    svg.addEventListener('pointerleave', function (e) {
+      if (state.pinnedId) return;
+      if (e.relatedTarget && svg.contains(e.relatedTarget)) return;
+      setHoverId(null);
+    });
+
+    svg.addEventListener('click', function (e) {
+      if (state.suppressBgClear) return;
+      if (closestNode(e.target, svg)) return;
+      if (state.pinnedId) clearPin();
+    });
   }
 
   function renderGraph() {
@@ -574,8 +797,11 @@
     var g = state.graph;
     if (!root || !g) return;
 
-    var active = state.activeId ? connectedIds(state.activeId) : null;
+    var focus = focusId();
+    var active = focus ? connectedIds(focus) : null;
+    var pinned = state.pinnedId;
     var defs = '<defs>';
+    defs += '<filter id="agent-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
     (g.nodes || []).forEach(function (n) {
       if (n.type === 'agent' && n.imageUrl) {
         defs += '<clipPath id="clip-' + n.id + '"><circle cx="' + n.x + '" cy="' + n.y + '" r="38"/></clipPath>';
@@ -598,12 +824,14 @@
       var dash = '';
       var bend = 0;
       if (e.type === 'uses') { stroke = 'rgba(0,210,106,0.45)'; width = e.shared ? 2 : 1.4; }
+      if (e.type === 'module') { stroke = 'rgba(168,85,247,0.55)'; width = e.shared ? 2.2 : 1.5; }
       if (e.type === 'handoff') { stroke = 'rgba(201,169,97,0.65)'; width = 2; bend = 1; }
       if (e.type === 'referral-live') { stroke = 'rgba(34,211,238,0.85)'; width = 2.5; dash = '6 4'; bend = -1; }
       if (e.type === 'co-use') { stroke = 'rgba(139,156,179,0.22)'; width = 1; bend = (i % 3) - 1; }
+      if (e.type === 'co-module') { stroke = 'rgba(168,85,247,0.22)'; width = 1; dash = '4 3'; bend = (i % 3) - 1; }
       if (e.type === 'routes') { stroke = 'rgba(0,168,232,0.28)'; width = 1; }
       var opacity = dim ? 0.12 : 1;
-      var d = (e.type === 'handoff' || e.type === 'referral-live' || e.type === 'co-use')
+      var d = (e.type === 'handoff' || e.type === 'referral-live' || e.type === 'co-use' || e.type === 'co-module')
         ? curvePath(from.x, from.y, to.x, to.y, bend)
         : 'M' + from.x + ',' + from.y + ' L' + to.x + ',' + to.y;
       edgesHtml += '<path class="edge" data-from="' + e.from + '" data-to="' + e.to + '" d="' + d + '" fill="none" stroke="' + stroke + '" stroke-width="' + width + '" stroke-dasharray="' + dash + '" opacity="' + opacity + '"/>';
@@ -615,13 +843,39 @@
       var opacity = dim ? 0.35 : 1;
       if (n.type === 'agent') {
         var ring = statusColor(n.dataStatus);
-        nodesHtml += '<g class="node agent-node" data-id="' + n.id + '" style="cursor:pointer" opacity="' + opacity + '">';
-        nodesHtml += '<circle cx="' + n.x + '" cy="' + n.y + '" r="42" fill="rgba(20,27,45,0.9)" stroke="' + ring + '" stroke-width="3"/>';
+        var isPinned = pinned === n.id;
+        var isHover = !pinned && state.hoverId === n.id;
+        nodesHtml += '<g class="node agent-node' + (isPinned ? ' is-pinned' : '') + '" data-id="' + n.id + '" style="cursor:pointer" opacity="' + opacity + '">';
+        if (isPinned) {
+          nodesHtml += '<circle cx="' + n.x + '" cy="' + n.y + '" r="54" fill="none" stroke="rgba(0,210,106,0.35)" stroke-width="10" filter="url(#agent-glow)"/>';
+          nodesHtml += '<circle cx="' + n.x + '" cy="' + n.y + '" r="46" fill="none" stroke="rgba(0,210,106,0.75)" stroke-width="3"/>';
+        } else if (isHover) {
+          nodesHtml += '<circle cx="' + n.x + '" cy="' + n.y + '" r="46" fill="none" stroke="rgba(34,211,238,0.55)" stroke-width="2.5"/>';
+        }
+        nodesHtml += '<circle cx="' + n.x + '" cy="' + n.y + '" r="42" fill="rgba(20,27,45,0.9)" stroke="' + (isPinned ? '#00d26a' : ring) + '" stroke-width="' + (isPinned ? 4 : 3) + '"/>';
         if (n.imageUrl) {
           nodesHtml += '<image href="' + escapeHtml(n.imageUrl) + '" x="' + (n.x - 38) + '" y="' + (n.y - 38) + '" width="76" height="76" clip-path="url(#clip-' + n.id + ')" preserveAspectRatio="xMidYMid slice"/>';
         }
         nodesHtml += '<text x="' + n.x + '" y="' + (n.y + 58) + '" text-anchor="middle" fill="#f1f5f9" font-size="14" font-weight="600" font-family="Space Grotesk, sans-serif">' + escapeHtml(n.label) + '</text>';
         nodesHtml += '<text x="' + n.x + '" y="' + (n.y + 74) + '" text-anchor="middle" fill="#8b9cb3" font-size="11" font-family="IBM Plex Sans, sans-serif">' + escapeHtml(n.shortLabel) + '</text>';
+        nodesHtml += '<circle class="node-hit" cx="' + n.x + '" cy="' + n.y + '" r="44" fill="transparent" stroke="none"/>';
+        nodesHtml += '</g>';
+      } else if (n.type === 'content-module') {
+        var mr = n.shared ? 18 : 14;
+        var isModPinned = pinned === n.id;
+        var mFill = isModPinned ? 'rgba(168,85,247,0.35)' : (n.shared ? 'rgba(168,85,247,0.22)' : 'rgba(168,85,247,0.12)');
+        var mStroke = isModPinned ? '#e9d5ff' : (n.shared ? 'rgba(196,132,252,0.85)' : 'rgba(168,85,247,0.65)');
+        nodesHtml += '<g class="node module-node' + (isModPinned ? ' is-pinned' : '') + '" data-id="' + n.id + '" style="cursor:pointer" opacity="' + opacity + '">';
+        if (isModPinned) {
+          nodesHtml += '<rect x="' + (n.x - mr - 5) + '" y="' + (n.y - mr - 5) + '" width="' + ((mr + 5) * 2) + '" height="' + ((mr + 5) * 2) + '" rx="8" fill="none" stroke="rgba(196,132,252,0.45)" stroke-width="3" filter="url(#agent-glow)"/>';
+        }
+        nodesHtml += '<rect x="' + (n.x - mr) + '" y="' + (n.y - mr) + '" width="' + (mr * 2) + '" height="' + (mr * 2) + '" rx="5" fill="' + mFill + '" stroke="' + mStroke + '" stroke-width="2"/>';
+        if (n.shared && n.agentCount > 1) {
+          nodesHtml += '<text x="' + n.x + '" y="' + (n.y + 4) + '" text-anchor="middle" fill="#f1f5f9" font-size="10" font-weight="600">' + n.agentCount + '</text>';
+        }
+        var mlabel = n.label.length > 18 ? n.label.slice(0, 16) + '…' : n.label;
+        nodesHtml += '<text x="' + n.x + '" y="' + (n.y + mr + 13) + '" text-anchor="middle" fill="#d8b4fe" font-size="8.5" font-family="IBM Plex Sans, sans-serif">' + escapeHtml(mlabel) + '</text>';
+        nodesHtml += '<rect class="node-hit" x="' + (n.x - mr) + '" y="' + (n.y - mr) + '" width="' + (mr * 2) + '" height="' + (mr * 2) + '" fill="transparent" stroke="none"/>';
         nodesHtml += '</g>';
       } else if (n.type === 'orchestrator') {
         var orchImg = n.imageUrl || 'https://static.wixstatic.com/media/c123de_7cad20d715d045e4a9f684d5936bab3a~mv2.jpg';
@@ -632,6 +886,7 @@
         nodesHtml += '</g>';
         nodesHtml += '<circle cx="' + n.x + '" cy="' + n.y + '" r="44" fill="none" stroke="rgba(0,168,232,0.45)" stroke-width="1"/>';
         nodesHtml += '<text x="' + n.x + '" y="' + (n.y + 68) + '" text-anchor="middle" fill="#b8c5d6" font-size="10" font-family="IBM Plex Sans, sans-serif">Orchestra</text>';
+        nodesHtml += '<circle class="node-hit" cx="' + n.x + '" cy="' + n.y + '" r="52" fill="transparent" stroke="none"/>';
         nodesHtml += '</g>';
       } else {
         var r = n.shared ? 22 : 16;
@@ -644,18 +899,25 @@
         }
         var label = n.label.length > 22 ? n.label.slice(0, 20) + '…' : n.label;
         nodesHtml += '<text x="' + n.x + '" y="' + (n.y + r + 14) + '" text-anchor="middle" fill="#b8c5d6" font-size="9" font-family="IBM Plex Sans, sans-serif">' + escapeHtml(label) + '</text>';
+        nodesHtml += '<circle class="node-hit" cx="' + n.x + '" cy="' + n.y + '" r="' + (r + 4) + '" fill="transparent" stroke="none"/>';
         nodesHtml += '</g>';
       }
     });
 
     root.innerHTML = defs + '<g class="edges">' + edgesHtml + '</g><g class="nodes">' + nodesHtml + '</g>';
-    bindGraphInteraction();
     applyViewBox();
+    if (state.pinnedId) {
+      renderDetail(nodeById(state.pinnedId));
+    }
   }
 
   function bindFilters() {
     document.getElementById('show-data').addEventListener('change', function (e) {
       state.filters.data = e.target.checked;
+      renderGraph();
+    });
+    document.getElementById('show-modules').addEventListener('change', function (e) {
+      state.filters.modules = e.target.checked;
       renderGraph();
     });
     document.getElementById('show-handoffs').addEventListener('change', function (e) {
@@ -666,9 +928,64 @@
       state.filters.coUse = e.target.checked;
       renderGraph();
     });
+    document.getElementById('show-co-module').addEventListener('change', function (e) {
+      state.filters.coModule = e.target.checked;
+      renderGraph();
+    });
     document.getElementById('show-routes').addEventListener('change', function (e) {
       state.filters.routes = e.target.checked;
       renderGraph();
+    });
+  }
+
+  function bindAddToolForm() {
+    var form = document.getElementById('add-tool-form');
+    if (!form || form.dataset.bound) return;
+    form.dataset.bound = '1';
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var msg = document.getElementById('form-msg');
+      msg.className = 'form-msg';
+      msg.textContent = 'Saving…';
+
+      var agents = [];
+      form.querySelectorAll('input[name=agents]:checked').forEach(function (cb) {
+        agents.push(cb.value);
+      });
+
+      var payload = {
+        id: document.getElementById('tool-id').value.trim(),
+        title: document.getElementById('tool-title').value.trim(),
+        href: document.getElementById('tool-href').value.trim(),
+        description: document.getElementById('tool-desc').value.trim(),
+        usageHint: document.getElementById('tool-hint').value.trim(),
+        topics: document.getElementById('tool-topics').value.trim(),
+        agents: agents
+      };
+
+      try {
+        var res = await fetch(resolveApiUrl('/api/agents-admin/content-modules'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        var data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || ('HTTP ' + res.status));
+        msg.className = 'form-msg ok';
+        msg.textContent = 'Added “' + (data.module && data.module.title ? data.module.title : payload.title) + '”. Refreshing map…';
+        form.reset();
+        syncAgentPickDefaults();
+        await load();
+        if (data.module && data.module.id) {
+          state.pinnedId = 'mod:' + data.module.id;
+          renderGraph();
+          renderDetail(nodeById(state.pinnedId));
+        }
+      } catch (err) {
+        msg.className = 'form-msg err';
+        msg.textContent = err.message || 'Could not save module.';
+      }
     });
   }
 
@@ -688,9 +1005,13 @@
       state.graph = await res.json();
       var s = state.graph.stats || {};
       document.getElementById('stats-chip').textContent =
-        s.agentCount + ' agents · ' + s.sharedDataCount + ' shared files · ' + s.referralLiveCount + ' live referrals';
+        s.agentCount + ' agents · ' + (s.contentModuleCount || 0) + ' portal tools · ' +
+        s.sharedDataCount + ' shared files · ' + s.referralLiveCount + ' live referrals';
       document.getElementById('loading').hidden = true;
       document.getElementById('main-layout').hidden = false;
+      renderAgentPicks();
+      bindGraphInteractionOnce();
+      bindAddToolForm();
       bindZoomPan();
       renderGraph();
       bindFilters();

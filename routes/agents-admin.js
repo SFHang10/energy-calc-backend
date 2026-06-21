@@ -1,5 +1,5 @@
 const express = require('express');
-const { getOverview, getGraph } = require('../services/agents-admin-service');
+const { getOverview, getGraph, addContentModule } = require('../services/agents-admin-service');
 
 const router = express.Router();
 
@@ -24,7 +24,19 @@ router.get('/graph', async (req, res) => {
 });
 
 router.get('/health', (req, res) => {
-  res.json({ ok: true, service: 'agents-admin', phase: 1 });
+  res.json({ ok: true, service: 'agents-admin', phase: 2 });
+});
+
+router.post('/content-modules', async (req, res) => {
+  try {
+    const moduleRow = await addContentModule(req.body || {});
+    res.status(201).json({ ok: true, module: moduleRow });
+  } catch (error) {
+    const message = error.message || 'Failed to add content module.';
+    const status = /required|already exists|Assign at least/i.test(message) ? 400 : 500;
+    console.error('Agents admin content-module error:', message);
+    res.status(status).json({ ok: false, error: message });
+  }
 });
 
 module.exports = router;

@@ -22,7 +22,16 @@ https://energy-calc-backend.onrender.com/greenways/orchestra-hub
 
 Alias: `/greenways/guide-agent` → same hub HTML. API: `POST /api/guide-agent/ask` → `primaryAgent`, `routedTo`, short answer; tap glowing portrait → specialist with `?q=`.
 
-**Referral welcomes:** team-strip handoffs pass `profile.handoff` on first `/ask` — **19 live pairs** (e.g. Zyanne→Artemis, Cheryce→Andrieus) via `services/greenways-agent-handoff.js`. Staff map: `/agents-admin-map.html`.
+**Referral welcomes:** team-strip handoffs pass `profile.handoff` on first `/ask` — **19 live pairs** (e.g. Zyanne→Artemis, Cheryce→Andrieus) via `services/greenways-agent-handoff.js`. Staff map: `/agents-admin-map.html` (portal tools + data wiring).
+
+**Portal entry pages (Wix marketing):**
+
+```
+https://energy-calc-backend.onrender.com/greenways/agents-story
+https://energy-calc-backend.onrender.com/greenways/agents-highlights
+```
+
+Story = why the agents exist · Highlights = weekly grounded picks per specialist (`npm run build:agent-highlights`). Both link to Orchestra hub and individual agent chats.
 
 ---
 

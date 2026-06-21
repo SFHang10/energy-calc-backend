@@ -154,10 +154,12 @@ Renovation is **not** a separate agent. Equipment Agent covers **changing how yo
 | Topic | Intents | Consumer HTML |
 |-------|---------|---------------|
 | **Premises renovation** | `renovation`, `renovation_plan` | `Sustainable Renovations New .html`, `HTMLs/Renovation project plans.html` |
+| **Retrofit ROI & building benefits** | `retrofit_benefits` | `HTMLs/Retrofit-Tabbed.html` — module id `retrofit-roi-guide` |
+| **Restaurant design & sustainability** | `restaurant_design` | `HTMLs/Restauarant Design .html` — module id `restaurant-design-sustainability` |
 | **Insulation & fabric** | `insulation` | `Importance of Insulation.html` |
 | **Building grants** | `renovation_grants` | Grants Agent cross-link; schemes from `schemes.json` |
 
-Knowledge: `services/equipment-agent-knowledge.js` · intents: `data/equipment-agent-intents.json`.
+Knowledge: `services/equipment-agent-knowledge.js` · intents: `data/equipment-agent-intents.json` · curated stats: `data/equipment-agent-renovation-guide.json`.
 
 ### Sustainable Products Agent — one chat, three utility lanes
 
@@ -602,6 +604,26 @@ When adding chats to **Greenways Interface .html** tabs or refreshing **Music Gu
 
 ---
 
+## Staff admin — network map & portal toolkit (Jun 2026)
+
+**Purpose:** Wire portal HTML pages to the right agents without editing seven chat shells by hand.
+
+| Surface | URL | API |
+|---------|-----|-----|
+| Table overview | `/agents-admin.html` | `GET /api/agents-admin/overview` |
+| **Network map** | `/agents-admin-map.html` | `GET /api/agents-admin/graph` |
+| **Add portal tool** | Sidebar form on map | `POST /api/agents-admin/content-modules` |
+
+**Map layers:** outer ring = seven agents + Orchestra · middle ring = **`greenways-content-modules.json`** (portal tools) · inner = shared JSON data files · edges = handoffs + **19 live referral welcomes**.
+
+**Interaction:** **Click** a portrait to **pin** (green glow) — detail panel stays while you scroll the sidebar or use **Add to toolkit**. Toggle **Portal tools** / **Shared tool links** in the toolbar.
+
+**After adding a module:** agents load it via `/data/greenways-content-modules.json` on next chat open. For a **sidebar quick link**, also update `data/greenways-agent-sidebar-config.json` and run **`npm run sync:agent-sidebar`**.
+
+**Not covered yet:** paste external URL live-scrape, PDF upload, or site knowledge cards — see **`greenways-agents-roadmap.md`** Phase 2.
+
+---
+
 ## Admin vs consumer skills (taxonomy)
 
 **Greenways chat agents** (this skill) are **consumer-facing**: Wix embeds, public `/greenways/{agent}`, answers from published HTML + JSON only — no build scripts, MCP steps, or store admin in chat replies.
@@ -669,6 +691,8 @@ Future chat for staff and (optionally) logged-in members:
 | Historical cost vs prices | `Skills/historical-data-finder.md` → **Finance Agent** backlog |
 | Store admin vs consumer discovery | `Skills/Greenways Market Manager MD.md` |
 | Admin vs consumer taxonomy | This skill § **Admin vs consumer skills** |
+| Staff network map + add toolkit | This skill § **Staff admin — network map & portal toolkit**; `agents-admin-map.html` |
+| Portal story / highlights | `/greenways/agents-story` · `/greenways/agents-highlights` · `npm run build:agent-highlights` |
 
 ---
 
@@ -682,7 +706,10 @@ http://localhost:4000/greenways/sustainable-products-agent
 http://localhost:4000/greenways/deals-agent
 http://localhost:4000/greenways/media-agent
 http://localhost:4000/greenways/systems-agent
-http://localhost:4000/greenways/guide-agent   ← WIP (404 until server-new.js + HTML)
+http://localhost:4000/greenways/agents-story
+http://localhost:4000/greenways/agents-highlights
+http://localhost:4000/agents-admin-map.html
+http://localhost:4000/agents-admin.html
 http://localhost:4000/greenways/finance-agent?embed=1&q=What+are+current+energy+prices+in+the+Netherlands%3F
 ```
 
@@ -692,6 +719,7 @@ http://localhost:4000/greenways/finance-agent?embed=1&q=What+are+current+energy+
 
 | Date | Change |
 |------|--------|
+| 2026-06-21 | **Staff admin map — portal toolkit** — `agents-admin-map.html` middle ring = content modules; `POST /api/agents-admin/content-modules`; click-to-pin; § **Staff admin — network map & portal toolkit**. Portal URLs in Local URLs. |
 | 2026-06-14 | **Right panel sidebar order** — default agents: **Ask about** above **Quick links** (Vincent framing); shared note in `greenways-agent-sidebar.css`. **Exception:** Edwardo (`systems-agent`) — Ops verify → Quick links → Ask about (unchanged). |
 | 2026-06-14 | **Scheme tablet Ask button** — fix vertical “Ask about” text on Vincent/Artemis/etc.: higher-specificity pill styles in `greenways-agent-turn-ui.css` beat per-agent inline `.scheme-chip-ask` 22px circle. |
 | 2026-06-14 | **Cheryce banner images** — missing photos = no `imageUrl` in `data/companies.json`; FoodMesh fixed; `DEFAULT_COMPANY_CARD_IMAGE` fallback in `media-agent-companies.js`. |

@@ -21,7 +21,7 @@ Keep the **existing HTML styling** from the template; only replace content block
 
 ## ✅ When To Use
 
-**Consumer chat:** renovation / insulation / retrofit questions route through **Equipment Agent** (`/greenways/equipment-agent`) — merged with equipment upgrades, not a separate Renovation agent.
+**Consumer chat (Artemis):** renovation / insulation / retrofit / restaurant design questions route through **Equipment Agent** (`/greenways/equipment-agent`) — merged with equipment upgrades, not a separate Renovation agent. Intents: `retrofit_benefits`, `restaurant_design`, `renovation`, `insulation` — knowledge in `data/equipment-agent-renovation-guide.json`; module tablets in `greenways-content-modules.json`.
 
 Use this skill when the user asks for:
 - renovation project plans

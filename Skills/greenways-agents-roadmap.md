@@ -3,7 +3,7 @@
 **Purpose:** One place to return to for agent product, technical, and commercial plans.  
 **Orchestrator:** Say *“agents roadmap”* → this file.  
 **Related:** `greenways-transition-agents.md` (roster) · `greenways-chat-interface-skill.md` (UI/API) · `SKILL-ORCHESTRATOR.md`  
-**Last updated:** 14 Jun 2026
+**Last updated:** 21 Jun 2026
 
 ---
 
@@ -129,6 +129,7 @@ Membership tier ready → enable quotas (Phase 1); or cost/abuse spike → soft 
 | Task | Priority | Notes |
 |------|----------|-------|
 | **Site knowledge cards** index | High | `data/greenways-site-knowledge/` — id, claim, evidence JSON, page href, `agents[]`, `primary` |
+| **Staff portal toolkit (partial ✅ Jun 2026)** | High | `agents-admin-map.html` visualizes + registers **`greenways-content-modules.json`**; `POST /api/agents-admin/content-modules`; not URL scrape / PDF ingest yet |
 | Pilot: **Vincent** + one projection scenario + one news item | High | Pattern for all agents |
 | Wire card retrieval into `*-agent-knowledge.js` | High | Intent → rank cards + JSON slices → `blocks[]` |
 | LLM polish with **grounded payload only** | High | “Cite only provided evidence” |
@@ -218,6 +219,9 @@ User (Wix public or Member)
 | Subscriptions (scaffold) | `routes/subscriptions-simple.js` |
 | Rate limit example | `routes/music-venue-inquiries.js` |
 | Site knowledge (to create) | `data/greenways-site-knowledge/` |
+| Portal tools registry | `data/greenways-content-modules.json` — chat module tablets + admin map middle ring |
+| Staff network map | `agents-admin-map.html` · `GET/POST /api/agents-admin/*` |
+| Portal story / highlights | `/greenways/agents-story` · `/greenways/agents-highlights` · `npm run build:agent-highlights` |
 | Quota service (to create) | `services/greenways-agent-quota.js` (suggested name) |
 
 ---
