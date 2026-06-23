@@ -293,6 +293,7 @@
     background: rgba(40, 167, 69, 0.22);
   }
 </style>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-team.css">
 </head>
 <body>
 <div class="orchestra" id="orchestra-root">
@@ -347,7 +348,10 @@
     </p>
     <div class="status-bar" id="status-bar">Ready</div>
   </section>
+
+  <div id="gw-journey-inline-mount" aria-live="polite"></div>
 </div>
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-team.js"></script>
 <script>
 (function () {
   var isEmbed = /[?&]embed=1/.test(location.search);
@@ -535,6 +539,25 @@
         data.primaryAgent
           ? "Routed to " + (roster.find(function (a) { return a.id === data.primaryAgent; }) || {}).name || data.primaryAgent
           : "Answered";
+
+      if (window.GreenwaysAgentTeam && typeof GreenwaysAgentTeam.recordTurn === "function") {
+        var routedName = data.primaryAgent
+          ? ((roster.find(function (a) { return a.id === data.primaryAgent; }) || {}).name || data.primaryAgent)
+          : "Greenways Guide";
+        var routedSlug = data.primaryAgent
+          ? ((roster.find(function (a) { return a.id === data.primaryAgent; }) || {}).slug || "orchestra-hub")
+          : "orchestra-hub";
+        GreenwaysAgentTeam.recordTurn({
+          slug: routedSlug,
+          agentName: "Orchestra → " + routedName,
+          question: q,
+          answer: data.answer || "",
+          intentId: data.intentId || "",
+          blocks: [],
+          spokenSummary: ""
+        });
+        refreshJourneyOrchestraPanel();
+      }
     } catch (err) {
       answerBox.className = "answer-box is-visible";
       var offline = location.protocol === "file:" || !apiBase();
@@ -595,8 +618,17 @@
     if (e.key === "Enter") { e.preventDefault(); askOrchestra(input.value); }
   });
 
+  function refreshJourneyOrchestraPanel() {
+    if (window.GreenwaysAgentTeam && typeof GreenwaysAgentTeam.renderInlinePanel === "function") {
+      GreenwaysAgentTeam.renderInlinePanel(document.getElementById("gw-journey-inline-mount"));
+    }
+  }
+
+  document.addEventListener("gw-journey-updated", refreshJourneyOrchestraPanel);
+
   loadRoster().then(function () {
     renderGrid();
+    refreshJourneyOrchestraPanel();
     var params = new URLSearchParams(location.search);
     var boot = params.get("q") || params.get("prompt") || "";
     if (boot) {

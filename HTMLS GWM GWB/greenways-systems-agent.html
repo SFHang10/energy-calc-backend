@@ -633,6 +633,18 @@
       formatAnswer: formatAnswer,
       avatar: AGENT_TURN_AVATAR
     }, function () {
+
+      if (window.GreenwaysAgentTeam && typeof GreenwaysAgentTeam.recordTurn === "function") {
+        GreenwaysAgentTeam.recordTurn({
+          slug: "systems-agent",
+          agentName: AGENT_PROFILE && AGENT_PROFILE.name ? AGENT_PROFILE.name : "Edwardo",
+          question: typeof lastQuestion !== "undefined" ? lastQuestion : "",
+          answer: payload.answer || "",
+          intentId: payload.intentId || "",
+          blocks: payload.blocks || [],
+          spokenSummary: payload.spokenSummary || ""
+        });
+      }
       if (gwVoiceHandle && gwVoiceHandle.maybeAutoSpeak && payload.spokenSummary) {
         gwVoiceHandle.maybeAutoSpeak(payload.spokenSummary);
       } else if (window.GreenwaysAgentVoice && payload.spokenSummary) {

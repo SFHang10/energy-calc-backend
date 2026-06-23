@@ -99,6 +99,59 @@ function removeLegacyBoot(html) {
   );
 }
 
+function ensureJourneyRecording(html, slug) {
+  if (html.includes('GreenwaysAgentTeam.recordTurn')) return html;
+
+  const inject = `
+      if (window.GreenwaysAgentTeam && typeof GreenwaysAgentTeam.recordTurn === "function") {
+        GreenwaysAgentTeam.recordTurn({
+          slug: "${slug}",
+          agentName: AGENT_PROFILE && AGENT_PROFILE.name ? AGENT_PROFILE.name : "Agent",
+          question: payload.question || (typeof lastQuestion !== "undefined" ? lastQuestion : ""),
+          answer: answer,
+          intentId: intentId,
+          blocks: blocks,
+          spokenSummary: payload.spokenSummary || ""
+        });
+      }`;
+
+  const finishTurnPattern =
+    /(sessionTurns\.push\(\{\s*\n\s*role: "agent",[\s\S]*?\}\);\s*\n\s*saveSession\(\);)(\s*\n\s*\}\);)/;
+
+  if (finishTurnPattern.test(html)) {
+    return html.replace(finishTurnPattern, `$1${inject}$2`);
+  }
+
+  return html;
+}
+
+function ensureSystemsJourneyRecording(html) {
+  if (html.includes('GreenwaysAgentTeam.recordTurn')) return html;
+  if (!html.includes('greenways-systems-agent.html') && !html.includes('systems-agent')) return html;
+
+  const inject = `
+      if (window.GreenwaysAgentTeam && typeof GreenwaysAgentTeam.recordTurn === "function") {
+        GreenwaysAgentTeam.recordTurn({
+          slug: "systems-agent",
+          agentName: AGENT_PROFILE && AGENT_PROFILE.name ? AGENT_PROFILE.name : "Edwardo",
+          question: typeof lastQuestion !== "undefined" ? lastQuestion : "",
+          answer: payload.answer || "",
+          intentId: payload.intentId || "",
+          blocks: payload.blocks || [],
+          spokenSummary: payload.spokenSummary || ""
+        });
+      }`;
+
+  const systemsPattern =
+    /(TurnUi\.revealTyped\(el, parts, \{[\s\S]*?\}, function \(\) \{\s*\n)(      if \(gwVoiceHandle)/;
+
+  if (systemsPattern.test(html)) {
+    return html.replace(systemsPattern, `$1${inject}\n$2`);
+  }
+
+  return html;
+}
+
 function syncFile({ file, slug }) {
   const filePath = path.join(GWB, file);
   if (!fs.existsSync(filePath)) {
@@ -112,6 +165,11 @@ function syncFile({ file, slug }) {
   html = ensureTopActions(html);
   html = removeLegacyBoot(html);
   html = ensureTeamInit(html, slug);
+  if (slug === 'systems-agent') {
+    html = ensureSystemsJourneyRecording(html);
+  } else {
+    html = ensureJourneyRecording(html, slug);
+  }
   if (html !== before) {
     fs.writeFileSync(filePath, html, 'utf8');
     console.log('Updated', file);

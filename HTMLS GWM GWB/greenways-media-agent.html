@@ -2145,6 +2145,17 @@
         knowledgeVersion: payload.knowledgeVersion || ""
       });
       saveSession();
+      if (window.GreenwaysAgentTeam && typeof GreenwaysAgentTeam.recordTurn === "function") {
+        GreenwaysAgentTeam.recordTurn({
+          slug: "media-agent",
+          agentName: AGENT_PROFILE && AGENT_PROFILE.name ? AGENT_PROFILE.name : "Agent",
+          question: payload.question || (typeof lastQuestion !== "undefined" ? lastQuestion : ""),
+          answer: answer,
+          intentId: intentId,
+          blocks: blocks,
+          spokenSummary: payload.spokenSummary || ""
+        });
+      }
     });
       if (gwVoiceHandle && gwVoiceHandle.maybeAutoSpeak && payload.spokenSummary) {
         gwVoiceHandle.maybeAutoSpeak(payload.spokenSummary);

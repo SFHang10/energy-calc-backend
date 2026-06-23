@@ -4,6 +4,9 @@
   var ROSTER_URL = '/data/greenways-agent-roster.json';
   var HANDOFF_KEY = 'gw-team-handoff-v1';
   var PROFILE_KEY = 'gw-team-profile-v1';
+  var JOURNEY_KEY = 'gw-team-journey-v1';
+  var JOURNEY_PLAN_KEY = 'gw-team-journey-plan-v1';
+  var JOURNEY_MAX = 24;
   var rosterCache = null;
 
   var FALLBACK_ROSTER = {
@@ -295,6 +298,487 @@
       .replace(/"/g, '&quot;');
   }
 
+  function stripMarkdown(text) {
+    return String(text || '')
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/\*([^*]+)\*/g, '$1')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      .replace(/^#+\s+/gm, '')
+      .replace(/\n+/g, ' ')
+      .trim();
+  }
+
+  function extractHighlights(blocks) {
+    var items = [];
+    if (!Array.isArray(blocks)) return items;
+    blocks.forEach(function (block) {
+      if (!block || !block.type) return;
+      if (block.type === 'link' && Array.isArray(block.items)) {
+        block.items.forEach(function (it) {
+          if (it && it.label) {
+            items.push({ kind: 'link', label: String(it.label), href: String(it.href || '') });
+          }
+        });
+      }
+      if (block.type === 'module' && Array.isArray(block.items)) {
+        block.items.forEach(function (it) {
+          if (it && (it.title || it.label)) {
+            items.push({
+              kind: 'module',
+              label: String(it.title || it.label),
+              moduleId: String(it.id || it.moduleId || '')
+            });
+          }
+        });
+      }
+      if (block.type === 'stat' && Array.isArray(block.items)) {
+        block.items.forEach(function (it) {
+          if (it && it.label) {
+            var val = it.value != null ? String(it.value) : '';
+            items.push({ kind: 'stat', label: val ? it.label + ': ' + val : String(it.label) });
+          }
+        });
+      }
+    });
+    return items.slice(0, 8);
+  }
+
+  function readJourney() {
+    var data = readJson(JOURNEY_KEY);
+    if (data && Array.isArray(data.turns)) return data;
+    return { startedAt: null, turns: [] };
+  }
+
+  function journeyTurnCount() {
+    return readJourney().turns.length;
+  }
+
+  function clearJourney() {
+    try {
+      global.sessionStorage.removeItem(JOURNEY_KEY);
+      global.sessionStorage.removeItem(JOURNEY_PLAN_KEY);
+    } catch (_) {}
+    updateJourneyButtonBadge();
+    try {
+      global.dispatchEvent(new CustomEvent('gw-journey-updated', { detail: { count: 0 } }));
+    } catch (_) {}
+  }
+
+  function readJourneyPlan() {
+    return readJson(JOURNEY_PLAN_KEY);
+  }
+
+  function writeJourneyPlan(planPayload) {
+    if (!planPayload || !planPayload.plan) return;
+    writeJson(JOURNEY_PLAN_KEY, {
+      plan: String(planPayload.plan),
+      source: String(planPayload.source || 'heuristic'),
+      generatedAt: new Date().toISOString(),
+      turnCount: planPayload.turnCount || 0,
+      agentCount: planPayload.agentCount || 0
+    });
+  }
+
+  function clearJourneyPlan() {
+    try {
+      global.sessionStorage.removeItem(JOURNEY_PLAN_KEY);
+    } catch (_) {}
+  }
+
+  function apiBase() {
+    var h = global.location && global.location.hostname ? global.location.hostname : '';
+    if (h === 'localhost' || h === '127.0.0.1' || h.indexOf('energy-calc-backend') !== -1) {
+      return global.location.origin || '';
+    }
+    if (global.location && global.location.protocol === 'file:') return '';
+    return 'https://energy-calc-backend.onrender.com';
+  }
+
+  function simpleMarkdown(text) {
+    return escapeHtml(text)
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+      .replace(/\n/g, '<br>');
+  }
+
+  function journeyEligibleForPlan() {
+    return journeyTurnCount() >= 2;
+  }
+
+  async function requestJourneyPlan() {
+    var journey = readJourney();
+    if (!journeyEligibleForPlan()) {
+      throw new Error('Ask at least two questions across specialists first.');
+    }
+
+    var base = apiBase();
+    var url = (base || '') + '/api/guide-agent/summarize';
+    var profile = readSharedProfile() || {};
+
+    var res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        profile: profile,
+        startedAt: journey.startedAt || null,
+        turns: journey.turns
+      })
+    });
+
+    var data = await res.json().catch(function () {
+      return {};
+    });
+    if (!res.ok || !data.ok) {
+      throw new Error(data.error || 'Could not generate plan.');
+    }
+
+    writeJourneyPlan(data);
+    return data;
+  }
+
+  function buildJourneyPlanHtml(planRecord) {
+    if (!planRecord || !planRecord.plan) return '';
+    var source =
+      planRecord.source === 'llm'
+        ? 'Greenways Guide · AI synthesis'
+        : 'Greenways Guide · grounded summary';
+    return (
+      '<section class="gw-journey-plan" id="gw-journey-plan">' +
+      '<div class="gw-journey-plan-head">' +
+      '<h3>Your action plan</h3>' +
+      '<span class="gw-journey-plan-source">' +
+      escapeHtml(source) +
+      '</span></div>' +
+      '<div class="gw-journey-plan-body">' +
+      simpleMarkdown(planRecord.plan) +
+      '</div></section>'
+    );
+  }
+
+  function recordJourneyTurn(entry) {
+    if (!entry || !entry.slug) return;
+    var journey = readJourney();
+    if (!journey.startedAt) journey.startedAt = new Date().toISOString();
+
+    var summary = String(entry.spokenSummary || '').trim();
+    if (!summary) {
+      summary = stripMarkdown(entry.answer || '');
+      if (summary.length > 220) summary = summary.slice(0, 217) + '…';
+    }
+
+    journey.turns.push({
+      id: 'j-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+      at: new Date().toISOString(),
+      slug: String(entry.slug),
+      agentName: String(entry.agentName || entry.slug),
+      question: String(entry.question || '').trim(),
+      summary: summary,
+      intentId: String(entry.intentId || '').trim(),
+      highlights: extractHighlights(entry.blocks)
+    });
+
+    if (journey.turns.length > JOURNEY_MAX) {
+      journey.turns = journey.turns.slice(-JOURNEY_MAX);
+    }
+
+    writeJson(JOURNEY_KEY, journey);
+    clearJourneyPlan();
+    updateJourneyButtonBadge();
+    try {
+      global.dispatchEvent(
+        new CustomEvent('gw-journey-updated', { detail: { count: journey.turns.length } })
+      );
+    } catch (_) {}
+  }
+
+  function findAgentInRoster(roster, slug) {
+    if (!roster || !slug) return null;
+    var agents = rosterAgentsForStrip(roster);
+    for (var i = 0; i < agents.length; i++) {
+      if (agents[i].slug === slug) return agents[i];
+    }
+    return null;
+  }
+
+  function formatJourneyTime(iso) {
+    if (!iso) return '';
+    try {
+      return new Date(iso).toLocaleString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function buildJourneyCopyText(journey) {
+    var planRecord = readJourneyPlan();
+    var lines = ['Greenways Transition Agents — your journey summary', ''];
+    if (planRecord && planRecord.plan) {
+      lines.push('--- ACTION PLAN ---');
+      lines.push(planRecord.plan);
+      lines.push('');
+    }
+    if (journey.startedAt) {
+      lines.push('Started: ' + formatJourneyTime(journey.startedAt));
+      lines.push('');
+    }
+    journey.turns.forEach(function (turn, idx) {
+      lines.push((idx + 1) + '. ' + turn.agentName);
+      if (turn.question) lines.push('   Q: ' + turn.question);
+      lines.push('   ' + turn.summary);
+      if (turn.highlights && turn.highlights.length) {
+        turn.highlights.forEach(function (h) {
+          lines.push('   • ' + h.label);
+        });
+      }
+      lines.push('');
+    });
+    return lines.join('\n').trim();
+  }
+
+  function buildJourneyCardsHtml(journey, roster) {
+    if (!journey.turns.length) {
+      return (
+        '<p class="gw-journey-empty">No answers yet. Chat with a specialist — each reply is added here so you can review your visit in one place.</p>'
+      );
+    }
+
+    return journey.turns
+      .map(function (turn) {
+        var agent = findAgentInRoster(roster, turn.slug);
+        var portrait = agent && agent.imageUrl ? agent.imageUrl : '';
+        var path = agent && agent.path ? agent.path : '/greenways/' + turn.slug;
+        var highlights =
+          turn.highlights && turn.highlights.length
+            ? '<ul class="gw-journey-highlights">' +
+              turn.highlights
+                .map(function (h) {
+                  return '<li>' + escapeHtml(h.label) + '</li>';
+                })
+                .join('') +
+              '</ul>'
+            : '';
+        var question = turn.question
+          ? '<p class="gw-journey-q">“' + escapeHtml(turn.question) + '”</p>'
+          : '';
+
+        return (
+          '<article class="gw-journey-card">' +
+          '<div class="gw-journey-card-head">' +
+          (portrait
+            ? '<img class="gw-journey-portrait" src="' +
+              escapeHtml(portrait) +
+              '" alt="" width="40" height="40">'
+            : '') +
+          '<div class="gw-journey-card-meta">' +
+          '<strong class="gw-journey-agent">' +
+          escapeHtml(turn.agentName) +
+          '</strong>' +
+          '<span class="gw-journey-time">' +
+          escapeHtml(formatJourneyTime(turn.at)) +
+          '</span>' +
+          '</div>' +
+          '<a class="gw-journey-open" href="' +
+          escapeHtml(path) +
+          '" target="_top" rel="noopener">Open chat</a>' +
+          '</div>' +
+          question +
+          '<p class="gw-journey-summary">' +
+          escapeHtml(turn.summary) +
+          '</p>' +
+          highlights +
+          '</article>'
+        );
+      })
+      .join('');
+  }
+
+  function closeJourneyModal() {
+    var modal = document.getElementById('gw-journey-modal');
+    if (modal) modal.hidden = true;
+  }
+
+  function bindJourneyPlanButton(btn) {
+    if (!btn || btn.dataset.bound === '1') return;
+    btn.dataset.bound = '1';
+    btn.addEventListener('click', async function () {
+      if (!journeyEligibleForPlan()) return;
+      var label = btn.querySelector('.gw-journey-plan-btn-label') || btn;
+      var prev = label.textContent;
+      btn.disabled = true;
+      label.textContent = 'Generating…';
+      try {
+        await requestJourneyPlan();
+        await renderJourneyModalBody();
+        renderInlinePanel(document.getElementById('gw-journey-inline-mount'));
+      } catch (err) {
+        global.alert(err.message || 'Could not generate plan.');
+      } finally {
+        btn.disabled = !journeyEligibleForPlan();
+        label.textContent = prev;
+      }
+    });
+  }
+
+  function ensureJourneyPlanButton(container, id) {
+    if (!container) return null;
+    var btn = document.getElementById(id);
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = id;
+      btn.className = 'gw-journey-btn-primary gw-journey-plan-btn';
+      btn.innerHTML = '<span class="gw-journey-plan-btn-label">Generate my plan</span>';
+      container.insertBefore(btn, container.firstChild);
+    }
+    btn.disabled = !journeyEligibleForPlan();
+    btn.title = journeyEligibleForPlan()
+      ? 'Synthesize your specialist answers into one action plan'
+      : 'Ask at least two questions to generate a plan';
+    bindJourneyPlanButton(btn);
+    return btn;
+  }
+
+  async function openJourneySummary() {
+    var existing = document.getElementById('gw-journey-modal');
+    if (!existing) {
+      existing = document.createElement('div');
+      existing.id = 'gw-journey-modal';
+      existing.className = 'gw-journey-modal';
+      existing.hidden = true;
+      existing.innerHTML =
+        '<div class="gw-journey-modal-backdrop" data-journey-close></div>' +
+        '<div class="gw-journey-modal-panel" role="dialog" aria-labelledby="gw-journey-modal-title" aria-modal="true">' +
+        '<header class="gw-journey-modal-head">' +
+        '<div><h2 id="gw-journey-modal-title">Your journey summary</h2>' +
+        '<p class="gw-journey-modal-sub">Answers from specialists this visit — one place to review before you act.</p></div>' +
+        '<button type="button" class="gw-journey-modal-close" data-journey-close aria-label="Close">×</button>' +
+        '</header>' +
+        '<div class="gw-journey-modal-body" id="gw-journey-modal-body"></div>' +
+        '<footer class="gw-journey-modal-foot" id="gw-journey-modal-foot">' +
+        '<button type="button" class="gw-journey-btn-secondary" id="gw-journey-copy-btn">Copy summary</button>' +
+        '<button type="button" class="gw-journey-btn-secondary" id="gw-journey-clear-btn">Clear journey</button>' +
+        '</footer></div>';
+      document.body.appendChild(existing);
+
+      existing.addEventListener('click', function (ev) {
+        if (ev.target.closest('[data-journey-close]')) closeJourneyModal();
+      });
+
+      document.getElementById('gw-journey-copy-btn').addEventListener('click', function () {
+        var text = buildJourneyCopyText(readJourney());
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).catch(function () {});
+        }
+      });
+
+      document.getElementById('gw-journey-clear-btn').addEventListener('click', function () {
+        if (global.confirm('Clear your journey summary for this visit?')) {
+          clearJourney();
+          renderJourneyModalBody();
+          renderInlinePanel(document.getElementById('gw-journey-inline-mount'));
+        }
+      });
+
+      ensureJourneyPlanButton(document.getElementById('gw-journey-modal-foot'), 'gw-journey-plan-btn');
+    }
+
+    await renderJourneyModalBody();
+    existing.hidden = false;
+  }
+
+  async function renderJourneyModalBody() {
+    var body = document.getElementById('gw-journey-modal-body');
+    if (!body) return;
+    var roster = await loadRoster();
+    var journey = readJourney();
+    var planRecord = readJourneyPlan();
+    body.innerHTML =
+      buildJourneyPlanHtml(planRecord) + buildJourneyCardsHtml(journey, roster);
+    ensureJourneyPlanButton(document.getElementById('gw-journey-modal-foot'), 'gw-journey-plan-btn');
+  }
+
+  async function renderInlinePanel(mountEl) {
+    if (!mountEl) return;
+    var journey = readJourney();
+    var roster = await loadRoster();
+    var count = journey.turns.length;
+
+    mountEl.innerHTML =
+      '<div class="gw-journey-inline' +
+      (count ? '' : ' gw-journey-inline--empty') +
+      '">' +
+      '<div class="gw-journey-inline-head">' +
+      '<h2>Your journey so far</h2>' +
+      (count
+        ? '<span class="gw-journey-inline-count">' + count + ' answer' + (count === 1 ? '' : 's') + '</span>'
+        : '') +
+      '</div>' +
+      (count
+        ? '<p class="gw-journey-inline-lede">Specialists you spoke with this visit — generate one action plan or copy the full summary.</p>'
+        : '<p class="gw-journey-inline-lede">Chat with any specialist below. Each answer is collected here so you can review your whole visit.</p>') +
+      buildJourneyPlanHtml(readJourneyPlan()) +
+      buildJourneyCardsHtml(journey, roster) +
+      '<div class="gw-journey-inline-actions" id="gw-journey-inline-actions">' +
+      '<button type="button" class="gw-journey-btn-primary" id="gw-journey-inline-open">Open full summary</button>' +
+      (count
+        ? '<button type="button" class="gw-journey-btn-secondary" id="gw-journey-inline-copy">Copy</button>'
+        : '') +
+      '</div></div>';
+
+    ensureJourneyPlanButton(document.getElementById('gw-journey-inline-actions'), 'gw-journey-inline-plan');
+
+    var openBtn = document.getElementById('gw-journey-inline-open');
+    if (openBtn) openBtn.addEventListener('click', openJourneySummary);
+
+    var copyBtn = document.getElementById('gw-journey-inline-copy');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', function () {
+        var text = buildJourneyCopyText(readJourney());
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).catch(function () {});
+        }
+      });
+    }
+  }
+
+  function updateJourneyButtonBadge() {
+    var btn = document.getElementById('gw-journey-btn');
+    if (!btn) return;
+    var n = journeyTurnCount();
+    btn.setAttribute('aria-label', n ? 'Your journey summary — ' + n + ' answers' : 'Your journey summary');
+    var badge = btn.querySelector('.gw-journey-btn-count');
+    if (badge) {
+      if (n > 0) {
+        badge.textContent = String(n);
+        badge.hidden = false;
+      } else {
+        badge.hidden = true;
+      }
+    }
+  }
+
+  function mountJourneyButton(stripMount) {
+    if (!stripMount || document.getElementById('gw-journey-btn')) return;
+    var parent = stripMount.parentElement;
+    if (!parent) return;
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'gw-journey-btn';
+    btn.className = 'gw-journey-btn';
+    btn.title = 'Summary of answers from all specialists this visit';
+    btn.innerHTML =
+      '<span class="gw-journey-btn-label">Journey</span><span class="gw-journey-btn-count" hidden></span>';
+    btn.addEventListener('click', openJourneySummary);
+    parent.insertBefore(btn, stripMount.nextSibling);
+    updateJourneyButtonBadge();
+  }
+
   function bindHandoffChipClicks(ctx) {
     document.addEventListener('click', function (ev) {
       var link = ev.target.closest('a.agent-handoff-chip');
@@ -374,6 +858,7 @@
     }
 
     renderTeamStrip(opts.stripMount, roster, currentSlug);
+    mountJourneyButton(opts.stripMount);
 
     var ctx = {
       currentSlug: currentSlug,
@@ -421,6 +906,13 @@
     profileForAsk: profileForAsk,
     readSharedProfile: readSharedProfile,
     writeSharedProfile: writeSharedProfile,
-    slugFromPath: slugFromPath
+    slugFromPath: slugFromPath,
+    readJourney: readJourney,
+    recordTurn: recordJourneyTurn,
+    clearJourney: clearJourney,
+    requestJourneyPlan: requestJourneyPlan,
+    openJourneySummary: openJourneySummary,
+    renderInlinePanel: renderInlinePanel,
+    buildJourneyCopyText: buildJourneyCopyText
   };
 })(typeof window !== 'undefined' ? window : global);

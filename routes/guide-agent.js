@@ -1,5 +1,6 @@
 const express = require('express');
 const { answerFromKnowledge, getDefaultRosterCards } = require('../services/guide-agent-knowledge');
+const { summarizeJourney } = require('../services/guide-agent-journey-summary');
 
 const router = express.Router();
 
@@ -54,6 +55,32 @@ router.post('/ask', async (req, res) => {
   } catch (error) {
     console.error('Guide agent ask error:', error.message);
     res.status(500).json({ ok: false, error: 'Failed to answer question.' });
+  }
+});
+
+router.post('/summarize', async (req, res) => {
+  try {
+    const result = await summarizeJourney({
+      profile: req.body?.profile,
+      startedAt: req.body?.startedAt,
+      turns: req.body?.turns
+    });
+
+    res.json({
+      ok: true,
+      plan: result.plan,
+      source: result.source,
+      turnCount: result.turnCount,
+      agentCount: result.agentCount,
+      specialists: result.specialists || []
+    });
+  } catch (error) {
+    const status = error.status || 500;
+    if (status >= 500) console.error('Guide agent summarize error:', error.message);
+    res.status(status).json({
+      ok: false,
+      error: error.message || 'Failed to summarize journey.'
+    });
   }
 });
 
