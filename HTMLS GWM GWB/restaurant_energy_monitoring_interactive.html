@@ -361,13 +361,31 @@
   }
   .monitor-panel-head.before { background: rgba(226, 75, 74, 0.12); color: #fca5a5; }
   .monitor-panel-head.after { background: rgba(40, 167, 69, 0.12); color: var(--green-lt); }
+  #monitor-stage {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(75, 140, 104, 0.45) transparent;
+    margin: 0 -2px;
+    padding-bottom: 6px;
+  }
+  #monitor-stage::-webkit-scrollbar { height: 8px; }
+  #monitor-stage::-webkit-scrollbar-thumb {
+    background: rgba(75, 140, 104, 0.45);
+    border-radius: 999px;
+  }
   .monitor-split {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr);
     gap: 0;
+    min-width: 620px;
   }
-  .monitor-split .monitor-panel { border-radius: 0; border: none; }
+  .monitor-split .monitor-panel { border-radius: 0; border: none; min-width: 0; }
   .monitor-split .monitor-panel:first-child { border-right: 1px solid rgba(255, 255, 255, 0.1); }
+  .monitor-split .site-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .site-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -455,6 +473,7 @@
     line-height: 1.45;
     color: #b8c8be;
     min-height: 2.8em;
+    overflow-wrap: anywhere;
   }
   .site-detail.warn { color: #fca5a5; }
   .site-detail.ok { color: #86efac; }
@@ -481,9 +500,14 @@
   .monitor-detail-panel strong { color: #fde68a; }
   @media (max-width: 640px) {
     .monitor-demo-summary { grid-template-columns: 1fr; }
-    .monitor-split { grid-template-columns: 1fr; }
+    .monitor-split {
+      grid-template-columns: 1fr;
+      min-width: 0;
+    }
     .monitor-split .monitor-panel:first-child { border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-    .site-grid, .site-grid.single { grid-template-columns: 1fr; }
+    .monitor-split .site-grid,
+    .site-grid,
+    .site-grid.single { grid-template-columns: 1fr; }
   }
   @media (max-width: 800px) {
     .grid-2, .grid-3, .steps { grid-template-columns: 1fr; }
@@ -961,7 +985,7 @@
     }
     document.getElementById("anim-hint").textContent =
       m === "compare"
-        ? "Same restaurants left and right — tap any card for the full before/after story"
+        ? "Same restaurants left and right — scroll sideways if needed · tap any card for detail"
         : "Tap a site card for detail · Toggle views above";
     renderSummary();
     renderStage();
