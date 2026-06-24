@@ -103,6 +103,10 @@
     });
   }
 
+  function helperDisplayName(name) {
+    return String(name || "").replace(/ /g, "\u00a0");
+  }
+
   function renderHelpers(mount, helpers, opts) {
     if (!mount || !Array.isArray(helpers)) return;
     var compactLen = Number(opts.compactNameLen) || 16;
@@ -124,7 +128,7 @@
       var name = document.createElement("div");
       name.className =
         "helper-card-name" + (isCompactName(h.name, h, compactLen) ? " is-compact" : "");
-      name.textContent = h.name || "";
+      name.textContent = helperDisplayName(h.name);
 
       var desc = document.createElement("div");
       desc.className = "helper-card-desc";
