@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>European Energy Deals Portal — Greenways</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #060a08;
+      --surface: #0f1a14;
+      --surface-2: #15251c;
+      --line: rgba(0, 245, 130, 0.18);
+      --text: #e8f5ee;
+      --muted: #8fb8a0;
+      --green: #00f582;
+      --blue: #4da6ff;
+      --amber: #ffb830;
+      --radius: 12px;
+      /* Page backdrop — rollback: remove class energy-portal--backdrop from <body> */
+      --energy-portal-backdrop-image: url("https://static.wixstatic.com/media/c123de_83d6eca3c1014f6d847443f0b86588ee~mv2.jpeg");
+      --font: 'Space Grotesk', sans-serif;
+      --font-clean: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(ellipse 80% 40% at 50% -15%, rgba(255, 184, 48, 0.1), transparent),
+        radial-gradient(ellipse 50% 30% at 100% 20%, rgba(77, 166, 255, 0.08), transparent), var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.5;
+      overflow-x: hidden;
+      position: relative;
+    }
+    .energy-portal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(rgba(5, 14, 9, 0.36), rgba(5, 12, 8, 0.44)),
+        radial-gradient(circle at 50% 22%, rgba(0, 245, 130, 0.07), transparent 52%),
+        var(--energy-portal-backdrop-image);
+      background-size: cover;
+      background-position: center;
+      opacity: 0.9;
+      filter: brightness(0.9) saturate(1.06);
+    }
+    body.energy-portal--backdrop .energy-portal-backdrop { display: block; }
+    body.energy-portal--backdrop { background: #060a08; }
+    .shell { max-width: 1240px; margin: 0 auto; padding: 16px 18px 48px; position: relative; z-index: 1; }
+    body.energy-portal--backdrop .top-bar,
+    body.energy-portal--backdrop .search-card,
+    body.energy-portal--backdrop .meta-tile,
+    body.energy-portal--backdrop .loading {
+      background: rgba(15, 26, 20, 0.82);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    body.energy-portal--backdrop .pcard {
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.05), transparent 40%), rgba(15, 26, 20, 0.88);
+    }
+    body.energy-portal--backdrop .type-tab,
+    body.energy-portal--backdrop .country-pill {
+      background: rgba(21, 37, 28, 0.9);
+    }
+    body.energy-portal--backdrop .brand span,
+    body.energy-portal--backdrop .section-label {
+      color: #f5f5f5;
+    }
+    body.energy-portal--backdrop .hero h1,
+    body.energy-portal--backdrop .col-head h2 {
+      color: #ffffff;
+      text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+    }
+    body.energy-portal--backdrop .hero p,
+    body.energy-portal--backdrop .col-head p,
+    body.energy-portal--backdrop .note {
+      color: #f0f4f0;
+    }
+    .top-bar {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 12px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+      position: sticky; top: 8px; z-index: 20;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    }
+    .brand strong { font-family: var(--font); font-size: 15px; font-weight: 700; letter-spacing: -0.5px; }
+    .brand span { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+    .nav-links { display: flex; flex-wrap: wrap; gap: 8px; }
+    .nav-links a {
+      font-family: var(--font); font-size: 12px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none; padding: 8px 12px; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 8px;
+    }
+    .nav-links a:hover { color: var(--amber); border-color: rgba(255, 184, 48, 0.35); background: rgba(255, 184, 48, 0.06); }
+    .hero { margin-top: 18px; }
+    .hero h1 { font-family: var(--font); font-size: clamp(22px, 4vw, 30px); font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
+    .hero p { font-family: var(--font-clean); color: var(--muted); max-width: 760px; line-height: 1.55; font-size: 15px; }
+
+    .search-card {
+      margin-top: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px;
+    }
+    .section-label {
+      font-family: var(--font); font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 10px;
+    }
+    .type-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .type-tab {
+      padding: 8px 16px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.12);
+      background: var(--surface-2); color: var(--muted); font-size: 13px; font-family: inherit; cursor: pointer;
+    }
+    .type-tab.active { border-color: rgba(255, 184, 48, 0.45); color: #ffe6c2; background: rgba(255, 184, 48, 0.1); font-weight: 700; }
+    .country-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .country-pill {
+      padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 12px; color: var(--muted); cursor: pointer; background: var(--surface-2);
+    }
+    .country-pill.selected { border-color: var(--green); color: #c6ffe4; background: rgba(0, 245, 130, 0.08); }
+    .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
+    @media (max-width: 720px) { .form-grid { grid-template-columns: 1fr; } }
+    .form-group label {
+      display: block; font-size: 10px; font-family: var(--mono); color: var(--muted);
+      margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .form-group select, .form-group input {
+      width: 100%; height: 40px; padding: 0 10px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #0a1610; color: var(--text); font-size: 13px; font-family: inherit;
+    }
+    .search-btn {
+      width: 100%; margin-top: 4px; height: 46px; border-radius: 10px; border: none; background: linear-gradient(90deg, var(--amber), #ff8c1a);
+      color: #1a0f00; font-weight: 700; font-size: 14px; font-family: var(--font); cursor: pointer;
+    }
+    .search-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .meta-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
+    @media (max-width: 720px) { .meta-strip { grid-template-columns: 1fr; } }
+    .meta-tile {
+      background: var(--surface-2); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px 14px;
+    }
+    .meta-tile .k { font-size: 10px; font-family: var(--mono); color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+    .meta-tile .v { font-family: var(--font); font-size: 18px; font-weight: 700; margin-top: 4px; }
+    .meta-tile .s { font-size: 11px; font-family: var(--font-clean); color: var(--muted); margin-top: 4px; }
+
+    .col-head { margin: 22px 0 12px; }
+    .col-head h2 { font-size: 17px; font-family: var(--font); font-weight: 700; }
+    .col-head p { font-size: 14px; font-family: var(--font-clean); color: var(--muted); margin-top: 4px; line-height: 1.45; }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+
+    .pcard {
+      border-radius: 12px; padding: 18px 16px 14px; min-height: 170px; display: flex; flex-direction: column;
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.04), transparent 45%), var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 3px solid var(--accent, var(--amber));
+    }
+    .pcard.deal { --accent: var(--amber); }
+    .pcard.scheme { --accent: var(--blue); }
+    .pcard-type { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .pcard-type .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+    .pcard-badge { font-family: var(--mono); font-size: 10px; padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.12); width: fit-content; margin-bottom: 8px; color: #c6e0ff; }
+    .pcard-title { font-size: 16px; font-family: var(--font); font-weight: 700; line-height: 1.25; margin-bottom: 6px; }
+    .pcard-line { font-size: 13px; font-family: var(--font-clean); color: var(--muted); line-height: 1.45; flex: 1; }
+    .pcard-foot { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08); font-family: var(--mono); font-size: 10px; }
+    .pcard-foot a { color: var(--blue); text-decoration: none; }
+    .pcard-foot a:hover { text-decoration: underline; }
+
+    .loading { display: flex; align-items: center; gap: 12px; padding: 20px; background: var(--surface); border-radius: 12px; border: 1px solid var(--line); margin-top: 18px; color: var(--muted); font-family: var(--font-clean); font-size: 14px; }
+    .spinner { width: 20px; height: 20px; border: 2px solid rgba(255, 255, 255, 0.15); border-top-color: var(--amber); border-radius: 50%; animation: spin 0.75s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error-box { margin-top: 18px; padding: 14px; border-radius: 10px; background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.35); color: #fecaca; font-size: 14px; font-family: var(--font-clean); line-height: 1.5; }
+    .note { margin-top: 16px; font-size: 12px; font-family: var(--font-clean); color: var(--muted); line-height: 1.5; max-width: 900px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+  </style>
+</head>
+<body class="energy-portal--backdrop">
+  <div class="energy-portal-backdrop" aria-hidden="true"></div>
+  <h2 class="sr-only">European Energy Deals Portal — compare tariffs and curated Greenways routes</h2>
+  <div class="shell">
+    <header class="top-bar">
+      <div class="brand">
+        <strong>GREENWAYS</strong>
+        <span>Energy deals portal</span>
+      </div>
+      <nav class="nav-links" aria-label="Quick navigation">
+        <a href="./Greenways%20Interface%20.html">Dashboard</a>
+        <a href="./Deals.html">Deals</a>
+        <a href="./water-saving-finder.html">Water saving</a>
+        <a href="./sustainable_product_deal_finder_portal.html">Product finder</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <h1>Electricity &amp; gas — curated routes &amp; schemes</h1>
+      <p hidden>
+        Live supplier quotes still need a comparison site or broker. This view pulls <strong>Greenways deals feed</strong> energy cards and <strong>scheme catalogue</strong> entries for your country,
+        plus indicative €/year from your usage sliders (same rough benchmarks as the legacy tool — always verify with suppliers).
+      </p>
+    </section>
+
+    <div class="search-card">
+      <div class="section-label">Property type</div>
+      <div class="type-tabs">
+        <button type="button" class="type-tab active" onclick="setType('home', this)">Home</button>
+        <button type="button" class="type-tab" onclick="setType('restaurant', this)">Restaurant</button>
+        <button type="button" class="type-tab" onclick="setType('office', this)">Office</button>
+        <button type="button" class="type-tab" onclick="setType('business', this)">Business</button>
+      </div>
+
+      <div class="section-label">Country</div>
+      <div class="country-pills" id="countryPills">
+        <div class="country-pill selected" onclick="setCountry('NL', this)">Netherlands</div>
+        <div class="country-pill" onclick="setCountry('DE', this)">Germany</div>
+        <div class="country-pill" onclick="setCountry('BE', this)">Belgium</div>
+        <div class="country-pill" onclick="setCountry('FR', this)">France</div>
+        <div class="country-pill" onclick="setCountry('ES', this)">Spain</div>
+        <div class="country-pill" onclick="setCountry('IT', this)">Italy</div>
+        <div class="country-pill" onclick="setCountry('PT', this)">Portugal</div>
+        <div class="country-pill" onclick="setCountry('UK', this)">UK</div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="postcodeInput">Postcode / ZIP</label>
+          <input type="text" id="postcodeInput" placeholder="e.g. 1755 AJ" />
+        </div>
+        <div class="form-group">
+          <label for="elecUsage">Electricity (kWh/yr)</label>
+          <select id="elecUsage">
+            <option value="2500">2,500 — small home</option>
+            <option value="4000" selected>4,000 — medium home</option>
+            <option value="7000">7,000 — large home</option>
+            <option value="15000">15,000 — small business</option>
+            <option value="50000">50,000 — restaurant / office</option>
+            <option value="150000">150,000 — large site</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="gasUsage">Gas (m³/yr)</label>
+          <select id="gasUsage">
+            <option value="0">No gas</option>
+            <option value="1100" selected>1,100 — medium home</option>
+            <option value="2000">2,000 — large home</option>
+            <option value="5000">5,000 — small business</option>
+            <option value="15000">15,000 — restaurant</option>
+            <option value="50000">50,000 — large site</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="contractType">Contract type lens</label>
+          <select id="contractType">
+            <option value="all">All</option>
+            <option value="fixed">Fixed</option>
+            <option value="variable">Variable</option>
+            <option value="dynamic">Dynamic</option>
+            <option value="green">Green only</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="contractLength">Length</label>
+          <select id="contractLength">
+            <option value="any">Any</option>
+            <option value="monthly">Flexible</option>
+            <option value="1year">1 year</option>
+            <option value="3year">3 years</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="priority">Priority</label>
+          <select id="priority">
+            <option value="cheapest">Lowest price</option>
+            <option value="green">Sustainable</option>
+            <option value="fixed">Stability</option>
+            <option value="switching">Switching deals</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="button" class="search-btn" id="searchBtn" onclick="searchDeals()">Build my energy pack</button>
+    </div>
+
+    <div id="resultsMount"></div>
+  </div>
+
+  <script>
+    let selectedType = 'home';
+    let selectedCountry = 'NL';
+
+    const countryNames = { NL: 'Netherlands', DE: 'Germany', BE: 'Belgium', FR: 'France', ES: 'Spain', IT: 'Italy', PT: 'Portugal', UK: 'United Kingdom' };
+    const regionFromCode = { NL: 'nl', DE: 'de', BE: 'be', FR: 'fr', ES: 'es', IT: 'it', PT: 'pt', UK: 'uk' };
+
+    const AVG_ELEC = { NL: 0.25, DE: 0.38, BE: 0.36, FR: 0.25, ES: 0.2, IT: 0.28, PT: 0.24, UK: 0.28 };
+    const AVG_GAS = { NL: 1.35, DE: 1.2, BE: 1.1, FR: 0.85, ES: 0.95, IT: 1.05, PT: 1.0, UK: 1.15 };
+
+    function resolveApiUrl(pathname) {
+      if (/^https?:\/\//i.test(pathname)) return pathname;
+      if (window.location.protocol === 'file:') return 'http://localhost:4000' + pathname;
+      return pathname;
+    }
+
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = s == null ? '' : String(s);
+      return d.innerHTML;
+    }
+
+    function setType(type, el) {
+      selectedType = type;
+      document.querySelectorAll('.type-tab').forEach((t) => t.classList.remove('active'));
+      el.classList.add('active');
+      if (type === 'restaurant' || type === 'business') {
+        document.getElementById('elecUsage').value = '50000';
+        document.getElementById('gasUsage').value = '15000';
+      } else if (type === 'office') {
+        document.getElementById('elecUsage').value = '15000';
+        document.getElementById('gasUsage').value = '5000';
+      } else {
+        document.getElementById('elecUsage').value = '4000';
+        document.getElementById('gasUsage').value = '1100';
+      }
+    }
+
+    function setCountry(code, el) {
+      selectedCountry = code;
+      document.querySelectorAll('.country-pill').forEach((p) => p.classList.remove('selected'));
+      el.classList.add('selected');
+      const hints = { NL: '1755 AJ', DE: '10115', BE: '1000', FR: '75001', ES: '28001', IT: '00100', PT: '1000-001', UK: 'SW1A 1AA' };
+      document.getElementById('postcodeInput').placeholder = 'e.g. ' + (hints[code] || '…');
+    }
+
+    function dealRegionMatches(dealRegion, code) {
+      const dr = String(dealRegion || '').toUpperCase();
+      if (!dr || dr === 'EU') return true;
+      const map = { NL: 'NL', UK: 'UK', DE: 'DE', FR: 'FR', ES: 'ES', IT: 'IT', PT: 'PT', BE: 'BE' };
+      return dr === map[code];
+    }
+
+    function schemeEnergyRelevant(s) {
+      const blob = (s.title + ' ' + (s.description || '') + ' ' + (Array.isArray(s.keywords) ? s.keywords.join(' ') : '')).toLowerCase();
+      return /energy|electric|gas|tariff|supply|renew|kwh|heating|carbon|efficien|contract|grid/i.test(blob);
+    }
+
+    function schemeRegionOk(s, code) {
+      const sr = String(s.region || 'eu').toLowerCase();
+      const want = regionFromCode[code] || 'eu';
+      if (sr === 'eu') return true;
+      return sr === want;
+    }
+
+    async function searchDeals() {
+      const postcode = document.getElementById('postcodeInput').value.trim();
+      const elecUsage = parseInt(document.getElementById('elecUsage').value, 10) || 0;
+      const gasUsage = parseInt(document.getElementById('gasUsage').value, 10) || 0;
+      const mount = document.getElementById('resultsMount');
+      const btn = document.getElementById('searchBtn');
+
+      btn.disabled = true;
+      btn.textContent = 'Loading…';
+      mount.innerHTML = '<div class="loading"><div class="spinner"></div> Loading deals feed and schemes…</div>';
+
+      const avgElec = AVG_ELEC[selectedCountry] ?? 0.25;
+      const avgGas = AVG_GAS[selectedCountry] ?? 1.1;
+      const estCost = Math.round(elecUsage * avgElec + (gasUsage > 0 ? gasUsage * avgGas : 0));
+
+      try {
+        const [feedRes, schemesRes] = await Promise.all([
+          fetch(resolveApiUrl('/data/deals-feed.json'), { cache: 'no-store' }),
+          fetch(resolveApiUrl('/schemes.json'), { cache: 'no-store' })
+        ]);
+        const feed = feedRes.ok ? await feedRes.json() : { deals: [] };
+        const schemesAll = schemesRes.ok ? await schemesRes.json() : [];
+
+        const energyDeals = (feed.deals || []).filter((d) => {
+          if (d.category !== 'energy') return false;
+          return dealRegionMatches(d.region, selectedCountry);
+        });
+
+        const schemes = (Array.isArray(schemesAll) ? schemesAll : [])
+          .filter((s) => schemeRegionOk(s, selectedCountry) && schemeEnergyRelevant(s))
+          .slice(0, 18);
+
+        let html = '<div class="meta-strip">';
+        html += '<div class="meta-tile"><div class="k">Indicative €/kWh</div><div class="v">€' + avgElec.toFixed(2) + '</div><div class="s">Incl. VAT benchmark · not a quote</div></div>';
+        html += '<div class="meta-tile"><div class="k">' + (gasUsage > 0 ? 'Indicative €/m³ gas' : 'Gas') + '</div><div class="v">' + (gasUsage > 0 ? '€' + avgGas.toFixed(2) : '—') + '</div><div class="s">' + (gasUsage > 0 ? 'Benchmark' : 'Electric-only profile') + '</div></div>';
+        html += '<div class="meta-tile"><div class="k">Est. annual energy cost</div><div class="v">€' + esc(String(estCost.toLocaleString())) + '</div><div class="s">' + esc(countryNames[selectedCountry]) + ' · ' + esc(selectedType) + (postcode ? ' · ' + esc(postcode) : '') + '</div></div>';
+        html += '</div>';
+
+        html += '<div class="col-head"><h2>Curated deal routes</h2><p>From the Greenways deals feed — open a card to continue in the linked tool.</p></div>';
+        if (energyDeals.length) {
+          html += '<div class="cards-grid">';
+          energyDeals.forEach((d) => {
+            const href = d.href || '#';
+            const safeHref = href.startsWith('http') ? href : './' + String(href).replace(/^\.\//, '');
+            html +=
+              '<article class="pcard deal">' +
+              '<div class="pcard-type"><span class="dot"></span>Energy route</div>' +
+              '<span class="pcard-badge">' + esc(d.region || 'EU') + (d.isNew ? ' · NEW' : '') + '</span>' +
+              '<div class="pcard-title">' + esc(d.title) + '</div>' +
+              '<div class="pcard-line">' + esc(d.line || '') + '</div>' +
+              '<div class="pcard-foot"><a href="' + esc(safeHref) + '">Open route →</a> · tags: ' + esc((d.tags || []).join(', ')) + '</div>' +
+              '</article>';
+          });
+          html += '</div>';
+        } else {
+          html += '<div class="error-box" style="background:rgba(255,184,48,0.08);border-color:rgba(255,184,48,0.3);color:#ffe0b8">No energy cards in the feed for this region filter. Try EU-wide view or refresh <code>npm run build:deals-feed</code>.</div>';
+        }
+
+        html += '<div class="col-head"><h2>Schemes &amp; incentives (catalogue)</h2><p>Subset of <code>schemes.json</code> matched to your country and energy-related keywords — verify eligibility before applying.</p></div>';
+        if (schemes.length) {
+          html += '<div class="cards-grid">';
+          schemes.forEach((s) => {
+            const link = (s.links && s.links[0] && s.links[0].url) ? s.links[0].url : '';
+            html +=
+              '<article class="pcard scheme">' +
+              '<div class="pcard-type"><span class="dot"></span>Scheme</div>' +
+              '<span class="pcard-badge">' + esc(s.region || '') + ' · ' + esc(s.type || '') + '</span>' +
+              '<div class="pcard-title">' + esc(s.title) + '</div>' +
+              '<div class="pcard-line">' + esc(String(s.description || '').slice(0, 200)) + (String(s.description || '').length > 200 ? '…' : '') + '</div>' +
+              '<div class="pcard-foot">' +
+              (link ? '<a href="' + esc(link) + '" target="_blank" rel="noopener noreferrer">Primary link →</a>' : '<span>No link on record</span>') +
+              '</div></article>';
+          });
+          html += '</div>';
+        } else {
+          html += '<div class="note">No schemes.json matches for this filter, or file not reachable. Serve from the repo root so <code>/schemes.json</code> loads.</div>';
+        }
+
+        html +=
+          '<p class="note">Indicative totals use static regional benchmarks, not your postcode or DSO data. For live tariffs use an accredited comparison service in ' +
+          esc(countryNames[selectedCountry]) +
+          '. When server LLM keys are configured, the Wok assistant can reason over your dashboard usage alongside this catalogue.</p>';
+
+        mount.innerHTML = html;
+      } catch (e) {
+        mount.innerHTML = '<div class="error-box">' + esc(e.message || 'Failed to load') + '</div>';
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Build my energy pack';
+    }
+  </script>
+</body>
+</html>

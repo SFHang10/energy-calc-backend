@@ -1,0 +1,2265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Energy Savings Trajectory Dashboard</title>
+  <meta name="wix-html-scroll" content="no-scroll" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script src="./js/site-energy-model.js"></script>
+  <style>
+    :root {
+      --bg: #09170f;
+      --panel: #12251a;
+      --panel-2: #183524;
+      --border: rgba(0, 245, 130, 0.2);
+      --text: #e7f7ee;
+      --text-dim: #98b8a8;
+      --green: #00f582;
+      --amber: #f5a623;
+      --blue: #38bdf8;
+      --red: #ff5f7d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at top right, rgba(0,245,130,0.08), transparent 45%), var(--bg);
+      color: var(--text);
+      position: relative;
+      min-height: 100vh;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(5, 14, 9, 0.62), rgba(5, 14, 9, 0.62)),
+        radial-gradient(circle at 18% 18%, rgba(0,245,130,0.11), transparent 45%),
+        url("https://static.wixstatic.com/media/c123de_16c0316351cb43ffa2b465483e13e2a4~mv2.jpg");
+      background-size: cover, cover, cover;
+      background-position: center, center, center;
+      background-repeat: no-repeat;
+      opacity: 0.48;
+      filter: saturate(1.08) contrast(1.02);
+    }
+    .wrap { max-width: 1320px; margin: 0 auto; padding: 18px; position: relative; z-index: 1; }
+    .top {
+      background: linear-gradient(135deg, #0f2118, #173927);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 14px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 14px;
+      align-items: center;
+    }
+    .top-copy { text-align: left; }
+    .top-visual {
+      border: 1px solid rgba(56,189,248,.25);
+      border-radius: 12px;
+      background: linear-gradient(145deg, rgba(10,28,20,.75), rgba(8,23,17,.68));
+      padding: 10px;
+      min-height: 150px;
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      align-items: center;
+      gap: 10px;
+    }
+    .top-visual svg { width: 150px; height: 150px; }
+    .tv-title {
+      font-size: 11px;
+      color: #9ad4ff;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 7px;
+      font-weight: 700;
+    }
+    .tv-item {
+      border: 1px solid rgba(0,245,130,.18);
+      border-radius: 8px;
+      padding: 6px 8px;
+      background: rgba(5,14,9,.45);
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.35;
+    }
+    .tv-item strong { color: #e9fff2; }
+    .hero-site {
+      background: linear-gradient(135deg, #0f2118, #1a3a28);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 12px;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .hero-site img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #10261b;
+    }
+    .hero-meta h3 { margin: 0; font-size: 20px; }
+    .hero-meta p { margin: 6px 0 0; color: var(--text-dim); font-size: 13px; }
+    .site-tags { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .site-tag {
+      border: 1px solid rgba(0,245,130,.35);
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 11px;
+      color: #d7fff0;
+      background: rgba(0,245,130,.1);
+    }
+    .site-picker {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+    .site-pill {
+      white-space: nowrap;
+      border: 1px solid rgba(0,245,130,.35);
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(0,245,130,.10), rgba(4,12,8,.62));
+      color: var(--text);
+      font-size: 12px;
+      padding: 7px 11px;
+      cursor: pointer;
+      transition: all .18s ease;
+      box-shadow: inset 0 0 0 1px rgba(0,245,130,.08);
+    }
+    .site-pill:hover {
+      border-color: rgba(0,245,130,.62);
+      box-shadow: 0 0 12px rgba(0,245,130,.2), inset 0 0 0 1px rgba(0,245,130,.2);
+      transform: translateY(-1px);
+    }
+    .site-pill.active {
+      border-color: var(--amber);
+      color: #ffe2ba;
+      background: rgba(245,166,35,.12);
+      box-shadow: 0 0 16px rgba(245,166,35,.22), inset 0 0 0 1px rgba(245,166,35,.28);
+      font-weight: 700;
+    }
+    .site-pill.active::before {
+      content: "✓";
+      display: inline-block;
+      margin-right: 6px;
+      color: #ffd08a;
+      font-weight: 900;
+    }
+    .title { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+    .sub { color: var(--text-dim); font-size: 14px; line-height: 1.45; }
+    .note {
+      margin-top: 10px; display: inline-block; font-size: 12px; color: #ffe4b2;
+      border: 1px solid rgba(245,166,35,.45); border-radius: 999px; padding: 4px 10px; background: rgba(245,166,35,.1);
+    }
+    .top-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .top-btn {
+      border: 1px solid rgba(0,245,130,.35);
+      border-radius: 999px;
+      background: rgba(0,245,130,.08);
+      color: #d8fff0;
+      font-size: 12px;
+      padding: 7px 12px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .top-btn.back {
+      border-color: rgba(56,189,248,.45);
+      background: rgba(56,189,248,.12);
+      color: #d7efff;
+    }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
+    .resource-card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px;
+      cursor: pointer; transition: all .18s ease;
+    }
+    .resource-card:hover { border-color: rgba(0,245,130,.45); transform: translateY(-1px); }
+    .resource-card.active { border-color: var(--amber); box-shadow: 0 0 18px rgba(245,166,35,.2); }
+    .k { color: var(--text-dim); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+    .v { font-size: 26px; font-weight: 700; margin-top: 4px; }
+    .small { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+    .panel {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px;
+    }
+    .panel h3 { margin: 0 0 10px; font-size: 16px; }
+    .panel .subtle { color: var(--text-dim); font-size: 12px; margin-top: -4px; margin-bottom: 10px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
+    .chip {
+      border: 1px solid var(--border); border-radius: 999px; padding: 6px 11px; background: rgba(4,12,8,.55);
+      color: var(--text); font-size: 12px; cursor: pointer;
+    }
+    .chip.active { border-color: var(--amber); color: #ffd49a; }
+    .insight-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 4px 0 10px;
+    }
+    .insight-btn {
+      border: 1px solid rgba(0,245,130,.35);
+      border-radius: 999px;
+      background: rgba(0,245,130,.08);
+      color: #d8fff0;
+      font-size: 12px;
+      padding: 7px 12px;
+      cursor: pointer;
+    }
+    .insight-btn.active {
+      border-color: var(--amber);
+      background: rgba(245,166,35,.12);
+      color: #ffe1b5;
+      box-shadow: 0 0 12px rgba(245,166,35,.2);
+    }
+    .insight-panel {
+      border: 1px solid rgba(0,245,130,.2);
+      border-radius: 10px;
+      background: rgba(7,18,12,.5);
+      padding: 10px;
+      margin-top: 8px;
+    }
+    .insight-item {
+      border: 1px solid rgba(0,245,130,.16);
+      border-radius: 8px;
+      background: rgba(5,14,9,.48);
+      padding: 8px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+    .insight-item:last-child { margin-bottom: 0; }
+    .insight-item strong { color: #e8fff1; }
+    .insight-link {
+      color: #b8fdd7;
+      text-decoration: none;
+      font-size: 12px;
+      border-bottom: 1px dashed rgba(184,253,215,.5);
+    }
+    .layout { display: grid; grid-template-columns: 1.5fr 1fr; gap: 12px; }
+    .card {
+      background: var(--panel-2); border: 1px solid var(--border); border-radius: 11px; padding: 12px;
+    }
+    .row { display: flex; justify-content: space-between; gap: 8px; margin: 5px 0; font-size: 13px; color: var(--text-dim); }
+    .row strong { color: var(--text); }
+    .cta {
+      display: inline-block; text-decoration: none; font-size: 12px; border-radius: 8px; margin-top: 10px;
+      padding: 7px 10px; border: 1px solid rgba(0,245,130,.45); color: var(--green); background: rgba(0,245,130,.08);
+    }
+    .grants { margin-top: 10px; display: grid; gap: 8px; }
+    .grant {
+      border: 1px solid rgba(0,245,130,.2); border-radius: 8px; padding: 8px; background: rgba(7,18,12,.5);
+      font-size: 12px; color: var(--text-dim);
+    }
+    .grant a { color: #b8fdd7; text-decoration: none; }
+    .grant-showcase {
+      margin-top: 6px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .grant-card {
+      border: 1px solid rgba(0,245,130,.2);
+      border-radius: 10px;
+      padding: 10px;
+      background: linear-gradient(180deg, rgba(7,18,12,.66), rgba(6,14,10,.74));
+    }
+    .grant-card.featured {
+      border-color: rgba(245,166,35,.52);
+      background: linear-gradient(180deg, rgba(245,166,35,.12), rgba(7,18,12,.78));
+      box-shadow: 0 0 16px rgba(245,166,35,.16), inset 0 0 0 1px rgba(245,166,35,.26);
+    }
+    .grant-pill {
+      display: inline-block;
+      border: 1px solid rgba(56,189,248,.36);
+      background: rgba(56,189,248,.12);
+      color: #bfefff;
+      border-radius: 999px;
+      font-size: 10px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      margin-bottom: 8px;
+    }
+    .grant-pill.featured {
+      border-color: rgba(245,166,35,.58);
+      background: rgba(245,166,35,.16);
+      color: #ffe7c3;
+    }
+    .grant-card h4 {
+      margin: 0 0 6px;
+      font-size: 14px;
+      color: #eafff3;
+      line-height: 1.35;
+    }
+    .grant-card p {
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .grant-meta {
+      margin-top: 8px;
+      display: grid;
+      gap: 5px;
+      font-size: 11px;
+      color: #d5f6e5;
+    }
+    .grant-meta span { color: #a9ccb9; }
+    .grant-foot {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #9bc7b1;
+    }
+    .grant-foot a {
+      color: #b8fdd7;
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(184,253,215,.5);
+      white-space: nowrap;
+    }
+    .grant-showcase-cta {
+      margin-top: 10px;
+      border: 1px solid rgba(245,166,35,.35);
+      border-radius: 10px;
+      background: rgba(245,166,35,.09);
+      padding: 9px 10px;
+      font-size: 12px;
+      color: #ffe8c3;
+      line-height: 1.45;
+    }
+    .grant-showcase-cta a {
+      color: #fff0d3;
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(255,240,211,.55);
+      font-weight: 700;
+    }
+    /* Toolkit preview — system-status style strip */
+    .pulse-preview-panel { margin-top: 14px; }
+    .pulse-preview-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(240px, 360px);
+      gap: 18px;
+      align-items: stretch;
+      margin-top: 10px;
+    }
+    .pulse-widget-col {
+      min-width: 0;
+    }
+    .pulse-widget {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      border-radius: 14px;
+      padding: 14px 14px 12px;
+      background: linear-gradient(165deg, rgba(8,16,12,.95), rgba(5,10,8,.98));
+      border: 1px solid rgba(0, 245, 130, 0.28);
+      box-shadow:
+        0 0 0 1px rgba(0, 245, 130, 0.12),
+        0 12px 36px rgba(0, 0, 0, 0.45),
+        0 0 28px rgba(0, 245, 130, 0.08);
+    }
+    .pulse-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .pulse-title {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #9cb8ad;
+    }
+    .pulse-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 245, 130, 0.45);
+      color: #9dffd0;
+      background: rgba(0, 245, 130, 0.1);
+      box-shadow: 0 0 12px rgba(0, 245, 130, 0.2);
+    }
+    .pulse-badge.soft {
+      border-color: rgba(56, 189, 248, 0.4);
+      color: #bfe9ff;
+      background: rgba(56, 189, 248, 0.1);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
+    }
+    .pulse-sec {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #7a9e8c;
+      margin: 0 0 8px;
+    }
+    .pulse-rule {
+      border: 0;
+      height: 1px;
+      margin: 12px 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+    }
+    .pulse-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .pulse-list li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 12px;
+      line-height: 1.45;
+      color: #c5e8d4;
+      margin-bottom: 10px;
+    }
+    .pulse-list li:last-child { margin-bottom: 0; }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0;
+      background: var(--green);
+      box-shadow:
+        0 0 12px rgba(0, 245, 130, 0.95),
+        0 0 4px rgba(0, 245, 130, 0.65);
+    }
+    .pulse-k {
+      color: #8fd4b4;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .pulse-a {
+      color: #e8fff3;
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(0, 245, 130, 0.35);
+    }
+    .pulse-a:hover { border-bottom-color: var(--green); color: #fff; }
+    .pulse-updated {
+      margin-top: 12px;
+      font-family: ui-monospace, "Cascadia Code", "Segoe UI Mono", monospace;
+      font-size: 11px;
+      color: #7a9e8c;
+    }
+    .pulse-cta {
+      display: block;
+      width: 100%;
+      margin-top: 12px;
+      text-align: center;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 11px 14px;
+      border-radius: 10px;
+      color: #dff6ff;
+      background: rgba(6, 14, 10, 0.75);
+      border: 1px solid transparent;
+      background-clip: padding-box;
+      box-shadow:
+        0 0 0 1px rgba(56, 189, 248, 0.35),
+        0 0 0 2px rgba(0, 245, 130, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .pulse-cta:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        0 0 0 1px rgba(56, 189, 248, 0.55),
+        0 0 0 2px rgba(0, 245, 130, 0.35),
+        0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+    .pulse-note {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.45;
+    }
+    .pulse-savings-viz {
+      border-radius: 14px;
+      padding: 12px 14px 10px;
+      background: linear-gradient(160deg, rgba(8, 22, 16, 0.92), rgba(5, 12, 9, 0.96));
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .pulse-viz-title {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #8ecfff;
+      margin: 0 0 4px;
+    }
+    .pulse-viz-sub {
+      font-size: 11px;
+      color: #8aa698;
+      line-height: 1.4;
+      margin: 0 0 8px;
+    }
+    .pulse-chart-wrap {
+      position: relative;
+      flex: 1;
+      min-height: 200px;
+      height: 240px;
+    }
+    .pulse-chart-wrap canvas {
+      max-height: 100%;
+    }
+    .status-inline {
+      margin-top: 10px;
+      display: inline-block;
+      border: 1px solid rgba(245,166,35,.35);
+      background: rgba(245,166,35,.12);
+      color: #ffe8c3;
+      border-radius: 999px;
+      font-size: 11px;
+      padding: 4px 9px;
+    }
+    .status-inline.live {
+      border-color: rgba(0,245,130,.38);
+      background: rgba(0,245,130,.12);
+      color: #cbffe5;
+    }
+    .milestone-strip {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .milestone {
+      border: 1px solid rgba(245,166,35,.28);
+      background: rgba(245,166,35,.08);
+      border-radius: 9px;
+      padding: 8px;
+      font-size: 12px;
+      color: #ffe6c0;
+      line-height: 1.35;
+    }
+    .milestone strong { color: #fff3dc; }
+    .milestone .m-k { color: #d3b992; font-size: 11px; }
+    .level-gauges {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .gauge-card {
+      border: 1px solid rgba(0,245,130,.2);
+      border-radius: 10px;
+      padding: 10px;
+      background: rgba(7,18,12,.5);
+    }
+    .gauge-card.active-resource {
+      border-color: rgba(83,184,255,.7);
+      box-shadow: 0 0 18px rgba(83,184,255,.26), inset 0 0 0 1px rgba(83,184,255,.28);
+      background: linear-gradient(180deg, rgba(83,184,255,.12), rgba(7,18,12,.55));
+    }
+    .gauge-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+    .gauge-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      align-items: start;
+    }
+    .mini-gauge-box {
+      text-align: center;
+      border: 1px solid rgba(0,245,130,.12);
+      background: rgba(5,14,9,.45);
+      border-radius: 8px;
+      padding: 6px;
+    }
+    .mini-gauge-box .lbl {
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 2px;
+    }
+    .mini-gauge-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: #e8fff1;
+      margin-top: -4px;
+    }
+    .mini-scale {
+      margin-top: 2px;
+      font-size: 10px;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 0 4px;
+    }
+    .gauge-delta {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #ffe4b2;
+      border: 1px solid rgba(245,166,35,.28);
+      border-radius: 999px;
+      display: inline-block;
+      padding: 4px 8px;
+      background: rgba(245,166,35,.08);
+    }
+    .goal-chip {
+      margin-top: 8px;
+      display: inline-block;
+      border: 1px solid rgba(56,189,248,.4);
+      color: #b9ecff;
+      background: rgba(56,189,248,.1);
+      border-radius: 999px;
+      font-size: 11px;
+      padding: 4px 9px;
+    }
+    .panel-baseline {
+      border-color: rgba(56, 189, 248, 0.32);
+      background: linear-gradient(145deg, rgba(10, 28, 22, 0.88), rgba(7, 20, 16, 0.78));
+      box-shadow: 0 0 22px rgba(56, 189, 248, 0.07);
+    }
+    .panel-baseline h3 { color: #dff6ff; }
+    /* Collapsible baseline block (same interaction pattern as deep-dive Wok savings tips) */
+    .trajectory-baseline-details {
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      overflow: hidden;
+    }
+    .trajectory-baseline-details > summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 14px 52px 16px 14px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 56px;
+      user-select: none;
+    }
+    .trajectory-baseline-details > summary::-webkit-details-marker { display: none; }
+    .trajectory-baseline-details > summary::marker { content: ""; }
+    .trajectory-baseline-details .summary-center-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-align: center;
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .trajectory-baseline-details .summary-title {
+      font-weight: 800;
+      font-size: 16px;
+      color: #dff6ff;
+      line-height: 1.25;
+    }
+    .trajectory-baseline-details summary .baseline-lead--summary {
+      margin: 0;
+      font-size: 12.5px;
+      color: var(--text-dim);
+      line-height: 1.5;
+      max-width: 72ch;
+      text-align: center;
+    }
+    .trajectory-baseline-details .summary-expand-hint {
+      font-weight: 700;
+      font-size: 12px;
+      line-height: 1.35;
+      color: #ffc266;
+      margin-top: 2px;
+      text-align: center;
+      text-shadow: 0 0 14px rgba(245, 166, 35, 0.35);
+    }
+    .trajectory-baseline-details[open] .summary-expand-hint { color: #ffe4a8; }
+    .trajectory-baseline-details[open] .summary-expand-hint .expand-when-collapsed { display: none; }
+    .trajectory-baseline-details:not([open]) .summary-expand-hint .collapse-when-open { display: none; }
+    .trajectory-baseline-details .summary-close-x {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 800;
+      color: #ffc266;
+      text-shadow: 0 0 10px rgba(245, 166, 35, 0.35);
+      border: 1px solid rgba(245, 166, 35, 0.5);
+      border-radius: 10px;
+      background: rgba(245, 166, 35, 0.1);
+      pointer-events: none;
+    }
+    .trajectory-baseline-details[open] > summary .summary-close-x {
+      border-color: rgba(255, 224, 51, 0.65);
+      background: rgba(245, 166, 35, 0.16);
+    }
+    .trajectory-baseline-details[open] > summary {
+      border-bottom: 1px solid rgba(56, 189, 248, 0.22);
+    }
+    .trajectory-baseline-expanded {
+      padding: 14px 14px 16px;
+    }
+    .baseline-lead {
+      margin: 0 0 12px;
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.5;
+      max-width: 92ch;
+    }
+    .baseline-points {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .baseline-point {
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      border-radius: 10px;
+      padding: 10px;
+      background: rgba(5, 14, 9, 0.52);
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.45;
+    }
+    .baseline-point strong { color: #eaf7ff; display: block; margin-bottom: 4px; font-size: 12px; }
+    .baseline-foot {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #d4f0e5;
+      line-height: 1.45;
+      border-left: 3px solid var(--green);
+      padding: 8px 10px 8px 12px;
+      background: rgba(0, 245, 130, 0.06);
+      border-radius: 0 8px 8px 0;
+    }
+    .baseline-foot a {
+      color: #b8fdd7;
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(184, 253, 215, 0.45);
+      font-weight: 600;
+    }
+    .baseline-examples-title {
+      margin: 14px 0 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #afe6ff;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+    .baseline-tablet-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 2px;
+    }
+    .baseline-tablet {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(56, 189, 248, 0.24);
+      background: rgba(5, 14, 9, 0.58);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .baseline-tablet--alert {
+      border-color: rgba(245, 166, 35, 0.48);
+      box-shadow: 0 0 20px rgba(245, 166, 35, 0.12);
+    }
+    .baseline-tablet--ok {
+      border-color: rgba(0, 245, 130, 0.38);
+      box-shadow: 0 0 16px rgba(0, 245, 130, 0.1);
+    }
+    .baseline-tablet .bt-img-wrap {
+      position: relative;
+      height: 118px;
+      background: #0a1711;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .baseline-tablet .bt-img-wrap img {
+      width: 100%;
+      height: 118px;
+      object-fit: cover;
+      display: block;
+      object-position: center;
+    }
+    .bt-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 4px 9px;
+      border-radius: 999px;
+      backdrop-filter: blur(6px);
+    }
+    .bt-badge--investigate {
+      border: 1px solid rgba(245, 166, 35, 0.7);
+      color: #ffe8c4;
+      background: rgba(18, 12, 6, 0.88);
+    }
+    .bt-badge--ok {
+      border: 1px solid rgba(0, 245, 130, 0.55);
+      color: #cfffe8;
+      background: rgba(4, 18, 12, 0.88);
+    }
+    .bt-body {
+      padding: 11px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .bt-site {
+      margin: 0;
+      font-size: 10px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #7aaebc;
+    }
+    .bt-body h4 {
+      margin: 0;
+      font-size: 14px;
+      color: #f2fdff;
+      line-height: 1.28;
+      font-weight: 700;
+    }
+    .bt-metrics {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 6px;
+    }
+    .bt-metrics li {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.32);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 11px;
+    }
+    .bt-metrics li .mk {
+      color: #93b9a9;
+      flex: 1;
+      line-height: 1.35;
+      min-width: 0;
+    }
+    .bt-metrics li .mv {
+      font-weight: 700;
+      color: #e9fff6;
+      font-family: ui-monospace, "Cascadia Code", "Segoe UI Mono", monospace;
+      font-size: 10px;
+      text-align: right;
+      white-space: nowrap;
+    }
+    .bt-flag {
+      margin: 0;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    .bt-flag--warm {
+      color: #ffc98a;
+    }
+    .bt-flag--cool {
+      color: #94ffd1;
+    }
+    .bt-why {
+      margin: 0;
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.45;
+      flex: 1;
+    }
+    @media (max-width: 980px) {
+      .grid-3, .layout { grid-template-columns: 1fr; }
+      .hero-site { grid-template-columns: 1fr; }
+      .level-gauges { grid-template-columns: 1fr; }
+      .baseline-points { grid-template-columns: 1fr; }
+      .baseline-tablet-grid { grid-template-columns: 1fr; }
+      .top { grid-template-columns: 1fr; }
+      .top-visual { grid-template-columns: 1fr; justify-items: center; text-align: left; }
+      .pulse-preview-layout { grid-template-columns: 1fr; }
+      .pulse-chart-wrap { height: 200px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="top">
+      <div class="top-copy">
+        <div class="title">Energy Goals & Savings Trajectory</div>
+        <div class="sub">
+          Interactive overview of how to lower energy cost and improve sustainability. Click a resource, then drill into appliance impact,
+          better timing opportunities, replacement trajectory, and grant/subsidy options — all on this page.
+        </div>
+        <div class="note" id="hybridDataNote">
+          <strong>Hybrid view:</strong> Headline electricity / gas / water totals follow <strong>Site totals / live feed</strong>.
+        </div>
+        <div class="note" id="tariffLineNote" style="margin-top:6px"></div>
+        <div class="top-actions">
+          <a class="top-btn back" href="./Greenways%20Interface%20.html">← Back to Main Dashboard</a>
+          <a class="top-btn" href="./utility-detail.html">Utility detail</a>
+        </div>
+      </div>
+
+      <div class="top-visual" aria-label="Current and potential trajectory visual">
+        <svg viewBox="0 0 180 180" role="img" aria-label="Current versus potential radial chart">
+          <circle cx="90" cy="90" r="68" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="18"></circle>
+          <path id="heroCurrentArc" d="M 90 22 A 68 68 0 1 1 28 120" fill="none" stroke="#f5a623" stroke-width="18" stroke-linecap="round"></path>
+          <path d="M 90 22 A 68 68 0 0 1 48 142" fill="none" stroke="#00f582" stroke-width="18" stroke-linecap="round"></path>
+          <circle cx="90" cy="90" r="41" fill="rgba(5,14,9,.88)" stroke="rgba(56,189,248,.25)"></circle>
+          <text x="90" y="88" text-anchor="middle" font-size="12" fill="#9ad4ff">Potential</text>
+          <text x="90" y="103" text-anchor="middle" font-size="11" fill="#dfffee">Trajectory</text>
+        </svg>
+        <div>
+          <div class="tv-title">Visual Opportunity Snapshot</div>
+          <div class="tv-item"><strong>Current path:</strong> high-cost operational baseline.</div>
+          <div class="tv-item"><strong>Potential path:</strong> lower trajectory through timing + equipment upgrades.</div>
+          <div class="tv-item" id="heroOutcomeLine"><strong>Outcome:</strong> stronger ROI and sustainability targets reached faster.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="hero-site">
+      <img id="siteHeroImage" src="https://static.wixstatic.com/media/c123de_6abbc3ae613646deb1d871fae2b2f709~mv2.jpg" alt="Selected restaurant overview" />
+      <div class="hero-meta">
+        <h3 id="siteHeroName">Wok To Walk — Leidsestraat</h3>
+        <p id="siteHeroAddress">Leidsestraat 96, 1017 PE Amsterdam</p>
+        <div class="site-tags">
+          <span class="site-tag" id="siteTagPower">Main power: -- kW</span>
+          <span class="site-tag" id="siteTagElec">Electricity: -- kWh/mo</span>
+          <span class="site-tag" id="siteTagGas">Gas: -- m3/mo</span>
+          <span class="site-tag" id="siteTagWater">Water: -- m3/mo</span>
+        </div>
+        <div class="site-picker" id="sitePicker"></div>
+      </div>
+    </section>
+
+    <section class="grid-3" id="resourceCards"></section>
+
+    <section class="panel">
+      <h3>Current vs Potential Levels</h3>
+      <div class="subtle" id="gaugeHybridExplainer" hidden>Gauge “current” uses <strong>site meter totals</strong> for the selected venue. “Potential” applies weighted <strong>Story buckets</strong> savings, then costs use the same model tariffs as the equipment pages.</div>
+      <div class="level-gauges" id="levelGaugeGrid"></div>
+    </section>
+
+    <section class="panel">
+      <h3>Site meter trend (all resources)</h3>
+      <div class="subtle">Historical or live-derived series from the dashboard feed — same units as invoicing (kWh, m³, m³). Not normalized across fuels.</div>
+      <canvas id="resourceTrajectoryChart" height="92"></canvas>
+      <h3 style="margin-top:12px" id="selectedTrajectoryTitle">Programme curve (Story buckets)</h3>
+      <canvas id="selectedTrajectoryChart" height="82"></canvas>
+      <div class="subtle">Dashed line = site total for the selected resource if usage stayed on trend. Orange markers = staged measures from <strong>Story buckets</strong>; green = modelled stack after implementation.</div>
+      <div id="goalChip" class="goal-chip" style="display:none"></div>
+      <div id="milestoneStrip" class="milestone-strip"></div>
+      <div id="dataStatusBadge" class="status-inline" style="display:none"></div>
+    </section>
+
+    <section class="panel panel-baseline" aria-labelledby="baselineHeading">
+      <details class="trajectory-baseline-details" id="trajectoryBaselineDetails">
+        <summary aria-label="Expand or collapse baseline guidance and example reads">
+          <div class="summary-center-block">
+            <span class="summary-title" id="baselineHeading">Why equipment efficiency against baselines matters</span>
+            <p class="baseline-lead baseline-lead--summary">
+              Savings trajectories stay realistic when you can see whether each machine is running <em>as expected</em> versus its operational baseline.
+              Drift away from baseline often shows up on the bill before it shows up in a capital plan—so tracking performance is part of bringing
+              <strong style="color: var(--text)">expected costs</strong> down, not only funding new equipment.
+            </p>
+            <span class="summary-expand-hint">
+              <span class="expand-when-collapsed">Click or tap here to expand</span>
+              <span class="collapse-when-open">Click here or ✕ to collapse</span>
+            </span>
+          </div>
+          <span class="summary-close-x" aria-hidden="true">✕</span>
+        </summary>
+        <div class="trajectory-baseline-expanded">
+          <div class="baseline-points">
+            <div class="baseline-point">
+              <strong>Spot drift early</strong>
+              Usage or demand that sits above baseline for refrigerators, hoods, wok lines, or dishwashers inflates ongoing costs and can distort how “big” your savings opportunity looks elsewhere.
+            </div>
+            <div class="baseline-point">
+              <strong>Prioritize the right fixes</strong>
+              Comparing live run patterns to baseline helps decide whether tuning, maintenance, or replacement will move the needle first—so spend follows impact.
+            </div>
+            <div class="baseline-point">
+              <strong>Anchor forecasts</strong>
+              When machinery is running efficiently against baselines, utility and trajectory projections reflect stable operations; that makes upgrade payback and grant timing easier to trust.
+            </div>
+          </div>
+
+          <p class="baseline-examples-title">Example equipment reads</p>
+          <div class="baseline-tablet-grid" aria-label="Example baseline comparisons">
+        <article class="baseline-tablet baseline-tablet--alert">
+          <div class="bt-img-wrap">
+            <img
+              src="https://static.wixstatic.com/media/c123de_0597ec0b3d7a4fa9b289d6a1060e67cb~mv2.jpg"
+              alt="HVAC and building services reference"
+              width="400"
+              height="240"
+              loading="lazy"
+            />
+            <span class="bt-badge bt-badge--investigate">Investigate</span>
+          </div>
+          <div class="bt-body">
+            <p class="bt-site">Wok To Walk — Warmoesstraat</p>
+            <h4>Rooftop HVAC pack — dining &amp; kitchen load</h4>
+            <p class="bt-flag bt-flag--warm">Live draw sits above the manufacturer mid-load envelope</p>
+            <ul class="bt-metrics">
+              <li><span class="mk">7-day average during service</span><span class="mv">4.9 kW</span></li>
+              <li><span class="mk">OEM profile at same OAT + occupancy</span><span class="mv">3.1 kW</span></li>
+              <li><span class="mk">Supply ΔT vs published design point</span><span class="mv">4.2 K (spec 7 K)</span></li>
+            </ul>
+            <p class="bt-why">
+              When measured power stays high but delivered ΔT is shallow, the unit is often working harder for less conditioning—coil fouling, economizer or damper issues, or controls fighting the kitchen extract are common causes. That gap shows up in cost before a capital plan does, so it is worth ruling out operations and maintenance first.
+            </p>
+          </div>
+        </article>
+
+        <article class="baseline-tablet baseline-tablet--ok">
+          <div class="bt-img-wrap">
+            <img
+              src="https://static.wixstatic.com/media/c123de_068bddce3d744a888073c4318bb3880b~mv2.jpg"
+              alt="Walk-in refrigeration equipment"
+              width="400"
+              height="240"
+              loading="lazy"
+            />
+            <span class="bt-badge bt-badge--ok">Within spec</span>
+          </div>
+          <div class="bt-body">
+            <p class="bt-site">Wok To Walk — Leidsestraat</p>
+            <h4>Walk-in refrigeration — primary evaporator circuit</h4>
+            <p class="bt-flag bt-flag--cool">Cycles track the manufacturer compressor map</p>
+            <ul class="bt-metrics">
+              <li><span class="mk">Overnight pull-down vs nameplate band</span><span class="mv">−18 °C in 42 min</span></li>
+              <li><span class="mk">Defrost energy vs OEM benchmark</span><span class="mv">−6% vs curve</span></li>
+              <li><span class="mk">Avg compressor stage during prep</span><span class="mv">Stage 2 of 3</span></li>
+            </ul>
+            <p class="bt-why">
+              Hold temperature, defrost length, and stage mix line up with what the OEM publishes for this box and load class. No sustained drift—so this line is not quietly inflating the electricity baseline; attention can stay on assets that are actually off-profile.
+            </p>
+          </div>
+        </article>
+
+        <article class="baseline-tablet baseline-tablet--alert">
+          <div class="bt-img-wrap">
+            <img
+              src="https://static.wixstatic.com/media/c123de_e0feed69f9394a48bc820bdd6d5f339a~mv2.jpg"
+              alt="Wok cooking line"
+              width="400"
+              height="240"
+              loading="lazy"
+            />
+            <span class="bt-badge bt-badge--investigate">Check burners</span>
+          </div>
+          <div class="bt-body">
+            <p class="bt-site">Wok To Walk — Kolksteeg</p>
+            <h4>Wok battery — gas-fired cooking line</h4>
+            <p class="bt-flag bt-flag--warm">Gas demand above modeled envelope for cover count</p>
+            <ul class="bt-metrics">
+              <li><span class="mk">Trailing 14-day gas (thermal equivalent)</span><span class="mv">118 kWh/d</span></li>
+              <li><span class="mk">Manufacturer curve at same covers + menu</span><span class="mv">102 kWh/d</span></li>
+              <li><span class="mk">Idle-to-ignite ratio vs baseline</span><span class="mv">+18%</span></li>
+            </ul>
+            <p class="bt-why">
+              The uplift is not explained by busier service alone: idle time on the line is longer than the baseline assumes, which often points to air-gas mix, partial flame, or pilots/stays lit when they should not be. A combustion check and burner tune typically costs little next to the gas line on the P&amp;L.
+            </p>
+          </div>
+        </article>
+      </div>
+
+      <p class="baseline-foot">
+        For manufacturer limits, ratings, and <strong style="color: #eafff5">official benchmark</strong> context per asset class, open the equipment deep dive—use it alongside this page when you want grounded numbers behind what “on baseline” means.
+        <a href="./restaurant-equipment-deep-dive.html" target="_blank" rel="noopener noreferrer">Open equipment deep dive</a>
+      </p>
+        </div>
+      </details>
+    </section>
+
+    <section class="panel">
+      <h3 id="breakdownTitle">Resource Breakdown</h3>
+      <canvas id="resourceBreakdownChart" height="84"></canvas>
+      <div class="chips" id="applianceChips"></div>
+      <div class="insight-actions">
+        <button class="insight-btn active" id="insightGrantsBtn" type="button">Applicable Grants</button>
+        <button class="insight-btn" id="insightAlternativesBtn" type="button">Alternative Equipment</button>
+      </div>
+      <div class="insight-panel" id="insightPanel"></div>
+      <div class="layout">
+        <div class="card">
+          <h3 id="applianceTitle" style="margin-top:0">Select an appliance</h3>
+          <div id="applianceStats"></div>
+          <canvas id="applianceScenarioChart" height="96" style="margin-top:8px"></canvas>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">Action Card</h3>
+          <div class="row"><span>Recommended alternative</span><strong id="altName">—</strong></div>
+          <div class="row"><span>Estimated annual saving</span><strong id="altSaving">—</strong></div>
+          <div class="row"><span>Estimated payback</span><strong id="altPayback">—</strong></div>
+          <div class="row"><span>Best run window</span><strong id="bestWindow">—</strong></div>
+          <a class="cta" id="deepDiveLink" href="./restaurant-equipment-deep-dive.html" target="_blank" rel="noopener noreferrer">Open Deep Dive</a>
+          <div class="grants" id="grantsList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="grantExamplesSection">
+      <h3>Possible Grants for Your Restaurant</h3>
+      <div class="subtle">Example funding routes to show what might be available. Final eligibility and values will be confirmed when this is wired directly to the grants portal feed.</div>
+      <div class="grant-showcase" id="grantShowcase"></div>
+      <div class="grant-showcase-cta">
+        These are indicative examples to demonstrate potential support. For the full and latest list, location filters, and eligibility checks,
+        <a href="./Incentives%20Pool%20New%20.Html" target="_blank" rel="noopener noreferrer">view all grants in portal</a>.
+      </div>
+    </section>
+
+    <section class="panel pulse-preview-panel" id="actionPulseSection" aria-label="Greenways toolkit preview">
+      <h3 style="margin:0 0 6px;font-size:16px">What you could explore next</h3>
+      <div class="subtle" style="margin-bottom:4px">
+        A compact snapshot from the same data sources as the rest of this dashboard (marketplace catalogue, modeled savings mix, grants index).
+        For full matching, savings insight, and alternatives, use the finder below.
+      </div>
+      <div class="pulse-preview-layout">
+        <div class="pulse-widget-col">
+          <div class="pulse-widget" id="actionPulseWidget">
+            <div class="pulse-head">
+              <span class="pulse-title">Toolkit preview</span>
+              <span class="pulse-badge soft" id="pulseDataBadge">Sample</span>
+            </div>
+            <div class="pulse-sec">New products · marketplace</div>
+            <ul class="pulse-list" id="pulseProductList"></ul>
+            <hr class="pulse-rule" />
+            <div class="pulse-sec">Energy saving examples</div>
+            <ul class="pulse-list" id="pulseSavingsList"></ul>
+            <hr class="pulse-rule" />
+            <div class="pulse-sec">Grants you may want to check</div>
+            <ul class="pulse-list" id="pulseGrantList"></ul>
+            <div class="pulse-updated" id="pulseUpdatedLine"></div>
+            <a class="pulse-cta" id="pulseDealFinderCta" href="./sustainable_product_deal_finder_portal.html" target="_blank" rel="noopener noreferrer">Open sustainable product &amp; deal finder</a>
+          </div>
+        </div>
+        <aside class="pulse-savings-viz" aria-label="Illustrative modeled savings by story bucket">
+          <div class="pulse-viz-title">Modeled savings snapshot</div>
+          <p class="pulse-viz-sub">Story-bucket uplift for <strong id="pulseVizResourceLabel">electricity</strong> — static preview; switches when you change resource cards above.</p>
+          <div class="pulse-chart-wrap">
+            <canvas id="pulseSavingsPreviewChart" height="220" aria-hidden="true"></canvas>
+          </div>
+        </aside>
+      </div>
+      <p class="pulse-note">Product names link to the marketplace product page when an ID is available. Grant lines use your live schemes index when connected.</p>
+    </section>
+  </div>
+
+  <script>
+    const FALLBACK_STORY_BUCKETS = {
+      electricity: [
+        { id: "dishwasher", name: "Dishwasher", share: 0.22, alt: "Heat-recovery dishwasher", savePct: 0.23, deepDive: "./restaurant-equipment-deep-dive.html?wok=dishwasher" },
+        { id: "wok1", name: "Wok Burner Line", share: 0.28, alt: "High-efficiency wok burner package", savePct: 0.27, deepDive: "./restaurant-equipment-deep-dive.html?wok=wok-burner-1" },
+        { id: "fridge", name: "Refrigeration", share: 0.24, alt: "A-rated refrigeration upgrade", savePct: 0.18, deepDive: "./restaurant-equipment-deep-dive.html?wok=fridge" },
+        { id: "hvac", name: "HVAC & extraction", share: 0.26, alt: "Demand-controlled HVAC", savePct: 0.16, deepDive: "./restaurant-equipment-deep-dive.html?wok=hvac" }
+      ],
+      gas: [
+        { id: "wokgas", name: "Wok gas line", share: 0.52, alt: "Efficient staged gas burner", savePct: 0.3, deepDive: "./restaurant-equipment-deep-dive.html?wok=wok-burner-2" },
+        { id: "heater", name: "Gas water heater", share: 0.24, alt: "Condensing heater", savePct: 0.2, deepDive: "./restaurant-equipment-deep-dive.html?wok=gas-water-heater" },
+        { id: "fryer", name: "Gas fryer", share: 0.24, alt: "Insulated high-recovery fryer", savePct: 0.17, deepDive: "./restaurant-equipment-deep-dive.html?wok=fryer" }
+      ],
+      water: [
+        { id: "dishwater", name: "Dishwash rinse cycles", share: 0.45, alt: "Low-flow rinse + cycle tuning", savePct: 0.2, deepDive: "./restaurant-equipment-deep-dive.html?wok=dishwasher" },
+        { id: "prep", name: "Prep & cleaning", share: 0.35, alt: "Flow-control retrofit kit", savePct: 0.15, deepDive: "./restaurant-equipment-deep-dive.html?wok=prepline" },
+        { id: "cooling", name: "Cooling/wash top-up", share: 0.2, alt: "Closed-loop recirculation setup", savePct: 0.18, deepDive: "./restaurant-equipment-deep-dive.html?wok=ice-water-chiller" }
+      ]
+    };
+
+    let storyBuckets = {
+      electricity: FALLBACK_STORY_BUCKETS.electricity.slice(),
+      gas: FALLBACK_STORY_BUCKETS.gas.slice(),
+      water: FALLBACK_STORY_BUCKETS.water.slice()
+    };
+
+    function storyList(resourceKey) {
+      const k = String(resourceKey || "");
+      const arr = storyBuckets[k];
+      return Array.isArray(arr) ? arr : [];
+    }
+
+    function applyStoryBucketPayload(sb) {
+      storyBuckets = {
+        electricity: Array.isArray(sb?.electricity) ? sb.electricity : FALLBACK_STORY_BUCKETS.electricity.slice(),
+        gas: Array.isArray(sb?.gas) ? sb.gas : FALLBACK_STORY_BUCKETS.gas.slice(),
+        water: Array.isArray(sb?.water) ? sb.water : FALLBACK_STORY_BUCKETS.water.slice()
+      };
+    }
+
+    async function loadStoryBuckets() {
+      try {
+        const res = await fetch("./data/trajectory-story-buckets.json", { cache: "no-store" });
+        if (res.ok) {
+          const sb = await res.json();
+          applyStoryBucketPayload(sb);
+        }
+      } catch (e) {
+        applyStoryBucketPayload(FALLBACK_STORY_BUCKETS);
+      }
+      if (!storyBuckets.electricity.length && !storyBuckets.gas.length && !storyBuckets.water.length) {
+        applyStoryBucketPayload(FALLBACK_STORY_BUCKETS);
+      }
+    }
+
+    const DEFAULT_RESTAURANTS = [
+      {
+        id: "w2w-amsterdam-01",
+        name: "Wok To Walk — Leidsestraat",
+        address: "Leidsestraat 96, 1017 PE Amsterdam",
+        imageUrl: "https://static.wixstatic.com/media/c123de_6abbc3ae613646deb1d871fae2b2f709~mv2.jpg",
+        potentialPct: 33,
+        energy: { mainPowerKw: 78, electricityKwhMonth: 18600, gasM3Month: 940, waterM3Month: 214 }
+      },
+      {
+        id: "w2w-amsterdam-02",
+        name: "Wok To Walk — Kolksteeg",
+        address: "Kolksteeg 8, 1012 PT Amsterdam",
+        imageUrl: "https://static.wixstatic.com/media/c123de_f79995cc543e41478974135f3f64859c~mv2.jpg",
+        potentialPct: 29,
+        energy: { mainPowerKw: 64, electricityKwhMonth: 15400, gasM3Month: 820, waterM3Month: 186 }
+      },
+      {
+        id: "w2w-amsterdam-03",
+        name: "Wok To Walk — Damstraat",
+        address: "Damstraat 44, 1012 JM Amsterdam",
+        imageUrl: "https://static.wixstatic.com/media/c123de_16c0316351cb43ffa2b465483e13e2a4~mv2.jpg",
+        potentialPct: 31,
+        energy: { mainPowerKw: 58, electricityKwhMonth: 13900, gasM3Month: 740, waterM3Month: 171 }
+      },
+      {
+        id: "w2w-amsterdam-04",
+        name: "Wok To Walk — Warmoesstraat",
+        address: "Warmoesstraat 85, 1012 HZ Amsterdam",
+        imageUrl: "https://static.wixstatic.com/media/c123de_cf49fe75466b4d1d90dbd103b6405ced~mv2.jpeg",
+        potentialPct: 35,
+        energy: { mainPowerKw: 67, electricityKwhMonth: 16100, gasM3Month: 860, waterM3Month: 198 }
+      }
+    ];
+    const resourceCardsEl = document.getElementById("resourceCards");
+    const levelGaugeGridEl = document.getElementById("levelGaugeGrid");
+    const applianceChipsEl = document.getElementById("applianceChips");
+    const grantsListEl = document.getElementById("grantsList");
+    const grantShowcaseEl = document.getElementById("grantShowcase");
+    const sitePickerEl = document.getElementById("sitePicker");
+    const insightPanelEl = document.getElementById("insightPanel");
+
+    let liveData = null;
+    let restaurants = [];
+    let selectedRestaurantId = "";
+    let selectedResource = "electricity";
+    let selectedAppliance = null;
+    let activeInsightTab = "grants";
+    let trajectoryChart, selectedTrajectoryChart, breakdownChart, scenarioChart, pulseSavingsPreviewChart;
+    let schemes = [];
+    let trajectoryPointMeta = [];
+    let pulseCatalogProducts = [];
+
+    function euro(n) { return `€${Number(n || 0).toFixed(0)}`; }
+    function resolveApiUrl(pathname) {
+      if (/^https?:\/\//i.test(pathname)) return pathname;
+      if (window.location.protocol === "file:") return `http://localhost:4000${pathname}`;
+      return pathname;
+    }
+    function num(v, fallback = 0) {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : fallback;
+    }
+
+    function normalizeRestaurants(rawRestaurants, liveTotals) {
+      const rows = Array.isArray(rawRestaurants) ? rawRestaurants : [];
+      const baseElec = Math.max(1, num(liveTotals?.electricityKwh, 0));
+      const baseGas = Math.max(1, num(liveTotals?.gasM3, 0));
+      const baseWater = Math.max(1, num(liveTotals?.waterM3, 0));
+      // Deterministic spread so each site shows meaningful differences when source energy is missing.
+      const multipliers = [1.22, 0.93, 0.80, 1.08, 0.88, 1.15];
+
+      return rows.map((r, idx) => {
+        const m = multipliers[idx % multipliers.length];
+        // Add small resource-specific variance so profiles are not just scaled clones.
+        const elecFactor = m * (1 + ((idx % 3) - 1) * 0.03);  // +/-3%
+        const gasFactor = m * (1 + ((idx % 4) - 1.5) * 0.025); // +/-3.75%
+        const waterFactor = m * (1 + ((idx % 5) - 2) * 0.02);  // +/-4%
+        const fallbackEnergy = {
+          electricityKwhMonth: Math.round(baseElec * elecFactor),
+          gasM3Month: Math.round(baseGas * gasFactor),
+          waterM3Month: Math.round(baseWater * waterFactor),
+          mainPowerKw: Math.max(18, Math.round((baseElec * elecFactor) / 230))
+        };
+
+        const sourceEnergy = r?.energy || {};
+        const resolvedEnergy = {
+          mainPowerKw: num(sourceEnergy.mainPowerKw, fallbackEnergy.mainPowerKw),
+          electricityKwhMonth: num(sourceEnergy.electricityKwhMonth, fallbackEnergy.electricityKwhMonth),
+          gasM3Month: num(sourceEnergy.gasM3Month, fallbackEnergy.gasM3Month),
+          waterM3Month: num(sourceEnergy.waterM3Month, fallbackEnergy.waterM3Month)
+        };
+
+        return {
+          ...r,
+          id: String(r?.id || `site-${idx + 1}`),
+          name: r?.name || r?.title || `Restaurant ${idx + 1}`,
+          address: r?.address || r?.location || "",
+          imageUrl: r?.imageUrl || r?.image || r?.photo || "",
+          potentialPct: num(r?.potentialPct, NaN),
+          energy: resolvedEnergy
+        };
+      });
+    }
+
+    async function loadData() {
+      const fallbackLive = {
+        totals: { electricityKwh: 3306.9, gasM3: 989.4, waterM3: 142.0, costEur: 2097 },
+        baseline: { electricityKwh: 3600, gasM3: 1150, waterM3: 165 },
+        trend: {
+          labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+          electricity: [3550, 3490, 3430, 3370, 3340, 3307],
+          gas: [1130, 1105, 1070, 1045, 1015, 989],
+          water: [160, 156, 153, 149, 145, 142]
+        },
+        meta: { source: "fallback-demo" }
+      };
+
+      let liveRes = fallbackLive;
+      let schemesRes = { schemes: [] };
+      let siteRes = { buildings: [] };
+      let usedFallback = false;
+      try {
+        const [liveRaw, schemesRaw, siteRaw, productsRaw] = await Promise.all([
+          fetch(resolveApiUrl("/api/dashboard/live?mode=live")).then(r => r.ok ? r.json() : fallbackLive),
+          fetch(resolveApiUrl("/api/schemes?limit=40")).then(r => r.ok ? r.json() : ({ schemes: [] })).catch(() => ({ schemes: [] })),
+          fetch(resolveApiUrl("/data/company-map-buildings.json")).then(r => r.ok ? r.json() : ({ buildings: [] })).catch(() => ({ buildings: [] })),
+          fetch(resolveApiUrl("/api/products?limit=48&offset=0")).then(r => r.ok ? r.json() : null).catch(() => null)
+        ]);
+        liveRes = liveRaw || fallbackLive;
+        schemesRes = schemesRaw || { schemes: [] };
+        siteRes = siteRaw || { buildings: [] };
+        pulseCatalogProducts = Array.isArray(productsRaw?.products) ? productsRaw.products : [];
+      } catch (error) {
+        usedFallback = true;
+        liveRes = fallbackLive;
+        pulseCatalogProducts = [];
+      }
+
+      liveData = liveRes;
+      schemes = Array.isArray(schemesRes.schemes) ? schemesRes.schemes : [];
+      const sourceRestaurants = Array.isArray(siteRes.buildings) && siteRes.buildings.length ? siteRes.buildings : DEFAULT_RESTAURANTS;
+      restaurants = normalizeRestaurants(sourceRestaurants, liveData?.totals || {});
+      selectedRestaurantId = String(restaurants[0]?.id || "");
+      const badge = document.getElementById("dataStatusBadge");
+      if (badge) {
+        const source = liveData?.meta?.source || "";
+        const isFallback = usedFallback || source === "fallback" || source === "fallback-demo";
+        badge.style.display = "inline-block";
+        badge.classList.toggle("live", !isFallback);
+        badge.textContent = isFallback
+          ? "Preview mode: showing resilient baseline data for visuals."
+          : "Live data: connected to current dashboard feed.";
+      }
+    }
+
+    function selectedRestaurant() {
+      return restaurants.find((r) => String(r.id) === String(selectedRestaurantId)) || restaurants[0] || null;
+    }
+
+    function renderSiteHero() {
+      const site = selectedRestaurant();
+      if (!site) return;
+      const img = document.getElementById("siteHeroImage");
+      const name = document.getElementById("siteHeroName");
+      const addr = document.getElementById("siteHeroAddress");
+      if (img) img.src = site.imageUrl || img.src;
+      if (name) name.textContent = site.name || "Selected Restaurant";
+      if (addr) addr.textContent = site.address || "";
+
+      const e = site.energy || {};
+      const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      setText("siteTagPower", `Main power: ${Number(e.mainPowerKw || 0).toFixed(0)} kW`);
+      setText("siteTagElec", `Electricity: ${Number(e.electricityKwhMonth || 0).toFixed(0)} kWh/mo`);
+      setText("siteTagGas", `Gas: ${Number(e.gasM3Month || 0).toFixed(0)} m3/mo`);
+      setText("siteTagWater", `Water: ${Number(e.waterM3Month || 0).toFixed(0)} m3/mo`);
+
+      sitePickerEl.innerHTML = restaurants.map((r) => `
+        <button class="site-pill ${String(r.id) === String(selectedRestaurantId) ? "active" : ""}" data-site-id="${r.id}">
+          ${r.name}
+        </button>
+      `).join("");
+      sitePickerEl.querySelectorAll(".site-pill").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          selectedRestaurantId = btn.dataset.siteId;
+          selectedAppliance = null;
+          renderAll();
+        });
+      });
+    }
+
+    function resourceTotals() {
+      const site = selectedRestaurant();
+      const se = site?.energy || {};
+      if (Number(se.electricityKwhMonth || 0) > 0 || Number(se.gasM3Month || 0) > 0 || Number(se.waterM3Month || 0) > 0) {
+        return {
+          electricity: Number(se.electricityKwhMonth || 0),
+          gas: Number(se.gasM3Month || 0),
+          water: Number(se.waterM3Month || 0)
+        };
+      }
+      return {
+        electricity: Number(liveData?.totals?.electricityKwh || 0),
+        gas: Number(liveData?.totals?.gasM3 || 0),
+        water: Number(liveData?.totals?.waterM3 || 0)
+      };
+    }
+
+    function renderResourceCards() {
+      const totals = resourceTotals();
+      const baseline = liveData?.baseline || {};
+      const cards = [
+        { id: "electricity", label: "Electricity", unit: "kWh", value: totals.electricity, goal: baseline.electricityKwh || 0 },
+        { id: "gas", label: "Gas", unit: "m3", value: totals.gas, goal: baseline.gasM3 || 0 },
+        { id: "water", label: "Water", unit: "m3", value: totals.water, goal: baseline.waterM3 || 0 }
+      ];
+      resourceCardsEl.innerHTML = cards.map(c => {
+        const modelMo = typeof SiteEnergyModel !== "undefined"
+          ? SiteEnergyModel.monthlyEurFromResourceTotal(c.id, c.value)
+          : 0;
+        return `
+        <div class="resource-card ${selectedResource === c.id ? "active" : ""}" data-resource="${c.id}">
+          <div class="k">${c.label} <span style="font-weight:600;opacity:.75">(site meter)</span></div>
+          <div class="v">${Number(c.value).toFixed(1)} <span style="font-size:14px;color:var(--text-dim)">${c.unit}/mo</span></div>
+          <div class="small">Goal: ${Number(c.goal).toFixed(1)} ${c.unit}/mo</div>
+          <div class="small" style="margin-top:4px;opacity:.9">Modelled utility ≈ ${euro(modelMo)}/mo</div>
+        </div>`;
+      }).join("");
+      resourceCardsEl.querySelectorAll(".resource-card").forEach(card => {
+        card.addEventListener("click", () => {
+          selectedResource = card.dataset.resource;
+          selectedAppliance = null;
+          renderAll();
+        });
+      });
+    }
+
+    function weightedReduction(resourceKey) {
+      const list = storyList(resourceKey);
+      if (!list.length) return 0.24;
+      const weighted = list.reduce((sum, item) => sum + (Number(item.share || 0) * Number(item.savePct || 0)), 0);
+      // Add a realistic uplift for timing/scheduling discipline on top of equipment upgrade effect.
+      const operationalUplift = 0.08;
+      const modeled = (weighted || 0.2) + operationalUplift;
+      // Keep bounds realistic for commercial kitchens by resource type.
+      if (resourceKey === "electricity") return Math.max(0.16, Math.min(0.36, modeled));
+      if (resourceKey === "gas") return Math.max(0.18, Math.min(0.40, modeled));
+      if (resourceKey === "water") return Math.max(0.14, Math.min(0.30, modeled));
+      return Math.max(0.14, Math.min(0.35, modeled));
+    }
+
+    function renderTopVisualSnapshot() {
+      // Intentionally static: this top visual is used as an illustrative snapshot only.
+    }
+
+    function gaugeNeedleAngleDeg(percent) {
+      const p = Math.max(0, Math.min(100, Number(percent || 0)));
+      return -90 + (p * 180 / 100);
+    }
+
+    function miniGaugeSvg(percent, color, mutedColor) {
+      const arc = 188.5;
+      const p = Math.max(0, Math.min(100, Number(percent || 0)));
+      const offset = arc * (1 - p / 100);
+      const angle = gaugeNeedleAngleDeg(p);
+      const gradId = `g-${Math.random().toString(36).slice(2, 8)}`;
+      return `
+        <svg viewBox="0 0 160 104" width="100%" height="74" aria-hidden="true">
+          <defs>
+            <linearGradient id="${gradId}" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="${color}"></stop>
+              <stop offset="70%" stop-color="${mutedColor}"></stop>
+              <stop offset="100%" stop-color="#ff5f7d"></stop>
+            </linearGradient>
+          </defs>
+          <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="10" stroke-linecap="round"></path>
+          <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#${gradId})" stroke-width="10" stroke-linecap="round"
+            stroke-dasharray="${arc}" stroke-dashoffset="${offset}"></path>
+          <line x1="80" y1="90" x2="80" y2="46" stroke="#e8fff1" stroke-width="2" stroke-linecap="round" transform="rotate(${angle} 80 90)"></line>
+          <circle cx="80" cy="90" r="4.2" fill="${color}"></circle>
+          <text x="80" y="78" text-anchor="middle" font-size="14" fill="#e8fff1" font-weight="700">${p.toFixed(0)}%</text>
+        </svg>
+      `;
+    }
+
+    function renderLevelGauges() {
+      if (!levelGaugeGridEl) return;
+      const totals = resourceTotals();
+      const baseline = liveData?.baseline || {};
+      const cards = [
+        { key: "electricity", label: "Electricity", unit: "kWh", current: totals.electricity, target: Number(baseline.electricityKwh || totals.electricity * 1.08 || 1), color: "#00f582" },
+        { key: "gas", label: "Gas", unit: "m3", current: totals.gas, target: Number(baseline.gasM3 || totals.gas * 1.08 || 1), color: "#f5a623" },
+        { key: "water", label: "Water", unit: "m3", current: totals.water, target: Number(baseline.waterM3 || Math.max(1, totals.water * 1.08)), color: "#38bdf8" }
+      ];
+
+      levelGaugeGridEl.innerHTML = cards.map((c) => {
+        const reduction = weightedReduction(c.key);
+        const potential = Number((c.current * (1 - reduction)).toFixed(1));
+        // Use a dynamic gauge range per resource so "current vs potential" is visibly distinct.
+        const dynamicMax = Math.max(c.current, c.target, potential, 1) * 1.08;
+        const currentPct = (c.current / dynamicMax) * 100;
+        const potentialPct = (potential / dynamicMax) * 100;
+        const annualSaving = Math.max(
+          0,
+          (c.current - potential) * SiteEnergyModel.marginalEurPerNativeUnit(c.key) * 12
+        );
+        const currentColor = currentPct > 100 ? "#ff5f7d" : c.color;
+        const muted = c.key === "gas" ? "#f5d178" : c.key === "water" ? "#8edfff" : "#7fffc0";
+        return `
+          <div class="gauge-card ${selectedResource === c.key ? "active-resource" : ""}">
+            <div class="gauge-title">${c.label}</div>
+            <div class="gauge-pair">
+              <div class="mini-gauge-box">
+                <div class="lbl">Current</div>
+                ${miniGaugeSvg(currentPct, currentColor, muted)}
+                <div class="mini-gauge-val">${Number(c.current).toFixed(1)} ${c.unit}</div>
+                <div class="mini-scale"><span>0</span><span>Norm</span><span>Peak</span></div>
+              </div>
+              <div class="mini-gauge-box">
+                <div class="lbl">Potential</div>
+                ${miniGaugeSvg(potentialPct, "#00f582", "#86ffc9")}
+                <div class="mini-gauge-val">${potential.toFixed(1)} ${c.unit}</div>
+                <div class="mini-scale"><span>0</span><span>Norm</span><span>Peak</span></div>
+              </div>
+            </div>
+            <div class="gauge-delta">Potential reduction ${(reduction * 100).toFixed(0)}% · ${euro(annualSaving)}/yr · Scale max ${dynamicMax.toFixed(0)} ${c.unit}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderTrajectoryChart() {
+      const labels = liveData?.trend?.labels || [];
+      const e = liveData?.trend?.electricity || [];
+      const g = liveData?.trend?.gas || [];
+      const w = liveData?.trend?.water || [];
+      const rtCanvas = document.getElementById("resourceTrajectoryChart");
+      const rtCtx = rtCanvas ? rtCanvas.getContext("2d") : null;
+      const gradElec = rtCtx ? (() => {
+        const g1 = rtCtx.createLinearGradient(0, 0, 0, 180);
+        g1.addColorStop(0, "rgba(0,245,130,0.35)");
+        g1.addColorStop(1, "rgba(0,245,130,0.02)");
+        return g1;
+      })() : "rgba(0,245,130,.12)";
+      const gradGas = rtCtx ? (() => {
+        const g1 = rtCtx.createLinearGradient(0, 0, 0, 180);
+        g1.addColorStop(0, "rgba(245,166,35,0.32)");
+        g1.addColorStop(1, "rgba(245,166,35,0.02)");
+        return g1;
+      })() : "rgba(245,166,35,.1)";
+      const gradWater = rtCtx ? (() => {
+        const g1 = rtCtx.createLinearGradient(0, 0, 0, 180);
+        g1.addColorStop(0, "rgba(56,189,248,0.30)");
+        g1.addColorStop(1, "rgba(56,189,248,0.02)");
+        return g1;
+      })() : "rgba(56,189,248,.1)";
+      if (trajectoryChart) trajectoryChart.destroy();
+      trajectoryChart = new Chart(document.getElementById("resourceTrajectoryChart"), {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "Electricity",
+              data: e,
+              borderColor: "#00f582",
+              backgroundColor: gradElec,
+              tension: .4,
+              fill: true,
+              pointRadius: 3,
+              pointHoverRadius: 6,
+              pointBackgroundColor: "#00f582",
+              borderWidth: 2
+            },
+            {
+              label: "Gas",
+              data: g,
+              borderColor: "#f5a623",
+              backgroundColor: gradGas,
+              tension: .4,
+              fill: true,
+              pointRadius: 3,
+              pointHoverRadius: 6,
+              pointBackgroundColor: "#f5a623",
+              borderWidth: 2
+            },
+            {
+              label: "Water",
+              data: w,
+              borderColor: "#38bdf8",
+              backgroundColor: gradWater,
+              tension: .4,
+              fill: true,
+              pointRadius: 3,
+              pointHoverRadius: 6,
+              pointBackgroundColor: "#38bdf8",
+              borderWidth: 2
+            }
+          ]
+        },
+        options: {
+          interaction: { mode: "nearest", intersect: false },
+          plugins: {
+            legend: { labels: { color: "#cde9db" } },
+            tooltip: {
+              displayColors: true,
+              backgroundColor: "rgba(8,20,14,.92)",
+              borderColor: "rgba(0,245,130,.28)",
+              borderWidth: 1,
+              titleColor: "#e8fff1",
+              bodyColor: "#cbe6d8"
+            }
+          },
+          scales: {
+            x: { ticks: { color: "#9db8aa" }, grid: { color: "rgba(140,170,154,.12)" } },
+            y: { ticks: { color: "#9db8aa" }, grid: { color: "rgba(140,170,154,.12)" } }
+          }
+        }
+      });
+
+      const options = storyList(selectedResource);
+      const currentTotal = resourceTotals()[selectedResource] || 0;
+      const monthlyBase = currentTotal / 6;
+      const baseline = Number(liveData?.baseline?.[selectedResource === "electricity" ? "electricityKwh" : selectedResource === "gas" ? "gasM3" : "waterM3"] || 0);
+      const goalMonthly = baseline > 0 ? baseline / 6 : monthlyBase * 0.92;
+      const currentLine = Array.from({ length: 6 }, (_, idx) => Number((monthlyBase * (1 + idx * 0.01)).toFixed(2)));
+      const implementedLine = [];
+      const optionPoints = [];
+      trajectoryPointMeta = [];
+      let running = monthlyBase;
+      for (let i = 0; i < 6; i += 1) {
+        const hit = options[i % options.length];
+        const drop = hit ? hit.savePct * 0.45 : 0.04;
+        running = Number((running * (1 - drop * 0.18)).toFixed(2));
+        implementedLine.push(running);
+        optionPoints.push(Number((running + (monthlyBase * 0.05)).toFixed(2)));
+        trajectoryPointMeta.push({
+          idx: i,
+          option: hit || null
+        });
+      }
+
+      if (selectedTrajectoryChart) selectedTrajectoryChart.destroy();
+      selectedTrajectoryChart = new Chart(document.getElementById("selectedTrajectoryChart"), {
+        type: "line",
+        data: {
+          labels: ["M1", "M2", "M3", "M4", "M5", "M6"],
+          datasets: [
+            {
+              label: "Current trajectory",
+              data: currentLine,
+              borderColor: "#ff5f7d",
+              backgroundColor: "rgba(255,95,125,.08)",
+              borderDash: [5, 5],
+              pointRadius: 2,
+              pointHoverRadius: 5,
+              tension: 0.32
+            },
+            {
+              label: "Implementation points",
+              data: optionPoints,
+              borderColor: "#f5a623",
+              backgroundColor: "#f5a623",
+              pointRadius: [6, 6, 6, 6, 6, 6],
+              pointHoverRadius: 7,
+              pointStyle: "rectRounded",
+              showLine: true,
+              tension: 0.3
+            },
+            {
+              label: "Projected trajectory (implemented)",
+              data: implementedLine,
+              borderColor: "#00f582",
+              backgroundColor: "rgba(0,245,130,.08)",
+              pointRadius: 3,
+              pointHoverRadius: 6,
+              tension: 0.32
+            },
+            {
+              label: "Goal line",
+              data: Array(6).fill(Number(goalMonthly.toFixed(2))),
+              borderColor: "#38bdf8",
+              borderDash: [4, 4],
+              pointRadius: 0,
+              tension: 0,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          onClick: (evt, elements, chart) => {
+            if (!elements || !elements.length) return;
+            const hit = elements[0];
+            // Dataset index 1 is implementation points
+            if (hit.datasetIndex !== 1) return;
+            const meta = trajectoryPointMeta[hit.index];
+            if (!meta || !meta.option) return;
+            selectedAppliance = meta.option;
+            renderResourceBreakdown();
+          },
+          plugins: {
+            legend: { labels: { color: "#cde9db" } },
+            tooltip: {
+              displayColors: true,
+              backgroundColor: "rgba(8,20,14,.94)",
+              borderColor: "rgba(245,166,35,.35)",
+              borderWidth: 1,
+              titleColor: "#fff0dc",
+              bodyColor: "#d8e9df",
+              callbacks: {
+                afterTitle: (items) => {
+                  const idx = items?.[0]?.dataIndex ?? 0;
+                  const option = options[idx % options.length];
+                  return option ? `Option: ${option.name} -> ${option.alt}` : "";
+                },
+                afterBody: (items) => {
+                  const idx = items?.[0]?.dataIndex ?? 0;
+                  const option = options[idx % options.length];
+                  return option ? [`Potential cut: ${(option.savePct * 100).toFixed(0)}%`, "Click point to focus this appliance below"] : [];
+                }
+              }
+            }
+          },
+          scales: {
+            x: { ticks: { color: "#9db8aa" }, grid: { color: "rgba(140,170,154,.12)" } },
+            y: { ticks: { color: "#9db8aa" }, grid: { color: "rgba(140,170,154,.12)" } }
+          }
+        }
+      });
+      const title = document.getElementById("selectedTrajectoryTitle");
+      if (title) {
+        const label = selectedResource[0].toUpperCase() + selectedResource.slice(1);
+        title.textContent = `${label} programme curve (Story buckets)`;
+      }
+
+      const goalChip = document.getElementById("goalChip");
+      if (goalChip) {
+        const unit = selectedResource === "electricity" ? "kWh" : "m3";
+        goalChip.style.display = "inline-block";
+        goalChip.textContent = `Goal benchmark: ${goalMonthly.toFixed(1)} ${unit}/month equivalent`;
+      }
+
+      const milestoneStrip = document.getElementById("milestoneStrip");
+      if (milestoneStrip) {
+        const eurPer = SiteEnergyModel.marginalEurPerNativeUnit(selectedResource);
+        const top = options.slice(0, 3).map((opt, idx) => {
+          const monthVal = currentLine[Math.min(idx + 1, currentLine.length - 1)];
+          const projected = monthVal * (1 - opt.savePct);
+          const monthlySaving = Math.max(0, (monthVal - projected) * eurPer);
+          const annualSaving = monthlySaving * 12;
+          const payback = annualSaving > 0 ? (2200 / annualSaving) * 12 : 0;
+          return `
+            <div class="milestone">
+              <div class="m-k">Milestone M${idx + 2}</div>
+              <strong>${opt.name}</strong><br>
+              ${opt.alt}<br>
+              Saving: <strong>${euro(annualSaving)}/yr</strong> · Payback: <strong>${payback ? payback.toFixed(1) + " mo" : "n/a"}</strong>
+            </div>
+          `;
+        });
+        milestoneStrip.innerHTML = top.join("");
+      }
+    }
+
+    function renderResourceBreakdown() {
+      const list = storyList(selectedResource);
+      const total = resourceTotals()[selectedResource] || 0;
+      const labels = list.map(a => a.name);
+      const values = list.map(a => Number((total * a.share).toFixed(2)));
+      document.getElementById("breakdownTitle").textContent = `${selectedResource[0].toUpperCase() + selectedResource.slice(1)} breakdown (Story buckets × site meter total)`;
+      if (breakdownChart) breakdownChart.destroy();
+      breakdownChart = new Chart(document.getElementById("resourceBreakdownChart"), {
+        type: "bar",
+        data: { labels, datasets: [{ label: selectedResource, data: values, backgroundColor: ["#00f582", "#f5a623", "#38bdf8", "#8ee8ff"] }] },
+        options: { plugins: { legend: { display: false } }, scales: { x: { ticks: { color: "#9db8aa" } }, y: { ticks: { color: "#9db8aa" } } } }
+      });
+      applianceChipsEl.innerHTML = list.map(a => `<button class="chip ${selectedAppliance?.id === a.id ? "active" : ""}" data-id="${a.id}">${a.name}</button>`).join("");
+      applianceChipsEl.querySelectorAll(".chip").forEach(ch => {
+        ch.addEventListener("click", () => {
+          selectedAppliance = list.find(a => a.id === ch.dataset.id);
+          renderApplianceCard();
+        });
+      });
+      if (!selectedAppliance && list.length) selectedAppliance = list[0];
+      renderApplianceCard();
+    }
+
+    function filteredSchemes(name) {
+      const q = String(name || "").toLowerCase();
+      const short = q.split(" ").slice(0, 2).join(" ");
+      const hits = schemes.filter(s => `${s.title || ""} ${s.description || ""}`.toLowerCase().includes(short)).slice(0, 2);
+      return hits.length ? hits : schemes.slice(0, 2);
+    }
+
+    function escapeHtmlPulse(s) {
+      return String(s ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function pulseHash(str) {
+      let h = 2166136261 >>> 0;
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619) >>> 0;
+      }
+      return h;
+    }
+
+    function renderPulseSavingsPreviewChart() {
+      const canvas = document.getElementById("pulseSavingsPreviewChart");
+      const resLabel = document.getElementById("pulseVizResourceLabel");
+      if (typeof Chart === "undefined" || !canvas) return;
+      const resKey = selectedResource || "electricity";
+      if (resLabel) {
+        resLabel.textContent = resKey.length ? resKey.charAt(0).toUpperCase() + resKey.slice(1) : resKey;
+      }
+
+      const apps = storyList(resKey);
+      if (pulseSavingsPreviewChart) {
+        pulseSavingsPreviewChart.destroy();
+        pulseSavingsPreviewChart = null;
+      }
+
+      const barColors = ["rgba(0,245,130,.78)", "rgba(56,189,248,.72)", "rgba(245,166,35,.78)", "rgba(139,233,168,.65)"];
+      const barBorders = ["rgba(0,245,130,1)", "rgba(56,189,248,.95)", "rgba(245,166,35,1)", "rgba(139,233,168,.9)"];
+
+      if (!apps.length) {
+        pulseSavingsPreviewChart = new Chart(canvas, {
+          type: "bar",
+          data: {
+            labels: ["No buckets"],
+            datasets: [{ data: [0], backgroundColor: "rgba(120,140,130,.25)", borderWidth: 0 }]
+          },
+          options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { max: 10, ticks: { color: "#9db8aa" }, grid: { color: "rgba(255,255,255,.06)" } },
+              y: { ticks: { color: "#9db8aa" }, grid: { display: false } }
+            }
+          }
+        });
+        return;
+      }
+
+      const labels = apps.map((a) => {
+        const n = String(a.name || "Bucket").trim();
+        return n.length > 24 ? `${n.slice(0, 22)}…` : n;
+      });
+      const data = apps.map((a) => Math.round(Number(a.savePct || 0) * 100));
+      const maxVal = Math.max(10, Math.ceil((Math.max(...data, 1) * 1.15) / 5) * 5);
+      const colors = apps.map((_, i) => barColors[i % barColors.length]);
+      const borders = apps.map((_, i) => barBorders[i % barBorders.length]);
+
+      pulseSavingsPreviewChart = new Chart(canvas, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "Modeled reduction %",
+            data,
+            backgroundColor: colors,
+            borderColor: borders,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label(ctx) {
+                  return ` ~${ctx.parsed.x}% modeled reduction (${resKey})`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              min: 0,
+              max: maxVal,
+              ticks: {
+                color: "#9db8aa",
+                callback(v) {
+                  return `${v}%`;
+                }
+              },
+              grid: { color: "rgba(255,255,255,.06)" },
+              title: {
+                display: true,
+                text: "Illustrative % (story buckets)",
+                color: "#7a9e8c",
+                font: { size: 11, weight: "600" }
+              }
+            },
+            y: {
+              ticks: { color: "#c5e8d4", font: { size: 11 } },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+
+    function renderActionPulse() {
+      const listEl = document.getElementById("pulseProductList");
+      const savEl = document.getElementById("pulseSavingsList");
+      const grantEl = document.getElementById("pulseGrantList");
+      const updatedEl = document.getElementById("pulseUpdatedLine");
+      const badgeEl = document.getElementById("pulseDataBadge");
+      const ctaEl = document.getElementById("pulseDealFinderCta");
+      if (!listEl || !savEl || !grantEl) return;
+
+      const site = selectedRestaurant();
+      const siteKey = String(site?.id || "default");
+      const resKey = selectedResource || "electricity";
+      const mixKey = `${siteKey}|${resKey}`;
+
+      const hasSchemes = schemes.length >= 2;
+      const hasProducts = pulseCatalogProducts.length >= 3;
+      if (badgeEl) {
+        badgeEl.classList.toggle("soft", !(hasSchemes && hasProducts));
+        badgeEl.textContent = hasSchemes && hasProducts ? "Live mix" : hasSchemes || hasProducts ? "Partial feed" : "Sample";
+      }
+
+      const prods = pulseCatalogProducts;
+      if (prods.length >= 3) {
+        const h = pulseHash(mixKey);
+        const span = Math.max(1, prods.length - 2);
+        const start = h % span;
+        const picks = prods.slice(start, start + 3);
+        listEl.innerHTML = picks.map((p) => {
+          const id = String(p.id || "").trim();
+          const name = escapeHtmlPulse(p.name || "Marketplace product");
+          const brand = escapeHtmlPulse(p.manufacturer || p.brand || "");
+          const tail = brand ? `${name} — ${brand}` : name;
+          const href = `./product-page-v2-marketplace.html?product=${encodeURIComponent(id)}&fromPopup=true`;
+          const inner = id
+            ? `<a class="pulse-a" href="${href}" target="_blank" rel="noopener noreferrer">${tail}</a>`
+            : tail;
+          return `<li><span class="pulse-dot" aria-hidden="true"></span><span><span class="pulse-k">Marketplace</span> — ${inner}</span></li>`;
+        }).join("");
+      } else {
+        listEl.innerHTML = [
+          "<li><span class=\"pulse-dot\" aria-hidden=\"true\"></span><span><span class=\"pulse-k\">Marketplace</span> — Connect the backend (or open via hosted URL) to rotate real product listings here.</span></li>",
+          "<li><span class=\"pulse-dot\" aria-hidden=\"true\"></span><span><span class=\"pulse-k\">Finder</span> — Use the deal finder for scored alternatives and running-cost insight vs baseline.</span></li>",
+          "<li><span class=\"pulse-dot\" aria-hidden=\"true\"></span><span><span class=\"pulse-k\">Deep dive</span> — Pair with the equipment deep dive for benchmark context.</span></li>"
+        ].join("");
+      }
+
+      const apps = storyList(resKey);
+      if (apps.length) {
+        const rot = pulseHash(mixKey + "e") % apps.length;
+        const ordered = apps.slice(rot).concat(apps.slice(0, rot));
+        savEl.innerHTML = ordered.slice(0, 3).map((a) => {
+          const pct = (Number(a.savePct || 0) * 100).toFixed(0);
+          const line = `${escapeHtmlPulse(a.name)} — ${escapeHtmlPulse(a.alt)} · ~${pct}% modeled reduction (${resKey})`;
+          return `<li><span class="pulse-dot" aria-hidden="true"></span><span>${line}</span></li>`;
+        }).join("");
+      } else {
+        savEl.innerHTML = "<li><span class=\"pulse-dot\" aria-hidden=\"true\"></span><span>No appliance model lines for this resource.</span></li>";
+      }
+
+      const fallbackGrantLines = [
+        { title: "Efficiency & retrofit routes", q: "equipment%20efficiency" },
+        { title: "Metering & verification", q: "sensors%20metering" },
+        { title: "Decarbonisation pathways", q: "decarbonisation" }
+      ];
+      if (schemes.length) {
+        const gh = pulseHash(mixKey + "g") % Math.max(1, schemes.length);
+        const picks = [];
+        for (let i = 0; i < 3; i++) picks.push(schemes[(gh + i) % schemes.length]);
+        grantEl.innerHTML = picks.map((g) => {
+          const title = escapeHtmlPulse(g.title || "Grant");
+          const href = `./Incentives%20Pool%20New%20.Html?q=${encodeURIComponent(g.title || "grant")}`;
+          return `<li><span class="pulse-dot" aria-hidden="true"></span><span><span class="pulse-k">Grants index</span> — <a class="pulse-a" href="${href}" target="_blank" rel="noopener noreferrer">${title}</a> · check eligibility in portal</span></li>`;
+        }).join("");
+      } else {
+        grantEl.innerHTML = fallbackGrantLines.map((row) => {
+          const href = `./Incentives%20Pool%20New%20.Html?q=${row.q}`;
+          return `<li><span class="pulse-dot" aria-hidden="true"></span><span><span class="pulse-k">Grants portal</span> — <a class="pulse-a" href="${href}" target="_blank" rel="noopener noreferrer">${escapeHtmlPulse(row.title)}</a> · open full catalogue</span></li>`;
+        }).join("");
+      }
+
+      if (updatedEl) {
+        const ts = new Date();
+        updatedEl.textContent = `Updated — ${ts.toLocaleString("en-GB", { weekday: "short", hour: "2-digit", minute: "2-digit", second: "2-digit" })}`;
+      }
+      if (ctaEl) {
+        const u = new URL(ctaEl.getAttribute("href") || "./sustainable_product_deal_finder_portal.html", window.location.href);
+        u.searchParams.set("from", "trajectory-pulse");
+        u.searchParams.set("resource", resKey);
+        if (site?.id) u.searchParams.set("site", String(site.id));
+        ctaEl.href = u.pathname + u.search;
+      }
+      renderPulseSavingsPreviewChart();
+    }
+
+    function renderGrantShowcase() {
+      if (!grantShowcaseEl) return;
+      const site = selectedRestaurant();
+      const resourceLabel = selectedResource[0].toUpperCase() + selectedResource.slice(1);
+      const sample = [
+        {
+          type: "Efficiency upgrade",
+          title: "Kitchen equipment modernisation support",
+          desc: `Potential support for replacing high-load ${selectedResource} assets with efficient alternatives and controls.`,
+          coverage: "Up to 20-35% of eligible capex",
+          fit: `${resourceLabel}-heavy sites with measurable reduction plans`,
+          href: "./Incentives%20Pool%20New%20.Html?q=equipment%20efficiency"
+        },
+        {
+          type: "Monitoring & controls",
+          title: "Smart sensors and metering incentive",
+          desc: "Support for sub-metering, sensor rollout, and monitoring platforms that verify savings over time.",
+          coverage: "Typical pilot grants + staged co-funding",
+          fit: "Best for multi-site rollout planning",
+          href: "./Incentives%20Pool%20New%20.Html?q=sensors%20metering"
+        },
+        {
+          type: "Sustainability transition",
+          title: "Low-carbon operations pathway grant",
+          desc: "Funding route often linked to broader decarbonisation and utility reduction targets.",
+          coverage: "Can combine with tax or advisory schemes",
+          fit: `Useful for ${site?.name || "restaurant"} roadmap alignment`,
+          href: "./Incentives%20Pool%20New%20.Html?q=decarbonisation"
+        }
+      ];
+
+      const dynamic = Array.isArray(schemes) ? schemes.slice(0, 3) : [];
+      const cards = dynamic.length
+        ? dynamic.map((g, idx) => ({
+            type: idx === 0 ? "Priority" : idx === 1 ? "Operational" : "Strategic",
+            title: g.title || "Grant support option",
+            desc: g.description || "Funding support available for efficiency improvements.",
+            coverage: "Check portal for exact values",
+            fit: "Eligibility varies by region and project scope",
+            href: `./Incentives%20Pool%20New%20.Html?q=${encodeURIComponent(g.title || "grant")}`
+          }))
+        : sample;
+      const preferredIndexByResource = { electricity: 0, gas: 2, water: 1 };
+      const featuredIdx = Math.min(cards.length - 1, Math.max(0, preferredIndexByResource[selectedResource] ?? 0));
+
+      grantShowcaseEl.innerHTML = cards.map((card, idx) => `
+        <article class="grant-card ${idx === featuredIdx ? "featured" : ""}">
+          <span class="grant-pill ${idx === featuredIdx ? "featured" : ""}">${idx === featuredIdx ? "Most relevant for this site" : card.type}</span>
+          <h4>${card.title}</h4>
+          <p>${card.desc}</p>
+          <div class="grant-meta">
+            <div><span>Indicative coverage:</span> ${card.coverage}</div>
+            <div><span>Potential fit:</span> ${card.fit}</div>
+          </div>
+          <div class="grant-foot">
+            <span>${idx === featuredIdx ? "Recommended first check" : "Example card"}</span>
+            <a href="${card.href}" target="_blank" rel="noopener noreferrer">Check in portal</a>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderInsightPanel() {
+      if (!insightPanelEl || !selectedAppliance) return;
+      const grantsBtn = document.getElementById("insightGrantsBtn");
+      const altBtn = document.getElementById("insightAlternativesBtn");
+      if (grantsBtn) grantsBtn.classList.toggle("active", activeInsightTab === "grants");
+      if (altBtn) altBtn.classList.toggle("active", activeInsightTab === "alternatives");
+
+      if (activeInsightTab === "grants") {
+        const items = filteredSchemes(selectedAppliance.alt);
+        insightPanelEl.innerHTML = `
+          ${items.map((g) => `
+            <div class="insight-item">
+              <strong>${g.title || "Grant support option"}</strong><br>
+              ${g.description || "Funding support available for this type of efficiency upgrade."}<br>
+              <a class="insight-link" href="./Incentives%20Pool%20New%20.Html?q=${encodeURIComponent(g.title || "grant")}" target="_blank" rel="noopener noreferrer">Open in Grants Portal</a>
+            </div>
+          `).join("")}
+          <a class="insight-link" href="./Incentives%20Pool%20New%20.Html" target="_blank" rel="noopener noreferrer">View all grants in portal</a>
+        `;
+        return;
+      }
+
+      const options = storyList(selectedResource);
+      const alternatives = options.filter((x) => x.id !== selectedAppliance.id).slice(0, 3);
+      insightPanelEl.innerHTML = `
+        <div class="insight-item">
+          <strong>Selected:</strong> ${selectedAppliance.name}<br>
+          <strong>Primary alternative:</strong> ${selectedAppliance.alt}
+        </div>
+        ${alternatives.map((a) => `
+          <div class="insight-item">
+            <strong>${a.name}</strong><br>
+            Suggested machinery path: ${a.alt}<br>
+            Estimated efficiency upside: ${(a.savePct * 100).toFixed(0)}%
+          </div>
+        `).join("")}
+      `;
+    }
+
+    function renderApplianceCard() {
+      if (!selectedAppliance) return;
+      const total = resourceTotals()[selectedResource] || 0;
+      const usage = total * selectedAppliance.share;
+      const eurPerUnit = SiteEnergyModel.marginalEurPerNativeUnit(selectedResource);
+      const monthlyEur = usage * eurPerUnit;
+      const peakMonthly = monthlyEur * 1.12;
+      const offPeakMonthly = monthlyEur * 0.92;
+      const optimized = monthlyEur * 0.88;
+      const replaced = monthlyEur * (1 - selectedAppliance.savePct);
+      const annualSavings = (monthlyEur - replaced) * 12;
+      const paybackMonths = annualSavings > 0 ? Math.max(8, 2400 / (annualSavings / 12)) : 0;
+
+      document.getElementById("applianceTitle").textContent = selectedAppliance.name;
+      document.getElementById("applianceStats").innerHTML = `
+        <div class="row"><span>Bucket share (story model)</span><strong>${(selectedAppliance.share * 100).toFixed(0)}%</strong></div>
+        <div class="row"><span>Current monthly cost (modelled €)</span><strong>${euro(monthlyEur)}</strong></div>
+        <div class="row"><span>Peak-window cost</span><strong>${euro(peakMonthly)}</strong></div>
+        <div class="row"><span>Off-peak-window cost</span><strong>${euro(offPeakMonthly)}</strong></div>
+      `;
+
+      if (scenarioChart) scenarioChart.destroy();
+      scenarioChart = new Chart(document.getElementById("applianceScenarioChart"), {
+        type: "line",
+        data: {
+          labels: ["M1", "M2", "M3", "M4", "M5", "M6"],
+          datasets: [
+            { label: "Current pattern (€/mo)", data: [monthlyEur, monthlyEur, monthlyEur, monthlyEur, monthlyEur, monthlyEur], borderColor: "#ff5f7d", tension: .32 },
+            { label: "Optimized timing", data: [optimized, optimized, optimized, optimized, optimized, optimized], borderColor: "#f5a623", tension: .32 },
+            { label: "Alternative equipment", data: [replaced, replaced, replaced, replaced, replaced, replaced], borderColor: "#00f582", tension: .32 }
+          ]
+        },
+        options: { plugins: { legend: { labels: { color: "#cde9db" } } }, scales: { x: { ticks: { color: "#9db8aa" } }, y: { ticks: { color: "#9db8aa" } } } }
+      });
+
+      document.getElementById("altName").textContent = selectedAppliance.alt;
+      document.getElementById("altSaving").textContent = `${euro(annualSavings)}/yr`;
+      document.getElementById("altPayback").textContent = paybackMonths ? `${paybackMonths.toFixed(1)} months` : "n/a";
+      document.getElementById("bestWindow").textContent = "Evening off-peak / low-tariff slots";
+      const site = selectedRestaurant();
+      const deepLink = new URL(selectedAppliance.deepDive, window.location.href);
+      if (site?.id) deepLink.searchParams.set("site", site.id);
+      document.getElementById("deepDiveLink").href = deepLink.pathname + deepLink.search;
+
+      const grantItems = filteredSchemes(selectedAppliance.alt);
+      grantsListEl.innerHTML = grantItems.map(g => {
+        const href = `./Incentives%20Pool%20New%20.Html?q=${encodeURIComponent(g.title || "grant")}`;
+        return `<div class="grant"><strong style="color:#dfffee">${g.title || "Grant support option"}</strong><br>${g.description || "Funding route available for low-energy upgrades."}<br><a href="${href}" target="_blank" rel="noopener noreferrer">View grant path</a></div>`;
+      }).join("");
+      renderInsightPanel();
+    }
+
+    function hydrateTariffEcho() {
+      if (typeof SiteEnergyModel === "undefined") return;
+      const t = SiteEnergyModel.tariffSummaryLine();
+      const line = document.getElementById("tariffLineNote");
+      const echo = document.getElementById("tariffInlineEcho");
+      if (line) line.textContent = t + ".";
+      if (echo) echo.textContent = t;
+    }
+
+    function renderAll() {
+      renderSiteHero();
+      hydrateTariffEcho();
+      renderTopVisualSnapshot();
+      renderResourceCards();
+      renderLevelGauges();
+      renderTrajectoryChart();
+      renderResourceBreakdown();
+      renderGrantShowcase();
+      renderActionPulse();
+    }
+
+    (async function boot() {
+      await loadStoryBuckets();
+      await loadData();
+      const grantsBtn = document.getElementById("insightGrantsBtn");
+      const altBtn = document.getElementById("insightAlternativesBtn");
+      if (grantsBtn) {
+        grantsBtn.addEventListener("click", () => {
+          activeInsightTab = "grants";
+          renderInsightPanel();
+          const grantExamplesSection = document.getElementById("grantExamplesSection");
+          if (grantExamplesSection) {
+            grantExamplesSection.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      }
+      if (altBtn) {
+        altBtn.addEventListener("click", () => {
+          activeInsightTab = "alternatives";
+          renderInsightPanel();
+        });
+      }
+      function openBaselineSectionFromHash() {
+        const hash = (location.hash || "").replace(/^#/, "");
+        if (hash !== "trajectoryBaselineDetails") return;
+        const details = document.getElementById("trajectoryBaselineDetails");
+        if (!details) return;
+        details.open = true;
+        requestAnimationFrame(() => {
+          details.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+      openBaselineSectionFromHash();
+      renderAll();
+    })();
+  </script>
+</body>
+</html>

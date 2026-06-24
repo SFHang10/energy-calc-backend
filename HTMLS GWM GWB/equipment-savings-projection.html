@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Equipment savings projection — Greenways</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script src="./js/site-energy-model.js"></script>
+  <script src="./js/savings-projection-model.js"></script>
+  <style>
+    :root {
+      --bg: #050e09;
+      --panel: rgba(12, 32, 22, 0.9);
+      --line: rgba(0, 245, 130, 0.24);
+      --text: #e8fff1;
+      --muted: #8fb89a;
+      --green: #00f582;
+      --blue: #53b8ff;
+      --amber: #ffca58;
+      --burgundy: #e85d7a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(4, 12, 8, 0.82), rgba(3, 10, 7, 0.92)),
+        radial-gradient(circle at 15% 10%, rgba(0, 245, 130, 0.1), transparent 45%),
+        radial-gradient(circle at 90% 80%, rgba(83, 184, 255, 0.08), transparent 40%);
+    }
+    body.is-embed::before { opacity: 0.6; }
+    body.is-popup { background: var(--bg); min-height: 100%; }
+    body.is-popup::before { display: none; }
+    body.is-popup .wrap { max-width: none; padding: 10px 12px 16px; }
+    body.is-popup .top { margin-bottom: 10px; }
+    body.is-popup h1 { font-size: 18px; }
+    body.is-popup #topNav,
+    body.is-popup #scenarioPanel { display: none !important; }
+    body.is-popup .chart-wrap { height: min(42vh, 300px); min-height: 220px; }
+    body.is-popup .tag-illus { display: none; }
+    .top-main {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 14px 18px;
+      flex: 1;
+      min-width: 0;
+    }
+    .top-copy { flex: 1 1 200px; min-width: 0; }
+    body.is-popup .top-main { flex-wrap: nowrap; align-items: center; }
+    body.is-popup .top-copy { flex: 1 1 auto; }
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 20px 22px 48px;
+    }
+    body.is-embed .wrap { padding: 14px 16px 24px; }
+    .top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .eyebrow {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--green);
+      font-weight: 700;
+    }
+    h1 { margin: 6px 0 0; font-size: 22px; font-weight: 800; }
+    .sub { margin: 6px 0 0; font-size: 13px; color: var(--muted); line-height: 1.45; max-width: 52ch; }
+    .tag-illus {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--amber);
+      border: 1px solid rgba(255, 202, 88, 0.45);
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .nav { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn {
+      border: 1px solid var(--line);
+      background: rgba(0, 245, 130, 0.1);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn:hover { background: rgba(0, 245, 130, 0.18); }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin-bottom: 14px;
+      backdrop-filter: blur(12px);
+    }
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .kpi {
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(83, 184, 255, 0.25);
+      background: rgba(0, 0, 0, 0.2);
+    }
+    .kpi .label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 700; }
+    .kpi .val { margin-top: 6px; font-size: 22px; font-weight: 800; color: #fff; }
+    .kpi .val.small { font-size: 16px; }
+    .kpi.highlight { border-color: rgba(0, 245, 130, 0.45); box-shadow: 0 0 24px rgba(0, 245, 130, 0.1); }
+    .kpi.hero-payback { grid-column: 1 / -1; border-color: rgba(0, 245, 130, 0.55); }
+    .kpi.hero-payback .val { font-size: 28px; color: var(--green); }
+    .kpi.hero-payback .story { margin-top: 8px; font-size: 13px; line-height: 1.55; color: var(--muted); font-weight: 500; }
+    .kpi.hero-payback .story strong { color: var(--text); }
+    .payback-story {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--muted);
+      margin: 0 0 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(83, 184, 255, 0.22);
+      background: rgba(0, 0, 0, 0.22);
+    }
+    .payback-story strong { color: var(--text); }
+    .chart-wrap { position: relative; height: min(52vh, 380px); min-height: 260px; }
+    .chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .chart-legend i {
+      width: 14px;
+      height: 3px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 18px;
+    }
+    @media (max-width: 640px) { .controls { grid-template-columns: 1fr; } }
+    .ctrl label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--blue);
+    }
+    .ctrl input[type="range"] { width: 100%; accent-color: var(--green); }
+    .ctrl-full { grid-column: 1 / -1; }
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .toggle-row input { width: 18px; height: 18px; accent-color: var(--green); }
+    .horizon-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .horizon-btns button {
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.25);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .horizon-btns button.active {
+      background: rgba(0, 245, 130, 0.2);
+      border-color: var(--green);
+      color: var(--green);
+    }
+    select.scenario-select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.35);
+      color: var(--text);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .markers {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .marker-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .marker-pill.purchase { border-color: rgba(255, 202, 88, 0.5); color: #ffe6a8; }
+    .marker-pill.breakeven { border-color: rgba(0, 245, 130, 0.55); color: #b8ffd9; }
+    .marker-pill.grant { border-color: rgba(83, 184, 255, 0.5); color: #cce9ff; }
+    .marker-pill.tax { border-color: rgba(180, 140, 255, 0.5); color: #e8dcff; }
+    .funding-panel {
+      grid-column: 1 / -1;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(83, 184, 255, 0.28);
+      background: rgba(0, 0, 0, 0.22);
+    }
+    .funding-panel h3 {
+      margin: 0 0 10px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--blue);
+    }
+    .funding-note { font-size: 11px; line-height: 1.5; color: var(--muted); margin: 10px 0 0; }
+    .funding-row { margin-top: 12px; }
+    .funding-row:first-of-type { margin-top: 0; }
+    .grant-hint {
+      font-size: 11px;
+      color: var(--amber);
+      margin-top: 6px;
+      font-weight: 600;
+    }
+    .grant-hint button {
+      border: none;
+      background: none;
+      color: var(--green);
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11px;
+      text-decoration: underline;
+      padding: 0;
+    }
+    .footnote {
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--muted);
+      border-top: 1px dashed rgba(0, 245, 130, 0.2);
+      padding-top: 12px;
+      margin-top: 4px;
+    }
+    .product-thumb {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(0, 245, 130, 0.28);
+      padding: 8px;
+      box-sizing: border-box;
+      flex-shrink: 0;
+      display: block;
+    }
+    body.is-popup .product-thumb {
+      width: 148px;
+      height: 148px;
+      min-width: 148px;
+      padding: 12px;
+      border-radius: 14px;
+      border-color: rgba(0, 245, 130, 0.4);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+      background: radial-gradient(circle at 30% 20%, rgba(0, 245, 130, 0.08), rgba(0, 0, 0, 0.4));
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="top-main">
+        <div class="top-copy">
+          <div class="eyebrow">Savings projection</div>
+          <h1 id="pageTitle">Equipment payback</h1>
+          <p class="sub" id="pageSub">See when energy savings pay back the purchase — keep what you have vs replace and save each month.</p>
+          <span class="tag-illus">Illustrative example · not live meter data</span>
+        </div>
+        <img class="product-thumb" id="productThumb" alt="" hidden>
+      </div>
+      <nav class="nav" id="topNav">
+        <a class="btn" id="backLink" href="./restaurant-equipment-deep-dive.html">← Back</a>
+      </nav>
+    </header>
+
+    <div class="panel ctrl-full" id="scenarioPanel">
+      <label for="scenarioSelect" style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;">Example scenario</label>
+      <select class="scenario-select" id="scenarioSelect" aria-label="Choose example equipment"></select>
+      <p class="sub" id="scenarioNote" style="margin-top:8px;font-size:12px;"></p>
+    </div>
+
+    <div class="kpi-row" id="kpiRow"></div>
+
+    <article class="panel">
+      <p class="payback-story" id="paybackStory"></p>
+      <div class="chart-wrap">
+        <canvas id="projectionChart" aria-label="Energy savings payback chart"></canvas>
+      </div>
+      <div class="chart-legend">
+        <span><i style="background:#00f582"></i> Energy saved (adds up each month)</span>
+        <span><i style="background:#ffca58"></i> Purchase price to recover</span>
+        <span><i style="background:rgba(232,93,122,.55)"></i> Energy spend if you do nothing</span>
+      </div>
+      <div class="markers" id="markerRow"></div>
+    </article>
+
+    <article class="panel">
+      <div class="controls">
+        <div class="ctrl">
+          <label><span>Purchase price</span><strong id="capexLabel">€0</strong></label>
+          <input type="range" id="capexSlider" min="200" max="25000" value="2000" step="100" title="Drag — snaps to sensible price steps up to €25,000">
+        </div>
+        <div class="ctrl">
+          <label><span>When you buy</span><strong id="purchaseLabel">Now</strong></label>
+          <input type="range" id="purchaseSlider" min="0" max="36" value="0" step="1">
+        </div>
+        <div class="ctrl">
+          <label><span>Chart horizon</span></label>
+          <div class="horizon-btns" id="horizonBtns">
+            <button type="button" data-months="60">5 yr</button>
+            <button type="button" data-months="120" class="active">10 yr</button>
+            <button type="button" data-months="180">15 yr</button>
+          </div>
+        </div>
+        <div class="funding-panel ctrl-full" id="fundingPanel">
+          <h3>Grants &amp; tax (illustrative)</h3>
+          <div class="funding-row">
+            <div class="toggle-row">
+              <input type="checkbox" id="grantToggle" checked>
+              <label for="grantToggle" style="margin:0;color:var(--text);">Grant / subsidy off purchase</label>
+            </div>
+            <div class="ctrl" style="margin-top:10px">
+              <label><span id="grantSliderLabel">Grant amount</span><strong id="grantSliderValue">€0</strong></label>
+              <input type="range" id="grantSlider" min="0" max="1500" value="0" step="25">
+            </div>
+            <p class="grant-hint" id="grantHint"></p>
+          </div>
+          <div class="funding-row">
+            <div class="toggle-row">
+              <input type="checkbox" id="taxToggle">
+              <label for="taxToggle" style="margin:0;color:var(--text);">Tax benefit estimate (e.g. EIA / KIA-style relief)</label>
+            </div>
+            <div class="ctrl" style="margin-top:10px">
+              <label><span>Relief as % of purchase</span><strong id="taxPctLabel">13%</strong></label>
+              <input type="range" id="taxPctSlider" min="0" max="30" value="13" step="1">
+            </div>
+          </div>
+          <p class="funding-note" id="fundingNote">Grants reduce what you pay upfront. Tax benefits are often claimed later via your return — we count them here as money back so payback matches real-world decisions. Not tax advice; check eligibility with your adviser.</p>
+        </div>
+        <div class="ctrl ctrl-full" id="savingsPctWrap">
+          <label><span>Monthly energy saving</span><strong id="savingsPctLabel">—</strong></label>
+          <input type="range" id="savingsPctSlider" min="5" max="80" value="20" step="1">
+        </div>
+      </div>
+      <p class="footnote" id="tariffFootnote"></p>
+    </article>
+  </div>
+
+  <script>
+    const M = window.SavingsProjectionModel;
+    const SCENARIOS_URL = '../data/savings-projection-scenarios.json';
+    let scenarios = [];
+    let state = {
+      title: 'Equipment',
+      baselineLabel: 'Current',
+      proposedLabel: 'Replacement',
+      baselineMonthlyEur: 25,
+      proposedMonthlyEur: 20,
+      capexEur: 2000,
+      grantAmountEur: 0,
+      grantSuggestedEur: 0,
+      grantLabel: 'Energy equipment grant (example)',
+      taxPct: 13,
+      savingsPct: 20,
+      purchaseMonth: 0,
+      horizonMonths: 120,
+      image: '',
+      lockProposedFromUrl: false,
+      isBuildingScope: false
+    };
+    let chart = null;
+
+    const urlParamsBoot = new URLSearchParams(location.search);
+    if (urlParamsBoot.get('embed') === '1') {
+      document.body.classList.add('is-embed');
+    }
+    if (urlParamsBoot.get('popup') === '1') {
+      document.body.classList.add('is-popup');
+    }
+    if (urlParamsBoot.get('building') === '1') {
+      state.isBuildingScope = true;
+      document.body.classList.add('is-building');
+    }
+
+    function resolveDataUrl(path) {
+      if (location.protocol === 'file:') return 'http://localhost:4000/' + path.replace(/^\//, '');
+      return new URL(path, location.href).toString();
+    }
+
+    function euro(n) { return M.formatEur(n); }
+
+    function readParams() {
+      const p = new URLSearchParams(location.search);
+      const ret = p.get('return');
+      const back = document.getElementById('backLink');
+      if (ret) back.href = ret.startsWith('./') || ret.startsWith('http') ? ret : './' + ret.replace(/^\//, '');
+      else if (p.get('from') === 'deep-dive') back.href = './restaurant-equipment-deep-dive.html';
+      return p.get('scenario');
+    }
+
+    function applyUrlParamOverrides() {
+      const p = new URLSearchParams(location.search);
+      if (p.get('title')) state.title = decodeURIComponent(p.get('title'));
+      if (p.get('baselineMonthly')) state.baselineMonthlyEur = Number(p.get('baselineMonthly'));
+      if (p.get('proposedMonthly')) {
+        state.proposedMonthlyEur = Number(p.get('proposedMonthly'));
+        state.lockProposedFromUrl = true;
+        const pct = Math.round((1 - state.proposedMonthlyEur / state.baselineMonthlyEur) * 100);
+        if (pct >= 5 && pct <= 80) {
+          state.savingsPct = pct;
+          document.getElementById('savingsPctSlider').value = pct;
+        }
+      }
+      if (p.get('capex')) {
+        state.capexEur = Number(p.get('capex'));
+        const capexSlider = document.getElementById('capexSlider');
+        if (capexSlider) capexSlider.value = String(Math.round(state.capexEur));
+      }
+      if (p.get('grants')) state.grantAmountEur = Number(p.get('grants'));
+      else if (p.get('grantSuggest')) state.grantAmountEur = Number(p.get('grantSuggest'));
+      if (p.get('grantSuggest')) state.grantSuggestedEur = Number(p.get('grantSuggest'));
+      if (p.get('grantLabel')) state.grantLabel = decodeURIComponent(p.get('grantLabel'));
+      if (state.grantAmountEur > 0) {
+        const gs = document.getElementById('grantSlider');
+        if (gs) gs.value = String(Math.round(state.grantAmountEur));
+      }
+      if (!state.grantSuggestedEur) {
+        state.grantSuggestedEur = M.suggestGrantEur(state.capexEur || 0, state.grantAmountEur || 0);
+      }
+      if (p.get('taxPct')) {
+        state.taxPct = Number(p.get('taxPct'));
+        document.getElementById('taxPctSlider').value = String(state.taxPct);
+      }
+      if (p.get('horizonMonths')) {
+        state.horizonMonths = Number(p.get('horizonMonths'));
+        document.querySelectorAll('#horizonBtns button').forEach((btn) => {
+          btn.classList.toggle('active', Number(btn.getAttribute('data-months')) === state.horizonMonths);
+        });
+      }
+      if (p.get('image')) state.image = decodeURIComponent(p.get('image'));
+    }
+
+    function applyScenario(s) {
+      if (!s) return;
+      state.title = s.title;
+      state.baselineLabel = s.baselineLabel;
+      state.proposedLabel = s.proposedLabel;
+      state.baselineMonthlyEur = s.baselineMonthlyEur;
+      state.proposedMonthlyEur = s.proposedMonthlyEur;
+      state.capexEur = s.capexEur;
+      const grantSum = (s.grants || []).reduce((a, g) => a + (g.amountEur || 0), 0);
+      state.grantAmountEur = grantSum;
+      state.grantSuggestedEur = grantSum || M.suggestGrantEur(s.capexEur, 0);
+      state.grantLabel = (s.grants && s.grants[0] && s.grants[0].name) || 'Energy equipment grant (example)';
+      state.image = s.image || '';
+      const pct = Math.round((1 - s.proposedMonthlyEur / s.baselineMonthlyEur) * 100);
+      state.savingsPct = Math.min(80, Math.max(5, pct));
+      state.lockProposedFromUrl = false;
+      document.getElementById('savingsPctSlider').value = state.savingsPct;
+      document.getElementById('scenarioNote').textContent = s.savingsNote || '';
+    }
+
+    function syncGrantSliderBounds() {
+      const slider = document.getElementById('grantSlider');
+      if (!slider) return;
+      const max = Math.max(0, Math.round(state.capexEur));
+      slider.max = String(max);
+      slider.step = max > 5000 ? '100' : max > 1000 ? '50' : '25';
+      const val = Math.min(max, Math.round(Number(slider.value) || state.grantAmountEur));
+      slider.value = String(val);
+      state.grantAmountEur = val;
+    }
+
+    function effectiveGrantEur() {
+      if (!document.getElementById('grantToggle').checked) return 0;
+      return Math.max(0, Number(state.grantAmountEur) || 0);
+    }
+
+    function effectiveTaxBenefitEur() {
+      if (!document.getElementById('taxToggle').checked) return 0;
+      return M.suggestTaxBenefitEur(state.capexEur, state.taxPct / 100);
+    }
+
+    function updateGrantHint() {
+      const hint = document.getElementById('grantHint');
+      const label = document.getElementById('grantSliderLabel');
+      if (label) label.textContent = state.grantLabel || 'Grant amount';
+      if (!hint) return;
+      const suggest = state.grantSuggestedEur || M.suggestGrantEur(state.capexEur, 0);
+      if (state.grantAmountEur > 0) {
+        hint.innerHTML = 'Using <strong>' + euro(state.grantAmountEur) + '</strong> off purchase.';
+        return;
+      }
+      hint.innerHTML = 'Rough estimate for this equipment: <strong>' + euro(suggest) + '</strong> — ' +
+        '<button type="button" id="applyGrantSuggest">Apply estimate</button>';
+    }
+
+    function effectiveProposedMonthly() {
+      if (state.lockProposedFromUrl && Number.isFinite(state.proposedMonthlyEur)) {
+        return Math.max(0, state.proposedMonthlyEur);
+      }
+      const base = state.baselineMonthlyEur;
+      const pct = Number(document.getElementById('savingsPctSlider').value) / 100;
+      return Math.max(0, base * (1 - pct));
+    }
+
+    function getProjection() {
+      return M.buildProjection({
+        baselineMonthlyEur: state.baselineMonthlyEur,
+        proposedMonthlyEur: effectiveProposedMonthly(),
+        capexEur: state.capexEur,
+        grantsEur: effectiveGrantEur(),
+        taxBenefitEur: effectiveTaxBenefitEur(),
+        purchaseMonth: state.purchaseMonth,
+        horizonMonths: state.horizonMonths
+      });
+    }
+
+    function renderPaybackStory(proj) {
+      const el = document.getElementById('paybackStory');
+      if (!el) return;
+      const payback = M.formatPayback(proj.paybackMonths);
+      const longPayback = Number.isFinite(proj.paybackMonths) && proj.paybackMonths > 180;
+      el.innerHTML =
+        '<strong>Do nothing</strong> — your equipment keeps costing about <strong>' + euro(proj.baselineMonthlyEur) + '/month</strong> in energy (' +
+        euro(proj.baselineMonthlyEur * 12) + '/year). ' +
+        '<strong>Replace it</strong> — list price <strong>' + euro(proj.capexEur) + '</strong>' +
+        (proj.totalIncentivesEur > 0
+          ? ', but grants/tax (illustrative) bring your <strong>net cost</strong> to <strong>' + euro(proj.netUpfrontEur) + '</strong>'
+          : ' — net upfront <strong>' + euro(proj.netUpfrontEur) + '</strong>') +
+        ', then about <strong>' + euro(proj.proposedMonthlyEur) + '/month</strong> to run — saving <strong>' +
+        euro(proj.monthlySavingsEur) + '/month</strong>. ' +
+        'When the <strong>green line</strong> crosses the <strong>gold line</strong>, savings have paid for the purchase' +
+        (Number.isFinite(proj.paybackMonths) && proj.paybackMonths <= proj.horizonMonths
+          ? ' (about <strong>' + payback + '</strong>).'
+          : '.') +
+        (longPayback
+          ? ' Payback is far out at these numbers — lower the <em>purchase price</em> slider or confirm savings on the product card.'
+          : '');
+    }
+
+    function renderKpis(proj) {
+      document.getElementById('pageTitle').textContent = state.title;
+      const paybackMain = M.formatPayback(proj.paybackMonths);
+      const ahead = euro(Math.max(0, proj.totalEnergySavedAtHorizonEur - proj.netUpfrontEur));
+      document.getElementById('kpiRow').innerHTML =
+        '<div class="kpi hero-payback highlight"><div class="label">Equipment pays for itself in</div><div class="val">' + paybackMain + '</div>' +
+        '<div class="story">At <strong>' + euro(proj.monthlySavingsEur) + '/mo</strong> saved vs your current unit, a <strong>' +
+        euro(proj.netUpfrontEur) + '</strong> purchase is covered when cumulative savings reach that amount.</div></div>' +
+        '<div class="kpi"><div class="label">Energy saved</div><div class="val">' + euro(proj.monthlySavingsEur) + '<span class="small">/mo</span></div></div>' +
+        '<div class="kpi"><div class="label">Purchase (net)</div><div class="val small">' + euro(proj.netUpfrontEur) + '</div></div>' +
+        '<div class="kpi"><div class="label">Do-nothing cost</div><div class="val small">' + euro(proj.baselineMonthlyEur) + '<span class="small">/mo</span></div></div>' +
+        '<div class="kpi"><div class="label">Ahead after ' + (proj.horizonMonths / 12) + ' yr</div><div class="val small">' + ahead + '</div></div>';
+      const grantVal = document.getElementById('grantSliderValue');
+      if (grantVal) grantVal.textContent = euro(state.grantAmountEur);
+      const thumb = document.getElementById('productThumb');
+      if (state.image) {
+        thumb.src = state.image;
+        thumb.hidden = false;
+      } else thumb.hidden = true;
+    }
+
+    function formatMarkerWhen(month) {
+      if (month === 0) return 'now';
+      if (month % 12 === 0) return (month / 12) + ' yr';
+      if (month >= 12) return (month / 12).toFixed(1) + ' yr';
+      return month + ' mo';
+    }
+
+    function renderMarkers(proj) {
+      document.getElementById('markerRow').innerHTML = proj.markers.map((mk) => {
+        const cls = mk.type === 'breakeven' ? 'breakeven' : (mk.type === 'grant' ? 'grant' : (mk.type === 'tax' ? 'tax' : 'purchase'));
+        const when = mk.type === 'breakeven' && mk.label.indexOf('beyond') >= 0 ? '' : ' · ' + formatMarkerWhen(mk.month);
+        return '<span class="marker-pill ' + cls + '">' + mk.label + when + '</span>';
+      }).join('');
+    }
+
+    function sampleIndices(len, maxPts) {
+      const step = Math.max(1, Math.floor(len / maxPts));
+      const idx = [];
+      for (let i = 0; i < len; i += step) idx.push(i);
+      if (idx[idx.length - 1] !== len - 1) idx.push(len - 1);
+      return idx;
+    }
+
+    function renderChart(proj) {
+      const ctx = document.getElementById('projectionChart');
+      const idx = sampleIndices(proj.labels.length, 28);
+      const labels = idx.map((i) => M.formatHorizonLabel(i, proj.horizonMonths));
+      const breakIdx = proj.breakEvenMonth;
+      const savingsPoints = idx.map((i) => (i === breakIdx ? 7 : 0));
+
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Energy saved (running total)',
+              data: idx.map((i) => proj.savingsTowardPayback[i]),
+              borderColor: '#00f582',
+              backgroundColor: 'rgba(0, 245, 130, 0.12)',
+              borderWidth: 2.5,
+              tension: 0,
+              pointRadius: savingsPoints,
+              pointBackgroundColor: '#fff',
+              pointBorderColor: '#00f582',
+              pointBorderWidth: 2,
+              fill: true
+            },
+            {
+              label: 'Purchase to recover',
+              data: idx.map((i) => proj.paybackTarget[i]),
+              borderColor: '#ffca58',
+              borderWidth: 2,
+              borderDash: [8, 5],
+              pointRadius: 0,
+              fill: false
+            },
+            {
+              label: 'Energy spend if you do nothing',
+              data: idx.map((i) => proj.baselineCumulative[i]),
+              borderColor: 'rgba(232, 93, 122, 0.45)',
+              borderWidth: 1.5,
+              pointRadius: 0,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 700, easing: 'easeOutQuart' },
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (c) => c.dataset.label + ': ' + euro(c.parsed.y)
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: { color: '#8fb89a', maxTicksLimit: 12 }
+            },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: {
+                color: '#8fb89a',
+                callback: (v) => '€' + Math.round(v).toLocaleString('en-GB')
+              },
+              title: { display: true, text: 'Cumulative €', color: '#8fb89a', font: { size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
+    function readCapexFromSlider() {
+      const slider = document.getElementById('capexSlider');
+      const raw = Number(slider?.value || state.capexEur);
+      const snapped = M.snapCapexEur(raw, state.isBuildingScope);
+      if (slider && String(snapped) !== slider.value) slider.value = String(snapped);
+      return snapped;
+    }
+
+    function refresh() {
+      state.capexEur = readCapexFromSlider();
+      state.grantAmountEur = Number(document.getElementById('grantSlider').value);
+      state.taxPct = Number(document.getElementById('taxPctSlider').value);
+      document.getElementById('taxPctLabel').textContent = state.taxPct + '%';
+      syncGrantSliderBounds();
+      const pm = Number(document.getElementById('purchaseSlider').value);
+      state.purchaseMonth = pm;
+      document.getElementById('purchaseLabel').textContent =
+        pm === 0 ? 'Now' : 'In ' + pm + ' months';
+      document.getElementById('capexLabel').textContent = euro(state.capexEur);
+
+      const proj = getProjection();
+      const pct = Number(document.getElementById('savingsPctSlider').value);
+      document.getElementById('savingsPctLabel').textContent = state.lockProposedFromUrl
+        ? euro(proj.monthlySavingsEur) + '/mo (from product card)'
+        : pct + '% lower running cost';
+
+      updateGrantHint();
+      renderPaybackStory(proj);
+      renderKpis(proj);
+      renderMarkers(proj);
+      renderChart(proj);
+    }
+
+    async function boot() {
+      const bootParams = new URLSearchParams(location.search);
+      const isPopup = bootParams.get('popup') === '1';
+      const paramId = isPopup && bootParams.get('title') ? null : readParams();
+      if (isPopup && state.isBuildingScope) {
+        document.getElementById('pageSub').textContent =
+          'Whole-site payback — uses your building monthly total from Restaurant Data. Adjust retrofit cost, grants, and tax to explore payback.';
+      } else if (isPopup) {
+        document.getElementById('pageSub').textContent =
+          'Cumulative energy savings vs purchase price — matches the savings on the product card.';
+      }
+      if (state.isBuildingScope) {
+        const capexSlider = document.getElementById('capexSlider');
+        if (capexSlider) {
+          capexSlider.min = '5000';
+          capexSlider.max = String(M.CAPEX_MAX_BUILDING);
+          capexSlider.step = '500';
+        }
+      }
+      document.getElementById('tariffFootnote').textContent =
+        (window.SiteEnergyModel && SiteEnergyModel.tariffSummaryLine())
+          ? SiteEnergyModel.tariffSummaryLine() + '. Move sliders to explore purchase timing and subsidy.'
+          : 'Tariff assumptions from Greenways site model.';
+
+      try {
+        const res = await fetch(resolveDataUrl(SCENARIOS_URL), { cache: 'no-store' });
+        const payload = await res.json();
+        scenarios = payload.scenarios || [];
+      } catch (e) {
+        console.warn(e);
+        document.getElementById('scenarioNote').textContent =
+          'Could not load scenarios — using URL params or defaults.';
+      }
+
+      const sel = document.getElementById('scenarioSelect');
+      if (isPopup && bootParams.get('title')) {
+        document.getElementById('scenarioPanel').style.display = 'none';
+        applyUrlParamOverrides();
+      } else if (scenarios.length) {
+        sel.innerHTML = scenarios.map((s) =>
+          '<option value="' + s.id + '">' + s.title + '</option>'
+        ).join('');
+        const initial = scenarios.find((s) => s.id === paramId) || scenarios[0];
+        if (initial) {
+          sel.value = initial.id;
+          applyScenario(initial);
+        }
+        applyUrlParamOverrides();
+      } else {
+        document.getElementById('scenarioPanel').style.display = 'none';
+        applyUrlParamOverrides();
+      }
+
+      sel.addEventListener('change', () => {
+        const s = scenarios.find((x) => x.id === sel.value);
+        applyScenario(s);
+        refresh();
+      });
+
+      document.getElementById('capexSlider').addEventListener('input', refresh);
+      document.getElementById('purchaseSlider').addEventListener('input', refresh);
+      document.getElementById('savingsPctSlider').addEventListener('input', () => {
+        state.lockProposedFromUrl = false;
+        refresh();
+      });
+      document.getElementById('grantToggle').addEventListener('change', refresh);
+      document.getElementById('grantSlider').addEventListener('input', refresh);
+      document.getElementById('taxToggle').addEventListener('change', refresh);
+      document.getElementById('taxPctSlider').addEventListener('input', refresh);
+      document.addEventListener('click', (ev) => {
+        if (ev.target && ev.target.id === 'applyGrantSuggest') {
+          state.grantAmountEur = state.grantSuggestedEur || M.suggestGrantEur(state.capexEur, 0);
+          document.getElementById('grantSlider').value = String(state.grantAmountEur);
+          refresh();
+        }
+      });
+      document.querySelectorAll('#horizonBtns button').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#horizonBtns button').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.horizonMonths = Number(btn.getAttribute('data-months'));
+          refresh();
+        });
+      });
+
+      if (!state.grantSuggestedEur) {
+        state.grantSuggestedEur = M.suggestGrantEur(state.capexEur, state.grantAmountEur);
+      }
+      const capexSlider = document.getElementById('capexSlider');
+      if (capexSlider) capexSlider.value = String(Math.round(state.capexEur));
+      syncGrantSliderBounds();
+      updateGrantHint();
+      refresh();
+    }
+
+    boot().catch((err) => {
+      console.warn(err);
+      refresh();
+    });
+  </script>
+</body>
+</html>

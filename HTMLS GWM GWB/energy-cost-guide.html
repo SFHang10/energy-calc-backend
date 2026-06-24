@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Energy Cost Intelligence | Know Your Numbers</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --forest: #1a3a2a;
+    --forest-mid: #2d5a3d;
+    --leaf: #4caf50;
+    --leaf-bright: #69d66c;
+    --amber: #f5a623;
+    --amber-light: #ffd27f;
+    --cream: #f8f3e8;
+    --warm-white: #fefcf7;
+    --charcoal: #1c1c1c;
+    --muted: #6b7c70;
+    --danger: #e05252;
+    --safe: #3dba6f;
+    --gold: #c9a84c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--warm-white);
+    color: var(--charcoal);
+    overflow-x: hidden;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: var(--forest);
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0;
+    background-image: url('https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1600&q=80');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.18;
+  }
+
+  .hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(26,58,42,0.97) 0%, rgba(45,90,61,0.85) 60%, rgba(26,58,42,0.92) 100%);
+  }
+
+  .hero-content {
+    position: relative; z-index: 2;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 80px 40px;
+    text-align: center;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    background: rgba(76,175,80,0.2);
+    border: 1px solid var(--leaf);
+    color: var(--leaf-bright);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 3px;
+    padding: 8px 20px;
+    border-radius: 30px;
+    margin-bottom: 32px;
+    animation: fadeDown 0.8s ease;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1.1;
+    margin-bottom: 24px;
+    animation: fadeUp 0.9s ease 0.1s both;
+  }
+
+  .hero h1 span { color: var(--amber); }
+
+  .hero p {
+    font-size: 1.2rem;
+    color: rgba(248,243,232,0.8);
+    max-width: 600px;
+    margin: 0 auto 48px;
+    line-height: 1.7;
+    font-weight: 300;
+    animation: fadeUp 0.9s ease 0.2s both;
+  }
+
+  .hero-ctas {
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    animation: fadeUp 0.9s ease 0.3s both;
+  }
+
+  .btn-primary {
+    background: var(--amber);
+    color: var(--forest);
+    padding: 16px 36px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.25s;
+  }
+  .btn-primary:hover { background: var(--amber-light); transform: translateY(-2px); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--cream);
+    padding: 16px 36px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border: 1px solid rgba(248,243,232,0.4);
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.25s;
+  }
+  .btn-ghost:hover { border-color: var(--cream); background: rgba(255,255,255,0.05); }
+
+  .hero-stats {
+    position: absolute;
+    bottom: 40px; left: 0; right: 0;
+    display: flex; justify-content: center; gap: 60px;
+    z-index: 2;
+    animation: fadeUp 1s ease 0.5s both;
+  }
+
+  .hero-stat { text-align: center; }
+  .hero-stat .num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--amber);
+  }
+  .hero-stat .label {
+    font-size: 0.75rem;
+    color: rgba(248,243,232,0.6);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ===== SECTION STRUCTURE ===== */
+  section { padding: 100px 40px; }
+
+  .section-inner { max-width: 1100px; margin: 0 auto; }
+
+  .section-tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--leaf);
+    margin-bottom: 16px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 20px;
+  }
+
+  .lead {
+    font-size: 1.1rem;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 680px;
+    margin-bottom: 60px;
+  }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(26,58,42,0.96);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(76,175,80,0.15);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px;
+    height: 64px;
+  }
+
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--cream);
+    font-weight: 700;
+  }
+  .nav-logo span { color: var(--amber); }
+
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a {
+    color: rgba(248,243,232,0.7);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--cream); }
+
+  /* ===== VOLATILITY SECTION ===== */
+  .volatility-section { background: var(--warm-white); }
+
+  .price-timeline {
+    background: var(--forest);
+    border-radius: 12px;
+    padding: 40px;
+    margin-bottom: 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .price-timeline::before {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(76,175,80,0.1) 0%, transparent 70%);
+  }
+
+  .price-timeline h3 {
+    font-family: 'Playfair Display', serif;
+    color: var(--cream);
+    font-size: 1.4rem;
+    margin-bottom: 8px;
+  }
+
+  .price-timeline p { color: rgba(248,243,232,0.6); font-size: 0.9rem; margin-bottom: 32px; }
+
+  .chart-container { position: relative; height: 300px; }
+
+  /* ===== PRICE PERIOD CARDS ===== */
+  .price-periods {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 60px;
+  }
+
+  .period-card {
+    border-radius: 10px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s;
+  }
+  .period-card:hover { transform: translateY(-4px); }
+
+  .period-card.low { background: #f0faf2; border: 2px solid #a8e6ab; }
+  .period-card.mid { background: #fff8ed; border: 2px solid #f5c878; }
+  .period-card.high { background: #fff0f0; border: 2px solid #f0a0a0; }
+
+  .period-card .period-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .period-card.low .period-label { color: var(--safe); }
+  .period-card.mid .period-label { color: #c17f00; }
+  .period-card.high .period-label { color: var(--danger); }
+
+  .period-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+  }
+
+  .period-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .period-price:last-child { border-bottom: none; }
+  .period-price .type { font-size: 0.85rem; color: var(--muted); }
+  .period-price .val { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 0.95rem; }
+
+  /* ===== INTERACTIVE CALCULATOR ===== */
+  .calculator-section { background: var(--cream); }
+
+  .calc-wrapper {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+  }
+
+  .calc-header {
+    background: var(--forest);
+    padding: 36px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .calc-header h3 {
+    font-family: 'Playfair Display', serif;
+    color: var(--cream);
+    font-size: 1.5rem;
+  }
+  .calc-header p { color: rgba(248,243,232,0.65); font-size: 0.875rem; margin-top: 6px; }
+
+  .premise-tabs {
+    display: flex;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 4px;
+    gap: 4px;
+  }
+  .premise-tab {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: rgba(248,243,232,0.6);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .premise-tab.active {
+    background: var(--amber);
+    color: var(--forest);
+    font-weight: 600;
+  }
+
+  .calc-body { padding: 48px; }
+
+  .calc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+
+  .calc-inputs { }
+
+  .input-group { margin-bottom: 28px; }
+
+  .input-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .input-group input[type=range] {
+    width: 100%;
+    height: 4px;
+    border-radius: 4px;
+    outline: none;
+    appearance: none;
+    background: #e0e7e2;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+  .input-group input[type=range]::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--forest);
+    border: 3px solid var(--leaf);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  .range-display {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .range-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--forest);
+  }
+  .range-unit { font-size: 0.8rem; color: var(--muted); }
+
+  .price-selector { display: flex; gap: 8px; }
+  .price-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1.5px solid #dde8df;
+    background: white;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .price-btn.active-low { border-color: var(--safe); background: #f0faf2; color: var(--safe); font-weight: 600; }
+  .price-btn.active-mid { border-color: #c17f00; background: #fff8ed; color: #c17f00; font-weight: 600; }
+  .price-btn.active-high { border-color: var(--danger); background: #fff0f0; color: var(--danger); font-weight: 600; }
+
+  .efficiency-toggle {
+    display: flex; gap: 0;
+    border: 1.5px solid #dde8df;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .eff-btn {
+    flex: 1; padding: 10px 12px;
+    border: none; background: white;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    border-right: 1px solid #dde8df;
+    color: var(--muted);
+  }
+  .eff-btn:last-child { border-right: none; }
+  .eff-btn.active { background: var(--forest); color: white; font-weight: 600; }
+
+  /* RESULTS */
+  .calc-results {
+    background: var(--forest);
+    border-radius: 12px;
+    padding: 36px;
+    color: var(--cream);
+  }
+
+  .result-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(248,243,232,0.1);
+  }
+
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(248,243,232,0.07);
+  }
+  .result-row:last-of-type { border-bottom: none; }
+
+  .result-label { font-size: 0.82rem; color: rgba(248,243,232,0.6); margin-bottom: 4px; }
+  .result-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--cream);
+  }
+  .result-eur {
+    font-size: 0.85rem;
+    color: rgba(248,243,232,0.45);
+    font-family: 'DM Mono', monospace;
+    margin-top: 2px;
+  }
+
+  .saving-banner {
+    background: rgba(76,175,80,0.15);
+    border: 1px solid rgba(76,175,80,0.3);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  .saving-banner .save-amount {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--leaf-bright);
+  }
+  .saving-banner .save-label {
+    font-size: 0.8rem;
+    color: rgba(248,243,232,0.6);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .exposure-bar {
+    margin-top: 20px;
+  }
+  .exposure-bar .bar-label {
+    font-size: 0.75rem;
+    color: rgba(248,243,232,0.5);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .bar-track {
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--safe), var(--amber), var(--danger));
+    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* ===== CASE STUDIES ===== */
+  .cases-section { background: var(--warm-white); }
+
+  .case-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+  }
+
+  .case-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+  }
+  .case-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+  }
+
+  .case-img {
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+  }
+  .case-img-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(26,58,42,0.8), transparent);
+    display: flex; align-items: flex-end;
+    padding: 20px;
+  }
+  .case-img-overlay .type-badge {
+    background: var(--amber);
+    color: var(--forest);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  .case-body { background: white; padding: 28px; }
+
+  .case-body h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    margin-bottom: 8px;
+  }
+
+  .case-body p {
+    color: var(--muted);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .case-numbers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .case-num {
+    background: #f5f9f6;
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+  }
+  .case-num .n { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: var(--forest); }
+  .case-num .l { font-size: 0.7rem; color: var(--muted); margin-top: 3px; }
+
+  .case-saving {
+    margin-top: 16px;
+    padding: 14px;
+    background: #f0faf2;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .case-saving .s-label { font-size: 0.8rem; color: var(--muted); }
+  .case-saving .s-val { font-family: 'DM Mono', monospace; font-weight: 600; color: var(--safe); }
+
+  /* ===== ETL SECTION ===== */
+  .etl-section { background: var(--forest); color: var(--cream); }
+  .etl-section h2 { color: var(--cream); }
+  .etl-section .lead { color: rgba(248,243,232,0.65); }
+  .etl-section .section-tag { color: var(--amber); }
+
+  .etl-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  .etl-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 28px;
+    transition: background 0.3s;
+  }
+  .etl-card:hover { background: rgba(255,255,255,0.1); }
+
+  .etl-icon {
+    font-size: 2rem;
+    margin-bottom: 16px;
+  }
+
+  .etl-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--cream);
+    margin-bottom: 10px;
+  }
+
+  .etl-card p {
+    font-size: 0.82rem;
+    color: rgba(248,243,232,0.55);
+    line-height: 1.6;
+  }
+
+  .etl-saving {
+    margin-top: 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--leaf-bright);
+  }
+
+  /* ===== COMPARISON CHART ===== */
+  .compare-section { background: var(--cream); }
+
+  .compare-wrapper {
+    background: white;
+    border-radius: 16px;
+    padding: 48px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+
+  .compare-tabs {
+    display: flex; gap: 8px; margin-bottom: 40px; flex-wrap: wrap;
+  }
+  .compare-tab {
+    padding: 10px 24px;
+    border-radius: 30px;
+    border: 1.5px solid #dde8df;
+    background: white;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .compare-tab.active {
+    background: var(--forest);
+    border-color: var(--forest);
+    color: white;
+    font-weight: 600;
+  }
+
+  .compare-chart-container { height: 380px; }
+
+  /* ===== WATER SECTION ===== */
+  .water-section { background: #e8f4fd; }
+
+  .water-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+
+  .water-stats { display: flex; flex-direction: column; gap: 20px; }
+
+  .water-stat-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: white;
+    border-radius: 10px;
+    padding: 20px 24px;
+  }
+
+  .water-icon { font-size: 1.8rem; }
+  .water-stat-row h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+  .water-stat-row p { font-size: 0.82rem; color: var(--muted); }
+
+  /* ===== TIPS SECTION ===== */
+  .tips-section { background: var(--warm-white); }
+
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .tip-card {
+    border-radius: 10px;
+    padding: 32px;
+    background: white;
+    border-left: 4px solid var(--leaf);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    transition: transform 0.25s;
+  }
+  .tip-card:hover { transform: translateX(4px); }
+
+  .tip-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 700;
+    color: rgba(76,175,80,0.15);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .tip-card h4 { font-size: 1rem; font-weight: 600; margin-bottom: 10px; }
+  .tip-card p { font-size: 0.875rem; color: var(--muted); line-height: 1.7; }
+
+  /* ===== FOOTER ===== */
+  footer {
+    background: var(--charcoal);
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    padding: 40px;
+    font-size: 0.82rem;
+    line-height: 1.8;
+  }
+  footer a { color: var(--leaf); text-decoration: none; }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .price-periods { grid-template-columns: 1fr; }
+    .case-cards { grid-template-columns: 1fr; }
+    .calc-grid { grid-template-columns: 1fr; }
+    .etl-grid { grid-template-columns: 1fr 1fr; }
+    .tips-grid { grid-template-columns: 1fr; }
+    .water-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 24px; flex-wrap: wrap; }
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    section { padding: 60px 24px; }
+    .calc-body { padding: 24px; }
+    .calc-header { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Energy<span>IQ</span></div>
+  <ul class="nav-links">
+    <li><a href="#volatility">Price Volatility</a></li>
+    <li><a href="#calculator">Calculator</a></li>
+    <li><a href="#cases">Case Studies</a></li>
+    <li><a href="#etl">ETL Products</a></li>
+    <li><a href="#water">Water Savings</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-badge">⚡ Energy Cost Intelligence</div>
+    <h1>Your Energy Bills Are<br><span>Out of Your Control</span><br>Until You Calculate Them</h1>
+    <p>Energy prices across the UK and Europe swing wildly. Homes, restaurants and offices that understand their costs and invest in low-energy alternatives protect themselves from every spike.</p>
+    <div class="hero-ctas">
+      <a href="#calculator" class="btn-primary">Calculate My Savings</a>
+      <a href="#volatility" class="btn-ghost">See Price Volatility</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="num">+120%</div>
+      <div class="label">Bill increase: calm vs crisis</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">£93k</div>
+      <div class="label">Office annual risk exposure</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">50%+</div>
+      <div class="label">Restaurant savings possible</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">8,000+</div>
+      <div class="label">ETL verified products</div>
+    </div>
+  </div>
+</div>
+
+<!-- VOLATILITY -->
+<section class="volatility-section" id="volatility">
+  <div class="section-inner">
+    <div class="section-tag reveal">⚡ Price Volatility</div>
+    <h2 class="reveal">Why Energy Prices Put You at Risk</h2>
+    <p class="lead reveal">UK electricity and gas prices have swung dramatically over recent years — driven by fuel markets, geopolitical events and policy shifts. If you haven't reduced your consumption, you absorb every spike at full cost.</p>
+
+    <div class="price-timeline reveal">
+      <h3>UK Electricity Price Trend (Illustrative)</h3>
+      <p>Unit rates in p/kWh for a typical household — calm years vs crisis peaks</p>
+      <div class="chart-container">
+        <canvas id="volatilityChart"></canvas>
+      </div>
+    </div>
+
+    <div class="price-periods reveal">
+      <div class="period-card low">
+        <div class="period-label">🟢 Low Price Period</div>
+        <h4>Calm Market</h4>
+        <div class="period-price">
+          <span class="type">Electricity</span>
+          <span class="val">20p / €0.23 kWh</span>
+        </div>
+        <div class="period-price">
+          <span class="type">Gas</span>
+          <span class="val">6p / €0.07 kWh</span>
+        </div>
+        <div class="period-price">
+          <span class="type">House annual bill</span>
+          <span class="val">£1,320 / €1,518</span>
+        </div>
+      </div>
+
+      <div class="period-card mid">
+        <div class="period-label">🟡 Medium Price Period</div>
+        <h4>Elevated Market</h4>
+        <div class="period-price">
+          <span class="type">Electricity</span>
+          <span class="val">30p / €0.35 kWh</span>
+        </div>
+        <div class="period-price">
+          <span class="type">Gas</span>
+          <span class="val">8p / €0.09 kWh</span>
+        </div>
+        <div class="period-price">
+          <span class="type">House annual bill</span>
+          <span class="val">£1,860 / €2,139</span>
+        </div>
+      </div>
+
+      <div class="period-card high">
+        <div class="period-label">🔴 High Price Period</div>
+        <h4>Crisis Market</h4>
+        <div class="period-price">
+          <span class="type">Electricity</span>
+          <span class="val">50p / €0.58 kWh</span>
+        </div>
+        <div class="period-price">
+          <span class="type">Gas</span>
+          <span class="val">12p / €0.14 kWh</span>
+        </div>
+        <div class="period-price">
+          <span class="type">House annual bill</span>
+          <span class="val">£2,940 / €3,381</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CALCULATOR -->
+<section class="calculator-section" id="calculator">
+  <div class="section-inner">
+    <div class="section-tag reveal">🧮 Interactive Calculator</div>
+    <h2 class="reveal">What Could You Save?</h2>
+    <p class="lead reveal">Adjust the sliders to match your premises and see how energy prices affect your bills — and how much you could save with efficient technology and renewable energy.</p>
+
+    <div class="calc-wrapper reveal">
+      <div class="calc-header">
+        <div>
+          <h3>Energy Cost Calculator</h3>
+          <p>Select your premises type and adjust usage to see real cost impact</p>
+        </div>
+        <div class="premise-tabs">
+          <button class="premise-tab active" onclick="setPremise('house', this)">🏠 House</button>
+          <button class="premise-tab" onclick="setPremise('restaurant', this)">🍽️ Restaurant</button>
+          <button class="premise-tab" onclick="setPremise('office', this)">🏢 Office</button>
+        </div>
+      </div>
+
+      <div class="calc-body">
+        <div class="calc-grid">
+          <div class="calc-inputs">
+            <div class="input-group">
+              <label>Annual Electricity Usage</label>
+              <input type="range" id="electricityUsage" min="0" max="500000" step="500" value="3000" oninput="updateCalc()">
+              <div class="range-display">
+                <span class="range-val" id="electricityVal">3,000</span>
+                <span class="range-unit">kWh / year</span>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Annual Gas Usage</label>
+              <input type="range" id="gasUsage" min="0" max="300000" step="500" value="12000" oninput="updateCalc()">
+              <div class="range-display">
+                <span class="range-val" id="gasVal">12,000</span>
+                <span class="range-unit">kWh / year</span>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Current Market Conditions</label>
+              <div class="price-selector">
+                <button class="price-btn active-low" onclick="setPrice('low', this)">🟢 Low<br><small>20p elec / 6p gas</small></button>
+                <button class="price-btn" onclick="setPrice('mid', this)">🟡 Medium<br><small>30p elec / 8p gas</small></button>
+                <button class="price-btn" onclick="setPrice('high', this)">🔴 High<br><small>50p elec / 12p gas</small></button>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Efficiency Level</label>
+              <div class="efficiency-toggle">
+                <button class="eff-btn active" onclick="setEfficiency('none', this)">No Changes</button>
+                <button class="eff-btn" onclick="setEfficiency('partial', this)">ETL Appliances</button>
+                <button class="eff-btn" onclick="setEfficiency('full', this)">ETL + Solar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="calc-results">
+            <div class="result-title">Your Estimated Energy Costs</div>
+
+            <div class="result-row">
+              <div>
+                <div class="result-label">Electricity Bill</div>
+                <div class="result-value" id="elecBill">£600</div>
+                <div class="result-eur" id="elecBillEur">≈ €690</div>
+              </div>
+              <div style="text-align:right">
+                <div class="result-label">Gas Bill</div>
+                <div class="result-value" id="gasBill">£720</div>
+                <div class="result-eur" id="gasBillEur">≈ €828</div>
+              </div>
+            </div>
+
+            <div class="result-row" style="border-bottom: 1px solid rgba(248,243,232,0.15);">
+              <div>
+                <div class="result-label">Total Annual Bill</div>
+                <div class="result-value" id="totalBill" style="font-size:2.2rem;">£1,320</div>
+                <div class="result-eur" id="totalBillEur">≈ €1,518</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="result-label">Monthly Cost</div>
+                <div class="result-value" id="monthlyBill" style="font-size:1.5rem;">£110</div>
+                <div class="result-eur" id="monthlyBillEur">≈ €127</div>
+              </div>
+            </div>
+
+            <div class="saving-banner" id="savingBanner" style="display:none;">
+              <div class="save-amount" id="saveAmount">£0</div>
+              <div class="save-label">Annual Saving with Upgrades</div>
+              <div style="font-size:0.75rem; color: rgba(248,243,232,0.4); margin-top:6px;" id="saveEur"></div>
+            </div>
+
+            <div class="exposure-bar">
+              <div class="bar-label">
+                <span>Price Risk Exposure</span>
+                <span id="exposureLabel">Low</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" id="exposureBar" style="width: 20%"></div>
+              </div>
+            </div>
+
+            <div style="margin-top:20px; font-size: 0.78rem; color: rgba(248,243,232,0.35); line-height:1.6;">
+              * Illustrative estimates based on UK average consumption profiles. Actual savings depend on your specific usage, tariffs, and location.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CASE STUDIES -->
+<section class="cases-section" id="cases">
+  <div class="section-inner">
+    <div class="section-tag reveal">📊 Case Studies</div>
+    <h2 class="reveal">The Cost of Doing Nothing</h2>
+    <p class="lead reveal">From a family home to a busy restaurant and a corporate office — here's what price volatility costs when you haven't invested in efficiency or renewables.</p>
+
+    <div class="case-cards">
+
+      <div class="case-card reveal">
+        <div class="case-img" style="background-image: url('https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80')">
+          <div class="case-img-overlay"><span class="type-badge">🏠 House Renovation</span></div>
+        </div>
+        <div class="case-body">
+          <h3>Typical UK Family Home</h3>
+          <p>3,000 kWh electricity + 12,000 kWh gas per year. Fully exposed to market prices without any efficiency upgrades.</p>
+          <div class="case-numbers">
+            <div class="case-num">
+              <div class="n">£1,320</div>
+              <div class="l">Low price year</div>
+            </div>
+            <div class="case-num">
+              <div class="n">£2,940</div>
+              <div class="l">High price year</div>
+            </div>
+          </div>
+          <div class="case-saving">
+            <span class="s-label">⚠️ Risk exposure (low vs high)</span>
+            <span class="s-val">+£1,620 / +€1,863</span>
+          </div>
+          <div class="case-saving" style="background:#f0faf2; margin-top:8px;">
+            <span class="s-label">✅ With ETL + Solar PV savings</span>
+            <span class="s-val">~£1,200 / €1,380 / yr</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="case-card reveal" style="transition-delay: 0.15s;">
+        <div class="case-img" style="background-image: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80')">
+          <div class="case-img-overlay"><span class="type-badge">🍽️ Restaurant</span></div>
+        </div>
+        <div class="case-body">
+          <h3>Medium-Sized Restaurant</h3>
+          <p>80,000 kWh electricity + 60,000 kWh gas per year. Energy intensity makes margins extremely vulnerable to price spikes.</p>
+          <div class="case-numbers">
+            <div class="case-num">
+              <div class="n">£19,600</div>
+              <div class="l">Low price year</div>
+            </div>
+            <div class="case-num">
+              <div class="n">£47,200</div>
+              <div class="l">High price year</div>
+            </div>
+          </div>
+          <div class="case-saving">
+            <span class="s-label">⚠️ Risk exposure (low vs high)</span>
+            <span class="s-val">+£27,600 / +€31,740</span>
+          </div>
+          <div class="case-saving" style="background:#f0faf2; margin-top:8px;">
+            <span class="s-label">✅ With ETL + Solar PV savings</span>
+            <span class="s-val">~£15,000 / €17,250 / yr</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="case-card reveal" style="transition-delay: 0.3s;">
+        <div class="case-img" style="background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80')">
+          <div class="case-img-overlay"><span class="type-badge">🏢 Office</span></div>
+        </div>
+        <div class="case-body">
+          <h3>Multi-Storey Office Building</h3>
+          <p>300,000 kWh electricity + 50,000 kWh gas per year. Large consumption base means price swings translate to massive unplanned costs.</p>
+          <div class="case-numbers">
+            <div class="case-num">
+              <div class="n">£63,000</div>
+              <div class="l">Low price year</div>
+            </div>
+            <div class="case-num">
+              <div class="n">£156,000</div>
+              <div class="l">High price year</div>
+            </div>
+          </div>
+          <div class="case-saving">
+            <span class="s-label">⚠️ Risk exposure (low vs high)</span>
+            <span class="s-val">+£93,000 / +€106,950</span>
+          </div>
+          <div class="case-saving" style="background:#f0faf2; margin-top:8px;">
+            <span class="s-label">✅ With ETL + Solar PV savings</span>
+            <span class="s-val">~£54,800 / €63,020 / yr</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON CHART -->
+<section class="compare-section" id="compare">
+  <div class="section-inner">
+    <div class="section-tag reveal">📈 Before vs After</div>
+    <h2 class="reveal">Visualising the Savings</h2>
+    <p class="lead reveal">See how efficiency upgrades and renewable energy dramatically cut energy costs across all three premise types — at every price level.</p>
+
+    <div class="compare-wrapper reveal">
+      <div class="compare-tabs">
+        <button class="compare-tab active" onclick="setCompareView('bills', this)">Annual Bills Comparison</button>
+        <button class="compare-tab" onclick="setCompareView('savings', this)">Savings by Price Period</button>
+        <button class="compare-tab" onclick="setCompareView('europe', this)">European Price Context</button>
+      </div>
+      <div class="compare-chart-container">
+        <canvas id="compareChart"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ETL PRODUCTS -->
+<section class="etl-section" id="etl">
+  <div class="section-inner">
+    <div class="section-tag">🏷️ ETL Energy Technology List</div>
+    <h2>Government-Verified Low-Energy Products</h2>
+    <p class="lead">The UK's Energy Technology List (ETL) contains 8,000–14,000 independently verified products proven to be in the top 25% for energy efficiency. Using ETL-listed products means measurable savings.</p>
+
+    <div class="etl-grid">
+      <div class="etl-card reveal">
+        <div class="etl-icon">💡</div>
+        <h4>LED Lighting & Controls</h4>
+        <p>High-efficacy LEDs with daylight sensors and occupancy controls. Works in all premise types.</p>
+        <div class="etl-saving">↓ 60–80% lighting energy</div>
+      </div>
+
+      <div class="etl-card reveal" style="transition-delay:0.1s">
+        <div class="etl-icon">🌡️</div>
+        <h4>Heat Pumps & Boilers</h4>
+        <p>Air-to-water and ground source heat pumps replace gas boilers for space heating and hot water.</p>
+        <div class="etl-saving">↓ 20–50% heating energy</div>
+      </div>
+
+      <div class="etl-card reveal" style="transition-delay:0.2s">
+        <div class="etl-icon">🧊</div>
+        <h4>Commercial Refrigeration</h4>
+        <p>High-efficiency cabinets, walk-in cold rooms and blast chillers for foodservice operations.</p>
+        <div class="etl-saving">↓ 30–50% cooling energy</div>
+      </div>
+
+      <div class="etl-card reveal" style="transition-delay:0.3s">
+        <div class="etl-icon">☀️</div>
+        <h4>Solar PV Systems</h4>
+        <p>4 kWp home system generates ~3,400–4,000 kWh/year. Larger commercial arrays cover daytime baseload.</p>
+        <div class="etl-saving">↑ Free electricity all day</div>
+      </div>
+
+      <div class="etl-card reveal" style="transition-delay:0.4s">
+        <div class="etl-icon">🍳</div>
+        <h4>Induction Cooking</h4>
+        <p>Energy-efficient induction hobs and combi ovens replace gas cooking in professional kitchens.</p>
+        <div class="etl-saving">↓ 10–20% cooking energy</div>
+      </div>
+
+      <div class="etl-card reveal" style="transition-delay:0.5s">
+        <div class="etl-icon">🌀</div>
+        <h4>HVAC & Ventilation</h4>
+        <p>Heat recovery ventilation units and variable-speed drives on fans and pumps.</p>
+        <div class="etl-saving">↓ 25–40% HVAC energy</div>
+      </div>
+
+      <div class="etl-card reveal" style="transition-delay:0.6s">
+        <div class="etl-icon">🍽️</div>
+        <h4>Efficient Dishwashers</h4>
+        <p>Heat recovery dishwashers with low-flow rinse systems for foodservice and office kitchens.</p>
+        <div class="etl-saving">↓ 30% water & energy</div>
+      </div>
+
+      <div class="etl-card reveal" style="transition-delay:0.7s">
+        <div class="etl-icon">⚡</div>
+        <h4>Smart Building Controls</h4>
+        <p>Building management systems, sub-metering and automatic monitoring for optimal energy scheduling.</p>
+        <div class="etl-saving">↓ 15–20% total energy</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WATER SAVINGS -->
+<section class="water-section" id="water">
+  <div class="section-inner">
+    <div class="water-grid">
+      <div class="reveal">
+        <div class="section-tag">💧 Water & Energy Savings</div>
+        <h2>Water Saving Devices Reduce Energy Costs Too</h2>
+        <p class="lead" style="margin-bottom:0;">Hot water is a hidden energy cost. Reducing how much water you heat directly reduces gas and electricity bills — especially powerful when prices are high.</p>
+      </div>
+      <div class="water-stats reveal">
+        <div class="water-stat-row">
+          <div class="water-icon">🚿</div>
+          <div>
+            <h4>Low-Flow Showers & Taps</h4>
+            <p>Reduce hot water demand by 30–50% in homes and restaurants. Lower water heated = lower bills.</p>
+          </div>
+        </div>
+        <div class="water-stat-row">
+          <div class="water-icon">🚽</div>
+          <div>
+            <h4>Dual-Flush Toilets</h4>
+            <p>Cut water consumption significantly. Offices and restaurants with high footfall see rapid payback.</p>
+          </div>
+        </div>
+        <div class="water-stat-row">
+          <div class="water-icon">🍽️</div>
+          <div>
+            <h4>Pre-Rinse Spray Valves</h4>
+            <p>Commercial kitchen requirement that cuts hot water use by up to 40% versus standard fittings.</p>
+          </div>
+        </div>
+        <div class="water-stat-row">
+          <div class="water-icon">☀️</div>
+          <div>
+            <h4>Solar Thermal Water Heating</h4>
+            <p>Heats water directly from the sun, reducing hot water fuel use by 30–50% annually.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTION TIPS -->
+<section class="tips-section" id="tips">
+  <div class="section-inner">
+    <div class="section-tag reveal">✅ Action Plan</div>
+    <h2 class="reveal">How to Protect Yourself From Price Volatility</h2>
+    <p class="lead reveal">The earlier you act, the more protected you are when the next price spike arrives. Here's a practical framework for any premises type.</p>
+
+    <div class="tips-grid">
+      <div class="tip-card reveal">
+        <div class="tip-num">01</div>
+        <h4>Monitor Energy Prices Regularly</h4>
+        <p>Subscribe to Ofgem updates and Eurostat energy data. Knowing when prices are rising helps you time investments and spot the best moments to act.</p>
+      </div>
+      <div class="tip-card reveal" style="transition-delay:0.1s">
+        <div class="tip-num">02</div>
+        <h4>Calculate Your Actual Consumption</h4>
+        <p>Sub-meter key areas (kitchen, lighting, HVAC). You can't manage what you don't measure. Even simple smart plugs reveal surprising usage patterns.</p>
+      </div>
+      <div class="tip-card reveal" style="transition-delay:0.2s">
+        <div class="tip-num">03</div>
+        <h4>Replace Appliances with ETL Products</h4>
+        <p>When appliances need replacing, choose from the UK Energy Technology List. Top-quartile efficiency products cut your kWh demand permanently.</p>
+      </div>
+      <div class="tip-card reveal" style="transition-delay:0.3s">
+        <div class="tip-num">04</div>
+        <h4>Install Solar PV and Batteries</h4>
+        <p>Generate your own electricity during daylight hours. Pair with a battery for evening coverage. A 4 kWp home system can cover most daytime needs.</p>
+      </div>
+      <div class="tip-card reveal" style="transition-delay:0.4s">
+        <div class="tip-num">05</div>
+        <h4>Add Water-Saving Devices</h4>
+        <p>Low-flow taps, spray valves and solar thermal heating reduce both water bills and the energy needed to heat that water — a compounding saving.</p>
+      </div>
+      <div class="tip-card reveal" style="transition-delay:0.5s">
+        <div class="tip-num">06</div>
+        <h4>Review and Repeat Annually</h4>
+        <p>Run the calculation every year against the latest prices. As you reduce consumption, your risk exposure falls — and your ROI on upgrades improves.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p style="font-family:'Playfair Display',serif; font-size:1.1rem; color:rgba(255,255,255,0.7); margin-bottom:12px;">Energy<span style="color:#69d66c">IQ</span></p>
+  <p>Data references: <a href="https://www.ofgem.gov.uk">Ofgem</a> · <a href="https://ec.europa.eu/eurostat">Eurostat</a> · <a href="https://www.gov.uk/guidance/energy-technology-list">UK Energy Technology List (ETL)</a></p>
+  <p style="margin-top:8px;">All figures are illustrative estimates. Actual savings depend on your premises, tariffs, and usage patterns. Exchange rate used: 1 GBP ≈ 1.15 EUR.</p>
+</footer>
+
+<script>
+// ===== VOLATILITY CHART =====
+const voltCtx = document.getElementById('volatilityChart').getContext('2d');
+new Chart(voltCtx, {
+  type: 'line',
+  data: {
+    labels: ['2019','2020','2021','2022 (Crisis)','2023','2024','2025','2026 (Current)'],
+    datasets: [{
+      label: 'Electricity (p/kWh)',
+      data: [16, 16.4, 20, 52, 34, 28, 27, 27.5],
+      borderColor: '#f5a623',
+      backgroundColor: 'rgba(245,166,35,0.08)',
+      borderWidth: 3,
+      pointBackgroundColor: '#f5a623',
+      pointRadius: 5,
+      tension: 0.4,
+      fill: true,
+    },{
+      label: 'Gas (p/kWh)',
+      data: [3.8, 3.5, 4.5, 14, 9, 6.4, 6, 5.9],
+      borderColor: '#4caf50',
+      backgroundColor: 'rgba(76,175,80,0.05)',
+      borderWidth: 2,
+      pointBackgroundColor: '#4caf50',
+      pointRadius: 5,
+      tension: 0.4,
+      fill: true,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: { color: 'rgba(248,243,232,0.7)', font: { family: 'DM Sans', size: 13 } }
+      },
+      tooltip: {
+        backgroundColor: '#1a3a2a',
+        titleColor: '#f8f3e8',
+        bodyColor: 'rgba(248,243,232,0.7)',
+        callbacks: {
+          label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}p`
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: 'rgba(248,243,232,0.5)', font: { family: 'DM Sans', size: 12 } },
+        grid: { color: 'rgba(255,255,255,0.05)' }
+      },
+      y: {
+        ticks: { color: 'rgba(248,243,232,0.5)', font: { family: 'DM Mono', size: 11 }, callback: v => v + 'p' },
+        grid: { color: 'rgba(255,255,255,0.05)' }
+      }
+    }
+  }
+});
+
+// ===== CALCULATOR LOGIC =====
+let calcState = {
+  premise: 'house',
+  electricity: 3000,
+  gas: 12000,
+  price: 'low',
+  efficiency: 'none'
+};
+
+const prices = {
+  low:  { elec: 0.20, gas: 0.06 },
+  mid:  { elec: 0.30, gas: 0.08 },
+  high: { elec: 0.50, gas: 0.12 }
+};
+
+const premiseDefaults = {
+  house:      { elec: 3000,   gas: 12000,  elecMax: 20000,  gasMax: 50000 },
+  restaurant: { elec: 80000,  gas: 60000,  elecMax: 200000, gasMax: 150000 },
+  office:     { elec: 300000, gas: 50000,  elecMax: 500000, gasMax: 150000 }
+};
+
+const efficiencySavings = {
+  house:      { partial: 0.25, full: 0.65 },
+  restaurant: { partial: 0.30, full: 0.60 },
+  office:     { partial: 0.30, full: 0.58 }
+};
+
+function setPremise(p, btn) {
+  calcState.premise = p;
+  document.querySelectorAll('.premise-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const d = premiseDefaults[p];
+  const eu = document.getElementById('electricityUsage');
+  const gu = document.getElementById('gasUsage');
+  eu.max = d.elecMax; eu.value = d.elec;
+  gu.max = d.gasMax; gu.value = d.gas;
+  calcState.electricity = d.elec;
+  calcState.gas = d.gas;
+  updateCalc();
+}
+
+function setPrice(p, btn) {
+  calcState.price = p;
+  document.querySelectorAll('.price-btn').forEach(b => {
+    b.classList.remove('active-low','active-mid','active-high');
+  });
+  btn.classList.add('active-' + p);
+  updateCalc();
+}
+
+function setEfficiency(e, btn) {
+  calcState.efficiency = e;
+  document.querySelectorAll('.eff-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateCalc();
+}
+
+function fmt(n) { return '£' + Math.round(n).toLocaleString('en-GB'); }
+function fmtEur(n) { return '≈ €' + Math.round(n * 1.15).toLocaleString('en-GB'); }
+
+function updateCalc() {
+  const eu = document.getElementById('electricityUsage');
+  const gu = document.getElementById('gasUsage');
+  calcState.electricity = parseInt(eu.value);
+  calcState.gas = parseInt(gu.value);
+
+  document.getElementById('electricityVal').textContent = calcState.electricity.toLocaleString('en-GB');
+  document.getElementById('gasVal').textContent = calcState.gas.toLocaleString('en-GB');
+
+  const p = prices[calcState.price];
+  let elecCost = calcState.electricity * p.elec;
+  let gasCost = calcState.gas * p.gas;
+  let baseCost = elecCost + gasCost;
+
+  let savingFactor = 0;
+  if (calcState.efficiency !== 'none') {
+    savingFactor = efficiencySavings[calcState.premise][calcState.efficiency] || 0;
+  }
+  let savings = baseCost * savingFactor;
+  let newCost = baseCost - savings;
+
+  // Update electricity
+  let showElec = calcState.efficiency === 'none' ? elecCost : elecCost * (1 - (savingFactor * 0.8));
+  let showGas = calcState.efficiency === 'none' ? gasCost : gasCost * (1 - (savingFactor * 0.5));
+  let showTotal = showElec + showGas;
+
+  document.getElementById('elecBill').textContent = fmt(showElec);
+  document.getElementById('elecBillEur').textContent = fmtEur(showElec);
+  document.getElementById('gasBill').textContent = fmt(showGas);
+  document.getElementById('gasBillEur').textContent = fmtEur(showGas);
+  document.getElementById('totalBill').textContent = fmt(showTotal);
+  document.getElementById('totalBillEur').textContent = fmtEur(showTotal);
+  document.getElementById('monthlyBill').textContent = fmt(showTotal / 12);
+  document.getElementById('monthlyBillEur').textContent = fmtEur(showTotal / 12);
+
+  const savingBanner = document.getElementById('savingBanner');
+  if (calcState.efficiency !== 'none') {
+    let s = baseCost - showTotal;
+    savingBanner.style.display = 'block';
+    document.getElementById('saveAmount').textContent = fmt(s);
+    document.getElementById('saveEur').textContent = fmtEur(s) + ' per year';
+  } else {
+    savingBanner.style.display = 'none';
+  }
+
+  // Risk exposure bar
+  const riskMap = { low: 20, mid: 55, high: 90 };
+  const effReduction = calcState.efficiency === 'none' ? 0 : (calcState.efficiency === 'partial' ? 25 : 50);
+  let exposure = Math.max(5, riskMap[calcState.price] - effReduction);
+  document.getElementById('exposureBar').style.width = exposure + '%';
+  const labels = { low: 'Low', mid: 'Moderate', high: 'High' };
+  document.getElementById('exposureLabel').textContent = calcState.efficiency === 'none' ? labels[calcState.price] + ' — Fully Exposed' : labels[calcState.price] + ' — Protected';
+}
+
+// ===== COMPARISON CHART =====
+let compareChart = null;
+const compareCtx = document.getElementById('compareChart').getContext('2d');
+
+const chartData = {
+  bills: {
+    labels: ['House (Low)', 'House (High)', 'Restaurant (Low)', 'Restaurant (High)', 'Office (Low)', 'Office (High)'],
+    datasets: [
+      {
+        label: 'No Upgrades (£)',
+        data: [1320, 2940, 19600, 47200, 63000, 156000],
+        backgroundColor: 'rgba(224,82,82,0.75)',
+        borderColor: '#e05252',
+        borderWidth: 2,
+        borderRadius: 6,
+      },
+      {
+        label: 'With ETL + Solar (£)',
+        data: [300, 700, 9900, 22000, 36000, 82000],
+        backgroundColor: 'rgba(76,175,80,0.75)',
+        borderColor: '#4caf50',
+        borderWidth: 2,
+        borderRadius: 6,
+      }
+    ]
+  },
+  savings: {
+    labels: ['House', 'Restaurant', 'Office'],
+    datasets: [
+      {
+        label: 'Saving in Low Price Year (£)',
+        data: [1020, 9700, 27000],
+        backgroundColor: 'rgba(76,175,80,0.65)',
+        borderColor: '#4caf50',
+        borderWidth: 2,
+        borderRadius: 6,
+      },
+      {
+        label: 'Saving in High Price Year (£)',
+        data: [2240, 25200, 74000],
+        backgroundColor: 'rgba(201,168,76,0.75)',
+        borderColor: '#c9a84c',
+        borderWidth: 2,
+        borderRadius: 6,
+      }
+    ]
+  },
+  europe: {
+    labels: ['Germany', 'Denmark', 'Ireland', 'Belgium', 'UK (2026)', 'EU Average', 'Spain/France', 'Hungary'],
+    datasets: [{
+      label: 'Household Electricity Price (€/kWh)',
+      data: [0.40, 0.38, 0.37, 0.33, 0.32, 0.29, 0.27, 0.11],
+      backgroundColor: (ctx) => {
+        const colors = ['#e05252','#e06b52','#e07e52','#e09552','#f5a623','#4caf50','#3dba6f','#3dba6f'];
+        return colors[ctx.dataIndex] || '#4caf50';
+      },
+      borderRadius: 6,
+    }]
+  }
+};
+
+function setCompareView(view, btn) {
+  document.querySelectorAll('.compare-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  if (compareChart) compareChart.destroy();
+
+  const isBar = view === 'europe';
+  const isHorizontal = view === 'europe';
+
+  compareChart = new Chart(compareCtx, {
+    type: isHorizontal ? 'bar' : 'bar',
+    data: chartData[view],
+    options: {
+      indexAxis: isHorizontal ? 'y' : 'x',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { font: { family: 'DM Sans', size: 13 }, color: '#1c1c1c' } },
+        tooltip: {
+          backgroundColor: '#1a3a2a',
+          titleColor: '#f8f3e8',
+          bodyColor: 'rgba(248,243,232,0.8)',
+          callbacks: {
+            label: ctx => {
+              const v = ctx.parsed[isHorizontal ? 'x' : 'y'];
+              return ` ${ctx.dataset.label}: ${view === 'europe' ? '€' + v : '£' + v.toLocaleString('en-GB')}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { font: { family: 'DM Sans', size: 11 }, color: '#6b7c70' },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        },
+        y: {
+          ticks: { font: { family: 'DM Mono', size: 11 }, color: '#6b7c70',
+            callback: v => view === 'europe' ? '€' + v : '£' + v.toLocaleString('en-GB')
+          },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        }
+      }
+    }
+  });
+}
+setCompareView('bills', document.querySelector('.compare-tab'));
+
+// ===== SCROLL REVEAL =====
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+revealEls.forEach(el => observer.observe(el));
+
+// Initial calc
+updateCalc();
+</script>
+</body>
+</html>

@@ -734,8 +734,8 @@
     if (coverAgentEl) coverAgentEl.textContent = ctx.agentName;
     if (badgeAgentEl) badgeAgentEl.textContent = ctx.agentName;
     if (returnHintEl) {
-      returnHintEl.textContent =
-        "Scroll inside this panel · " + ctx.returnLabel.replace(/←\s*/, "") + " or × to return — " + ctx.agentName + " stays open behind";
+      returnHintEl.hidden = true;
+      returnHintEl.textContent = "";
     }
   }
 
@@ -943,10 +943,8 @@
       fullLinkEl.hidden = !(item.fullPageHref || href);
     }
     if (footEl) {
-      footEl.textContent =
-        "Independent module — " +
-        ctx.agentName +
-        " and your chat stay open. Scroll inside the panel above. Use New tab ↗ only if you want this illustration in a separate browser tab.";
+      footEl.hidden = true;
+      footEl.textContent = "";
     }
     renderAgentNote(item);
 
