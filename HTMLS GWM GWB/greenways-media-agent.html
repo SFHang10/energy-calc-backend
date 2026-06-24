@@ -144,10 +144,25 @@
 
   .chat-panel {
     flex: 1 1 0;
-    min-height: 220px;
+    min-height: 280px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+  }
+
+  /* When map CTA is showing, hide duplicate news row and prioritise chat */
+  .guide-main.is-map-bar-visible .product-showcase-head,
+  .guide-main.is-map-bar-visible #top-product-samples {
+    display: none;
+  }
+  .guide-main.is-map-bar-visible .product-showcase-banner {
+    padding: 8px 14px 10px;
+  }
+  .guide-main.is-map-bar-visible .chat-panel {
+    min-height: min(58vh, 540px);
+  }
+  .guide-main.is-map-bar-visible .chat-thread {
+    min-height: 220px;
   }
 
   .chat-thread {
@@ -576,6 +591,9 @@
     flex-shrink: 0;
     padding: 8px 16px 0;
     margin-top: 0;
+    max-height: 76px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     border-top: 1px solid rgba(59, 130, 246, 0.12);
     background: rgba(10, 16, 28, 0.55);
   }
@@ -993,7 +1011,8 @@
     .guide-profile select { flex: 1; min-width: 0; }
     .product-showcase-banner { padding: 10px 12px 12px; }
     .product-samples--banner .product-sample-card { min-width: 248px; flex: 0 0 248px; }
-    .chat-panel { min-height: 200px; }
+    .chat-panel { min-height: 240px; }
+    .guide-main.is-map-bar-visible .chat-panel { min-height: min(50vh, 420px); }
     .welcome-card { padding: 16px 14px; }
     .welcome-card p { font-size: 0.76rem; margin-bottom: 12px; }
   }
@@ -1707,7 +1726,7 @@
       '<span class="map-module-launch-title">' + name + "</span>" +
       '<span class="map-module-launch-meta">' + meta + "</span>" +
       '<span class="map-module-launch-chip">' + chip + "</span>" +
-      '<span class="map-module-launch-foot">514 case studies + 391 organisations — opens in Cheryce’s module panel (chat stays open).</span>' +
+      '<span class="map-module-launch-foot">Opens in Cheryce’s map panel — chat stays open below.</span>' +
       "</div></div>"
     );
   }
@@ -1724,12 +1743,15 @@
 
   function showMapModuleBar(force) {
     var bar = document.getElementById("map-module-launch-bar");
+    var main = document.querySelector(".guide-main");
     if (!bar) return;
     if (force === false) {
       bar.hidden = true;
+      if (main) main.classList.remove("is-map-bar-visible");
       return;
     }
     bar.hidden = false;
+    if (main) main.classList.add("is-map-bar-visible");
   }
 
   function updateMapModuleBar(payload) {
