@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Greenways Buildings — Savings</title>
+  <meta name="wix-html-scroll" content="no-scroll" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a1610;
+      --panel: #12251a;
+      --panel2: #162e20;
+      --border: rgba(0, 245, 130, 0.22);
+      --text: #e8f5ee;
+      --muted: #9fb8ad;
+      --green: #28a745;
+      --accent: #00f582;
+      --gold: #c9a961;
+      --blue: #38bdf8;
+      --burgundy: #a43852;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+      --radius: 16px;
+      --font: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+      --head: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+      --font-clean: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      color: var(--text);
+      font-family: var(--font);
+      background: var(--bg);
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(165deg, rgba(5, 14, 9, 0.9) 0%, rgba(10, 24, 16, 0.82) 45%, rgba(5, 14, 9, 0.92) 100%),
+        radial-gradient(ellipse 90% 70% at 50% -15%, rgba(0, 245, 130, 0.14), transparent 55%),
+        radial-gradient(circle at 100% 85%, rgba(201, 169, 97, 0.1), transparent 42%),
+        url("https://static.wixstatic.com/media/c123de_16c0316351cb43ffa2b465483e13e2a4~mv2.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      filter: saturate(1.08) contrast(1.03);
+    }
+    @media (min-width: 900px) {
+      body::before {
+        background-attachment: fixed;
+      }
+    }
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 22px 18px 48px;
+    }
+    .savings-page-nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .savings-page-nav .btn--ghost {
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(5, 14, 9, 0.45);
+      color: #d0e5da;
+      cursor: pointer;
+      font-family: var(--font);
+    }
+    .savings-page-nav .btn--ghost:hover {
+      border-color: rgba(0, 245, 130, 0.35);
+      color: #f0fff5;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    }
+    .savings-page-nav .btn--dashboard {
+      border-color: rgba(0, 245, 130, 0.42);
+      background: rgba(0, 245, 130, 0.14);
+      color: #e8fff0;
+    }
+    .savings-page-nav .btn--dashboard:hover {
+      box-shadow: 0 8px 24px rgba(0, 245, 130, 0.2);
+    }
+    header.hero {
+      text-align: center;
+      margin-bottom: 22px;
+      padding: 20px 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: linear-gradient(145deg, rgba(18, 37, 26, 0.88), rgba(10, 22, 16, 0.82));
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+    }
+    header.hero h1 {
+      font-family: var(--head);
+      font-size: clamp(1.35rem, 3.5vw, 1.85rem);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin: 0 0 8px;
+    }
+    header.hero p {
+      margin: 0 auto;
+      max-width: 62ch;
+      color: var(--muted);
+      font-family: var(--font-clean);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+    .rail {
+      position: sticky;
+      top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 14px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: rgba(18, 37, 26, 0.72);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+    }
+    .rail-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--gold);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .rail-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      text-align: left;
+      border: 1px solid rgba(0, 245, 130, 0.18);
+      background: rgba(5, 14, 9, 0.45);
+      color: #c5ddd0;
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s, background 0.2s, color 0.2s;
+      font-family: var(--font);
+    }
+    .rail-btn .ico {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 15px;
+      flex-shrink: 0;
+      background: rgba(0, 245, 130, 0.1);
+      border: 1px solid rgba(0, 245, 130, 0.2);
+    }
+    .rail-btn:hover {
+      border-color: rgba(201, 169, 97, 0.45);
+      background: rgba(201, 169, 97, 0.08);
+      color: #fff4e0;
+      box-shadow: 0 0 20px rgba(201, 169, 97, 0.12);
+      transform: translateX(3px);
+    }
+    .rail-btn.active {
+      border-color: rgba(0, 245, 130, 0.45);
+      background: rgba(0, 245, 130, 0.12);
+      color: #d4ffe8;
+      box-shadow: 0 0 24px rgba(0, 245, 130, 0.15);
+    }
+    .rail-btn.active .ico {
+      background: rgba(0, 245, 130, 0.22);
+      border-color: rgba(0, 245, 130, 0.4);
+    }
+    .back-row {
+      margin-top: 10px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(0, 245, 130, 0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .back-row a,
+    .rail-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 600;
+      background: none;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      font-family: var(--font);
+      text-align: left;
+    }
+    .rail-back-btn:hover,
+    .back-row a:hover {
+      text-decoration: underline;
+    }
+    .stage { min-width: 0; }
+    .tablet-wrap {
+      display: none;
+      animation: tabletIn 0.45s ease both;
+    }
+    .tablet-wrap.active { display: block; }
+    @keyframes tabletIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.985); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .tablet-bezel {
+      border-radius: 22px;
+      padding: 14px 14px 18px;
+      background: linear-gradient(160deg, #2a3d32 0%, #0f1c14 40%, #1a2e22 100%);
+      border: 1px solid rgba(201, 169, 97, 0.35);
+      box-shadow:
+        0 0 0 1px rgba(0, 245, 130, 0.08) inset,
+        0 22px 60px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(201, 169, 97, 0.12);
+      position: relative;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .tablet-wrap.active .tablet-bezel {
+        animation: floatBezel 6s ease-in-out infinite;
+      }
+    }
+    @keyframes floatBezel {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    .tablet-bezel::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 22px;
+      padding: 1px;
+      background: linear-gradient(120deg, rgba(201,169,97,0.5), transparent 40%, rgba(0,245,130,0.35), transparent 70%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      opacity: 0.55;
+    }
+    .tablet-notch {
+      width: 72px;
+      height: 6px;
+      border-radius: 99px;
+      background: #0a120e;
+      margin: 0 auto 12px;
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.06);
+    }
+    .tablet-screen {
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(0, 245, 130, 0.15);
+      background: #0a140f;
+      min-height: 120px;
+    }
+    .tablet-copy {
+      padding: 18px 18px 6px;
+    }
+    .tablet-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px 20px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .tablet-title-row h2 {
+      font-family: var(--head);
+      font-size: clamp(0.95rem, 2.4vw, 1.05rem);
+      font-weight: 700;
+      margin: 0;
+      flex: 1 1 220px;
+      min-width: 0;
+      letter-spacing: 0.2px;
+      line-height: 1.25;
+    }
+    .savings-gauge {
+      flex: 0 0 auto;
+      width: 156px;
+      max-width: 100%;
+      text-align: center;
+      margin: 0;
+    }
+    .savings-gauge-svg {
+      width: 156px;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.4));
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .savings-gauge--motion .savings-gauge-svg {
+        animation: savingsGaugeFloat 5s ease-in-out infinite;
+      }
+      .savings-gauge--motion .savings-gauge-fill {
+        animation: savingsArcGlow 3.2s ease-in-out infinite;
+      }
+    }
+    @keyframes savingsGaugeFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    @keyframes savingsArcGlow {
+      0%, 100% { opacity: 1; filter: brightness(1); }
+      50% { opacity: 0.94; filter: brightness(1.15); }
+    }
+    .savings-gauge-fill {
+      transition: stroke-dashoffset 1s ease;
+    }
+    .savings-needle-root {
+      transition: transform 1s ease;
+    }
+    .savings-gauge-readout {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #d0ebe0;
+      margin-top: 2px;
+      letter-spacing: -0.02em;
+    }
+    .savings-gauge-scale {
+      display: flex;
+      justify-content: space-between;
+      font-size: 8px;
+      color: #7aaa8e;
+      margin-top: 4px;
+      padding: 0 2px;
+      letter-spacing: 0.02em;
+    }
+    .savings-gauge-caption {
+      font-size: 8px;
+      fill: #7aaa8e;
+      font-family: var(--font);
+    }
+    .tablet-copy .lead {
+      font-family: var(--font-clean);
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+      margin: 0 0 14px;
+    }
+    .tablet-copy ul {
+      margin: 0 0 14px;
+      padding-left: 1.15rem;
+      color: #c5ddd0;
+      font-family: var(--font-clean);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .tablet-copy li { margin-bottom: 6px; }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: var(--font);
+      text-decoration: none;
+      border: 1px solid rgba(0, 245, 130, 0.35);
+      background: rgba(0, 245, 130, 0.1);
+      color: #d4ffe8;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 245, 130, 0.18);
+      border-color: rgba(0, 245, 130, 0.55);
+    }
+    .btn--gold {
+      border-color: rgba(201, 169, 97, 0.45);
+      background: rgba(201, 169, 97, 0.12);
+      color: #fff4e0;
+    }
+    .btn--gold:hover {
+      box-shadow: 0 8px 24px rgba(201, 169, 97, 0.2);
+    }
+    .btn--blue {
+      border-color: rgba(56, 189, 248, 0.4);
+      background: rgba(56, 189, 248, 0.1);
+      color: #c8efff;
+    }
+    .btn--blue:hover {
+      box-shadow: 0 8px 24px rgba(56, 189, 248, 0.2);
+    }
+    .btn--green {
+      border-color: rgba(40, 167, 69, 0.5);
+      background: rgba(40, 167, 69, 0.14);
+      color: #d8ffe6;
+    }
+    .btn--green:hover {
+      box-shadow: 0 8px 24px rgba(40, 167, 69, 0.22);
+    }
+    .actions .btn--ghost {
+      border-color: rgba(143, 176, 160, 0.35);
+      background: rgba(0, 0, 0, 0.2);
+      color: #9eb8a8;
+      font-weight: 600;
+    }
+    .actions .btn--ghost:hover {
+      border-color: rgba(143, 176, 160, 0.5);
+      color: #d0e8dc;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    }
+    .iframe-wrap {
+      position: relative;
+      /* Taller preview so embedded tools (e.g. Equipment Intelligence) show more above the fold */
+      height: min(900px, max(480px, 72vh));
+      background: #050a08;
+    }
+    .iframe-wrap iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+    .iframe-hint {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 8px 12px;
+      font-size: 11px;
+      color: var(--muted);
+      background: linear-gradient(transparent, rgba(5,14,9,0.92));
+      pointer-events: none;
+    }
+    .ticker {
+      margin-top: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      background: rgba(5, 14, 9, 0.55);
+      overflow: hidden;
+      height: 44px;
+      display: flex;
+      align-items: center;
+    }
+    .ticker-track {
+      display: flex;
+      gap: 48px;
+      white-space: nowrap;
+      padding: 0 16px;
+      font-size: 13px;
+      color: #b8e6ff;
+      font-family: var(--mono);
+      animation: ticker 28s linear infinite;
+    }
+    .sp-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: max(12px, env(safe-area-inset-top)) 16px max(12px, env(safe-area-inset-bottom));
+    }
+    .sp-modal[hidden] { display: none !important; }
+    .sp-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(2, 8, 16, 0.78);
+      backdrop-filter: blur(6px);
+    }
+    .sp-modal-panel {
+      position: relative;
+      z-index: 1;
+      width: min(920px, 96vw);
+      height: min(720px, 88vh);
+      display: flex;
+      flex-direction: column;
+      border-radius: 18px;
+      border: 1px solid rgba(201, 169, 97, 0.4);
+      background: linear-gradient(165deg, rgba(18, 37, 26, 0.98), rgba(10, 22, 16, 0.98));
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+      overflow: hidden;
+    }
+    .sp-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid rgba(201, 169, 97, 0.22);
+      flex-shrink: 0;
+    }
+    .sp-modal-head strong { font-size: 14px; font-weight: 800; }
+    .sp-modal-head .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .sp-modal-close {
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      border-radius: 10px;
+      width: 36px;
+      height: 36px;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .sp-modal-frame-wrap { flex: 1; min-height: 0; background: #050e09; }
+    .sp-modal-frame-wrap iframe { width: 100%; height: 100%; border: 0; display: block; }
+    .projection-demo-note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px dashed rgba(201, 169, 97, 0.35);
+      background: rgba(0, 0, 0, 0.2);
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .savings-gauge--motion .savings-gauge-svg,
+      .savings-gauge--motion .savings-gauge-fill {
+        animation: none !important;
+      }
+      .savings-needle-spin { animation: none !important; }
+      .ticker-track { animation: none; flex-wrap: wrap; white-space: normal; height: auto; }
+      .tablet-wrap.active .tablet-bezel { animation: none; }
+      .pulse-dot { animation: none !important; }
+    }
+    .savings-needle-spin {
+      transform-origin: 0 0;
+    }
+    @keyframes savingsNeedle {
+      0%, 100% { transform: rotate(calc(var(--needle, -35deg) - 2deg)); }
+      50% { transform: rotate(calc(var(--needle, -35deg) + 2deg)); }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .savings-gauge--motion .savings-needle-spin {
+        animation: savingsNeedle 5.2s ease-in-out infinite;
+      }
+    }
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker strong { color: #fff; font-weight: 600; }
+    .gear {
+      display: inline-block;
+      animation: spin 8s linear infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .gear { animation: none; }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .pulse-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-right: 6px;
+      vertical-align: middle;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.35; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <nav class="savings-page-nav" aria-label="Page navigation">
+      <button type="button" class="btn btn--ghost" id="savingsBackBtn" title="Return to the previous page in your browser">← Previous page</button>
+      <a class="btn btn--dashboard" href="./Greenways%20Interface%20.html" title="Greenways Buildings main dashboard">← Back to dashboard</a>
+    </nav>
+
+    <header class="hero">
+      <h1>Savings</h1>
+      <p>
+        A tour of how each part of the Greenways Buildings workspace helps you cut energy and cost—and where to open the live tools.
+        Use the selectors on the left to flip between areas; optional previews run inside the tablet frame.
+      </p>
+    </header>
+
+    <div class="layout">
+      <nav class="rail" aria-label="Savings topics">
+        <div class="rail-label">Explore</div>
+        <button type="button" class="rail-btn active" id="tab-trajectory" data-panel="trajectory" aria-pressed="true">
+          <span class="ico">📈</span>
+          <span>Trajectory</span>
+        </button>
+        <button type="button" class="rail-btn" id="tab-deep-dive" data-panel="deep-dive" aria-pressed="false">
+          <span class="ico">🔬</span>
+          <span>Deep Dive</span>
+        </button>
+        <button type="button" class="rail-btn" id="tab-grants" data-panel="grants" aria-pressed="false">
+          <span class="ico">🏛️</span>
+          <span>Grants &amp; schemes</span>
+        </button>
+        <button type="button" class="rail-btn" id="tab-baseline" data-panel="baseline" aria-pressed="false">
+          <span class="ico">📊</span>
+          <span>Equipment baseline</span>
+        </button>
+        <button type="button" class="rail-btn" id="tab-events" data-panel="events" aria-pressed="false">
+          <span class="ico">🎪</span>
+          <span>Events &amp; catering</span>
+        </button>
+        <button type="button" class="rail-btn" id="tab-assistance" data-panel="assistance" aria-pressed="false">
+          <span class="ico">💬</span>
+          <span>Assistance</span>
+        </button>
+        <button type="button" class="rail-btn" id="tab-savings-projection" data-panel="savings-projection" aria-pressed="false">
+          <span class="ico">📉</span>
+          <span>Savings projections</span>
+        </button>
+        <button type="button" class="rail-btn" id="tab-deals" data-panel="deals" aria-pressed="false">
+          <span class="ico">🏷️</span>
+          <span>Deals</span>
+        </button>
+        <button type="button" class="rail-btn" id="tab-intelligence" data-panel="intelligence" aria-pressed="false">
+          <span class="ico">⚙️</span>
+          <span>Equipment intelligence</span>
+        </button>
+        <div class="back-row">
+          <button type="button" class="rail-back-btn" id="savingsRailBackBtn">← Previous page</button>
+          <a href="./Greenways%20Interface%20.html">← Back to dashboard</a>
+        </div>
+      </nav>
+
+      <div class="stage">
+        <svg class="savings-defs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;overflow:hidden;clip:rect(0,0,0,0)">
+          <defs>
+            <filter id="sgHubGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="2" result="b" />
+              <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+            <linearGradient id="sgGradTraj" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#00f582" /><stop offset="60%" stop-color="#f5a623" /><stop offset="100%" stop-color="#ff4f4f" />
+            </linearGradient>
+            <linearGradient id="sgGradDd" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#5ee0ff" /><stop offset="55%" stop-color="#38bdf8" /><stop offset="100%" stop-color="#0a6a8c" />
+            </linearGradient>
+            <linearGradient id="sgGradGrants" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#f0e6c8" /><stop offset="50%" stop-color="#c9a961" /><stop offset="100%" stop-color="#8a6a2a" />
+            </linearGradient>
+            <linearGradient id="sgGradBase" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#00f582" /><stop offset="100%" stop-color="#1a8f5a" />
+            </linearGradient>
+            <linearGradient id="sgGradEvents" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#e879f9" /><stop offset="50%" stop-color="#38bdf8" /><stop offset="100%" stop-color="#22d4ff" />
+            </linearGradient>
+            <linearGradient id="sgGradAssist" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#ffb84d" /><stop offset="100%" stop-color="#f5a623" />
+            </linearGradient>
+            <linearGradient id="sgGradProjection" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#00f582" /><stop offset="50%" stop-color="#f5a623" /><stop offset="100%" stop-color="#c9a961" />
+            </linearGradient>
+            <linearGradient id="sgGradDeals" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#00f582" /><stop offset="50%" stop-color="#c9a961" /><stop offset="100%" stop-color="#22d4ff" />
+            </linearGradient>
+            <linearGradient id="sgGradIntel" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#00f582" /><stop offset="45%" stop-color="#53b8ff" /><stop offset="100%" stop-color="#38bdf8" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <!-- Trajectory -->
+        <section class="tablet-wrap active" id="panel-trajectory" role="tabpanel" aria-labelledby="tab-trajectory">
+          <div class="tablet-bezel">
+            <div class="tablet-notch" aria-hidden="true"></div>
+            <div class="tablet-screen">
+              <div class="tablet-copy">
+                <div class="tablet-title-row">
+                  <h2><span class="pulse-dot" aria-hidden="true"></span>Energy savings trajectory</h2>
+                  <figure class="savings-gauge savings-gauge--motion" data-pct="64" style="--needle:-35.87deg" aria-hidden="true">
+                    <svg class="savings-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#1a3526" stroke-width="10" stroke-linecap="round" />
+                      <path class="savings-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#sgGradTraj)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#00f582" filter="url(#sgHubGlow)" />
+                      <g class="savings-needle-root" transform="translate(80,90)">
+                        <g class="savings-needle-spin">
+                          <line x1="0" y1="0" x2="0" y2="-48" stroke="#00f582" stroke-width="2" stroke-linecap="round" />
+                        </g>
+                      </g>
+                      <text class="savings-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#e8f5ee" font-family="JetBrains Mono, monospace">64%</text>
+                      <text class="savings-gauge-caption" x="80" y="93" text-anchor="middle">vs baseline cap</text>
+                    </svg>
+                    <div class="savings-gauge-readout">141 / 220 kWh</div>
+                    <div class="savings-gauge-scale"><span>0%</span><span>Norm</span><span>High</span><span>Peak</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  The trajectory view turns your site model, tariffs, and story buckets into a narrative: where energy goes today, what “good” looks like,
+                  and which interventions move the needle on kWh and €. It is the bridge between raw feeds and decisions your ops team can act on.
+                </p>
+                <ul>
+                  <li>Hybrid site totals and live-style pulses show momentum without hiding uncertainty.</li>
+                  <li>Toolkit links jump you to intelligence, utilities, or schemes with context carried in the URL.</li>
+                  <li>Use it in huddles: pick a resource, read the trajectory strip, then assign an owner from the savings list.</li>
+                </ul>
+                <div class="actions">
+                  <a class="btn" href="./energy-savings-trajectory.html" target="_blank" rel="noopener">Open trajectory (full tab)</a>
+                  <button type="button" class="btn btn--gold" data-toggle-iframe="traj" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="iframe-wrap" id="iframe-traj" hidden>
+                <iframe title="Trajectory preview" loading="lazy" src="./energy-savings-trajectory.html"></iframe>
+                <div class="iframe-hint">Embedded preview — use “Open trajectory” if the frame is clipped in your host.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Deep Dive -->
+        <section class="tablet-wrap" id="panel-deep-dive" role="tabpanel" aria-labelledby="tab-deep-dive">
+          <div class="tablet-bezel">
+            <div class="tablet-notch" aria-hidden="true"></div>
+            <div class="tablet-screen">
+              <div class="tablet-copy">
+                <div class="tablet-title-row">
+                  <h2>Restaurant equipment deep dive</h2>
+                  <figure class="savings-gauge savings-gauge--motion" data-pct="58" style="--needle:-40.92deg" aria-hidden="true">
+                    <svg class="savings-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#132a32" stroke-width="10" stroke-linecap="round" />
+                      <path class="savings-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#sgGradDd)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#38bdf8" filter="url(#sgHubGlow)" />
+                      <g class="savings-needle-root" transform="translate(80,90)">
+                        <g class="savings-needle-spin">
+                          <line x1="0" y1="0" x2="0" y2="-48" stroke="#5ee0ff" stroke-width="2" stroke-linecap="round" />
+                        </g>
+                      </g>
+                      <text class="savings-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#e8fbff" font-family="JetBrains Mono, monospace">58%</text>
+                      <text class="savings-gauge-caption" x="80" y="93" text-anchor="middle">vs benchmark depth</text>
+                    </svg>
+                    <div class="savings-gauge-readout">12 sections · 4 grants</div>
+                    <div class="savings-gauge-scale"><span>0%</span><span>Norm</span><span>High</span><span>Peak</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  Deep dives consolidate benchmarks, operating tips, replacement economics, and grant hooks for a class of equipment (for example wok lines or refrigeration).
+                  They answer “why does this asset matter?” and “what would better look like on my site?”
+                </p>
+                <ul>
+                  <li>Curated copy and structure so non-energy specialists still get a clear upgrade path.</li>
+                  <li>Ties to marketplace and intelligence when product IDs or names are known.</li>
+                  <li>Ideal before capex conversations: finance sees savings language, ops sees behaviour and maintenance cues.</li>
+                </ul>
+                <div class="actions">
+                  <a class="btn" href="./restaurant-equipment-deep-dive.html" target="_blank" rel="noopener">Open deep dive hub</a>
+                  <button type="button" class="btn btn--gold" data-toggle-iframe="dd" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="iframe-wrap" id="iframe-dd" hidden>
+                <iframe title="Deep dive preview" loading="lazy" src="./restaurant-equipment-deep-dive.html"></iframe>
+                <div class="iframe-hint">Long page — scroll inside the frame or open full tab.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Grants -->
+        <section class="tablet-wrap" id="panel-grants" role="tabpanel" aria-labelledby="tab-grants">
+          <div class="tablet-bezel">
+            <div class="tablet-notch" aria-hidden="true"></div>
+            <div class="tablet-screen">
+              <div class="tablet-copy">
+                <div class="tablet-title-row">
+                  <h2>Grants &amp; schemes — where they appear</h2>
+                  <figure class="savings-gauge savings-gauge--motion" data-pct="72" style="--needle:-29.08deg" aria-hidden="true">
+                    <svg class="savings-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#2a2418" stroke-width="10" stroke-linecap="round" />
+                      <path class="savings-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#sgGradGrants)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#c9a961" filter="url(#sgHubGlow)" />
+                      <g class="savings-needle-root" transform="translate(80,90)">
+                        <g class="savings-needle-spin">
+                          <line x1="0" y1="0" x2="0" y2="-48" stroke="#f0e6c8" stroke-width="2" stroke-linecap="round" />
+                        </g>
+                      </g>
+                      <text class="savings-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#fff4e0" font-family="JetBrains Mono, monospace">72%</text>
+                      <text class="savings-gauge-caption" x="80" y="93" text-anchor="middle">vs eligibility bar</text>
+                    </svg>
+                    <div class="savings-gauge-readout">62 schemes · live pool</div>
+                    <div class="savings-gauge-scale"><span>0%</span><span>Norm</span><span>High</span><span>Peak</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  Funding and certification programmes surface in multiple places so they are never an afterthought: equipment cards link out with prefilled search,
+                  incentives areas aggregate eligibility signals, and dedicated portals let you browse the full catalogue.
+                </p>
+                <ul>
+                  <li><strong>Equipment tab:</strong> gold “Schemes portal” and “EU schemes” pills follow the asset you are viewing.</li>
+                  <li><strong>Incentives pool:</strong> member-facing workflows to shortlist schemes quickly.</li>
+                  <li><strong>Trajectory &amp; intelligence:</strong> grant lines and overlays when live <code>/api/schemes</code> data is available.</li>
+                  <li><strong>Financial assistance:</strong> grants, BNPL, equipment finance, and green loans in one restaurant finance finder.</li>
+                </ul>
+                <div class="actions">
+                  <a class="btn btn--gold" href="./Full%20Schemes%20Portal%20Restaurant.html" target="_blank" rel="noopener">Restaurant schemes portal</a>
+                  <a class="btn btn--blue" href="./Full%20Schemes%20Portal%20html.html" target="_blank" rel="noopener">EU schemes</a>
+                  <a class="btn btn--green" href="./finance-finder-restaurant.html" target="_blank" rel="noopener">Financial assistance</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Baseline -->
+        <section class="tablet-wrap" id="panel-baseline" role="tabpanel" aria-labelledby="tab-baseline">
+          <div class="tablet-bezel">
+            <div class="tablet-notch" aria-hidden="true"></div>
+            <div class="tablet-screen">
+              <div class="tablet-copy">
+                <div class="tablet-title-row">
+                  <h2>Equipment baseline — why it matters</h2>
+                  <figure class="savings-gauge savings-gauge--motion" data-pct="55" style="--needle:-43.46deg" aria-hidden="true">
+                    <svg class="savings-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#1a3526" stroke-width="10" stroke-linecap="round" />
+                      <path class="savings-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#sgGradBase)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#00f582" filter="url(#sgHubGlow)" />
+                      <g class="savings-needle-root" transform="translate(80,90)">
+                        <g class="savings-needle-spin">
+                          <line x1="0" y1="0" x2="0" y2="-48" stroke="#00f582" stroke-width="2" stroke-linecap="round" />
+                        </g>
+                      </g>
+                      <text class="savings-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#e8f5ee" font-family="JetBrains Mono, monospace">55%</text>
+                      <text class="savings-gauge-caption" x="80" y="93" text-anchor="middle">vs class baseline</text>
+                    </svg>
+                    <div class="savings-gauge-readout">Model · 17 assets</div>
+                    <div class="savings-gauge-scale"><span>0%</span><span>Norm</span><span>High</span><span>Peak</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  Baselines anchor “normal” for each asset class on your site. Without them, alerts and savings claims float in mid-air.
+                  The dashboard compares live draw, duty cycles, and cost bands to that reference so drift shows up early.
+                </p>
+                <ul>
+                  <li>Story buckets and KPI strips in trajectory inherit the same baseline language as equipment tiles.</li>
+                  <li>When measured use persistently sits above the class curve, treat it as a service or controls review—not only a tariff problem.</li>
+                  <li>Document baseline revisions (the audit trail pattern) so retrofits and recommissioning events are visible in history.</li>
+                </ul>
+                <div class="actions">
+                  <a class="btn" href="./Greenways%20Interface%20.html?tab=equipment#equipment-baseline" target="_blank" rel="noopener">Open baseline on dashboard</a>
+                  <button type="button" class="btn btn--gold" data-toggle-iframe="base" data-open-label="Preview baseline section in tablet">Preview baseline section in tablet</button>
+                </div>
+              </div>
+              <div class="iframe-wrap" id="iframe-base" hidden>
+                <iframe title="Equipment baseline on dashboard" loading="lazy" src="./Greenways%20Interface%20.html?tab=equipment#equipment-baseline"></iframe>
+                <div class="iframe-hint">Opens the Equipment tab scrolled to the baseline explainer (why we baseline each asset class).</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Events -->
+        <section class="tablet-wrap" id="panel-events" role="tabpanel" aria-labelledby="tab-events">
+          <div class="tablet-bezel">
+            <div class="tablet-notch" aria-hidden="true"></div>
+            <div class="tablet-screen">
+              <div class="tablet-copy">
+                <div class="tablet-title-row">
+                  <h2>Events &amp; catering opportunities</h2>
+                  <figure class="savings-gauge savings-gauge--motion" data-pct="81" style="--needle:-21.46deg" aria-hidden="true">
+                    <svg class="savings-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#2a1830" stroke-width="10" stroke-linecap="round" />
+                      <path class="savings-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#sgGradEvents)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#e879f9" filter="url(#sgHubGlow)" />
+                      <g class="savings-needle-root" transform="translate(80,90)">
+                        <g class="savings-needle-spin">
+                          <line x1="0" y1="0" x2="0" y2="-48" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" />
+                        </g>
+                      </g>
+                      <text class="savings-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#fcecff" font-family="JetBrains Mono, monospace">81%</text>
+                      <text class="savings-gauge-caption" x="80" y="93" text-anchor="middle">vs demand index</text>
+                    </svg>
+                    <div class="savings-gauge-readout">4 events · 2 km</div>
+                    <div class="savings-gauge-scale"><span>0%</span><span>Norm</span><span>High</span><span>Peak</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  A ticker-style surface highlights fairs, festivals, corporate catering windows, and pop-ups near your premises—moments where extra throughput
+                  can convert spare kitchen capacity into profit. Pair demand spikes with your energy plan so you scale labour and equipment, not waste.
+                </p>
+                <ul>
+                  <li>Demo feed below rotates illustrative events; a production build would call a curated calendar API.</li>
+                  <li>Use it commercially: brief front-of-house on upcoming high-traffic nights tied to local calendars.</li>
+                  <li>Use it technically: schedule demand-response or pre-cooling when you expect a revenue spike.</li>
+                </ul>
+                <div class="ticker" aria-label="Sample local opportunities">
+                  <div class="ticker-track">
+                    <span><strong>Fri</strong> — Street food night @ City Hall · 400 covers est.</span>
+                    <span><strong>Sat</strong> — Marathon finish village · coffee + hot boxes</span>
+                    <span><strong>Sun</strong> — Artisan market · tasting flights partnership slot open</span>
+                    <span><strong>Thu</strong> — Office park lunch series · recurring 120 headcounts</span>
+                    <span><strong>Fri</strong> — Street food night @ City Hall · 400 covers est.</span>
+                    <span><strong>Sat</strong> — Marathon finish village · coffee + hot boxes</span>
+                    <span><strong>Sun</strong> — Artisan market · tasting flights partnership slot open</span>
+                    <span><strong>Thu</strong> — Office park lunch series · recurring 120 headcounts</span>
+                  </div>
+                </div>
+                <p class="lead" style="margin-top: 12px; font-size: 12px;">
+                  <span class="gear" aria-hidden="true">⚙</span> Wiring note: connect your events provider or chamber-of-commerce feed to replace the demo marquee.
+                </p>
+                <div class="actions">
+                  <a class="btn btn--gold" href="./Events%20Ticker%20W2W%20.html?return=savings.html" target="_blank" rel="noopener">Open events ticker</a>
+                  <button type="button" class="btn btn--gold" data-toggle-iframe="events" data-open-label="Preview events ticker in tablet">Preview events ticker in tablet</button>
+                </div>
+              </div>
+              <div class="iframe-wrap" id="iframe-events" hidden>
+                <iframe title="Events ticker preview" loading="lazy" src="./Events%20Ticker%20W2W%20.html?return=savings.html"></iframe>
+                <div class="iframe-hint">Amsterdam-area events and catering — same surface as Wok Assist.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Assistance -->
+        <section class="tablet-wrap" id="panel-assistance" role="tabpanel" aria-labelledby="tab-assistance">
+          <div class="tablet-bezel">
+            <div class="tablet-notch" aria-hidden="true"></div>
+            <div class="tablet-screen">
+              <div class="tablet-copy">
+                <div class="tablet-title-row">
+                  <h2>Wok to Walk assistance</h2>
+                  <figure class="savings-gauge savings-gauge--motion" data-pct="67" style="--needle:-33.31deg" aria-hidden="true">
+                    <svg class="savings-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#2a2418" stroke-width="10" stroke-linecap="round" />
+                      <path class="savings-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#sgGradAssist)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#f5a623" filter="url(#sgHubGlow)" />
+                      <g class="savings-needle-root" transform="translate(80,90)">
+                        <g class="savings-needle-spin">
+                          <line x1="0" y1="0" x2="0" y2="-48" stroke="#ffb84d" stroke-width="2" stroke-linecap="round" />
+                        </g>
+                      </g>
+                      <text class="savings-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#fff0e0" font-family="JetBrains Mono, monospace">67%</text>
+                      <text class="savings-gauge-caption" x="80" y="93" text-anchor="middle">vs context fill</text>
+                    </svg>
+                    <div class="savings-gauge-readout">Site + history · on</div>
+                    <div class="savings-gauge-scale"><span>0%</span><span>Norm</span><span>High</span><span>Peak</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  Assistants open with site-aware context: your venue profile, historic intensity patterns, and the same grant and equipment vocabulary used elsewhere.
+                  That reduces generic answers and keeps recommendations aligned with how your building actually runs.
+                </p>
+                <ul>
+                  <li>Prefilled prompts reference current premises, trading style, and outlook where those records exist.</li>
+                  <li>Energy usage and tariff pain points travel in from the trajectory and utility views.</li>
+                  <li>Best for “what should we do next quarter?” threads that need narrative plus numbers.</li>
+                </ul>
+                <div class="actions">
+                  <a class="btn" href="./Greenways%20Interface%20.html?tab=wok-assist" target="_blank" rel="noopener">Open dashboard — choose Wok Assist tab</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Savings projections -->
+        <section class="tablet-wrap" id="panel-savings-projection" role="tabpanel" aria-labelledby="tab-savings-projection">
+          <div class="tablet-bezel">
+            <div class="tablet-notch" aria-hidden="true"></div>
+            <div class="tablet-screen">
+              <div class="tablet-copy">
+                <div class="tablet-title-row">
+                  <h2>Savings projections</h2>
+                  <figure class="savings-gauge savings-gauge--motion" data-pct="66" style="--needle:-34.15deg" aria-hidden="true">
+                    <svg class="savings-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#1a3526" stroke-width="10" stroke-linecap="round" />
+                      <path class="savings-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#sgGradProjection)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#f5a623" filter="url(#sgHubGlow)" />
+                      <g class="savings-needle-root" transform="translate(80,90)">
+                        <g class="savings-needle-spin">
+                          <line x1="0" y1="0" x2="0" y2="-48" stroke="#00f582" stroke-width="2" stroke-linecap="round" />
+                        </g>
+                      </g>
+                      <text class="savings-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#e8f5ee" font-family="JetBrains Mono, monospace">66%</text>
+                      <text class="savings-gauge-caption" x="80" y="93" text-anchor="middle">vs payback clarity</text>
+                    </svg>
+                    <div class="savings-gauge-readout">Popup · product &amp; building</div>
+                    <div class="savings-gauge-scale"><span>0%</span><span>Norm</span><span>High</span><span>Peak</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  When you compare equipment on a deep dive or start a new project, look for the <strong>Savings projection</strong> control on marketplace alternatives.
+                  It opens a payback chart: running cost if you do nothing versus after upgrade, grants and tax offsets, and when cumulative savings cover net purchase price.
+                </p>
+                <ul>
+                  <li>Real numbers come from the product you pick in context—not from this tour page.</li>
+                  <li>Adjust purchase price, grants, and illustrative tax in the popup to stress-test ROI before you commit.</li>
+                  <li>Whole-building projections use the same tool from Restaurant Data when you model site-level savings.</li>
+                </ul>
+                <div class="actions">
+                  <button type="button" class="btn btn--gold" id="btnProjectionDemo">See example projection</button>
+                </div>
+                <p class="projection-demo-note">
+                  Press <strong>Savings projection</strong> when you see it on a product card to view savings &amp; ROI for that choice.
+                  The popup example uses a sample undercounter fridge only—your project picks the real product and numbers.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Deals -->
+        <section class="tablet-wrap" id="panel-deals" role="tabpanel" aria-labelledby="tab-deals">
+          <div class="tablet-bezel">
+            <div class="tablet-notch" aria-hidden="true"></div>
+            <div class="tablet-screen">
+              <div class="tablet-copy">
+                <div class="tablet-title-row">
+                  <h2>Deals — energy, water &amp; sustainability</h2>
+                  <figure class="savings-gauge savings-gauge--motion" data-pct="68" style="--needle:-32.62deg" aria-hidden="true">
+                    <svg class="savings-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#132a32" stroke-width="10" stroke-linecap="round" />
+                      <path class="savings-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#sgGradDeals)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#c9a961" filter="url(#sgHubGlow)" />
+                      <g class="savings-needle-root" transform="translate(80,90)">
+                        <g class="savings-needle-spin">
+                          <line x1="0" y1="0" x2="0" y2="-48" stroke="#00f582" stroke-width="2" stroke-linecap="round" />
+                        </g>
+                      </g>
+                      <text class="savings-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#e8f5ee" font-family="JetBrains Mono, monospace">68%</text>
+                      <text class="savings-gauge-caption" x="80" y="93" text-anchor="middle">vs list velocity</text>
+                    </svg>
+                    <div class="savings-gauge-readout">Hub · search + tickers</div>
+                    <div class="savings-gauge-scale"><span>0%</span><span>Norm</span><span>High</span><span>Peak</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  The deals hub brings together marquees for energy, water, and sustainability with manual search and category filters—so teams can spot
+                  relevant offers without leaving the Greenways vocabulary.
+                </p>
+                <ul>
+                  <li><strong>Deals hub:</strong> tickers plus spotlight cards and a generated feed from product seeds.</li>
+                  <li><strong>Full deals page:</strong> richer shell when you want a dedicated tab or embed.</li>
+                  <li>Feed is built from <code>data/deals-feed.json</code>; refresh the build when you add weekly intake.</li>
+                </ul>
+                <div class="actions">
+                  <a class="btn btn--gold" href="./Deals.html" target="_blank" rel="noopener">Open deals page</a>
+                  <a class="btn btn--blue" href="./deals-ticker-hub.html" target="_blank" rel="noopener">Open deals hub only</a>
+                  <button type="button" class="btn btn--gold" data-toggle-iframe="deals" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="iframe-wrap" id="iframe-deals" hidden>
+                <iframe title="Deals page preview" loading="lazy" src="./Deals.html"></iframe>
+                <div class="iframe-hint">Full deals page — tickers, search, and spotlight cards.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Intelligence -->
+        <section class="tablet-wrap" id="panel-intelligence" role="tabpanel" aria-labelledby="tab-intelligence">
+          <div class="tablet-bezel">
+            <div class="tablet-notch" aria-hidden="true"></div>
+            <div class="tablet-screen">
+              <div class="tablet-copy">
+                <div class="tablet-title-row">
+                  <h2>Equipment intelligence</h2>
+                  <figure class="savings-gauge savings-gauge--motion" data-pct="61" style="--needle:-38.38deg" aria-hidden="true">
+                    <svg class="savings-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#132a32" stroke-width="10" stroke-linecap="round" />
+                      <path class="savings-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#sgGradIntel)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#53b8ff" filter="url(#sgHubGlow)" />
+                      <g class="savings-needle-root" transform="translate(80,90)">
+                        <g class="savings-needle-spin">
+                          <line x1="0" y1="0" x2="0" y2="-48" stroke="#00f582" stroke-width="2" stroke-linecap="round" />
+                        </g>
+                      </g>
+                      <text class="savings-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#e8f5ee" font-family="JetBrains Mono, monospace">61%</text>
+                      <text class="savings-gauge-caption" x="80" y="93" text-anchor="middle">vs OEM curve</text>
+                    </svg>
+                    <div class="savings-gauge-readout">Δ kW · 8 assets</div>
+                    <div class="savings-gauge-scale"><span>0%</span><span>Norm</span><span>High</span><span>Peak</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  Measure any monitored asset against its manufacturer or class baseline. Assets sitting systematically above expected kW for the workload
+                  often indicate wear, control drift, failed economisers, or fouling—each of which can inflate bills before a hard failure.
+                </p>
+                <ul>
+                  <li>Efficiency scores in the equipment tab share the same scoring logic for consistency.</li>
+                  <li>Use intelligence before you replace hardware: sometimes recommissioning recovers most of the gap.</li>
+                  <li>Deep links preserve equipment names so the intelligence page opens focused.</li>
+                </ul>
+                <div class="actions">
+                  <a class="btn" href="./equipment_intelligence_tool.html" target="_blank" rel="noopener">Open equipment intelligence</a>
+                  <button type="button" class="btn btn--gold" data-toggle-iframe="intel" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="iframe-wrap" id="iframe-intel" hidden>
+                <iframe title="Equipment intelligence preview" loading="lazy" src="./equipment_intelligence_tool.html"></iframe>
+                <div class="iframe-hint">Interactive tool — full tab recommended for long sessions.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div id="savingsProjectionModal" class="sp-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="savingsProjectionModalTitle">
+    <div class="sp-modal-backdrop" aria-hidden="true"></div>
+    <div class="sp-modal-panel">
+      <header class="sp-modal-head">
+        <div>
+          <strong id="savingsProjectionModalTitle">Example savings projection</strong>
+          <div class="sub">Illustrative payback chart · popup only</div>
+        </div>
+        <button type="button" class="sp-modal-close" aria-label="Close savings projection">×</button>
+      </header>
+      <div class="sp-modal-frame-wrap">
+        <iframe id="savingsProjectionFrame" title="Savings projection example" loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const SAVINGS_ARC_LEN = Math.PI * 60;
+
+      function savingsNeedleDeg(pct) {
+        const p = Math.max(0, Math.min(100, Number(pct)));
+        if (Number.isNaN(p)) return -35;
+        return -90 + p * (55 / 65);
+      }
+
+      function syncSavingsGauge(fig) {
+        if (!fig) return;
+        const pct = Number(fig.dataset.pct);
+        const fill = fig.querySelector('.savings-gauge-fill');
+        const pctText = fig.querySelector('.savings-gauge-pct');
+        if (pctText && !Number.isNaN(pct)) pctText.textContent = `${Math.round(pct)}%`;
+        fig.style.setProperty('--needle', `${savingsNeedleDeg(pct)}deg`);
+        if (fill && !Number.isNaN(pct)) {
+          fill.setAttribute('stroke-dasharray', String(SAVINGS_ARC_LEN));
+          fill.setAttribute('stroke-dashoffset', String(SAVINGS_ARC_LEN));
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              fill.setAttribute('stroke-dashoffset', String(SAVINGS_ARC_LEN * (1 - pct / 100)));
+            });
+          });
+        }
+      }
+
+      const buttons = Array.from(document.querySelectorAll('.rail-btn[data-panel]'));
+      const panels = {
+        trajectory: document.getElementById('panel-trajectory'),
+        'deep-dive': document.getElementById('panel-deep-dive'),
+        grants: document.getElementById('panel-grants'),
+        baseline: document.getElementById('panel-baseline'),
+        events: document.getElementById('panel-events'),
+        assistance: document.getElementById('panel-assistance'),
+        'savings-projection': document.getElementById('panel-savings-projection'),
+        deals: document.getElementById('panel-deals'),
+        intelligence: document.getElementById('panel-intelligence')
+      };
+
+      function showPanel(key) {
+        Object.entries(panels).forEach(([k, el]) => {
+          if (!el) return;
+          el.classList.toggle('active', k === key);
+        });
+        buttons.forEach((btn) => {
+          const on = btn.dataset.panel === key;
+          btn.classList.toggle('active', on);
+          btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        const activeEl = panels[key];
+        if (activeEl) activeEl.querySelectorAll('.savings-gauge').forEach(syncSavingsGauge);
+      }
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => showPanel(btn.dataset.panel));
+      });
+
+      document.querySelectorAll('.savings-gauge').forEach(syncSavingsGauge);
+
+      const toggleMap = {
+        traj: document.getElementById('iframe-traj'),
+        dd: document.getElementById('iframe-dd'),
+        base: document.getElementById('iframe-base'),
+        events: document.getElementById('iframe-events'),
+        deals: document.getElementById('iframe-deals'),
+        intel: document.getElementById('iframe-intel')
+      };
+
+      document.querySelectorAll('[data-toggle-iframe]').forEach((btn) => {
+        const wrap = toggleMap[btn.getAttribute('data-toggle-iframe')];
+        if (!wrap) return;
+        const openLabel = btn.getAttribute('data-open-label') || 'Preview';
+        btn.addEventListener('click', () => {
+          if (wrap.hasAttribute('hidden')) {
+            wrap.removeAttribute('hidden');
+            btn.textContent = 'Hide preview';
+          } else {
+            wrap.setAttribute('hidden', '');
+            btn.textContent = openLabel;
+          }
+        });
+      });
+
+      const DASHBOARD_HREF = './Greenways%20Interface%20.html';
+      function goBackOrDashboard() {
+        if (window.history.length > 1) window.history.back();
+        else window.location.href = DASHBOARD_HREF;
+      }
+      document.getElementById('savingsBackBtn')?.addEventListener('click', goBackOrDashboard);
+      document.getElementById('savingsRailBackBtn')?.addEventListener('click', goBackOrDashboard);
+
+      const DEMO_PROJECTION_URL =
+        './equipment-savings-projection.html?popup=1&embed=1&from=savings&scenario=fridge';
+
+      function openSavingsProjectionDemo() {
+        const modal = document.getElementById('savingsProjectionModal');
+        const frame = document.getElementById('savingsProjectionFrame');
+        if (!modal || !frame) return;
+        frame.src = DEMO_PROJECTION_URL;
+        modal.hidden = false;
+        modal.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeSavingsProjectionDemo() {
+        const modal = document.getElementById('savingsProjectionModal');
+        const frame = document.getElementById('savingsProjectionFrame');
+        if (!modal) return;
+        modal.hidden = true;
+        modal.setAttribute('aria-hidden', 'true');
+        if (frame) frame.src = 'about:blank';
+      }
+
+      document.getElementById('btnProjectionDemo')?.addEventListener('click', openSavingsProjectionDemo);
+      const spModal = document.getElementById('savingsProjectionModal');
+      if (spModal) {
+        spModal.querySelector('.sp-modal-backdrop')?.addEventListener('click', closeSavingsProjectionDemo);
+        spModal.querySelector('.sp-modal-close')?.addEventListener('click', closeSavingsProjectionDemo);
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && !spModal.hidden) closeSavingsProjectionDemo();
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

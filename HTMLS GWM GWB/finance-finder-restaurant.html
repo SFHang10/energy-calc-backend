@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="wix-html-scroll" content="no-scroll" />
+<title>Restaurant Green Finance Finder</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --forest:   #1a3a2a;
+    --forest-md:#2d5c3f;
+    --forest-lt:#3d7a52;
+    --gold:     #c9992a;
+    --gold-lt:  #f5e8c0;
+    --gold-pale:#fdf8ee;
+    --cream:    #f9f5ee;
+    --cream-dk: #f0ead8;
+    --sage:     #7aab8a;
+    --sage-lt:  #e4f0e8;
+    --ink:      #1a1a12;
+    --ink-md:   #3d4a3a;
+    --ink-lt:   #7a8a72;
+    --border:   #d6e0cd;
+    --white:    #ffffff;
+    --red:      #c0392b;
+    --red-lt:   #fdf0ef;
+    --radius:   10px;
+    --radius-sm:6px;
+    --shadow:   0 2px 16px rgba(26,58,42,0.10);
+    --shadow-md:0 4px 28px rgba(26,58,42,0.14);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: url('https://static.wixstatic.com/media/c123de_1fe1c58ec83544f0b0eaf57cf9ac4e02~mv2.avif') no-repeat center center fixed;
+    background-size: cover;
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.6;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(8, 14, 10, 0.48) 0%,
+      rgba(12, 18, 14, 0.58) 45%,
+      rgba(6, 10, 8, 0.68) 100%
+    );
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .page-shell {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER (dark glass — matches page panels) ── */
+  .site-header {
+    background: rgba(14, 20, 18, 0.92);
+    background-image: linear-gradient(
+      180deg,
+      rgba(8, 12, 10, 0.96) 0%,
+      rgba(24, 30, 28, 0.9) 100%
+    );
+    padding: 20px 24px 18px;
+    display: flex; align-items: center; gap: 16px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .header-coin {
+    width: 46px; height: 46px;
+    background: linear-gradient(135deg, var(--gold), #e8b84b);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+    box-shadow: 0 2px 12px rgba(201,153,42,0.4);
+    animation: coinPulse 4s ease-in-out infinite;
+  }
+  @keyframes coinPulse {
+    0%,100% { box-shadow: 0 2px 12px rgba(201,153,42,0.4); }
+    50%      { box-shadow: 0 2px 22px rgba(201,153,42,0.7); }
+  }
+
+  .header-text h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 20px; font-weight: 600;
+    color: var(--white); letter-spacing: -0.02em; line-height: 1.2;
+  }
+  .header-text p { font-size: 12px; color: rgba(200, 220, 210, 0.72); margin-top: 1px; }
+
+  /* ── TABS ── */
+  .tab-bar {
+    background: rgba(28, 34, 32, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex; overflow-x: auto; scrollbar-width: none;
+    border-bottom: 1px solid rgba(201, 153, 42, 0.22);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex: 1; min-width: 132px;
+    padding: 14px 10px 12px;
+    background: none; border: none;
+    border-bottom: 3px solid transparent;
+    color: rgba(255,255,255,0.55);
+    font-size: 12px; font-family: 'DM Sans', sans-serif; font-weight: 500;
+    cursor: pointer; transition: all 0.16s; white-space: nowrap; text-align: center;
+  }
+  .tab-btn .tab-icon,
+  .tab-btn .tab-icon-slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 6px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    font-size: 26px;
+    overflow: hidden;
+    box-shadow:
+      0 0 14px rgba(90, 150, 115, 0.28),
+      0 0 6px rgba(255, 255, 255, 0.08);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+  .tab-btn .tab-icon-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .tab-btn .tab-label { display: block; font-size: 12px; }
+  .tab-btn:hover {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .tab-btn:hover .tab-icon,
+  .tab-btn:hover .tab-icon-slot {
+    box-shadow:
+      0 0 18px rgba(110, 170, 135, 0.38),
+      0 0 8px rgba(255, 255, 255, 0.12);
+  }
+  .tab-btn.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .tab-btn.active .tab-icon,
+  .tab-btn.active .tab-icon-slot {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(201, 153, 42, 0.45);
+    box-shadow:
+      0 0 22px rgba(201, 153, 42, 0.55),
+      0 0 10px rgba(245, 232, 192, 0.35),
+      0 0 4px rgba(255, 255, 255, 0.15);
+  }
+
+  /* ── LAYOUT ── */
+  .main { padding: 24px 22px 56px; max-width: 1180px; margin: 0 auto; width: 100%; }
+
+  .wave-divider {
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--forest-lt), var(--gold));
+    background-size: 200% 100%;
+    animation: waveSlide 4s linear infinite;
+    border-radius: 2px; margin-bottom: 18px;
+  }
+  @keyframes waveSlide { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
+
+  /* ── CARD (dark grey glass panel over restaurant backdrop) ── */
+  .card {
+    background: rgba(28, 34, 32, 0.68);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius);
+    padding: 24px; margin-bottom: 18px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(16px) saturate(1.1);
+    -webkit-backdrop-filter: blur(16px) saturate(1.1);
+  }
+
+  .section-label {
+    font-size: 11px; font-weight: 600;
+    color: rgba(180, 230, 200, 0.92);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  .card .form-group label {
+    color: rgba(200, 220, 210, 0.75);
+  }
+  .card .search-row input,
+  .card .form-group select,
+  .card .form-group input[type="text"],
+  .card .form-group input[type="number"] {
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(214, 224, 205, 0.7);
+    color: var(--ink);
+  }
+  .card .pill {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.22);
+    color: rgba(232, 245, 236, 0.9);
+  }
+  .card .pill:hover {
+    background: rgba(255, 255, 255, 0.22);
+    color: #fff;
+  }
+  .card .pill.active {
+    background: rgba(61, 122, 82, 0.45);
+    border-color: rgba(122, 171, 138, 0.65);
+    color: #e8fff0;
+  }
+
+  /* ── CATEGORY GRID ── */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
+    gap: 16px; margin-bottom: 22px;
+  }
+  .cat-btn {
+    padding: 16px 14px 18px;
+    min-height: 268px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius);
+    background: rgba(52, 60, 56, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: rgba(232, 245, 236, 0.98);
+    font-size: 14px; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; text-align: center; transition: all 0.15s; line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+  }
+  .cat-btn:hover {
+    border-color: rgba(201, 153, 42, 0.5);
+    color: #fff;
+    background: rgba(62, 72, 66, 0.82);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.28);
+  }
+  .cat-btn.chosen {
+    border-color: var(--gold);
+    background: rgba(72, 84, 76, 0.88);
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 6px 24px rgba(201, 153, 42, 0.22);
+  }
+  .cat-btn .cat-copy {
+    width: 100%;
+    text-align: left;
+    padding: 0 4px;
+    margin-top: 4px;
+  }
+  .cat-btn .cat-label {
+    display: block;
+    font-weight: 600;
+    font-size: 15px;
+    color: #fff;
+    margin-bottom: 7px;
+    line-height: 1.3;
+  }
+  .cat-btn .cat-hint {
+    display: block;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: rgba(228, 242, 234, 0.94);
+    margin-bottom: 7px;
+  }
+  .cat-btn .cat-example {
+    display: block;
+    font-size: 12px;
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.45;
+    color: rgba(245, 232, 192, 0.98);
+  }
+  .cat-btn.chosen .cat-label { color: var(--gold-lt); }
+  .cat-btn .icon {
+    width: 100%;
+    max-width: 200px;
+    height: 108px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.38);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-size: 28px;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.48);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 14px rgba(0, 0, 0, 0.15);
+  }
+  .cat-btn--photo .icon {
+    padding: 8px 10px;
+  }
+  .cat-btn .icon img {
+    display: block;
+    width: auto;
+    height: 92px;
+    max-width: 100%;
+    object-fit: contain;
+    image-rendering: -webkit-optimize-contrast;
+  }
+
+  /* ── SEARCH ROW ── */
+  .search-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .search-row input {
+    flex: 1; height: 44px; padding: 0 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--cream); color: var(--ink);
+    font-size: 14px; font-family: 'DM Sans', sans-serif;
+    transition: border-color 0.15s; outline: none;
+  }
+  .search-row input:focus { border-color: var(--forest-lt); background: var(--white); }
+  .search-row input::placeholder { color: var(--ink-lt); }
+
+  .search-btn {
+    height: 44px; padding: 0 22px;
+    background: var(--forest); border: none;
+    border-radius: var(--radius-sm); color: var(--white);
+    font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 600;
+    cursor: pointer; white-space: nowrap; transition: background 0.15s;
+    letter-spacing: 0.01em;
+  }
+  .search-btn:hover { background: var(--forest-md); }
+  .search-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* ── FORM ROW ── */
+  .form-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; margin-bottom: 16px;
+  }
+  @media(max-width:540px) {
+    .form-row { grid-template-columns: 1fr 1fr; }
+    .form-row .form-group:last-child { grid-column: span 2; }
+    .cat-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .cat-btn { min-height: 248px; padding: 14px 12px 16px; }
+    .cat-btn .cat-label { font-size: 14px; }
+    .cat-btn .cat-hint { font-size: 12px; }
+    .cat-btn .cat-example { font-size: 11px; }
+    .cat-btn .icon { height: 96px; max-width: 100%; }
+    .cat-btn .icon img { height: 84px; }
+    .main { padding: 18px 14px 48px; }
+  }
+
+  .form-group label {
+    display: block; font-size: 11px; font-weight: 600;
+    color: var(--ink-lt); text-transform: uppercase;
+    letter-spacing: 0.06em; margin-bottom: 6px;
+  }
+  .form-group select, .form-group input[type=text], .form-group input[type=number] {
+    width: 100%; height: 38px; padding: 0 10px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--white); color: var(--ink);
+    font-size: 13.5px; font-family: 'DM Sans', sans-serif;
+    outline: none; transition: border-color 0.15s;
+    appearance: none; -webkit-appearance: none;
+  }
+  .form-group select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a8a72'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+  }
+  .form-group select:focus, .form-group input:focus { border-color: var(--forest-lt); }
+
+  /* ── PILLS ── */
+  .pill-group { display: flex; gap: 7px; flex-wrap: wrap; }
+  .pill {
+    padding: 5px 13px;
+    border: 1.5px solid var(--border); border-radius: 99px;
+    font-size: 12.5px; color: var(--ink-md);
+    background: var(--cream); cursor: pointer;
+    transition: all 0.14s; user-select: none;
+  }
+  .pill:hover { border-color: var(--forest-lt); color: var(--forest); }
+  .pill.active { background: var(--sage-lt); color: var(--forest); border-color: var(--forest-lt); font-weight: 600; }
+
+  /* ── LOADING ── */
+  .loading {
+    display: flex; align-items: center; gap: 12px;
+    padding: 22px 20px; color: var(--ink-md); font-size: 14px;
+    background: var(--cream);
+    border-radius: var(--radius); border: 1.5px solid var(--border);
+  }
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2.5px solid var(--border);
+    border-top-color: var(--forest-lt);
+    border-radius: 50%; animation: spin 0.75s linear infinite; flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── METRICS STRIP ── */
+  .info-strip {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 10px; margin-bottom: 16px;
+  }
+  @media(max-width:480px){ .info-strip { grid-template-columns:1fr 1fr; } }
+  .metric {
+    background: var(--gold-pale); border: 1px solid #e8d9a8;
+    border-radius: var(--radius-sm); padding: 12px 14px;
+  }
+  .metric .m-label { font-size: 10.5px; color: var(--ink-lt); font-weight: 600; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .metric .m-value { font-size: 15px; font-weight: 600; color: var(--forest); line-height: 1.3; }
+  .metric .m-sub { font-size: 11px; color: var(--ink-lt); margin-top: 2px; }
+
+  /* ── RESULTS ── */
+  .results-header {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 12px;
+  }
+  .results-header h2 { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 600; color: var(--forest); }
+  .results-header span { font-size: 12px; color: var(--ink-lt); }
+
+  .response-box {
+    font-size: 13.5px; line-height: 1.85; color: var(--ink);
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 20px 22px;
+    white-space: pre-wrap; word-break: break-word;
+  }
+
+  .action-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .btn-action {
+    padding: 8px 15px; border-radius: var(--radius-sm);
+    font-size: 12.5px; font-family: 'DM Sans', sans-serif; font-weight: 500;
+    cursor: pointer; border: 1.5px solid var(--border);
+    background: var(--white); color: var(--forest); transition: all 0.14s;
+  }
+  .btn-action:hover { background: var(--sage-lt); border-color: var(--forest-lt); }
+
+  /* ── TAB PANES ── */
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  .btn-wide {
+    width: 100%; padding: 13px;
+    background: var(--forest); border: none;
+    border-radius: var(--radius-sm); color: var(--white);
+    font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 600;
+    cursor: pointer; transition: background 0.15s; letter-spacing: 0.01em;
+  }
+  .btn-wide:hover { background: var(--forest-md); }
+  .btn-wide:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* ── ERROR ── */
+  .error-box {
+    background: var(--red-lt); color: var(--red);
+    border: 1.5px solid #f5c6c2;
+    border-radius: var(--radius-sm); padding: 14px 18px; font-size: 13.5px;
+  }
+
+  /* ── HIGHLIGHT BANNER ── */
+  .highlight-banner {
+    background: linear-gradient(135deg, var(--forest), var(--forest-md));
+    border-radius: var(--radius);
+    padding: 16px 20px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 14px;
+    color: var(--white);
+  }
+  .highlight-banner .hb-icon { font-size: 28px; flex-shrink: 0; }
+  .highlight-banner h3 { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600; margin-bottom: 3px; }
+  .highlight-banner p { font-size: 12.5px; color: rgba(255,255,255,0.70); line-height: 1.5; }
+
+  .powered-by {
+    text-align: center; font-size: 11px; color: var(--ink-lt);
+    margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+<div class="page-shell">
+
+<header class="site-header">
+  <div class="header-coin">💶</div>
+  <div class="header-text">
+    <h1>Restaurant Green Finance Finder</h1>
+    <p>Grants · Buy Now Pay Later · Equipment Schemes · Green Incentives — Netherlands &amp; Europe</p>
+  </div>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('grants',this)"><span class="tab-icon">🏛️</span>Grants &amp; Subsidies</button>
+  <button class="tab-btn" onclick="switchTab('bnpl',this)"><span class="tab-icon">💳</span>Buy Now Pay Later</button>
+  <button class="tab-btn" onclick="switchTab('equipment',this)"><span class="tab-icon">🍳</span>Equipment Finance</button>
+  <button class="tab-btn" onclick="switchTab('loans',this)"><span class="tab-icon">🏦</span>Green Loans</button>
+  <button class="tab-btn" onclick="switchTab('compare',this)"><span class="tab-icon">🌍</span>Europe Examples</button>
+</div>
+
+<main class="main">
+
+  <!-- ===== GRANTS TAB ===== -->
+  <div id="tab-grants" class="tab-pane active">
+    <div class="wave-divider"></div>
+
+    <div class="highlight-banner">
+      <div class="hb-icon">🌱</div>
+      <div>
+        <h3>Free money for greener restaurants</h3>
+        <p>Search grants, subsidies, and government incentives you don't need to pay back — for upgrading equipment, going green, and reducing energy &amp; water use.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">What do you want to fund?</div>
+      <div class="cat-grid">
+        <button type="button" class="cat-btn cat-btn--photo" onclick="pickCat('New energy-efficient kitchen equipment', this)"><span class="icon">🍳</span><span class="cat-copy"><span class="cat-label">New kitchen equipment</span><span class="cat-hint">Find grants and tax relief for ovens, induction, dishwashers, and ventilation upgrades.</span><span class="cat-example">e.g. ISDE, MIA/Vamil, supplier cashback on A+++ equipment</span></span></button>
+        <button type="button" class="cat-btn cat-btn--photo" onclick="pickCat('Solar panels for restaurant', this)"><span class="icon"><img src="https://static.wixstatic.com/media/c123de_3e2c2ae921094adb867970a6ec792f35~mv2.png" alt="" width="120" height="80" loading="lazy" decoding="async" /></span><span class="cat-copy"><span class="cat-label">Solar panels</span><span class="cat-hint">Find subsidies and loans to cut electricity bills with rooftop or canopy PV.</span><span class="cat-example">e.g. SDE++, local net-metering schemes, green leases</span></span></button>
+        <button type="button" class="cat-btn cat-btn--photo" onclick="pickCat('Heat pump or sustainable heating system', this)"><span class="icon"><img src="https://static.wixstatic.com/media/c123de_c7c229f8655f400aa5688cf081764316~mv2.png" alt="" width="120" height="80" loading="lazy" decoding="async" /></span><span class="cat-copy"><span class="cat-label">Heat pump</span><span class="cat-hint">Find finance to replace gas heating with air-source or hybrid heat pumps.</span><span class="cat-example">e.g. ISDE heat pump grant, ISDE+, municipal warmtefonds advice</span></span></button>
+        <button type="button" class="cat-btn cat-btn--photo" onclick="pickCat('LED lighting upgrade for restaurant', this)"><span class="icon"><img src="https://static.wixstatic.com/media/c123de_09bbec32f07f49ceabe93fa6543bc706~mv2.png" alt="" width="120" height="80" loading="lazy" decoding="async" /></span><span class="cat-copy"><span class="cat-label">LED lighting</span><span class="cat-hint">Find rebates and tax incentives for dining room, kitchen, and signage retrofits.</span><span class="cat-example">e.g. energy supplier rebates, EIA/MIA on efficient luminaires</span></span></button>
+        <button type="button" class="cat-btn cat-btn--photo" onclick="pickCat('Water saving equipment restaurant', this)"><span class="icon"><img src="https://static.wixstatic.com/media/c123de_82c7779bdacd41fd8b9e26891e32baa2~mv2.jpg" alt="" width="120" height="80" loading="lazy" decoding="async" /></span><span class="cat-copy"><span class="cat-label">Water saving</span><span class="cat-hint">Find financial options to help with the cost of water-saving taps, dishwashers, and greywater.</span><span class="cat-example">e.g. municipal water rebates, BMKB-Groen for low-flow equipment</span></span></button>
+        <button type="button" class="cat-btn cat-btn--photo" onclick="pickCat('Electric vehicle charging point restaurant', this)"><span class="icon"><img src="https://static.wixstatic.com/media/c123de_618f68f9435a4050a49f301d50c1660c~mv2.png" alt="" width="120" height="80" loading="lazy" decoding="async" /></span><span class="cat-copy"><span class="cat-label">EV charging</span><span class="cat-hint">Find grants for staff, delivery, or customer chargers at your site.</span><span class="cat-example">e.g. SPRILA (private charging), workplace charge schemes</span></span></button>
+        <button type="button" class="cat-btn cat-btn--photo" onclick="pickCat('Insulation or double glazing restaurant', this)"><span class="icon"><img src="https://static.wixstatic.com/media/c123de_1d4e923ece2f4e91ad1076ef65d502b5~mv2.png" alt="" width="120" height="80" loading="lazy" decoding="async" /></span><span class="cat-copy"><span class="cat-label">Insulation</span><span class="cat-hint">Find support for roof, wall, and glazing work that cuts gas and heating costs.</span><span class="cat-example">e.g. ISDE insulation, national renovation subsidies</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickCat('Food waste reduction system restaurant', this)"><span class="icon">♻️</span><span class="cat-copy"><span class="cat-label">Food waste system</span><span class="cat-hint">Find funding for composting, digesters, donation platforms, and waste tracking.</span><span class="cat-example">e.g. circular economy grants, local zero-waste pilots</span></span></button>
+        <button type="button" class="cat-btn cat-btn--photo" onclick="pickCat('Commercial refrigeration upgrade energy efficient', this)"><span class="icon"><img src="https://static.wixstatic.com/media/c123de_988c141478e044d5ba8d137d2a451713~mv2.png" alt="" width="120" height="80" loading="lazy" decoding="async" /></span><span class="cat-copy"><span class="cat-label">Refrigeration</span><span class="cat-hint">Find grants to swap old fridges and cold rooms for A+++ commercial units.</span><span class="cat-example">e.g. ISDE cooling, scrappage or trade-in with suppliers</span></span></button>
+        <button type="button" class="cat-btn cat-btn--photo" onclick="pickCat('Sustainable packaging switch restaurant', this)"><span class="icon"><img src="https://static.wixstatic.com/media/c123de_b676b9456577474abd65962fb8a8dd32~mv2.png" alt="" width="120" height="80" loading="lazy" decoding="async" /></span><span class="cat-copy"><span class="cat-label">Packaging</span><span class="cat-hint">Find incentives for compostable, reusable, and reduced-plastic takeaway packaging.</span><span class="cat-example">e.g. deposit-return pilots, SME circular packaging funds</span></span></button>
+        <button type="button" class="cat-btn cat-btn--photo" onclick="pickCat('Restaurant renovation general sustainability', this)"><span class="icon"><img src="https://static.wixstatic.com/media/c123de_c450180485d74e43a974b35ee0e652d5~mv2.png" alt="" width="120" height="80" loading="lazy" decoding="async" /></span><span class="cat-copy"><span class="cat-label">Renovation</span><span class="cat-hint">Find blended grants and loans for multi-measure green refits of your premises.</span><span class="cat-example">e.g. DEI+, BMKB-Groen, regional renovation vouchers</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickCat('Green certification restaurant bistro', this)"><span class="icon">🏅</span><span class="cat-copy"><span class="cat-label">Green certification</span><span class="cat-hint">Find support for eco labels, audits, and certification fees that boost trust.</span><span class="cat-example">e.g. EU Ecolabel, Green Key, BREEAM-in-use advice grants</span></span></button>
+      </div>
+
+      <div class="section-label">Or describe what you need funding for</div>
+      <div class="search-row">
+        <input type="text" id="grantsInput" placeholder="e.g. replace old commercial oven with energy-efficient model, solar panels for café roof…" />
+        <button class="search-btn" id="grantsBtn" onclick="searchGrants()">Find grants ↗</button>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Country</label>
+          <select id="grantsCountry">
+            <option value="Netherlands">Netherlands 🇳🇱</option>
+            <option value="Germany">Germany 🇩🇪</option>
+            <option value="Belgium">Belgium 🇧🇪</option>
+            <option value="United Kingdom">United Kingdom 🇬🇧</option>
+            <option value="France">France 🇫🇷</option>
+            <option value="Spain">Spain 🇪🇸</option>
+            <option value="Italy">Italy 🇮🇹</option>
+            <option value="Portugal">Portugal 🇵🇹</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Business type</label>
+          <select id="grantsBusinessType">
+            <option value="restaurant">Restaurant</option>
+            <option value="café or coffee shop">Café / coffee shop</option>
+            <option value="hotel with restaurant">Hotel with restaurant</option>
+            <option value="catering business">Catering business</option>
+            <option value="food truck">Food truck</option>
+            <option value="bakery">Bakery</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Postcode (optional)</label>
+          <input type="text" id="grantsPostcode" placeholder="e.g. 1755 AJ" />
+        </div>
+      </div>
+
+      <div class="section-label">I want to find</div>
+      <div class="pill-group">
+        <div class="pill active" onclick="togglePill(this)">Non-repayable grants</div>
+        <div class="pill active" onclick="togglePill(this)">Tax deductions (VAMIL/MIA)</div>
+        <div class="pill" onclick="togglePill(this)">EU-funded schemes</div>
+        <div class="pill" onclick="togglePill(this)">Municipal / local grants</div>
+        <div class="pill" onclick="togglePill(this)">Sector-specific incentives</div>
+        <div class="pill" onclick="togglePill(this)">Cashback / rebate schemes</div>
+      </div>
+    </div>
+    <div id="grantsResults"></div>
+  </div>
+
+  <!-- ===== BNPL TAB ===== -->
+  <div id="tab-bnpl" class="tab-pane">
+    <div class="wave-divider"></div>
+
+    <div class="highlight-banner">
+      <div class="hb-icon">💳</div>
+      <div>
+        <h3>Buy now, pay later for restaurant equipment</h3>
+        <p>Spread the cost of new equipment over months or years — with 0% interest periods, deferred payment, and finance schemes designed for hospitality businesses.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Equipment you want to finance</div>
+      <div class="cat-grid">
+        <button type="button" class="cat-btn" onclick="pickBnpl('Commercial dishwasher', this)"><span class="icon">🍽️</span><span class="cat-copy"><span class="cat-label">Dishwasher</span><span class="cat-hint">Compare 0% finance, leases, and supplier plans for rack or hood machines.</span><span class="cat-example">e.g. €6k hood type over 24 months at 0%</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickBnpl('Commercial oven or combi oven', this)"><span class="icon">🔥</span><span class="cat-copy"><span class="cat-label">Oven</span><span class="cat-hint">Spread combi-oven or convection costs without blocking cash flow.</span><span class="cat-example">e.g. Rational-style lease via equipment financier</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickBnpl('Commercial refrigerator or cold room', this)"><span class="icon">🧊</span><span class="cat-copy"><span class="cat-label">Fridge / cold room</span><span class="cat-hint">Find hire purchase and BNPL for undercounter or walk-in upgrades.</span><span class="cat-example">e.g. operational lease with maintenance included</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickBnpl('Coffee machine professional', this)"><span class="icon">☕</span><span class="cat-copy"><span class="cat-label">Coffee machine</span><span class="cat-hint">Find bean-to-cup finance from roasters, suppliers, or specialist lenders.</span><span class="cat-example">e.g. machine + servicing bundle per month</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickBnpl('Point of sale system POS restaurant', this)"><span class="icon">📱</span><span class="cat-copy"><span class="cat-label">POS system</span><span class="cat-hint">Find subscription or deferred payment for tills, tablets, and payments.</span><span class="cat-example">e.g. hardware included in monthly SaaS fee</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickBnpl('Full kitchen equipment package', this)"><span class="icon">🍳</span><span class="cat-copy"><span class="cat-label">Full kitchen fit-out</span><span class="cat-hint">Package finance for new sites or full refurbishments in one agreement.</span><span class="cat-example">e.g. €80k fit-out over 5-year term</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickBnpl('Restaurant furniture and fixtures', this)"><span class="icon">🪑</span><span class="cat-copy"><span class="cat-label">Furniture</span><span class="cat-hint">Find asset finance for seating, bars, and front-of-house refurb items.</span><span class="cat-example">e.g. furniture lease with seasonal payment options</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickBnpl('Solar panels restaurant', this)"><span class="icon">☀️</span><span class="cat-copy"><span class="cat-label">Solar panels</span><span class="cat-hint">Find solar leases and power-purchase style deals with low upfront cost.</span><span class="cat-example">e.g. monthly fee tied to kWh generated</span></span></button>
+      </div>
+
+      <div class="section-label">Or describe what you want to finance</div>
+      <div class="search-row">
+        <input type="text" id="bnplInput" placeholder="e.g. new combi oven €8,000 — looking for 0% finance options…" />
+        <button class="search-btn" id="bnplBtn" onclick="searchBnpl()">Find finance options ↗</button>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Country</label>
+          <select id="bnplCountry">
+            <option value="Netherlands">Netherlands 🇳🇱</option>
+            <option value="Germany">Germany 🇩🇪</option>
+            <option value="Belgium">Belgium 🇧🇪</option>
+            <option value="United Kingdom">United Kingdom 🇬🇧</option>
+            <option value="France">France 🇫🇷</option>
+            <option value="Spain">Spain 🇪🇸</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Approx. purchase value</label>
+          <select id="bnplValue">
+            <option value="under €1,000">Under €1,000</option>
+            <option value="€1,000–€5,000">€1,000–€5,000</option>
+            <option value="€5,000–€15,000">€5,000–€15,000</option>
+            <option value="€15,000–€50,000">€15,000–€50,000</option>
+            <option value="over €50,000">Over €50,000</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Preferred term</label>
+          <select id="bnplTerm">
+            <option value="3-6 months">3–6 months</option>
+            <option value="6-12 months">6–12 months</option>
+            <option value="1-3 years">1–3 years</option>
+            <option value="3-5 years">3–5 years</option>
+            <option value="any term">Any term</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-label">Finance type</div>
+      <div class="pill-group">
+        <div class="pill active" onclick="togglePill(this)">0% interest periods</div>
+        <div class="pill active" onclick="togglePill(this)">Lease / operational lease</div>
+        <div class="pill" onclick="togglePill(this)">Hire purchase</div>
+        <div class="pill" onclick="togglePill(this)">Supplier payment plans</div>
+        <div class="pill" onclick="togglePill(this)">Government-backed loans</div>
+        <div class="pill" onclick="togglePill(this)">Crowdfunding / community</div>
+      </div>
+    </div>
+    <div id="bnplResults"></div>
+  </div>
+
+  <!-- ===== EQUIPMENT FINANCE TAB ===== -->
+  <div id="tab-equipment" class="tab-pane">
+    <div class="wave-divider"></div>
+
+    <div class="highlight-banner">
+      <div class="hb-icon">🍳</div>
+      <div>
+        <h3>Green equipment replacement schemes</h3>
+        <p>Replace old, inefficient kitchen equipment with sustainable alternatives — and find schemes that subsidise part of the cost or offer trade-in value.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Equipment to replace</div>
+      <div class="cat-grid">
+        <button type="button" class="cat-btn" onclick="pickEquip('Replace old gas oven with electric or induction', this)"><span class="icon">🔥</span><span class="cat-copy"><span class="cat-label">Gas → electric oven</span><span class="cat-hint">Find scrappage, grants, and payback for switching off gas cooking.</span><span class="cat-example">e.g. induction upgrade + ISDE where eligible</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickEquip('Replace old commercial dishwasher with water-efficient model', this)"><span class="icon">🍽️</span><span class="cat-copy"><span class="cat-label">Old dishwasher</span><span class="cat-hint">Find trade-in value and water/energy rebates on efficient warewashers.</span><span class="cat-example">e.g. supplier take-back + lower water tariff savings</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickEquip('Replace old refrigeration with A+++ energy efficient model', this)"><span class="icon">🧊</span><span class="cat-copy"><span class="cat-label">Old fridge / freezer</span><span class="cat-hint">Find replacement subsidies and annual kWh savings estimates.</span><span class="cat-example">e.g. €1,200/yr saving on A+++ undercounter</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickEquip('Replace gas boiler with heat pump restaurant', this)"><span class="icon">♨️</span><span class="cat-copy"><span class="cat-label">Gas boiler</span><span class="cat-hint">Find grants stacking with finance for hot water and space heating.</span><span class="cat-example">e.g. heat pump grant + green loan</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickEquip('Replace old lighting with LED restaurant', this)"><span class="icon">💡</span><span class="cat-copy"><span class="cat-label">Old lighting</span><span class="cat-hint">Find quick-win retrofit schemes and short payback periods.</span><span class="cat-example">e.g. payback in under 2 years on dining LEDs</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickEquip('Replace old fryer with energy efficient model', this)"><span class="icon">🍟</span><span class="cat-copy"><span class="cat-label">Old deep fryer</span><span class="cat-hint">Find efficiency grants and oil/energy savings on modern fryers.</span><span class="cat-example">e.g. high-efficiency fryer rebate programmes</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickEquip('Replace old coffee machine with energy efficient model', this)"><span class="icon">☕</span><span class="cat-copy"><span class="cat-label">Old coffee machine</span><span class="cat-hint">Find upgrade deals with lower standby power and water use.</span><span class="cat-example">e.g. roaster trade-up schemes</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickEquip('Replace old HVAC ventilation system restaurant', this)"><span class="icon">🌬️</span><span class="cat-copy"><span class="cat-label">Old ventilation</span><span class="cat-hint">Find support for heat-recovery and demand-controlled kitchen ventilation.</span><span class="cat-example">e.g. VEKI-style industrial efficiency schemes</span></span></button>
+      </div>
+
+      <div class="section-label">Or describe what you want to replace</div>
+      <div class="search-row">
+        <input type="text" id="equipInput" placeholder="e.g. replace 10-year-old gas oven, looking for subsidies and trade-in schemes…" />
+        <button class="search-btn" id="equipBtn" onclick="searchEquipment()">Find replacement schemes ↗</button>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Country</label>
+          <select id="equipCountry">
+            <option value="Netherlands">Netherlands 🇳🇱</option>
+            <option value="Germany">Germany 🇩🇪</option>
+            <option value="Belgium">Belgium 🇧🇪</option>
+            <option value="United Kingdom">United Kingdom 🇬🇧</option>
+            <option value="France">France 🇫🇷</option>
+            <option value="Spain">Spain 🇪🇸</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Equipment age</label>
+          <select id="equipAge">
+            <option value="less than 5 years old">Under 5 years</option>
+            <option value="5-10 years old">5–10 years</option>
+            <option value="over 10 years old">Over 10 years</option>
+            <option value="unknown age">Unknown age</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Budget for replacement</label>
+          <select id="equipBudget">
+            <option value="any budget">No limit</option>
+            <option value="under €2,000">Under €2,000</option>
+            <option value="under €5,000">Under €5,000</option>
+            <option value="under €15,000">Under €15,000</option>
+            <option value="under €50,000">Under €50,000</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-label">I'm looking for</div>
+      <div class="pill-group">
+        <div class="pill active" onclick="togglePill(this)">Trade-in / scrappage value</div>
+        <div class="pill active" onclick="togglePill(this)">Replacement subsidies</div>
+        <div class="pill" onclick="togglePill(this)">Energy saving payback calc</div>
+        <div class="pill" onclick="togglePill(this)">Tax incentives (MIA/VAMIL)</div>
+        <div class="pill" onclick="togglePill(this)">Supplier upgrade deals</div>
+        <div class="pill" onclick="togglePill(this)">Recommended sustainable brands</div>
+      </div>
+    </div>
+    <div id="equipResults"></div>
+  </div>
+
+  <!-- ===== GREEN LOANS TAB ===== -->
+  <div id="tab-loans" class="tab-pane">
+    <div class="wave-divider"></div>
+
+    <div class="highlight-banner">
+      <div class="hb-icon">🏦</div>
+      <div>
+        <h3>Low-interest green loans for restaurants</h3>
+        <p>Find green business loans, preferential rates for sustainable investment, and government-backed credit schemes specifically for the hospitality sector.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">What do you need the loan for?</div>
+      <div class="cat-grid">
+        <button type="button" class="cat-btn" onclick="pickLoan('General sustainable restaurant renovation or upgrade', this)"><span class="icon">🔨</span><span class="cat-copy"><span class="cat-label">Renovation</span><span class="cat-hint">Find green SME loans for insulation, HVAC, and building fabric together.</span><span class="cat-example">e.g. Qredits, BMKB-Groen via your bank</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickLoan('Purchase new energy-efficient kitchen equipment', this)"><span class="icon">🍳</span><span class="cat-copy"><span class="cat-label">New equipment</span><span class="cat-hint">Find preferential rates for A+++ kitchen and refrigeration purchases.</span><span class="cat-example">e.g. sustainability-linked bank loan</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickLoan('Solar panel installation restaurant', this)"><span class="icon">☀️</span><span class="cat-copy"><span class="cat-label">Solar panels</span><span class="cat-hint">Find project finance and green mortgages for rooftop solar.</span><span class="cat-example">e.g. 10-year green loan at reduced rate</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickLoan('Working capital bridging loan restaurant', this)"><span class="icon">🔄</span><span class="cat-copy"><span class="cat-label">Working capital</span><span class="cat-hint">Find short-term credit while you complete a green upgrade project.</span><span class="cat-example">e.g. revolving credit during refit</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickLoan('Start a new sustainable restaurant', this)"><span class="icon">🚀</span><span class="cat-copy"><span class="cat-label">New restaurant start</span><span class="cat-hint">Find start-up loans and guarantees for eco-focused new openings.</span><span class="cat-example">e.g. microfinance + regional start-up funds</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickLoan('Green certification or consultancy costs', this)"><span class="icon">🏅</span><span class="cat-copy"><span class="cat-label">Certification costs</span><span class="cat-hint">Find loans to cover audits, consultants, and label application fees.</span><span class="cat-example">e.g. SME loan for Green Key certification</span></span></button>
+      </div>
+
+      <div class="section-label">Or describe what you need</div>
+      <div class="search-row">
+        <input type="text" id="loansInput" placeholder="e.g. €25,000 green loan for full kitchen refit, low interest rate preferred…" />
+        <button class="search-btn" id="loansBtn" onclick="searchLoans()">Find green loans ↗</button>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Country</label>
+          <select id="loansCountry">
+            <option value="Netherlands">Netherlands 🇳🇱</option>
+            <option value="Germany">Germany 🇩🇪</option>
+            <option value="Belgium">Belgium 🇧🇪</option>
+            <option value="United Kingdom">United Kingdom 🇬🇧</option>
+            <option value="France">France 🇫🇷</option>
+            <option value="Spain">Spain 🇪🇸</option>
+            <option value="Italy">Italy 🇮🇹</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Amount needed</label>
+          <select id="loansAmount">
+            <option value="under €10,000">Under €10,000</option>
+            <option value="€10,000–€50,000">€10,000–€50,000</option>
+            <option value="€50,000–€150,000">€50,000–€150,000</option>
+            <option value="over €150,000">Over €150,000</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Repayment preferred</label>
+          <select id="loansTerm">
+            <option value="1-2 years">1–2 years</option>
+            <option value="3-5 years">3–5 years</option>
+            <option value="5-10 years">5–10 years</option>
+            <option value="flexible">Flexible</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-label">Loan type preference</div>
+      <div class="pill-group">
+        <div class="pill active" onclick="togglePill(this)">Government-backed (Qredits, BBB)</div>
+        <div class="pill active" onclick="togglePill(this)">Green / sustainability loans</div>
+        <div class="pill" onclick="togglePill(this)">Bank SME loans</div>
+        <div class="pill" onclick="togglePill(this)">EU-backed loans (EIF/EIB)</div>
+        <div class="pill" onclick="togglePill(this)">Interest-free periods</div>
+        <div class="pill" onclick="togglePill(this)">Revenue-based repayment</div>
+      </div>
+    </div>
+    <div id="loansResults"></div>
+  </div>
+
+  <!-- ===== EUROPE EXAMPLES TAB ===== -->
+  <div id="tab-compare" class="tab-pane">
+    <div class="wave-divider"></div>
+
+    <div class="highlight-banner">
+      <div class="hb-icon">🌍</div>
+      <div>
+        <h3>Best green finance schemes across Europe</h3>
+        <p>Real examples of financial schemes, grants, and incentives available to restaurants across Europe — use these as inspiration or apply directly.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Topic to explore</div>
+      <div class="cat-grid">
+        <button type="button" class="cat-btn" onclick="pickCompare('Best government grants for restaurants going green across Europe', this)"><span class="icon">🏆</span><span class="cat-copy"><span class="cat-label">Best grants Europe</span><span class="cat-hint">Compare top non-repayable schemes for kitchens, energy, and retrofits.</span><span class="cat-example">e.g. country-by-country grant league table</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickCompare('Buy now pay later schemes for restaurant equipment across Europe', this)"><span class="icon">💳</span><span class="cat-copy"><span class="cat-label">BNPL Europe</span><span class="cat-hint">See how hire purchase and 0% offers differ by country.</span><span class="cat-example">e.g. UK asset finance vs NL operational lease</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickCompare('Tax deductions for sustainable restaurant equipment in Europe', this)"><span class="icon">🧾</span><span class="cat-copy"><span class="cat-label">Tax deductions</span><span class="cat-hint">Explore accelerated depreciation and green tax boxes for equipment.</span><span class="cat-example">e.g. MIA/Vamil (NL), super-deduction style rules</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickCompare('Netherlands specific green finance for restaurants VAMIL MIA SDE', this)"><span class="icon">🇳🇱</span><span class="cat-copy"><span class="cat-label">Netherlands schemes</span><span class="cat-hint">Deep dive on Dutch grants, Business.gov.nl routes, and tax tools.</span><span class="cat-example">e.g. ISDE, SDE++, BMKB-Groen in one guide</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickCompare('EU Horizon and LIFE programme grants for sustainable hospitality', this)"><span class="icon">🇪🇺</span><span class="cat-copy"><span class="cat-label">EU-wide funding</span><span class="cat-hint">Find consortium grants and innovation calls for hospitality SMEs.</span><span class="cat-example">e.g. Horizon Europe, LIFE climate action</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickCompare('Green bank loans for restaurants Europe low interest', this)"><span class="icon">🌱</span><span class="cat-copy"><span class="cat-label">Green bank loans</span><span class="cat-hint">Compare preferential rates from banks and green finance funds.</span><span class="cat-example">e.g. Triodos-style products vs mainstream green loans</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickCompare('Circular economy grants for restaurants and food businesses Europe', this)"><span class="icon">♻️</span><span class="cat-copy"><span class="cat-label">Circular economy</span><span class="cat-hint">Find waste, reuse, and packaging circularity funding.</span><span class="cat-example">e.g. food waste hierarchy pilots, reuse cup schemes</span></span></button>
+        <button type="button" class="cat-btn" onclick="pickCompare('Carbon credit and offsetting schemes for European restaurants', this)"><span class="icon">🌳</span><span class="cat-copy"><span class="cat-label">Carbon credits</span><span class="cat-hint">Learn when offsets, insets, or reporting schemes apply to venues.</span><span class="cat-example">e.g. voluntary markets vs mandatory reporting</span></span></button>
+      </div>
+
+      <div class="section-label">Or ask your own question</div>
+      <div class="search-row">
+        <input type="text" id="compareInput" placeholder="e.g. what is the Dutch VAMIL scheme and how does it work for restaurants?" />
+        <button class="search-btn" id="compareBtn" onclick="searchCompare()">Search ↗</button>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Focus country</label>
+          <select id="compareCountry">
+            <option value="all of Europe">All of Europe</option>
+            <option value="Netherlands">Netherlands</option>
+            <option value="Germany">Germany</option>
+            <option value="Belgium">Belgium</option>
+            <option value="United Kingdom">United Kingdom</option>
+            <option value="France">France</option>
+            <option value="Spain">Spain</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Finance type</label>
+          <select id="compareType">
+            <option value="all types">All types</option>
+            <option value="grants and subsidies">Grants &amp; subsidies</option>
+            <option value="loans and credit">Loans &amp; credit</option>
+            <option value="tax incentives">Tax incentives</option>
+            <option value="buy now pay later">Buy now pay later</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Sector</label>
+          <select id="compareSector">
+            <option value="restaurant">Restaurant</option>
+            <option value="café">Café</option>
+            <option value="hotel restaurant">Hotel</option>
+            <option value="food &amp; hospitality">All hospitality</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="compareResults"></div>
+  </div>
+
+  <p class="powered-by">Powered by AI live web search · Information is for guidance only — always verify with lenders, grant bodies, and financial advisers · © Greenways Market</p>
+</main>
+
+<script>
+// ── TAB SWITCHING ─────────────────────────────────────────────────
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── QUICK PICKERS ─────────────────────────────────────────────────
+function pickCat(val, el)    { setInput('grantsInput', val, el); }
+function pickBnpl(val, el)   { setInput('bnplInput', val, el); }
+function pickEquip(val, el)  { setInput('equipInput', val, el); }
+function pickLoan(val, el)   { setInput('loansInput', val, el); }
+function pickCompare(val, el){ setInput('compareInput', val, el); }
+
+function setInput(id, val, el) {
+  document.getElementById(id).value = val;
+  el.closest('.cat-grid').querySelectorAll('.cat-btn').forEach(b => b.classList.remove('chosen'));
+  el.classList.add('chosen');
+}
+
+function togglePill(el) { el.classList.toggle('active'); }
+
+function getActivePills(container) {
+  return Array.from(container.querySelectorAll('.pill.active')).map(p => p.textContent).join(', ');
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────
+function loadingHTML(msg) {
+  return '<div class="loading"><div class="spinner"></div>' + msg + '</div>';
+}
+function errorHTML(msg) {
+  return '<div class="error-box">⚠️ ' + msg + ' — please try again.</div>';
+}
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function nowLabel() {
+  return new Date().toLocaleDateString('en-GB', {month:'short', year:'numeric'});
+}
+
+// ── CLAUDE API ────────────────────────────────────────────────────
+async function askClaude(prompt) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1500,
+      tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error?.message || 'API error');
+  const text = data.content.filter(b => b.type === 'text').map(b => b.text).join('\n\n').trim();
+  if (!text) throw new Error('No results returned');
+  return text;
+}
+
+// ── RENDER RESULT ─────────────────────────────────────────────────
+function renderResult(areaId, title, subtitle, result, buttons) {
+  const area = document.getElementById(areaId);
+  const btnHtml = buttons.map(b =>
+    '<button class="btn-action" onclick="followUp(' + JSON.stringify(b.q) + ',' + JSON.stringify(areaId) + ')">' + b.label + '</button>'
+  ).join('');
+  area.innerHTML =
+    '<div class="info-strip">' +
+      '<div class="metric"><div class="m-label">Topic</div><div class="m-value">' + escHtml(title.substring(0,40)) + '</div></div>' +
+      '<div class="metric"><div class="m-label">Region</div><div class="m-value">' + escHtml(subtitle) + '</div></div>' +
+      '<div class="metric"><div class="m-label">Updated</div><div class="m-value">' + nowLabel() + '</div><div class="m-sub">Live search</div></div>' +
+    '</div>' +
+    '<div class="results-header"><h2>Results</h2><span>' + escHtml(subtitle) + '</span></div>' +
+    '<div class="response-box">' + escHtml(result) + '</div>' +
+    '<div class="action-btns">' + btnHtml + '</div>';
+}
+
+// ── GRANTS SEARCH ─────────────────────────────────────────────────
+async function searchGrants() {
+  const q        = document.getElementById('grantsInput').value.trim();
+  if (!q) { document.getElementById('grantsInput').focus(); return; }
+  const country  = document.getElementById('grantsCountry').value;
+  const bizType  = document.getElementById('grantsBusinessType').value;
+  const postcode = document.getElementById('grantsPostcode').value.trim();
+  const pills    = getActivePills(document.getElementById('tab-grants'));
+  const btn      = document.getElementById('grantsBtn');
+  const area     = document.getElementById('grantsResults');
+
+  btn.disabled = true; btn.textContent = 'Searching…';
+  area.innerHTML = loadingHTML('Searching for grants in ' + country + '…');
+
+  const prompt = `You are a European hospitality finance expert specialising in sustainability grants. Search the web for all available grants, subsidies, and financial incentives for: "${q}" for a ${bizType} in ${country}${postcode ? ' (postcode ' + postcode + ')' : ''} in 2026.
+
+Finance types requested: ${pills || 'all available'}
+
+Please provide:
+
+🏛️ NATIONAL GRANTS & SUBSIDIES:
+List each grant with:
+- Full name and scheme code (e.g. SDE++, ISDE, MIA, VAMIL)
+- What it covers and maximum grant amount (€)
+- Who is eligible
+- How to apply and the application body
+- Current status (open/closed/rolling)
+- Website or link
+
+🏘️ REGIONAL / MUNICIPAL SCHEMES:
+Any province, city, or municipal-level grants${postcode ? ' near ' + postcode : ' in ' + country}.
+
+🇪🇺 EU-BACKED SCHEMES:
+Any applicable EU funding (LIFE, Horizon Europe, ERDF cohesion funds) for a ${bizType}.
+
+💡 TAX INCENTIVES:
+Any relevant tax deductions, accelerated depreciation, or VAT exemptions for this investment in ${country}.
+
+📋 QUICK-APPLY TIPS:
+What documents will they typically need? What are the biggest mistakes applicants make?
+
+🏆 BEST OPTION:
+Which single scheme gives the most financial benefit for a ${bizType} wanting to fund: ${q} in ${country}?
+
+Search for real, current 2026 schemes. Be specific with exact amounts, scheme names, and how to apply.`;
+
+  try {
+    const result = await askClaude(prompt);
+    renderResult('grantsResults', q, country + ' · ' + bizType, result, [
+      { q: 'What specific documents do I need to apply for sustainability grants for a ' + bizType + ' in ' + country + ' in 2026?', label: 'Application checklist ↗' },
+      { q: 'Are there any buy now pay later or low-interest loan schemes to combine with grants for a ' + bizType + ' in ' + country + '?', label: 'Combine with finance ↗' },
+      { q: 'What are the top 3 most generous sustainability grants available to restaurants in Europe right now in 2026?', label: 'Best EU grants ↗' }
+    ]);
+  } catch(e) { area.innerHTML = errorHTML(e.message); }
+  btn.disabled = false; btn.textContent = 'Find grants ↗';
+}
+
+// ── BNPL SEARCH ───────────────────────────────────────────────────
+async function searchBnpl() {
+  const q       = document.getElementById('bnplInput').value.trim();
+  if (!q) { document.getElementById('bnplInput').focus(); return; }
+  const country = document.getElementById('bnplCountry').value;
+  const value   = document.getElementById('bnplValue').value;
+  const term    = document.getElementById('bnplTerm').value;
+  const pills   = getActivePills(document.getElementById('tab-bnpl'));
+  const btn     = document.getElementById('bnplBtn');
+  const area    = document.getElementById('bnplResults');
+
+  btn.disabled = true; btn.textContent = 'Searching…';
+  area.innerHTML = loadingHTML('Finding buy now pay later options in ' + country + '…');
+
+  const prompt = `You are a hospitality finance specialist. Search the web for buy now pay later and equipment finance options for: "${q}" for a restaurant in ${country}. Purchase value: ${value}. Preferred term: ${term}. Finance types: ${pills || 'all'}.
+
+Please provide:
+
+💳 BNPL & DEFERRED PAYMENT OPTIONS:
+For each option:
+- Provider name and scheme name
+- How it works (0% period, interest rate, deposit required)
+- Minimum / maximum purchase value
+- Eligibility for restaurants and hospitality businesses
+- Application process and how quickly you get funds
+- Link or where to apply
+
+🏦 EQUIPMENT LEASING / OPERATIONAL LEASE:
+Best leasing companies in ${country} for restaurant equipment — with monthly cost examples for ${value} worth of equipment over ${term}.
+
+🤝 SUPPLIER PAYMENT PLANS:
+Do major restaurant equipment suppliers in ${country} (e.g. Hobart, Rational, Electrolux Professional, Metos) offer their own payment plans?
+
+📊 COST COMPARISON TABLE:
+Compare the total cost of: paying upfront vs 0% BNPL vs leasing vs a bank loan for ${value} over ${term}.
+
+⚠️ WATCH OUT FOR:
+Hidden fees, balloon payments, or terms that catch restaurant owners out.
+
+🏆 BEST OPTION:
+Which single option gives a restaurant owner in ${country} the best deal for ${q} at ${value}?
+
+Search for current 2026 providers and rates. Be specific.`;
+
+  try {
+    const result = await askClaude(prompt);
+    renderResult('bnplResults', q, country + ' · ' + value + ' · ' + term, result, [
+      { q: 'Are there any grants or subsidies I can combine with a BNPL or lease scheme for restaurant equipment in ' + country + '?', label: 'Stack with grants ↗' },
+      { q: 'What credit score or financial requirements do restaurants typically need for BNPL equipment finance in ' + country + '?', label: 'Eligibility requirements ↗' },
+      { q: 'What are the tax advantages of leasing vs buying restaurant equipment outright in ' + country + '?', label: 'Tax advantages ↗' }
+    ]);
+  } catch(e) { area.innerHTML = errorHTML(e.message); }
+  btn.disabled = false; btn.textContent = 'Find finance options ↗';
+}
+
+// ── EQUIPMENT SEARCH ──────────────────────────────────────────────
+async function searchEquipment() {
+  const q       = document.getElementById('equipInput').value.trim();
+  if (!q) { document.getElementById('equipInput').focus(); return; }
+  const country = document.getElementById('equipCountry').value;
+  const age     = document.getElementById('equipAge').value;
+  const budget  = document.getElementById('equipBudget').value;
+  const pills   = getActivePills(document.getElementById('tab-equipment'));
+  const btn     = document.getElementById('equipBtn');
+  const area    = document.getElementById('equipResults');
+
+  btn.disabled = true; btn.textContent = 'Searching…';
+  area.innerHTML = loadingHTML('Finding equipment replacement schemes in ' + country + '…');
+
+  const prompt = `You are a restaurant sustainability consultant. Search the web for equipment replacement schemes, trade-in programmes, and subsidies for: "${q}" for a restaurant in ${country}. Current equipment age: ${age}. Budget: ${budget}. Looking for: ${pills || 'all options'}.
+
+Please provide:
+
+♻️ SCRAPPAGE & TRADE-IN SCHEMES:
+Are there any government or supplier scrappage schemes for old ${q} in ${country}? What is the trade-in or scrappage value?
+
+💰 REPLACEMENT SUBSIDIES:
+Any grants or subsidies specifically for replacing old equipment with energy-efficient models in ${country} — with amounts and eligibility.
+
+⚡ ENERGY & WATER SAVINGS PAYBACK:
+Calculate the annual savings from replacing old ${age} equipment with a new A+++ equivalent — in kWh, litres, and euros per year. How many years to pay back the investment?
+
+🛒 RECOMMENDED SUSTAINABLE REPLACEMENTS:
+Top 3 sustainable replacement products available in ${country} with:
+- Brand and model
+- Energy / water rating
+- Current price (€)
+- Where to buy
+- Any cashback or rebate available
+
+🧾 TAX BENEFITS:
+Can the purchase be accelerated for tax purposes (e.g. MIA/VAMIL in Netherlands, super-deduction equivalents elsewhere)?
+
+🏆 TOTAL FINANCIAL PICTURE:
+Combining grants + tax savings + energy savings: what is the true net cost of replacing ${q} in ${country}?
+
+Use real 2026 data. Be specific and numerical.`;
+
+  try {
+    const result = await askClaude(prompt);
+    renderResult('equipResults', q, country + ' · Equipment aged ' + age, result, [
+      { q: 'What finance options exist to spread the cost of replacing ' + q + ' for a restaurant in ' + country + '?', label: 'Finance options ↗' },
+      { q: 'Which suppliers of ' + q + ' in ' + country + ' offer the best trade-in or part-exchange deals in 2026?', label: 'Trade-in deals ↗' },
+      { q: 'What green certifications can a restaurant in ' + country + ' get after replacing old equipment with sustainable alternatives?', label: 'Certifications ↗' }
+    ]);
+  } catch(e) { area.innerHTML = errorHTML(e.message); }
+  btn.disabled = false; btn.textContent = 'Find replacement schemes ↗';
+}
+
+// ── LOANS SEARCH ──────────────────────────────────────────────────
+async function searchLoans() {
+  const q       = document.getElementById('loansInput').value.trim();
+  if (!q) { document.getElementById('loansInput').focus(); return; }
+  const country = document.getElementById('loansCountry').value;
+  const amount  = document.getElementById('loansAmount').value;
+  const term    = document.getElementById('loansTerm').value;
+  const pills   = getActivePills(document.getElementById('tab-loans'));
+  const btn     = document.getElementById('loansBtn');
+  const area    = document.getElementById('loansResults');
+
+  btn.disabled = true; btn.textContent = 'Searching…';
+  area.innerHTML = loadingHTML('Finding green loan options in ' + country + '…');
+
+  const prompt = `You are a hospitality finance expert. Search the web for green business loans and sustainable finance options for: "${q}" for a restaurant in ${country}. Amount needed: ${amount}. Repayment term: ${term}. Loan types: ${pills || 'all'}.
+
+Please provide:
+
+🏦 GOVERNMENT-BACKED LOAN SCHEMES:
+e.g. Qredits (Netherlands), British Business Bank (UK), KfW (Germany), BPI France — with:
+- Scheme name and lender
+- Interest rate (current 2026 rate)
+- Maximum loan amount
+- Eligibility for restaurants
+- Repayment terms and any grace periods
+- How to apply
+
+🌱 GREEN / SUSTAINABILITY LOANS:
+Banks or lenders offering preferential green rates for sustainable investment in ${country} — with current interest rates and conditions.
+
+🇪🇺 EU-BACKED FINANCE:
+EIB (European Investment Bank) or EIF-backed loans available via local banks in ${country} for SMEs.
+
+📊 LOAN COST COMPARISON:
+Monthly repayment example for ${amount} over ${term} at: standard rate vs green rate vs government-backed rate.
+
+💡 TIPS TO IMPROVE APPROVAL ODDS:
+What do lenders look for when a restaurant applies? What makes applications succeed or fail?
+
+🏆 BEST OPTION:
+The single best loan product available to a restaurant in ${country} needing ${amount} for: ${q}.
+
+Search for real current lenders and 2026 interest rates. Be specific.`;
+
+  try {
+    const result = await askClaude(prompt);
+    renderResult('loansResults', q, country + ' · ' + amount + ' · ' + term, result, [
+      { q: 'Can I combine a green loan with a government grant in ' + country + ' for a restaurant? How does stacking finance work?', label: 'Stack loan + grant ↗' },
+      { q: 'What is Qredits and how does it work for Dutch restaurant owners in 2026?', label: 'About Qredits ↗' },
+      { q: 'What green loan interest rates are banks offering restaurants in ' + country + ' in 2026?', label: 'Current rates ↗' }
+    ]);
+  } catch(e) { area.innerHTML = errorHTML(e.message); }
+  btn.disabled = false; btn.textContent = 'Find green loans ↗';
+}
+
+// ── COMPARE SEARCH ────────────────────────────────────────────────
+async function searchCompare() {
+  const q       = document.getElementById('compareInput').value.trim();
+  if (!q) { document.getElementById('compareInput').focus(); return; }
+  const country = document.getElementById('compareCountry').value;
+  const type    = document.getElementById('compareType').value;
+  const sector  = document.getElementById('compareSector').value;
+  const btn     = document.getElementById('compareBtn');
+  const area    = document.getElementById('compareResults');
+
+  btn.disabled = true; btn.textContent = 'Searching…';
+  area.innerHTML = loadingHTML('Researching European finance schemes…');
+
+  const prompt = `You are a European green finance expert specialising in hospitality. Search the web thoroughly and answer: "${q}"
+
+Focus: ${type} for ${sector}s in ${country}. Year: 2026.
+
+Structure your response as a comprehensive guide:
+
+🌍 OVERVIEW:
+What is the state of green finance for ${sector}s in ${country} in 2026? What is the biggest opportunity right now?
+
+🏆 TOP 5 SCHEMES / OPTIONS:
+For each, provide:
+- Scheme name and country
+- What it offers (amount, rate, terms)
+- Who qualifies
+- How to apply
+- A real example of a restaurant that has used it (if known)
+
+📊 COUNTRY COMPARISON TABLE (if relevant):
+How do the schemes in different European countries compare? Which country has the best support for green restaurants?
+
+💡 PRACTICAL GUIDANCE:
+Step-by-step: what should a restaurant owner in ${country} do TODAY to start accessing green finance?
+
+🔗 KEY RESOURCES:
+Official websites, application portals, and contacts for each scheme.
+
+Search for real 2026 information. Include actual scheme names, amounts, and application links where possible.`;
+
+  try {
+    const result = await askClaude(prompt);
+    renderResult('compareResults', q, country + ' · ' + type, result, [
+      { q: 'Which European country currently has the most generous green restaurant grants in 2026 and why?', label: 'Best country for grants ↗' },
+      { q: 'How can a restaurant in the Netherlands access EU Horizon or LIFE programme funding in 2026?', label: 'EU funding routes ↗' },
+      { q: 'What is the VAMIL and MIA tax scheme in the Netherlands and how does it benefit restaurants buying sustainable equipment?', label: 'Netherlands VAMIL/MIA ↗' }
+    ]);
+  } catch(e) { area.innerHTML = errorHTML(e.message); }
+  btn.disabled = false; btn.textContent = 'Search ↗';
+}
+
+// ── FOLLOW UP ─────────────────────────────────────────────────────
+async function followUp(question, targetId) {
+  const area = document.getElementById(targetId);
+  const div  = document.createElement('div');
+  div.style.marginTop = '16px';
+  div.innerHTML = loadingHTML('Searching: ' + question.substring(0,60) + '…');
+  area.appendChild(div);
+  try {
+    const result = await askClaude(question + '\n\nSearch the web for current 2026 information. Be specific, practical, and include real scheme names, amounts, and application details.');
+    div.innerHTML =
+      '<div class="results-header"><h2>↳ ' + escHtml(question.substring(0,65)) + (question.length > 65 ? '…' : '') + '</h2></div>' +
+      '<div class="response-box">' + escHtml(result) + '</div>';
+  } catch(e) {
+    div.innerHTML = errorHTML(e.message);
+  }
+}
+
+// ── ENTER KEY SUPPORT ─────────────────────────────────────────────
+['grantsInput','bnplInput','equipInput','loansInput','compareInput'].forEach(function(id) {
+  var map = { grantsInput:'searchGrants', bnplInput:'searchBnpl', equipInput:'searchEquipment', loansInput:'searchLoans', compareInput:'searchCompare' };
+  document.getElementById(id).addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') window[map[id]]();
+  });
+});
+</script>
+</div>
+</body>
+</html>

@@ -137,6 +137,25 @@ LIVE_MUSIC_FILES.forEach((filename) => {
   app.get(webPath, (req, res) => sendLiveMusicHtml(res, filename));
 });
 
+// Greenways GWB folder — agent module tablets, portals, JS/CSS (paths with spaces)
+app.use('/HTMLS GWM GWB', express.static(LIVE_MUSIC_GWB_DIR, {
+  index: false,
+  fallthrough: true,
+  setHeaders: (res, filePath) => {
+    if (/\.html?$/i.test(filePath)) {
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    }
+  }
+}));
+app.use((req, res, next) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+  const prefix = '/HTMLS GWM GWB/';
+  if (!req.path.startsWith(prefix)) return next();
+  const filename = path.basename(req.path);
+  if (!/\.html?$/i.test(filename) || filename.includes('..')) return next();
+  return sendLiveMusicHtml(res, filename);
+});
+
 // Short URL for Wix HTML embed (no spaces) — same Render Version page
 app.get('/live-music/render', (req, res) => sendLiveMusicHtml(res, 'live-music-hub-render.html'));
 app.get('/live-music/events', (req, res) => {
