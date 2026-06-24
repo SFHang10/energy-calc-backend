@@ -166,6 +166,7 @@ const PORTAL_PATH_MODULE_IDS = [
   ['full%20schemes%20portal%20restaurant', 'schemes-portal-restaurant'],
   ['full%20schemes%20portal%20html', 'schemes-portal-eu'],
   ['energy-ticker-green-wire', 'energy-ticker'],
+  ['energy-ticker-colour-swap', 'energy-ticker'],
   ['utility-detail', 'utility-detail'],
   ['european_energy_deals_portal', 'european-energy'],
   ['equipment-savings-projection', 'savings-projection'],

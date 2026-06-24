@@ -32,6 +32,7 @@
   var STATIC_HREF_NEEDLES = [
     ["low%20energy%20new", "low-energy-equipment"],
     ["energy-ticker-green-wire", "energy-ticker"],
+    ["energy-ticker-colour-swap", "energy-ticker"],
     ["utility-detail", "utility-detail"],
     ["european_energy_deals_portal", "european-energy"],
     ["finance-finder-restaurant", "finance-finder"],
@@ -393,6 +394,7 @@
     var ctx = resolveContext(item);
     item.agentName = ctx.agentName;
     item.theme = ctx.theme;
+    applyFinanceEnergyTickerHref(item);
     if (item.href) {
       item.href = appendEmbedParams(item.href, item);
       if (!item.fullPageHref) item.fullPageHref = stripEmbedParams(item.href);
@@ -582,9 +584,25 @@
     return SLUG_TO_THEME[slug] || theme || "default";
   }
 
+  var FINANCE_ENERGY_TICKER_HREF =
+    "../content-ops/drafts/energy-ticker/energy-ticker-colour-swap.html";
+
+  function isFinanceAgentContext(item) {
+    item = item || {};
+    var slug = String(item.agentSlug || pageContext.agentSlug || "").toLowerCase();
+    if (slug === "finance-agent") return true;
+    return agentThemeKey(item) === "finance";
+  }
+
   function isEnergyTickerModule(item) {
     var id = resolveModuleId(String((item && item.moduleId) || ""));
     return id === "energy-prices-ticker";
+  }
+
+  function applyFinanceEnergyTickerHref(item) {
+    if (!item || !isFinanceAgentContext(item) || !isEnergyTickerModule(item)) return item;
+    item.href = FINANCE_ENERGY_TICKER_HREF;
+    return item;
   }
 
   function resolveAgentNote(item) {

@@ -2315,11 +2315,24 @@ function requestCompanyFocus(id) {
 
 function tryFocusPendingCompany() {
   if (!mapReady) return;
-  let id = window.__pendingCompanyId;
-  if (id == null) id = getDeepLinkCompanyId();
-  if (id == null) return;
+
+  if (window.__pendingCompanyId != null) {
+    const pendingId = window.__pendingCompanyId;
+    window.__pendingCompanyId = null;
+    if (companies.some((c) => c.id === pendingId)) selectCompany(pendingId);
+    return;
+  }
+
+  if (initialCompanyFocusDone) return;
+
+  const id = getDeepLinkCompanyId();
+  if (id == null) {
+    initialCompanyFocusDone = true;
+    return;
+  }
   if (!companies.some((c) => c.id === id)) return;
-  window.__pendingCompanyId = null;
+
+  initialCompanyFocusDone = true;
   selectCompany(id);
 }
 
@@ -2437,6 +2450,8 @@ function getSectorColor(sector) {
 //  MAP SETUP WITH D3
 // ══════════════════════════════════════════════════════════════
 let activeId = null;
+/** After first ?company= focus or any user pick, stop re-applying URL deep link on refresh. */
+let initialCompanyFocusDone = false;
 let currentFilter = "all";
 let searchTerm = "";
 let nearMeActive = false;
@@ -2652,6 +2667,8 @@ function hideTooltip() { tooltip.style.opacity = "0"; }
 // ── SELECT COMPANY ──
 function selectCompany(id) {
   closeInsightPopup();
+  initialCompanyFocusDone = true;
+  window.__pendingCompanyId = null;
   activeId = id;
   const company = companies.find(c => c.id === id);
   if (!company) return;
