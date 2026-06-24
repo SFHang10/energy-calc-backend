@@ -212,6 +212,12 @@ app.get('/greenways/agents-highlights', (req, res) => sendLiveMusicHtml(res, 'gr
 app.get('/greenways/agents-story', (req, res) => sendLiveMusicHtml(res, 'greenways-agents-story.html'));
 app.get('/greenways/restaurant-monitoring', (req, res) => sendLiveMusicHtml(res, 'restaurant_energy_monitoring_interactive.html'));
 app.get('/greenways/interactive-restaurants', (req, res) => sendLiveMusicHtml(res, 'interactive_restaurants_monitoring.html'));
+app.get('/greenways/buildings-dashboard', (req, res) => sendLiveMusicHtml(res, 'Greenways Interface .html'));
+app.get('/greenways/restaurant-data', (req, res) => sendLiveMusicHtml(res, 'restaurant-data.html'));
+app.get('/greenways/sensor-dashboard', (req, res) => sendLiveMusicHtml(res, 'sensor-dashboard.html'));
+app.get('/greenways/deals-hub', (req, res) => sendLiveMusicHtml(res, 'deals-ticker-hub.html'));
+app.get('/greenways/wok-assist', (req, res) => sendLiveMusicHtml(res, 'Chef 3 W2W .html'));
+app.get('/greenways/events-ticker', (req, res) => sendLiveMusicHtml(res, 'Events Ticker W2W .html'));
 
 // Legacy Wix newsletter path → deployed content-ops edition
 app.get('/HTMLS GWM GWB/January Sustainable News Original .html', (req, res) => {

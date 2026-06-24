@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Equipment Energy Savings Comparison</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #3d3d3d 100%);
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 4px solid #4a90e2;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .header h1 {
+            color: #4a90e2;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .header p {
+            color: #c0c0c0;
+            font-size: 1.1rem;
+        }
+
+        .nav-menu {
+            background: #2d2d2d;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-button {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            color: white;
+            border: 1px solid #ffffff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+        }
+
+        .nav-button:hover {
+            background: linear-gradient(135deg, #357abd 0%, #2a5f8f 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.5);
+        }
+
+        .nav-button.active {
+            background: linear-gradient(135deg, #6d4c41 0%, #5d4037 100%);
+            box-shadow: 0 4px 12px rgba(109, 76, 65, 0.5);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .equipment-section {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .comparison-card {
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            border: 2px solid #4a4a4a;
+        }
+
+        .equipment-title {
+            color: #4a90e2;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #6d4c41;
+            padding-bottom: 0.5rem;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 968px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .equipment-card {
+            background: linear-gradient(135deg, #3d3d3d 0%, #2d2d2d 100%);
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 2px solid #4a4a4a;
+            transition: all 0.3s ease;
+        }
+
+        .equipment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(74, 144, 226, 0.3);
+            border-color: #4a90e2;
+        }
+
+        .standard-equipment {
+            border-color: #c62828;
+        }
+
+        .standard-equipment:hover {
+            border-color: #e53935;
+            box-shadow: 0 8px 20px rgba(229, 57, 53, 0.3);
+        }
+
+        .etl-equipment {
+            border-color: #2e7d32;
+        }
+
+        .etl-equipment:hover {
+            border-color: #43a047;
+            box-shadow: 0 8px 20px rgba(67, 160, 71, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #4a4a4a;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .badge-standard {
+            background: linear-gradient(135deg, #c62828 0%, #e53935 100%);
+            color: white;
+        }
+
+        .badge-etl {
+            background: linear-gradient(135deg, #2e7d32 0%, #43a047 100%);
+            color: white;
+        }
+
+        .equipment-image {
+            width: 100%;
+            height: 250px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background: #1a1a1a;
+            border: 2px solid #4a4a4a;
+            padding: 6px;
+        }
+
+        .specs-list {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .specs-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #4a4a4a;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .specs-list li:last-child {
+            border-bottom: none;
+        }
+
+        .spec-label {
+            color: #c0c0c0;
+            font-weight: 600;
+        }
+
+        .spec-value {
+            color: #4a90e2;
+            font-weight: 700;
+        }
+
+        .savings-highlight {
+            background: linear-gradient(135deg, #6d4c41 0%, #5d4037 100%);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border-left: 5px solid #4a90e2;
+        }
+
+        .savings-title {
+            color: #4a90e2;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .savings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .savings-item {
+            background: rgba(74, 144, 226, 0.1);
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid rgba(74, 144, 226, 0.3);
+        }
+
+        .savings-item-title {
+            color: #c0c0c0;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .savings-item-value {
+            color: #4a90e2;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .info-box {
+            background: rgba(74, 144, 226, 0.1);
+            border-left: 4px solid #4a90e2;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+
+        .etl-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .etl-link:hover {
+            background: linear-gradient(135deg, #357abd 0%, #2a5f8f 100%);
+            transform: translateX(5px);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: #2d2d2d;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #6d4c41 0%, #5d4037 100%);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #4a4a4a;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(74, 144, 226, 0.1);
+        }
+
+        .overview-section {
+            display: block;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .overview-hero-images {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin: 1rem 0 2rem;
+        }
+
+        .overview-hero-image {
+            width: 100%;
+            max-width: 320px;
+            height: 180px;
+            object-fit: contain;
+            border-radius: 10px;
+            border: 2px solid #4a4a4a;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+            background: #1a1a1a;
+        }
+
+        .overview-card {
+            background: linear-gradient(135deg, #3d3d3d 0%, #2d2d2d 100%);
+            border-radius: 10px;
+            padding: 2rem;
+            border: 2px solid #4a90e2;
+            transition: all 0.3s ease;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(74, 144, 226, 0.4);
+        }
+
+        .overview-card h3 {
+            color: #4a90e2;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .overview-card p {
+            color: #c0c0c0;
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight-number {
+            color: #4a90e2;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Restaurant Equipment Energy Savings Comparison</h1>
+        <p>Professional Analysis of Low-Energy vs. Standard Equipment</p>
+    </div>
+
+    <div class="nav-menu">
+        <button class="nav-button active" onclick="showSection('overview', event)">Overview</button>
+        <button class="nav-button" onclick="showSection('combi-oven', event)">Combi Ovens</button>
+        <button class="nav-button" onclick="showSection('convection-oven', event)">Convection Ovens</button>
+        <button class="nav-button" onclick="showSection('undercounter-dishwasher', event)">Undercounter Dishwashers</button>
+        <button class="nav-button" onclick="showSection('hood-dishwasher', event)">Hood-Type Dishwashers</button>
+        <button class="nav-button" onclick="showSection('refrigeration', event)">Refrigeration</button>
+    </div>
+
+    <div class="container">
+        <!-- Overview Section -->
+        <div id="overview" class="equipment-section overview-section active">
+            <div class="comparison-card">
+                <div class="overview-hero-images">
+                    <img src="https://static.wixstatic.com/media/c123de_b7fef0026496436aaa2816e06d31e8cf~mv2.png" alt="Efficient kitchen equipment overview" class="overview-hero-image">
+                    <img src="https://static.wixstatic.com/media/c123de_988c141478e044d5ba8d137d2a451713~mv2.png" alt="Modern restaurant kitchen" class="overview-hero-image">
+                    <img src="https://static.wixstatic.com/media/c123de_ecc860a8b68f4b59babfe59843d6bd7a~mv2.png" alt="Energy efficient restaurant appliances" class="overview-hero-image">
+                </div>
+                <h2 class="equipment-title">Why Switch to Energy-Efficient Equipment?</h2>
+                
+                <div class="overview-grid">
+                    <div class="overview-card">
+                        <h3>💶💷 Significant Cost Savings</h3>
+                        <p>ETL-listed equipment can reduce energy costs by <span class="highlight-number">20-50%</span> annually</p>
+                        <p>Typical restaurant savings: <span class="highlight-number">£2,000-£8,000/year</span></p>
+                        <p>ROI typically achieved within <span class="highlight-number">2-4 years</span></p>
+                    </div>
+
+                    <div class="overview-card">
+                        <h3>🌍 Environmental Impact</h3>
+                        <p>Reduce CO₂ emissions by <span class="highlight-number">30-60%</span></p>
+                        <p>Lower water consumption by <span class="highlight-number">25-40%</span></p>
+                        <p>Support sustainability goals and certifications</p>
+                    </div>
+
+                    <div class="overview-card">
+                        <h3>⚡ Performance Benefits</h3>
+                        <p>Faster cooking and cleaning cycles</p>
+                        <p>Better temperature control and consistency</p>
+                        <p>Advanced features and automation</p>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>What is ETL?</strong><br>
+                    The Energy Technology List (ETL) identifies the most energy-efficient products available in the UK market. Equipment must meet strict performance criteria to qualify, ensuring verified energy and water savings.
+                </div>
+
+                <h3 style="color: #4a90e2; margin-top: 2rem; margin-bottom: 1rem;">Top 5 Equipment Categories for Maximum Savings</h3>
+                <p style="color: #c0c0c0; margin-bottom: 1.5rem;">These appliances run hot or operate continuously, making efficiency improvements highly impactful:</p>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Equipment Type</th>
+                            <th>Why It Matters</th>
+                            <th>Annual Savings Potential</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Combination Steam Ovens</strong></td>
+                            <td>Highest daily energy users; improved insulation and controls significantly cut consumption</td>
+                            <td>£800-£2,500/year</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Convection Ovens</strong></td>
+                            <td>Reduced cook time and heat loss equals major kWh savings</td>
+                            <td>£400-£1,200/year</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Undercounter Dishwashers</strong></td>
+                            <td>High-frequency use multiplies savings per cycle across dozens of racks daily</td>
+                            <td>£500-£1,000/year</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hood-Type Dishwashers</strong></td>
+                            <td>Energy-intensive for busy sites; heat recovery creates striking bill differences</td>
+                            <td>£1,000-£2,500/year</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Refrigerated Storage</strong></td>
+                            <td>Operates 24/7; even modest efficiency gains create large annual kWh savings</td>
+                            <td>£300-£800/year</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Combi Oven Section -->
+        <div id="combi-oven" class="equipment-section">
+            <div class="comparison-card">
+                <h2 class="equipment-title">Combination Steam Ovens (Combi Ovens)</h2>
+                
+                <div class="comparison-grid">
+                    <!-- Standard Combi Oven -->
+                    <div class="equipment-card standard-equipment">
+                        <div class="card-header">
+                            <span class="badge badge-standard">Standard Model</span>
+                        </div>
+                        <img src="https://static.wixstatic.com/media/c123de_c1d778dd879044949d82945618f1862b~mv2.jpeg" alt="Standard Combi Oven" class="equipment-image">
+                        <h3 style="color: #e53935; margin-bottom: 1rem;">Typical Non-ETL Combi Oven</h3>
+                        <ul class="specs-list">
+                            <li><span class="spec-label">Age:</span><span class="spec-value">5-10 years old</span></li>
+                            <li><span class="spec-label">Capacity:</span><span class="spec-value">6-10 grid 1/1 GN</span></li>
+                            <li><span class="spec-label">Energy/Cycle:</span><span class="spec-value">~3.5 kWh (electric)</span></li>
+                            <li><span class="spec-label">Annual Energy:</span><span class="spec-value">~6,560 kWh</span></li>
+                            <li><span class="spec-label">Annual Cost:</span><span class="spec-value">£2,188 (@ 20p/kWh)</span></li>
+                            <li><span class="spec-label">Features:</span><span class="spec-value">Basic controls, no eco-modes</span></li>
+                            <li><span class="spec-label">Insulation:</span><span class="spec-value">Standard</span></li>
+                            <li><span class="spec-label">Efficiency:</span><span class="spec-value">~70-75%</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- ETL Combi Oven -->
+                    <div class="equipment-card etl-equipment">
+                        <div class="card-header">
+                            <span class="badge badge-etl">ETL Listed</span>
+                        </div>
+                        <img src="https://static.wixstatic.com/media/c123de_33e63925e8b844f3a24e574faf270bcc~mv2.webp" alt="ETL Combi Oven" class="equipment-image">
+                        <h3 style="color: #43a047; margin-bottom: 1rem;">ETL-Listed Combi Oven (e.g., Rational iCombi Pro)</h3>
+                        <ul class="specs-list">
+                            <li><span class="spec-label">Age:</span><span class="spec-value">Current models (2020+)</span></li>
+                            <li><span class="spec-label">Capacity:</span><span class="spec-value">6-10 grid 1/1 GN</span></li>
+                            <li><span class="spec-label">Energy/Cycle:</span><span class="spec-value">~2.5 kWh (electric)</span></li>
+                            <li><span class="spec-label">Annual Energy:</span><span class="spec-value">~4,688 kWh</span></li>
+                            <li><span class="spec-label">Annual Cost:</span><span class="spec-value">£1,563 (@ 20p/kWh)</span></li>
+                            <li><span class="spec-label">Features:</span><span class="spec-value">Smart controls, eco-modes, auto-adjust</span></li>
+                            <li><span class="spec-label">Insulation:</span><span class="spec-value">Advanced multi-layer</span></li>
+                            <li><span class="spec-label">Efficiency:</span><span class="spec-value">~85-90%</span></li>
+                        </ul>
+                        <a href="https://etl.energysecurity.gov.uk/products/professional-foodservice-equipment/combination-steam-ovens" class="etl-link" target="_blank">View ETL Combi Ovens →</a>
+                    </div>
+                </div>
+
+                <div class="savings-highlight">
+                    <h3 class="savings-title">Annual Savings with ETL Combi Oven</h3>
+                    <div class="savings-grid">
+                        <div class="savings-item">
+                            <div class="savings-item-title">Energy Reduction</div>
+                            <div class="savings-item-value">28.5%</div>
+                        </div>
+                        <div class="savings-item">
+                            <div class="savings-item-title">Cost Savings</div>
+                            <div class="savings-item-value">£625/yr</div>
+                        </div>
+                        <div class="savings-item">
+                            <div class="savings-item-title">CO₂ Reduction</div>
+                            <div class="savings-item-value">374 kg/yr</div>
+                        </div>
+                        <div class="savings-item">
+                            <div class="savings-item-title">15-Year Savings</div>
+                            <div class="savings-item-value">£9,375</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>Comparison Note:</strong> Based on 1,875 cycles per year (5 cycles/day × 250 days). Combi ovens are among the highest daily energy users in commercial kitchens. ETL models feature improved insulation, efficient steam generation, and smart controls that optimize energy use in multi-mode cooking. For gas models, savings can be even greater where gas rates are lower (typically 6p/kWh equivalent vs 20p/kWh electric).
+                </div>
+
+                <h3 style="color: #4a90e2; margin-top: 2rem; margin-bottom: 1rem;">Electric vs Gas Comparison</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Cost Component</th>
+                            <th>Electric (SCC 101 E)</th>
+                            <th>Gas (SCC 201 G)</th>
+                            <th>Gas Advantage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Upfront Purchase</strong></td>
+                            <td>£12,000-£18,000</td>
+                            <td>£14,000-£22,000</td>
+                            <td>-£2,000 (higher)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Annual Energy Cost</strong></td>
+                            <td>£1,875</td>
+                            <td>£1,125</td>
+                            <td>£750/year</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Annual Maintenance</strong></td>
+                            <td>£200-£300</td>
+                            <td>£350-£500</td>
+                            <td>-£150/year</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Installation</strong></td>
+                            <td>£1,000-£2,000</td>
+                            <td>£2,500-£4,000</td>
+                            <td>-£1,500</td>
+                        </tr>
+                        <tr>
+                            <td><strong>15-Year Total Cost</strong></td>
+                            <td>£37,500-£48,000</td>
+                            <td>£35,000-£46,000</td>
+                            <td><strong>£2,500-£6,000 savings</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Convection Oven Section -->
+        <div id="convection-oven" class="equipment-section">
+            <div class="comparison-card">
+                <h2 class="equipment-title">Convection Ovens</h2>
+                
+                <div class="comparison-grid">
+                    <!-- Standard Convection Oven -->
+                    <div class="equipment-card standard-equipment">
+                        <div class="card-header">
+                            <span class="badge badge-standard">Standard Model</span>
+                        </div>
+                        <img src="https://static.wixstatic.com/media/c123de_0f257531757f46eab8c8e99a67457e17~mv2.jpg" alt="Standard Convection Oven" class="equipment-image">
+                        <h3 style="color: #e53935; margin-bottom: 1rem;">Standard Fan Oven (Non-ETL)</h3>
+                        <ul class="specs-list">
+                            <li><span class="spec-label">Age:</span><span class="spec-value">5-8 years old</span></li>
+                            <li><span class="spec-label">Type:</span><span class="spec-value">Single/double deck</span></li>
+                            <li><span class="spec-label">Power Consumption:</span><span class="spec-value">~3.2 kW continuous</span></li>
+                            <li><span class="spec-label">Daily Usage:</span><span class="spec-value">8 hours/day</span></li>
+                            <li><span class="spec-label">Annual Energy:</span><span class="spec-value">~6,400 kWh</span></li>
+                            <li><span class="spec-label">Annual Cost:</span><span class="spec-value">£1,280 (@ 20p/kWh)</span></li>
+                            <li><span class="spec-label">Features:</span><span class="spec-value">Always-on preheat, basic insulation</span></li>
+                            <li><span class="spec-label">Heat Loss:</span><span class="spec-value">High</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- ETL Convection Oven -->
+                    <div class="equipment-card etl-equipment">
+                        <div class="card-header">
+                            <span class="badge badge-etl">ETL Listed</span>
+                        </div>
+                        <img src="https://static.wixstatic.com/media/c123de_4e4b37c8412641b3acba0579ec82c567~mv2.webp" alt="ETL Convection Oven" class="equipment-image">
+                        <h3 style="color: #43a047; margin-bottom: 1rem;">ETL-Listed Convection Oven</h3>
+                        <ul class="specs-list">
+                            <li><span class="spec-label">Age:</span><span class="spec-value">Current models</span></li>
+                            <li><span class="spec-label">Type:</span><span class="spec-value">Single/double deck</span></li>
+                            <li><span class="spec-label">Power Consumption:</span><span class="spec-value">~2.2 kW optimized</span></li>
+                            <li><span class="spec-label">Daily Usage:</span><span class="spec-value">8 hours/day</span></li>
+                            <li><span class="spec-label">Annual Energy:</span><span class="spec-value">~4,400 kWh</span></li>
+                            <li><span class="spec-label">Annual Cost:</span><span class="spec-value">£880 (@ 20p/kWh)</span></li>
+                            <li><span class="spec-label">Features:</span><span class="spec-value">Eco-modes, smart preheat, superior insulation</span></li>
+                            <li><span class="spec-label">Heat Loss:</span><span class="spec-value">Minimal</span></li>
+                        </ul>
+                        <a href="https://etl.energysecurity.gov.uk/products/professional-foodservice-equipment" class="etl-link" target="_blank">View ETL Convection Ovens →</a>
+                    </div>
+                </div>
+
+                <div class="savings-highlight">
+                    <h3 class="savings-title">Annual Savings with ETL Convection Oven</h3>
+                    <div class="savings-grid">
+                        <div class="savings-item">
+                            <div class="savings-item-title">Energy Reduction</div>
+                            <div class="savings-item-value">31.3%</div>
+                        </div>
+                        <div class="savings-item">
+                            <div class="savings-item-title">Cost Savings</div>
+                            <div class="savings-item-value">£400/yr</div>
+                        </div>
+                        <div class="savings-item">
+                            <div class="savings-item-title">CO₂ Reduction</div>
+                            <div class="savings-item-value">400 kg/yr</div>
+                        </div>
+                        <div class="savings-item">
+                            <div class="savings-item-title">10-Year Savings</div>
+                            <div class="savings-item-value">£4,000</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>Why This Matters:</strong> Convection ovens rank near the top of commercial kitchen electricity use. Efficient models reduce cook time and heat loss through improved fan design, better insulation, and intelligent temperature management. The difference in kWh per day is highly visible in both money and CO₂ emissions.
+                </div>
+            </div>
+        </div>
+
+        <!-- Undercounter Dishwasher Section -->
+        <div id="undercounter-dishwasher" class="equipment-section">
+            <div class="comparison-card">
+                <h2 class="equipment-title">Undercounter Dishwashers</h2>
+                
+                <div class="comparison-grid">
+                    <!-- Standard Dishwasher -->
+                    <div class="equipment-card standard-equipment">
+                        <div class="card-header">
+                            <span class="badge badge-standard">Standard Model</span>
+                        </div>
+                        <img src="https://static.wixstatic.com/media/c123de_03ec6714bb4b4515bd6a9ff175947829~mv2.png" alt="Standard Dishwasher" class="equipment-image">
+                        <h3 style="color: #e53935; margin-bottom: 1rem;">Standard Undercounter Dishwasher</h3>
+                        <ul class="specs-list">
+                            <li><span class="spec-label">Rack Size:</span><span class="spec-value">500mm × 500mm</span></li>
+                            <li><span class="spec-label">Energy/Cycle:</span><span class="spec-value">~2.8 kWh</span></li>
+                            <li><span class="spec-label">Water/Cycle:</span><span class="spec-value">~3.5 liters</span></li>
+                            <li><span class="spec-label">Daily Racks:</span><span class="spec-value">40 racks</span></li>
+                            <li><span class="spec-label">Annual Energy:</span><span class="spec-value">~28,000 kWh</span></li>
+                            <li><span class="spec-label">Annual Water:</span><span class="spec-value">~35,000 liters</span></li>
+                            <li><span class="spec-label">Annual Cost:</span><span class="spec-value">£5,600 energy + £140 water</span></li>
+                            <li><span class="spec-label">Features:</span><span class="spec-value">Basic tank heating, no heat recovery</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- ETL Dishwasher -->
+                    <div class="equipment-card etl-equipment">
+                        <div class="card-header">
+                            <span class="badge badge-etl">ETL Listed</span>
+                        </div>
+                        <img src="https://static.wixstatic.com/media/c123de_988c141478e044d5ba8d137d2a451713~mv2.png" alt="ETL Dishwasher" class="equipment-image">
+                        <h3 style="color: #43a047; margin-bottom: 1rem;">ETL-Listed Undercounter Dishwasher</h3>
+                        <ul class="specs-list">
+                            <li><span class="spec-label">Rack Size:</span><span class="spec-value">500mm × 500mm</span></li>
+                            <li><span class="spec-label">Energy/Cycle:</span><span class="spec-value">~1.9 kWh</span></li>
+                            <li><span class="spec-label">Water/Cycle:</span><span class="spec-value">~2.2 liters</span></li>
+                            <li><span class="spec-label">Daily Racks:</span><span class="spec-value">40 racks</span></li>
+                            <li><span class="spec-label">Annual Energy:</span><span class="spec-value">~19,000 kWh</span></li>
+                            <li><span class="spec-label">Annual Water:</span><span class="spec-value">~22,000 liters</span></li>
+                            <li><span class="spec-label">Annual Cost:</span><span class="spec-value">£3,800 energy + £88 water</span></li>
+                            <li><span class="spec-label">Features:</span><span class="spec-value">Heat recovery, optimized pumps, superior insulation</span></li>
+                        </ul>
+                        <a href="https://etl.energysecurity.gov.uk/products/professional-foodservice-equipment/undercounter-dishwashers" class="etl-link" target="_blank">View ETL Undercounter Dishwashers →</a>
+                    </div>
+                </div>
+
+                <div class="savings-highlight">
+                    <h3 class="savings-title">Annual Savings with ETL Undercounter Dishwasher</h3>
+                    <div class="savings-grid">
+                        <div class="savings-item">
+                            <div class="savings-item-title">Energy Reduction</div>
+                            <div class="savings-item-value">32.1%</div>
+                        </div>
+                        <div class="savings-item">
+                            <div class="savings-item-title">Water Reduction</div>
+                            <div class="savings-item-value">37.1%</div>
+                        </div>
+                        <div class="savings-item">
+                            <div class="savings-item-title">Cost Savings</div>
+                            <div class="savings-item-value">£1,852/yr</div>
+                        </div>
+                        <div class="savings-item">
+                            <div class="savings-item-title">CO₂ Reduction</div>
+                            <div class="savings-item-value">1,800 kg/yr</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>High-Frequency Impact:</strong> Dishwashers are high-temperature, high-frequency machines. Running 40 racks per day means savings per cycle from better insulation, pump efficiency, and heat management multiply dramatically. Over a month, the £154 savings is highly tangible for restaurant budgets.
+                </div>
+            </div>
+        </div>
+
+        <!-- Hood-Type Dishwasher Section -->
+        <div id="hood-dishwasher" class="equipment-section">
+            <div class="comparison-card">
+                <h2 class="equipment-title">Hood-Type (Pass-Through) Dishwashers</h2>
+                
+                <div class="comparison-grid">
+                    <!-- Standard Hood Dishwasher -->
+                    <div class="equipment-card standard-equipment">
+                        <div class="card-header">
+                            <span class="badge badge-standard">Standard Model</span>
+                        </div>
+                        <img src="https://static.wixstatic.com/media/c123de_29f724bc6e3d4d9d82dffcd9926c612f~mv2.jpeg" alt="Standard Hood Dishwasher" class="equipment-image">
+                        <h3 style="color: #e53935; margin-bottom: 1rem;">Conventional Pass-Through Dishwasher</h3>
+                        <ul class="specs-list">
+                            <li><span class="spec-label">Type:</span><span class="spec-value">Hood-type pass-through</span></li>
+                            <li><span class="spec-label">Venue:</span><span class="spec-value">200-cover restaurant</span></li>
+                            <li><span class="spec-label">Energy/Rack:</span><span class="spec-value">~3.5 kWh</span></li>
+                            <li><span class="spec-label">Water/Rack:</span><span class="spec-value">~4.0 liters</span></li>
+                            <li><span class="spec-label">Daily Racks:</span><span class="spec-value">80 racks (8 hours)</span></li>
+                            <li><span class="spec-label">Annual Energy:</span><span class="spec-value">~70,000 kWh</span></li>
+                            <li><span class="spec-label">Annual Water:</span><span class="spec-value">~80,000 liters</span></li>
+                            <li><span class="spec-label">Annual Cost:</span><span class="spec-value">£14,000 energy + £320 water</span></li>
+                            <li><span class="spec-label">Heat Recovery:</span><span class="spec-value">None</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- ETL Hood Dishwasher -->
+                    <div class="equipment-card etl-equipment">
+                        <div class="card-header">
+                            <span class="badge badge-etl">ETL Listed</span>
+                        </div>
+                        <img src="https://static.wixstatic.com/media/c123de_63648689c77341c89ee91f8aa80d1609~mv2.jpg" alt="ETL Hood Dishwasher" class="equipment-image">
+                        <h3 style="color: #43a047; margin-bottom: 1rem;">ETL-Listed Hood-Type Dishwasher</h3>
+                        <ul class="specs-list">
+                            <li><span class="spec-label">Type:</span><span class="spec-value">Hood-type pass-through</span></li>
+                            <li><span class="spec-label">Venue:</span><span class="spec-value">200-cover restaurant</span></li>
+                            <li><span class="spec-label">Energy/Rack:</span><span class="spec-value">~2.1 kWh</span></li>
+                            <li><span class="spec-label">Water/Rack:</span><span class="spec-value">~2.5 liters</span></li>
+                            <li><span class="spec-label">Daily Racks:</span><span class="spec-value">80 racks (8 hours)</span></li>
+                            <li><span class="spec-label">Annual Energy:</span><span class="spec-value">~42,000 kWh</span></li>
+                            <li><span class="spec-label">Annual Water:</span><span class="spec-value">~50,000 liters</span></li>
+                            <li><span class="spec-label">Annual Cost:</span><span class="spec-value">£8,400 energy + £200 water</span></li>
+                            <li><span class="spec-label">Heat Recovery:</span><span class="spec-value">On exhaust & condensate</span></li>
+                        </ul>
+                        <a href="https://etl.energysecurity.gov.uk/products/professional-foodservice-equipment" class="etl-link" target="_blank">View ETL Hood-Type Dishwashers →</a>
+                    </div>
+                </div>
+
+                <div class="savings-highlight">
+                    <h3 class="savings-title">Annual Savings with ETL Hood-Type Dishwasher</h3>
+                    <div class="savings-grid">
+                        <div class="savings-item">
+                            <div class="savings-item-title">Energy Reduction</div>
+                            <div class="savings-item-value">40.0%</div>
+                        </div>
+                        <div class="savings-item">
+                            <div class="savings-item-title">Water Reduction</div>
+                            <div class="savings-item-value">37.5%</div>
+                        </div>
+                        <div class="savings-item">
+                            <div class="savings-item-title">Cost Savings</div>
+                            <div class="savings-item-value">£5,720/yr</div>
+                        </div>
+                        <div class="savings-item">
+                            <div class="savings-item-title">CO₂ Reduction</div>
+                            <div class="savings-item-value">5,600 kg/yr</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>Busiest Sites, Biggest Savings:</strong> Hood machines serve high-volume restaurants and are extremely energy-intensive. ETL models are specifically targeted at this niche with heat recovery systems on exhaust and condensate. For a busy 200-cover restaurant, the £5,720 annual savings represents a striking yearly bill difference that typically pays back the equipment investment within 2-3 years.
+                </div>
+            </div>
+        </div>
+
+        <!-- Refrigeration Section -->
+        <div id="refrigeration" class="equipment-section">
+            <div class="comparison-card">
+                <h2 class="equipment-title">Professional Refrigerated Storage Cabinets</h2>
+                
+                <div class="comparison-grid">
+                    <!-- Standard Refrigeration -->
+                    <div class="equipment-card standard-equipment">
+                        <div class="card-header">
+                            <span class="badge badge-standard">Standard Model</span>
+                        </div>
+                        <img src="https://static.wixstatic.com/media/c123de_3a9ef09e2bbb4c899b23adfef86366eb~mv2.webp" alt="Standard Refrigerator" class="equipment-image">
+                        <h3 style="color: #e53935; margin-bottom: 1rem;">Standard Upright/Undercounter Cabinet</h3>
+                        <ul class="specs-list">
+                            <li><span class="spec-label">Type:</span><span class="spec-value">Single/double door upright or undercounter</span></li>
+                            <li><span class="spec-label">Age:</span><span class="spec-value">5-10 years old</span></li>
+                            <li><span class="spec-label">Power Rating:</span><span class="spec-value">~600W average draw</span></li>
+                            <li><span class="spec-label">Daily Usage:</span><span class="spec-value">24/7 operation</span></li>
+                            <li><span class="spec-label">Annual Energy:</span><span class="spec-value">~5,256 kWh</span></li>
+                            <li><span class="spec-label">Annual Cost:</span><span class="spec-value">£1,051 (@ 20p/kWh)</span></li>
+                            <li><span class="spec-label">EEI Rating:</span><span class="spec-value">Higher (worse rating)</span></li>
+                            <li><span class="spec-label">Features:</span><span class="spec-value">Basic compressor, standard insulation</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- ETL Refrigeration -->
+                    <div class="equipment-card etl-equipment">
+                        <div class="card-header">
+                            <span class="badge badge-etl">ETL Listed</span>
+                        </div>
+                        <img src="https://static.wixstatic.com/media/c123de_f20e66c6e55e46f68edcf0002eeb64d9~mv2.jpeg" alt="ETL Refrigerator" class="equipment-image">
+                        <h3 style="color: #43a047; margin-bottom: 1rem;">ETL-Listed PRSC Cabinet</h3>
+                        <ul class="specs-list">
+                            <li><span class="spec-label">Type:</span><span class="spec-value">Single/double door upright or undercounter</span></li>
+                            <li><span class="spec-label">Age:</span><span class="spec-value">Current ETL models</span></li>
+                            <li><span class="spec-label">Power Rating:</span><span class="spec-value">~400W average draw</span></li>
+                            <li><span class="spec-label">Daily Usage:</span><span class="spec-value">24/7 operation</span></li>
+                            <li><span class="spec-label">Annual Energy:</span><span class="spec-value">~3,504 kWh</span></li>
+                            <li><span class="spec-label">Annual Cost:</span><span class="spec-value">£701 (@ 20p/kWh)</span></li>
+                            <li><span class="spec-label">EEI Rating:</span><span class="spec-value">Strict ETL threshold (top performers)</span></li>
+                            <li><span class="spec-label">Features:</span><span class="spec-value">High-efficiency compressor, superior insulation, smart defrost</span></li>
+                        </ul>
+                        <a href="https://etl.energysecurity.gov.uk/products/refrigeration-equipment/professional-refrigerated-storage-cabinets" class="etl-link" target="_blank">View ETL Refrigerated Storage Cabinets →</a>
+                    </div>
+                </div>
+
+                <div class="savings-highlight">
+                    <h3 class="savings-title">Annual Savings with ETL Refrigerated Cabinet</h3>
+                    <div class="savings-grid">
+                        <div class="savings-item">
+                            <div class="savings-item-title">Energy Reduction</div>
+                            <div class="savings-item-value">33.3%</div>
+                        </div>
+                        <div class="savings-item">
+                            <div class="savings-item-title">Cost Savings</div>
+                            <div class="savings-item-value">£350/yr</div>
+                        </div>
+                        <div class="savings-item">
+                            <div class="savings-item-title">CO₂ Reduction</div>
+                            <div class="savings-item-value">350 kg/yr</div>
+                        </div>
+                        <div class="savings-item">
+                            <div class="savings-item-title">10-Year Savings</div>
+                            <div class="savings-item-value">£3,500</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>24/7 Operation = Maximum Impact:</strong> Fridges and freezers run continuously, making even modest efficiency gains translate into large annual kWh savings. ETL Professional Refrigerated Storage Cabinets (PRSC) must meet strict Energy Efficiency Index (EEI) thresholds that represent the best performers on the market. Multiple units in a kitchen multiply these savings significantly.
+                </div>
+
+                <h3 style="color: #4a90e2; margin-top: 2rem; margin-bottom: 1rem;">Multiple Unit Savings</h3>
+                <p style="color: #c0c0c0; margin-bottom: 1rem;">Most commercial kitchens have multiple refrigeration units. Here's the impact:</p>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Number of Units</th>
+                            <th>Annual Energy Savings</th>
+                            <th>Annual Cost Savings</th>
+                            <th>10-Year Savings</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1 Unit</td>
+                            <td>1,752 kWh</td>
+                            <td>£350</td>
+                            <td>£3,500</td>
+                        </tr>
+                        <tr>
+                            <td>3 Units</td>
+                            <td>5,256 kWh</td>
+                            <td>£1,051</td>
+                            <td>£10,510</td>
+                        </tr>
+                        <tr>
+                            <td>5 Units</td>
+                            <td>8,760 kWh</td>
+                            <td>£1,752</td>
+                            <td>£17,520</td>
+                        </tr>
+                        <tr>
+                            <td>10 Units (large operation)</td>
+                            <td>17,520 kWh</td>
+                            <td>£3,504</td>
+                            <td>£35,040</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId, event) {
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.nav-button');
+            buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Add active class to clicked button
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+
+            // Scroll to selected section
+            const selectedSection = document.getElementById(sectionId);
+            if (selectedSection) {
+                selectedSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Water Saving Finder — Greenways</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050a12;
+      --surface: #0c1520;
+      --surface-2: #111f2e;
+      --line: rgba(34, 212, 255, 0.22);
+      --text: #e8f4fc;
+      --muted: #8aa4bd;
+      --cyan: #22d4ff;
+      --green: #00f582;
+      --orange: #ff8c1a;
+      --radius: 14px;
+      --quick-photo-well: #0d1822;
+      /* Page backdrop — rollback: remove class water-finder--backdrop from <body> */
+      --water-finder-backdrop-image: url("https://static.wixstatic.com/media/c123de_db98d66a233848ab8c3118a3341f4cb5~mv2.jpg");
+      --font: 'Space Grotesk', sans-serif;
+      --font-clean: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 17px; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(ellipse 70% 45% at 30% -10%, rgba(34, 212, 255, 0.12), transparent),
+        radial-gradient(ellipse 50% 35% at 100% 10%, rgba(0, 245, 130, 0.06), transparent), var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 1rem;
+      line-height: 1.5;
+      overflow-x: hidden;
+      position: relative;
+    }
+    .water-finder-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(rgba(5, 14, 18, 0.36), rgba(5, 12, 20, 0.44)),
+        radial-gradient(circle at 50% 18%, rgba(34, 212, 255, 0.08), transparent 52%),
+        var(--water-finder-backdrop-image);
+      background-size: cover;
+      background-position: center;
+      opacity: 0.9;
+      filter: brightness(0.9) saturate(1.06);
+    }
+    body.water-finder--backdrop .water-finder-backdrop { display: block; }
+    body.water-finder--backdrop {
+      background: #050a12;
+    }
+    .shell { max-width: 1220px; margin: 0 auto; padding: 20px 20px 48px; position: relative; z-index: 1; }
+    body.water-finder--backdrop .top-bar,
+    body.water-finder--backdrop .tab-bar,
+    body.water-finder--backdrop .card {
+      background: rgba(12, 21, 32, 0.82);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    body.water-finder--backdrop .metric,
+    body.water-finder--backdrop .loading {
+      background: rgba(17, 31, 46, 0.88);
+    }
+    body.water-finder--backdrop .pcard {
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.05), transparent 40%), rgba(12, 21, 32, 0.88);
+    }
+    body.water-finder--backdrop .quick-btn {
+      background: rgba(17, 31, 46, 0.9);
+    }
+    body.water-finder--backdrop .brand span,
+    body.water-finder--backdrop .section-label {
+      color: #f5f5f5;
+    }
+    body.water-finder--backdrop .col-head h2 {
+      color: #ffffff;
+      text-shadow: 0 1px 12px rgba(0, 0, 0, 0.4);
+    }
+    body.water-finder--backdrop .col-head p,
+    body.water-finder--backdrop .powered-by {
+      color: #f0f4f8;
+    }
+    .top-bar {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px;
+      padding: 15px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+      position: sticky; top: 10px; z-index: 30;
+      box-shadow: 0 10px 36px rgba(0, 0, 0, 0.42);
+    }
+    .brand strong { font-family: var(--font); font-size: 1.125rem; font-weight: 700; letter-spacing: -0.5px; }
+    .brand span { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+    .nav-links { display: flex; flex-wrap: wrap; gap: 10px; }
+    .nav-links a {
+      font-family: var(--font); font-size: 0.8125rem; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none; padding: 10px 14px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px;
+    }
+    .nav-links a:hover { color: var(--cyan); border-color: rgba(34, 212, 255, 0.35); }
+
+    .tab-bar {
+      display: flex; overflow-x: auto; gap: 6px; margin-top: 20px; padding: 8px;
+      background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+      scrollbar-width: thin;
+    }
+    .tab-btn {
+      flex: 1; min-width: 140px; padding: 16px 14px; border: none; border-radius: 12px;
+      background: transparent; color: var(--muted); font-family: inherit; font-size: 1rem; font-weight: 600;
+      cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap;
+    }
+    .tab-btn .tab-icon { display: block; font-size: 1.5rem; margin-bottom: 8px; }
+    .tab-btn:hover { color: var(--text); background: rgba(34, 212, 255, 0.06); }
+    .tab-btn.active { color: #b8efff; border-bottom-color: var(--cyan); background: rgba(34, 212, 255, 0.1); }
+
+    .main { padding-top: 22px; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px; margin-bottom: 20px;
+    }
+    .section-label {
+      font-family: var(--font); font-size: 0.625rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 12px;
+    }
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 720px) {
+      .quick-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    }
+    .quick-btn {
+      padding: 18px 12px 16px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--surface-2); color: var(--muted); font-size: 0.9375rem; font-weight: 600; font-family: inherit; cursor: pointer; text-align: center;
+      min-height: 148px;
+    }
+    .quick-btn:hover { border-color: rgba(34, 212, 255, 0.35); color: var(--text); }
+    .quick-btn.chosen { outline: 2px solid var(--cyan); color: #c8f4ff; }
+    .quick-btn .icon { display: block; font-size: 1.5rem; margin-bottom: 8px; line-height: 1; }
+    .quick-btn .quick-label { display: block; }
+  /* Product photo on quick-pick (Wix static URL) — slightly larger than emoji icons */
+    .quick-btn--photo .icon-img-wrap {
+      display: flex; align-items: center; justify-content: center;
+      height: 78px; margin: 0 auto 12px; padding: 6px 10px;
+      border-radius: 12px;
+      background: var(--quick-photo-well);
+      border: 1px solid rgba(34, 212, 255, 0.14);
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.28);
+    }
+    .quick-btn--photo .icon-img {
+      display: block; width: auto; height: 68px; max-width: 100%;
+      object-fit: contain;
+      image-rendering: -webkit-optimize-contrast;
+    }
+    .search-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+    .search-row input {
+      flex: 1; min-width: 220px; height: 52px; padding: 0 18px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #0a141f; color: var(--text); font-size: 1rem; font-family: inherit;
+    }
+    .search-btn, .btn-wide {
+      height: 52px; padding: 0 24px; border-radius: 12px; border: none; background: linear-gradient(90deg, var(--cyan), #0a8fab);
+      color: #031018; font-weight: 700; font-size: 0.9375rem; font-family: inherit; cursor: pointer; white-space: nowrap;
+    }
+    .btn-wide { width: 100%; margin-top: 6px; min-height: 52px; }
+    .search-btn:hover, .btn-wide:hover { filter: brightness(1.06); }
+    .search-btn:disabled, .btn-wide:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .form-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 18px; }
+    @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
+    .form-group label { display: block; font-size: 0.75rem; font-family: var(--mono); color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .form-group select, .form-group input[type="text"], .form-group input[type="number"] {
+      width: 100%; height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #0a141f; color: var(--text); font-size: 0.9375rem; font-family: inherit;
+    }
+    .pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill {
+      padding: 8px 14px; border-radius: 999px; font-size: 0.9375rem; border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--muted); cursor: pointer;
+    }
+    .pill.active { border-color: rgba(34, 212, 255, 0.45); color: #c8f4ff; background: rgba(34, 212, 255, 0.1); }
+
+    .meta-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+    @media (max-width: 640px) { .meta-strip { grid-template-columns: 1fr; } }
+    .metric { background: var(--surface-2); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 16px 18px; }
+    .metric .m-label { font-size: 0.75rem; font-family: var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    .metric .m-value { font-size: 1.25rem; font-family: var(--font); font-weight: 700; margin-top: 6px; color: var(--cyan); }
+    .metric .m-sub { font-size: 0.8125rem; font-family: var(--font-clean); color: var(--muted); margin-top: 6px; line-height: 1.45; }
+
+    .col-head { margin: 22px 0 12px; }
+    .col-head h2 { font-size: 1.3125rem; font-family: var(--font); font-weight: 700; letter-spacing: 0.2px; }
+    .col-head p { font-size: 0.9375rem; font-family: var(--font-clean); color: var(--muted); margin-top: 6px; line-height: 1.5; }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+
+    .pcard {
+      border-radius: 14px; padding: 20px 16px 14px; min-height: 190px; display: flex; flex-direction: column;
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.04), transparent 40%), var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 3px solid var(--accent, var(--cyan));
+    }
+    .pcard.market { --accent: var(--cyan); }
+    .pcard.ext { --accent: var(--orange); }
+    .pcard.feed { --accent: var(--green); }
+    .pcard-type { font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .pcard-type .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+    .pcard-badge { font-family: var(--mono); font-size: 0.75rem; padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.12); margin-bottom: 10px; width: fit-content; }
+    .pcard-title { font-size: 1.125rem; font-family: var(--font); font-weight: 700; letter-spacing: 0.2px; line-height: 1.28; margin-bottom: 8px; }
+    .pcard-line { font-size: 0.9375rem; font-family: var(--font-clean); color: var(--muted); line-height: 1.5; flex: 1; }
+    .consumer-block {
+      margin: 12px 0 10px; padding: 15px; border-radius: 12px;
+      background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(34, 212, 255, 0.22);
+      font-family: var(--font-clean);
+      font-size: 0.9375rem; line-height: 1.55; color: var(--muted);
+    }
+    .consumer-headline { font-family: var(--font); color: var(--text); font-weight: 600; margin-bottom: 10px; line-height: 1.45; font-size: 1rem; }
+    .consumer-metrics { font-size: 1rem; color: #b8efff; margin-bottom: 8px; }
+    .consumer-metrics strong { color: var(--cyan); }
+    .consumer-daily { font-size: 0.8125rem; color: var(--muted); font-family: var(--mono); }
+    .pcard-foot { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.08); font-family: var(--mono); font-size: 0.75rem; }
+    .pcard-foot a { color: var(--cyan); text-decoration: none; }
+    .pcard-foot a:hover { text-decoration: underline; }
+    .pcard-img { width: 100%; height: 132px; object-fit: cover; border-radius: 10px; margin-bottom: 12px; background: #0a141f; border: 1px solid rgba(255, 255, 255, 0.06); }
+    .btn-sm { font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(0, 245, 130, 0.35); background: rgba(0, 245, 130, 0.1); color: #c6ffe4; cursor: pointer; margin-top: 10px; }
+    .btn-sm:hover { background: rgba(0, 245, 130, 0.18); }
+
+    .loading { display: flex; align-items: center; gap: 14px; padding: 22px; background: var(--surface-2); border-radius: 14px; border: 1px solid var(--line); color: var(--muted); font-family: var(--font-clean); font-size: 0.9375rem; }
+    .spinner { width: 24px; height: 24px; border: 3px solid rgba(255, 255, 255, 0.12); border-top-color: var(--cyan); border-radius: 50%; animation: spin 0.75s linear infinite; flex-shrink: 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error-box { padding: 18px; border-radius: 12px; background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.35); color: #fecaca; font-family: var(--font-clean); font-size: 1rem; margin-top: 14px; line-height: 1.5; }
+    .powered-by { text-align: center; font-size: 0.8125rem; font-family: var(--font-clean); color: var(--muted); margin-top: 28px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); line-height: 1.55; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+  </style>
+</head>
+<body class="water-finder--backdrop">
+  <div class="water-finder-backdrop" aria-hidden="true"></div>
+  <h2 class="sr-only">Water Saving Finder — products, tips, calculator, grants</h2>
+  <div class="shell">
+    <header class="top-bar">
+      <div class="brand">
+        <strong>GREENWAYS</strong>
+        <span>Water saving finder</span>
+      </div>
+      <nav class="nav-links" aria-label="Quick navigation">
+        <a href="./Greenways%20Interface%20.html">Dashboard</a>
+        <a href="./Deals.html">Deals</a>
+        <a href="./european_energy_deals_portal.html">Energy portal</a>
+        <a href="./sustainable_product_deal_finder_portal.html">Product finder</a>
+      </nav>
+    </header>
+
+    <div class="tab-bar" role="tablist">
+      <button type="button" class="tab-btn active" role="tab" aria-selected="true" onclick="switchTab('products', this)"><span class="tab-icon">🔍</span>Find products</button>
+      <button type="button" class="tab-btn" role="tab" onclick="switchTab('tips', this)"><span class="tab-icon">💡</span>Saving tips</button>
+      <button type="button" class="tab-btn" role="tab" onclick="switchTab('calculator', this)"><span class="tab-icon">🧮</span>Calculator</button>
+      <button type="button" class="tab-btn" role="tab" onclick="switchTab('grants', this)"><span class="tab-icon">💶</span>Grants</button>
+    </div>
+
+    <main class="main">
+      <div id="tab-products" class="tab-pane active">
+        <div class="card">
+          <div class="section-label">Quick select</div>
+          <div class="quick-grid">
+            <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Water-saving tap aerator', this)">
+              <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_7cfbacd1078f483aafd91866c4da4cb2~mv2.png" alt="" width="72" height="50" loading="lazy" decoding="async" /></span>
+              <span class="quick-label">Aerators</span>
+            </button>
+            <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Low-flow showerhead', this)">
+              <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_6a65f752653d4fef8aa90e0846feca23~mv2.jpg" alt="" width="72" height="50" loading="lazy" decoding="async" /></span>
+              <span class="quick-label">Showerhead</span>
+            </button>
+            <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Water-efficient dishwasher', this)">
+              <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_af4ac2bc07a64960b502421fd2334290~mv2.png" alt="" width="72" height="50" loading="lazy" decoding="async" /></span>
+              <span class="quick-label">Dishwasher</span>
+            </button>
+            <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Water-efficient washing machine', this)">
+              <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_383c1fe4e8b44dcdbd2001ee6c2691f5~mv2.png" alt="" width="72" height="50" loading="lazy" decoding="async" /></span>
+              <span class="quick-label">Washer</span>
+            </button>
+            <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Rainwater harvesting system', this)">
+              <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_5b693f5747f84f3484e3b0f99300c5b2~mv2.jpg" alt="" width="72" height="50" loading="lazy" decoding="async" /></span>
+              <span class="quick-label">Rainwater</span>
+            </button>
+            <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Commercial pre-rinse spray valve', this)">
+              <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_20efc36a550045a5a74c4b9fbb4193e7~mv2.png" alt="" width="72" height="50" loading="lazy" decoding="async" /></span>
+              <span class="quick-label">Pre-rinse</span>
+            </button>
+            <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Smart water meter', this)">
+              <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_cb6716e17fec4b58a89331103fb1b910~mv2.jpg" alt="" width="72" height="50" loading="lazy" decoding="async" /></span>
+              <span class="quick-label">Smart meter</span>
+            </button>
+            <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Greywater recycling system', this)">
+              <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_8b7b040d1c4143e3a77e00a93d74a91c~mv2.png" alt="" width="72" height="50" loading="lazy" decoding="async" /></span>
+              <span class="quick-label">Greywater</span>
+            </button>
+          </div>
+          <div class="section-label">Describe what you need</div>
+          <div class="search-row">
+            <input type="text" id="productInput" placeholder="e.g. low-flow pre-rinse, sensor taps for kitchen…" autocomplete="off" />
+            <button type="button" class="search-btn" id="searchBtn" onclick="searchProducts()">Find matches</button>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="settingType">Setting</label>
+              <select id="settingType">
+                <option value="restaurant or café">Restaurant / café</option>
+                <option value="home">Home</option>
+                <option value="office">Office</option>
+                <option value="hotel">Hotel</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="countrySelect">Country</label>
+              <select id="countrySelect">
+                <option value="Netherlands">Netherlands</option>
+                <option value="Germany">Germany</option>
+                <option value="Belgium">Belgium</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="France">France</option>
+                <option value="Spain">Spain</option>
+                <option value="Italy">Italy</option>
+                <option value="Portugal">Portugal</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="budgetSelect">Budget lens</label>
+              <select id="budgetSelect">
+                <option value="any budget">No limit</option>
+                <option value="under €200">Under €200</option>
+                <option value="under €500">Under €500</option>
+                <option value="under €2,000">Under €2,000</option>
+              </select>
+            </div>
+          </div>
+          <div class="section-label">Focus</div>
+          <div class="pill-group" id="priorities">
+            <div class="pill active" onclick="togglePill(this)">Deals &amp; prices</div>
+            <div class="pill active" onclick="togglePill(this)">Litres saved / yr</div>
+            <div class="pill" onclick="togglePill(this)">Certified / label</div>
+            <div class="pill" onclick="togglePill(this)">Commercial grade</div>
+          </div>
+        </div>
+        <div id="productsResults"></div>
+      </div>
+
+      <div id="tab-tips" class="tab-pane">
+        <div class="card">
+          <div class="section-label">Context</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="tipsSetting">Building</label>
+              <select id="tipsSetting">
+                <option value="restaurant">Restaurant / café</option>
+                <option value="home">Home</option>
+                <option value="office">Office</option>
+                <option value="hotel">Hotel</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="tipsSize">Scale</label>
+              <select id="tipsSize">
+                <option value="small">Small site</option>
+                <option value="medium" selected>Medium</option>
+                <option value="large">High volume</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="tipsCountry">Country</label>
+              <select id="tipsCountry">
+                <option value="Netherlands">Netherlands</option>
+                <option value="Germany">Germany</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="France">France</option>
+                <option value="Spain">Spain</option>
+              </select>
+            </div>
+          </div>
+          <button type="button" class="btn-wide" id="tipsBtn" onclick="getTips()">Load practical tips</button>
+        </div>
+        <div id="tipsResults"></div>
+      </div>
+
+      <div id="tab-calculator" class="tab-pane">
+        <div class="card">
+          <div class="section-label">Rough usage model</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="calcSetting">Building</label>
+              <select id="calcSetting">
+                <option value="restaurant">Restaurant</option>
+                <option value="home">Home</option>
+                <option value="office">Office</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="calcPeople">Covers / people per day</label>
+              <input type="number" id="calcPeople" value="40" min="1" />
+            </div>
+            <div class="form-group">
+              <label for="calcCountry">Country</label>
+              <select id="calcCountry">
+                <option value="Netherlands">Netherlands</option>
+                <option value="Germany">Germany</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="France">France</option>
+              </select>
+            </div>
+          </div>
+          <button type="button" class="btn-wide" id="calcBtn" onclick="getCalculation()">Calculate</button>
+        </div>
+        <div id="calcResults"></div>
+      </div>
+
+      <div id="tab-grants" class="tab-pane">
+        <div class="card">
+          <div class="section-label">Catalogue search</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="grantsCountry">Country</label>
+              <select id="grantsCountry">
+                <option value="Netherlands">Netherlands</option>
+                <option value="Germany">Germany</option>
+                <option value="Belgium">Belgium</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="France">France</option>
+                <option value="Spain">Spain</option>
+                <option value="Italy">Italy</option>
+                <option value="Portugal">Portugal</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="grantsType">Applicant</label>
+              <select id="grantsType">
+                <option value="restaurant">Restaurant / food</option>
+                <option value="home">Homeowner</option>
+                <option value="business">Business</option>
+                <option value="hotel">Hotel</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="grantsPostcode">Postcode (optional)</label>
+              <input type="text" id="grantsPostcode" placeholder="e.g. 1755 AJ" />
+            </div>
+          </div>
+          <button type="button" class="btn-wide" id="grantsBtn" onclick="getGrants()">Load scheme cards</button>
+        </div>
+        <div id="grantsResults"></div>
+      </div>
+
+      <p class="powered-by" hidden>Marketplace matches use the same backend as the sustainable product finder. Grants list is filtered from <code>schemes.json</code> — verify eligibility on official sites.</p>
+    </main>
+  </div>
+
+  <script>
+    const PLACEHOLDER_M = './Product%20Comparison/Restuarants/Oven/Refrigerator/ETL.jpeg';
+    const PLACEHOLDER_E = './Product%20Comparison/Restuarants/Oven/Refrigerator/Stanadard.webp';
+
+    const COUNTRY_REGION = {
+      Netherlands: 'nl',
+      Germany: 'de',
+      Belgium: 'be',
+      'United Kingdom': 'uk',
+      France: 'fr',
+      Spain: 'es',
+      Italy: 'it',
+      Portugal: 'pt'
+    };
+
+    const WATER_BASELINE = {
+      dishwasher: { actualDailyKwh: 14, actualDailyWaterLitres: 320, actualDailyGasKwh: 0 },
+      washing: { actualDailyKwh: 6, actualDailyWaterLitres: 180, actualDailyGasKwh: 0 },
+      default: { actualDailyKwh: 10, actualDailyWaterLitres: 420, actualDailyGasKwh: 0 }
+    };
+
+    function resolveApiUrl(pathname) {
+      if (/^https?:\/\//i.test(pathname)) return pathname;
+      if (window.location.protocol === 'file:') return 'http://localhost:4000' + pathname;
+      return pathname;
+    }
+
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = s == null ? '' : String(s);
+      return d.innerHTML;
+    }
+
+    function switchTab(tab, el) {
+      document.querySelectorAll('.tab-btn').forEach((b) => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.tab-pane').forEach((p) => p.classList.remove('active'));
+      el.classList.add('active');
+      el.setAttribute('aria-selected', 'true');
+      document.getElementById('tab-' + tab).classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    function pickProduct(name, el) {
+      document.getElementById('productInput').value = name;
+      document.querySelectorAll('#tab-products .quick-btn').forEach((b) => b.classList.remove('chosen'));
+      el.classList.add('chosen');
+    }
+
+    function togglePill(el) {
+      el.classList.toggle('active');
+    }
+
+    function getActivePills() {
+      return Array.from(document.querySelectorAll('#priorities .pill.active')).map((p) => p.textContent).join(', ');
+    }
+
+    function inferWaterType(text) {
+      const t = String(text || '').toLowerCase();
+      if (t.includes('dish')) return 'dishwasher';
+      if (t.includes('wash') && t.includes('machine')) return 'washing';
+      return 'default';
+    }
+
+    function marketplaceHref(id) {
+      return './product-page-v2-marketplace.html?product=' + encodeURIComponent(id) + '&fromPopup=true';
+    }
+
+    function formatConsumerInsightHtml(consumer) {
+      if (!consumer || !consumer.runningCost) return '';
+      const rc = consumer.runningCost;
+      const pd = consumer.productDaily || {};
+      const dailyStr = Number(pd.electricityKwh || 0).toFixed(1) + ' kWh · ' + Number(pd.waterLitres || 0).toFixed(0) + ' L · ' + Number(pd.gasKwh || 0).toFixed(1) + ' gas-kWh';
+      const cost1m = Math.round(Number(rc.productEurPerMonth) || 0);
+      const sav1m = Math.round(Number(rc.eurSavedVsBaselinePerMonth) || 0);
+      return (
+        '<div class="consumer-block">' +
+        '<p class="consumer-headline">' + esc(consumer.headline || '') + '</p>' +
+        '<div class="consumer-metrics">Cost (1m): <strong>€' + esc(String(cost1m)) + '</strong> &nbsp; Savings vs baseline (1m): <strong>€' + esc(String(sav1m)) + '</strong></div>' +
+        '<div class="consumer-daily">Daily (modelled): ' + esc(dailyStr) + '</div></div>'
+      );
+    }
+
+    function cardMarketplace(it, grantN) {
+      const s = it.savings || {};
+      const href = marketplaceHref(it.id);
+      const img = it.imageUrl || PLACEHOLDER_M;
+      const gLine = grantN != null ? '<strong>' + esc(String(grantN)) + '</strong> catalogue funding hints' : 'See product page for grants';
+      return (
+        '<article class="pcard market">' +
+        '<img class="pcard-img" src="' + esc(img) + '" alt="" loading="lazy" onerror="this.src=\'' + PLACEHOLDER_M + '\'" />' +
+        '<div class="pcard-type"><span class="dot"></span>Greenways marketplace</div>' +
+        '<span class="pcard-badge">Score ' + esc(String(it.score ?? '—')) + '</span>' +
+        '<div class="pcard-title">' + esc(it.name) + '</div>' +
+        formatConsumerInsightHtml(it.consumer) +
+        '<div class="pcard-line">' + esc(it.brand || '') + (it.model ? ' · ' + esc(it.model) : '') + '<br/>Est. annual savings vs baseline: €' + esc(Number((it.savings || {}).annualEstimatedCostSavedEur || 0).toFixed(0)) + ' · ' + esc(Number((it.savings || {}).annualWaterSavedLitres || 0).toFixed(0)) + ' L/yr water delta</div>' +
+        '<div class="pcard-line" style="margin-top:8px">' + gLine + '</div>' +
+        '<div class="pcard-foot"><a href="' + esc(href) + '" target="_blank" rel="noopener noreferrer">Open product page →</a></div></article>'
+      );
+    }
+
+    function cardExternal(it) {
+      const s = it.savings || {};
+      const enc = encodeURIComponent(JSON.stringify(s));
+      return (
+        '<article class="pcard ext">' +
+        '<div class="pcard-type"><span class="dot"></span>Alternative archetype</div>' +
+        '<span class="pcard-badge">Research</span>' +
+        '<div class="pcard-title">' + esc(it.name) + '</div>' +
+        formatConsumerInsightHtml(it.consumer) +
+        '<div class="pcard-line">' + esc(it.summary || '') + '</div>' +
+        '<div class="pcard-line" style="margin-top:8px">Est. €' + esc(Number(s.annualEstimatedCostSavedEur || 0).toFixed(0)) + ' / yr · ' + esc(Number(s.annualWaterSavedLitres || 0).toFixed(0)) + ' L/yr</div>' +
+        '<button type="button" class="btn-sm" data-s="' + enc + '" data-n="' + encodeURIComponent(it.name || '') + '" data-b="' + encodeURIComponent(it.brand || '') + '" data-m="' + encodeURIComponent(it.model || '') + '" data-t="' + encodeURIComponent(it.type || '') + '">Suggest for Greenways</button></article>'
+      );
+    }
+
+    function cardFeed(d) {
+      const href = (d.href || '').startsWith('http') ? d.href : './' + String(d.href || '').replace(/^\.\//, '');
+      return (
+        '<article class="pcard feed">' +
+        '<div class="pcard-type"><span class="dot"></span>Curated feed</div>' +
+        '<span class="pcard-badge">' + esc(d.region || 'EU') + '</span>' +
+        '<div class="pcard-title">' + esc(d.title) + '</div>' +
+        '<div class="pcard-line">' + esc(d.line || '') + '</div>' +
+        '<div class="pcard-foot"><a href="' + esc(href) + '">Open →</a></div></article>'
+      );
+    }
+
+    async function fetchGrantCount(id) {
+      try {
+        const res = await fetch(resolveApiUrl('/api/product-widget/' + encodeURIComponent(id)));
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (!data.success || !data.product) return null;
+        const g = data.product.grants;
+        return Array.isArray(g) ? g.length : null;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-s]');
+      if (!btn) return;
+      submitIntake(btn);
+    });
+
+    async function submitIntake(btn) {
+      btn.disabled = true;
+      const prev = btn.textContent;
+      btn.textContent = 'Saving…';
+      try {
+        const body = {
+          source: 'water-saving-finder',
+          name: decodeURIComponent(btn.getAttribute('data-n') || ''),
+          brand: decodeURIComponent(btn.getAttribute('data-b') || ''),
+          model: decodeURIComponent(btn.getAttribute('data-m') || ''),
+          type: decodeURIComponent(btn.getAttribute('data-t') || ''),
+          reason: 'From Water Saving Finder',
+          expectedSavings: JSON.parse(decodeURIComponent(btn.getAttribute('data-s') || '%7B%7D'))
+        };
+        const res = await fetch(resolveApiUrl('/api/equipment-intelligence/marketplace-intake-suggestions'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const payload = await res.json();
+        if (!res.ok || !payload.success) throw new Error(payload.message || 'Failed');
+        btn.textContent = 'Suggested';
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = prev;
+        alert(err.message || 'Save failed');
+      }
+    }
+
+    async function searchProducts() {
+      const product = document.getElementById('productInput').value.trim();
+      if (!product) {
+        document.getElementById('productInput').focus();
+        return;
+      }
+      const setting = document.getElementById('settingType').value;
+      const country = document.getElementById('countrySelect').value;
+      const budget = document.getElementById('budgetSelect').value;
+      const focus = getActivePills();
+      const btn = document.getElementById('searchBtn');
+      const area = document.getElementById('productsResults');
+
+      btn.disabled = true;
+      btn.textContent = 'Matching…';
+      area.innerHTML = '<div class="loading"><div class="spinner"></div> Loading catalogue, feed, and alternatives…</div>';
+
+      const wtype = inferWaterType(product);
+      const baseline = WATER_BASELINE[wtype] || WATER_BASELINE.default;
+      const eqType = wtype === 'dishwasher' ? 'dishwasher' : wtype === 'washing' ? 'other' : 'other';
+
+      const params = new URLSearchParams({
+        name: product,
+        brand: '',
+        model: '',
+        type: eqType,
+        actualDailyKwh: String(baseline.actualDailyKwh),
+        actualDailyWaterLitres: String(baseline.actualDailyWaterLitres),
+        actualDailyGasKwh: String(baseline.actualDailyGasKwh),
+        electricityRateEurPerKwh: '0.30',
+        gasRateEurPerKwh: '0.11',
+        waterRateEurPerLitre: '0.0025',
+        persistCatalog: '1',
+        finderSource: 'water_saving_finder',
+        country: country
+      });
+
+      try {
+        const [altRes, feedRes] = await Promise.all([
+          fetch(resolveApiUrl('/api/equipment-intelligence/alternatives?' + params.toString())),
+          fetch(resolveApiUrl('/data/deals-feed.json'), { cache: 'no-store' })
+        ]);
+        const altPayload = await altRes.json();
+        if (!altRes.ok || !altPayload.success) throw new Error(altPayload.message || 'Alternatives failed');
+
+        const feed = feedRes.ok ? await feedRes.json() : { deals: [] };
+        const reg = COUNTRY_REGION[country] || 'nl';
+        const waterDeals = (feed.deals || []).filter((d) => {
+          if (d.category !== 'water') return false;
+          const dr = String(d.region || 'EU').toUpperCase();
+          if (dr === 'EU') return true;
+          return String(d.region).toLowerCase() === reg;
+        });
+
+        const mp = Array.isArray(altPayload.marketplaceMatches) ? altPayload.marketplaceMatches : [];
+        const ext = Array.isArray(altPayload.externalAlternatives) ? altPayload.externalAlternatives : [];
+        const grantNs = await Promise.all(mp.slice(0, 6).map((x) => fetchGrantCount(x.id)));
+
+        let html = '<div class="meta-strip">';
+        html += '<div class="metric"><div class="m-label">Query</div><div class="m-value">' + esc(product) + '</div><div class="m-sub">' + esc(setting) + '</div></div>';
+        html += '<div class="metric"><div class="m-label">Market</div><div class="m-value">' + esc(country) + '</div><div class="m-sub">' + esc(budget) + '</div></div>';
+        html += '<div class="metric"><div class="m-label">Focus</div><div class="m-value">' + esc(focus || '—') + '</div><div class="m-sub">Baseline ~' + esc(String(baseline.actualDailyWaterLitres)) + ' L/day water model</div></div>';
+        html += '</div>';
+
+        html += '<div class="col-head"><h2>Greenways marketplace</h2><p>Same <code>/api/equipment-intelligence/alternatives</code> matching as the sustainable product finder.</p></div>';
+        html += '<div class="cards-grid">';
+        if (mp.length) mp.forEach((it, i) => { html += cardMarketplace(it, grantNs[i]); });
+        else html += '<div class="error-box" style="margin:0">No marketplace SKUs matched — try “dishwasher” or a brand you carry.</div>';
+        html += '</div>';
+
+        html += '<div class="col-head"><h2>Curated water routes</h2><p>From the deals feed.</p></div><div class="cards-grid">';
+        if (waterDeals.length) waterDeals.forEach((d) => { html += cardFeed(d); });
+        else html += '<div class="error-box" style="margin:0;background:rgba(34,212,255,0.08);border-color:rgba(34,212,255,0.25);color:#b8e8ff">No water cards for this country filter — check EU entries or run <code>npm run build:deals-feed</code>.</div>';
+        html += '</div>';
+
+        html += '<div class="col-head"><h2>Efficient archetypes</h2><p>External models for benchmarking (suggest for listing if useful).</p></div><div class="cards-grid">';
+        if (ext.length) ext.forEach((it) => { html += cardExternal(it); });
+        else html += '<div class="error-box" style="margin:0">No external archetypes for this query.</div>';
+        html += '</div>';
+
+        if (Array.isArray(altPayload.assumptions) && altPayload.assumptions.length) {
+          html += '<div class="card" style="margin-top:18px;font-size:0.9375rem;color:var(--muted)"><strong style="color:var(--text)">Model assumptions</strong><ul style="margin:10px 0 0 1.25rem">';
+          altPayload.assumptions.forEach((a) => { html += '<li>' + esc(a) + '</li>'; });
+          html += '</ul></div>';
+        }
+
+        area.innerHTML = html;
+      } catch (e) {
+        area.innerHTML = '<div class="error-box">' + esc(e.message || 'Error') + '. Use the backend origin so APIs resolve.</div>';
+      }
+      btn.disabled = false;
+      btn.textContent = 'Find matches';
+    }
+
+    function getTips() {
+      const setting = document.getElementById('tipsSetting').value;
+      const size = document.getElementById('tipsSize').value;
+      const country = document.getElementById('tipsCountry').value;
+      const btn = document.getElementById('tipsBtn');
+      const area = document.getElementById('tipsResults');
+      btn.disabled = true;
+      area.innerHTML = '<div class="loading"><div class="spinner"></div> Building tip cards…</div>';
+      setTimeout(() => {
+        const tips = [
+          { t: 'Quick win', d: 'Fit tap aerators on handwash and prep sinks — typically 40–50% flow reduction with no behaviour change.', a: 'cyan' },
+          { t: 'Ops', d: 'Pre-rinse discipline: scrape plates before spray; keep trigger valves maintained — largest kitchen water line item after dishwash.', a: 'cyan' },
+          { t: 'Equipment', d: 'When replacing warewash, pick heat-recovery / rinse optimisation cycles matched to ' + setting + ' peak loads.', a: 'green' },
+          { t: 'Leakage', d: 'Night/weekend usage floor: if meter moves when closed, schedule a leak trace before buying new equipment.', a: 'orange' },
+          { t: 'Data', d: 'Submeter dish, ice, and coffee lines if ' + size + ' volume — you cannot manage what you do not measure.', a: 'cyan' },
+          { t: 'Policy', d: 'Pair retrofits with local water-efficiency grants in ' + country + ' (see Grants tab) before capex sign-off.', a: 'green' }
+        ];
+        let html = '<div class="col-head"><h2>Practical tips</h2><p>Static playbook — combine with Grants tab and equipment matches.</p></div><div class="cards-grid">';
+        tips.forEach((x) => {
+          html +=
+            '<article class="pcard" style="border-top-color:' +
+            (x.a === 'green' ? 'var(--green)' : x.a === 'orange' ? 'var(--orange)' : 'var(--cyan)') +
+            '"><div class="pcard-type"><span class="dot"></span>' +
+            esc(x.t) +
+            '</div><div class="pcard-title">' +
+            esc(setting) +
+            ' · ' +
+            esc(country) +
+            '</div><div class="pcard-line">' +
+            esc(x.d) +
+            '</div></article>';
+        });
+        html += '</div>';
+        area.innerHTML = html;
+        btn.disabled = false;
+      }, 200);
+    }
+
+    function waterTariffEurM3(country) {
+      const m = { Netherlands: 1.15, Germany: 1.35, 'United Kingdom': 1.45, France: 1.2, Spain: 1.1 };
+      return m[country] ?? 1.25;
+    }
+
+    function getCalculation() {
+      const setting = document.getElementById('calcSetting').value;
+      const people = Math.max(1, parseInt(document.getElementById('calcPeople').value, 10) || 1);
+      const country = document.getElementById('calcCountry').value;
+      const btn = document.getElementById('calcBtn');
+      const area = document.getElementById('calcResults');
+      btn.disabled = true;
+      const litresPerUnit = setting === 'restaurant' ? 12 : setting === 'office' ? 4 : 6;
+      const dailyL = people * litresPerUnit;
+      const annualL = dailyL * 365;
+      const m3y = annualL / 1000;
+      const tariff = waterTariffEurM3(country);
+      const cost = m3y * tariff;
+      const savePct = 0.18;
+      const savedL = annualL * savePct;
+      const savedEur = (savedL / 1000) * tariff;
+
+      area.innerHTML =
+        '<div class="meta-strip">' +
+        '<div class="metric"><div class="m-label">Modelled daily use</div><div class="m-value">' +
+        esc(String(Math.round(dailyL))) +
+        ' L</div><div class="m-sub">' +
+        esc(setting) +
+        ' · ' +
+        esc(String(people)) +
+        ' units/day @ ' +
+        litresPerUnit +
+        ' L/unit (illustrative)</div></div>' +
+        '<div class="metric"><div class="m-label">Annual water</div><div class="m-value">' +
+        esc(String(Math.round(annualL))) +
+        ' L</div><div class="m-sub">≈ ' +
+        esc(m3y.toFixed(1)) +
+        ' m³/yr</div></div>' +
+        '<div class="metric"><div class="m-label">Indicative cost</div><div class="m-value">€' +
+        esc(cost.toFixed(0)) +
+        '</div><div class="m-sub">@ €' +
+        tariff.toFixed(2) +
+        '/m³ · verify with your utility</div></div>' +
+        '</div>' +
+        '<div class="col-head"><h2>Savings if you cut ~18% usage</h2><p>Illustrative — from low-flow + behaviour; not audited.</p></div>' +
+        '<div class="cards-grid"><article class="pcard feed"><div class="pcard-type"><span class="dot"></span>Result</div>' +
+        '<div class="pcard-title">~' +
+        esc(String(Math.round(savedL))) +
+        ' L/yr</div><div class="pcard-line">≈ €' +
+        esc(savedEur.toFixed(0)) +
+        ' / yr at current tariff guess. Use Find products tab for equipment that hits pre-rinse and warewash first.</div></article></div>';
+      btn.disabled = false;
+    }
+
+    function schemeWaterRelevant(s) {
+      const blob = (s.title + ' ' + (s.description || '') + ' ' + (Array.isArray(s.keywords) ? s.keywords.join(' ') : '')).toLowerCase();
+      return /water|efficien|rain|irrigation|leak|harvest|conservation|sanitation|drain|waste\s*water/i.test(blob);
+    }
+
+    function schemeRegionOk(s, country) {
+      const want = COUNTRY_REGION[country] || 'eu';
+      const sr = String(s.region || 'eu').toLowerCase();
+      if (sr === 'eu') return true;
+      return sr === want;
+    }
+
+    async function getGrants() {
+      const country = document.getElementById('grantsCountry').value;
+      const applicant = document.getElementById('grantsType').value;
+      const postcode = document.getElementById('grantsPostcode').value.trim();
+      const btn = document.getElementById('grantsBtn');
+      const area = document.getElementById('grantsResults');
+      btn.disabled = true;
+      btn.textContent = 'Loading…';
+      area.innerHTML = '<div class="loading"><div class="spinner"></div> Loading schemes.json…</div>';
+      try {
+        const res = await fetch(resolveApiUrl('/schemes.json'), { cache: 'no-store' });
+        if (!res.ok) throw new Error('Could not load schemes.json');
+        const all = await res.json();
+        const list = (Array.isArray(all) ? all : [])
+          .filter((s) => schemeRegionOk(s, country) && schemeWaterRelevant(s))
+          .slice(0, 24);
+
+        let html = '<div class="meta-strip">';
+        html += '<div class="metric"><div class="m-label">Country</div><div class="m-value">' + esc(country) + '</div><div class="m-sub">' + esc(postcode || 'no postcode filter') + '</div></div>';
+        html += '<div class="metric"><div class="m-label">Applicant</div><div class="m-value">' + esc(applicant) + '</div><div class="m-sub">Keyword filter only</div></div>';
+        html += '<div class="metric"><div class="m-label">Matches</div><div class="m-value">' + esc(String(list.length)) + '</div><div class="m-sub">Max 24 shown</div></div>';
+        html += '</div><div class="cards-grid">';
+        if (!list.length) {
+          html += '<div class="error-box" style="margin:0">No water-related schemes for this region in JSON.</div>';
+        } else {
+          list.forEach((s) => {
+            const link = s.links && s.links[0] && s.links[0].url ? s.links[0].url : '';
+            html +=
+              '<article class="pcard market"><div class="pcard-type"><span class="dot"></span>Scheme</div>' +
+              '<span class="pcard-badge">' +
+              esc(s.region || '') +
+              ' · ' +
+              esc(s.type || '') +
+              '</span>' +
+              '<div class="pcard-title">' +
+              esc(s.title) +
+              '</div>' +
+              '<div class="pcard-line">' +
+              esc(String(s.description || '').slice(0, 220)) +
+              (String(s.description || '').length > 220 ? '…' : '') +
+              '</div>' +
+              '<div class="pcard-foot">' +
+              (link ? '<a href="' + esc(link) + '" target="_blank" rel="noopener noreferrer">Link →</a>' : '') +
+              '</div></article>';
+          });
+        }
+        html += '</div>';
+        area.innerHTML = html;
+      } catch (e) {
+        area.innerHTML = '<div class="error-box">' + esc(e.message || 'Error') + '</div>';
+      }
+      btn.disabled = false;
+      btn.textContent = 'Load scheme cards';
+    }
+
+    document.getElementById('productInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') searchProducts();
+    });
+  </script>
+</body>
+</html>

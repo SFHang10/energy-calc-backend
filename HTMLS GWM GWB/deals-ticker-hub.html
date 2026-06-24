@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Greenways Deals Hub — Energy · Water · Sustainability</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font: 'Space Grotesk', sans-serif;
+      --font-clean: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      /* Wider hub + room for scaled ticker (was 1100px — felt narrow in Deals iframe) */
+      --hub-max: min(1560px, calc(100vw - 40px));
+      --hub-pad-x: clamp(18px, 3.5vw, 48px);
+      /* Hub backdrop — rollback: remove class hub-page--backdrop from <body> */
+      --hub-backdrop-image: url("https://static.wixstatic.com/media/c123de_6d64dbcce52a466ab4146d7e83713731~mv2.jpg");
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #000;
+      color: #e8f5ee;
+      font-family: var(--font);
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding: 40px 0 64px;
+      position: relative;
+    }
+    .hub-page-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-color: #050805;
+      background-image:
+        linear-gradient(rgba(5, 14, 9, 0.36), rgba(5, 14, 9, 0.42)),
+        radial-gradient(circle at 50% 22%, rgba(0, 245, 130, 0.06), transparent 50%),
+        var(--hub-backdrop-image);
+      background-size: cover;
+      background-position: center;
+      opacity: 0.9;
+      filter: brightness(0.9) saturate(1.06);
+    }
+    body.hub-page--backdrop .hub-page-backdrop { display: block; }
+    body.hub-page--backdrop { background: #050805; }
+    .wrap { max-width: var(--hub-max); margin: 0 auto; padding: 0 var(--hub-pad-x); position: relative; z-index: 1; }
+    body.hub-page--backdrop .header-title,
+    body.hub-page--backdrop .header-sub,
+    body.hub-page--backdrop .header-eyebrow {
+      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.65);
+    }
+    body.hub-page--backdrop .control-card {
+      background: linear-gradient(145deg, rgba(10, 18, 14, 0.82) 0%, rgba(5, 8, 5, 0.86) 100%);
+      border-color: rgba(0, 245, 130, 0.22);
+    }
+    body.hub-page--backdrop .hi-card {
+      background: linear-gradient(165deg, rgba(14, 33, 23, 0.88) 0%, rgba(11, 26, 18, 0.9) 100%);
+    }
+    body.hub-page--backdrop .deal-card {
+      background: rgba(8, 12, 10, 0.82);
+    }
+    .header { text-align: center; margin-bottom: 36px; }
+    .header-eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      color: #f5f5f5;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .header-title {
+      font-family: var(--font);
+      font-size: clamp(34px, 5.2vw, 52px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      color: #fff;
+    }
+    .header-title span { color: #00f582; }
+    .header-sub {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: #ffffff;
+      margin-top: 14px;
+      letter-spacing: 0.05em;
+    }
+    .meta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 28px;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.45;
+      color: #f0f0f0;
+    }
+    .meta-bar strong { color: #ffffff; font-weight: 500; }
+
+    .control-card {
+      background: linear-gradient(145deg, #0a120e 0%, #050805 100%);
+      border: 1px solid rgba(0, 245, 130, 0.15);
+      border-radius: 16px;
+      padding: 22px 24px;
+      margin-bottom: 28px;
+    }
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+    }
+    .search-input {
+      flex: 1;
+      min-width: 220px;
+      height: 52px;
+      padding: 0 18px;
+      border-radius: 12px;
+      border: 1px solid #222;
+      background: #0c0c0c;
+      color: #e8f5ee;
+      font-family: var(--font);
+      font-size: 15px;
+    }
+    .search-input::placeholder { color: #555; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .pill {
+      padding: 9px 20px;
+      border-radius: 999px;
+      border: 1px solid #2a2a2a;
+      background: #0a0a0a;
+      color: #888;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+    }
+    .pill.active {
+      border-color: rgba(0, 245, 130, 0.45);
+      color: #00f582;
+      background: rgba(0, 245, 130, 0.08);
+    }
+    .chk {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font);
+      font-size: 14px;
+      color: #888;
+      margin-left: 4px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .chk input { accent-color: #00f582; }
+
+    .ticker-block {
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 2;
+    }
+    body.hub-page--backdrop .ticker-block {
+      background: #000;
+      border-radius: 14px;
+      padding: 6px 0;
+      border: 1px solid #1a1a1a;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
+    }
+    .ticker-row {
+      display: flex;
+      align-items: stretch;
+      min-height: 68px;
+      border: 1px solid #1a1a1a;
+      border-radius: 0;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .ticker-label {
+      flex-shrink: 0;
+      width: min(268px, 34vw);
+      max-width: 40vw;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 18px;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      border-right: 1px solid #1a1a1a;
+      background: #000;
+    }
+    .label-energy { color: #ffd54a; border-right-color: rgba(255, 213, 74, 0.2); }
+    .label-water { color: #5ce1ff; border-right-color: rgba(92, 225, 255, 0.2); }
+    .label-sustain { color: #00f582; border-right-color: rgba(0, 245, 130, 0.2); }
+    .label-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+    .dot-energy { background: #ffd54a; }
+    .dot-water { background: #5ce1ff; }
+    .dot-sustain { background: #00f582; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.75); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .label-dot { animation: none; }
+    }
+    .ticker-track-outer {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      background: #030303;
+    }
+    .ticker-track-outer::before,
+    .ticker-track-outer::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 72px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .ticker-track-outer::before {
+      left: 0;
+      background: linear-gradient(to right, #030303, transparent);
+    }
+    .ticker-track-outer::after {
+      right: 0;
+      background: linear-gradient(to left, #030303, transparent);
+    }
+    .ticker-track {
+      display: flex;
+      white-space: nowrap;
+      height: 100%;
+      min-height: 50px;
+      align-items: center;
+    }
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 24px;
+      height: 50px;
+      border-right: 1px solid #151515;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: var(--font);
+      font-size: 12px;
+      color: #ccc;
+    }
+    .ticker-item:hover { background: rgba(255,255,255,0.04); }
+    .ticker-item .ti-meta {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .ticker-item .ti-new {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 5px;
+      background: rgba(0, 245, 130, 0.15);
+      color: #00f582;
+      font-family: var(--mono);
+      letter-spacing: 0.08em;
+    }
+
+    .section-title {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #f5f5f5;
+      margin: 36px 0 16px;
+      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.45);
+    }
+    .highlights {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 18px;
+      margin-bottom: 36px;
+    }
+    .hi-card {
+      border: 1px solid #1f1f1f;
+      border-radius: 14px;
+      padding: 22px 24px;
+      background: linear-gradient(165deg, #0e2117 0%, #0b1a12 100%);
+      border-color: rgba(75, 140, 104, 0.25);
+    }
+    .hi-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: #fff; }
+    .hi-card p { font-size: 14px; line-height: 1.55; color: #9ec8b0; margin-bottom: 14px; }
+    .hi-card a {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: #5ce1ff;
+      text-decoration: none;
+    }
+    .hi-card a:hover { text-decoration: underline; }
+
+    .deal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+    .deal-card {
+      border: 1px solid #222;
+      border-radius: 14px;
+      padding: 18px 20px;
+      background: #080808;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.12s;
+    }
+    .deal-card:hover {
+      border-color: rgba(34, 212, 255, 0.35);
+      transform: translateY(-1px);
+    }
+    .deal-card .dc-cat {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .deal-card .dc-title { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .deal-card .dc-line { font-size: 14px; color: #9aa; line-height: 1.45; }
+    .deal-card .dc-tags { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .deal-card .dc-tags span {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 6px;
+      background: #151515;
+      color: #888;
+      font-family: var(--mono);
+    }
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: #666;
+      font-size: 15px;
+    }
+    .err-banner {
+      background: rgba(180, 40, 40, 0.12);
+      border: 1px solid rgba(255, 100, 100, 0.25);
+      color: #faa;
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    .footer-note {
+      text-align: center;
+      margin-top: 44px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #444;
+      letter-spacing: 0.08em;
+    }
+  </style>
+</head>
+<body class="hub-page--backdrop">
+  <div class="hub-page-backdrop" aria-hidden="true"></div>
+  <div class="wrap">
+    <header class="header">
+      <p class="header-eyebrow">Greenways Market · Consumer hub</p>
+      <h1 class="header-title">Deals <span>&amp;</span> tools</h1>
+      <p class="header-sub">Energy tariffs · water savings · sustainable products — search or scroll the lanes</p>
+    </header>
+
+    <div class="meta-bar" id="metaBar">
+      <span>Loading feed…</span>
+    </div>
+    <div id="errBox" class="err-banner" style="display:none"></div>
+
+    <div class="control-card">
+      <div class="control-row">
+        <input type="search" class="search-input" id="dealSearch" placeholder="Search titles, tags, regions…" autocomplete="off">
+        <label class="chk"><input type="checkbox" id="newOnly"> New only</label>
+      </div>
+      <div class="pill-row" id="categoryPills">
+        <button type="button" class="pill active" data-cat="all">All</button>
+        <button type="button" class="pill" data-cat="energy">Energy</button>
+        <button type="button" class="pill" data-cat="water">Water</button>
+        <button type="button" class="pill" data-cat="sustainability">Sustainability</button>
+      </div>
+    </div>
+
+    <div class="ticker-block">
+      <div class="ticker-row" id="row-energy">
+        <div class="ticker-label label-energy"><span class="label-dot dot-energy"></span>Energy deals</div>
+        <div class="ticker-track-outer"><div class="ticker-track" id="track-energy"></div></div>
+      </div>
+      <div class="ticker-row" id="row-water">
+        <div class="ticker-label label-water"><span class="label-dot dot-water"></span>Water &amp; efficiency</div>
+        <div class="ticker-track-outer"><div class="ticker-track" id="track-water"></div></div>
+      </div>
+      <div class="ticker-row" id="row-sustain">
+        <div class="ticker-label label-sustain"><span class="label-dot dot-sustain"></span>Sustainable products</div>
+        <div class="ticker-track-outer"><div class="ticker-track" id="track-sustain"></div></div>
+      </div>
+    </div>
+
+    <p class="section-title">Spotlight tools</p>
+    <div class="highlights" id="highlights"></div>
+
+    <p class="section-title">Browse all deals &amp; links</p>
+    <div class="deal-grid" id="dealGrid"></div>
+    <div class="empty-state" id="emptyGrid" style="display:none">No matches — try another search or category.</div>
+
+    <p class="footer-note">Tickers rotate curated entries. Regenerate JSON: <code style="color:#555">npm run build:deals-feed</code></p>
+  </div>
+
+  <script>
+    const FEED_URLS = ['../data/deals-feed.json', '/data/deals-feed.json'];
+    let FEED = { meta: {}, deals: [], highlights: [] };
+    let activeCat = 'all';
+    let tickerAnim = [];
+
+    function pickFeedUrl() {
+      return FEED_URLS[0];
+    }
+
+    async function loadFeed() {
+      let lastErr = null;
+      for (const u of FEED_URLS) {
+        try {
+          const res = await fetch(u, { cache: 'no-store' });
+          if (!res.ok) throw new Error(res.status + ' ' + u);
+          FEED = await res.json();
+          document.getElementById('errBox').style.display = 'none';
+          return;
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+      document.getElementById('errBox').style.display = 'block';
+      document.getElementById('errBox').textContent =
+        'Could not load deals feed. Run the site from the repo root (e.g. localhost) or run npm run build:deals-feed. (' + (lastErr && lastErr.message) + ')';
+      FEED = { meta: { generatedAt: new Date().toISOString() }, deals: [], highlights: [] };
+    }
+
+    function byCategory(cat) {
+      return FEED.deals.filter((d) => d.category === cat);
+    }
+
+    function buildTrack(trackId, deals, accentClass) {
+      const track = document.getElementById(trackId);
+      if (!track) return;
+      track.innerHTML = '';
+      if (!deals.length) {
+        track.innerHTML = '<span class="ticker-item" style="cursor:default;color:#555">No items — add seeds in data/deals-feed-seeds.json</span>';
+        return;
+      }
+      const triple = [...deals, ...deals, ...deals];
+      triple.forEach((d) => {
+        const el = document.createElement('span');
+        el.className = 'ticker-item';
+        el.innerHTML =
+          '<span class="ti-meta">' + escapeHtml(d.region || '') + '</span>' +
+          (d.isNew ? '<span class="ti-new">NEW</span>' : '') +
+          '<span>' + escapeHtml(d.title) + ' — ' + escapeHtml(d.line) + '</span>';
+        el.addEventListener('click', () => {
+          if (d.href) window.location.href = d.href;
+        });
+        track.appendChild(el);
+      });
+    }
+
+    function escapeHtml(s) {
+      const t = document.createElement('div');
+      t.textContent = s == null ? '' : String(s);
+      return t.innerHTML;
+    }
+
+    function animateTicker(trackId, speed) {
+      const track = document.getElementById(trackId);
+      if (!track || !track.children.length) return;
+      let pos = 0;
+      const total = track.scrollWidth;
+      const oneThird = total / 3;
+      if (!oneThird || !isFinite(oneThird)) return;
+
+      function step() {
+        pos += speed;
+        if (pos >= oneThird) pos = 0;
+        track.style.transform = 'translateX(-' + pos + 'px)';
+        requestAnimationFrame(step);
+      }
+      const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (mq.matches) return;
+      requestAnimationFrame(step);
+    }
+
+    function renderMeta() {
+      const m = FEED.meta || {};
+      const when = m.generatedAt ? new Date(m.generatedAt).toLocaleString() : '—';
+      document.getElementById('metaBar').innerHTML =
+        '<span>Feed updated <strong>' + escapeHtml(when) + '</strong></span>' +
+        (m.summary ? '<span>· ' + escapeHtml(m.summary) + '</span>' : '');
+    }
+
+    function renderHighlights() {
+      const root = document.getElementById('highlights');
+      root.innerHTML = '';
+      const list = (FEED.highlights || []).filter((h) => {
+        if (activeCat === 'all') return true;
+        return h.category === activeCat;
+      });
+      if (!list.length) {
+        root.innerHTML = '<div class="empty-state" style="padding:20px">No spotlight in this filter.</div>';
+        return;
+      }
+      list.forEach((h) => {
+        const div = document.createElement('div');
+        div.className = 'hi-card';
+        div.innerHTML =
+          '<h3>' + escapeHtml(h.title) + '</h3>' +
+          '<p>' + escapeHtml(h.desc) + '</p>' +
+          '<a href="' + escapeHtml(h.href) + '">' + escapeHtml(h.cta || 'Open') + ' →</a>';
+        root.appendChild(div);
+      });
+    }
+
+    function dealMatchesFilter(d, q, newOnly) {
+      if (newOnly && !d.isNew) return false;
+      if (activeCat !== 'all' && d.category !== activeCat) return false;
+      if (!q) return true;
+      const blob = [d.title, d.line, d.region, (d.tags || []).join(' ')].join(' ').toLowerCase();
+      return blob.includes(q);
+    }
+
+    function renderGrid() {
+      const q = (document.getElementById('dealSearch').value || '').trim().toLowerCase();
+      const newOnly = document.getElementById('newOnly').checked;
+      const grid = document.getElementById('dealGrid');
+      const empty = document.getElementById('emptyGrid');
+      grid.innerHTML = '';
+      const rows = FEED.deals.filter((d) => dealMatchesFilter(d, q, newOnly));
+      if (!rows.length) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      rows.forEach((d) => {
+        const div = document.createElement('div');
+        div.className = 'deal-card';
+        div.innerHTML =
+          '<div class="dc-cat">' + escapeHtml(d.category) + (d.isNew ? ' · NEW' : '') + '</div>' +
+          '<div class="dc-title">' + escapeHtml(d.title) + '</div>' +
+          '<div class="dc-line">' + escapeHtml(d.line) + '</div>' +
+          '<div class="dc-tags">' +
+          (d.tags || []).map((t) => '<span>' + escapeHtml(t) + '</span>').join('') +
+          (d.region ? '<span>' + escapeHtml(d.region) + '</span>' : '') +
+          '</div>';
+        div.addEventListener('click', () => {
+          if (d.href) window.location.href = d.href;
+        });
+        grid.appendChild(div);
+      });
+    }
+
+    function setCategory(cat) {
+      activeCat = cat;
+      document.querySelectorAll('#categoryPills .pill').forEach((p) => {
+        p.classList.toggle('active', p.getAttribute('data-cat') === cat);
+      });
+      renderHighlights();
+      renderGrid();
+    }
+
+    function renderTickers() {
+      buildTrack('track-energy', byCategory('energy'));
+      buildTrack('track-water', byCategory('water'));
+      buildTrack('track-sustain', byCategory('sustainability'));
+      /* Slightly faster px/step so taller rows feel similar to old 50px lanes */
+      animateTicker('track-energy', 0.52);
+      animateTicker('track-water', 0.45);
+      animateTicker('track-sustain', 0.47);
+    }
+
+    document.getElementById('categoryPills').addEventListener('click', (e) => {
+      const pill = e.target.closest('.pill');
+      if (!pill) return;
+      setCategory(pill.getAttribute('data-cat') || 'all');
+    });
+    document.getElementById('dealSearch').addEventListener('input', () => renderGrid());
+    document.getElementById('newOnly').addEventListener('change', () => renderGrid());
+
+    (async function init() {
+      await loadFeed();
+      renderMeta();
+      renderTickers();
+      renderHighlights();
+      renderGrid();
+    })();
+  </script>
+</body>
+</html>

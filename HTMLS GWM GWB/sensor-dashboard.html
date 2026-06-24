@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sensor Intelligence Dashboard — Wok To Walk</title>
+  <meta name="wix-html-scroll" content="no-scroll" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    :root {
+      --bg: #091017;
+      --panel: #11201a;
+      --panel-2: #173228;
+      --border: rgba(0, 245, 130, 0.2);
+      --text: #e7f7ee;
+      --text-dim: #94b8a8;
+      --green: #00f582;
+      --amber: #f5a623;
+      --blue: #38bdf8;
+      --cyan: #22d4ff;
+      --purple: #a78bfa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at 12% 20%, rgba(56,189,248,0.08), transparent 42%), var(--bg);
+      color: var(--text);
+      position: relative;
+      min-height: 100vh;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(6, 16, 20, 0.78), rgba(6, 16, 20, 0.78)),
+        radial-gradient(circle at 82% 10%, rgba(34,212,255,0.12), transparent 40%),
+        url("https://static.wixstatic.com/media/c123de_19be8cbc083046d29f325474aee54fb9~mv2.jpg");
+      background-size: cover, cover, cover;
+      background-position: center, center, center;
+      opacity: 0.42;
+      filter: saturate(1.06) contrast(1.03);
+    }
+    .wrap { max-width: 1320px; margin: 0 auto; padding: 18px; position: relative; z-index: 1; }
+    .top {
+      background: linear-gradient(135deg, #0f1c18, #14302a);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .title { font-size: 24px; font-weight: 700; margin: 0 0 4px; }
+    .sub { color: var(--text-dim); font-size: 13px; line-height: 1.45; max-width: 640px; margin: 0; }
+    .top-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .btn {
+      border: 1px solid rgba(56,189,248,.45);
+      border-radius: 999px;
+      background: rgba(56,189,248,.12);
+      color: #d7efff;
+      font-size: 12px;
+      padding: 7px 12px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-secondary {
+      border-color: rgba(0,245,130,.35);
+      background: rgba(0,245,130,.08);
+      color: #d8fff0;
+    }
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-dim);
+      cursor: pointer;
+      user-select: none;
+    }
+    .toggle input { accent-color: var(--green); width: 16px; height: 16px; }
+    .badge {
+      border: 1px solid rgba(245,166,35,.38);
+      background: rgba(245,166,35,.12);
+      color: #ffe8c3;
+      border-radius: 999px;
+      font-size: 11px;
+      padding: 4px 9px;
+    }
+    .badge.live {
+      border-color: rgba(0,245,130,.38);
+      background: rgba(0,245,130,.12);
+      color: #cbffe5;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, #0f2118, #153428);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .hero-copy { padding: 18px; }
+    .hero-copy h2 { margin: 0 0 8px; font-size: 22px; }
+    .hero-copy p { margin: 0; color: var(--text-dim); font-size: 13px; line-height: 1.5; }
+    .hero-chips { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(34,212,255,.35);
+      background: rgba(34,212,255,.1);
+      color: #b8f0ff;
+    }
+    .sensor-hero-preview {
+      margin-top: 12px;
+      border: 1px solid rgba(56,189,248,.24);
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(6,14,11,.55);
+    }
+    .sensor-hero-preview img {
+      width: 100%;
+      height: 132px;
+      object-fit: cover;
+      display: block;
+      filter: brightness(.72) saturate(.88) contrast(.97);
+    }
+    .sensor-hero-preview .cap {
+      font-size: 11px;
+      color: var(--text-dim);
+      padding: 7px 10px;
+      border-top: 1px solid rgba(56,189,248,.2);
+      background: rgba(4,12,8,.55);
+    }
+    .hero img {
+      width: 100%;
+      height: 100%;
+      min-height: 200px;
+      object-fit: cover;
+      display: block;
+      filter: brightness(.78) saturate(.86) contrast(.96);
+    }
+    .hero-aside {
+      padding: 14px;
+      border-left: 1px solid rgba(0,245,130,.15);
+      background: linear-gradient(165deg, rgba(8,18,14,.62), rgba(6,14,11,.82));
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .profile-title {
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #9ad4ff;
+      margin: 0;
+    }
+    .profile-card {
+      border: 1px solid rgba(56,189,248,.25);
+      border-radius: 12px;
+      background: rgba(5,14,10,.55);
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .profile-card img {
+      width: 100%;
+      height: 144px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid rgba(56,189,248,.24);
+      filter: brightness(.9) saturate(.95);
+    }
+    .profile-card h4 {
+      margin: 0;
+      font-size: 21px;
+      line-height: 1.15;
+      color: #e9fff3;
+    }
+    .profile-card p {
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .site-toggle-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+    .site-toggle-btn {
+      border: 1px solid rgba(56,189,248,.35);
+      background: rgba(56,189,248,.1);
+      color: #ccefff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all .18s ease;
+    }
+    .site-toggle-btn:hover {
+      border-color: rgba(56,189,248,.55);
+      box-shadow: 0 0 10px rgba(56,189,248,.18);
+      transform: translateY(-1px);
+    }
+    .site-toggle-btn.active {
+      border-color: rgba(245,166,35,.55);
+      background: rgba(245,166,35,.14);
+      color: #ffe3ba;
+      box-shadow: 0 0 12px rgba(245,166,35,.2);
+      font-weight: 700;
+    }
+    .profile-note {
+      font-size: 11px;
+      color: var(--text-dim);
+      border: 1px dashed rgba(0,245,130,.2);
+      border-radius: 8px;
+      padding: 7px 8px;
+      background: rgba(4,12,8,.45);
+    }
+    .grid-kpi {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .kpi {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .kpi .k { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--text-dim); }
+    .kpi .v { font-size: 24px; font-weight: 800; margin-top: 4px; }
+    .kpi .s { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .panel h3 { margin: 0 0 8px; font-size: 16px; }
+    .subtle { font-size: 12px; color: var(--text-dim); margin: -2px 0 10px; line-height: 1.4; }
+    .placement-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .placement-head h3 { margin: 0 0 6px; }
+    .placement-head .subtle { margin: 0; max-width: 420px; }
+    .map-toolbar {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+    .map-meta {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(148, 184, 168, 0.75);
+      font-weight: 600;
+    }
+    .switch-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--text-dim);
+      cursor: pointer;
+      user-select: none;
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(0, 245, 130, 0.18);
+      background: rgba(5, 14, 10, 0.45);
+    }
+    .switch-row input {
+      accent-color: var(--green);
+      width: 16px;
+      height: 16px;
+    }
+    .floor-wrap {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(56, 189, 248, 0.18);
+      background: linear-gradient(165deg, rgba(12, 24, 20, 0.98), rgba(6, 14, 12, 0.99));
+      aspect-ratio: 400 / 260;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 10px 32px rgba(0, 0, 0, 0.35);
+    }
+    .floor-svg { display: block; width: 100%; height: auto; vertical-align: top; }
+    .pins-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    @keyframes pinShadowPulse {
+      0%, 100% {
+        box-shadow:
+          inset 0 1px 1px rgba(255, 255, 255, 0.07),
+          0 6px 18px rgba(0, 0, 0, 0.5),
+          0 0 0 0 transparent;
+      }
+      50% {
+        box-shadow:
+          inset 0 1px 1px rgba(255, 255, 255, 0.09),
+          0 8px 22px rgba(0, 0, 0, 0.55),
+          0 0 0 2px rgba(0, 245, 130, 0.14),
+          0 0 22px rgba(56, 189, 248, 0.12);
+      }
+    }
+    @keyframes pinShadowPulseActive {
+      0%, 100% {
+        box-shadow:
+          inset 0 1px 1px rgba(255, 255, 255, 0.1),
+          0 0 0 2px rgba(245, 166, 35, 0.42),
+          0 8px 24px rgba(0, 0, 0, 0.52),
+          0 0 18px rgba(245, 166, 35, 0.22);
+      }
+      45% {
+        box-shadow:
+          inset 0 1px 1px rgba(255, 255, 255, 0.1),
+          0 0 0 3px rgba(245, 166, 35, 0.55),
+          0 10px 28px rgba(0, 0, 0, 0.55),
+          0 0 32px rgba(245, 166, 35, 0.32);
+      }
+    }
+    @keyframes activeBeacon {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 4px #00f582, 0 0 10px rgba(0, 245, 130, 0.45); }
+      50% { transform: scale(1.12); box-shadow: 0 0 8px #00f582, 0 0 16px rgba(0, 245, 130, 0.55); }
+    }
+    .sensor-pin {
+      pointer-events: auto;
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      outline: none;
+      z-index: 1;
+      overflow: visible;
+      background:
+        radial-gradient(circle at 50% 32%, rgba(40, 70, 58, 0.55), transparent 62%),
+        linear-gradient(160deg, rgba(18, 36, 30, 0.96), rgba(8, 16, 14, 0.99));
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      animation: pinShadowPulse 2.8s ease-in-out infinite;
+      transition: transform .2s cubic-bezier(0.22, 1, 0.36, 1), border-color .2s ease;
+    }
+    .sensor-pin .pin-icon {
+      display: grid;
+      place-items: center;
+      line-height: 0;
+      color: inherit;
+    }
+    .sensor-pin .pin-icon svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+    }
+    body:not(.hover-off) .sensor-pin:hover {
+      animation: none;
+      transform: translate(-50%, -50%) scale(1.08);
+      z-index: 2;
+      box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.1),
+        0 10px 28px rgba(0, 0, 0, 0.55),
+        0 0 0 3px rgba(56, 189, 248, 0.2);
+    }
+    .sensor-pin.active {
+      animation: pinShadowPulseActive 1.4s ease-in-out infinite;
+      transform: translate(-50%, -50%) scale(1.06);
+      z-index: 4;
+      border-color: rgba(245, 166, 35, 0.85);
+    }
+    .sensor-pin.active:hover {
+      animation: pinShadowPulseActive 1.4s ease-in-out infinite;
+    }
+    .sensor-pin.active::after {
+      content: "";
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #00f582, #00c95c);
+      border: 2px solid rgba(8, 16, 14, 0.95);
+      z-index: 2;
+      pointer-events: none;
+      animation: activeBeacon 1.4s ease-in-out infinite;
+    }
+    .sensor-pin:focus-visible {
+      outline: 2px solid var(--amber);
+      outline-offset: 3px;
+    }
+    .sensor-pin.moist { color: #7dd3fc; border-color: rgba(125, 211, 252, 0.45); }
+    .sensor-pin.power { color: #fde047; border-color: rgba(253, 224, 71, 0.5); }
+    .sensor-pin.temp { color: #fda4af; border-color: rgba(253, 164, 175, 0.5); }
+    .sensor-pin.leak { color: #93c5fd; border-color: rgba(147, 197, 253, 0.5); }
+    .sensor-pin.door { color: #c4b5fd; border-color: rgba(196, 181, 253, 0.5); }
+    .sensor-pin.air { color: #86efac; border-color: rgba(134, 239, 172, 0.5); }
+    .sensor-pin.gas { color: #fdba74; border-color: rgba(253, 186, 116, 0.55); }
+    .sensor-pin.occ { color: #f0abfc; border-color: rgba(240, 171, 252, 0.5); }
+    #sensorTooltip {
+      position: fixed;
+      z-index: 50;
+      max-width: 300px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(8, 18, 14, 0.97);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.45;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 245, 130, 0.08);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      backdrop-filter: blur(6px);
+    }
+    #sensorTooltip.visible { opacity: 1; }
+    #sensorTooltip strong { display: block; margin-bottom: 6px; color: #b8fdd7; font-size: 13px; font-weight: 700; }
+    #sensorTooltip .tt-zone { font-size: 11px; color: var(--text-dim); margin-bottom: 6px; }
+    body.hover-off .sensor-pin { cursor: default; }
+    body.hover-off .sensor-pin:hover { transform: translate(-50%, -50%); }
+    .detail-card {
+      border: 1px solid rgba(56,189,248,.2);
+      border-radius: 10px;
+      padding: 12px;
+      background: rgba(7, 18, 14, 0.55);
+    }
+    .detail-card h4 { margin: 0 0 6px; font-size: 15px; line-height: 1.35; }
+    .detail-code {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: #9ad4ff;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 6px;
+      padding: 2px 7px;
+      margin-right: 8px;
+      vertical-align: middle;
+      font-variant-numeric: tabular-nums;
+    }
+    .detail-row { font-size: 12px; color: var(--text-dim); margin: 6px 0; line-height: 1.45; }
+    .detail-row strong { color: #e8fff1; display: block; margin-bottom: 2px; }
+    .live-sim {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: #9ad4ff;
+      background: rgba(5,14,10,.6);
+      border-radius: 8px;
+      padding: 8px;
+      margin-top: 10px;
+      border: 1px dashed rgba(56,189,248,.25);
+    }
+    .status-reader {
+      margin-top: 10px;
+      border: 1px solid rgba(56,189,248,.2);
+      border-radius: 10px;
+      background: rgba(4, 12, 10, 0.52);
+      padding: 10px;
+    }
+    .status-reader-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .status-reader-head h5 {
+      margin: 0;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #b8fdd7;
+    }
+    .status-reader-head .stamp {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+    .status-list {
+      display: grid;
+      gap: 7px;
+      max-height: 220px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+    .status-item {
+      border: 1px solid rgba(0,245,130,.12);
+      border-radius: 8px;
+      padding: 8px;
+      background: rgba(8,18,14,.72);
+    }
+    .status-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 3px;
+      font-size: 12px;
+    }
+    .status-top strong { color: #ebfff4; font-size: 12px; }
+    .sev {
+      font-size: 10px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      padding: 2px 7px;
+      border: 1px solid transparent;
+    }
+    .sev.ok {
+      color: #b8fde0;
+      border-color: rgba(0,245,130,.3);
+      background: rgba(0,245,130,.1);
+    }
+    .sev.watch {
+      color: #ffe8c3;
+      border-color: rgba(245,166,35,.35);
+      background: rgba(245,166,35,.12);
+    }
+    .sev.alert {
+      color: #ffd3de;
+      border-color: rgba(255,95,125,.35);
+      background: rgba(255,95,125,.12);
+    }
+    .status-msg {
+      color: var(--text-dim);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .lg-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+      color: var(--text-dim);
+      border: 1px solid rgba(0, 245, 130, 0.12);
+      border-radius: 10px;
+      padding: 7px 10px;
+      background: rgba(4, 12, 8, 0.4);
+      line-height: 1.35;
+    }
+    .lg-item strong {
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      color: rgba(227, 247, 238, 0.88);
+      font-weight: 700;
+      min-width: 2.25rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .lg-item span { opacity: 0.95; }
+    .lg-dot {
+      flex-shrink: 0;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 10px currentColor;
+    }
+    .lg-dot.moist { background: rgba(125, 211, 252, 0.9); color: rgba(125, 211, 252, 0.6); }
+    .lg-dot.power { background: rgba(253, 224, 71, 0.95); color: rgba(253, 224, 71, 0.65); }
+    .lg-dot.temp { background: rgba(253, 164, 175, 0.95); color: rgba(253, 164, 175, 0.6); }
+    .lg-dot.leak { background: rgba(147, 197, 253, 0.95); color: rgba(147, 197, 253, 0.6); }
+    .lg-dot.door { background: rgba(196, 181, 253, 0.95); color: rgba(196, 181, 253, 0.6); }
+    .lg-dot.air { background: rgba(134, 239, 172, 0.95); color: rgba(134, 239, 172, 0.6); }
+    .lg-dot.gas { background: rgba(253, 186, 116, 0.95); color: rgba(253, 186, 116, 0.65); }
+    .lg-dot.occ { background: rgba(240, 171, 252, 0.95); color: rgba(240, 171, 252, 0.65); }
+    .chart-row {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .alert {
+      border: 1px solid rgba(245,166,35,.25);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      margin-bottom: 8px;
+      background: rgba(245,166,35,.06);
+      color: var(--text-dim);
+    }
+    .alert.ok { border-color: rgba(0,245,130,.22); background: rgba(0,245,130,.06); }
+    .alert strong { color: #ffe8c3; }
+    .alert.ok strong { color: #b8fde0; }
+    .controls-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .controls-card {
+      border: 1px solid rgba(56,189,248,.2);
+      border-radius: 10px;
+      background: rgba(7,18,14,.5);
+      padding: 10px;
+    }
+    .controls-card h4 { margin: 0 0 8px; font-size: 14px; }
+    .row-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+    .seg {
+      border: 1px solid rgba(0,245,130,.22);
+      background: rgba(4,12,8,.5);
+      color: var(--text-dim);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .seg.active {
+      color: #eafff4;
+      border-color: rgba(245,166,35,.5);
+      background: rgba(245,166,35,.12);
+      box-shadow: 0 0 12px rgba(245,166,35,.2);
+    }
+    .switches { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+    .switches label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(0,245,130,.18);
+      background: rgba(4,12,8,.45);
+      border-radius: 8px;
+      padding: 7px 8px;
+      font-size: 12px;
+      color: var(--text-dim);
+      cursor: pointer;
+    }
+    .switches input { accent-color: var(--green); }
+    .field-row {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 8px;
+    }
+    .field-row label {
+      font-size: 11px;
+      color: var(--text-dim);
+      display: grid;
+      gap: 4px;
+    }
+    .field-row input, .field-row select {
+      width: 100%;
+      border: 1px solid rgba(56,189,248,.24);
+      background: rgba(5,14,10,.65);
+      color: #dff7eb;
+      border-radius: 8px;
+      padding: 7px 8px;
+      font-size: 12px;
+    }
+    .control-actions {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .tiny {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .sensor-pin,
+      .sensor-pin.active {
+        animation: none;
+      }
+      .sensor-pin.active::after {
+        animation: none;
+      }
+    }
+    @media (max-width: 980px) {
+      .hero { grid-template-columns: 1fr; }
+      .grid-kpi { grid-template-columns: repeat(2, 1fr); }
+      .layout { grid-template-columns: 1fr; }
+      .chart-row { grid-template-columns: 1fr; }
+      .controls-grid { grid-template-columns: 1fr; }
+      .switches, .field-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="sensorTooltip" role="tooltip" aria-hidden="true"></div>
+  <div class="wrap">
+    <header class="top">
+      <div>
+        <h1 class="title">Sensor intelligence dashboard</h1>
+        <p class="sub">
+          Planned monitoring points across the restaurant: dampness, electrical sub-metering, cold chain,
+          leaks, ventilation, and more. Telemetry below is simulated so the layout behaves like a live operations view until hardware is paired.
+        </p>
+      </div>
+      <div class="top-actions">
+        <span class="badge" id="dataBadge">Preview — demo telemetry</span>
+        <label class="toggle"><input type="checkbox" id="hoverTipsToggle" checked /> Hover tips on</label>
+        <a class="btn btn-secondary" id="sensorDashboardBackLink" href="./Greenways%20Interface%20.html">← Main dashboard</a>
+        <a class="btn" href="./energy-savings-trajectory.html">Trajectory page</a>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <h2>What sensors unlock for your site</h2>
+        <p>
+          Early warnings on moisture and equipment drift, granular electricity visibility by circuit, and factual run-hours for refrigeration and extraction —
+          feeding the same savings story as the trajectory and utility pages once data lands.
+        </p>
+        <div class="hero-chips">
+          <span class="chip">Moisture &amp; condensation</span>
+          <span class="chip">Sub-metering</span>
+          <span class="chip">Leak &amp; flow</span>
+          <span class="chip">Cold chain probes</span>
+          <span class="chip">IAQ / CO₂</span>
+        </div>
+        <div class="sensor-hero-preview">
+          <img src="https://static.wixstatic.com/media/c123de_0597ec0b3d7a4fa9b289d6a1060e67cb~mv2.jpg" alt="Sensor network visual reference" />
+          <div class="cap">Sensor network visual (demo): future live topology and alert routing view.</div>
+        </div>
+      </div>
+      <aside class="hero-aside">
+        <p class="profile-title">Restaurant building profile</p>
+        <div class="profile-card">
+          <img id="demoSiteImage" src="https://static.wixstatic.com/media/c123de_6abbc3ae613646deb1d871fae2b2f709~mv2.jpg" alt="Selected restaurant" />
+          <h4 id="demoSiteName">Wok To Walk — Leidsestraat</h4>
+          <p id="demoSiteAddress">Leidsestraat 96, 1017 PE Amsterdam</p>
+          <div class="site-toggle-row" id="demoSiteToggles"></div>
+          <div class="profile-note">Demo selector: changing restaurant updates this profile panel while sensor analytics below remain on the shared demo model for now.</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="grid-kpi" id="kpiRow"></section>
+
+    <div class="layout">
+      <div class="panel panel-placement">
+        <div class="placement-head">
+          <div>
+            <h3>Sensor placement map</h3>
+            <p class="subtle">Concept floor plan · not to scale. Points sit in tidy rows beneath each zone title. Sensors gently pulse; the selected point picks up an amber halo and green “live focus” bead.</p>
+          </div>
+          <div class="map-toolbar">
+            <span class="map-meta">Template · rollout planning</span>
+            <label class="switch-row">
+              <input type="checkbox" id="hoverTipsToggleMap" checked />
+              Hover explanations
+            </label>
+          </div>
+        </div>
+        <div class="floor-wrap" id="floorWrap">
+          <svg class="floor-svg blueprint-svg" viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <pattern id="bpGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(148,184,168,0.06)" stroke-width="0.5"/>
+              </pattern>
+            </defs>
+            <rect width="400" height="260" fill="#060d0a"/>
+            <rect x="14" y="14" width="372" height="232" fill="url(#bpGrid)" stroke="rgba(0,245,130,0.14)" stroke-width="1" rx="3"/>
+            <rect x="22" y="22" width="356" height="216" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1" rx="2"/>
+            <!-- Back-of-house band -->
+            <rect x="26" y="28" width="164" height="112" fill="rgba(56,189,248,0.045)" stroke="rgba(56,189,248,0.38)" stroke-width="1.2" rx="2"/>
+            <text x="34" y="47" fill="rgba(200,224,212,0.88)" font-size="10" font-weight="700" font-family="Segoe UI,system-ui,sans-serif" letter-spacing="0.14em">WOK LINE</text>
+            <text x="34" y="61" fill="rgba(148,184,168,0.65)" font-size="8.5" font-family="Segoe UI,system-ui,sans-serif" letter-spacing="0.06em">High load · extract linked</text>
+            <line x1="190" y1="28" x2="190" y2="140" stroke="rgba(255,255,255,0.11)" stroke-width="1.5" stroke-dasharray="3 4"/>
+            <rect x="190" y="28" width="176" height="112" fill="rgba(245,166,35,0.04)" stroke="rgba(245,166,35,0.34)" stroke-width="1.2" rx="2"/>
+            <text x="198" y="47" fill="rgba(200,224,212,0.88)" font-size="10" font-weight="700" font-family="Segoe UI,system-ui,sans-serif" letter-spacing="0.12em">PREP / POT WASH</text>
+            <text x="198" y="61" fill="rgba(148,184,168,0.65)" font-size="8.5" font-family="Segoe UI,system-ui,sans-serif" letter-spacing="0.06em">Humidity · water risers</text>
+            <!-- Service corridor stripe -->
+            <rect x="26" y="136" width="348" height="10" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)" stroke-width="0.6" rx="1"/>
+            <text x="30" y="143.5" fill="rgba(148,184,168,0.5)" font-size="7.5" font-family="Segoe UI,system-ui,sans-serif" letter-spacing="0.1em">SERVICE / DISTRIBUTION · NOT TO SCALE</text>
+            <!-- Bottom zones -->
+            <rect x="26" y="150" width="176" height="86" fill="rgba(167,139,250,0.035)" stroke="rgba(167,139,250,0.38)" stroke-width="1.2" rx="2"/>
+            <text x="34" y="169" fill="rgba(200,224,212,0.88)" font-size="10" font-weight="700" font-family="Segoe UI,system-ui,sans-serif" letter-spacing="0.12em">COLD STORAGE</text>
+            <text x="34" y="183" fill="rgba(148,184,168,0.65)" font-size="8.5" font-family="Segoe UI,system-ui,sans-serif" letter-spacing="0.06em">Walk-in probe · doors</text>
+            <line x1="202" y1="150" x2="202" y2="236" stroke="rgba(255,255,255,0.11)" stroke-width="1.5" stroke-dasharray="3 4"/>
+            <rect x="202" y="150" width="164" height="86" fill="rgba(34,212,255,0.035)" stroke="rgba(34,212,255,0.34)" stroke-width="1.2" rx="2"/>
+            <text x="210" y="169" fill="rgba(200,224,212,0.88)" font-size="10" font-weight="700" font-family="Segoe UI,system-ui,sans-serif" letter-spacing="0.1em">DINING / FRONT</text>
+            <text x="210" y="183" fill="rgba(148,184,168,0.65)" font-size="8.5" font-family="Segoe UI,system-ui,sans-serif" letter-spacing="0.06em">IAQ · occupancy · perimeter</text>
+            <!-- Tick marks -->
+            <line x1="26" y1="246" x2="374" y2="246" stroke="rgba(148,184,168,0.12)" stroke-width="1"/>
+            <text x="30" y="255" fill="rgba(148,184,168,0.45)" font-size="7.5" font-family="Segoe UI,system-ui,sans-serif">0m</text>
+            <text x="340" y="255" fill="rgba(148,184,168,0.45)" font-size="7.5" font-family="Segoe UI,system-ui,sans-serif">Planning grid</text>
+          </svg>
+          <div class="pins-layer" id="pinsLayer"></div>
+        </div>
+        <div class="legend" id="legendStrip"></div>
+      </div>
+      <div class="panel">
+        <h3>Selected sensor</h3>
+        <p class="subtle">Business value, measured signals, and how it ties into energy reporting.</p>
+        <div class="detail-card" id="detailCard"></div>
+        <div class="live-sim" id="liveSimLine">Awaiting selection…</div>
+        <div class="status-reader">
+          <div class="status-reader-head">
+            <h5>Sensor status reader</h5>
+            <div class="stamp" id="statusReaderStamp">Syncing...</div>
+          </div>
+          <div class="status-list" id="statusReaderList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="panel">
+        <h3>Simulated event activity (24h)</h3>
+        <p class="subtle">Demo stream: bursts when equipment cycles; not real device data.</p>
+        <canvas id="activityChart" height="120"></canvas>
+      </div>
+      <div class="panel">
+        <h3>Sensor coverage mix</h3>
+        <p class="subtle">Illustrative share of monitored risk areas for this rollout template.</p>
+        <canvas id="mixChart" height="120"></canvas>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Alert control center</h3>
+      <p class="subtle">Set how alerts are delivered, when notifications should pause, and how sensitive the detection should be.</p>
+      <div class="controls-grid">
+        <div class="controls-card">
+          <h4>Delivery & severity</h4>
+          <div class="row-wrap" id="severityButtons"></div>
+          <div class="tiny">Select the minimum severity that should trigger outbound alerts.</div>
+          <div style="height:8px"></div>
+          <div class="switches" id="channelSwitches">
+            <label><input type="checkbox" data-channel="dashboard" checked /> Dashboard popup</label>
+            <label><input type="checkbox" data-channel="email" checked /> Email digest</label>
+            <label><input type="checkbox" data-channel="sms" /> SMS urgent only</label>
+            <label><input type="checkbox" data-channel="webhook" /> Webhook / API</label>
+          </div>
+        </div>
+        <div class="controls-card">
+          <h4>Timing & sensitivity</h4>
+          <div class="row-wrap" id="cadenceButtons"></div>
+          <div class="field-row">
+            <label>Quiet hours start
+              <input type="time" id="quietStart" value="23:00" />
+            </label>
+            <label>Quiet hours end
+              <input type="time" id="quietEnd" value="06:00" />
+            </label>
+          </div>
+          <div class="field-row">
+            <label>Sensitivity profile
+              <select id="sensitivitySelect">
+                <option value="balanced">Balanced</option>
+                <option value="high">High sensitivity</option>
+                <option value="very-high">Very high (more noise)</option>
+                <option value="conservative">Conservative</option>
+              </select>
+            </label>
+            <label>Acknowledge timeout
+              <select id="ackTimeoutSelect">
+                <option value="5">5 min</option>
+                <option value="10" selected>10 min</option>
+                <option value="20">20 min</option>
+                <option value="30">30 min</option>
+              </select>
+            </label>
+          </div>
+          <div class="control-actions">
+            <button class="btn btn-secondary" type="button" id="saveAlertPrefsBtn">Save alert profile</button>
+            <button class="btn" type="button" id="testAlertBtn">Send test alert</button>
+          </div>
+          <div class="tiny" id="alertSettingsSummary">No settings saved yet in this browser session.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Alert feed (demo)</h3>
+      <p class="subtle">Synthetic alerts rotate slightly to mimic an operations ticker.</p>
+      <div id="alertFeed"></div>
+    </div>
+  </div>
+
+  <script>
+    function resolveApiUrl(pathname) {
+      if (/^https?:\/\//i.test(pathname)) return pathname;
+      if (window.location.protocol === "file:") return `http://localhost:4000${pathname}`;
+      return pathname;
+    }
+
+    const HOVER_KEY = "sensorDashboardHoverTips";
+    const ALERT_PREFS_KEY = "sensorDashboardAlertPrefs";
+
+    const SENSORS = [
+      {
+        id: "moist-drain",
+        code: "HM-01",
+        label: "Damp / moisture",
+        cls: "moist",
+        x: 59.5,
+        y: 79.2,
+        zone: "Dining — envelope & drain adjacency",
+        measures: "Relative humidity (%), dew-point estimate, slab / wall proximity moisture index.",
+        valueProposition: "Flags condensation before mold, slip hazards, or accelerated cold-room load from moisture migration.",
+        demoMetric: "RH",
+        demoUnit: "%",
+        baseline: [58, 66]
+      },
+      {
+        id: "sub-meter",
+        code: "EL-01",
+        label: "Electrical monitoring",
+        cls: "power",
+        x: 18,
+        y: 40,
+        zone: "Wok line — sub-panel",
+        measures: "Per-circuit amps, approximate kW, energy pulses (kWh-style counter simulation).",
+        valueProposition: "Separates wok circuits from baseline kitchen load so tariff and demand charges trace to real line usage.",
+        demoMetric: "kW est.",
+        demoUnit: "",
+        baseline: [18, 32]
+      },
+      {
+        id: "cold-probe",
+        code: "RF-01",
+        label: "Cold chain temperature",
+        cls: "temp",
+        x: 17,
+        y: 79.2,
+        zone: "Walk-in / upright",
+        measures: "Air and product-probe °C, door-event correlated spikes, compressor cycle length.",
+        valueProposition: "Catches gasket leaks and defrost faults that quietly raise electricity spend and spoilage risk.",
+        demoMetric: "°C",
+        demoUnit: "",
+        baseline: [2.1, 4.8]
+      },
+      {
+        id: "leak-pipe",
+        code: "WT-01",
+        label: "Water leak / flow pulse",
+        cls: "leak",
+        x: 69.5,
+        y: 40,
+        zone: "Prep — pipe chase",
+        measures: "Acoustic or impedance leak flags; nightly baseline flow deviation.",
+        valueProposition: "Reduces unnoticed water losses and related thermal plant waste when makeup or hot-water systems compensate.",
+        demoMetric: "Flow idx",
+        demoUnit: "",
+        baseline: [0.92, 1.08]
+      },
+      {
+        id: "fridge-door",
+        code: "DR-01",
+        label: "Door contact runtime",
+        cls: "door",
+        x: 41,
+        y: 79.2,
+        zone: "Cold storage doors",
+        measures: "Open duration per event, events per hour, overlap with compressor run.",
+        valueProposition: "Separates training issues from hardware faults and ties behaviour to measurable kWh.",
+        demoMetric: "Open min/hr",
+        demoUnit: "",
+        baseline: [4, 14]
+      },
+      {
+        id: "iaq-co2",
+        code: "AQ-01",
+        label: "IAQ — CO₂ & humidity",
+        cls: "air",
+        x: 71,
+        y: 79.2,
+        zone: "Dining / ventilation zone",
+        measures: "CO₂ (ppm), RH, optional PM2.5 when specified.",
+        valueProposition: "Validates ventilation scheduling: sized fan energy without starving makeup air at peak covers.",
+        demoMetric: "CO₂",
+        demoUnit: " ppm",
+        baseline: [720, 1080]
+      },
+      {
+        id: "gas-monitor",
+        code: "GZ-01",
+        label: "Gas / burner anomaly",
+        cls: "gas",
+        x: 36,
+        y: 40,
+        zone: "Wok burners — hood zone",
+        measures: "Optional pressure or smart-valve telemetry; may proxy via thermal trend if direct gas IoT is unavailable.",
+        valueProposition: "Supports ignition / valve drift detection and aligns with gas-to-induction upgrade narratives.",
+        demoMetric: "Stability",
+        demoUnit: " idx",
+        baseline: [0.85, 0.99]
+      },
+      {
+        id: "occ-back",
+        code: "OC-01",
+        label: "After-hours occupancy",
+        cls: "occ",
+        x: 82.5,
+        y: 79.2,
+        zone: "Front of house — rear",
+        measures: "PIR or microwave occupancy, correlated against circuit states.",
+        valueProposition: "Demonstrates stray lighting or HVAC overrun when the venue should be closed.",
+        demoMetric: "Pings",
+        demoUnit: "/night",
+        baseline: [0, 8]
+      }
+    ];
+
+    let hoverTipsEnabled = true;
+    let selectedId = SENSORS[0].id;
+    let activityChart, mixChart;
+    let simTimer;
+    let statusTick = 0;
+    const DEMO_SITES = [
+      {
+        id: "leidsestraat",
+        name: "Wok To Walk — Leidsestraat",
+        address: "Leidsestraat 96, 1017 PE Amsterdam",
+        image: "https://static.wixstatic.com/media/c123de_6abbc3ae613646deb1d871fae2b2f709~mv2.jpg"
+      },
+      {
+        id: "kolksteeg",
+        name: "Wok To Walk — Kolksteeg",
+        address: "Kolksteeg 8, 1012 PT Amsterdam",
+        image: "https://static.wixstatic.com/media/c123de_f79995cc543e41478974135f3f64859c~mv2.jpg"
+      },
+      {
+        id: "warmoesstraat",
+        name: "Wok To Walk — Warmoesstraat",
+        address: "Warmoesstraat 85, 1012 HZ Amsterdam",
+        image: "https://static.wixstatic.com/media/c123de_cf49fe75466b4d1d90dbd103b6405ced~mv2.jpeg"
+      }
+    ];
+    let selectedDemoSiteId = DEMO_SITES[0].id;
+    const ALERT_SEVERITIES = ["info", "warning", "critical"];
+    const ALERT_CADENCE = ["Instant", "5 min batch", "15 min batch", "Daily digest"];
+    let alertPrefs = {
+      severity: "warning",
+      cadence: "Instant",
+      channels: { dashboard: true, email: true, sms: false, webhook: false },
+      quietStart: "23:00",
+      quietEnd: "06:00",
+      sensitivity: "balanced",
+      ackTimeout: "10"
+    };
+
+    function loadHoverPref() {
+      const raw = localStorage.getItem(HOVER_KEY);
+      if (raw === null) return true;
+      return raw === "1";
+    }
+
+    function applyHoverBodyClass() {
+      document.body.classList.toggle("hover-off", !hoverTipsEnabled);
+    }
+
+    function setTooltip(html, clientX, clientY, show) {
+      const el = document.getElementById("sensorTooltip");
+      if (!show) {
+        el.classList.remove("visible");
+        el.setAttribute("aria-hidden", "true");
+        return;
+      }
+      el.innerHTML = html;
+      el.classList.add("visible");
+      el.setAttribute("aria-hidden", "false");
+      const pad = 14;
+      const x = Math.min(clientX + pad, window.innerWidth - 300);
+      const y = Math.min(clientY + pad, window.innerHeight - 120);
+      el.style.left = x + "px";
+      el.style.top = y + "px";
+    }
+
+    function formatDemoValue(s) {
+      const [lo, hi] = s.baseline;
+      const t = Date.now() / 4000;
+      const jitter = Math.sin(t + s.id.length) * 0.08;
+      let v = (lo + hi) / 2 + (hi - lo) * jitter;
+      if (s.demoMetric === "°C") v = Math.round(v * 10) / 10;
+      else if (/ppm/.test(s.demoUnit)) v = Math.round(v);
+      else if (s.demoMetric === "RH") v = Math.round(v);
+      else if (s.demoMetric === "kW est.") v = Math.round(v * 10) / 10;
+      else if (s.demoMetric === "Open min/hr") v = Math.round(v);
+      else if (s.demoMetric === "Pings") v = Math.max(0, Math.round(v));
+      else v = Math.round(v * 1000) / 1000;
+      return v + s.demoUnit;
+    }
+
+    function pinSvgFor(cls) {
+      const a = 'xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"';
+      const icons = {
+        moist: `<svg ${a}><path d="M12 2.2c-2.8 4.6-5.6 8-5.6 11.6a5.6 5.6 0 1111.2 0c0-3.6-2.8-7-5.6-11.6z"/><path d="M12 15.2v.01" stroke-width="2.2" stroke-linecap="round"/></svg>`,
+        power: `<svg ${a}><path d="M13 2L3 14h7l-1 8 11-12h-7l1-8z"/></svg>`,
+        temp: `<svg ${a}><path d="M10 9.4V5a2 2 0 114 0v4.4"/><rect x="8" y="14" width="8" height="8" rx="2"/><path d="M12 17.5V19"/></svg>`,
+        leak: `<svg ${a}><path d="M5 16c0-2.5 2.5-5 5-8 2.5 3 5 5.5 5 8a5 5 0 11-10 0z"/><path d="M8 16h.01M12 16h.01M16 16h.01"/></svg>`,
+        door: `<svg ${a}><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M5 12h8"/><circle cx="15" cy="12" r="1" fill="currentColor" stroke="none"/></svg>`,
+        air: `<svg ${a}><path d="M4 10h6a3 3 0 003-3"/><path d="M20 14h-6a3 3 0 01-3 3"/><path d="M4 18h10"/><path d="M16 6h4"/></svg>`,
+        gas: `<svg ${a}><path d="M14 2.5c3.2 4.8 6.3 8.2 6.3 12.2a6.3 6.3 0 11-12.6 0c0-2.1 1.1-4.2 3.2-6.2 1.6 2.6 2.1 4.8 2.1 6.2a2.6 2.6 0 005.2 0"/></svg>`,
+        occ: `<svg ${a}><circle cx="12" cy="8" r="3.2"/><path d="M6 20v-1.2a4.5 4.5 0 014.5-4.5h3a4.5 4.5 0 014.5 4.5V20"/></svg>`
+      };
+      return icons[cls] || icons.moist;
+    }
+
+    function sensorTooltipHtml(s) {
+      return `<strong>${s.code} · ${s.label}</strong><div class="tt-zone">${s.zone}</div>${s.measures}`;
+    }
+
+    function renderPins() {
+      const layer = document.getElementById("pinsLayer");
+      layer.innerHTML = SENSORS.map((s) => `
+        <button type="button" class="sensor-pin ${s.cls} ${s.id === selectedId ? "active" : ""}"
+          style="left:${s.x}%;top:${s.y}%"
+          data-id="${s.id}"
+          aria-current="${s.id === selectedId ? "true" : "false"}"
+          aria-label="${s.code} ${s.label}, ${s.zone}">
+          <span class="pin-icon">${pinSvgFor(s.cls)}</span>
+        </button>
+      `).join("");
+      layer.querySelectorAll(".sensor-pin").forEach((btn) => {
+        const id = btn.getAttribute("data-id");
+        const s = SENSORS.find((x) => x.id === id);
+        btn.addEventListener("click", () => {
+          selectedId = id;
+          renderPins();
+          renderDetail();
+        });
+        btn.addEventListener("mouseenter", (e) => {
+          if (!hoverTipsEnabled) return;
+          setTooltip(sensorTooltipHtml(s), e.clientX, e.clientY, true);
+        });
+        btn.addEventListener("mousemove", (e) => {
+          if (!hoverTipsEnabled) return;
+          setTooltip(sensorTooltipHtml(s), e.clientX, e.clientY, true);
+        });
+        btn.addEventListener("mouseleave", () => setTooltip("", 0, 0, false));
+      });
+      document.getElementById("legendStrip").innerHTML = SENSORS.map((s) => `
+        <div class="lg-item">
+          <span class="lg-dot ${s.cls}" aria-hidden="true"></span>
+          <strong>${s.code}</strong>
+          <span>${s.label}</span>
+        </div>
+      `).join("");
+    }
+
+    function renderDetail() {
+      const s = SENSORS.find((x) => x.id === selectedId) || SENSORS[0];
+      document.getElementById("detailCard").innerHTML = `
+        <h4><span class="detail-code">${s.code}</span>${s.label}</h4>
+        <div class="detail-row"><strong>Zone</strong>${s.zone}</div>
+        <div class="detail-row"><strong>What it measures</strong>${s.measures}</div>
+        <div class="detail-row"><strong>Why operators care</strong>${s.valueProposition}</div>
+      `;
+    }
+
+    function tickLiveSim() {
+      const s = SENSORS.find((x) => x.id === selectedId) || SENSORS[0];
+      document.getElementById("liveSimLine").textContent =
+        `[demo] ${s.label} — latest ${s.demoMetric}: ${formatDemoValue(s)} · streamed every few seconds when gateways are online`;
+    }
+
+    function renderKpis() {
+      const online = SENSORS.length;
+      document.getElementById("kpiRow").innerHTML = `
+        <div class="kpi"><div class="k">Planned points</div><div class="v">${online}</div><div class="s">Template rollout map</div></div>
+        <div class="kpi"><div class="k">Simulated OK</div><div class="v" id="kpiOnline">${online}</div><div class="s">Standing in for live health</div></div>
+        <div class="kpi"><div class="k">Demo alerts (24h)</div><div class="v" id="kpiAlerts">1</div><div class="s">Synthetic watchlist</div></div>
+        <div class="kpi"><div class="k">Next step</div><div class="v">Pair</div><div class="s">Connect gateways & IQBI context</div></div>
+      `;
+    }
+
+    function buildActivityDatasets() {
+      const hrs = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+      const wave = hrs.map((_, i) =>
+        Math.max(0, Math.round(8 + 22 * Math.sin(i / 3.5) + Math.random() * 10))
+      );
+      const spikes = hrs.map((_, i) =>
+        Math.max(0, Math.round(3 + (i > 11 && i < 22 ? 18 + Math.random() * 25 : Math.random() * 6)))
+      );
+      const calm = hrs.map((_, i) => Math.max(0, Math.round(5 + Math.random() * 8 + (i < 7 ? 20 : 0))));
+      return { hrs, wave, spikes, calm };
+    }
+
+    function renderCharts() {
+      const { hrs, wave, spikes, calm } = buildActivityDatasets();
+      if (activityChart) activityChart.destroy();
+      activityChart = new Chart(document.getElementById("activityChart"), {
+        type: "line",
+        data: {
+          labels: hrs,
+          datasets: [
+            { label: "Moisture checks", data: calm, tension: .35, borderColor: "#22d4ff", backgroundColor: "rgba(34,212,255,.15)", fill: true },
+            { label: "Electrical bursts", data: spikes, tension: .25, borderColor: "#f5a623", backgroundColor: "rgba(245,166,35,.12)", fill: true },
+            { label: "Cold chain pings", data: wave, tension: .3, borderColor: "#00f582", backgroundColor: "rgba(0,245,130,.08)", fill: true }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: "#98b8a8", boxWidth: 12, font: { size: 11 } } } },
+          scales: {
+            x: { ticks: { color: "#6b8878", maxRotation: 0 }, grid: { color: "rgba(255,255,255,.04)" } },
+            y: { ticks: { color: "#6b8878" }, grid: { color: "rgba(255,255,255,.06)" }, beginAtZero: true }
+          }
+        }
+      });
+
+      const mixLabels = ["Moisture", "Electrical", "Cold", "Air / CO₂", "Water", "Occupancy"];
+      const mixData = [15, 22, 20, 12, 11, 20];
+      if (mixChart) mixChart.destroy();
+      mixChart = new Chart(document.getElementById("mixChart"), {
+        type: "doughnut",
+        data: {
+          labels: mixLabels,
+          datasets: [{
+            data: mixData,
+            backgroundColor: ["#5ca9c7", "#c39b58", "#8d86b8", "#5cae97", "#6b93c7", "#b9869f"],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          plugins: {
+            legend: { position: "right", labels: { color: "#98b8a8", boxWidth: 10, font: { size: 11 } } }
+          },
+          cutout: "62%"
+        }
+      });
+    }
+
+    const ALERTS = [
+      { tone: "", title: "Template mode", msg: "All readings are illustrative. Swap in MQTT / REST feeds without changing layout." },
+      { tone: "ok", title: "Cold probe steady", msg: "Simulated walk-in variance within band (demo)." },
+      { tone: "", title: "Moisture watch", msg: "Pot wash RH creeping — check floor fans & strip curtains (demo)." },
+      { tone: "ok", title: "Sub-meter heartbeat", msg: "Circuits polled on schedule · no gaps in demo stream." },
+      { tone: "", title: "After-hours occupancy", msg: "Single ping last night · verify closing checklist (demo)." }
+    ];
+    let alertOffset = 0;
+
+    function renderAlerts() {
+      const slice = [0, 1, 2].map((i) => ALERTS[(alertOffset + i) % ALERTS.length]);
+      document.getElementById("alertFeed").innerHTML = slice.map((a) =>
+        `<div class="alert ${a.tone === "ok" ? "ok" : ""}"><strong>${a.title}</strong> — ${a.msg}</div>`
+      ).join("");
+    }
+
+    function sensorStatusRecords() {
+      return [
+        {
+          name: "Gateway uplink",
+          severity: "ok",
+          msg: "Polling heartbeat healthy. Last packet acknowledged from edge bridge.",
+          at: "just now"
+        },
+        {
+          name: "Moisture profile",
+          severity: statusTick % 3 === 0 ? "watch" : "ok",
+          msg: statusTick % 3 === 0
+            ? "Condensation trend is drifting up in prep corridor; monitor next cycle."
+            : "Humidity trend remains inside baseline corridor.",
+          at: statusTick % 3 === 0 ? "2m ago" : "1m ago"
+        },
+        {
+          name: "Cold chain probe",
+          severity: "ok",
+          msg: "No sustained temperature excursion. Defrost cycle duration within expected range.",
+          at: "1m ago"
+        },
+        {
+          name: "After-hours occupancy",
+          severity: statusTick % 5 === 0 ? "alert" : "watch",
+          msg: statusTick % 5 === 0
+            ? "Unexpected motion after close window. Escalation policy would trigger SMS."
+            : "Low-level movement detected; awaiting second-event confirmation.",
+          at: "3m ago"
+        },
+        {
+          name: "Data quality",
+          severity: "ok",
+          msg: "Packet completeness estimated at 99.1% in current preview stream.",
+          at: "4m ago"
+        }
+      ];
+    }
+
+    function renderStatusReader() {
+      const stamp = document.getElementById("statusReaderStamp");
+      const list = document.getElementById("statusReaderList");
+      if (!stamp || !list) return;
+      const now = new Date();
+      stamp.textContent = `Updated ${now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+      const rows = sensorStatusRecords();
+      list.innerHTML = rows.map((row) => `
+        <article class="status-item">
+          <div class="status-top">
+            <strong>${row.name}</strong>
+            <span class="sev ${row.severity}">${row.severity}</span>
+          </div>
+          <div class="status-msg">${row.msg}</div>
+          <div class="tiny">${row.at}</div>
+        </article>
+      `).join("");
+    }
+
+    function renderDemoSitePanel() {
+      const site = DEMO_SITES.find((s) => s.id === selectedDemoSiteId) || DEMO_SITES[0];
+      const img = document.getElementById("demoSiteImage");
+      const name = document.getElementById("demoSiteName");
+      const address = document.getElementById("demoSiteAddress");
+      const toggles = document.getElementById("demoSiteToggles");
+      if (!img || !name || !address || !toggles) return;
+      img.src = site.image;
+      img.alt = `${site.name} storefront`;
+      name.textContent = site.name;
+      address.textContent = site.address;
+      toggles.innerHTML = DEMO_SITES.map((s) => `
+        <button class="site-toggle-btn ${s.id === selectedDemoSiteId ? "active" : ""}" type="button" data-site-id="${s.id}">
+          ${s.name.replace("Wok To Walk — ", "")}
+        </button>
+      `).join("");
+      toggles.querySelectorAll("[data-site-id]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          selectedDemoSiteId = btn.getAttribute("data-site-id");
+          renderDemoSitePanel();
+        });
+      });
+    }
+
+    function loadAlertPrefs() {
+      try {
+        const raw = localStorage.getItem(ALERT_PREFS_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object") return;
+        alertPrefs = {
+          ...alertPrefs,
+          ...parsed,
+          channels: { ...alertPrefs.channels, ...(parsed.channels || {}) }
+        };
+      } catch (_) { /* ignore malformed settings */ }
+    }
+
+    function renderSegmentButtons(containerId, values, activeValue, onClick) {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      el.innerHTML = values.map((v) =>
+        `<button type="button" class="seg ${v === activeValue ? "active" : ""}" data-value="${v}">${v}</button>`
+      ).join("");
+      el.querySelectorAll(".seg").forEach((btn) => {
+        btn.addEventListener("click", () => onClick(btn.getAttribute("data-value")));
+      });
+    }
+
+    function renderAlertControls() {
+      renderSegmentButtons("severityButtons", ALERT_SEVERITIES, alertPrefs.severity, (val) => {
+        alertPrefs.severity = val;
+        renderAlertControls();
+      });
+      renderSegmentButtons("cadenceButtons", ALERT_CADENCE, alertPrefs.cadence, (val) => {
+        alertPrefs.cadence = val;
+        renderAlertControls();
+      });
+      document.querySelectorAll("#channelSwitches [data-channel]").forEach((input) => {
+        const key = input.getAttribute("data-channel");
+        input.checked = Boolean(alertPrefs.channels[key]);
+        input.onchange = () => { alertPrefs.channels[key] = input.checked; updateAlertSettingsSummary(); };
+      });
+      const quietStart = document.getElementById("quietStart");
+      const quietEnd = document.getElementById("quietEnd");
+      const sensitivity = document.getElementById("sensitivitySelect");
+      const ackTimeout = document.getElementById("ackTimeoutSelect");
+      if (quietStart) quietStart.value = alertPrefs.quietStart;
+      if (quietEnd) quietEnd.value = alertPrefs.quietEnd;
+      if (sensitivity) sensitivity.value = alertPrefs.sensitivity;
+      if (ackTimeout) ackTimeout.value = alertPrefs.ackTimeout;
+      updateAlertSettingsSummary();
+    }
+
+    function updateAlertSettingsSummary() {
+      const el = document.getElementById("alertSettingsSummary");
+      if (!el) return;
+      const activeChannels = Object.entries(alertPrefs.channels)
+        .filter(([, on]) => on)
+        .map(([name]) => name)
+        .join(", ") || "none";
+      el.textContent = `Severity: ${alertPrefs.severity} • Cadence: ${alertPrefs.cadence} • Channels: ${activeChannels} • Quiet: ${alertPrefs.quietStart}-${alertPrefs.quietEnd}`;
+    }
+
+    function attachAlertControlHandlers() {
+      const quietStart = document.getElementById("quietStart");
+      const quietEnd = document.getElementById("quietEnd");
+      const sensitivity = document.getElementById("sensitivitySelect");
+      const ackTimeout = document.getElementById("ackTimeoutSelect");
+      if (quietStart) quietStart.addEventListener("change", () => { alertPrefs.quietStart = quietStart.value; updateAlertSettingsSummary(); });
+      if (quietEnd) quietEnd.addEventListener("change", () => { alertPrefs.quietEnd = quietEnd.value; updateAlertSettingsSummary(); });
+      if (sensitivity) sensitivity.addEventListener("change", () => { alertPrefs.sensitivity = sensitivity.value; updateAlertSettingsSummary(); });
+      if (ackTimeout) ackTimeout.addEventListener("change", () => { alertPrefs.ackTimeout = ackTimeout.value; updateAlertSettingsSummary(); });
+      const saveBtn = document.getElementById("saveAlertPrefsBtn");
+      if (saveBtn) {
+        saveBtn.addEventListener("click", () => {
+          localStorage.setItem(ALERT_PREFS_KEY, JSON.stringify(alertPrefs));
+          const badge = document.getElementById("dataBadge");
+          if (badge) badge.textContent = "Alert profile saved locally";
+          setTimeout(() => pingLiveBackend(), 1600);
+        });
+      }
+      const testBtn = document.getElementById("testAlertBtn");
+      if (testBtn) {
+        testBtn.addEventListener("click", () => {
+          const feed = document.getElementById("alertFeed");
+          if (!feed) return;
+          const stamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+          feed.insertAdjacentHTML("afterbegin", `<div class="alert"><strong>Test alert (${stamp})</strong> — Triggered with ${alertPrefs.severity} threshold via ${alertPrefs.cadence.toLowerCase()} profile.</div>`);
+          const kpiAlerts = document.getElementById("kpiAlerts");
+          if (kpiAlerts) kpiAlerts.textContent = String(Math.min(9, Number(kpiAlerts.textContent || "1") + 1));
+        });
+      }
+    }
+
+    async function pingLiveBackend() {
+      const badge = document.getElementById("dataBadge");
+      try {
+        const res = await fetch(resolveApiUrl("/api/dashboard/live"), { cache: "no-store" });
+        if (!res.ok) throw new Error("bad status");
+        const j = await res.json();
+        if (j && j.meta && j.meta.source && j.meta.source !== "mock") {
+          badge.textContent = "Utility feed reachable — sensors still demo";
+          badge.classList.add("live");
+          return;
+        }
+      } catch (_) { /* ignore */ }
+      badge.textContent = "Preview — demo telemetry";
+      badge.classList.remove("live");
+    }
+
+    function setHoverTipsFromUi(on) {
+      hoverTipsEnabled = on;
+      const top = document.getElementById("hoverTipsToggle");
+      const map = document.getElementById("hoverTipsToggleMap");
+      if (top) top.checked = on;
+      if (map) map.checked = on;
+      localStorage.setItem(HOVER_KEY, on ? "1" : "0");
+      applyHoverBodyClass();
+      setTooltip("", 0, 0, false);
+    }
+
+    setHoverTipsFromUi(loadHoverPref());
+    loadAlertPrefs();
+
+    ["hoverTipsToggle", "hoverTipsToggleMap"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener("change", (e) => setHoverTipsFromUi(e.target.checked));
+    });
+
+    window.addEventListener("scroll", () => setTooltip("", 0, 0, false), { passive: true });
+
+    renderKpis();
+    renderPins();
+    renderDetail();
+    tickLiveSim();
+    renderDemoSitePanel();
+    (function initSensorDashboardReturnNav() {
+      const params = new URLSearchParams(window.location.search);
+      const ret = params.get("return");
+      const back = document.getElementById("sensorDashboardBackLink");
+      if (!ret || !back) return;
+      let href = ret.trim();
+      if (!/^https?:\/\//i.test(href)) {
+        href = href.startsWith("./") ? href : "./" + href.replace(/^\//, "");
+      }
+      back.href = href;
+      const lower = href.toLowerCase();
+      if (/tab=site-detail|site-detail/.test(lower)) back.textContent = "← Back to Site Detail";
+      else if (/greenways|interface/.test(lower)) back.textContent = "← Main dashboard";
+    })();
+
+    renderStatusReader();
+    renderCharts();
+    renderAlerts();
+    renderAlertControls();
+    attachAlertControlHandlers();
+    pingLiveBackend();
+
+    simTimer = setInterval(() => {
+      tickLiveSim();
+      if (activityChart) {
+        const { wave, spikes, calm } = buildActivityDatasets();
+        activityChart.data.datasets[0].data = calm;
+        activityChart.data.datasets[1].data = spikes;
+        activityChart.data.datasets[2].data = wave;
+        activityChart.update("none");
+      }
+      document.getElementById("kpiAlerts").textContent = String(1 + (alertOffset % 3));
+      alertOffset++;
+      statusTick++;
+      renderStatusReader();
+      renderAlerts();
+    }, 6000);
+
+    document.getElementById("floorWrap").addEventListener("mouseleave", () => setTooltip("", 0, 0, false));
+  </script>
+</body>
+</html>

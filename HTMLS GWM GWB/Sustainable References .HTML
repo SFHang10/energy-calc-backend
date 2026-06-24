@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>References & Data Sources — Sustainable Renovations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: #f8f9fa;
+            overflow-x: hidden;
+        }
+
+        /* ── Header ── */
+        .header-section {
+            background: linear-gradient(135deg, #16a085, #0e6655);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header-section h1 {
+            font-size: clamp(1.8em, 5vw, 3em);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-section p {
+            font-size: clamp(1em, 2.5vw, 1.3em);
+            margin-top: 12px;
+            opacity: 0.92;
+            font-weight: 300;
+            position: relative;
+            z-index: 1;
+        }
+
+        .shimmer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0%   { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* ── Layout ── */
+        .content-section {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 50px 20px 60px;
+        }
+
+        /* ── Intro banner ── */
+        .intro-banner {
+            background: white;
+            border-left: 6px solid #16a085;
+            border-radius: 12px;
+            padding: 28px 32px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+            font-size: 1.05em;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .intro-banner strong {
+            color: #16a085;
+        }
+
+        /* ── Section headings ── */
+        .section-heading {
+            color: #2c3e50;
+            border-bottom: 4px solid #16a085;
+            padding-bottom: 12px;
+            margin: 45px 0 25px;
+            font-size: clamp(1.35em, 3.5vw, 1.75em);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ── Reference cards grid ── */
+        .ref-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+            gap: 18px;
+            margin-bottom: 10px;
+        }
+
+        .ref-card {
+            background: white;
+            border-radius: 12px;
+            padding: 22px 24px;
+            border-top: 4px solid #16a085;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            position: relative;
+        }
+
+        .ref-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 22px rgba(22,160,133,0.18);
+        }
+
+        /* accent colours per category */
+        .ref-card.cat-property  { border-top-color: #16a085; }
+        .ref-card.cat-grants    { border-top-color: #e67e22; }
+        .ref-card.cat-payback   { border-top-color: #27ae60; }
+        .ref-card.cat-water     { border-top-color: #3498db; }
+        .ref-card.cat-materials { border-top-color: #8e44ad; }
+        .ref-card.cat-climate   { border-top-color: #c0392b; }
+        .ref-card.cat-cases     { border-top-color: #2980b9; }
+
+        .ref-card-label {
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 0.97em;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .ref-card-source {
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.65;
+        }
+
+        .ref-card-source em {
+            color: #16a085;
+            font-style: italic;
+        }
+
+        .ref-card.cat-grants   .ref-card-source em { color: #e67e22; }
+        .ref-card.cat-payback  .ref-card-source em { color: #27ae60; }
+        .ref-card.cat-water    .ref-card-source em { color: #3498db; }
+        .ref-card.cat-materials .ref-card-source em { color: #8e44ad; }
+        .ref-card.cat-climate  .ref-card-source em { color: #c0392b; }
+        .ref-card.cat-cases    .ref-card-source em { color: #2980b9; }
+
+        /* tag badge */
+        .ref-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            background: rgba(22,160,133,0.12);
+            color: #16a085;
+        }
+
+        .cat-grants   .ref-tag { background: rgba(230,126,34,0.12);  color: #e67e22; }
+        .cat-payback  .ref-tag { background: rgba(39,174,96,0.12);   color: #27ae60; }
+        .cat-water    .ref-tag { background: rgba(52,152,219,0.12);  color: #3498db; }
+        .cat-materials .ref-tag{ background: rgba(142,68,173,0.12);  color: #8e44ad; }
+        .cat-climate  .ref-tag { background: rgba(192,57,43,0.12);   color: #c0392b; }
+        .cat-cases    .ref-tag { background: rgba(41,128,185,0.12);  color: #2980b9; }
+
+        /* ── Case-study cards (wider layout) ── */
+        .case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+            gap: 18px;
+        }
+
+        .case-card {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border-radius: 14px;
+            padding: 26px 24px;
+            box-shadow: 0 4px 12px rgba(52,152,219,0.3);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .case-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(52,152,219,0.4);
+        }
+
+        .case-card h3 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .case-card p {
+            font-size: 0.9em;
+            opacity: 0.92;
+            line-height: 1.65;
+        }
+
+        .case-card p em {
+            font-style: italic;
+            opacity: 0.85;
+        }
+
+        /* ── Stats strip ── */
+        .stats-strip {
+            background: linear-gradient(135deg, #27ae60, #1e8449);
+            border-radius: 14px;
+            padding: 30px 25px;
+            margin: 40px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 20px;
+            box-shadow: 0 4px 15px rgba(39,174,96,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-strip .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        }
+
+        .stat-item {
+            text-align: center;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: clamp(1.6em, 4vw, 2.2em);
+            font-weight: 700;
+            color: #f1c40f;
+            display: block;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        /* ── Disclaimer ── */
+        .disclaimer {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-left: 6px solid #f39c12;
+            border-radius: 12px;
+            padding: 24px 28px;
+            margin-top: 45px;
+            font-size: 0.92em;
+            color: #666;
+            line-height: 1.75;
+        }
+
+        .disclaimer strong {
+            color: #e67e22;
+        }
+
+        /* ── Fade-in animation ── */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in:nth-child(1)  { animation-delay: 0.05s; }
+        .fade-in:nth-child(2)  { animation-delay: 0.10s; }
+        .fade-in:nth-child(3)  { animation-delay: 0.15s; }
+        .fade-in:nth-child(4)  { animation-delay: 0.20s; }
+        .fade-in:nth-child(5)  { animation-delay: 0.25s; }
+        .fade-in:nth-child(6)  { animation-delay: 0.30s; }
+
+        @media (max-width: 600px) {
+            .content-section { padding: 30px 15px 50px; }
+            .intro-banner { padding: 20px; }
+        }
+
+        .cite-legend { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+        .cite-type {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.72em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .cite-type-third-party { background: rgba(52,152,219,0.15); color: #2980b9; }
+        .cite-type-etl-official { background: rgba(39,174,96,0.15); color: #1e8449; }
+        .cite-type-gw-estimate { background: rgba(243,156,18,0.18); color: #d68910; }
+        .cite-type-gw-tool { background: rgba(142,68,173,0.15); color: #7d3c98; }
+        .ref-card.cat-etl { border-top-color: #1e8449; }
+        .cat-etl .ref-tag { background: rgba(39,174,96,0.12); color: #1e8449; }
+        .ref-card.cite-highlight {
+            outline: 3px solid #f39c12;
+            box-shadow: 0 0 0 6px rgba(243,156,18,0.25), 0 10px 22px rgba(22,160,133,0.18);
+            transform: translateY(-3px);
+        }
+        .cite-ref-badge {
+            display: block;
+            font-size: 0.72em;
+            font-weight: 700;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.35px;
+        }
+        .ref-card-source a { color: #16a085; word-break: break-word; }
+    </style>
+</head>
+<body data-gwm-cite-mode="references">
+
+    <!-- ── Header ── -->
+    <div class="header-section">
+        <div class="shimmer"></div>
+        <h1>📚 References &amp; Data Sources</h1>
+        <p>Sources underpinning the figures, claims, and case studies in our Sustainable Renovations guide</p>
+    </div>
+
+    <!-- ── Main content ── -->
+    <div class="content-section">
+
+        <div class="intro-banner">
+            All statistics, payback periods, grant figures, and case-study outcomes cited in the Sustainable Renovations &amp; Retrofitting page are drawn from <strong>peer-reviewed research, intergovernmental reports, and official government programme data</strong>. Sources are listed below by topic area. Where ranges are given, they reflect variation across property types, countries, and market conditions.
+            <p style="margin-top:12px;">On the page above, <strong>numbered markers</strong> link to the matching card here. Hover a marker for a quick summary; click to scroll this section (when both pages are embedded on Wix).</p>
+            <div class="cite-legend">
+                <span class="cite-type cite-type-etl-official">ETL official</span>
+                <span class="cite-type cite-type-third-party">Published / programme</span>
+                <span class="cite-type cite-type-gw-estimate">Greenways estimate</span>
+                <span class="cite-type cite-type-gw-tool">Greenways tool (ETL catalogue)</span>
+            </div>
+        </div>
+
+        <!-- ── Stats strip ── -->
+        <div class="stats-strip">
+            <div class="shimmer"></div>
+            <div class="stat-item">
+                <span class="stat-number">25+</span>
+                <div class="stat-label">Sources cited</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">7</span>
+                <div class="stat-label">Topic categories</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">4</span>
+                <div class="stat-label">Country case studies</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">2021–24</span>
+                <div class="stat-label">Publication range</div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════
+             1. PROPERTY VALUE & FINANCIAL RETURNS
+        ═══════════════════════════════════════════════ -->
+        <h2 class="section-heading">📈 Property Value &amp; Financial Returns</h2>
+        <div class="ref-grid">
+
+            <div class="ref-card cat-property fade-in" id="ref-property-value">
+                <span class="ref-tag">Property Value</span>
+                <div class="ref-card-label">Property value uplift (8–15%)</div>
+                <div class="ref-card-source">
+                    European Commission, <em>Energy Performance of Buildings Directive (EPBD) Impact Assessment</em>, 2021.
+                    Also corroborated by JLL Research, <em>Green Premium in European Real Estate</em>, 2022.
+                </div>
+            </div>
+
+            <div class="ref-card cat-property fade-in">
+                <span class="ref-tag">Feature Uplift</span>
+                <div class="ref-card-label">Solar (+4–6%), Windows (+2–3%), Heat Pumps (+3–5%), Insulation (+2–4%), Green Certification (+7–9%)</div>
+                <div class="ref-card-source">
+                    Lawrence Berkeley National Laboratory, <em>Selling into the Sun: Price Premium Analysis of a Multi-State Dataset of Solar Homes</em>, 2015;
+                    adapted for European context via Knight Frank, <em>The Sustainability Report</em>, 2023.
+                </div>
+            </div>
+
+            <div class="ref-card cat-property fade-in" id="ref-operating-savings">
+                <span class="ref-tag">Running Costs</span>
+                <div class="ref-card-label">Energy bill savings (30–50%)</div>
+                <div class="ref-card-source">
+                    European Environment Agency (EEA), <em>Energy Efficiency in Buildings — Key Figures</em>, 2023.
+                </div>
+            </div>
+
+            <div class="ref-card cat-property fade-in">
+                <span class="ref-tag">Insurance</span>
+                <div class="ref-card-label">Insurance premium reduction (10–25%)</div>
+                <div class="ref-card-source">
+                    Association of British Insurers (ABI), <em>Climate-Resilient Homes: Flood &amp; Weather Risk</em>, 2022.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ══════════════════════════════════════════════
+             2. EU GRANTS & INCENTIVE PROGRAMMES
+        ═══════════════════════════════════════════════ -->
+        <h2 class="section-heading">🎁 EU Grants &amp; Incentive Programmes</h2>
+        <div class="ref-grid">
+
+            <div class="ref-card cat-grants fade-in" id="ref-renovation-wave">
+                <span class="ref-tag">EU Programme</span>
+                <div class="ref-card-label">EU Renovation Wave — €72 billion through 2030</div>
+                <div class="ref-card-source">
+                    European Commission, <em>A Renovation Wave for Europe — Greening Our Buildings, Creating Jobs, Improving Lives</em>,
+                    COM(2020) 662, October 2020.
+                </div>
+            </div>
+
+            <div class="ref-card cat-grants fade-in" id="ref-grants-range">
+                <span class="ref-tag">National Schemes</span>
+                <div class="ref-card-label">Grant ranges shown on the renovations page (€5,000–€30,000 headline; €3,000–€15,000 national)</div>
+                <div class="ref-card-source">
+                    Compiled from national programmes: Dutch <em>ISDE subsidy</em>, French <em>MaPrimeRénov'</em>, and German
+                    <em>BEG (Bundesförderung für effiziente Gebäude)</em>, as published by respective government agencies (2023–2024).
+                    The wider €5,000–€30,000 range on the main page is an <strong>illustrative envelope</strong> across EU climate and renovation programmes—not a single ETL figure.
+                </div>
+            </div>
+
+        </div>
+
+        <h2 class="section-heading">⚡ UK Energy Technology List (ETL) — what is official vs Greenways</h2>
+        <div class="ref-grid">
+
+            <div class="ref-card cat-etl fade-in" id="ref-etl-listing-criteria">
+                <span class="ref-tag">ETL official</span>
+                <div class="ref-card-label">What “ETL-listed” means (efficiency criteria)</div>
+                <div class="ref-card-source">
+                    UK Department for Energy Security &amp; Net Zero (DESNZ), <em>Energy Technology List — guidance for purchasers</em>.
+                    Listed products meet <strong>published energy-performance criteria</strong> for their technology category; this is not a payback or cost estimate.
+                    <br><a href="https://www.gov.uk/guidance/energy-technology-list" target="_blank" rel="noopener">gov.uk/guidance/energy-technology-list</a>
+                    · <a href="https://etl.energysecurity.gov.uk/" target="_blank" rel="noopener">etl.energysecurity.gov.uk</a>
+                </div>
+            </div>
+
+            <div class="ref-card cat-etl fade-in" id="ref-etl-hrv-tech">
+                <span class="ref-tag">ETL official</span>
+                <div class="ref-card-label">Heat recovery ventilation (HRV) as an ETL technology</div>
+                <div class="ref-card-source">
+                    ETL groups <em>Heat recovery ventilation units</em> separately from boilers, heat pumps, and general HVAC.
+                    Product eligibility and category names come from the ETL product database—not from Greenways payback or grant figures.
+                    <br><a href="https://etl.energysecurity.gov.uk/product-search" target="_blank" rel="noopener">ETL product search</a>
+                </div>
+            </div>
+
+            <div class="ref-card cat-etl fade-in" id="ref-etl-product-examples">
+                <span class="ref-tag">Greenways tool</span>
+                <div class="ref-card-label">Marketplace “See ETL example” links</div>
+                <div class="ref-card-source">
+                    Example product pages (e.g. heating equipment, HRV) are served by the <strong>Greenways marketplace</strong>, which maps ETL API product IDs to our catalogue.
+                    Specs and listing status are ETL-sourced; narrative payback, grant totals, and € ranges on the renovations page are <strong>not</strong> quoted from ETL unless explicitly cited to DESNZ/ETL guidance above.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ══════════════════════════════════════════════
+             3. PAYBACK PERIODS & INSTALLATION COSTS
+        ═══════════════════════════════════════════════ -->
+        <h2 class="section-heading">💶 Payback Periods &amp; Installation Costs</h2>
+        <div class="ref-grid">
+
+            <div class="ref-card cat-payback fade-in" id="ref-payback-insulation">
+                <span class="ref-tag">Insulation</span>
+                <div class="ref-card-label">Insulation payback (3–5 years)</div>
+                <div class="ref-card-source">
+                    Energy Saving Trust, <em>Insulation — What It Costs and What It Saves</em>, 2023.
+                </div>
+            </div>
+
+            <div class="ref-card cat-payback fade-in" id="ref-payback-windows">
+                <span class="ref-tag">Windows</span>
+                <div class="ref-card-label">Triple-glazed windows payback (7–10 years)</div>
+                <div class="ref-card-source">
+                    Passivhaus Institut, <em>Window Energy Performance Data</em>, 2022.
+                </div>
+            </div>
+
+            <div class="ref-card cat-payback fade-in" id="ref-payback-solar">
+                <span class="ref-tag">Solar</span>
+                <div class="ref-card-label">Solar panel payback (8–12 years; 6–9 with grants)</div>
+                <div class="ref-card-source">
+                    International Energy Agency (IEA), <em>Solar PV — Technology Report</em>, 2023;
+                    SolarPower Europe, <em>EU Market Outlook for Solar Power 2023–2027</em>.
+                </div>
+            </div>
+
+            <div class="ref-card cat-payback fade-in" id="ref-payback-hvac">
+                <span class="ref-tag">Heat Pumps</span>
+                <div class="ref-card-label">Heat pump payback (5–8 years)</div>
+                <div class="ref-card-source">
+                    European Heat Pump Association (EHPA), <em>European Heat Pump Market and Statistics Report</em>, 2023.
+                </div>
+            </div>
+
+            <div class="ref-card cat-payback fade-in" id="ref-rainwater-payback">
+                <span class="ref-tag">Rainwater</span>
+                <div class="ref-card-label">Rainwater harvesting payback (4–7 years)</div>
+                <div class="ref-card-source">
+                    ARCADIS / Waterwise, <em>Valuing Water: The Business Case for Rainwater Harvesting in Europe</em>, 2021.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ══════════════════════════════════════════════
+             4. WATER EFFICIENCY
+        ═══════════════════════════════════════════════ -->
+        <h2 class="section-heading">💧 Water Efficiency</h2>
+        <div class="ref-grid">
+
+            <div class="ref-card cat-water fade-in" id="ref-water-fixtures">
+                <span class="ref-tag">Low-flow Fixtures</span>
+                <div class="ref-card-label">Low-flow fixtures reducing consumption by 40–60%</div>
+                <div class="ref-card-source">
+                    Alliance for Water Efficiency (AWE), <em>Residential End Uses of Water Study</em> (adapted for EU context), 2016;
+                    European Water Stewardship (EWS) Standards.
+                </div>
+            </div>
+
+            <div class="ref-card cat-water fade-in" id="ref-water-cost">
+                <span class="ref-tag">Illustrative</span>
+                <div class="ref-card-label">Household water bill savings (€300–€600/year)</div>
+                <div class="ref-card-source">
+                    <strong>Greenways illustrative estimate</strong> from typical EU municipal water tariffs and 40–60% fixture savings—not a figure published by ETL or a single national agency.
+                </div>
+            </div>
+
+            <div class="ref-card cat-water fade-in">
+                <span class="ref-tag">Harvesting</span>
+                <div class="ref-card-label">Rainwater systems supplying 40–60% of household needs</div>
+                <div class="ref-card-source">
+                    WAREMA / CIRIA, <em>Rainwater Harvesting for Domestic Use</em>, C539, 2001 (updated guidance 2022).
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ══════════════════════════════════════════════
+             5. SUSTAINABLE MATERIALS
+        ═══════════════════════════════════════════════ -->
+        <h2 class="section-heading">♻️ Sustainable Materials</h2>
+        <div class="ref-grid">
+
+            <div class="ref-card cat-materials fade-in">
+                <span class="ref-tag">Recycled</span>
+                <div class="ref-card-label">Reclaimed/recycled material cost savings (20–40%)</div>
+                <div class="ref-card-source">
+                    BRE Group, <em>Reclaimed and Recycled Construction Materials Handbook</em>, 2023.
+                </div>
+            </div>
+
+            <div class="ref-card cat-materials fade-in">
+                <span class="ref-tag">Bamboo</span>
+                <div class="ref-card-label">Bamboo flooring cost comparison &amp; carbon sequestration</div>
+                <div class="ref-card-source">
+                    International Bamboo and Rattan Organisation (INBAR),
+                    <em>Bamboo as a Substitute for Steel and Timber</em>, 2022.
+                </div>
+            </div>
+
+            <div class="ref-card cat-materials fade-in">
+                <span class="ref-tag">Insulation</span>
+                <div class="ref-card-label">Natural insulation R-values — sheep's wool R-3.5, cellulose R-3.7, cork R-3.6</div>
+                <div class="ref-card-source">
+                    Oak Ridge National Laboratory (ORNL), <em>Whole Wall Thermal Performance</em>, 2021.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ══════════════════════════════════════════════
+             6. CLIMATE ADAPTATION & RESILIENCE
+        ═══════════════════════════════════════════════ -->
+        <h2 class="section-heading">🌪️ Climate Adaptation &amp; Resilience</h2>
+        <div class="ref-grid">
+
+            <div class="ref-card cat-climate fade-in" id="ref-cool-roof">
+                <span class="ref-tag">Cool Roofs</span>
+                <div class="ref-card-label">Cool roofs reducing heat absorption (50–60%)</div>
+                <div class="ref-card-source">
+                    Lawrence Berkeley National Laboratory, <em>Cool Roofs</em>, Heat Island Group, 2023.
+                </div>
+            </div>
+
+            <div class="ref-card cat-climate fade-in" id="ref-passive-cooling">
+                <span class="ref-tag">Passive Cooling</span>
+                <div class="ref-card-label">Passive cooling reducing AC needs (30–40%)</div>
+                <div class="ref-card-source">
+                    International Energy Agency (IEA), <em>Cooling Report: Keeping Cool in a Warming World</em>, 2023.
+                </div>
+            </div>
+
+            <div class="ref-card cat-climate fade-in" id="ref-native-plants-water">
+                <span class="ref-tag">Landscaping</span>
+                <div class="ref-card-label">Native plants using 70% less water than traditional lawns</div>
+                <div class="ref-card-source">
+                    RHS (Royal Horticultural Society) &amp; European Landscape Convention,
+                    <em>Drought-Tolerant Planting in Urban Environments</em>, 2022.
+                </div>
+            </div>
+
+            <div class="ref-card cat-climate fade-in" id="ref-storm-insurance">
+                <span class="ref-tag">Storm Protection</span>
+                <div class="ref-card-label">Storm shutters reducing insurance costs (20–40%)</div>
+                <div class="ref-card-source">
+                    Insurance Institute for Business &amp; Home Safety (IBHS), <em>Hurricane Shutter Research</em>, 2021.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ══════════════════════════════════════════════
+             7. CASE STUDIES
+        ═══════════════════════════════════════════════ -->
+        <h2 class="section-heading">🌍 Case Studies</h2>
+        <div class="case-grid">
+
+            <div class="case-card fade-in">
+                <h3>🇳🇱 Rotterdam Climate Retrofit</h3>
+                <p>City of Rotterdam, <em>Rotterdam Climate Proof — Adaptation Strategy</em>, 2013 (ongoing programme);
+                Delta Programme Commissioner, Annual Reports 2022–2023.</p>
+            </div>
+
+            <div class="case-card fade-in">
+                <h3>🇫🇷 Paris Social Housing Retrofit</h3>
+                <p>Agence Nationale de l'Habitat (ANAH), <em>MaPrimeRénov' Programme Results</em>, 2023;
+                Paris Habitat Annual Report 2022.</p>
+            </div>
+
+            <div class="case-card fade-in">
+                <h3>🇸🇪 Stockholm Villa Climate Upgrade</h3>
+                <p>Swedish Energy Agency (Energimyndigheten), <em>Residential Energy Renovation Statistics</em>, 2023;
+                Boverket (Swedish National Board of Housing), <em>Energy in Buildings</em>, 2022.</p>
+            </div>
+
+            <div class="case-card fade-in">
+                <h3>🇪🇸 Barcelona Heat Adaptation Project</h3>
+                <p>Ajuntament de Barcelona, <em>Climate Plan 2018–2030</em>;
+                Generalitat de Catalunya, <em>Catalan Climate Change Adaptation Plan</em>, 2021.</p>
+            </div>
+
+        </div>
+
+        <!-- ── Disclaimer ── -->
+        <div class="disclaimer">
+            <strong>⚠️ Important Note:</strong> Figures presented represent indicative ranges drawn from published research, industry reports, and government programme data at the time of compilation. Actual savings, costs, and payback periods will vary depending on property type, location, existing condition, contractor, and local energy prices. Always obtain professional assessments and consult your local authority or energy agency for current grant eligibility.
+        </div>
+
+    </div><!-- /content-section -->
+
+    <script src="js/sustainable-renovations-citations.js"></script>
+</body>
+</html>

@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Sustainable Product & Deal Finder — Greenways</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #060a08;
+      --surface: #0f1a14;
+      --surface-2: #15251c;
+      --line: rgba(0, 245, 130, 0.18);
+      --text: #e8f5ee;
+      --muted: #8fb8a0;
+      --green: #00f582;
+      --blue: #4da6ff;
+      --orange: #ff8c1a;
+      --danger: #f87171;
+      --radius: 14px;
+      --quick-photo-well: #101f18;
+      /* Page backdrop — rollback: remove class sustainable-finder--backdrop from <body> */
+      --sustainable-finder-backdrop-image: url("https://static.wixstatic.com/media/c123de_7e3d7160a659460fbfddb583cb5f6e49~mv2.jpeg");
+      --font: 'Space Grotesk', sans-serif;
+      --font-clean: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 17px; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 245, 130, 0.12), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(77, 166, 255, 0.08), transparent),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 1rem;
+      line-height: 1.5;
+      overflow-x: hidden;
+      position: relative;
+    }
+    .sustainable-finder-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(rgba(5, 14, 9, 0.36), rgba(5, 12, 8, 0.44)),
+        radial-gradient(circle at 50% 22%, rgba(0, 245, 130, 0.07), transparent 52%),
+        var(--sustainable-finder-backdrop-image);
+      background-size: cover;
+      background-position: center;
+      opacity: 0.9;
+      filter: brightness(0.9) saturate(1.06);
+    }
+    body.sustainable-finder--backdrop .sustainable-finder-backdrop { display: block; }
+    body.sustainable-finder--backdrop { background: #060a08; }
+    .shell { max-width: 1280px; margin: 0 auto; padding: 20px 22px 52px; position: relative; z-index: 1; }
+    body.sustainable-finder--backdrop .top-bar,
+    body.sustainable-finder--backdrop .search-card,
+    body.sustainable-finder--backdrop .meta-tile,
+    body.sustainable-finder--backdrop .loading {
+      background: rgba(15, 26, 20, 0.82);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    body.sustainable-finder--backdrop .pcard {
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.05), transparent 40%), rgba(15, 26, 20, 0.88);
+    }
+    body.sustainable-finder--backdrop .quick-btn {
+      background: rgba(21, 37, 28, 0.9);
+    }
+    body.sustainable-finder--backdrop .brand span,
+    body.sustainable-finder--backdrop .section-label {
+      color: #f5f5f5;
+    }
+    body.sustainable-finder--backdrop .hero h1,
+    body.sustainable-finder--backdrop .col-head h2 {
+      color: #ffffff;
+      text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+    }
+    body.sustainable-finder--backdrop .hero p,
+    body.sustainable-finder--backdrop .col-head p {
+      color: #f0f4f0;
+    }
+    .top-bar {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px;
+      padding: 15px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+      position: sticky; top: 10px; z-index: 20;
+      box-shadow: 0 10px 36px rgba(0, 0, 0, 0.38);
+    }
+    .brand { display: flex; flex-direction: column; gap: 4px; }
+    .brand strong { font-family: var(--font); font-size: 1.125rem; font-weight: 700; letter-spacing: -0.5px; }
+    .brand span { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+    .nav-links { display: flex; flex-wrap: wrap; gap: 10px; }
+    .nav-links a {
+      font-family: var(--font); font-size: 0.8125rem; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none; padding: 10px 14px; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 10px;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .nav-links a:hover { color: var(--green); border-color: rgba(0, 245, 130, 0.35); background: rgba(0, 245, 130, 0.06); }
+    .hero { margin-top: 22px; }
+    .hero h1 {
+      font-family: var(--font);
+      font-size: clamp(1.375rem, 4.2vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 10px;
+      line-height: 1.15;
+    }
+    .hero p {
+      font-family: var(--font-clean);
+      font-weight: 400;
+      color: var(--muted);
+      max-width: 46rem;
+      line-height: 1.55;
+      font-size: 1rem;
+    }
+
+    .search-card {
+      margin-top: 22px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px 22px 18px;
+    }
+    .section-label {
+      font-family: var(--font); font-size: 0.625rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 12px;
+    }
+    .quick-products {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 720px) {
+      .quick-products { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    }
+    .quick-btn {
+      padding: 18px 12px 16px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; background: var(--surface-2);
+      color: var(--muted); font-size: 0.9375rem; font-weight: 600; font-family: var(--font); cursor: pointer; text-align: center; transition: 0.15s;
+      min-height: 148px;
+    }
+    .quick-btn:hover { color: var(--text); border-color: rgba(0, 245, 130, 0.35); }
+    .quick-btn.chosen { outline: 2px solid var(--green); color: #b8ffd9; border-color: rgba(0, 245, 130, 0.45); }
+    .quick-btn .icon { font-size: 1.5rem; display: block; margin-bottom: 8px; line-height: 1; }
+    .quick-btn .quick-label { display: block; }
+    .quick-btn--photo .icon-img-wrap {
+      display: flex; align-items: center; justify-content: center;
+      height: 78px; margin: 0 auto 12px; padding: 6px 10px;
+      border-radius: 12px;
+      background: var(--quick-photo-well);
+      border: 1px solid rgba(0, 245, 130, 0.16);
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.28);
+    }
+    .quick-btn--photo .icon-img {
+      display: block; width: auto; height: 68px; max-width: 100%;
+      object-fit: contain;
+      image-rendering: -webkit-optimize-contrast;
+    }
+    .quick-btn--photo .icon-emoji {
+      font-size: 2.75rem; line-height: 1;
+    }
+    .search-input-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+    .search-input-row input {
+      flex: 1; min-width: 220px; height: 52px; padding: 0 18px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #0a1610; color: var(--text); font-size: 1rem; font-family: var(--font);
+    }
+    .search-btn {
+      height: 52px; padding: 0 26px; border-radius: 12px; border: none; background: var(--green); color: #03140a;
+      font-weight: 700; font-size: 0.9375rem; font-family: var(--font); cursor: pointer; white-space: nowrap;
+    }
+    .search-btn:hover { filter: brightness(1.05); }
+    .search-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .form-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 18px; }
+    @media (max-width: 720px) { .form-row { grid-template-columns: 1fr; } }
+    .form-group label { display: block; font-size: 0.75rem; font-family: var(--mono); color: var(--muted); margin-bottom: 8px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .form-group select {
+      width: 100%; height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #0a1610; color: var(--text); font-size: 0.9375rem; font-family: var(--font);
+    }
+    .pill-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pill {
+      padding: 8px 14px; border-radius: 999px; font-size: 0.9375rem; border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--muted); cursor: pointer; transition: 0.12s; font-family: var(--font);
+    }
+    .pill.active { border-color: rgba(0, 245, 130, 0.45); color: #c6ffe4; background: rgba(0, 245, 130, 0.1); }
+
+    .meta-strip {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 24px;
+    }
+    @media (max-width: 720px) { .meta-strip { grid-template-columns: 1fr; } }
+    .meta-tile {
+      background: var(--surface-2); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 16px 18px;
+    }
+    /* Results typography — match Greenways dashboard (Space Grotesk UI, IBM Plex metrics) */
+    .meta-tile .k {
+      font-family: var(--font);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta-tile .v {
+      font-family: var(--font-clean);
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-top: 6px;
+      line-height: 1.3;
+      color: var(--text);
+    }
+
+    .results-columns {
+      margin-top: 26px; display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: start;
+    }
+    @media (max-width: 960px) { .results-columns { grid-template-columns: 1fr; } }
+    .col-head { margin-bottom: 14px; }
+    .col-head h2 {
+      font-family: var(--font);
+      font-size: 1.3125rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      line-height: 1.2;
+    }
+    .col-head p {
+      font-family: var(--font-clean);
+      font-size: 0.9375rem;
+      font-weight: 400;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.55;
+      letter-spacing: 0;
+    }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+
+    .pcard {
+      border-radius: 14px; padding: 22px 18px 16px; min-height: 220px; display: flex; flex-direction: column;
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.04), transparent 40%), var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 3px solid var(--accent, var(--green));
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .pcard:hover { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35); transform: translateY(-2px); }
+    .pcard.marketplace { --accent: var(--blue); }
+    .pcard.external { --accent: var(--orange); }
+    .pcard-type {
+      font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--muted); display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+    }
+    .pcard-type .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent, var(--green)); flex-shrink: 0; }
+    .pcard-badge {
+      display: inline-block; font-family: var(--mono); font-size: 0.75rem; font-weight: 700;
+      padding: 5px 12px; border-radius: 6px; margin-bottom: 12px; width: fit-content;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .pcard-badge.marketplace { background: rgba(77, 166, 255, 0.12); color: #9fd4ff; border-color: rgba(77, 166, 255, 0.35); }
+    .pcard-badge.external { background: rgba(255, 140, 26, 0.12); color: #ffc48a; border-color: rgba(255, 140, 26, 0.35); }
+    .pcard-title {
+      font-family: var(--font);
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      line-height: 1.28;
+      margin-bottom: 8px;
+    }
+    .pcard-sub {
+      font-family: var(--font-clean);
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--muted);
+      margin-bottom: 10px;
+      letter-spacing: 0;
+      line-height: 1.5;
+    }
+    .pcard-metrics {
+      font-family: var(--font-clean);
+      font-size: 0.9375rem;
+      font-weight: 400;
+      color: var(--muted);
+      line-height: 1.55;
+      flex: 1;
+    }
+    .pcard-metrics strong {
+      font-family: var(--font-clean);
+      font-weight: 600;
+      color: var(--green);
+    }
+    .consumer-block {
+      margin-top: 14px; padding: 15px 15px 12px; border-radius: 12px;
+      background: rgba(0, 0, 0, 0.28); border: 1px solid rgba(0, 245, 130, 0.2);
+      font-family: var(--font-clean);
+      font-size: 0.9375rem;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+    .consumer-headline {
+      font-family: var(--font-clean);
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.9375rem;
+      margin-bottom: 10px;
+      line-height: 1.5;
+      letter-spacing: -0.01em;
+    }
+    .consumer-metrics {
+      font-family: var(--font-clean);
+      font-size: 1.0625rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .consumer-metrics strong { font-family: var(--font-clean); font-weight: 600; color: var(--green); }
+    .consumer-daily {
+      font-size: 0.8125rem;
+      color: var(--muted);
+      font-family: var(--font-clean);
+      line-height: 1.5;
+    }
+    .pcard-foot {
+      margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-family: var(--font-clean);
+      font-size: 0.8125rem;
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    }
+    .pcard-foot span {
+      font-family: var(--mono);
+      font-size: 0.6875rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .pcard-foot a { color: var(--blue); text-decoration: none; word-break: break-all; }
+    .pcard-foot a:hover { text-decoration: underline; }
+    .pcard-img {
+      width: 100%; height: 140px; object-fit: cover; border-radius: 10px; margin-bottom: 14px;
+      background: #0a120e; border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+    .btn-sm {
+      font-family: var(--font);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: none;
+      padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(0, 245, 130, 0.35); background: rgba(0, 245, 130, 0.12);
+      color: #c6ffe4; cursor: pointer;
+    }
+    .btn-sm:hover { background: rgba(0, 245, 130, 0.2); }
+    .btn-sm.primary { background: var(--green); color: #03140a; border-color: transparent; font-weight: 700; font-family: var(--font); letter-spacing: 0.02em; text-transform: none; font-size: 0.8125rem; }
+
+    .empty-box {
+      padding: 24px; border-radius: 14px; border: 1px dashed rgba(255, 255, 255, 0.15); color: var(--muted); font-family: var(--font-clean); font-size: 0.9375rem; line-height: 1.55;
+    }
+    .assumptions {
+      margin-top: 24px; padding: 18px 20px; border-radius: 14px; background: var(--surface-2); border: 1px solid rgba(255, 255, 255, 0.08);
+      font-family: var(--font-clean);
+      font-size: 0.9375rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .assumptions h3 { font-size: 0.75rem; font-family: var(--font); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); margin-bottom: 10px; }
+    .assumptions ul { margin: 0; padding-left: 1.25rem; }
+    .assumptions li { margin: 6px 0; }
+
+    .loading {
+      display: flex; align-items: center; gap: 14px; padding: 24px; background: var(--surface); border-radius: 14px; border: 1px solid var(--line);
+      margin-top: 22px; color: var(--muted); font-family: var(--font-clean); font-size: 0.9375rem;
+    }
+    .spinner {
+      width: 24px; height: 24px; border: 3px solid rgba(255, 255, 255, 0.15); border-top-color: var(--green);
+      border-radius: 50%; animation: spin 0.75s linear infinite; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-box { margin-top: 22px; padding: 18px 20px; border-radius: 12px; background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.35); color: #fecaca; font-family: var(--font-clean); font-size: 1rem; line-height: 1.5; }
+
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+  </style>
+</head>
+<body class="sustainable-finder--backdrop">
+  <div class="sustainable-finder-backdrop" aria-hidden="true"></div>
+  <h2 class="sr-only">Sustainable Product & Deal Finder — energy-efficient appliances with Greenways Marketplace matches</h2>
+  <div class="shell">
+    <header class="top-bar">
+      <div class="brand">
+        <strong>GREENWAYS</strong>
+        <span>Sustainable product & deal finder</span>
+      </div>
+      <nav class="nav-links" aria-label="Quick navigation">
+        <a href="./Greenways%20Interface%20.html">Dashboard</a>
+        <a href="./Deals.html">Deals</a>
+        <a href="./restaurant-equipment-deep-dive.html">Equipment deep dive</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <h1>Find efficient equipment — with marketplace matches</h1>
+      <p>
+        Search uses the same <strong>equipment intelligence</strong> pipeline as the restaurant deep dive: Greenways Marketplace products are scored against your query,
+        with estimated savings vs a typical baseline for that equipment class. External “sustainable alternative” models appear when they match your category.
+      </p>
+    </section>
+
+    <div class="search-card">
+      <div class="section-label">Quick select</div>
+      <div class="quick-products" id="quickProducts">
+        <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Dishwasher', this)">
+          <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_af4ac2bc07a64960b502421fd2334290~mv2.png" alt="" width="72" height="68" loading="lazy" decoding="async" /></span>
+          <span class="quick-label">Dishwasher</span>
+        </button>
+        <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Fridge / refrigerator', this)">
+          <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_7cda810cca9f466d9ad6dc913671fad9~mv2.png" alt="" width="72" height="68" loading="lazy" decoding="async" /></span>
+          <span class="quick-label">Fridge</span>
+        </button>
+        <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Washing machine', this)">
+          <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_383c1fe4e8b44dcdbd2001ee6c2691f5~mv2.png" alt="" width="72" height="68" loading="lazy" decoding="async" /></span>
+          <span class="quick-label">Washing machine</span>
+        </button>
+        <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Commercial oven', this)">
+          <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_3b343da42a3e4de5afad292b71addb30~mv2.png" alt="" width="72" height="68" loading="lazy" decoding="async" /></span>
+          <span class="quick-label">Oven</span>
+        </button>
+        <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('LED lighting system', this)">
+          <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_09bbec32f07f49ceabe93fa6543bc706~mv2.png" alt="" width="72" height="68" loading="lazy" decoding="async" /></span>
+          <span class="quick-label">LED lighting</span>
+        </button>
+        <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Heat pump', this)">
+          <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_c7c229f8655f400aa5688cf081764316~mv2.png" alt="" width="72" height="68" loading="lazy" decoding="async" /></span>
+          <span class="quick-label">Heat pump</span>
+        </button>
+        <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Commercial coffee machine', this)">
+          <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_03f341a5ad7543a9b30312154238c76a~mv2.png" alt="" width="72" height="68" loading="lazy" decoding="async" /></span>
+          <span class="quick-label">Coffee machine</span>
+        </button>
+        <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Induction hob', this)">
+          <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_00cad1b9f1344d93b0347b1b2f7638d0~mv2.png" alt="" width="72" height="68" loading="lazy" decoding="async" /></span>
+          <span class="quick-label">Induction hob</span>
+        </button>
+        <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Air conditioning unit', this)">
+          <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_ad152ceb39864aecb42d6531abe070d2~mv2.jpeg" alt="" width="72" height="68" loading="lazy" decoding="async" /></span>
+          <span class="quick-label">Air con</span>
+        </button>
+        <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Solar panels', this)">
+          <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_3e2c2ae921094adb867970a6ec792f35~mv2.png" alt="" width="72" height="68" loading="lazy" decoding="async" /></span>
+          <span class="quick-label">Solar panels</span>
+        </button>
+        <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Commercial freezer', this)">
+          <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_d35c912346994644bc8f5d24d57e5138~mv2.png" alt="" width="72" height="68" loading="lazy" decoding="async" /></span>
+          <span class="quick-label">Freezer</span>
+        </button>
+        <button type="button" class="quick-btn quick-btn--photo" onclick="pickProduct('Smart thermostat', this)">
+          <span class="icon-img-wrap"><img class="icon-img" src="https://static.wixstatic.com/media/c123de_1045092ef691464e93d0eb6e2be5dda0~mv2.png" alt="" width="72" height="68" loading="lazy" decoding="async" /></span>
+          <span class="quick-label">Thermostat</span>
+        </button>
+      </div>
+
+      <div class="section-label">Or describe what you need</div>
+      <div class="search-input-row">
+        <input type="text" id="productInput" placeholder="e.g. undercounter fridge, rack dishwasher, A+++ freezer…" autocomplete="off" />
+        <button type="button" class="search-btn" id="searchBtn" onclick="searchProducts()">Find matches</button>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="settingType">Setting</label>
+          <select id="settingType">
+            <option value="restaurant">Restaurant / café</option>
+            <option value="home">Home / household</option>
+            <option value="office">Office</option>
+            <option value="any">Any</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="countrySelect">Country</label>
+          <select id="countrySelect">
+            <option value="Netherlands">Netherlands</option>
+            <option value="Germany">Germany</option>
+            <option value="Belgium">Belgium</option>
+            <option value="United Kingdom">United Kingdom</option>
+            <option value="France">France</option>
+            <option value="Spain">Spain</option>
+            <option value="Italy">Italy</option>
+            <option value="Portugal">Portugal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="budgetSelect">Budget lens</label>
+          <select id="budgetSelect">
+            <option value="any">No limit</option>
+            <option value="under €500">Under €500</option>
+            <option value="under €1,000">Under €1,000</option>
+            <option value="under €2,000">Under €2,000</option>
+            <option value="under €5,000">Under €5,000</option>
+            <option value="under €10,000">Under €10,000</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-label">Priorities (used in copy / filters later)</div>
+      <div class="pill-group" id="priorities">
+        <div class="pill active" onclick="togglePill(this)">Lowest price</div>
+        <div class="pill active" onclick="togglePill(this)">Best energy rating</div>
+        <div class="pill" onclick="togglePill(this)">Green / eco certified</div>
+        <div class="pill" onclick="togglePill(this)">EU Energy Label</div>
+        <div class="pill" onclick="togglePill(this)">Free delivery</div>
+        <div class="pill" onclick="togglePill(this)">Refurbished / open box</div>
+      </div>
+    </div>
+
+    <div id="resultsMount"></div>
+  </div>
+
+  <script>
+    const PLACEHOLDER_MARKET = './Product%20Comparison/Restuarants/Oven/Refrigerator/ETL.jpeg';
+    const PLACEHOLDER_EXT = './Product%20Comparison/Restuarants/Oven/Refrigerator/Stanadard.webp';
+
+    const BASELINE_BY_TYPE = {
+      dishwasher: { actualDailyKwh: 14, actualDailyWaterLitres: 220, actualDailyGasKwh: 0 },
+      refrigerator: { actualDailyKwh: 22, actualDailyWaterLitres: 45, actualDailyGasKwh: 0 },
+      oven: { actualDailyKwh: 32, actualDailyWaterLitres: 25, actualDailyGasKwh: 0 },
+      fryer: { actualDailyKwh: 3, actualDailyWaterLitres: 8, actualDailyGasKwh: 22 },
+      other: { actualDailyKwh: 10, actualDailyWaterLitres: 30, actualDailyGasKwh: 0 }
+    };
+
+    function resolveApiUrl(pathname) {
+      if (/^https?:\/\//i.test(pathname)) return pathname;
+      if (window.location.protocol === 'file:') return 'http://localhost:4000' + pathname;
+      return pathname;
+    }
+
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = s == null ? '' : String(s);
+      return d.innerHTML;
+    }
+
+    function inferEquipmentType(text) {
+      const t = String(text || '').toLowerCase();
+      if (t.includes('dish')) return 'dishwasher';
+      if (t.includes('fridge') || t.includes('freezer') || t.includes('refriger')) return 'refrigerator';
+      if (t.includes('oven') || t.includes('combi')) return 'oven';
+      if (t.includes('fryer')) return 'fryer';
+      return 'other';
+    }
+
+    function pickProduct(name, el) {
+      document.getElementById('productInput').value = name;
+      document.querySelectorAll('.quick-btn').forEach((b) => b.classList.remove('chosen'));
+      el.classList.add('chosen');
+    }
+
+    function togglePill(el) {
+      el.classList.toggle('active');
+    }
+
+    function getActivePriorities() {
+      return Array.from(document.querySelectorAll('.pill.active')).map((p) => p.textContent).join(', ');
+    }
+
+    async function fetchGrantCount(productId) {
+      if (!productId) return null;
+      try {
+        const res = await fetch(resolveApiUrl('/api/product-widget/' + encodeURIComponent(productId)), { headers: { Accept: 'application/json' } });
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (!data.success || !data.product) return null;
+        const g = data.product.grants;
+        if (Array.isArray(g)) return g.length;
+        if (typeof g === 'string') {
+          try {
+            const p = JSON.parse(g);
+            return Array.isArray(p) ? p.length : null;
+          } catch (_) { return null; }
+        }
+        return null;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function marketplaceHref(id) {
+      return './product-page-v2-marketplace.html?product=' + encodeURIComponent(id) + '&fromPopup=true';
+    }
+
+    function formatConsumerInsightHtml(consumer) {
+      if (!consumer || !consumer.runningCost) return '';
+      const rc = consumer.runningCost;
+      const pd = consumer.productDaily || {};
+      const dailyStr = Number(pd.electricityKwh || 0).toFixed(1) + ' kWh · ' + Number(pd.waterLitres || 0).toFixed(0) + ' L · ' + Number(pd.gasKwh || 0).toFixed(1) + ' gas-kWh';
+      const cost1m = Math.round(Number(rc.productEurPerMonth) || 0);
+      const sav1m = Math.round(Number(rc.eurSavedVsBaselinePerMonth) || 0);
+      return (
+        '<div class="consumer-block">' +
+        '<p class="consumer-headline">' + esc(consumer.headline || '') + '</p>' +
+        '<div class="consumer-metrics">Cost (1m): <strong>€' + esc(String(cost1m)) + '</strong> &nbsp; Savings vs baseline (1m): <strong>€' + esc(String(sav1m)) + '</strong></div>' +
+        '<div class="consumer-daily">Daily (modelled): ' + esc(dailyStr) + '</div>' +
+        '</div>'
+      );
+    }
+
+    function renderPcardMarketplace(item, grantCount) {
+      const savings = item.savings || {};
+      const href = marketplaceHref(item.id);
+      const img = item.imageUrl || PLACEHOLDER_MARKET;
+      const grantLine = grantCount != null ? '<strong>' + esc(String(grantCount)) + '</strong> linked funding hints in catalogue' : 'Open product page for grants and full specs';
+      return (
+        '<article class="pcard marketplace">' +
+          '<img class="pcard-img" src="' + esc(img) + '" alt="" loading="lazy" onerror="this.src=\'' + PLACEHOLDER_MARKET + '\'" />' +
+          '<div class="pcard-type"><span class="dot"></span>Greenways marketplace</div>' +
+          '<span class="pcard-badge marketplace">Match score · ' + esc(String(item.score ?? '—')) + '</span>' +
+          '<div class="pcard-title">' + esc(item.name) + '</div>' +
+          '<div class="pcard-sub">' + esc(item.brand || '') + (item.model ? ' · ' + esc(item.model) : '') + (item.category ? ' · ' + esc(item.category) : '') + '</div>' +
+          formatConsumerInsightHtml(item.consumer) +
+          '<div class="pcard-metrics">' +
+            'Est. annual savings vs baseline: <strong>€' + esc(Number(savings.annualEstimatedCostSavedEur || 0).toFixed(0)) + '</strong><br/>' +
+            'Energy · <strong>' + esc(Number(savings.annualEnergySavedKwh || 0).toFixed(0)) + '</strong> kWh/yr · Water · <strong>' + esc(Number(savings.annualWaterSavedLitres || 0).toFixed(0)) + '</strong> L/yr<br/>' +
+            grantLine +
+          '</div>' +
+          '<div class="btn-row">' +
+            '<a class="btn-sm primary" href="' + esc(href) + '" target="_blank" rel="noopener noreferrer">Open product page</a>' +
+          '</div>' +
+          '<div class="pcard-foot"><a href="' + esc(href) + '" target="_blank" rel="noopener noreferrer">Marketplace</a><span>ETL / Greenways</span></div>' +
+        '</article>'
+      );
+    }
+
+    function renderPcardExternal(item) {
+      const savings = item.savings || {};
+      const img = item.imageUrl || PLACEHOLDER_EXT;
+      const encSavings = encodeURIComponent(JSON.stringify(savings));
+      const encName = encodeURIComponent(item.name || '');
+      const encBrand = encodeURIComponent(item.brand || '');
+      const encModel = encodeURIComponent(item.model || '');
+      const encType = encodeURIComponent(item.type || '');
+      const encCatalogId = encodeURIComponent(item.id || '');
+      return (
+        '<article class="pcard external">' +
+          '<img class="pcard-img" src="' + esc(img) + '" alt="" loading="lazy" onerror="this.src=\'' + PLACEHOLDER_EXT + '\'" />' +
+          '<div class="pcard-type"><span class="dot"></span>Sustainable alternative</div>' +
+          '<span class="pcard-badge external">Research pick</span>' +
+          '<div class="pcard-title">' + esc(item.name) + '</div>' +
+          '<div class="pcard-sub">' + esc(item.brand || '') + (item.model ? ' · ' + esc(item.model) : '') + '</div>' +
+          formatConsumerInsightHtml(item.consumer) +
+          '<div class="pcard-metrics">' +
+            (item.summary ? esc(item.summary) + '<br/><br/>' : '') +
+            'Est. annual savings vs baseline: <strong>€' + esc(Number(savings.annualEstimatedCostSavedEur || 0).toFixed(0)) + '</strong> · ' +
+            '<strong>' + esc(Number(savings.annualEnergySavedKwh || 0).toFixed(0)) + '</strong> kWh/yr' +
+          '</div>' +
+          '<div class="btn-row">' +
+            '<button type="button" class="btn-sm" data-intake ' +
+              'data-catalog-id="' + encCatalogId + '" data-name="' + encName + '" data-brand="' + encBrand + '" data-model="' + encModel + '" data-type="' + encType + '" data-savings="' + encSavings + '">' +
+              'Suggest for Greenways' +
+            '</button>' +
+          '</div>' +
+          '<div class="pcard-foot"><span>Not listed · intake</span></div>' +
+        '</article>'
+      );
+    }
+
+    async function submitIntake(btn) {
+      if (!btn) return;
+      btn.disabled = true;
+      const prev = btn.textContent;
+      btn.textContent = 'Saving…';
+      try {
+        const catalogId = decodeURIComponent(btn.getAttribute('data-catalog-id') || '');
+        const body = {
+          source: 'sustainable-product-deal-finder',
+          catalogId: catalogId || undefined,
+          sourceId: catalogId || undefined,
+          name: decodeURIComponent(btn.getAttribute('data-name') || ''),
+          brand: decodeURIComponent(btn.getAttribute('data-brand') || ''),
+          model: decodeURIComponent(btn.getAttribute('data-model') || ''),
+          type: decodeURIComponent(btn.getAttribute('data-type') || ''),
+          reason: 'Suggested from Sustainable Product & Deal Finder',
+          expectedSavings: JSON.parse(decodeURIComponent(btn.getAttribute('data-savings') || '%7B%7D'))
+        };
+        const res = await fetch(resolveApiUrl('/api/equipment-intelligence/marketplace-intake-suggestions'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const payload = await res.json();
+        if (!res.ok || !payload.success) throw new Error(payload.message || 'Save failed');
+        btn.textContent = 'Suggested';
+      } catch (e) {
+        console.warn(e);
+        btn.disabled = false;
+        btn.textContent = prev;
+        alert('Could not save suggestion: ' + (e.message || 'error'));
+      }
+    }
+
+    async function searchProducts() {
+      const product = document.getElementById('productInput').value.trim();
+      if (!product) {
+        document.getElementById('productInput').focus();
+        return;
+      }
+      const setting = document.getElementById('settingType').value;
+      const country = document.getElementById('countrySelect').value;
+      const budget = document.getElementById('budgetSelect').value;
+      const priorities = getActivePriorities();
+      const btn = document.getElementById('searchBtn');
+      const mount = document.getElementById('resultsMount');
+
+      btn.disabled = true;
+      btn.textContent = 'Matching…';
+
+      const eqType = inferEquipmentType(product);
+      const baseline = BASELINE_BY_TYPE[eqType] || BASELINE_BY_TYPE.other;
+      const settingLabel = setting === 'any' ? 'general use' : setting + ' use';
+
+      mount.innerHTML =
+        '<div class="loading"><div class="spinner"></div> Matching Greenways catalogue and sustainable alternatives…</div>';
+
+      const params = new URLSearchParams({
+        name: product,
+        brand: '',
+        model: '',
+        type: eqType,
+        actualDailyKwh: String(baseline.actualDailyKwh),
+        actualDailyWaterLitres: String(baseline.actualDailyWaterLitres),
+        actualDailyGasKwh: String(baseline.actualDailyGasKwh),
+        electricityRateEurPerKwh: '0.30',
+        gasRateEurPerKwh: '0.11',
+        waterRateEurPerLitre: '0.0025',
+        persistCatalog: '1',
+        finderSource: 'sustainable_product_deal_finder',
+        country: country
+      });
+
+      try {
+        const res = await fetch(resolveApiUrl('/api/equipment-intelligence/alternatives?' + params.toString()), { headers: { Accept: 'application/json' } });
+        const payload = await res.json();
+        if (!res.ok || !payload.success) {
+          throw new Error(payload.message || 'Could not load alternatives.');
+        }
+
+        const marketplaceItems = Array.isArray(payload.marketplaceMatches) ? payload.marketplaceMatches : [];
+        const externalItems = Array.isArray(payload.externalAlternatives) ? payload.externalAlternatives : [];
+
+        const grantCounts = await Promise.all(
+          marketplaceItems.slice(0, 6).map((it) => fetchGrantCount(it.id))
+        );
+
+        let html = '<div class="meta-strip">';
+        html += '<div class="meta-tile"><div class="k">Query</div><div class="v">' + esc(product) + '</div><div class="k" style="margin-top:10px">' + esc(eqType) + ' · ' + esc(settingLabel) + '</div></div>';
+        html += '<div class="meta-tile"><div class="k">Market</div><div class="v">' + esc(country) + '</div><div class="k" style="margin-top:10px">Budget lens: ' + esc(budget) + '</div></div>';
+        html += '<div class="meta-tile"><div class="k">Baseline model</div><div class="v">~' + esc(String(baseline.actualDailyKwh)) + ' kWh/day</div><div class="k" style="margin-top:10px">Priorities: ' + esc(priorities || '—') + '</div></div>';
+        if (payload.catalogPersisted && payload.catalogPersisted.total) {
+          html += '<div class="meta-tile"><div class="k">Catalog</div><div class="v">' + esc(String(payload.catalogPersisted.total)) + ' saved</div><div class="k" style="margin-top:10px">Matches feed decision matrix suggestions</div></div>';
+        }
+        html += '</div>';
+
+        html += '<div class="results-columns">';
+        html += '<div><div class="col-head"><h2>Greenways Marketplace</h2><p>Same scoring as equipment deep dive — open any card for full specs, grants, and purchase flow.</p></div>';
+        if (marketplaceItems.length) {
+          html += '<div class="cards-grid">';
+          marketplaceItems.forEach((it, i) => {
+            html += renderPcardMarketplace(it, grantCounts[i]);
+          });
+          html += '</div>';
+        } else {
+          html += '<div class="empty-box">No catalogue products matched these tokens yet. Try a shorter phrase (e.g. “undercounter fridge”) or browse the <a href="./product-page-v2-marketplace.html" style="color:var(--blue)">marketplace</a>.</div>';
+        }
+        html += '</div>';
+
+        html += '<div><div class="col-head"><h2>Sustainable alternatives</h2><p>Curated efficient models outside the live catalogue — suggest one if you want it reviewed for listing.</p></div>';
+        if (externalItems.length) {
+          html += '<div class="cards-grid">';
+          externalItems.forEach((it) => {
+            html += renderPcardExternal(it);
+          });
+          html += '</div>';
+        } else {
+          html += '<div class="empty-box">No external archetypes matched this type and query. Adjust wording or pick a quick category.</div>';
+        }
+        html += '</div></div>';
+
+        if (Array.isArray(payload.assumptions) && payload.assumptions.length) {
+          html += '<div class="assumptions"><h3>Model assumptions</h3><ul>';
+          payload.assumptions.forEach((a) => {
+            html += '<li>' + esc(a) + '</li>';
+          });
+          html += '</ul></div>';
+        }
+
+        mount.innerHTML = html;
+        mount.querySelectorAll('button[data-intake]').forEach((b) => {
+          b.addEventListener('click', () => submitIntake(b));
+        });
+      } catch (err) {
+        mount.innerHTML = '<div class="error-box">' + esc(err.message || 'Request failed') + '. Serve this page from the backend (e.g. localhost:4000) so <code>/api/equipment-intelligence</code> is reachable.</div>';
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Find matches';
+    }
+
+    document.getElementById('productInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') searchProducts();
+    });
+  </script>
+</body>
+</html>

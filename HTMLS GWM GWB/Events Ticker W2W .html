@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amsterdam Events Ticker</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font: 'Space Grotesk', sans-serif;
+    --font-clean: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --events-ticker-backdrop-image: url("https://static.wixstatic.com/media/c123de_538ebcd0cb8744009c22d5676cb8a5da~mv2.jpg");
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #020408;
+    color: #fff;
+    font-family: var(--font);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 48px 0;
+    position: relative;
+  }
+
+  /* Full page only: Amsterdam canal photo + dark veil (hidden in iframe embed) */
+  body.ticker-has-back::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(180deg, rgba(2, 5, 12, 0.76) 0%, rgba(1, 3, 8, 0.82) 42%, rgba(0, 2, 6, 0.88) 100%),
+      radial-gradient(ellipse 95% 65% at 50% 38%, rgba(0, 30, 55, 0.22), transparent 62%),
+      var(--events-ticker-backdrop-image);
+    background-size: cover, cover, cover;
+    background-position: center, center, center;
+    background-repeat: no-repeat;
+    filter: brightness(0.55) saturate(1.06) contrast(1.06);
+  }
+
+  html.ticker-embed body.ticker-has-back::before {
+    display: none;
+  }
+
+  body.ticker-has-back > :not(.ticker-back-bar) {
+    position: relative;
+    z-index: 1;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    position: relative;
+  }
+
+  .header-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: #8a949e;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.75);
+  }
+
+  .header-title {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: #fff;
+    text-shadow: 0 4px 28px rgba(0, 0, 0, 0.82), 0 1px 2px rgba(0, 0, 0, 0.9);
+  }
+
+  .header-title span {
+    color: #ff8c1a;
+  }
+
+  .header-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #6d7885;
+    margin-top: 10px;
+    letter-spacing: 0.1em;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.75);
+  }
+
+  .ticker-container {
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .ticker-row {
+    display: flex;
+    align-items: stretch;
+    height: 52px;
+    border-top: 1px solid #1a1a1a;
+    border-bottom: 1px solid #1a1a1a;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .ticker-row + .ticker-row {
+    border-top: none;
+    margin-top: 2px;
+  }
+
+  html:not(.ticker-embed) .ticker-row {
+    background: rgba(4, 8, 14, 0.72);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  html:not(.ticker-embed) .label-events,
+  html:not(.ticker-embed) .label-catering {
+    background: rgba(0, 0, 0, 0.82);
+  }
+
+  .ticker-label {
+    flex-shrink: 0;
+    width: 230px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 20px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-right: 1px solid #1a1a1a;
+    z-index: 2;
+    position: relative;
+  }
+
+  .label-events {
+    background: #000;
+    color: #4da6ff;
+    border-right-color: #4da6ff22;
+  }
+
+  .label-catering {
+    background: #000;
+    color: #ff8c1a;
+    border-right-color: #ff8c1a22;
+  }
+
+  .label-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .dot-events { background: #4da6ff; }
+  .dot-catering { background: #ff8c1a; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .ticker-track-outer {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .ticker-track-outer::before,
+  .ticker-track-outer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 60px;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .ticker-track-outer::before {
+    left: 0;
+    background: linear-gradient(to right, #000, transparent);
+  }
+
+  .ticker-track-outer::after {
+    right: 0;
+    background: linear-gradient(to left, #000, transparent);
+  }
+
+  html:not(.ticker-embed) .ticker-track-outer::before {
+    background: linear-gradient(to right, rgba(4, 8, 14, 0.98), transparent);
+  }
+
+  html:not(.ticker-embed) .ticker-track-outer::after {
+    background: linear-gradient(to left, rgba(4, 8, 14, 0.98), transparent);
+  }
+
+  .ticker-track {
+    display: flex;
+    white-space: nowrap;
+    height: 100%;
+    align-items: center;
+  }
+
+  .ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 28px;
+    height: 100%;
+    border-right: 1px solid #111;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .ticker-item:hover { background: #ffffff08; }
+
+  .ticker-item.selected-event { background: #0a1f3a; }
+  .ticker-item.selected-catering { background: #1a0900; }
+
+  .item-date {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  .date-events {
+    background: #0a1f3a;
+    color: #4da6ff;
+    border: 1px solid #4da6ff33;
+  }
+
+  .date-catering {
+    background: #2a1500;
+    color: #ff8c1a;
+    border: 1px solid #ff8c1a33;
+  }
+
+  .item-name {
+    font-size: 13px;
+    font-weight: 400;
+    color: #ccc;
+    letter-spacing: 0.01em;
+  }
+
+  .divider {
+    color: #222;
+    font-size: 18px;
+    padding: 0 4px;
+    flex-shrink: 0;
+  }
+
+  .ticker-hint {
+    width: 100%;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: #333;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 6px;
+    margin-bottom: 0;
+  }
+
+  .status-bar {
+    width: 100%;
+    max-width: 1100px;
+    padding: 0 32px;
+    margin-top: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .status-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+  }
+
+  .status-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #444;
+  }
+
+  .status-selected {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: #4da6ff;
+    font-weight: 700;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.3s;
+  }
+
+  .status-selected.catering { color: #ff8c1a; }
+  .status-selected.none { color: #333; }
+
+  .clear-btn {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #444;
+    border: 1px solid #2a2a2a;
+    border-radius: 3px;
+    padding: 4px 10px;
+    cursor: pointer;
+    background: none;
+    transition: color 0.2s, border-color 0.2s;
+    display: none;
+  }
+
+  .clear-btn:hover { color: #fff; border-color: #555; }
+  .clear-btn.visible { display: block; }
+
+  .cards-section {
+    width: 100%;
+    max-width: 1100px;
+    padding: 0 32px;
+    margin-top: 36px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 14px;
+  }
+
+  .detail-card {
+    border-radius: 8px;
+    padding: 20px 20px 16px;
+    min-height: 200px;
+    position: relative;
+    overflow: hidden;
+    transition: opacity 0.7s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .detail-card:hover {
+    box-shadow: 0 0 0 1px #ffffff18;
+  }
+
+  .card-events:hover { border-top-color: #7dc4ff; }
+  .card-catering:hover { border-top-color: #ffaa55; }
+
+  .detail-card.pinned.card-events {
+    border-top-color: #4da6ff;
+    box-shadow: 0 0 0 1px #4da6ff44;
+    background: #061424;
+  }
+
+  .detail-card.pinned.card-catering {
+    border-top-color: #ff8c1a;
+    box-shadow: 0 0 0 1px #ff8c1a44;
+    background: #1a0a00;
+  }
+
+  .pin-badge {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-family: var(--mono);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .detail-card.pinned .pin-badge { opacity: 1; }
+  .detail-card:hover:not(.pinned) .pin-badge { opacity: 0.5; }
+
+  .card-events .pin-badge { background: #0a1f3a; color: #4da6ff; border: 1px solid #4da6ff44; }
+  .card-catering .pin-badge { background: #2a1500; color: #ff8c1a; border: 1px solid #ff8c1a44; }
+
+  .detail-card.fading { opacity: 0; }
+  .detail-card.visible { opacity: 1; }
+
+  .card-events {
+    background: #040d1a;
+    border: 1px solid #4da6ff22;
+    border-top: 2px solid #4da6ff;
+  }
+
+  .card-catering {
+    background: #120800;
+    border: 1px solid #ff8c1a22;
+    border-top: 2px solid #ff8c1a;
+  }
+
+  .card-type {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .card-type-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+  }
+
+  .card-events .card-type { color: #4da6ff; }
+  .card-events .card-type-dot { background: #4da6ff; }
+  .card-catering .card-type { color: #ff8c1a; }
+  .card-catering .card-type-dot { background: #ff8c1a; }
+
+  .card-date {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-bottom: 9px;
+  }
+
+  .card-events .card-date {
+    background: #0a1f3a;
+    color: #4da6ff;
+    border: 1px solid #4da6ff33;
+  }
+
+  .card-catering .card-date {
+    background: #2a1500;
+    color: #ff8c1a;
+    border: 1px solid #ff8c1a33;
+  }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 7px;
+    color: #fff;
+  }
+
+  .card-desc {
+    font-size: 11px;
+    line-height: 1.6;
+    font-family: var(--mono);
+    flex: 1;
+    margin-bottom: 12px;
+  }
+
+  .card-events .card-desc { color: #4da6ff99; }
+  .card-catering .card-desc { color: #ff8c1a99; }
+
+  .card-contact {
+    border-top: 1px solid #1a1a1a;
+    padding-top: 10px;
+    margin-top: auto;
+    font-family: var(--mono);
+    font-size: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .card-events .card-contact { border-top-color: #4da6ff22; }
+  .card-catering .card-contact { border-top-color: #ff8c1a22; }
+
+  .contact-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    overflow: hidden;
+  }
+
+  .contact-icon {
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  .card-events .contact-icon { color: #4da6ff66; }
+  .card-catering .contact-icon { color: #ff8c1a66; }
+
+  .contact-link {
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 10px;
+  }
+
+  .card-events .contact-link { color: #4da6ffcc; }
+  .card-catering .contact-link { color: #ff8c1acc; }
+  .contact-link:hover { text-decoration: underline; }
+
+  .footer {
+    margin-top: 40px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: #333;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .ticker-back-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 24px;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 10px 16px;
+    background: rgba(0, 0, 0, 0.94);
+    border-bottom: 1px solid #1a1a1a;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .ticker-back-bar .ticker-back-optional {
+    display: none;
+  }
+  .ticker-back-bar .ticker-back-optional.is-visible {
+    display: inline;
+  }
+  .ticker-back-link {
+    color: #7ec8ff;
+    text-decoration: none;
+    letter-spacing: 0.04em;
+  }
+  .ticker-back-link:hover {
+    color: #b5e3ff;
+    text-decoration: underline;
+  }
+  body.ticker-has-back {
+    padding-top: 48px;
+  }
+
+  /* ── Dashboard iframe embed (?embed=1) — dual ticker strip only ───────── */
+  html.ticker-embed body.ticker-has-back {
+    padding-top: 0;
+  }
+  html.ticker-embed body {
+    padding: 0;
+    min-height: 0;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+  html.ticker-embed .ticker-back-bar {
+    display: none !important;
+  }
+  html.ticker-embed .header,
+  html.ticker-embed .ticker-hint,
+  html.ticker-embed .status-bar,
+  html.ticker-embed .cards-section,
+  html.ticker-embed .footer {
+    display: none !important;
+  }
+  html.ticker-embed .ticker-container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+  html.ticker-embed .ticker-row {
+    height: 52px;
+  }
+  html.ticker-embed .ticker-label {
+    width: 124px;
+    padding: 0 8px 0 10px;
+    font-size: 10px;
+  }
+  html.ticker-embed .ticker-item {
+    padding: 0 18px;
+    gap: 8px;
+  }
+  html.ticker-embed .item-name {
+    font-size: 13px;
+  }
+  html.ticker-embed .item-date {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+  .embed-open-strip {
+    display: none;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    padding: 6px 8px 2px;
+    margin: 0;
+    border-top: 1px solid #1a1a1a;
+    background: #050505;
+  }
+  html.ticker-embed .embed-open-strip {
+    font-size: 11px;
+    padding: 5px 8px 5px;
+  }
+  html.ticker-embed .embed-open-strip:not([hidden]) {
+    display: block;
+  }
+  .embed-open-link {
+    color: #7ec8ff;
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(126, 200, 255, 0.45);
+  }
+  .embed-open-link:hover {
+    color: #b5e3ff;
+  }
+
+</style>
+<script>
+(function () {
+  try {
+    var q = new URLSearchParams(window.location.search);
+    if (q.get('embed') === '1' || String(q.get('embed') || '').toLowerCase() === 'true') {
+      document.documentElement.classList.add('ticker-embed');
+    }
+  } catch (e) { /* ignore */ }
+})();
+</script>
+</head>
+<body class="ticker-has-back">
+
+<nav class="ticker-back-bar" id="tickerBackBar" aria-label="Navigation">
+  <a class="ticker-back-link" href="./Greenways%20Interface%20.html">← Back to Dashboard</a>
+  <a class="ticker-back-link ticker-back-optional" id="tickerBackLink" href="./Chef%203%20W2W%20.html">← Back to Wok Assist</a>
+</nav>
+
+<div class="header">
+  <p class="header-eyebrow">Live feed · May – July 2026</p>
+  <h1 class="header-title">Amsterdam<br><span>Events</span></h1>
+  <p class="header-sub">Events · Catering & Takeaway Opportunities</p>
+</div>
+
+<div class="ticker-container">
+  <div class="ticker-row" id="ticker-row-events">
+    <div class="ticker-label label-events">
+      <span class="label-dot dot-events"></span>
+      Events
+    </div>
+    <div class="ticker-track-outer">
+      <div class="ticker-track" id="track-events"></div>
+    </div>
+  </div>
+
+  <div class="ticker-row" id="ticker-row-catering">
+    <div class="ticker-label label-catering">
+      <span class="label-dot dot-catering"></span>
+      Catering
+    </div>
+    <div class="ticker-track-outer">
+      <div class="ticker-track" id="track-catering"></div>
+    </div>
+  </div>
+</div>
+
+<p class="embed-open-strip" id="embedOpenStrip" hidden>
+  <a class="embed-open-link" id="embedOpenFullLink" href="./Events%20Ticker%20W2W%20.html" target="_blank" rel="noopener noreferrer">Open full feed — details &amp; spotlight cards →</a>
+</p>
+
+<p class="ticker-hint">↑ click any ticker item to spotlight it in the cards below</p>
+
+<div class="status-bar">
+  <div class="status-left">
+    <span class="status-label">Showing:</span>
+    <span class="status-selected none" id="status-text">Auto-rotating</span>
+  </div>
+  <button class="clear-btn" id="clear-btn" onclick="clearTickerSelection()">✕ Clear</button>
+</div>
+
+<div class="cards-section">
+  <div class="detail-card card-events visible" id="card-e1">
+    <div class="pin-badge" id="badge-e1">pinned</div>
+    <div class="card-type"><span class="card-type-dot"></span>Event spotlight</div>
+    <div class="card-date" id="card-e1-date"></div>
+    <div class="card-title" id="card-e1-title"></div>
+    <div class="card-desc" id="card-e1-desc"></div>
+    <div class="card-contact" id="card-e1-contact"></div>
+  </div>
+  <div class="detail-card card-events visible" id="card-e2">
+    <div class="pin-badge" id="badge-e2">pinned</div>
+    <div class="card-type"><span class="card-type-dot"></span>Event spotlight</div>
+    <div class="card-date" id="card-e2-date"></div>
+    <div class="card-title" id="card-e2-title"></div>
+    <div class="card-desc" id="card-e2-desc"></div>
+    <div class="card-contact" id="card-e2-contact"></div>
+  </div>
+  <div class="detail-card card-catering visible" id="card-c1">
+    <div class="pin-badge" id="badge-c1">pinned</div>
+    <div class="card-type"><span class="card-type-dot"></span>Catering opportunity</div>
+    <div class="card-date" id="card-c1-date"></div>
+    <div class="card-title" id="card-c1-title"></div>
+    <div class="card-desc" id="card-c1-desc"></div>
+    <div class="card-contact" id="card-c1-contact"></div>
+  </div>
+  <div class="detail-card card-catering visible" id="card-c2">
+    <div class="pin-badge" id="badge-c2">pinned</div>
+    <div class="card-type"><span class="card-type-dot"></span>Catering opportunity</div>
+    <div class="card-date" id="card-c2-date"></div>
+    <div class="card-title" id="card-c2-title"></div>
+    <div class="card-desc" id="card-c2-desc"></div>
+    <div class="card-contact" id="card-c2-contact"></div>
+  </div>
+</div>
+
+<div class="footer">Greenways Market · Amsterdam · 2026</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+
+const events = [
+  { date: "5 May",       name: "Liberation Day celebrations" },
+  { date: "10 May",      name: "Keukenhof — last day" },
+  { date: "13–17 May",   name: "Rolling Kitchens — Westerpark" },
+  { date: "Mid-May",     name: "Amsterdam Art Week" },
+  { date: "Mid-May",     name: "Fête du Champagne — Rembrandtpark" },
+  { date: "22–24 May",   name: "DiscoDip Festival — Amsterdamse Bos" },
+  { date: "Sundays",     name: "Museum Market — Museumplein" },
+  { date: "Weekends",    name: "IJ-Hallen Flea Market — NDSM" },
+  { date: "Weekends",    name: "The Maker Market — De Hallen" },
+  { date: "May",         name: "Ajax home matches — Johan Cruijff ArenA" },
+  { date: "3–28 Jun",    name: "Holland Festival" },
+  { date: "Early Jun",   name: "Taste of Amsterdam" },
+  { date: "6–7 Jun",     name: "Amsterdam Open Air" },
+  { date: "Early Jun",   name: "Red Light Jazz Festival" },
+  { date: "Jun weekends",name: "Bacchus Winefestival" },
+  { date: "13 Jun",      name: "Tropikali — NDSM-Plein" },
+  { date: "19–21 Jun",   name: "Bite of Amsterdam — Amstelpark" },
+  { date: "Jun",         name: "Open Tower Day" },
+  { date: "Jun",         name: "Open Garden Days" },
+  { date: "Late Jun",    name: "Amsterdam Roots Festival" },
+  { date: "Jul",         name: "Julidans — contemporary dance festival" },
+  { date: "Jul",         name: "Kwaku Summer Festival — Zuidoost" },
+  { date: "Late Jul",    name: "De Parade — Martin Luther King Park" },
+  { date: "25 Jul",      name: "WorldPride Amsterdam opens" },
+  { date: "Jul/Aug",     name: "Kwakoe Zomer Festival — Zuidoost" },
+];
+
+const catering = [
+  { date: "5 May",       name: "Liberation Day — boxed meals & public event catering" },
+  { date: "13–17 May",   name: "Rolling Kitchens — B2B & vendor catering" },
+  { date: "Mid-May",     name: "Amsterdam Art Week — reception & gallery catering" },
+  { date: "Mid-May",     name: "Fête du Champagne — premium canapés & food service" },
+  { date: "22–24 May",   name: "DiscoDip Festival — crew & supplier catering" },
+  { date: "Sundays",     name: "Museum Market — stallholder & nearby delivery" },
+  { date: "Weekends",    name: "IJ-Hallen — pre-packed lunches & crew catering" },
+  { date: "Weekends",    name: "Maker Market — snack, coffee & exhibitor catering" },
+  { date: "May",         name: "Ajax matches — VIP & bulk match-day orders" },
+  { date: "May",         name: "Corporate spring events — conferences & seminars" },
+  { date: "3–28 Jun",    name: "Holland Festival — artist, crew & hospitality catering" },
+  { date: "Early Jun",   name: "Taste of Amsterdam — vendor & hospitality exposure" },
+  { date: "6–7 Jun",     name: "Amsterdam Open Air — crew & attendee food support" },
+  { date: "Jun weekends",name: "Bacchus Winefestival — premium finger food" },
+  { date: "13 Jun",      name: "Tropikali — nearby food supply & crew catering" },
+  { date: "19–21 Jun",   name: "Bite of Amsterdam — prime food-service opportunity" },
+  { date: "Jun",         name: "Open Tower Day — venue & sponsor catering" },
+  { date: "Jun",         name: "Corporate offsites & summer gatherings" },
+  { date: "Jul",         name: "Julidans — production team & venue hospitality" },
+  { date: "Jul",         name: "Kwaku — food stalls, crew & group orders" },
+  { date: "Late Jul",    name: "De Parade — repeated staff & visitor catering" },
+  { date: "25 Jul+",     name: "WorldPride — major hospitality & event catering surge" },
+  { date: "Jul/Aug",     name: "Kwakoe Zomer — vendor support & group orders" },
+  { date: "Jul",         name: "Corporate summer receptions & informal dinners" },
+  { date: "Jul",         name: "Hotel overflow — late ordering & international visitors" },
+];
+
+const eventDetails = [
+  { date: "13–17 May",   name: "Rolling Kitchens — Westerpark",      desc: "Amsterdam's biggest street food festival. 110+ food trucks across five days in Westerpark. 250,000 visitors. Free entry.",                                                     web: "rollendekeukens.amsterdam", webUrl: "https://rollendekeukens.amsterdam/en/" },
+  { date: "3–28 Jun",    name: "Holland Festival",                    desc: "The Netherlands' largest international performing arts festival. 79th edition across Amsterdam venues including Muziekgebouw and Carré.",                                             web: "hollandfestival.nl",        webUrl: "https://www.hollandfestival.nl/en",     email: "info@hollandfestival.nl",       phone: "+31 (0)20 788 21 00" },
+  { date: "19–21 Jun",   name: "Bite of Amsterdam — Amstelpark",      desc: "Three-day culinary festival with 30+ star chefs, free workshops, masterclasses, live music and a built-in foodie audience.",                                                          web: "biteofamsterdam.com",        webUrl: "https://biteofamsterdam.com/en/",      email: "info@biteofamsterdam.com" },
+  { date: "25 Jul–8 Aug",name: "WorldPride Amsterdam",                desc: "Amsterdam hosts WorldPride for the first time. 25 years of marriage equality. Canal Parade on 1 Aug. Major citywide hospitality surge.",                                              web: "pride.amsterdam",            webUrl: "https://pride.amsterdam/en/",           email: "info@pride.amsterdam" },
+  { date: "6–7 Jun",     name: "Amsterdam Open Air",                  desc: "Major two-day music festival drawing large crowds into the wider Amsterdam area, with high food and drink demand.",                                                                     web: "amsterdamopenair.nl",        webUrl: "https://www.amsterdamopenair.nl/" },
+  { date: "Jul",         name: "Kwaku Summer Festival — Zuidoost",    desc: "A major multicultural summer festival in Zuidoost with music, food, sports, and family activities over multiple weekends.",                                                             web: "kwakufestival.nl",           webUrl: "https://www.kwakufestival.nl/" },
+  { date: "22–24 May",   name: "DiscoDip Festival — Amsterdamse Bos", desc: "Late-May festival at Amsterdamse Bos with food trucks, workshops, wine tasting, and live music over three days.",                                                                      web: "discodip.nl",                webUrl: "https://www.discodip.nl/" },
+  { date: "Late Jul",    name: "De Parade — MKL Park",                desc: "The beloved travelling theatre festival returns to Amsterdam. Repeated catering needs for staff and visitors across its run.",                                                          web: "deparade.nl",                webUrl: "https://www.deparade.nl/" },
+  { date: "5 May",       name: "Liberation Day",                      desc: "National holiday with public concerts and celebrations citywide. Strong footfall around Dam Square, Vondelpark and transport hubs." },
+  { date: "Mid-May",     name: "Amsterdam Art Week",                  desc: "Citywide programme of gallery openings, talks, tours, and private viewings across multiple districts and institutions." },
+  { date: "Weekends",    name: "IJ-Hallen Flea Market — NDSM",        desc: "The largest flea market in Europe. Long event days at NDSM Wharf draw bargain hunters and day visitors in large numbers.",                                                             web: "ijhallen.nl",                webUrl: "https://www.ijhallen.nl/" },
+  { date: "Jun weekends",name: "Bacchus Winefestival",                 desc: "Outdoor food-and-wine festival across multiple June weekends. Strong draw for premium food service and hospitality partnerships." },
+];
+
+const cateringDetails = [
+  { date: "13–17 May",   name: "Rolling Kitchens — B2B & crew catering",       desc: "Strong B2B opportunity for vendors and event staff over five days at Westerpark. Pre-ordered lunches and bulk supply.",                                                 web: "rollendekeukens.amsterdam", webUrl: "https://rollendekeukens.amsterdam/en/" },
+  { date: "3–28 Jun",    name: "Holland Festival — artist hospitality",         desc: "Four weeks of recurring demand for artist catering, crew meals, and venue hospitality. Contact the professionals team.",                                                 web: "hollandfestival.nl",        webUrl: "https://www.hollandfestival.nl/en/contact", email: "professionals@hollandfestival.nl", phone: "+31 (0)20 788 21 00" },
+  { date: "19–21 Jun",   name: "Bite of Amsterdam — food partnerships",         desc: "A culinary audience at Amstelpark is a prime opportunity for supplier presence and direct food-service partnerships.",                                                   web: "biteofamsterdam.com",        webUrl: "https://biteofamsterdam.com/en/join-bite/",email: "marketing@biteofamsterdam.com" },
+  { date: "25 Jul+",     name: "WorldPride — hospitality surge",                desc: "Major catering surge across hotels, venues, bars and private parties. Two weeks of citywide demand from international visitors.",                                         web: "pride.amsterdam",            webUrl: "https://pride.amsterdam/en/",              email: "info@pride.amsterdam" },
+  { date: "5 May",       name: "Liberation Day — boxed meals & takeaway",       desc: "National holiday footfall around Dam Square, Vondelpark and transport hubs. Demand for boxed meals and nearby takeaway.",                                                 web: "amsterdam.nl",               webUrl: "https://www.amsterdam.nl/" },
+  { date: "6–7 Jun",     name: "Amsterdam Open Air — crew food support",        desc: "Festival crews and attendees need substantial food support. Bulk orders and mobile catering are relevant here.",                                                          web: "amsterdamopenair.nl",        webUrl: "https://www.amsterdamopenair.nl/" },
+  { date: "Weekends",    name: "IJ-Hallen — packed lunches & crew",             desc: "Europe's largest flea market. Long event days at NDSM Wharf create strong demand for pre-packed lunches and crew meals.",                                                web: "ijhallen.nl",                webUrl: "https://www.ijhallen.nl/" },
+  { date: "May",         name: "Corporate spring events",                       desc: "May is a strong month for conferences, seminars, and staff gatherings. Structured catering for business events across the city." },
+  { date: "Mid-May",     name: "Amsterdam Art Week — reception catering",       desc: "Gallery openings and private viewings create demand for canapés, drinks receptions, and artist hospitality across the city." },
+  { date: "Jun weekends",name: "Bacchus Winefestival — premium finger food",    desc: "Wine-led crowds call for premium finger food and structured service. Strong opportunity for high-end catering partners." },
+  { date: "Jul",         name: "Kwaku Summer Festival — group orders",          desc: "Food stalls, vendor support, and bulk group orders across multiple Zuidoost weekends throughout July and August.",                                                        web: "kwakufestival.nl",           webUrl: "https://www.kwakufestival.nl/" },
+  { date: "Late Jul",    name: "De Parade — staff & visitor catering",          desc: "The travelling theatre festival creates repeated catering needs for staff and visitors across its full run.",                                                              web: "deparade.nl",                webUrl: "https://www.deparade.nl/" },
+];
+
+// ── TICKER ────────────────────────────────────────────────────────────────────
+
+let tickerSelected = null; // { type: 'event'|'catering', name, date }
+
+function buildTrack(items, dateClass, trackId, type) {
+  const track = document.getElementById(trackId);
+  const tripled = [...items, ...items, ...items];
+  tripled.forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'ticker-item';
+    el.dataset.name = item.name;
+    el.dataset.date = item.date;
+    el.dataset.type = type;
+    el.innerHTML = `
+      <span class="item-date ${dateClass}">${item.date}</span>
+      <span class="item-name">${item.name}</span>
+      <span class="divider" aria-hidden="true">·</span>
+    `;
+    el.addEventListener('click', () => handleTickerClick(el, type));
+    track.appendChild(el);
+  });
+}
+
+buildTrack(events,  'date-events',   'track-events',   'event');
+buildTrack(catering,'date-catering', 'track-catering', 'catering');
+
+function handleTickerClick(el, type) {
+  const name = el.dataset.name;
+  const date = el.dataset.date;
+  const alreadySelected = tickerSelected && tickerSelected.name === name && tickerSelected.type === type;
+
+  // Clear all highlights first
+  document.querySelectorAll('.ticker-item').forEach(i => i.classList.remove('selected-event','selected-catering'));
+
+  if (alreadySelected) {
+    tickerSelected = null;
+    updateStatusBar(null);
+    return;
+  }
+
+  // Highlight all matching items across duplicated track
+  const cls = type === 'event' ? 'selected-event' : 'selected-catering';
+  document.querySelectorAll(`.ticker-item[data-name="${CSS.escape(name)}"]`).forEach(i => i.classList.add(cls));
+
+  tickerSelected = { type, name, date };
+  updateStatusBar(tickerSelected);
+
+  // Push to cards immediately
+  pushToCards(type, name, date);
+}
+
+function clearTickerSelection() {
+  tickerSelected = null;
+  document.querySelectorAll('.ticker-item').forEach(i => i.classList.remove('selected-event','selected-catering'));
+  updateStatusBar(null);
+}
+
+function updateStatusBar(sel) {
+  const txt = document.getElementById('status-text');
+  const btn = document.getElementById('clear-btn');
+  if (!sel) {
+    txt.textContent = 'Auto-rotating';
+    txt.className = 'status-selected none';
+    btn.classList.remove('visible');
+  } else {
+    txt.textContent = `${sel.date}  ·  ${sel.name}`;
+    txt.className = 'status-selected' + (sel.type === 'catering' ? ' catering' : '');
+    btn.classList.add('visible');
+  }
+}
+
+function pushToCards(type, name, date) {
+  // Find best match in detail arrays by name keyword
+  const keyword = name.split('—')[0].trim().toLowerCase();
+
+  if (type === 'event') {
+    const match = eventDetails.find(d => d.name.toLowerCase().includes(keyword) || keyword.includes(d.name.split('—')[0].trim().toLowerCase()));
+    if (match) {
+      // Push to first unpinned event card
+      const targets = ['card-e1','card-e2'];
+      const target = targets.find(id => !document.getElementById(id).classList.contains('pinned')) || targets[0];
+      flashCard(target, match);
+    }
+    // Also find catering match
+    const catMatch = cateringDetails.find(d => d.name.toLowerCase().includes(keyword) || d.date === date);
+    if (catMatch) {
+      const targets = ['card-c1','card-c2'];
+      const target = targets.find(id => !document.getElementById(id).classList.contains('pinned')) || targets[0];
+      flashCard(target, catMatch);
+    }
+  } else {
+    const match = cateringDetails.find(d => d.name.toLowerCase().includes(keyword) || keyword.includes(d.name.split('—')[0].trim().toLowerCase()));
+    if (match) {
+      const targets = ['card-c1','card-c2'];
+      const target = targets.find(id => !document.getElementById(id).classList.contains('pinned')) || targets[0];
+      flashCard(target, match);
+    }
+    // Also push corresponding event
+    const evtMatch = eventDetails.find(d => d.name.toLowerCase().includes(keyword) || d.date === date);
+    if (evtMatch) {
+      const targets = ['card-e1','card-e2'];
+      const target = targets.find(id => !document.getElementById(id).classList.contains('pinned')) || targets[0];
+      flashCard(target, evtMatch);
+    }
+  }
+}
+
+function flashCard(cardId, data) {
+  const card = document.getElementById(cardId);
+  if (card.classList.contains('pinned')) return;
+  card.classList.remove('visible');
+  card.classList.add('fading');
+  setTimeout(() => {
+    fillCard(cardId.replace('card-','card-'), data);
+    card.classList.remove('fading');
+    card.classList.add('visible');
+    // brief highlight flash
+    card.style.outline = card.classList.contains('card-events') ? '1px solid #4da6ff88' : '1px solid #ff8c1a88';
+    setTimeout(() => { card.style.outline = ''; }, 1200);
+  }, 400);
+}
+
+// ── ANIMATION ─────────────────────────────────────────────────────────────────
+
+function animateTicker(trackId, speed) {
+  const track = document.getElementById(trackId);
+  let pos = 0;
+  const totalWidth = track.scrollWidth;
+  const oneThird = totalWidth / 3;
+  function step() {
+    pos += speed;
+    if (pos >= oneThird) pos = 0;
+    track.style.transform = `translateX(-${pos}px)`;
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+animateTicker('track-events',   0.5);
+animateTicker('track-catering', 0.38);
+
+// ── CARDS ─────────────────────────────────────────────────────────────────────
+
+function buildContactHTML(item) {
+  let html = '';
+  if (item.email) html += `<div class="contact-row"><span class="contact-icon">✉</span><a class="contact-link" href="mailto:${item.email}">${item.email}</a></div>`;
+  if (item.phone) html += `<div class="contact-row"><span class="contact-icon">☎</span><span class="contact-link">${item.phone}</span></div>`;
+  if (item.web)   html += `<div class="contact-row"><span class="contact-icon">⌘</span><a class="contact-link" href="${item.webUrl}" target="_blank">${item.web}</a></div>`;
+  return html || `<div class="contact-row"><span class="contact-icon" style="opacity:.3">–</span><span class="contact-link" style="color:#333">No contact info available</span></div>`;
+}
+
+function fillCard(prefix, data) {
+  document.getElementById(prefix + '-date').textContent    = data.date;
+  document.getElementById(prefix + '-title').textContent   = data.name;
+  document.getElementById(prefix + '-desc').textContent    = data.desc;
+  document.getElementById(prefix + '-contact').innerHTML   = buildContactHTML(data);
+}
+
+function fadeUpdateCard(cardId, data) {
+  const card = document.getElementById(cardId);
+  if (card.classList.contains('pinned') || card.matches(':hover')) return;
+  card.classList.remove('visible');
+  card.classList.add('fading');
+  setTimeout(() => {
+    if (card.classList.contains('pinned') || card.matches(':hover')) {
+      card.classList.remove('fading'); card.classList.add('visible'); return;
+    }
+    fillCard(cardId, data);
+    card.classList.remove('fading');
+    card.classList.add('visible');
+  }, 700);
+}
+
+const cardConfigs = [
+  { cardId: 'card-e1', data: eventDetails,    startIdx: 0,  interval: 16000 },
+  { cardId: 'card-e2', data: eventDetails,    startIdx: 3,  interval: 21000 },
+  { cardId: 'card-c1', data: cateringDetails, startIdx: 0,  interval: 14000 },
+  { cardId: 'card-c2', data: cateringDetails, startIdx: 3,  interval: 19000 },
+];
+
+cardConfigs.forEach(cfg => {
+  fillCard(cfg.cardId, cfg.data[cfg.startIdx]);
+  let idx = cfg.startIdx;
+  setInterval(() => {
+    if (tickerSelected) return; // Don't auto-rotate if ticker item selected
+    idx = (idx + 1) % cfg.data.length;
+    fadeUpdateCard(cfg.cardId, cfg.data[idx]);
+  }, cfg.interval);
+
+  const card = document.getElementById(cfg.cardId);
+  card.addEventListener('click', (e) => {
+    if (e.target.closest('a')) return; // allow link clicks
+    card.classList.toggle('pinned');
+  });
+});
+
+(function initFromWokAssist() {
+  const p = new URLSearchParams(window.location.search);
+  const isEmbed = document.documentElement.classList.contains('ticker-embed');
+  const strip = document.getElementById('embedOpenStrip');
+  const stripLink = document.getElementById('embedOpenFullLink');
+  if (isEmbed && strip) {
+    strip.hidden = false;
+    if (stripLink) {
+      const u = new URL(stripLink.getAttribute('href') || './Events%20Ticker%20W2W%20.html', window.location.href);
+      u.searchParams.delete('embed');
+      stripLink.href = u.pathname + u.search + u.hash;
+    }
+  }
+
+  const ret = p.get('return');
+  const link = document.getElementById('tickerBackLink');
+  if (link && ret) {
+    let href = ret.trim();
+    if (!/^https?:\/\//i.test(href)) {
+      href = href.startsWith('./') ? href : './' + href.replace(/^\//, '');
+    }
+    link.href = href;
+    link.classList.add('is-visible');
+  }
+  const sec = (p.get('section') || '').toLowerCase();
+  requestAnimationFrame(() => {
+    if (sec === 'catering') {
+      document.getElementById('ticker-row-catering')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (sec === 'events') {
+      document.getElementById('ticker-row-events')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+})();
+</script>
+</body>
+</html>

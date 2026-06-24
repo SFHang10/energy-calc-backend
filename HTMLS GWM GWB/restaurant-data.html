@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Restaurant Data — Energy Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <script src="./js/site-energy-model.js"></script>
+  <script src="./js/savings-projection-model.js"></script>
+  <style>
+    :root {
+      --bg: #050e09;
+      --panel: rgba(12, 32, 22, 0.82);
+      --bg-card: #132b1d;
+      --bg-hover: rgba(0, 245, 130, 0.08);
+      --line: rgba(0, 245, 130, 0.22);
+      --text: #e8fff1;
+      --text-primary: #e8fff1;
+      --text-muted: #8fb89a;
+      --muted: #8fb89a;
+      --radius: 12px;
+      --green: #00f582;
+      --blue: #53b8ff;
+      --amber: #ffca58;
+      --gas: #ffb84d;
+      --water: #22d4ff;
+      --elec: #7dffcb;
+      --backdrop: url("https://static.wixstatic.com/media/c123de_1cc9e346d21a4c9f9b6bc8dc2b52506e~mv2.jpg");
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .page-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(rgba(4, 12, 8, 0.74), rgba(3, 10, 7, 0.9)),
+        radial-gradient(circle at 20% 12%, rgba(0, 245, 130, 0.08), transparent 50%),
+        var(--backdrop);
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.55) saturate(1.06);
+    }
+    .wrap {
+      position: relative;
+      z-index: 1;
+      width: min(1440px, calc(100% - 32px));
+      max-width: none;
+      margin: 0 auto;
+      padding: 26px 32px 60px;
+    }
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .eyebrow {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--green);
+      font-weight: 700;
+    }
+    .top-bar h1 {
+      margin: 4px 0 0;
+      font-size: 26px;
+      font-weight: 800;
+      text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+    }
+    .top-bar .sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .btn {
+      border: 1px solid var(--line);
+      background: rgba(0, 245, 130, 0.1);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      font-family: inherit;
+    }
+    .btn:hover { background: rgba(0, 245, 130, 0.18); }
+    .top-bar-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      flex: 1 1 340px;
+      justify-content: flex-end;
+      align-items: stretch;
+      max-width: 100%;
+    }
+    .top-bar-actions .btn-nav {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex: 0 1 auto;
+      min-width: 152px;
+      padding: 11px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease;
+    }
+    .top-bar-actions .btn-nav:hover {
+      transform: translateY(-2px);
+    }
+    .top-bar-actions .btn-nav:active {
+      transform: translateY(0);
+    }
+    .top-bar-actions .btn-nav:focus-visible {
+      outline: 2px solid rgba(0, 245, 130, 0.55);
+      outline-offset: 2px;
+    }
+    .btn-nav-back {
+      background: linear-gradient(165deg, rgba(14, 32, 22, 0.98) 0%, rgba(8, 18, 12, 0.95) 100%);
+      border-color: rgba(0, 245, 130, 0.38);
+      color: #dfffea;
+    }
+    .btn-nav-back:hover {
+      background: linear-gradient(165deg, rgba(18, 40, 28, 0.98) 0%, rgba(10, 24, 16, 0.96) 100%);
+      border-color: rgba(0, 245, 130, 0.62);
+      box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.32),
+        0 0 20px rgba(0, 245, 130, 0.12);
+    }
+    .btn-nav-dashboard {
+      background: linear-gradient(165deg, rgba(28, 24, 12, 0.98) 0%, rgba(16, 14, 8, 0.95) 100%);
+      border-color: rgba(255, 202, 88, 0.48);
+      color: #fff4dc;
+    }
+    .btn-nav-dashboard:hover {
+      background: linear-gradient(165deg, rgba(36, 30, 14, 0.98) 0%, rgba(22, 18, 10, 0.96) 100%);
+      border-color: rgba(255, 202, 88, 0.72);
+      box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.32),
+        0 0 22px rgba(255, 202, 88, 0.16);
+    }
+    .btn-nav-deep {
+      background: linear-gradient(135deg, rgba(83, 184, 255, 0.28) 0%, rgba(0, 245, 130, 0.16) 100%);
+      border-color: rgba(83, 184, 255, 0.5);
+      color: #f0f9ff;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+    }
+    .btn-nav-deep:hover {
+      background: linear-gradient(135deg, rgba(83, 184, 255, 0.38) 0%, rgba(0, 245, 130, 0.26) 100%);
+      border-color: rgba(83, 184, 255, 0.72);
+      box-shadow:
+        0 8px 28px rgba(0, 0, 0, 0.32),
+        0 0 26px rgba(83, 184, 255, 0.22);
+    }
+    .btn-nav-deep::before {
+      content: '◆';
+      font-size: 9px;
+      color: rgba(83, 184, 255, 0.95);
+      text-shadow: 0 0 10px rgba(83, 184, 255, 0.8);
+    }
+    .btn-nav-site {
+      cursor: pointer;
+      appearance: none;
+      background:
+        linear-gradient(165deg, rgba(0, 245, 130, 0.18) 0%, rgba(0, 245, 130, 0.08) 100%),
+        linear-gradient(45deg, transparent 50%, var(--green) 50%),
+        linear-gradient(135deg, var(--green) 50%, transparent 50%);
+      background-position: 0 0, calc(100% - 18px) 52%, calc(100% - 12px) 52%;
+      background-size: auto, 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      border-color: rgba(0, 245, 130, 0.52);
+      color: #e8fff1;
+      padding-right: 36px;
+      font-weight: 800;
+    }
+    .btn-nav-site:hover {
+      background:
+        linear-gradient(165deg, rgba(0, 245, 130, 0.26) 0%, rgba(0, 245, 130, 0.12) 100%),
+        linear-gradient(45deg, transparent 50%, var(--green) 50%),
+        linear-gradient(135deg, var(--green) 50%, transparent 50%);
+      background-position: 0 0, calc(100% - 18px) 52%, calc(100% - 12px) 52%;
+      background-size: auto, 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      border-color: rgba(0, 245, 130, 0.75);
+      box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.32),
+        0 0 22px rgba(0, 245, 130, 0.18);
+    }
+    .btn-nav-site option {
+      background: #0a1810;
+      color: #e8fff1;
+    }
+    .total-banner {
+      text-align: center;
+      margin-bottom: 22px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(83, 184, 255, 0.35);
+      background: linear-gradient(135deg, rgba(83, 184, 255, 0.1), rgba(0, 245, 130, 0.06));
+      box-shadow: 0 0 40px rgba(0, 245, 130, 0.08);
+    }
+    .total-banner .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--blue);
+      font-weight: 700;
+    }
+    .total-banner .value {
+      font-size: 42px;
+      font-weight: 800;
+      margin-top: 6px;
+      color: #fff;
+      text-shadow: 0 0 24px rgba(0, 245, 130, 0.35);
+    }
+    .total-banner .hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--blue);
+      font-weight: 800;
+      margin: 0 0 12px 4px;
+    }
+    .utility-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+    .glass-block {
+      position: relative;
+      border-radius: 16px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow:
+        0 12px 36px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      overflow: hidden;
+    }
+    .glass-block::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(0, 245, 130, 0.35), transparent 40%, rgba(83, 184, 255, 0.25));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      opacity: 0.65;
+    }
+    .glass-block:hover {
+      transform: translateY(-3px);
+      border-color: rgba(0, 245, 130, 0.4);
+      box-shadow:
+        0 16px 44px rgba(0, 0, 0, 0.4),
+        0 0 28px rgba(0, 245, 130, 0.12);
+    }
+    .glass-block--elec { --accent: var(--elec); --glow: rgba(125, 255, 203, 0.35); }
+    .glass-block--gas { --accent: var(--gas); --glow: rgba(255, 184, 77, 0.35); }
+    .glass-block--water { --accent: var(--water); --glow: rgba(34, 212, 255, 0.35); }
+    .glass-block--hvac { --accent: var(--blue); --glow: rgba(83, 184, 255, 0.4); }
+    .block-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .block-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--line);
+      box-shadow: 0 0 16px var(--glow);
+    }
+    .block-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--accent, var(--green));
+    }
+    .block-pct {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+    }
+    .ring {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      margin: 0 auto 12px;
+      position: relative;
+      background: conic-gradient(var(--accent, var(--green)) 0deg, var(--accent, var(--green)) var(--deg, 0deg), rgba(255, 255, 255, 0.08) var(--deg, 0deg));
+      box-shadow: 0 0 22px var(--glow);
+      animation: ringPulse 3s ease-in-out infinite;
+    }
+    .ring::after {
+      content: '';
+      position: absolute;
+      inset: 10px;
+      border-radius: 50%;
+      background: rgba(6, 18, 12, 0.92);
+      border: 1px solid rgba(83, 184, 255, 0.2);
+    }
+    .ring span {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      z-index: 1;
+      font-size: 18px;
+      font-weight: 800;
+      color: #eafff5;
+    }
+    @keyframes ringPulse {
+      0%, 100% { filter: drop-shadow(0 0 2px var(--glow)); }
+      50% { filter: drop-shadow(0 0 12px var(--glow)); }
+    }
+    .block-stat {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+    .block-stat strong { color: #d4f7e4; font-size: 13px; }
+    .flow-connector {
+      height: 28px;
+      margin: 0 auto 16px;
+      width: min(420px, 80%);
+      background:
+        linear-gradient(90deg, transparent, rgba(0, 245, 130, 0.35) 20%, rgba(83, 184, 255, 0.35) 50%, rgba(0, 245, 130, 0.35) 80%, transparent);
+      mask-image: radial-gradient(ellipse 80% 100% at 50% 50%, #000 30%, transparent 70%);
+      opacity: 0.7;
+      animation: flowShine 2.8s ease-in-out infinite;
+    }
+    @keyframes flowShine {
+      0%, 100% { opacity: 0.45; }
+      50% { opacity: 0.95; }
+    }
+    .hvac-row {
+      margin-bottom: 22px;
+    }
+    .hvac-block-link {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      border-radius: 16px;
+      outline: none;
+    }
+    .hvac-block-link:hover .glass-block--hvac {
+      transform: translateY(-3px);
+      border-color: rgba(83, 184, 255, 0.45);
+      box-shadow:
+        0 16px 44px rgba(0, 0, 0, 0.4),
+        0 0 32px rgba(83, 184, 255, 0.15);
+    }
+    .hvac-block-link:focus-visible .glass-block--hvac {
+      box-shadow: 0 0 0 2px rgba(83, 184, 255, 0.55);
+    }
+    .glass-block--hvac {
+      display: grid;
+      grid-template-columns: minmax(140px, 196px) 76px 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 16px;
+    }
+    .hvac-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      align-self: center;
+      min-height: 98px;
+      padding: 0;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+    .hvac-visual img {
+      width: 100%;
+      max-height: 118px;
+      object-fit: contain;
+      object-position: center;
+      background: transparent;
+      filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.45));
+    }
+    .glass-block--hvac .ring {
+      margin: 0;
+      width: 76px;
+      height: 76px;
+    }
+    .glass-block--hvac .ring span {
+      font-size: 15px;
+    }
+    .hvac-open-hint {
+      margin-top: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: rgba(83, 184, 255, 0.92);
+    }
+    .hvac-copy h2 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--blue);
+    }
+    .hvac-copy p {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+    .equipment-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+    @media (max-width: 1100px) {
+      .equipment-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      .equipment-grid { grid-template-columns: 1fr; }
+    }
+    .equip-card-link {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      border-radius: 16px;
+      outline: none;
+    }
+    .equip-card-link:hover .glass-block--equip {
+      transform: translateY(-4px);
+      border-color: rgba(0, 245, 130, 0.45);
+    }
+    .equip-card-link:focus-visible .glass-block--equip {
+      box-shadow: 0 0 0 2px rgba(0, 245, 130, 0.5);
+    }
+    .glass-block--equip {
+      padding: 0;
+      overflow: hidden;
+      --accent: var(--green);
+      height: 100%;
+    }
+    .equip-photo-wrap {
+      height: 132px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 14px;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.12) 100%);
+      border-bottom: 1px solid rgba(0, 245, 130, 0.12);
+    }
+    .equip-photo {
+      max-width: 100%;
+      max-height: 116px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
+      image-rendering: -webkit-optimize-contrast;
+    }
+    .glass-block--equip .equip-photo-wrap--swap {
+      position: relative;
+      display: block;
+      height: 132px;
+      padding: 0;
+      overflow: hidden;
+      background: #0a120e;
+      border-bottom: 1px solid rgba(0, 245, 130, 0.12);
+    }
+    .glass-block--equip .equip-photo-wrap--swap .equip-photo--base,
+    .glass-block--equip .equip-photo-wrap--swap .equip-photo--lit {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      max-height: none;
+      margin: 0;
+      display: block;
+      object-fit: cover;
+      object-position: center center;
+      filter: none;
+      transition: opacity 0.4s ease;
+    }
+    .glass-block--equip .equip-photo-wrap--swap .equip-photo--lit {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .equip-card-link:hover .equip-photo-wrap--swap .equip-photo--lit,
+    .equip-card-link:focus-within .equip-photo-wrap--swap .equip-photo--lit {
+      opacity: 1;
+    }
+    .equip-card-body {
+      padding: 14px 16px 16px;
+    }
+    .equip-deep-dive-hint {
+      margin-top: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: rgba(83, 184, 255, 0.9);
+    }
+    .glass-block--equip .ring {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 12px;
+    }
+    .glass-block--equip .ring span { font-size: 16px; }
+    .glass-block--equip .block-name { font-size: 15px; text-align: center; }
+    .glass-block--equip .block-stat { font-size: 13px; }
+    .glass-block--equip .block-pct { font-size: 24px; }
+    .footnote {
+      margin-top: 20px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px dashed rgba(0, 245, 130, 0.2);
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--muted);
+      background: rgba(0, 0, 0, 0.2);
+    }
+    .building-projection-panel {
+      margin-bottom: 22px;
+      padding: 16px 18px;
+      border-radius: 16px;
+      border: 1px solid rgba(0, 245, 130, 0.28);
+      background: var(--panel);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 0 32px rgba(0, 245, 130, 0.06);
+    }
+    .building-projection-panel .mini-title {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--green);
+      margin: 0 0 4px;
+    }
+    .building-projection-hub {
+      display: grid;
+      grid-template-columns: minmax(140px, 200px) 1fr;
+      gap: 16px;
+      align-items: stretch;
+      margin-top: 10px;
+    }
+    @media (max-width: 720px) {
+      .building-projection-hub { grid-template-columns: 1fr; }
+    }
+    .audit-visual-wrap {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(0, 245, 130, 0.22);
+      background: radial-gradient(circle at 50% 40%, rgba(0, 245, 130, 0.12) 0%, rgba(5, 15, 10, 0.95) 70%);
+      min-height: 148px;
+    }
+    .audit-visual-bg {
+      width: 100%;
+      height: 100%;
+      min-height: 148px;
+      object-fit: cover;
+      opacity: 0.55;
+      filter: saturate(1.1) contrast(1.05);
+    }
+    .audit-scan-beam {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 28%;
+      background: linear-gradient(180deg, transparent, rgba(0, 245, 130, 0.35), transparent);
+      animation: auditScanSweep 2.8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes auditScanSweep {
+      0% { top: -30%; opacity: 0.3; }
+      45% { opacity: 1; }
+      100% { top: 100%; opacity: 0.25; }
+    }
+    .audit-visual-ring {
+      position: absolute;
+      inset: 18%;
+      border: 1px dashed rgba(0, 245, 130, 0.35);
+      border-radius: 50%;
+      animation: auditRingSpin 12s linear infinite;
+    }
+    @keyframes auditRingSpin {
+      to { transform: rotate(360deg); }
+    }
+    .audit-visual-badge {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 8px;
+      text-align: center;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #e8fff4;
+      padding: 5px 8px;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(0, 245, 130, 0.3);
+    }
+    .building-projection-copy .lead {
+      margin: 0 0 10px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+    .building-projection-teaser {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .building-projection-teaser .chip {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(83, 184, 255, 0.25);
+      background: rgba(0, 0, 0, 0.22);
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .building-projection-teaser .chip strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 14px;
+      color: #fff;
+    }
+    .btn-building-projection {
+      border-color: rgba(255, 202, 88, 0.55);
+      color: #fff0d0;
+      background: rgba(255, 202, 88, 0.14);
+      font-weight: 800;
+      width: 100%;
+      max-width: 360px;
+      padding: 12px 18px;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+    }
+    .btn-building-projection:hover {
+      background: rgba(255, 202, 88, 0.24);
+    }
+    .sp-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1400;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: max(12px, env(safe-area-inset-top)) 16px max(12px, env(safe-area-inset-bottom));
+    }
+    .sp-modal[hidden] { display: none !important; }
+    .sp-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(2, 8, 16, 0.78);
+      backdrop-filter: blur(6px);
+    }
+    .sp-modal-panel {
+      position: relative;
+      z-index: 1;
+      width: min(920px, 96vw);
+      height: min(720px, 88vh);
+      display: flex;
+      flex-direction: column;
+      border-radius: 18px;
+      border: 1px solid rgba(0, 245, 130, 0.35);
+      background: linear-gradient(165deg, rgba(8, 20, 14, 0.98), rgba(10, 28, 20, 0.98));
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+      overflow: hidden;
+    }
+    .sp-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid rgba(0, 245, 130, 0.22);
+      flex-shrink: 0;
+    }
+    .sp-modal-head strong { font-size: 14px; font-weight: 800; }
+    .sp-modal-head .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .sp-modal-close {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      border-radius: 10px;
+      width: 36px;
+      height: 36px;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .sp-modal-close:hover { background: rgba(255, 255, 255, 0.12); }
+    .sp-modal-frame-wrap { flex: 1; min-height: 0; background: #050e09; }
+    .sp-modal-frame-wrap iframe { width: 100%; height: 100%; border: 0; display: block; }
+    @media (prefers-reduced-motion: reduce) {
+      .audit-scan-beam, .audit-visual-ring { animation: none; }
+    }
+    .preview-tag {
+      display: inline-block;
+      margin-left: 8px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--amber);
+      border: 1px solid rgba(255, 202, 88, 0.4);
+      padding: 2px 6px;
+      border-radius: 999px;
+      vertical-align: middle;
+    }
+    @media (max-width: 900px) {
+      .utility-row { grid-template-columns: 1fr; }
+      .glass-block--hvac {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .hvac-visual {
+        max-width: 238px;
+        margin: 0 auto;
+        min-height: 84px;
+      }
+      .glass-block--hvac .ring { margin: 0 auto; }
+      .glass-block--hvac .hvac-stats { text-align: center; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ring, .flow-connector { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-backdrop" aria-hidden="true"></div>
+  <main class="wrap">
+    <header class="top-bar">
+      <div>
+        <div class="eyebrow">Restaurant data</div>
+        <h1 id="siteName">Loading site…</h1>
+        <p class="sub" id="siteAddress"></p>
+      </div>
+      <div class="top-bar-actions">
+        <a class="btn btn-nav btn-nav-dashboard" id="dashboardBtn" href="./Greenways%20Interface%20.html">← Back to Dashboard</a>
+        <a class="btn btn-nav btn-nav-back" id="backBtn" href="./company-map.html">← Company Map</a>
+        <a class="btn btn-nav btn-nav-deep" id="deepDiveHubBtn" href="./restaurant-equipment-deep-dive.html">Equipment deep dives</a>
+        <select class="btn btn-nav btn-nav-site" id="buildingSelect" aria-label="Select building"></select>
+      </div>
+    </header>
+
+    <section class="total-banner" aria-label="Total site energy cost">
+      <div class="label">Whole building · indicative monthly</div>
+      <div class="value" id="totalEur">—</div>
+      <p class="hint" id="tariffLine"></p>
+    </section>
+
+    <section class="building-projection-panel" aria-labelledby="buildingProjectionTitle">
+      <div class="mini-title" id="buildingProjectionTitle">Site savings projection</div>
+      <p class="lead" style="margin:4px 0 0;font-size:12px;color:var(--muted)">Same payback tool as equipment deep dive — scaled to your whole building total.</p>
+      <div class="building-projection-hub">
+        <div class="audit-visual-wrap" role="img" aria-label="Restaurant IoT site map preview">
+          <img class="audit-visual-bg" src="./iot_restaurant_green.svg" alt="" width="200" height="160" />
+          <div class="audit-scan-beam" aria-hidden="true"></div>
+          <div class="audit-visual-ring" aria-hidden="true"></div>
+          <span class="audit-visual-badge">Building payback · live preview</span>
+        </div>
+        <div class="building-projection-copy">
+          <p class="lead" id="buildingProjectionLead">Model how grants, tax relief, and energy savings could pay back a whole-site retrofit.</p>
+          <div class="building-projection-teaser" id="buildingProjectionTeaser">
+            <div class="chip">Current site<span><strong id="bpTeaserBaseline">—</strong></span></div>
+            <div class="chip">Illustrative saving<span><strong id="bpTeaserSaving">—</strong></span></div>
+            <div class="chip">Example retrofit<span><strong id="bpTeaserCapex">—</strong></span></div>
+          </div>
+          <button type="button" class="btn btn-building-projection" id="openBuildingProjectionBtn">
+            Open building savings projection
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <p class="section-title">Main utilities <span class="preview-tag">Share of site</span></p>
+    <div class="utility-row" id="utilityRow"></div>
+
+    <div class="flow-connector" aria-hidden="true"></div>
+
+    <section class="hvac-row">
+      <p class="section-title">Heating &amp; climate</p>
+      <a class="hvac-block-link" id="hvacBlockLink" href="./restaurant-equipment-deep-dive.html?equipment=HVAC%20Unit%20B%20Kitchen">
+        <article class="glass-block glass-block--hvac" id="hvacBlock"></article>
+      </a>
+    </section>
+
+    <div class="flow-connector" aria-hidden="true"></div>
+
+    <section>
+      <p class="section-title">Equipment &amp; zones <span class="preview-tag">Example split until meter mapping</span></p>
+      <div class="equipment-grid" id="equipmentGrid"></div>
+    </section>
+
+    <p class="footnote" id="footnote">
+      Percentages use the same tariff model as the dashboard (electricity, gas thermal, water).
+      Equipment shares are estimated from your sensor list and typical kitchen profiles — live sub-meter data will replace these when connected. Tap a card to open its equipment deep dive (more pages coming soon).
+    </p>
+  </main>
+
+  <div id="savingsProjectionModal" class="sp-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="savingsProjectionModalTitle">
+    <div class="sp-modal-backdrop" aria-hidden="true"></div>
+    <div class="sp-modal-panel">
+      <header class="sp-modal-head">
+        <div>
+          <strong id="savingsProjectionModalTitle">Building savings projection</strong>
+          <div class="sub">Payback &amp; cumulative running cost · illustrative</div>
+        </div>
+        <button type="button" class="sp-modal-close" aria-label="Close savings projection">×</button>
+      </header>
+      <div class="sp-modal-frame-wrap">
+        <iframe id="savingsProjectionFrame" title="Building savings projection" src="about:blank"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DATA_URL = '../data/company-map-buildings.json';
+    const M = window.SiteEnergyModel;
+    const SP = window.SavingsProjectionModel;
+    const BUILDING_IMPROVEMENT_PCT = 0.18;
+    let lastBuildingProjection = null;
+
+    /* Same Wix assets as sustainable_product_deal_finder_portal.html quick-select (+ cookline photos from dashboard) */
+    const FINDER_IMG = {
+      dishwasher: 'https://static.wixstatic.com/media/c123de_af4ac2bc07a64960b502421fd2334290~mv2.png',
+      fridge: 'https://static.wixstatic.com/media/c123de_7cda810cca9f466d9ad6dc913671fad9~mv2.png',
+      freezer: 'https://static.wixstatic.com/media/c123de_d35c912346994644bc8f5d24d57e5138~mv2.png',
+      oven: 'https://static.wixstatic.com/media/c123de_3b343da42a3e4de5afad292b71addb30~mv2.png',
+      lighting: 'https://static.wixstatic.com/media/c123de_c3daaf81ec6844c78f2c6127a2265065~mv2.png',
+      lightingOn: 'https://static.wixstatic.com/media/c123de_dedb77b8e2204cfbb3873ffadeb7a07c~mv2.jpg',
+      airCon: 'https://static.wixstatic.com/media/c123de_ad152ceb39864aecb42d6531abe070d2~mv2.jpeg',
+      induction: 'https://static.wixstatic.com/media/c123de_00cad1b9f1344d93b0347b1b2f7638d0~mv2.png',
+      thermostat: 'https://static.wixstatic.com/media/c123de_1045092ef691464e93d0eb6e2be5dda0~mv2.png',
+      wok: 'https://static.wixstatic.com/media/c123de_e0feed69f9394a48bc820bdd6d5f339a~mv2.jpg',
+      fryer: 'https://static.wixstatic.com/media/c123de_8f79286cf86d4e93ab8c71ed86293c78~mv2.jpg',
+      riceCooker: 'https://static.wixstatic.com/media/c123de_a25f042b8e45458b9b0df80db6b545fc~mv2.jpg',
+      hvacUnit: 'https://static.wixstatic.com/media/c123de_359ee3a12dc448bbad45db559ceb573c~mv2.png'
+    };
+
+    const EQUIP_RULES = [
+      { re: /wok|burner|cookline/i, name: 'Wok cookline', icon: '🔥', share: 0.24, accent: '#ffb84d', image: FINDER_IMG.wok, wokSlug: 'wok-burner-1' },
+      { re: /hvac|ventilation|extraction|fan/i, name: 'Extraction & HVAC', icon: '🌬', share: 0.12, accent: '#53b8ff', image: FINDER_IMG.hvacUnit, profileKey: 'hvac' },
+      { re: /fridge|cold|refrig/i, name: 'Cold storage', icon: '❄', share: 0.14, accent: '#7dffcb', image: FINDER_IMG.fridge, profileKey: 'fridge' },
+      { re: /freezer|blast/i, name: 'Freezer', icon: '❄', share: 0.12, accent: '#7dffcb', image: FINDER_IMG.freezer, profileKey: 'freezer' },
+      { re: /fryer/i, name: 'Fryer', icon: '🍟', share: 0.11, accent: '#ffb84d', image: FINDER_IMG.fryer, wokSlug: 'fryer' },
+      { re: /dish|wash|water flow|handwash/i, name: 'Dishwash & water', icon: '💧', share: 0.1, accent: '#22d4ff', image: FINDER_IMG.dishwasher, profileKey: 'dishwasher' },
+      { re: /light/i, name: 'Dining lighting', icon: '💡', share: 0.07, accent: '#ffca58', image: FINDER_IMG.lighting, imageHover: FINDER_IMG.lightingOn, wokSlug: 'lights' },
+      { re: /oven|combi/i, name: 'Combi oven', icon: '♨', share: 0.09, accent: '#ffb84d', image: FINDER_IMG.oven, profileKey: 'wok' },
+      { re: /induction/i, name: 'Induction hob', icon: '⚡', share: 0.08, accent: '#7dffcb', image: FINDER_IMG.induction, wokSlug: 'induction-plate' },
+      { re: /rice/i, name: 'Rice cooker', icon: '🍚', share: 0.06, accent: '#ffb84d', image: FINDER_IMG.riceCooker, wokSlug: 'rice-cooker' },
+      { re: /leak|pressure|incomer|meter/i, name: 'Building services', icon: '⚡', share: 0.07, accent: '#7dffcb', image: FINDER_IMG.thermostat, profileKey: 'hvac' }
+    ];
+
+    const FALLBACK_EQUIP = [
+      { name: 'Wok cookline', icon: '🔥', share: 0.24, accent: '#ffb84d', image: FINDER_IMG.wok, wokSlug: 'wok-burner-1' },
+      { name: 'Cold storage', icon: '❄', share: 0.14, accent: '#7dffcb', image: FINDER_IMG.fridge, profileKey: 'fridge' },
+      { name: 'Fryer', icon: '🍟', share: 0.11, accent: '#ffb84d', image: FINDER_IMG.fryer, wokSlug: 'fryer' },
+      { name: 'Dishwash', icon: '💧', share: 0.1, accent: '#22d4ff', image: FINDER_IMG.dishwasher, profileKey: 'dishwasher' },
+      { name: 'Freezer', icon: '❄', share: 0.09, accent: '#7dffcb', image: FINDER_IMG.freezer, profileKey: 'freezer' },
+      { name: 'Dining lighting', icon: '💡', share: 0.07, accent: '#ffca58', image: FINDER_IMG.lighting, imageHover: FINDER_IMG.lightingOn, wokSlug: 'lights' },
+      { name: 'Induction hob', icon: '⚡', share: 0.06, accent: '#7dffcb', image: FINDER_IMG.induction, wokSlug: 'induction-plate' },
+      { name: 'Extraction & HVAC', icon: '🌬', share: 0.12, accent: '#53b8ff', image: FINDER_IMG.hvacUnit, profileKey: 'hvac' },
+      { name: 'Building services', icon: '⚡', share: 0.07, accent: '#7dffcb', image: FINDER_IMG.thermostat, profileKey: 'hvac' }
+    ];
+
+    const MIN_EQUIP_CARDS = 8;
+    const EQUIPMENT_CATEGORY_KEYS = ['kitchen', 'refrigeration', 'hvac', 'lighting', 'other'];
+
+    function inferEquipCat(name) {
+      const n = String(name || '').toLowerCase();
+      if (/wok|fryer|oven|rice|induction|cookline|combi/.test(n)) return 'kitchen';
+      if (/cold|fridge|freezer/.test(n)) return 'refrigeration';
+      if (/hvac|extraction|vent|building services/.test(n)) return 'hvac';
+      if (/light/.test(n)) return 'lighting';
+      return 'other';
+    }
+
+    function equipCatClass(item) {
+      const cat = item.cat || inferEquipCat(item.name);
+      return EQUIPMENT_CATEGORY_KEYS.includes(cat) ? ' equip-card--cat-' + cat : '';
+    }
+
+    function num(v, fb) {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : fb;
+    }
+
+    function fmt(n) {
+      return new Intl.NumberFormat('en-GB').format(Math.round(n));
+    }
+
+    function euro(n) {
+      return '€' + fmt(n);
+    }
+
+    function resolveJsonUrl(path) {
+      if (window.location.protocol === 'file:') return 'http://localhost:4000/data/company-map-buildings.json';
+      return new URL(path, window.location.href).toString();
+    }
+
+    function siteEnergyUnits(e) {
+      const elec = num(e.electricityKwhMonth, 0);
+      const gas = num(e.gasM3Month, 0);
+      const water = num(e.waterM3Month, 0);
+      const elecEur = M.monthlyEurFromResourceTotal('electricity', elec);
+      const gasEur = M.monthlyEurFromResourceTotal('gas', gas);
+      const waterEur = M.monthlyEurFromResourceTotal('water', water);
+      const gasKwhEq = gas * M.KWH_PER_M3_NATURAL_GAS;
+      const waterKwhEq = water * 5;
+      const totalKwhEq = Math.max(1, elec + gasKwhEq + waterKwhEq);
+      const totalEur = elecEur + gasEur + waterEur;
+      return { elec, gas, water, elecEur, gasEur, waterEur, totalEur, totalKwhEq, gasKwhEq, waterKwhEq };
+    }
+
+    function buildEquipmentList(sensors) {
+      const list = [];
+      const used = new Set();
+      (sensors || []).forEach((s) => {
+        const rule = EQUIP_RULES.find((r) => r.re.test(s));
+        if (rule && !used.has(rule.name)) {
+          used.add(rule.name);
+          if (!rule.skipGrid) {
+            list.push({
+              name: rule.name,
+              icon: rule.icon,
+              share: rule.share,
+              accent: rule.accent,
+              image: rule.image,
+              imageHover: rule.imageHover,
+              profileKey: rule.profileKey,
+              wokSlug: rule.wokSlug
+            });
+          }
+        }
+      });
+      if (list.length < MIN_EQUIP_CARDS) {
+        FALLBACK_EQUIP.forEach((f) => {
+          if (!used.has(f.name)) {
+            used.add(f.name);
+            list.push(f);
+          }
+        });
+      }
+      const sum = list.reduce((a, x) => a + x.share, 0) || 1;
+      const normalized = list.map((x) => ({ ...x, share: x.share / sum }));
+      const sorted = normalized.sort((a, b) => b.share - a.share);
+      const tailNames = ['Extraction & HVAC', 'Building services'];
+      const head = sorted.filter((x) => !tailNames.includes(x.name));
+      const tail = tailNames
+        .map((name) => sorted.find((x) => x.name === name))
+        .filter(Boolean);
+      return head.concat(tail);
+    }
+
+    function updateDeepDiveHubLink() {
+      const btn = document.getElementById('deepDiveHubBtn');
+      if (!btn) return;
+      const params = new URLSearchParams();
+      params.set('return', restaurantDataReturnPath());
+      btn.href = './restaurant-equipment-deep-dive.html?' + params.toString();
+    }
+
+    function updateDashboardNavLink(buildingId) {
+      const btn = document.getElementById('dashboardBtn');
+      if (!btn) return;
+      const u = new URL('./Greenways%20Interface%20.html', window.location.href);
+      u.searchParams.set('tab', 'equipment');
+      if (buildingId) u.searchParams.set('site', buildingId);
+      btn.href = u.pathname + u.search;
+    }
+
+    function restaurantDataReturnPath() {
+      const search = window.location.search || '';
+      return './restaurant-data.html' + search;
+    }
+
+    function deepDiveHref(item) {
+      const params = new URLSearchParams();
+      if (item.wokSlug) {
+        params.set('wok', item.wokSlug);
+        params.set('site', 'wok-to-walk');
+      } else if (item.profileKey) params.set('profile', item.profileKey);
+      else if (item.deepDive) params.set('equipment', item.deepDive);
+      else if (item.name) params.set('equipment', item.name);
+      const buildingSel = document.getElementById('buildingSelect');
+      if (buildingSel && buildingSel.value) params.set('building', buildingSel.value);
+      params.set('return', restaurantDataReturnPath());
+      return './restaurant-equipment-deep-dive.html?' + params.toString();
+    }
+
+    function equipPhotoBlock(item, alt) {
+      const img = item.image || FINDER_IMG.induction;
+      const hover = item.imageHover || '';
+      if (hover) {
+        return (
+          '<div class="equip-photo-wrap equip-photo-wrap--swap">' +
+            '<img class="equip-photo equip-photo--base" src="' + img + '" alt="' + alt + '" loading="lazy" decoding="async" />' +
+            '<img class="equip-photo equip-photo--lit" src="' + hover + '" alt="" aria-hidden="true" loading="lazy" decoding="async" />' +
+          '</div>'
+        );
+      }
+      return (
+        '<div class="equip-photo-wrap">' +
+          '<img class="equip-photo" src="' + img + '" alt="' + alt + '" width="120" height="92" loading="lazy" decoding="async" />' +
+        '</div>'
+      );
+    }
+
+    function equipCardHtml(item, pct, cost) {
+      const href = deepDiveHref(item);
+      const alt = item.name;
+      return (
+        '<a class="equip-card-link" href="' + href + '" title="Open deep dive for ' + alt + '">' +
+          '<article class="glass-block glass-block--equip" style="--accent:' + item.accent + ';--glow:' + item.accent + '55">' +
+            equipPhotoBlock(item, alt) +
+            '<div class="equip-card-body">' +
+              ringHtml(pct) +
+              '<div class="block-name">' + item.icon + ' ' + item.name + '</div>' +
+              '<div class="block-stat"><span>Of whole site</span><strong>~' + Math.round(pct) + '%</strong></div>' +
+              '<div class="block-stat"><span>Est. cost</span><strong>~' + euro(cost) + '/mo</strong></div>' +
+              '<div class="equip-deep-dive-hint">Open equipment deep dive →</div>' +
+            '</div>' +
+          '</article>' +
+        '</a>'
+      );
+    }
+    function ringHtml(pct, label) {
+      const deg = Math.round((pct / 100) * 360);
+      return (
+        '<div class="ring" style="--deg:' + deg + 'deg"><span>' + Math.round(pct) + '%</span></div>'
+      );
+    }
+
+    function utilityBlock(label, icon, cls, native, unit, eur, pct) {
+      return (
+        '<article class="glass-block glass-block--' + cls + '" tabindex="0">' +
+          '<div class="block-head">' +
+            '<span class="block-icon">' + icon + '</span>' +
+            '<span class="block-pct">' + Math.round(pct) + '%</span>' +
+          '</div>' +
+          ringHtml(pct, label) +
+          '<div class="block-name">' + label + '</div>' +
+          '<div class="block-stat"><span>Volume</span><strong>' + fmt(native) + ' ' + unit + '</strong></div>' +
+          '<div class="block-stat"><span>Est. cost</span><strong>' + euro(eur) + '/mo</strong></div>' +
+        '</article>'
+      );
+    }
+
+    function updateBuildingProjectionTeaser(b, u) {
+      lastBuildingProjection = { b, u };
+      const baseline = u.totalEur;
+      const monthlySav = baseline * BUILDING_IMPROVEMENT_PCT;
+      const capex = SP
+        ? SP.suggestBuildingRetrofitCapex(baseline, BUILDING_IMPROVEMENT_PCT)
+        : Math.round(monthlySav * 60);
+      const elBase = document.getElementById('bpTeaserBaseline');
+      const elSav = document.getElementById('bpTeaserSaving');
+      const elCap = document.getElementById('bpTeaserCapex');
+      if (elBase) elBase.textContent = euro(baseline) + '/mo';
+      if (elSav) elSav.textContent = euro(monthlySav) + '/mo';
+      if (elCap) elCap.textContent = euro(capex);
+      const lead = document.getElementById('buildingProjectionLead');
+      if (lead) {
+        lead.textContent =
+          'At ' + euro(baseline) + '/mo for ' + (b.name || 'this site') +
+          ', an illustrative ' + Math.round(BUILDING_IMPROVEMENT_PCT * 100) +
+          '% saving (~' + euro(monthlySav) + '/mo) helps pay back a retrofit — open the chart to adjust grants and tax.';
+      }
+    }
+
+    function buildBuildingProjectionUrl() {
+      if (!lastBuildingProjection) {
+        return './equipment-savings-projection.html?building=1&popup=1&embed=1';
+      }
+      const { b, u } = lastBuildingProjection;
+      const baselineMonthly = u.totalEur;
+      const proposedMonthly = baselineMonthly * (1 - BUILDING_IMPROVEMENT_PCT);
+      const capex = SP.suggestBuildingRetrofitCapex(baselineMonthly, BUILDING_IMPROVEMENT_PCT);
+      const grantSuggest = SP.suggestGrantEur(capex, 0);
+      const params = new URLSearchParams({
+        building: '1',
+        popup: '1',
+        embed: '1',
+        from: 'restaurant-data',
+        title: (b.name || 'Site') + ' — whole building upgrade',
+        baselineMonthly: baselineMonthly.toFixed(2),
+        proposedMonthly: proposedMonthly.toFixed(2),
+        capex: String(capex),
+        grantSuggest: String(grantSuggest),
+        grantLabel: 'Whole-site energy retrofit grant (example)',
+        horizonMonths: '180',
+        return: restaurantDataReturnPath(),
+        image: 'https://static.wixstatic.com/media/c123de_1cc9e346d21a4c9f9b6bc8dc2b52506e~mv2.jpg'
+      });
+      return './equipment-savings-projection.html?' + params.toString();
+    }
+
+    function openBuildingProjectionPopup() {
+      const modal = document.getElementById('savingsProjectionModal');
+      const frame = document.getElementById('savingsProjectionFrame');
+      const titleEl = document.getElementById('savingsProjectionModalTitle');
+      if (!modal || !frame) return;
+      const siteName = lastBuildingProjection?.b?.name || 'Building';
+      if (titleEl) titleEl.textContent = siteName + ' — savings projection';
+      frame.src = buildBuildingProjectionUrl();
+      modal.hidden = false;
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeBuildingProjectionPopup() {
+      const modal = document.getElementById('savingsProjectionModal');
+      const frame = document.getElementById('savingsProjectionFrame');
+      if (!modal) return;
+      modal.hidden = true;
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      if (frame) frame.src = 'about:blank';
+    }
+
+    function renderBuilding(b) {
+      const e = b.energy || {};
+      const u = siteEnergyUnits(e);
+      document.getElementById('siteName').textContent = b.name;
+      document.getElementById('siteAddress').textContent = b.address;
+      document.getElementById('totalEur').textContent = euro(u.totalEur) + '/mo';
+      document.getElementById('tariffLine').textContent = M.tariffSummaryLine();
+      updateBuildingProjectionTeaser(b, u);
+
+      const elecShare = (u.elecEur / u.totalEur) * 100;
+      const gasShare = (u.gasEur / u.totalEur) * 100;
+      const waterShare = (u.waterEur / u.totalEur) * 100;
+
+      document.getElementById('utilityRow').innerHTML =
+        utilityBlock('Electricity', '⚡', 'elec', u.elec, 'kWh/mo', u.elecEur, elecShare) +
+        utilityBlock('Gas', '🔥', 'gas', u.gas, 'm³/mo', u.gasEur, gasShare) +
+        utilityBlock('Water', '💧', 'water', u.water, 'm³/mo', u.waterEur, waterShare);
+
+      const hvacShare = 0.22;
+      const hvacEur = u.totalEur * hvacShare;
+      const hvacPct = hvacShare * 100;
+      const hvacParams = new URLSearchParams();
+      hvacParams.set('profile', 'hvac');
+      hvacParams.set('return', restaurantDataReturnPath());
+      const buildingSel = document.getElementById('buildingSelect');
+      if (buildingSel && buildingSel.value) hvacParams.set('building', buildingSel.value);
+      const hvacHref = './restaurant-equipment-deep-dive.html?' + hvacParams.toString();
+      const hvacLink = document.getElementById('hvacBlockLink');
+      if (hvacLink) {
+        hvacLink.href = hvacHref;
+        hvacLink.title = 'Open HVAC deep dive';
+      }
+      document.getElementById('hvacBlock').innerHTML =
+        '<div class="hvac-visual">' +
+          '<img src="' + FINDER_IMG.hvacUnit + '" alt="HVAC heat recovery unit" width="196" height="118" loading="lazy" decoding="async" />' +
+        '</div>' +
+        ringHtml(hvacPct, 'HVAC') +
+        '<div class="hvac-copy">' +
+          '<h2>Main heating &amp; HVAC</h2>' +
+          '<p>Climate control, ventilation, and heating typically draw a large share of restaurant energy — especially gas for heating and electricity for fans and cooling.</p>' +
+          '<div class="hvac-open-hint">Open equipment deep dive →</div>' +
+        '</div>' +
+        '<div class="hvac-stats" style="text-align:right">' +
+          '<div class="block-pct">' + Math.round(hvacPct) + '%</div>' +
+          '<div class="block-stat" style="margin-top:8px"><span>Est. cost</span><strong>' + euro(hvacEur) + '/mo</strong></div>' +
+        '</div>';
+      const equip = buildEquipmentList(b.sensors);
+      const equipEurPool = u.totalEur * 0.55;
+      document.getElementById('equipmentGrid').innerHTML = equip.map((item) => {
+        const pct = item.share * 55;
+        const cost = equipEurPool * item.share;
+        return equipCardHtml(item, pct, cost);
+      }).join('');
+    }
+
+    async function boot() {
+      const params = new URLSearchParams(window.location.search);
+      const returnUrl = params.get('return') || './company-map.html';
+      document.getElementById('backBtn').href = returnUrl;
+      updateDeepDiveHubLink();
+
+      const res = await fetch(resolveJsonUrl(DATA_URL), { cache: 'no-store' });
+      const payload = await res.json();
+      const buildings = payload.buildings || [];
+      const sel = document.getElementById('buildingSelect');
+      sel.innerHTML = buildings.map((b) =>
+        '<option value="' + b.id + '">' + b.name.replace(/^Wok To Walk — /, '') + '</option>'
+      ).join('');
+
+      let id = params.get('building') || buildings[0]?.id;
+      if (!buildings.find((b) => b.id === id)) id = buildings[0]?.id;
+      sel.value = id;
+
+      const render = () => {
+        const b = buildings.find((x) => x.id === sel.value);
+        if (b) renderBuilding(b);
+        updateDeepDiveHubLink();
+        updateDashboardNavLink(sel.value);
+        const u = new URL(window.location.href);
+        u.searchParams.set('building', sel.value);
+        history.replaceState(null, '', u.pathname + u.search);
+      };
+      sel.addEventListener('change', render);
+      render();
+    }
+
+    document.getElementById('openBuildingProjectionBtn')?.addEventListener('click', openBuildingProjectionPopup);
+    const spModal = document.getElementById('savingsProjectionModal');
+    if (spModal) {
+      spModal.querySelector('.sp-modal-backdrop')?.addEventListener('click', closeBuildingProjectionPopup);
+      spModal.querySelector('.sp-modal-close')?.addEventListener('click', closeBuildingProjectionPopup);
+    }
+    document.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape' && spModal && !spModal.hidden) closeBuildingProjectionPopup();
+    });
+
+    boot().catch((err) => {
+      console.warn(err);
+      document.getElementById('siteName').textContent = 'Could not load restaurant data';
+      document.getElementById('siteAddress').textContent = 'Open via http://localhost:4000/... and check company-map-buildings.json';
+    });
+  </script>
+</body>
+</html>
