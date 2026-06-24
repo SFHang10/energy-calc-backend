@@ -348,6 +348,9 @@
     if (pathPart.indexOf("../HTMLs/") === 0) {
       return contentBase() + "/HTMLs/" + pathPart.slice("../HTMLs/".length) + query;
     }
+    if (/^[^/]+\.html?$/i.test(pathPart)) {
+      return contentBase() + "/HTMLS%20GWM%20GWB/" + pathPart + query;
+    }
     return rel;
   }
 
@@ -984,7 +987,11 @@
       activeIframe.addEventListener("load", finishLoadingStage, { once: true });
       activeIframe.addEventListener("error", finishLoadingStage, { once: true });
       stageEl.appendChild(activeIframe);
-      activeIframe.src = href;
+      var iframeSrc = href;
+      if (!/^https?:\/\//i.test(iframeSrc)) {
+        iframeSrc = iframeSrc.charAt(0) === "/" ? contentBase() + iframeSrc : resolveModuleWebHref(iframeSrc);
+      }
+      activeIframe.src = iframeSrc;
     }
 
     modalEl.classList.add("is-open");

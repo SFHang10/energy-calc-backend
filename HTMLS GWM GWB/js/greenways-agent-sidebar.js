@@ -27,7 +27,9 @@
 
   function resolveHref(link) {
     if (link.gwbFile) return gwbPageHref(link.gwbFile);
-    return String(link.href || "#");
+    var href = String(link.href || "#").trim();
+    if (/^\.\//.test(href)) return gwbPageHref(href.replace(/^\.\//, ""));
+    return href;
   }
 
   function isCompactName(name, link, compactLen) {
