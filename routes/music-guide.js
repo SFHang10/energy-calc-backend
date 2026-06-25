@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs/promises');
 const { answerFromKnowledge } = require('../services/music-guide-knowledge');
-const { maybeCallGreenwaysLlm } = require('../services/greenways-agent-llm');
+const { finishMusicGuideAskResponse } = require('../services/music-guide-llm');
 
 const router = express.Router();
 const venuesPath = path.join(__dirname, '..', 'data', 'music-venues.json');
@@ -88,27 +88,6 @@ function buildHeuristicReply(question, venues, profile = {}) {
   };
 }
 
-async function maybeCallServerLlm(question, suggestions, profile = {}) {
-  const systemPrompt = [
-    'You are Live Music Finder For Artists guide.',
-    'You only recommend venues from provided suggestions.',
-    'Be concise and practical for musicians.',
-    'If uncertain, suggest contacting venue via inquiry form.'
-  ].join(' ');
-
-  return maybeCallGreenwaysLlm({
-    prefix: 'MUSIC_GUIDE',
-    systemPrompt,
-    userPayload: {
-      question,
-      city: 'Amsterdam',
-      profile,
-      suggestions
-    },
-    maxTokens: 800
-  });
-}
-
 router.post('/ask', async (req, res) => {
   try {
     const question = String(req.body?.question || '').trim();
@@ -124,13 +103,7 @@ router.post('/ask', async (req, res) => {
     const venues = await loadVenues();
     const knowledge = await answerFromKnowledge(question, venues, profile);
     if (knowledge?.answer) {
-      return res.json({
-        ok: true,
-        answer: knowledge.answer,
-        suggestions: knowledge.suggestions || [],
-        source: 'knowledge',
-        intentId: knowledge.intentId || null
-      });
+      return res.json(await finishMusicGuideAskResponse(knowledge, question, profile));
     }
 
     const ranked = venues
@@ -140,13 +113,13 @@ router.post('/ask', async (req, res) => {
       .map((v) => v.venue);
 
     const response = buildHeuristicReply(question, ranked.length ? ranked : venues, profile);
-    const llmAnswer = await maybeCallServerLlm(question, response.suggestions, profile);
-    res.json({
-      ok: true,
-      answer: llmAnswer || response.answer,
-      suggestions: response.suggestions,
-      source: llmAnswer ? 'llm' : 'heuristic'
-    });
+    res.json(
+      await finishMusicGuideAskResponse(
+        { answer: response.answer, suggestions: response.suggestions },
+        question,
+        profile
+      )
+    );
   } catch (error) {
     console.error('Music guide ask error:', error.message);
     res.status(500).json({ ok: false, error: 'Failed to answer question.' });

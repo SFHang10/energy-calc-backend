@@ -4685,6 +4685,19 @@ document.addEventListener("keydown", (e) => {
   if (panel && panel.classList.contains("open")) closeGuidePanel();
 });
 
+function resolveMusicGuideApiBase() {
+  const h = (location.hostname || "").toLowerCase();
+  if (
+    h === "localhost" ||
+    h === "127.0.0.1" ||
+    h.indexOf("onrender.com") !== -1 ||
+    h.indexOf("energy-calc-backend") !== -1
+  ) {
+    return location.origin || "";
+  }
+  return "https://energy-calc-backend.onrender.com";
+}
+
 async function sendGuideQuestion() {
   const input = document.getElementById("guide-input");
   const question = input.value.trim();
@@ -4699,7 +4712,7 @@ async function sendGuideQuestion() {
       style: document.getElementById("guide-style").value.trim(),
       level: document.getElementById("guide-level").value
     };
-    const r = await fetch("/api/music-guide/ask", {
+    const r = await fetch(resolveMusicGuideApiBase() + "/api/music-guide/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question, profile })
