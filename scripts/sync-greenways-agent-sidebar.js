@@ -26,6 +26,9 @@ const CSS_LINK =
 const JS_SCRIPT =
   '<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-sidebar.js"></script>';
 
+const STORY_LINK_SCRIPT =
+  '<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-story-link.js"></script>';
+
 const ASK_ABOUT_SECTION = `    <div class="sidebar-section sidebar-section--helpers">
       <div class="sidebar-label">Ask about</div>
       <p class="sidebar-hint" id="gw-sidebar-helpers-hint"></p>
@@ -63,6 +66,12 @@ function ensureAssets(html) {
         `$1\n${JS_SCRIPT}`
       );
     }
+  }
+  if (!out.includes('greenways-agent-story-link.js') && out.includes('greenways-agent-chat-shell.css')) {
+    out = out.replace(
+      /(<link rel="stylesheet" href="[^"]*greenways-agent-chat-shell\.css">)/,
+      `$1\n${STORY_LINK_SCRIPT}`
+    );
   }
   return out;
 }
