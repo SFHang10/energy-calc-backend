@@ -1,65 +1,71 @@
 /**
- * Shared Greenways agent sidebar — Quick links + Ask about blocks.
- * Theme via --accent / --send on each agent page.
+ * Shared Greenways agent sidebar — Ask starters, then Quick links.
+ * Flat sections (no boxed "Ask about" panel) so the column is not squeezed.
  *
- * Right panel order (default chat agents — Andrieus, Vincent, Artemis, Zara, Cheryce, Zyanne):
- *   1. Ask about (helper cards) — conversation starters first
- *   2. Quick links (portals / agent handoffs)
- *   3. status-bar
- * Exception: greenways-systems-agent.html (Edwardo) — Ops verify → Quick links → Ask about
- * (system-ops layout; keep his order; do not apply ask-first reorder).
+ * Default agents: Ask about → Quick links → status-bar
+ * Edwardo (systems-agent): Ops verify → Quick links → Ask about
  */
-.guide-sidebar .sidebar-block--helpers:first-child {
-  margin-top: 10px;
+.guide-sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .guide-sidebar .sidebar-section {
-  padding: 14px 14px 10px;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+}
+
+/* Ask + Quick links share remaining height ~50/50 (scroll inside each list) */
+.guide-sidebar .sidebar-section--helpers,
+.guide-sidebar .sidebar-section--links {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Edwardo ops block — fixed height, not a grow pane */
+.guide-sidebar .sidebar-section:not(.sidebar-section--helpers):not(.sidebar-section--links) {
+  flex-shrink: 0;
+}
+
+.guide-sidebar > .status-bar {
+  flex-shrink: 0;
+}
+
+.guide-sidebar .sidebar-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-lt, var(--accent));
+  margin-bottom: 4px;
 }
 
 .guide-sidebar .sidebar-hint {
   font-size: 0.72rem;
   color: var(--muted);
   line-height: 1.45;
-}
-
-.guide-sidebar .sidebar-section--links {
+  margin: 0 0 8px;
   flex-shrink: 0;
-  position: relative;
-  z-index: 2;
-  margin: 10px 10px 8px;
-  padding: 12px 12px 10px;
-  border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
-  background: rgba(12, 16, 10, 0.72);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--accent) 8%, transparent);
 }
 
-.guide-sidebar .sidebar-block--helpers {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  margin: 0 10px 8px;
-  padding: 12px 12px 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(88, 128, 168, 0.32);
-  background: rgba(14, 20, 28, 0.55);
-  box-shadow: inset 0 1px 0 rgba(120, 160, 200, 0.06);
-}
-
-.guide-sidebar .sidebar-block--helpers .sidebar-label {
-  color: rgba(160, 190, 220, 0.92);
+.guide-sidebar .sidebar-section--helpers > .sidebar-label,
+.guide-sidebar .sidebar-section--links > .sidebar-label {
+  flex-shrink: 0;
 }
 
 .guide-sidebar .gw-sidebar-ql-list {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  max-height: 248px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  margin-top: 8px;
+  margin-top: 4px;
   padding-right: 4px;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--accent) 35%, transparent) transparent;
@@ -88,7 +94,6 @@
   color: inherit;
   transition: border-color 0.15s, background 0.15s;
   box-sizing: border-box;
-  isolation: isolate;
   width: 100%;
   font-family: inherit;
   text-align: left;
@@ -171,14 +176,24 @@
 
 .guide-sidebar .helper-list {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding: 8px 0 0;
+  overflow-x: hidden;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  position: relative;
-  z-index: 1;
-  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 35%, transparent) transparent;
+}
+
+.guide-sidebar .helper-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.guide-sidebar .helper-list::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 999px;
 }
 
 .guide-sidebar .helper-card {
@@ -188,8 +203,8 @@
   column-gap: 10px;
   padding: 10px;
   border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--panel2);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  background: var(--panel2, rgba(20, 26, 34, 0.9));
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
   text-align: left;
@@ -201,105 +216,79 @@
 }
 
 .guide-sidebar .helper-card:hover {
-  border-color: rgba(37, 99, 235, 0.45);
-  background: #1a2a48;
+  border-color: color-mix(in srgb, var(--send, var(--accent)) 45%, transparent);
+  background: rgba(28, 36, 44, 0.95);
 }
 
 .guide-sidebar .helper-icon {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
-  background: rgba(37, 99, 235, 0.2);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--send, var(--accent)) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--send, var(--accent)) 22%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1rem;
-  flex-shrink: 0;
-  grid-column: 1;
-  grid-row: 1;
+  line-height: 1;
 }
 
 .guide-sidebar .helper-card-body {
-  grid-column: 2;
-  grid-row: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  align-self: center;
 }
 
 .guide-sidebar .helper-card-name {
-  display: block;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: #fff;
-  line-height: 1.25;
+  line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .guide-sidebar .helper-card-name.is-compact {
-  font-size: 0.6rem;
-  letter-spacing: -0.02em;
+  font-size: 0.72rem;
 }
 
 .guide-sidebar .helper-card-desc {
-  display: block;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   color: var(--muted);
-  line-height: 1.35;
+  line-height: 1.25;
+  margin-top: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .guide-sidebar .helper-ask-btn {
-  grid-column: 3;
-  grid-row: 1;
-  align-self: center;
-  font-size: 0.65rem;
+  font-size: 0.58rem;
+  font-weight: 600;
   padding: 4px 8px;
-  border-radius: 8px;
-  border: none;
-  background: var(--send);
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--send, var(--accent)) 50%, transparent);
+  background: color-mix(in srgb, var(--send, var(--accent)) 22%, transparent);
   color: #fff;
-  cursor: pointer;
-  flex-shrink: 0;
-  font-family: inherit;
-  pointer-events: none;
+  white-space: nowrap;
+  line-height: 1.2;
 }
 
-.welcome-tag.is-compact {
-  font-size: 0.66rem;
-  padding: 7px 11px;
-  letter-spacing: -0.01em;
-}
-
-@media (max-width: 720px) {
+@media (max-width: 900px) {
+  .guide-sidebar {
+    max-height: 220px;
+  }
+  .guide-sidebar .sidebar-section--helpers,
+  .guide-sidebar .sidebar-section--links {
+    flex: 1 1 0;
+  }
   .guide-sidebar .helper-list {
     flex-direction: row;
     overflow-x: auto;
     overflow-y: hidden;
-    padding-bottom: 10px;
+    padding-bottom: 6px;
   }
-
   .guide-sidebar .helper-card {
     min-width: 200px;
-    flex-shrink: 0;
-  }
-
-  .guide-sidebar .gw-sidebar-ql-list {
-    max-height: 120px;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-
-  .guide-sidebar .gw-sidebar-ql-card {
-    min-width: 168px;
     flex-shrink: 0;
   }
 }

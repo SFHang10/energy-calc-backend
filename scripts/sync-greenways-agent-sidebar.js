@@ -26,15 +26,16 @@ const CSS_LINK =
 const JS_SCRIPT =
   '<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-sidebar.js"></script>';
 
-const SIDEBAR_LINKS_BLOCK = `    <div class="sidebar-section sidebar-section--links">
-      <div class="sidebar-label">Quick links</div>
-      <p class="sidebar-hint" id="gw-sidebar-links-hint"></p>
-      <div class="gw-sidebar-ql-list" id="gw-agent-quick-links" role="navigation" aria-label="Quick links"></div>
-    </div>
-    <div class="sidebar-block--helpers">
+const ASK_ABOUT_SECTION = `    <div class="sidebar-section sidebar-section--helpers">
       <div class="sidebar-label">Ask about</div>
       <p class="sidebar-hint" id="gw-sidebar-helpers-hint"></p>
       <div class="helper-list" id="helper-list"></div>
+    </div>`;
+
+const QUICK_LINKS_SECTION = `    <div class="sidebar-section sidebar-section--links">
+      <div class="sidebar-label">Quick links</div>
+      <p class="sidebar-hint" id="gw-sidebar-links-hint"></p>
+      <div class="gw-sidebar-ql-list" id="gw-agent-quick-links" role="navigation" aria-label="Quick links"></div>
     </div>`;
 
 function ensureAssets(html) {
@@ -66,29 +67,48 @@ function ensureAssets(html) {
   return out;
 }
 
-function replaceQuickLinksSection(html) {
-  // Standard single quick-links section (most agents)
-  const standardRe =
-    /<div class="sidebar-section(?: sidebar-section--links)?">\s*<div class="sidebar-label">Quick links<\/div>[\s\S]*?(?=<div class="helper-list"|<div class="status-bar"|<\/aside>)/;
-  if (standardRe.test(html)) {
-    return html.replace(standardRe, SIDEBAR_LINKS_BLOCK + '\n');
-  }
-  return html;
+function stripLegacySidebarBlocks(html) {
+  return html
+    .replace(
+      /<div class="sidebar-block--helpers">[\s\S]*?<div class="helper-list" id="helper-list"><\/div>\s*<\/div>\s*/g,
+      ''
+    )
+    .replace(
+      /<div class="sidebar-section sidebar-section--helpers">[\s\S]*?<div class="helper-list" id="helper-list"><\/div>\s*<\/div>\s*/g,
+      ''
+    )
+    .replace(
+      /<div class="sidebar-section sidebar-section--links">[\s\S]*?id="gw-agent-quick-links"[\s\S]*?<\/div>\s*<\/div>\s*/g,
+      ''
+    )
+    .replace(/<div class="helper-list" id="helper-list"><\/div>\s*/g, '');
 }
 
-function wrapOrphanHelperList(html) {
-  if (html.includes('sidebar-block--helpers')) return html;
+function normalizeDefaultAgentSidebar(html) {
+  html = stripLegacySidebarBlocks(html);
+  const asideRe =
+    /(<aside class="guide-sidebar"[^>]*>)([\s\S]*?)(<div class="status-bar")/;
+  if (!asideRe.test(html) || html.includes('Ops · verify selected')) return html;
   return html.replace(
-    /<div class="helper-list" id="helper-list"><\/div>/,
-    SIDEBAR_LINKS_BLOCK.replace(
-      /[\s\S]*<div class="helper-list" id="helper-list"><\/div>/,
-      `<div class="sidebar-block--helpers">
-      <div class="sidebar-label">Ask about</div>
-      <p class="sidebar-hint" id="gw-sidebar-helpers-hint"></p>
-      <div class="helper-list" id="helper-list"></div>
-    </div>`
-    )
+    asideRe,
+    `$1\n${ASK_ABOUT_SECTION}\n${QUICK_LINKS_SECTION}\n$3`
   );
+}
+
+const OPS_SECTION = `    <div class="sidebar-section">
+      <div class="sidebar-label">Ops · verify selected</div>
+      <p class="sync-note">Tick items to re-check freshness on disk.</p>
+      <div class="sync-checks" id="sync-checks"></div>
+      <button type="button" class="sync-verify-btn" id="sync-verify-btn">🔄 Verify selected</button>
+      <p class="sync-note">Does not run integrator or build commands — confirms status only.</p>
+    </div>`;
+
+function normalizeSystemsAgentSidebar(html) {
+  html = html.replace(
+    /<aside class="guide-sidebar">[\s\S]*?<div class="status-bar"/,
+    `<aside class="guide-sidebar">\n${OPS_SECTION}\n${QUICK_LINKS_SECTION}\n${ASK_ABOUT_SECTION}\n<div class="status-bar"`
+  );
+  return html;
 }
 
 function removeHelpersForEach(html) {
@@ -111,101 +131,63 @@ function removeInitSidebarGwbLinks(html) {
     .replace(/\n\s*initSidebarGwbLinks\(\);\n/, '\n');
 }
 
-function insertSidebarInit(html, slug) {
-  if (html.includes('GreenwaysAgentSidebar.init')) return html;
-
+function patchSidebarInit(html, slug) {
   const cfg = CONFIG.agents[slug];
-  if (!cfg) throw new Error(`No sidebar config for ${slug}`);
+  if (!cfg) return html;
 
   const mediaExtra =
     slug === 'media-agent'
-      ? `
-    onQuickLinkClick: function (link, el, e) {
-      if (link.mapOpen && typeof openSustainabilityMapModule === "function") {
-        e.preventDefault();
-        openSustainabilityMapModule();
-      }
-    },`
+      ? `,
+      onQuickLinkClick: function (link, el, e) {
+        if (link.mapOpen && typeof openSustainabilityMapModule === "function") {
+          e.preventDefault();
+          openSustainabilityMapModule();
+        }
+      }`
       : '';
 
-  const snippet = `
-  if (window.GreenwaysAgentSidebar) {
+  const initBlock = `  if (window.GreenwaysAgentSidebar) {
     GreenwaysAgentSidebar.init({
       quickLinks: ${JSON.stringify(cfg.quickLinks)},
       linksHint: ${JSON.stringify(cfg.linksHint)},
       helpersHint: ${JSON.stringify(cfg.helpersHint)},
       helpers: HELPERS,
-      onAsk: function (prompt) { sendQuestion(prompt); },${mediaExtra}
+      onAsk: function (prompt) { sendQuestion(prompt); }${mediaExtra},
       compactNameLen: 16
     });
-  } else {
-    HELPERS.forEach(function (h) {
-      const card = document.createElement("button");
-      card.type = "button";
-      card.className = "helper-card";
-      card.innerHTML = h.name;
-      card.addEventListener("click", function () { sendQuestion(h.prompt); });
-      document.getElementById("helper-list").appendChild(card);
-    });
-  }
-`;
+  }`;
 
+  if (html.includes('GreenwaysAgentSidebar.init')) {
+    return html.replace(
+      /if \(window\.GreenwaysAgentSidebar\) \{[\s\S]*?GreenwaysAgentSidebar\.init\(\{[\s\S]*?\}\);\s*\}/,
+      initBlock
+    );
+  }
+
+  const snippet = `\n${initBlock}\n`;
   const anchor = 'document.getElementById("new-chat-btn").addEventListener("click", clearChat);';
   if (html.includes(anchor)) {
     return html.replace(anchor, anchor + snippet);
   }
-
   const anchor2 = 'updateCompareUi();';
   if (html.includes(anchor2)) {
-    return html.replace(anchor2, snippet + '\n  ' + anchor2);
+    return html.replace(anchor2, snippet + '  ' + anchor2);
   }
-
   throw new Error(`Could not find insert point in ${slug}`);
 }
 
-function stripDuplicateSidebarCss(html) {
-  // Remove finance-specific gw-fin-ql rules if shared CSS loaded
-  if (!html.includes('greenways-agent-sidebar.css')) return html;
-  return html
-    .replace(/\n  \.sidebar-section--links \{[\s\S]*?\n  \}\n  \.sidebar-block--helpers \{[\s\S]*?\n  \}\n/g, '\n')
-    .replace(/\n  \.guide-sidebar \.gw-fin-ql[\s\S]*?\n  \.guide-sidebar a\.gw-fin-ql-card\.is-agent \.gw-fin-ql-icon \{[\s\S]*?\n  \}\n/g, '\n');
-}
-
-function patchSystemsSidebar(html) {
-  // Edwardo: ops block stays; replace only the quick-links sidebar-section before helper-list
-  if (!html.includes('Ops · verify selected')) return html;
-
-  const opsQuickRe =
-    /<div class="sidebar-section">\s*<div class="sidebar-label">Quick links<\/div>[\s\S]*?(?=<div class="helper-list")/;
-  const replacement = `<div class="sidebar-section sidebar-section--links">
-      <div class="sidebar-label">Quick links</div>
-      <p class="sidebar-hint" id="gw-sidebar-links-hint"></p>
-      <div class="gw-sidebar-ql-list" id="gw-agent-quick-links" role="navigation" aria-label="Quick links"></div>
-    </div>
-    <div class="sidebar-block--helpers">
-      <div class="sidebar-label">Ask about</div>
-      <p class="sidebar-hint" id="gw-sidebar-helpers-hint"></p>
-      `;
-
-  if (opsQuickRe.test(html)) {
-    html = html.replace(
-      opsQuickRe,
-      replacement
-    );
-    html = html.replace(
-      /<div class="helper-list" id="helper-list"><\/div>/,
-      '<div class="helper-list" id="helper-list"></div>\n    </div>'
-    );
-  }
-  return html;
-}
-
 function patchSystemsHelpers(html) {
-  // Replace innerHTML map pattern for helpers
   return html.replace(
     /document\.getElementById\("helper-list"\)\.innerHTML = HELPERS\.map\(function \(h\) \{[\s\S]*?\}\)\.join\(""\);\n/,
     ''
   );
+}
+
+function stripDuplicateSidebarCss(html) {
+  if (!html.includes('greenways-agent-sidebar.css')) return html;
+  return html
+    .replace(/\n  \.sidebar-section--links \{[\s\S]*?\n  \}\n  \.sidebar-block--helpers \{[\s\S]*?\n  \}\n/g, '\n')
+    .replace(/\n  \.guide-sidebar \.gw-fin-ql[\s\S]*?\n  \.guide-sidebar a\.gw-fin-ql-card\.is-agent \.gw-fin-ql-icon \{[\s\S]*?\n  \}\n/g, '\n');
 }
 
 function run() {
@@ -215,16 +197,16 @@ function run() {
     let html = fs.readFileSync(filePath, 'utf8');
     html = ensureAssets(html);
     if (slug === 'systems-agent') {
-      html = patchSystemsSidebar(html);
+      html = normalizeSystemsAgentSidebar(html);
       html = patchSystemsHelpers(html);
     } else {
-      html = replaceQuickLinksSection(html);
+      html = normalizeDefaultAgentSidebar(html);
     }
     html = removeHelpersForEach(html);
     if (slug === 'finance-agent') html = removeFinanceQuickLinksBlock(html);
     if (slug === 'media-agent') html = removeInitSidebarGwbLinks(html);
     html = stripDuplicateSidebarCss(html);
-    html = insertSidebarInit(html, slug);
+    html = patchSidebarInit(html, slug);
     fs.writeFileSync(filePath, html, 'utf8');
     console.log('OK', file);
     ok += 1;
