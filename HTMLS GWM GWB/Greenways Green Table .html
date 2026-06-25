@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Greenways Restuarants -Green Table</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --espresso:   #1a1008;
+    --mocha:      #3b2313;
+    --bronze:     #7c4a1e;
+    --caramel:    #b07d45;
+    --gold:       #c9a14a;
+    --silver:     #a8adb3;
+    --silver-lt:  #d4d7db;
+    --silver-dim: #6b7178;
+    --charcoal:   #1c1e21;
+    --ink:        #111315;
+    --parchment:  #f5efe6;
+    --cream:      #faf7f2;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--ink);
+    color: var(--silver-lt);
+    font-family: 'Figtree', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 4rem;
+    background: rgba(17,19,21,.85);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(168,173,179,.12);
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem; font-weight: 600; letter-spacing: .04em;
+    color: var(--gold);
+  }
+  .nav-logo span { color: var(--silver); font-weight: 300; }
+  .nav-links { display: flex; gap: 2.4rem; list-style: none; }
+  .nav-links a {
+    font-size: .8rem; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--silver); text-decoration: none;
+    transition: color .25s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid; place-items: center;
+    position: relative;
+    overflow: hidden;
+    padding: 8rem 4rem 6rem;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 60% 40%, rgba(124,74,30,.25) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 20% 70%, rgba(201,161,74,.10) 0%, transparent 60%),
+      linear-gradient(160deg, #0d0a07 0%, #1a1008 40%, #0e0c09 100%);
+  }
+  /* Animated grain */
+  .hero-bg::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E");
+    opacity: .4; pointer-events: none;
+  }
+  .hero-content { position: relative; z-index: 2; max-width: 780px; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: .6rem;
+    border: 1px solid rgba(201,161,74,.35);
+    border-radius: 2rem; padding: .4rem 1.1rem;
+    font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 2rem;
+    animation: fadeUp .8s ease both;
+  }
+  .hero-badge::before { content: '●'; font-size: .5rem; }
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 300; line-height: 1.08;
+    color: var(--parchment);
+    animation: fadeUp .9s .1s ease both;
+  }
+  h1 em { font-style: italic; color: var(--gold); }
+  .hero-sub {
+    margin-top: 1.6rem; max-width: 540px;
+    font-size: 1.05rem; color: var(--silver); line-height: 1.75;
+    animation: fadeUp 1s .2s ease both;
+  }
+  .hero-cta {
+    margin-top: 2.6rem; display: flex; gap: 1.2rem; flex-wrap: wrap;
+    animation: fadeUp 1s .3s ease both;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--bronze), var(--gold));
+    color: var(--espresso); border: none;
+    padding: .9rem 2.2rem; border-radius: 4px;
+    font-family: 'Figtree', sans-serif; font-size: .82rem;
+    font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+    cursor: pointer; transition: opacity .2s, transform .2s;
+    text-decoration: none; display: inline-block;
+  }
+  .btn-primary:hover { opacity: .88; transform: translateY(-2px); }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(168,173,179,.4);
+    color: var(--silver); padding: .9rem 2.2rem; border-radius: 4px;
+    font-family: 'Figtree', sans-serif; font-size: .82rem;
+    letter-spacing: .1em; text-transform: uppercase;
+    cursor: pointer; transition: border-color .2s, color .2s;
+    text-decoration: none; display: inline-block;
+  }
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* Hero image strip */
+  .hero-strip {
+    position: absolute; right: -2rem; top: 50%; transform: translateY(-50%);
+    width: 420px; height: 560px; border-radius: 220px 220px 0 0;
+    overflow: hidden; opacity: .22;
+    animation: fadeIn 1.4s .5s ease both;
+  }
+  .hero-strip img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    background: linear-gradient(90deg, var(--mocha) 0%, #2a1a0e 100%);
+    border-top: 1px solid rgba(201,161,74,.2);
+    border-bottom: 1px solid rgba(201,161,74,.2);
+    padding: 2.4rem 4rem;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+  .stat {
+    text-align: center;
+    padding: 0 1rem;
+    border-right: 1px solid rgba(168,173,179,.12);
+  }
+  .stat:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.8rem; font-weight: 600; color: var(--gold);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: .75rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--silver-dim); margin-top: .4rem;
+  }
+
+  /* ── SECTIONS SHARED ── */
+  section { padding: 7rem 4rem; }
+  .section-tag {
+    font-size: .72rem; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1rem;
+  }
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 300;
+    color: var(--parchment); line-height: 1.15;
+    margin-bottom: 1.4rem;
+  }
+  h2 em { font-style: italic; color: var(--caramel); }
+  .lead { font-size: 1.05rem; color: var(--silver); max-width: 540px; line-height: 1.8; }
+
+  /* ── WHY SECTION ── */
+  .why {
+    background: var(--charcoal);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center;
+  }
+  .why-visual {
+    position: relative; border-radius: 8px; overflow: hidden;
+    height: 480px;
+  }
+  .why-visual img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.7); }
+  .why-visual::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(60,35,19,.6) 0%, transparent 60%);
+  }
+  .why-callout {
+    position: absolute; bottom: 2rem; left: 2rem; z-index: 2;
+    background: rgba(17,19,21,.82); backdrop-filter: blur(8px);
+    border: 1px solid rgba(201,161,74,.25);
+    border-radius: 6px; padding: 1.4rem 1.8rem;
+  }
+  .why-callout-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.6rem; color: var(--gold); line-height: 1;
+  }
+  .why-callout-text {
+    font-size: .78rem; color: var(--silver); letter-spacing: .06em; margin-top: .2rem;
+  }
+  .why-points { list-style: none; margin-top: 2rem; }
+  .why-points li {
+    display: flex; gap: 1rem; align-items: flex-start;
+    padding: 1.1rem 0; border-bottom: 1px solid rgba(168,173,179,.08);
+    font-size: .95rem; color: var(--silver-lt);
+  }
+  .why-points li::before {
+    content: '↗';
+    color: var(--gold); font-size: 1rem; flex-shrink: 0; margin-top: .1rem;
+  }
+
+  /* ── TECH CARDS ── */
+  .tech { background: var(--ink); }
+  .tech-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5px;
+    margin-top: 3.5rem;
+    background: rgba(168,173,179,.08);
+    border: 1px solid rgba(168,173,179,.08);
+  }
+  .tech-card {
+    background: var(--ink);
+    padding: 2.4rem 2rem;
+    transition: background .25s;
+    cursor: default;
+  }
+  .tech-card:hover { background: #1a1208; }
+  .tech-icon {
+    width: 44px; height: 44px;
+    border: 1px solid rgba(201,161,74,.3); border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 1.2rem; margin-bottom: 1.4rem;
+  }
+  .tech-card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-weight: 400; color: var(--parchment);
+    margin-bottom: .6rem;
+  }
+  .tech-card p { font-size: .88rem; color: var(--silver-dim); line-height: 1.7; }
+  .tech-card .saving {
+    margin-top: 1.4rem; display: flex; align-items: center; gap: .6rem;
+  }
+  .saving-badge {
+    background: rgba(201,161,74,.12); border: 1px solid rgba(201,161,74,.25);
+    border-radius: 3px; padding: .2rem .7rem;
+    font-size: .76rem; color: var(--gold); letter-spacing: .06em;
+  }
+  .saving-label { font-size: .78rem; color: var(--silver-dim); }
+
+  /* ── SAVINGS TABLE ── */
+  .savings { background: var(--mocha); }
+  .savings-table {
+    margin-top: 3rem; width: 100%;
+    border-collapse: collapse;
+    font-size: .9rem;
+  }
+  .savings-table thead tr {
+    border-bottom: 1px solid rgba(201,161,74,.3);
+  }
+  .savings-table th {
+    font-family: 'Figtree', sans-serif; font-weight: 500;
+    font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--caramel); padding: 1rem 1.2rem; text-align: left;
+  }
+  .savings-table td {
+    padding: 1.1rem 1.2rem; color: var(--silver-lt);
+    border-bottom: 1px solid rgba(168,173,179,.07);
+    vertical-align: middle;
+  }
+  .savings-table tr:hover td { background: rgba(255,255,255,.02); }
+  .savings-table td:first-child { color: var(--parchment); font-weight: 400; }
+  .payback-bar {
+    height: 5px; border-radius: 3px;
+    background: linear-gradient(90deg, var(--bronze), var(--gold));
+    margin-top: .4rem;
+  }
+
+  /* ── CASE STUDIES ── */
+  .cases { background: var(--charcoal); }
+  .cases-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+    margin-top: 3.5rem;
+  }
+  .case-card {
+    border: 1px solid rgba(168,173,179,.12);
+    border-radius: 6px; padding: 2rem;
+    position: relative; overflow: hidden;
+    transition: border-color .25s;
+  }
+  .case-card:hover { border-color: rgba(201,161,74,.35); }
+  .case-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--bronze), var(--gold));
+    transform: scaleX(0); transform-origin: left;
+    transition: transform .3s;
+  }
+  .case-card:hover::before { transform: scaleX(1); }
+  .case-brand {
+    font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--caramel); margin-bottom: .8rem;
+  }
+  .case-card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem; color: var(--parchment); margin-bottom: .7rem;
+  }
+  .case-card p { font-size: .86rem; color: var(--silver-dim); line-height: 1.7; }
+  .case-result {
+    margin-top: 1.4rem;
+    display: flex; gap: 1.4rem; flex-wrap: wrap;
+  }
+  .result-item { text-align: center; }
+  .result-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem; color: var(--gold); line-height: 1;
+  }
+  .result-label { font-size: .72rem; color: var(--silver-dim); letter-spacing: .06em; }
+
+  /* ── ROADMAP ── */
+  .roadmap { background: var(--ink); }
+  .roadmap-steps {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+    margin-top: 3.5rem; position: relative;
+  }
+  .roadmap-steps::before {
+    content: '';
+    position: absolute; top: 2.2rem; left: 12.5%; right: 12.5%; height: 1px;
+    background: linear-gradient(90deg, var(--bronze), var(--gold), var(--silver), var(--bronze));
+  }
+  .roadmap-step { padding: 0 1.5rem; text-align: center; }
+  .step-dot {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 2px solid var(--bronze);
+    background: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.4rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1.2rem;
+    color: var(--gold);
+    position: relative; z-index: 2;
+    transition: background .25s;
+  }
+  .roadmap-step:hover .step-dot {
+    background: var(--mocha);
+  }
+  .roadmap-step h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem; color: var(--parchment); margin-bottom: .5rem;
+  }
+  .roadmap-step p { font-size: .82rem; color: var(--silver-dim); line-height: 1.6; }
+  .step-months {
+    display: inline-block; margin-top: 1rem;
+    background: rgba(124,74,30,.2); border: 1px solid rgba(124,74,30,.4);
+    border-radius: 2rem; padding: .25rem .9rem;
+    font-size: .7rem; color: var(--caramel); letter-spacing: .08em;
+  }
+
+  /* ── CTA BANNER ── */
+  .cta-banner {
+    background: linear-gradient(135deg, var(--mocha) 0%, #1a0e05 60%, #0d0a07 100%);
+    border-top: 1px solid rgba(201,161,74,.2);
+    border-bottom: 1px solid rgba(201,161,74,.2);
+    text-align: center;
+    padding: 6rem 4rem;
+  }
+  .cta-banner h2 { margin-bottom: 1.2rem; }
+  .cta-banner .lead { margin: 0 auto 2.4rem; text-align: center; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--espresso);
+    padding: 3rem 4rem;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 1.2rem;
+    border-top: 1px solid rgba(168,173,179,.1);
+  }
+  .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; color: var(--gold);
+  }
+  .footer-note {
+    font-size: .78rem; color: var(--silver-dim); letter-spacing: .06em;
+  }
+  .footer-eu {
+    display: flex; align-items: center; gap: .6rem;
+    font-size: .78rem; color: var(--silver-dim);
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: .22; }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    section { padding: 5rem 1.5rem; }
+    .stats-bar { grid-template-columns: 1fr 1fr; padding: 2rem 1.5rem; }
+    .why { grid-template-columns: 1fr; }
+    .why-visual { height: 280px; }
+    .tech-grid { grid-template-columns: 1fr; }
+    .cases-grid { grid-template-columns: 1fr; }
+    .roadmap-steps { grid-template-columns: 1fr 1fr; row-gap: 2rem; }
+    .roadmap-steps::before { display: none; }
+    .hero-strip { display: none; }
+    .hero { padding: 7rem 1.5rem 4rem; }
+    footer { flex-direction: column; text-align: center; padding: 2rem 1.5rem; }
+    .savings-table { font-size: .8rem; }
+    .savings-table th, .savings-table td { padding: .8rem .7rem; }
+    .cta-banner { padding: 4rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Greenways <span>Restuarants -Green Table</span></div>
+  <ul class="nav-links">
+    <li><a href="#why">The Case</a></li>
+    <li><a href="#tech">Technologies</a></li>
+    <li><a href="#savings">Savings</a></li>
+    <li><a href="#cases">Case Studies</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+  </ul>
+  <a href="#contact" class="btn-primary" style="padding:.6rem 1.4rem;font-size:.75rem;">Book Audit</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" style="padding-top:9rem">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-badge">European Restaurant Energy Programme</div>
+    <h1>Turn energy waste<br>into <em>pure profit.</em></h1>
+    <p class="hero-sub">
+      European restaurants burn 3–10× more energy per m² than standard commercial buildings. 
+      We help you recover 20–50% of those costs — and prove it to regulators, investors, and guests.
+    </p>
+    <div class="hero-cta">
+      <a href="#savings" class="btn-primary">See the numbers</a>
+      <a href="#cases" class="btn-ghost">Real case studies</a>
+    </div>
+  </div>
+  <div class="hero-strip">
+    <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80" alt="Restaurant interior" />
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-num">50%</div>
+    <div class="stat-label">Electricity from refrigeration alone</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">€22.5k</div>
+    <div class="stat-label">Avg. annual savings per site</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">30%</div>
+    <div class="stat-label">Profit uplift from 20% energy cut</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">18 mo</div>
+    <div class="stat-label">Typical full payback period</div>
+  </div>
+</div>
+
+<!-- WHY -->
+<section class="why" id="why">
+  <div class="why-visual">
+    <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80" alt="Busy restaurant kitchen" />
+    <div class="why-callout">
+      <div class="why-callout-num">€172</div>
+      <div class="why-callout-text">Average EU electricity price /MWh — and rising fast</div>
+    </div>
+  </div>
+  <div>
+    <div class="section-tag">Why it matters now</div>
+    <h2>The regulatory clock<br>is <em>already ticking</em></h2>
+    <p class="lead">
+      The EU's Corporate Sustainability Reporting Directive brings over 50,000 firms into mandatory disclosure scope. Energy efficiency is no longer a marketing option — it's compliance, and consumers notice.
+    </p>
+    <ul class="why-points">
+      <li>Energy costs represent 4–6% of total restaurant operating expenses — the most controllable line item on your P&L</li>
+      <li>EU 2030 target: 55% emissions cut. Restaurants that act now gain competitive and regulatory advantage</li>
+      <li>34% of UK diners actively seek out restaurants with transparent sustainability credentials</li>
+      <li>Every euro saved in energy flows directly to net profit — no additional revenue needed</li>
+    </ul>
+  </div>
+</section>
+
+<!-- TECHNOLOGIES -->
+<section class="tech" id="tech">
+  <div class="section-tag">Our approach</div>
+  <h2>Three pillars of<br><em>energy intelligence</em></h2>
+  <div class="tech-grid">
+    <div class="tech-card">
+      <div class="tech-icon">💡</div>
+      <h3>Smart Sensors &amp; Automation</h3>
+      <p>Occupancy sensors, lux-level detection, IoT-enabled HVAC controls and adaptive smart thermostats eliminate waste in every room, every hour.</p>
+      <div class="saving">
+        <div class="saving-badge">50–80% lighting cost cut</div>
+        <div class="saving-label">6–18 month ROI</div>
+      </div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon">💧</div>
+      <h3>Water-Saving Devices</h3>
+      <p>Low-flow pre-rinse spray valves, boilerless steamers, and EU Energy Label A dishwashers. One valve swap alone cuts water draw by 80%.</p>
+      <div class="saving">
+        <div class="saving-badge">€2.4k–€4.8k/yr saved</div>
+        <div class="saving-label">9–24 month payback</div>
+      </div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon">📊</div>
+      <h3>Building Energy Management</h3>
+      <p>BEMS/WEMS platforms give real-time visibility across every circuit. Predictive maintenance extends equipment life by 20–30% and kills silent energy drains.</p>
+      <div class="saving">
+        <div class="saving-badge">12–25% site-wide reduction</div>
+        <div class="saving-label">18–36 month payback</div>
+      </div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon">❄️</div>
+      <h3>Refrigeration Optimisation</h3>
+      <p>At 50% of your electricity bill, refrigeration is the single largest lever. Door seals, condenser maintenance, and load management deliver immediate returns.</p>
+      <div class="saving">
+        <div class="saving-badge">30% reduction possible</div>
+        <div class="saving-label">Fastest wins available</div>
+      </div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon">🌡️</div>
+      <h3>HVAC Optimisation</h3>
+      <p>Programmable controls, demand-controlled ventilation, and heat-recovery units trim 15–30% from your heating and cooling spend with minimal disruption.</p>
+      <div class="saving">
+        <div class="saving-badge">€3k–€6k/yr per site</div>
+        <div class="saving-label">2–3 year payback</div>
+      </div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon">🔆</div>
+      <h3>LED &amp; Lighting Controls</h3>
+      <p>LED conversion paired with dimming and scheduling cuts lighting energy by up to 80%. Quick, non-disruptive, and immediately visible on every invoice.</p>
+      <div class="saving">
+        <div class="saving-badge">80% vs incandescent</div>
+        <div class="saving-label">12–20 month payback</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SAVINGS TABLE -->
+<section class="savings" id="savings">
+  <div class="section-tag">Financial snapshot</div>
+  <h2>What a €45,000 energy bill<br><em>could become</em></h2>
+  <p class="lead">Based on documented European restaurant data. Cumulative implementation multiplies results.</p>
+
+  <table class="savings-table">
+    <thead>
+      <tr>
+        <th>Intervention</th>
+        <th>Investment</th>
+        <th>Annual Saving</th>
+        <th>Payback</th>
+        <th>5-Year Net</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>LED Lighting Upgrade</td>
+        <td>€2,000–€5,000</td>
+        <td>€1,500–€3,000</td>
+        <td><div>12–20 months</div><div class="payback-bar" style="width:30%"></div></td>
+        <td>€10,000–€20,000</td>
+      </tr>
+      <tr>
+        <td>Smart Sensors (Lighting &amp; HVAC)</td>
+        <td>€3,000–€8,000</td>
+        <td>€4,000–€8,000</td>
+        <td><div>6–18 months</div><div class="payback-bar" style="width:22%"></div></td>
+        <td>€17,000–€32,000</td>
+      </tr>
+      <tr>
+        <td>Water-Saving Fixtures</td>
+        <td>€1,500–€4,000</td>
+        <td>€2,000–€4,000</td>
+        <td><div>9–24 months</div><div class="payback-bar" style="width:40%"></div></td>
+        <td>€8,500–€16,000</td>
+      </tr>
+      <tr>
+        <td>Energy-Efficient Equipment</td>
+        <td>€10,000–€25,000</td>
+        <td>€3,000–€7,000</td>
+        <td><div>2–4 years</div><div class="payback-bar" style="width:60%"></div></td>
+        <td>€5,000–€10,000</td>
+      </tr>
+      <tr>
+        <td>BEMS / Energy Management System</td>
+        <td>€15,000–€30,000</td>
+        <td>€7,500–€15,000</td>
+        <td><div>2–3 years</div><div class="payback-bar" style="width:55%"></div></td>
+        <td>€22,500–€45,000</td>
+      </tr>
+      <tr>
+        <td>HVAC Optimisation</td>
+        <td>€5,000–€15,000</td>
+        <td>€3,000–€6,000</td>
+        <td><div>2–3 years</div><div class="payback-bar" style="width:55%"></div></td>
+        <td>€10,000–€15,000</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- CASE STUDIES -->
+<section class="cases" id="cases">
+  <div class="section-tag">Proven results</div>
+  <h2>Real restaurants,<br><em>real savings</em></h2>
+  <div class="cases-grid">
+    <div class="case-card">
+      <div class="case-brand">Pizza Hut UK — 107 locations</div>
+      <h3>Wireless BEMS Roll-Out</h3>
+      <p>Automated lighting controls with occupancy sensors, smart scheduling, and 24/7 remote monitoring — installed without closing a single restaurant.</p>
+      <div class="case-result">
+        <div class="result-item">
+          <div class="result-num">14%</div>
+          <div class="result-label">Energy reduction</div>
+        </div>
+        <div class="result-item">
+          <div class="result-num">£469k</div>
+          <div class="result-label">Total saved</div>
+        </div>
+      </div>
+    </div>
+    <div class="case-card">
+      <div class="case-brand">The Restaurant Group — 500+ sites</div>
+      <h3>Portfolio Energy Programme</h3>
+      <p>Frankie &amp; Benny's, Chiquito, Garfunkel's — site surveys, remote exception management, and staff behavioural change delivered double their target.</p>
+      <div class="case-result">
+        <div class="result-item">
+          <div class="result-num">5.3%</div>
+          <div class="result-label">Year-on-year saving</div>
+        </div>
+        <div class="result-item">
+          <div class="result-num">£500k</div>
+          <div class="result-label">Saved in 2017 alone</div>
+        </div>
+      </div>
+    </div>
+    <div class="case-card">
+      <div class="case-brand">Wahaca UK — Carbon Neutral</div>
+      <h3>First Carbon-Neutral Restaurant Group</h3>
+      <p>Heat recovery from refrigeration units, full LED conversion, and smart scheduling combined to achieve what few in the sector have managed.</p>
+      <div class="case-result">
+        <div class="result-item">
+          <div class="result-num">36%</div>
+          <div class="result-label">Energy reduction</div>
+        </div>
+        <div class="result-item">
+          <div class="result-num">Net 0</div>
+          <div class="result-label">Carbon status</div>
+        </div>
+      </div>
+    </div>
+    <div class="case-card">
+      <div class="case-brand">Frankie & Benny's — EnergyAce</div>
+      <h3>Voltage Optimisation System</h3>
+      <p>A focused voltage optimisation installation with minimal disruption delivered measurable savings within weeks of going live.</p>
+      <div class="case-result">
+        <div class="result-item">
+          <div class="result-num">12.8%</div>
+          <div class="result-label">Energy saving</div>
+        </div>
+        <div class="result-item">
+          <div class="result-num">1.8 yr</div>
+          <div class="result-label">Payback period</div>
+        </div>
+      </div>
+    </div>
+    <div class="case-card">
+      <div class="case-brand">Burger King — European Franchise</div>
+      <h3>Operational Optimisation</h3>
+      <p>Proving that significant savings are possible before touching any equipment: smart scheduling and staff training alone created immediate ROI.</p>
+      <div class="case-result">
+        <div class="result-item">
+          <div class="result-num">€5.5k</div>
+          <div class="result-label">Saved per location</div>
+        </div>
+        <div class="result-item">
+          <div class="result-num">&lt;6 mo</div>
+          <div class="result-label">Payback</div>
+        </div>
+      </div>
+    </div>
+    <div class="case-card">
+      <div class="case-brand">Independent UK Restaurants</div>
+      <h3>Equipment Replacement Programme</h3>
+      <p>Dishwasher replacements, low-flow spray valves, LED conversions, and refrigeration maintenance across a cohort of mid-sized independents.</p>
+      <div class="case-result">
+        <div class="result-item">
+          <div class="result-num">£2k</div>
+          <div class="result-label">Avg. annual saving</div>
+        </div>
+        <div class="result-item">
+          <div class="result-num">75%</div>
+          <div class="result-label">Lighting energy cut</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section class="roadmap" id="roadmap">
+  <div class="section-tag">Implementation</div>
+  <h2>Your four-phase<br><em>transformation path</em></h2>
+  <div class="roadmap-steps">
+    <div class="roadmap-step">
+      <div class="step-dot">1</div>
+      <h4>Assessment</h4>
+      <p>Full energy audit, baseline consumption mapping, CSRD compliance review, and a prioritised business case with clear ROI projections.</p>
+      <span class="step-months">Months 1–2</span>
+    </div>
+    <div class="roadmap-step">
+      <div class="step-dot">2</div>
+      <h4>Quick Wins</h4>
+      <p>LED conversion, occupancy sensors, optimised equipment settings, staff training. Immediate cost reduction while longer projects are planned.</p>
+      <span class="step-months">Months 2–4</span>
+    </div>
+    <div class="roadmap-step">
+      <div class="step-dot">3</div>
+      <h4>Strategic Investment</h4>
+      <p>BEMS/WEMS deployment, water-saving fixtures, Energy Label A equipment, HVAC controls. EU Green Deal and ECA funding applications supported.</p>
+      <span class="step-months">Months 4–12</span>
+    </div>
+    <div class="roadmap-step">
+      <div class="step-dot">4</div>
+      <h4>Continuous Optimisation</h4>
+      <p>Real-time BEMS monitoring, annual CSRD reporting, utility demand-response participation, and ongoing refinement to sustain and grow savings.</p>
+      <span class="step-months">Ongoing</span>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="cta-banner" id="contact">
+  <div class="section-tag" style="text-align:center">Start today</div>
+  <h2>Your free energy audit<br><em>awaits</em></h2>
+  <p class="lead">
+    We baseline your current consumption, identify your top-five opportunities, and deliver a full ROI projection — at no cost and no obligation.
+  </p>
+  <div style="display:flex;gap:1.2rem;justify-content:center;flex-wrap:wrap">
+    <a href="https://www.greenwaysbuildings.com/contactus" class="btn-primary">Book your free audit</a>
+    <a href="#savings" class="btn-ghost">Review the financials</a>
+  </div>
+  <p style="margin-top:2rem;font-size:.78rem;color:var(--silver-dim)">
+    Aligned with EU Green Deal · CSRD-ready reporting · Paris Agreement compliant
+  </p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Greenways Restuarants -Green Table</div>
+  <div class="footer-note">Energy intelligence for European hospitality</div>
+  <div class="footer-eu">🇪🇺 EU Green Deal aligned · CSRD compliant</div>
+</footer>
+
+</body>
+</html>

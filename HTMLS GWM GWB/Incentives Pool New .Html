@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Schemes & Incentives Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #0a0a0a;
+            --deep-grey: #111214;
+            --dark-grey: #1a1c1f;
+            --mid-grey: #252830;
+            --card-grey: #1e2024;
+            --steel: #3a3f47;
+            --silver: #c0c0c0;
+            --silver-light: #e2e2e2;
+            --silver-dark: #888888;
+            --silver-dim: #555860;
+            --accent: #9aa3b0;
+            --text-main: #dddde0;
+            --text-muted: #7a7f88;
+            --border: rgba(192,192,192,0.1);
+            --border-hover: rgba(192,192,192,0.25);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--black);
+            background-image:
+                radial-gradient(ellipse at 15% 15%, rgba(42,46,54,0.5) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 85%, rgba(20,22,26,0.8) 0%, transparent 55%);
+            min-height: 100vh;
+            padding: 30px 20px;
+            color: var(--text-main);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+            padding: 50px 40px;
+            background: linear-gradient(160deg, rgba(37,40,48,0.95) 0%, rgba(10,10,10,0.98) 100%);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--silver-dark), var(--silver-light), var(--silver-dark), transparent);
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(192,192,192,0.2), transparent);
+        }
+
+        .header-ornament {
+            color: var(--silver-dark);
+            font-size: 0.78em;
+            letter-spacing: 0.45em;
+            text-transform: uppercase;
+            font-weight: 300;
+            margin-bottom: 18px;
+            display: block;
+        }
+
+        .header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            color: var(--silver-light);
+            font-size: 3em;
+            font-weight: 300;
+            letter-spacing: 0.07em;
+            margin-bottom: 14px;
+            line-height: 1.2;
+        }
+
+        .header h1 span { color: var(--silver); }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.82em;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        /* Update info bar */
+        .update-info {
+            background: rgba(26,28,31,0.8);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            padding: 12px 20px;
+            margin-bottom: 18px;
+            text-align: center;
+            font-size: 0.78em;
+            color: var(--text-muted);
+            letter-spacing: 0.08em;
+            position: relative;
+        }
+
+        .update-info::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(192,192,192,0.15), transparent);
+        }
+
+        .update-info strong { color: var(--silver-dark); }
+
+        /* Filter */
+        .filter-container {
+            background: rgba(26,28,31,0.85);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 18px 20px;
+            margin-bottom: 28px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 10px 22px;
+            border: 1px solid rgba(192,192,192,0.12);
+            border-radius: 1px;
+            background: transparent;
+            color: var(--silver-dim);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.75em;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .filter-btn:hover {
+            background: rgba(192,192,192,0.08);
+            color: var(--silver-light);
+            border-color: rgba(192,192,192,0.25);
+        }
+
+        .filter-btn.active {
+            background: var(--mid-grey);
+            color: var(--silver-light);
+            border-color: rgba(192,192,192,0.35);
+        }
+
+        /* Grid */
+        .schemes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 18px;
+        }
+
+        /* Cards */
+        .scheme-card {
+            background: linear-gradient(145deg, rgba(30,32,36,0.95), rgba(10,10,10,0.98));
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 30px;
+            transition: all 0.35s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scheme-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--silver-light), var(--steel));
+        }
+
+        .scheme-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-hover);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.6);
+        }
+
+        /* Priority badge */
+        .priority-badge {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: transparent;
+            border: 1px solid rgba(192,192,192,0.4);
+            color: var(--silver);
+            padding: 4px 10px;
+            border-radius: 1px;
+            font-size: 0.65em;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* Deadline warning */
+        .deadline-warning {
+            background: rgba(50,45,35,0.5);
+            border-left: 2px solid rgba(192,192,192,0.3);
+            padding: 9px 14px;
+            margin-bottom: 16px;
+            border-radius: 0 2px 2px 0;
+        }
+
+        .deadline-text {
+            color: var(--silver);
+            font-weight: 500;
+            font-size: 0.82em;
+            letter-spacing: 0.06em;
+        }
+
+        /* Card header */
+        .scheme-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            gap: 12px;
+        }
+
+        .scheme-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.35em;
+            font-weight: 600;
+            color: var(--silver-light);
+            letter-spacing: 0.03em;
+            line-height: 1.2;
+        }
+
+        .scheme-type {
+            padding: 4px 11px;
+            border-radius: 1px;
+            font-size: 0.68em;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-family: 'Montserrat', sans-serif;
+            white-space: nowrap;
+            flex-shrink: 0;
+            background: transparent;
+        }
+
+        .scheme-type.certification {
+            border: 1px solid rgba(192,192,192,0.45);
+            color: var(--silver);
+        }
+        .scheme-type.subsidy {
+            border: 1px solid rgba(160,170,185,0.5);
+            color: #a0aabb;
+        }
+        .scheme-type.grant {
+            border: 1px solid rgba(180,175,165,0.5);
+            color: #b4afa5;
+        }
+        .scheme-type.tax {
+            border: 1px solid rgba(150,155,170,0.5);
+            color: #969baa;
+        }
+        .scheme-type.compliance {
+            border: 1px solid rgba(130,135,145,0.5);
+            color: var(--silver-dark);
+        }
+
+        .scheme-description {
+            color: var(--text-muted);
+            margin-bottom: 18px;
+            font-size: 0.86em;
+            font-weight: 300;
+            line-height: 1.75;
+        }
+
+        /* Details */
+        .scheme-details { margin-bottom: 20px; }
+
+        .detail-item {
+            display: flex;
+            margin-bottom: 8px;
+            align-items: flex-start;
+            font-size: 0.84em;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: var(--silver-dark);
+            min-width: 105px;
+            margin-right: 10px;
+            letter-spacing: 0.04em;
+            flex-shrink: 0;
+        }
+
+        .detail-value {
+            color: var(--text-muted);
+            font-weight: 300;
+            line-height: 1.5;
+        }
+
+        /* Actions */
+        .scheme-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        .apply-btn {
+            background: transparent;
+            color: var(--silver-light);
+            border: 1px solid rgba(192,192,192,0.4);
+            padding: 10px 20px;
+            border-radius: 1px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.75em;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .apply-btn:hover {
+            background: rgba(192,192,192,0.12);
+            border-color: rgba(192,192,192,0.65);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+
+        .info-btn {
+            background: transparent;
+            color: var(--silver-dim);
+            border: 1px solid rgba(192,192,192,0.18);
+            padding: 10px 20px;
+            border-radius: 1px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.75em;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .info-btn:hover {
+            color: var(--silver-light);
+            border-color: rgba(192,192,192,0.35);
+        }
+
+        .hidden { display: none !important; }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-muted);
+            font-size: 0.85em;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .schemes-grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 2.1em; }
+            .filter-buttons { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="header-ornament">Greenways Market · Incentives Portal</span>
+            <h1><span>Green</span> Schemes &amp; Incentives</h1>
+            <p>Find &amp; apply to relevant programs for your eco-electrical business</p>
+        </div>
+
+        <div class="update-info">
+            <span id="last-updated">Last updated: Loading...</span> &nbsp;·&nbsp;
+            <strong>Tip:</strong> Update schemes.json file to modify content
+        </div>
+
+        <div class="filter-container">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All Schemes</button>
+                <button class="filter-btn" data-filter="certification">Certifications</button>
+                <button class="filter-btn" data-filter="subsidy">Subsidies</button>
+                <button class="filter-btn" data-filter="grant">Grants</button>
+                <button class="filter-btn" data-filter="tax">Tax Benefits</button>
+                <button class="filter-btn" data-filter="urgent">Urgent Deadlines</button>
+            </div>
+        </div>
+
+        <div class="schemes-grid" id="schemes-container">
+            <div class="loading">Loading schemes...</div>
+        </div>
+    </div>
+
+    <script>
+        class SchemesPortal {
+            constructor() {
+                this.schemes = [];
+                this.currentFilter = 'all';
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.loadSchemes();
+                    this.renderSchemes();
+                    this.setupFilters();
+                    this.updateLastUpdated();
+                } catch (error) {
+                    console.error('Error loading schemes:', error);
+                    this.showError();
+                }
+            }
+
+            async loadSchemes() {
+                const urls = ['/api/schemes?limit=200', '../schemes.json', 'schemes.json'];
+                for (const url of urls) {
+                    try {
+                        const response = await fetch(url);
+                        if (response.ok) {
+                            const data = await response.json();
+                            const rows = Array.isArray(data) ? data : (data.schemes || []);
+                            if (rows.length) {
+                                this.schemes = rows;
+                                return;
+                            }
+                        }
+                    } catch (error) {
+                        console.log('Schemes fetch failed for', url);
+                    }
+                }
+
+                this.schemes = [
+                    {
+                        "id": "eu-ecolabel",
+                        "title": "EU Ecolabel",
+                        "type": "certification",
+                        "categories": ["certification"],
+                        "description": "Voluntary EU environmental label showing your products meet strict environmental criteria across their lifecycle. Builds customer trust and opens green procurement opportunities.",
+                        "relevance": "High - Credibility & marketing boost",
+                        "requirements": "Apply via SMK (NL), meet criteria for product category, annual fees",
+                        "deadline": null,
+                        "priority": false,
+                        "links": [
+                            {"text": "🌍 Apply via SMK", "url": "https://eu-ecolabel.nl", "type": "apply"},
+                            {"text": "📋 Requirements", "url": "https://business.gov.nl/regulation/eu-ecolabel/", "type": "info"}
+                        ]
+                    },
+                    {
+                        "id": "spvo",
+                        "title": "SPVO - Responsible Business",
+                        "type": "subsidy",
+                        "categories": ["subsidy", "urgent"],
+                        "description": "Helps Dutch companies improve social sustainability AND environmental impact in their international supply chains. Up to 70% funding available.",
+                        "relevance": "Medium-High if you have international suppliers",
+                        "requirements": "NL establishment, partnership with local producers & NGO",
+                        "maxFunding": "€500,000 (70% of costs)",
+                        "deadline": "October 6, 2025",
+                        "priority": true,
+                        "links": [
+                            {"text": "💰 Apply Now", "url": "https://www.rvo.nl/subsidies-financiering/spvo", "type": "apply"}
+                        ]
+                    },
+                    {
+                        "id": "isde",
+                        "title": "ISDE - Sustainable Energy Investment",
+                        "type": "subsidy",
+                        "categories": ["subsidy"],
+                        "description": "Investment subsidy for sustainable energy devices like heat pumps, solar boilers, insulation. Great for marketing products as \"subsidy-eligible\".",
+                        "relevance": "High if you sell heat pumps, solar thermal, insulation",
+                        "requirements": "KVK number, product must be on devices list",
+                        "duration": "Until end 2029",
+                        "deadline": null,
+                        "priority": false,
+                        "links": [
+                            {"text": "⚡ Check Device List", "url": "https://business.gov.nl/regulation/isde-sustainable-energy-investment-allowance/", "type": "apply"},
+                            {"text": "📋 Requirements", "url": "https://wijgaanverduurzamen.nl", "type": "info"}
+                        ]
+                    },
+                    {
+                        "id": "eia",
+                        "title": "EIA - Energy Investment Allowance",
+                        "type": "tax",
+                        "categories": ["tax"],
+                        "description": "Tax deduction for companies investing in energy-efficient technologies. Reduces your taxable income when buying efficient equipment.",
+                        "relevance": "High - Reduces equipment costs",
+                        "requirements": "Choose from official \"Energy List\", meet investment criteria",
+                        "deadline": null,
+                        "priority": false,
+                        "links": [
+                            {"text": "💡 View Energy List", "url": "https://www.rvo.nl/subsidies-financiering/eia", "type": "apply"}
+                        ]
+                    },
+                    {
+                        "id": "circular-plastics",
+                        "title": "Circular Plastics NL",
+                        "type": "grant",
+                        "categories": ["grant"],
+                        "description": "Funding for innovations in plastic recycling and circular plastics. Perfect if you want to improve packaging or reduce plastic waste.",
+                        "relevance": "Medium - Good for packaging innovation",
+                        "requirements": "Partnership required, innovative approach, NL establishment",
+                        "deadline": null,
+                        "priority": false,
+                        "links": [
+                            {"text": "♻️ Learn More", "url": "https://www.circulairplatform.nl", "type": "apply"},
+                            {"text": "📋 RVO Info", "url": "https://www.rvo.nl/onderwerpen/circulaire-economie", "type": "info"}
+                        ]
+                    },
+                    {
+                        "id": "tse-industry",
+                        "title": "TSE Industry Sustainability",
+                        "type": "grant",
+                        "categories": ["grant"],
+                        "description": "Grants for feasibility studies to assess how to make operations more sustainable and reduce CO₂. 50-70% subsidy for studies.",
+                        "relevance": "Medium - Good for supply chain optimization",
+                        "requirements": null,
+                        "subsidyRate": "50-70% of study costs",
+                        "started": "May 1, 2025",
+                        "deadline": null,
+                        "priority": false,
+                        "links": [
+                            {"text": "🔬 Apply for Study", "url": "https://www.topsectorenergie.nl", "type": "apply"}
+                        ]
+                    },
+                    {
+                        "id": "trade-relations",
+                        "title": "Trade Relations Programme",
+                        "type": "grant",
+                        "categories": ["grant", "urgent"],
+                        "description": "Helps Dutch businesses with export and international collaboration. Perfect for scaling beyond NL/EU markets.",
+                        "relevance": "High for international expansion",
+                        "requirements": null,
+                        "budget": "€1,000,000 available",
+                        "deadline": "September 30, 2025",
+                        "priority": false,
+                        "links": [
+                            {"text": "🌍 Apply Now", "url": "https://www.rvo.nl/subsidies-financiering/trp", "type": "apply"}
+                        ]
+                    },
+                    {
+                        "id": "dhi-subsidy",
+                        "title": "DHI - Tech Demonstration",
+                        "type": "grant",
+                        "categories": ["grant"],
+                        "description": "Support for SMEs with international ambitions to demonstrate technology, conduct feasibility studies, or prepare international investments.",
+                        "relevance": "Medium - Good for tech innovation",
+                        "requirements": null,
+                        "deadline": "December 31, 2025",
+                        "priority": false,
+                        "links": [
+                            {"text": "🚀 Apply", "url": "https://www.rvo.nl/subsidies-financiering/dhi", "type": "apply"}
+                        ]
+                    },
+                    {
+                        "id": "energy-labelling",
+                        "title": "EU Energy Labelling & Ecodesign",
+                        "type": "compliance",
+                        "categories": ["certification"],
+                        "description": "Mandatory energy labels and ecodesign requirements for electrical appliances. Essential for legal sales and builds customer trust.",
+                        "relevance": "Critical - Legal requirement",
+                        "requirements": "CE marking, correct labelling, meet ecodesign standards",
+                        "deadline": null,
+                        "priority": false,
+                        "links": [
+                            {"text": "🏷️ Compliance Guide", "url": "https://business.gov.nl/regulation/energy-labelling/", "type": "apply"},
+                            {"text": "⚙️ Ecodesign Rules", "url": "https://business.gov.nl/regulation/ecodesign/", "type": "info"}
+                        ]
+                    }
+                ];
+            }
+
+            renderSchemes() {
+                const container = document.getElementById('schemes-container');
+                container.innerHTML = '';
+
+                const filteredSchemes = this.filterSchemes();
+
+                if (filteredSchemes.length === 0) {
+                    container.innerHTML = '<div class="loading">No schemes match your filter.</div>';
+                    return;
+                }
+
+                filteredSchemes.forEach((scheme, index) => {
+                    const card = this.createSchemeCard(scheme);
+                    container.appendChild(card);
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(18px)';
+                    setTimeout(() => {
+                        card.style.transition = 'all 0.5s ease';
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, index * 55);
+                });
+            }
+
+            createSchemeCard(scheme) {
+                const card = document.createElement('div');
+                card.className = 'scheme-card';
+                card.setAttribute('data-category', scheme.categories.join(' '));
+
+                let html = '';
+
+                if (scheme.priority) {
+                    html += '<div class="priority-badge">High Priority</div>';
+                }
+
+                if (scheme.deadline) {
+                    html += `
+                        <div class="deadline-warning">
+                            <div class="deadline-text">⏰ Deadline: ${scheme.deadline}</div>
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="scheme-header">
+                        <div class="scheme-title">${scheme.title}</div>
+                        <div class="scheme-type ${scheme.type}">${this.capitalizeFirst(scheme.type)}</div>
+                    </div>
+                `;
+
+                html += `<div class="scheme-description">${scheme.description}</div>`;
+
+                html += '<div class="scheme-details">';
+                if (scheme.relevance) {
+                    html += `
+                        <div class="detail-item">
+                            <div class="detail-label">Relevance</div>
+                            <div class="detail-value">${scheme.relevance}</div>
+                        </div>
+                    `;
+                }
+
+                const detailFields = ['maxFunding', 'budget', 'subsidyRate', 'duration', 'started', 'requirements'];
+                detailFields.forEach(field => {
+                    if (scheme[field]) {
+                        html += `
+                            <div class="detail-item">
+                                <div class="detail-label">${this.formatFieldName(field)}</div>
+                                <div class="detail-value">${scheme[field]}</div>
+                            </div>
+                        `;
+                    }
+                });
+                html += '</div>';
+
+                html += '<div class="scheme-actions">';
+                scheme.links.forEach(link => {
+                    const btnClass = link.type === 'apply' ? 'apply-btn' : 'info-btn';
+                    html += `<a href="${link.url}" class="${btnClass}" target="_blank">${link.text}</a>`;
+                });
+                html += '</div>';
+
+                card.innerHTML = html;
+                return card;
+            }
+
+            filterSchemes() {
+                if (this.currentFilter === 'all') return this.schemes;
+                return this.schemes.filter(s => s.categories.includes(this.currentFilter));
+            }
+
+            setupFilters() {
+                const filterButtons = document.querySelectorAll('.filter-btn');
+                filterButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        filterButtons.forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                        this.currentFilter = button.getAttribute('data-filter');
+                        this.renderSchemes();
+                    });
+                });
+            }
+
+            updateLastUpdated() {
+                const now = new Date().toLocaleDateString('en-GB', {
+                    day: 'numeric', month: 'long', year: 'numeric'
+                });
+                document.getElementById('last-updated').textContent = `Last updated: ${now}`;
+            }
+
+            capitalizeFirst(str) {
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            }
+
+            formatFieldName(field) {
+                const names = {
+                    'maxFunding': 'Max Funding',
+                    'subsidyRate': 'Subsidy Rate',
+                    'duration': 'Duration',
+                    'started': 'Started',
+                    'requirements': 'Requirements',
+                    'budget': 'Budget'
+                };
+                return names[field] || field;
+            }
+
+            showError() {
+                document.getElementById('schemes-container').innerHTML =
+                    '<div class="loading">Error loading schemes. Please try again later.</div>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { new SchemesPortal(); });
+    </script>
+</body>
+</html>

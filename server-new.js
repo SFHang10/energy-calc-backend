@@ -209,6 +209,7 @@ app.get('/greenways/orchestra-hub', (req, res) => sendLiveMusicHtml(res, 'greenw
 app.get('/greenways/orchestra-hub-wix-frame', (req, res) => sendLiveMusicHtml(res, 'greenways-orchestra-hub-wix-frame.html'));
 app.get('/greenways/guide-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-orchestra-hub.html'));
 app.get('/greenways/agents-highlights', (req, res) => sendLiveMusicHtml(res, 'greenways-agents-highlights.html'));
+app.get('/greenways/agents-map', (req, res) => sendLiveMusicHtml(res, 'greenways-agents-map.html'));
 app.get('/greenways/agents-story', (req, res) => sendLiveMusicHtml(res, 'greenways-agents-story.html'));
 app.get('/greenways/restaurant-monitoring', (req, res) => sendLiveMusicHtml(res, 'restaurant_energy_monitoring_interactive.html'));
 app.get('/greenways/interactive-restaurants', (req, res) => sendLiveMusicHtml(res, 'interactive_restaurants_monitoring.html'));
