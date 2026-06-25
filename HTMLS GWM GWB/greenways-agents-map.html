@@ -56,7 +56,7 @@
   .map-page {
     position: relative;
     z-index: 1;
-    max-width: 980px;
+    max-width: 1080px;
     margin: 0 auto;
     padding: 24px 16px 44px;
   }
@@ -146,6 +146,180 @@
     text-decoration: none;
   }
   .map-footer a:hover { text-decoration: underline; }
+
+  .restaurant-scenes {
+    margin-top: 36px;
+  }
+  .restaurant-scenes h2 {
+    text-align: center;
+    font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .restaurant-scenes .scenes-lede {
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--muted);
+    max-width: 620px;
+    margin: 0 auto 20px;
+  }
+  .scene-panel {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(134, 239, 172, 0.22);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    background: #0a1018;
+    margin-bottom: 16px;
+  }
+  .scene-panel img.scene-bg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 220px;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: center;
+  }
+  .scene-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      180deg,
+      rgba(6, 10, 16, 0.15) 0%,
+      rgba(6, 10, 16, 0.35) 55%,
+      rgba(6, 10, 16, 0.55) 100%
+    );
+  }
+  .scene-callouts {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .scene-callout {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .scene-callout .scene-card {
+    pointer-events: auto;
+  }
+  .scene-pin {
+    position: absolute;
+    width: 11px;
+    height: 11px;
+    margin: -5px 0 0 -5px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.55), 0 0 12px rgba(134, 239, 172, 0.65);
+    z-index: 2;
+  }
+  .scene-line {
+    position: absolute;
+    height: 0;
+    border-top: 2px dotted rgba(255, 255, 255, 0.72);
+    transform-origin: 0 50%;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .scene-card {
+    position: absolute;
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    max-width: min(300px, 46vw);
+    padding: 11px 13px;
+    border-radius: 14px;
+    background: rgba(18, 14, 10, 0.92);
+    border: 1px solid rgba(201, 169, 97, 0.5);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+    text-decoration: none;
+    color: #fff;
+    transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .scene-card:hover {
+    transform: translateY(-1px);
+    border-color: rgba(134, 239, 172, 0.65);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5);
+  }
+  .scene-card img {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top center;
+    border: 2px solid rgba(134, 239, 172, 0.5);
+    flex-shrink: 0;
+  }
+  .scene-card-body {
+    min-width: 0;
+    line-height: 1.4;
+    padding-top: 2px;
+  }
+  .scene-card-body strong {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #fde68a;
+    margin-bottom: 4px;
+  }
+  .scene-card-body span {
+    display: block;
+    font-size: 0.76rem;
+    color: #f0f5f2;
+    line-height: 1.45;
+  }
+  .scene-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .scene-grid .scene-panel {
+    margin-bottom: 0;
+    min-height: 220px;
+  }
+  .scene-grid .scene-card {
+    max-width: min(260px, 88%);
+  }
+  @media (max-width: 820px) {
+    .scene-grid { grid-template-columns: 1fr; }
+    .scene-card { max-width: min(280px, 72vw); }
+  }
+  @media (max-width: 560px) {
+    .scene-callouts {
+      position: static;
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      background: rgba(6, 10, 16, 0.92);
+    }
+    .scene-panel::after { display: none; }
+    .scene-callout {
+      position: static;
+      inset: auto;
+    }
+    .scene-pin,
+    .scene-line { display: none; }
+    .scene-card {
+      position: static;
+      left: auto !important;
+      right: auto !important;
+      top: auto !important;
+      max-width: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .scene-card img {
+      width: 48px;
+      height: 48px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -169,6 +343,30 @@
   </header>
 
   <div class="agent-map-grid" id="agent-map-grid" aria-label="Greenways agent team"></div>
+
+  <section class="restaurant-scenes" aria-labelledby="restaurant-scenes-title">
+    <h2 id="restaurant-scenes-title">How agents help in your restaurant</h2>
+    <p class="scenes-lede">Tap a portrait on the scene — each specialist covers a different part of the energy transition in hospitality.</p>
+
+    <div class="scene-grid">
+      <div class="scene-panel" id="scene-kitchen">
+        <img class="scene-bg" src="/product-placement/Restuarants/agents-map-scenes/restaurant-kitchen-monitor.jpg" alt="Commercial kitchen with energy monitoring display" width="1200" height="750" decoding="async">
+        <div class="scene-callouts" id="scene-kitchen-callouts"></div>
+      </div>
+      <div class="scene-panel" id="scene-chef-ai">
+        <img class="scene-bg" src="/product-placement/Restuarants/agents-map-scenes/restaurant-chef-ai-hologram.jpg" alt="Chef in kitchen with digital assistant overlay" width="1200" height="750" decoding="async">
+        <div class="scene-callouts" id="scene-chef-ai-callouts"></div>
+      </div>
+      <div class="scene-panel" id="scene-chef-hud">
+        <img class="scene-bg" src="/product-placement/Restuarants/agents-map-scenes/restaurant-chef-analytics-hud.jpg" alt="Chef using real-time kitchen analytics" width="1200" height="750" decoding="async">
+        <div class="scene-callouts" id="scene-chef-hud-callouts"></div>
+      </div>
+      <div class="scene-panel" id="scene-iot">
+        <img class="scene-bg" src="/product-placement/Restuarants/agents-map-scenes/restaurant-iot-sensors-city.jpg" alt="IoT sensors and actuators across a connected city" width="1200" height="750" decoding="async">
+        <div class="scene-callouts" id="scene-iot-callouts"></div>
+      </div>
+    </div>
+  </section>
 
   <p class="map-footer">
     New here? Read <a href="/greenways/agents-story">why this portal exists</a> ·
@@ -195,6 +393,34 @@
     systems: "Systems & monitoring"
   };
 
+  var RESTAURANT_HELP = {
+    grants: "Match kitchen upgrades and refrigeration to NL and EU grants before you buy.",
+    finance: "Compare tariffs, model payback on ovens and HVAC, and explore loans or BNPL.",
+    equipment: "Find efficient combi ovens, ventilation, and retrofit paths for your premises.",
+    deals: "Spot energy, water, and supply deals tuned for busy restaurant operations.",
+    media: "Track policy and news that affects bills, menus, and upgrade timing.",
+    products: "Search water-saving taps, efficient refrigeration, and sustainable kitchen products.",
+    systems: "Monitor electricity, gas, and sensor health across your site in one view."
+  };
+
+  var SCENE_CALLOUTS = {
+    "scene-kitchen-callouts": [
+      { id: "grants", pinX: 22, pinY: 40, cardX: 3, cardY: 5 },
+      { id: "finance", pinX: 62, pinY: 48, cardX: 3, cardY: 56 }
+    ],
+    "scene-chef-ai-callouts": [
+      { id: "media", pinX: 70, pinY: 30, cardRight: 3, cardY: 5 },
+      { id: "equipment", pinX: 35, pinY: 68, cardX: 3, cardY: 54 }
+    ],
+    "scene-chef-hud-callouts": [
+      { id: "deals", pinX: 62, pinY: 35, cardRight: 3, cardY: 6 },
+      { id: "products", pinX: 40, pinY: 62, cardX: 4, cardY: 52 }
+    ],
+    "scene-iot-callouts": [
+      { id: "systems", pinX: 50, pinY: 55, cardX: 28, cardY: 58 }
+    ]
+  };
+
   var ROSTER_FALLBACK = [
     { id: "grants", name: "Andrieus", slug: "grants-agent", path: "/greenways/grants-agent", imageUrl: "https://static.wixstatic.com/media/c123de_46943b6b1f8d41a59960fd8fdde4097b~mv2.png" },
     { id: "finance", name: "Vincent", slug: "finance-agent", path: "/greenways/finance-agent", imageUrl: "https://static.wixstatic.com/media/c123de_63359ab891354966aa9ff792fe998677~mv2.png" },
@@ -204,6 +430,10 @@
     { id: "products", name: "Zyanne", slug: "sustainable-products-agent", path: "/greenways/sustainable-products-agent", imageUrl: "https://static.wixstatic.com/media/c123de_dc5b2e3e4aef4cc4b75c7b44888281bd~mv2.png" },
     { id: "systems", name: "Edwardo", slug: "systems-agent", path: "/greenways/systems-agent", imageUrl: "https://static.wixstatic.com/media/c123de_eeb61cbf84bd402eb642e28b2b457c76~mv2.png" }
   ];
+
+  function agentById(agents, id) {
+    return (agents || []).find(function (a) { return a.id === id; }) || ROSTER_FALLBACK.find(function (a) { return a.id === id; });
+  }
 
   function renderGrid(agents) {
     var mount = document.getElementById("agent-map-grid");
@@ -221,11 +451,81 @@
     }).join("");
   }
 
-  renderGrid(ROSTER_FALLBACK);
+  function layoutSceneLines(sceneEl) {
+    if (!sceneEl || window.matchMedia("(max-width: 560px)").matches) return;
+    sceneEl.querySelectorAll(".scene-callout").forEach(function (row) {
+      var pin = row.querySelector(".scene-pin");
+      var card = row.querySelector(".scene-card");
+      var line = row.querySelector(".scene-line");
+      if (!pin || !card || !line) return;
+      var panel = sceneEl.closest(".scene-panel");
+      if (!panel) return;
+      var pr = panel.getBoundingClientRect();
+      var pinR = pin.getBoundingClientRect();
+      var cardR = card.getBoundingClientRect();
+      var x1 = pinR.left + pinR.width / 2 - pr.left;
+      var y1 = pinR.top + pinR.height / 2 - pr.top;
+      var x2 = cardR.left + cardR.width / 2 - pr.left;
+      var y2 = cardR.top + cardR.height / 2 - pr.top;
+      var dx = x2 - x1;
+      var dy = y2 - y1;
+      var len = Math.sqrt(dx * dx + dy * dy);
+      var angle = Math.atan2(dy, dx) * (180 / Math.PI);
+      line.style.left = x1 + "px";
+      line.style.top = y1 + "px";
+      line.style.width = Math.max(24, len - 20) + "px";
+      line.style.transform = "rotate(" + angle + "deg)";
+    });
+  }
+
+  function sceneCardPos(c) {
+    if (c.cardRight != null) {
+      return "right:" + c.cardRight + "%;left:auto;top:" + c.cardY + "%;";
+    }
+    return "left:" + c.cardX + "%;top:" + c.cardY + "%;";
+  }
+
+  function renderSceneCallouts(agents) {
+    Object.keys(SCENE_CALLOUTS).forEach(function (mountId) {
+      var mount = document.getElementById(mountId);
+      if (!mount) return;
+      mount.innerHTML = SCENE_CALLOUTS[mountId].map(function (c) {
+        var a = agentById(agents, c.id);
+        if (!a) return "";
+        var href = contentBase() + (a.path || "/greenways/" + a.slug);
+        var help = RESTAURANT_HELP[c.id] || ROLE_LINES[c.id] || "";
+        return (
+          '<div class="scene-callout" style="--pin-x:' + c.pinX + '%;--pin-y:' + c.pinY + '%;">' +
+          '<span class="scene-pin" style="left:' + c.pinX + "%;top:" + c.pinY + '%;"></span>' +
+          '<span class="scene-line" aria-hidden="true"></span>' +
+          '<a class="scene-card" href="' + href + '" target="_top" rel="noopener" style="' + sceneCardPos(c) + '">' +
+          '<img src="' + a.imageUrl + '" alt="" width="52" height="52" decoding="async">' +
+          '<span class="scene-card-body"><strong>' + a.name + "</strong><span>" + help + "</span></span></a></div>"
+        );
+      }).join("");
+      layoutSceneLines(mount);
+    });
+  }
+
+  function boot(agents) {
+    renderGrid(agents);
+    renderSceneCallouts(agents);
+    requestAnimationFrame(function () {
+      document.querySelectorAll(".scene-callouts").forEach(layoutSceneLines);
+    });
+    window.addEventListener("load", function () {
+      document.querySelectorAll(".scene-callouts").forEach(layoutSceneLines);
+    });
+    window.addEventListener("resize", function () {
+      document.querySelectorAll(".scene-callouts").forEach(layoutSceneLines);
+    });
+  }
+
+  boot(ROSTER_FALLBACK);
   fetch(contentBase() + "/data/greenways-agent-roster.json")
     .then(function (r) { return r.json(); })
     .then(function (data) {
-      if (data.agents && data.agents.length) renderGrid(data.agents);
+      if (data.agents && data.agents.length) boot(data.agents);
     })
     .catch(function () {});
 })();
