@@ -18,6 +18,9 @@
       --amber:#f5a623;
       --blue:#22d4ff;
       --radius:14px;
+      --utility-backdrop-electricity:url("https://static.wixstatic.com/media/c123de_7186bf60293242839467fbdc3ab5209e~mv2.jpg");
+      --utility-backdrop-gas:url("https://static.wixstatic.com/media/c123de_aafe287030ff44bfa5b3d98f6a97e6b5~mv2.jpeg");
+      --utility-backdrop-water:url("https://static.wixstatic.com/media/c123de_81cf65303bfb417ea0e6d5e2436b6341~mv2.jpg");
     }
     *{box-sizing:border-box}
     body{
@@ -25,8 +28,61 @@
       font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
       color:var(--text);
       background: radial-gradient(circle at top right, rgba(0,245,130,.1), transparent 40%), var(--bg);
+      position:relative;
     }
-    .wrap{max-width:1200px;margin:0 auto;padding:18px}
+    .utility-page-backdrop{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      background-color:var(--bg);
+      background-size:cover;
+      background-position:center;
+      opacity:.9;
+      filter:brightness(.9) saturate(1.06);
+    }
+    body.utility-detail--backdrop .utility-page-backdrop{display:block}
+    body.utility-detail--backdrop{background:var(--bg)}
+    body.utility-detail--electricity .utility-page-backdrop{
+      background-image:
+        linear-gradient(rgba(5,14,9,.38),rgba(5,12,8,.46)),
+        radial-gradient(circle at 22% 18%,rgba(0,245,130,.1),transparent 52%),
+        var(--utility-backdrop-electricity);
+    }
+    body.utility-detail--gas .utility-page-backdrop{
+      background-image:
+        linear-gradient(rgba(14,10,5,.4),rgba(10,8,4,.48)),
+        radial-gradient(circle at 78% 20%,rgba(245,166,35,.12),transparent 50%),
+        var(--utility-backdrop-gas);
+    }
+    body.utility-detail--water .utility-page-backdrop{
+      background-image:
+        linear-gradient(rgba(5,14,18,.38),rgba(5,12,20,.46)),
+        radial-gradient(circle at 50% 22%,rgba(34,212,255,.1),transparent 52%),
+        var(--utility-backdrop-water);
+    }
+    .wrap{max-width:1200px;margin:0 auto;padding:18px;position:relative;z-index:1}
+    body.utility-detail--backdrop .top,
+    body.utility-detail--backdrop .hero,
+    body.utility-detail--backdrop .card:not(.intel-panel){
+      background:rgba(13,32,21,.82);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
+    body.utility-detail--backdrop .hero{
+      grid-template-columns:1fr;
+    }
+    body.utility-detail--backdrop .hero img{display:none}
+    body.utility-detail--backdrop .hero h1,
+    body.utility-detail--backdrop .card h3{
+      color:#fff;
+      text-shadow:0 1px 12px rgba(0,0,0,.45);
+    }
+    body.utility-detail--backdrop .hero p,
+    body.utility-detail--backdrop .sub{
+      color:#d8ebe2;
+    }
     .top{
       display:flex;justify-content:space-between;align-items:center;gap:12px;
       background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;
@@ -48,12 +104,22 @@
     .hero-copy{padding:18px}
     .hero h1{margin:0 0 8px;font-size:28px}
     .hero p{margin:0;color:var(--muted);line-height:1.5}
-    .hero img{width:100%;height:100%;object-fit:cover;display:block;min-height:220px}
+    .hero img{width:100%;height:100%;object-fit:cover;display:block;min-height:220px;filter:brightness(.88) saturate(.94)}
     .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     .chip{padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700}
     .chip.green{background:rgba(0,245,130,.2);color:#a6ffd4}
     .chip.orange{background:rgba(245,166,35,.18);color:#ffd79c}
     .chip.blue{background:rgba(34,212,255,.18);color:#afefff}
+    button.chip{
+      cursor:pointer;
+      border:none;
+      font:inherit;
+      line-height:inherit;
+      transition:box-shadow .15s ease, filter .12s ease, transform .12s ease;
+    }
+    button.chip:hover{filter:brightness(1.08)}
+    button.chip:focus-visible{outline:2px solid rgba(255,255,255,.55);outline-offset:2px}
+    button.chip.chip-active{box-shadow:0 0 0 2px rgba(255,255,255,.28)}
     .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;margin-top:12px}
     .card{
       background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;
@@ -63,6 +129,9 @@
     .kpi{grid-column:span 3}
     .kpi .val{font-size:28px;font-weight:800;margin-top:6px}
     .main-chart{grid-column:span 8}
+    #sectionUtilityTrend,
+    #sectionUtilityLoad,
+    #sectionUtilityCompare{scroll-margin-top:88px}
     .lever-card{grid-column:span 4}
     .split{grid-column:span 6}
     .full{grid-column:span 12}
@@ -72,6 +141,31 @@
     .breakdown-row{display:flex;justify-content:space-between;align-items:center;margin:10px 0}
     .bar{height:8px;background:#1a3526;border-radius:999px;overflow:hidden}
     .bar > span{display:block;height:100%}
+    .breakdown-interactive{margin-top:10px;display:grid;gap:8px}
+    .breakdown-chips{display:flex;flex-wrap:wrap;gap:8px}
+    .breakdown-chip{
+      border:1px solid var(--line);
+      background:var(--surface-2);
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      color:var(--text);
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+    }
+    .breakdown-chip.active{box-shadow:0 0 0 2px rgba(255,255,255,.08) inset}
+    .breakdown-dot{width:9px;height:9px;border-radius:50%}
+    .breakdown-info{
+      border:1px solid var(--line);
+      background:rgba(7,20,13,.72);
+      border-radius:10px;
+      padding:8px 10px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
     .range-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
     .range-btn{
       border:1px solid var(--line);background:var(--surface-2);color:var(--text);border-radius:999px;padding:6px 10px;cursor:pointer;font-size:12px
@@ -80,6 +174,82 @@
     .compare-stat{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
     .pill{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:8px}
     .pill strong{display:block;font-size:18px}
+    .intel-panel.card{
+      margin-top:4px;
+      padding:0;
+      overflow:hidden;
+      background:linear-gradient(145deg,rgba(16,42,28,.5) 0%,rgba(6,18,11,.38) 45%,rgba(8,24,15,.42) 100%);
+      backdrop-filter:blur(20px) saturate(1.25);
+      -webkit-backdrop-filter:blur(20px) saturate(1.25);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.1),
+        0 18px 48px rgba(0,0,0,.32),
+        0 0 0 1px rgba(0,245,130,.06);
+    }
+    .intel-glass-inner{padding:16px 18px 18px}
+    .intel-chat-header{
+      display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;padding-bottom:12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .intel-chat-avatar{
+      width:42px;height:42px;border-radius:14px;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      font-size:20px;line-height:1;
+      background:linear-gradient(145deg,rgba(0,245,130,.22),rgba(34,212,255,.12));
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
+    }
+    .intel-chat-head-text{min-width:0}
+    .intel-chat-head-text h3{margin:0 0 4px;font-size:17px;font-weight:700;letter-spacing:-.02em}
+    .intel-chat-meta{
+      margin:0;font-size:11px;color:rgba(180,220,195,.78);line-height:1.35;letter-spacing:.02em;
+    }
+    .sub.intel-chat-intro{margin-top:0;margin-bottom:12px;line-height:1.5}
+    .intel-grid{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;
+      margin-top:0;
+    }
+    .intel-chat-feed{
+      max-height:none;
+      padding-right:2px;
+    }
+    .intel-card{
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:16px 16px 16px 6px;
+      padding:12px 14px 13px;
+      background:rgba(255,255,255,.07);
+      backdrop-filter:blur(14px) saturate(1.1);
+      -webkit-backdrop-filter:blur(14px) saturate(1.1);
+      display:flex;flex-direction:column;gap:8px;min-height:0;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 24px rgba(0,0,0,.18);
+      transition:background .2s ease,border-color .2s ease,transform .15s ease;
+    }
+    .intel-card:hover{
+      background:rgba(255,255,255,.1);
+      border-color:rgba(0,245,130,.22);
+      transform:translateY(-1px);
+    }
+    .intel-card .intel-tag{
+      align-self:flex-start;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+      padding:3px 8px;border-radius:999px;
+      border:1px solid rgba(0,245,130,.38);color:#d0ffe8;
+      background:rgba(0,245,130,.12);backdrop-filter:blur(6px);
+    }
+    .intel-card .intel-tag.tag-amber{border-color:rgba(245,166,35,.5);color:#ffe8cd;background:rgba(245,166,35,.14)}
+    .intel-card .intel-tag.tag-blue{border-color:rgba(34,212,255,.45);color:#daf6ff;background:rgba(34,212,255,.14)}
+    .intel-card h4{margin:0;font-size:14px;line-height:1.3;color:#f6fffb;text-shadow:0 1px 8px rgba(0,0,0,.2)}
+    .intel-card p{margin:0;font-size:12px;color:rgba(212,235,220,.9);line-height:1.52;flex:1}
+    .intel-card a{
+      font-size:12px;font-weight:600;color:#b8fdd7;text-decoration:none;
+      border-bottom:1px dashed rgba(158,245,200,.5);width:fit-content;
+      opacity:.95;transition:opacity .15s ease,color .15s ease;
+    }
+    .intel-card a:hover{color:#dfffea;opacity:1}
+    .intel-foot{
+      margin:16px 0 0;font-size:11px;color:rgba(160,195,175,.88);line-height:1.48;
+      border-top:1px solid rgba(255,255,255,.1);padding-top:12px;
+    }
     @media (max-width:960px){
       .hero{grid-template-columns:1fr}
       .kpi,.main-chart,.lever-card,.split{grid-column:span 12}
@@ -87,12 +257,15 @@
     }
   </style>
 </head>
-<body>
+<body class="utility-detail--backdrop">
+  <div class="utility-page-backdrop" aria-hidden="true"></div>
   <div class="wrap">
     <div class="top">
       <div style="font-weight:700">Greenways Utility Intelligence</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn" id="backToSourceBtn" type="button">← Back</button>
         <a class="btn" href="./Greenways%20Interface%20.html">← Back to Dashboard</a>
+        <span class="chip" id="dataModeChip">Preview mode</span>
         <a class="btn utility-btn utility-electricity" id="switchElectricity" href="./utility-detail.html?type=electricity">Electricity</a>
         <a class="btn utility-btn utility-gas" id="switchGas" href="./utility-detail.html?type=gas">Gas</a>
         <a class="btn utility-btn utility-water" id="switchWater" href="./utility-detail.html?type=water">Water</a>
@@ -103,10 +276,10 @@
       <div class="hero-copy">
         <h1 id="titleText">Electricity Intelligence</h1>
         <p id="heroSummary">Dedicated professional utility analysis with usage breakdown, trends, controls, and benchmark comparison.</p>
-        <div class="chips">
-          <span class="chip green" id="chipA">Live trend</span>
-          <span class="chip orange" id="chipB">Load distribution</span>
-          <span class="chip blue" id="chipC">Period comparison</span>
+        <div class="chips" role="toolbar" aria-label="Jump to analysis sections">
+          <button type="button" class="chip green chip-active" id="chipA" data-section="sectionUtilityTrend" aria-pressed="true">Live trend</button>
+          <button type="button" class="chip orange" id="chipB" data-section="sectionUtilityLoad" aria-pressed="false">Load distribution</button>
+          <button type="button" class="chip blue" id="chipC" data-section="sectionUtilityCompare" aria-pressed="false">Period comparison</button>
         </div>
       </div>
       <img id="heroImage" alt="Utility visual">
@@ -134,7 +307,7 @@
         <div class="sub" id="kpi4Delta">Today projection</div>
       </div>
 
-      <div class="card main-chart">
+      <div class="card main-chart" id="sectionUtilityTrend">
         <h3 id="trendTitle">Electricity Trend (24h)</h3>
         <div class="sub">Dedicated trend view for this utility</div>
         <canvas id="trendChart" height="120"></canvas>
@@ -157,10 +330,14 @@
         </div>
       </div>
 
-      <div class="card split">
+      <div class="card split" id="sectionUtilityLoad">
         <h3 id="breakdownTitle">Where Usage Is Coming From</h3>
         <div class="sub" id="breakdownSub">Operational distribution by subsystem</div>
         <canvas id="breakdownChart" height="180"></canvas>
+        <div class="breakdown-interactive">
+          <div class="breakdown-chips" id="breakdownChips"></div>
+          <div class="breakdown-info" id="breakdownInfo">Select a category to view share and practical optimization note.</div>
+        </div>
       </div>
 
       <div class="card split">
@@ -168,7 +345,7 @@
         <div id="breakdownBars"></div>
       </div>
 
-      <div class="card full">
+      <div class="card full" id="sectionUtilityCompare">
         <h3 id="compareTitle">Interactive Period Comparison</h3>
         <div class="sub" id="compareSub">Compare recent usage windows in an easy visual format</div>
         <div class="range-tabs">
@@ -185,11 +362,34 @@
           <div class="pill"><span class="sub">Daily average</span><strong id="cmpAvg">0</strong></div>
         </div>
       </div>
+
+      <div class="card full intel-panel" id="savingsIntelPanel" aria-labelledby="savingsIntelHeading">
+        <div class="intel-glass-inner">
+          <header class="intel-chat-header">
+            <div class="intel-chat-avatar" aria-hidden="true" title="Savings assistant">💬</div>
+            <div class="intel-chat-head-text">
+              <h3 id="savingsIntelHeading">Savings ideas from what we see</h3>
+              <p class="intel-chat-meta">Assistant-style suggestions · glass preview (interactive layers to follow)</p>
+            </div>
+          </header>
+          <p class="sub intel-chat-intro" id="savingsIntelSub"></p>
+          <div class="intel-grid intel-chat-feed" id="savingsIntelCards"></div>
+          <p class="intel-foot" id="savingsIntelFoot"></p>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
     const utility = new URLSearchParams(window.location.search).get('type') || 'electricity';
+    document.body.classList.add('utility-detail--' + (['electricity','gas','water'].includes(utility) ? utility : 'electricity'));
+    const backToSourceBtn = document.getElementById('backToSourceBtn');
+    if (backToSourceBtn) {
+      backToSourceBtn.addEventListener('click', () => {
+        if (window.history.length > 1) window.history.back();
+        else window.location.href = './Greenways%20Interface%20.html';
+      });
+    }
 
     const CONFIG = {
       electricity: {
@@ -197,7 +397,7 @@
         unit: 'kWh',
         title: 'Electricity Intelligence',
         summary: 'Dedicated electricity page with load breakdown, trend analytics, and optimization controls.',
-        image: '../product-placement/Sustainability%20Round%20Up/Building%20Pic/building-a-sustainable-future-with-energy-efficient-buildings-kn-768x578.jpeg',
+        image: 'https://static.wixstatic.com/media/c123de_7186bf60293242839467fbdc3ab5209e~mv2.jpg',
         kpis: ['142 kWh', '14:00', '84', '€39'],
         kpiDeltas: ['▼ 8% vs yesterday', 'Kitchen prep + HVAC', 'Target ≥ 88', 'Today projection'],
         leverLabels: ['Alert Threshold', 'Efficiency Target', 'Load Shift Intensity'],
@@ -215,7 +415,7 @@
         unit: 'm³',
         title: 'Gas Intelligence',
         summary: 'Dedicated gas page with combustion load breakdown, trend diagnostics, and efficiency controls.',
-        image: '../product-placement/Sustainability%20Round%20Up/Green%20Solutions/OIP%20(6).jpeg',
+        image: 'https://static.wixstatic.com/media/c123de_aafe287030ff44bfa5b3d98f6a97e6b5~mv2.jpeg',
         kpis: ['38 m³', '13:00', '79', '€31'],
         kpiDeltas: ['▲ 3% vs yesterday', 'Cooking + hot water', 'Target ≥ 85', 'Today projection'],
         leverLabels: ['Pressure Alert', 'Combustion Efficiency Target', 'Schedule Shift Intensity'],
@@ -233,7 +433,7 @@
         unit: 'm³',
         title: 'Water Intelligence',
         summary: 'Dedicated water page with process-level consumption split and interactive period comparison.',
-        image: '../product-placement/Sustainability%20Round%20Up/OIP%20(12).jpeg',
+        image: 'https://static.wixstatic.com/media/c123de_81cf65303bfb417ea0e6d5e2436b6341~mv2.jpg',
         kpis: ['1.8 m³', '12:00', '82', '€12'],
         kpiDeltas: ['▼ 5% vs yesterday', 'Dishwashing peak', 'Target ≥ 86', 'Today projection'],
         leverLabels: ['Leak Alert Sensitivity', 'Water Efficiency Target', 'Re-use Loop Intensity'],
@@ -248,92 +448,214 @@
       }
     };
 
-    const cfg = CONFIG[utility] || CONFIG.electricity;
-    const fmt = (n) => (typeof n === 'number' ? n.toFixed(utility === 'water' ? 2 : 1) : n);
-
-    document.getElementById('switchElectricity').classList.toggle('active', utility === 'electricity');
-    document.getElementById('switchGas').classList.toggle('active', utility === 'gas');
-    document.getElementById('switchWater').classList.toggle('active', utility === 'water');
-
-    document.getElementById('titleText').textContent = cfg.title;
-    document.getElementById('heroSummary').textContent = cfg.summary;
-    const heroImage = document.getElementById('heroImage');
-    heroImage.onerror = () => {
-      heroImage.onerror = null;
-      heroImage.src = './Product%20Comparison/HVAC/Fig8_HTML.png';
-    };
-    heroImage.src = cfg.image;
-    document.getElementById('kpi1Val').textContent = cfg.kpis[0];
-    document.getElementById('kpi2Val').textContent = cfg.kpis[1];
-    document.getElementById('kpi3Val').textContent = cfg.kpis[2];
-    document.getElementById('kpi4Val').textContent = cfg.kpis[3];
-    document.getElementById('kpi1Delta').textContent = cfg.kpiDeltas[0];
-    document.getElementById('kpi2Delta').textContent = cfg.kpiDeltas[1];
-    document.getElementById('kpi3Delta').textContent = cfg.kpiDeltas[2];
-    document.getElementById('kpi4Delta').textContent = cfg.kpiDeltas[3];
-    document.getElementById('trendTitle').textContent = `${cfg.title.replace(' Intelligence','')} Trend (24h)`;
-    document.getElementById('breakdownTitle').textContent = `Where ${cfg.title.replace(' Intelligence','')} Is Being Used`;
-    document.getElementById('breakdownBarsTitle').textContent = `${cfg.title.replace(' Intelligence','')} Breakdown Detail`;
-    document.getElementById('compareTitle').textContent = `${cfg.title.replace(' Intelligence','')} Comparison`;
-    document.getElementById('compareSub').textContent = `Interactive view: last 7 days, 14 days, 1 month, and 2 months`;
-    document.getElementById('lever1Label').textContent = cfg.leverLabels[0];
-    document.getElementById('lever2Label').textContent = cfg.leverLabels[1];
-    document.getElementById('lever3Label').textContent = cfg.leverLabels[2];
-
-    const trendCtx = document.getElementById('trendChart');
-    new Chart(trendCtx, {
-      type: 'line',
-      data: {
-        labels: Array.from({length:24}, (_,i)=>`${String(i).padStart(2,'0')}:00`),
-        datasets: [{
-          label: cfg.title,
-          data: cfg.trend,
-          borderColor: cfg.color,
-          backgroundColor: `${cfg.color}22`,
-          fill: true,
-          tension: 0.35,
-          pointRadius: 0,
-          borderWidth: 2
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { labels: { color: '#c6dfd0' } } },
-        scales: {
-          x: { ticks: { color: '#9fc0af', maxRotation: 0, autoSkip: true }, grid: { color: '#1a3526' } },
-          y: { ticks: { color: '#9fc0af' }, grid: { color: '#1a3526' } }
-        }
-      }
-    });
-
-    const breakdownCtx = document.getElementById('breakdownChart');
-    new Chart(breakdownCtx, {
-      type: 'doughnut',
-      data: {
-        labels: cfg.breakdown.map(([n])=>n),
-        datasets: [{
-          data: cfg.breakdown.map(([,v])=>v),
-          backgroundColor: [cfg.color, '#2f8f63', '#5bbf8f', '#77dcae', '#9deccc'],
-          borderWidth: 0
-        }]
-      },
-      options: {
-        plugins: { legend: { labels: { color: '#c6dfd0' } } },
-        cutout: '62%'
-      }
-    });
-
-    document.getElementById('breakdownBars').innerHTML = cfg.breakdown.map(([name,val]) => `
-      <div class="breakdown-row">
-        <div style="min-width:130px">${name}</div>
-        <div style="flex:1">
-          <div class="bar"><span style="width:${val}%;background:${cfg.color}"></span></div>
-        </div>
-        <strong style="min-width:44px;text-align:right">${val}%</strong>
-      </div>
-    `).join('');
-
+    const RATES = { electricity: 0.30, gas: 1.05, water: 2.40 };
+    let trendChart;
+    let breakdownChart;
     let rangeChart;
+    let activeBreakdownIndex = 0;
+    let dataMode = 'preview';
+    let cfg = CONFIG[utility] || CONFIG.electricity;
+
+    const fmt = (n) => (typeof n === 'number' ? n.toFixed(utility === 'water' ? 2 : 1) : n);
+    const resolveApiUrl = (pathname) =>
+      window.location.protocol === 'file:' ? `http://localhost:4000${pathname}` : pathname;
+    const toNum = (v, fallback = 0) => {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : fallback;
+    };
+    const labels24h = () => Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`);
+    const estimatePeriodSeries = (dailyTotal, days) => {
+      const base = Math.max(0, toNum(dailyTotal, 0));
+      return Array.from({ length: days }, (_, i) => Number((base * (0.92 + ((i % 6) * 0.025))).toFixed(utility === 'water' ? 2 : 1)));
+    };
+
+    function applyLiveDataToConfig(baseCfg, payload) {
+      if (!payload || !payload.totals) return baseCfg;
+      const next = JSON.parse(JSON.stringify(baseCfg));
+      const utilityTotal = utility === 'electricity'
+        ? toNum(payload.totals.electricityKwh, 0)
+        : utility === 'gas'
+          ? toNum(payload.totals.gasM3, 0)
+          : toNum(payload.totals.waterM3, 0);
+      const utilityBaseline = utility === 'electricity'
+        ? toNum(payload.baseline?.electricityKwh, utilityTotal || 1)
+        : utility === 'gas'
+          ? toNum(payload.baseline?.gasM3, utilityTotal || 1)
+          : toNum(payload.baseline?.waterM3, utilityTotal || 1);
+      const trendRaw = utility === 'electricity'
+        ? payload.trend?.electricity
+        : utility === 'gas'
+          ? payload.trend?.gas
+          : payload.trend?.water;
+      const trend = Array.isArray(trendRaw) && trendRaw.length
+        ? trendRaw.map((x) => toNum(x, 0))
+        : next.trend;
+      const maxIdx = trend.reduce((best, val, idx, arr) => (toNum(val, 0) > toNum(arr[best], 0) ? idx : best), 0);
+      const pctVsBaseline = utilityBaseline > 0 ? ((utilityTotal - utilityBaseline) / utilityBaseline) * 100 : 0;
+      const estCost = utilityTotal * (RATES[utility] || 0);
+      const score = Math.max(45, Math.min(98, Math.round(88 - Math.max(0, pctVsBaseline))));
+
+      next.kpis = [
+        `${fmt(utilityTotal)} ${next.unit}`,
+        `${String(maxIdx).padStart(2, '0')}:00`,
+        `${score}`,
+        `€${Math.round(estCost)}`
+      ];
+      next.kpiDeltas = [
+        `${pctVsBaseline >= 0 ? '▲' : '▼'} ${Math.abs(pctVsBaseline).toFixed(1)}% vs baseline`,
+        'Peak hour from live trend',
+        `Target ≥ ${utility === 'electricity' ? 88 : utility === 'gas' ? 85 : 86}`,
+        'Estimated from live totals'
+      ];
+      next.trend = trend;
+      next.period = {
+        7: estimatePeriodSeries(utilityTotal, 7),
+        14: estimatePeriodSeries(utilityTotal, 14),
+        30: estimatePeriodSeries(utilityTotal, 30),
+        60: estimatePeriodSeries(utilityTotal, 60)
+      };
+      return next;
+    }
+
+    async function loadConfig() {
+      try {
+        const res = await fetch(resolveApiUrl('/api/dashboard/live?mode=live&forceRefresh=true'));
+        if (!res.ok) return;
+        const payload = await res.json();
+        cfg = applyLiveDataToConfig(cfg, payload);
+        const source = String(payload?.meta?.source || '').toLowerCase();
+        dataMode = source && !/fallback|mock/.test(source) ? 'live' : 'preview';
+      } catch (_) {
+        // keep static fallback config
+      }
+    }
+
+    function renderBasics() {
+      document.getElementById('switchElectricity').classList.toggle('active', utility === 'electricity');
+      document.getElementById('switchGas').classList.toggle('active', utility === 'gas');
+      document.getElementById('switchWater').classList.toggle('active', utility === 'water');
+      document.getElementById('titleText').textContent = cfg.title;
+      document.getElementById('heroSummary').textContent = cfg.summary;
+      const heroImage = document.getElementById('heroImage');
+      heroImage.onerror = () => {
+        heroImage.onerror = null;
+        heroImage.src = './Product%20Comparison/HVAC/Fig8_HTML.png';
+      };
+      heroImage.src = cfg.image;
+      document.getElementById('kpi1Val').textContent = cfg.kpis[0];
+      document.getElementById('kpi2Val').textContent = cfg.kpis[1];
+      document.getElementById('kpi3Val').textContent = cfg.kpis[2];
+      document.getElementById('kpi4Val').textContent = cfg.kpis[3];
+      document.getElementById('kpi1Delta').textContent = cfg.kpiDeltas[0];
+      document.getElementById('kpi2Delta').textContent = cfg.kpiDeltas[1];
+      document.getElementById('kpi3Delta').textContent = cfg.kpiDeltas[2];
+      document.getElementById('kpi4Delta').textContent = cfg.kpiDeltas[3];
+      document.getElementById('trendTitle').textContent = `${cfg.title.replace(' Intelligence','')} Trend (24h)`;
+      document.getElementById('breakdownTitle').textContent = `Where ${cfg.title.replace(' Intelligence','')} Is Being Used`;
+      document.getElementById('breakdownBarsTitle').textContent = `${cfg.title.replace(' Intelligence','')} Breakdown Detail`;
+      document.getElementById('compareTitle').textContent = `${cfg.title.replace(' Intelligence','')} Comparison`;
+      document.getElementById('compareSub').textContent = `Interactive view: last 7 days, 14 days, 1 month, and 2 months`;
+      document.getElementById('lever1Label').textContent = cfg.leverLabels[0];
+      document.getElementById('lever2Label').textContent = cfg.leverLabels[1];
+      document.getElementById('lever3Label').textContent = cfg.leverLabels[2];
+      const modeChip = document.getElementById('dataModeChip');
+      if (modeChip) {
+        modeChip.textContent = dataMode === 'live' ? 'Live data' : 'Preview mode';
+        modeChip.className = dataMode === 'live' ? 'chip green' : 'chip orange';
+      }
+    }
+
+    function renderCharts() {
+      if (trendChart) trendChart.destroy();
+      trendChart = new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+          labels: labels24h(),
+          datasets: [{
+            label: cfg.title,
+            data: cfg.trend,
+            borderColor: cfg.color,
+            backgroundColor: `${cfg.color}22`,
+            fill: true,
+            tension: 0.35,
+            pointRadius: 0,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: '#c6dfd0' } } },
+          scales: {
+            x: { ticks: { color: '#9fc0af', maxRotation: 0, autoSkip: true }, grid: { color: '#1a3526' } },
+            y: { ticks: { color: '#9fc0af' }, grid: { color: '#1a3526' } }
+          }
+        }
+      });
+
+      if (breakdownChart) breakdownChart.destroy();
+      const breakdownColors = ['#5ca9c7', '#c39b58', '#8d86b8', '#5cae97', '#b9869f'];
+      breakdownChart = new Chart(document.getElementById('breakdownChart'), {
+        type: 'doughnut',
+        data: {
+          labels: cfg.breakdown.map(([n])=>n),
+          datasets: [{ data: cfg.breakdown.map(([,v])=>v), backgroundColor: breakdownColors, borderWidth: 0 }]
+        },
+        options: {
+          plugins: { legend: { labels: { color: '#c6dfd0' } } },
+          cutout: '62%',
+          onHover: (_, elements) => {
+            if (elements && elements.length) {
+              activeBreakdownIndex = elements[0].index;
+              renderBreakdownInteractive();
+            }
+          },
+          onClick: (_, elements) => {
+            if (elements && elements.length) {
+              activeBreakdownIndex = elements[0].index;
+              renderBreakdownInteractive();
+            }
+          }
+        }
+      });
+    }
+
+    function breakdownHint(name) {
+      const n = String(name || '').toLowerCase();
+      if (/kitchen|cook/.test(n)) return 'Focus on startup sequencing and idle reduction during prep gaps.';
+      if (/refriger/.test(n)) return 'Check door discipline, setpoints, and condenser cleaning cadence.';
+      if (/hvac|extract|vent/.test(n)) return 'Align fan schedules with service windows and verify demand control.';
+      if (/light/.test(n)) return 'Use occupancy/daylight dimming and tighten out-of-hours switch-off.';
+      return 'Track this category against daily covers to detect avoidable drift.';
+    }
+
+    function renderBreakdownInteractive() {
+      const chipsEl = document.getElementById('breakdownChips');
+      const infoEl = document.getElementById('breakdownInfo');
+      if (!chipsEl || !infoEl || !Array.isArray(cfg.breakdown)) return;
+      const palette = ['#5ca9c7', '#c39b58', '#8d86b8', '#5cae97', '#b9869f'];
+      activeBreakdownIndex = Math.max(0, Math.min(activeBreakdownIndex, cfg.breakdown.length - 1));
+      chipsEl.innerHTML = cfg.breakdown.map(([name, val], idx) => `
+        <button class="breakdown-chip ${idx === activeBreakdownIndex ? 'active' : ''}" type="button" data-breakdown-idx="${idx}">
+          <span class="breakdown-dot" style="background:${palette[idx % palette.length]}"></span>
+          <span>${name}</span>
+          <strong>${val}%</strong>
+        </button>
+      `).join('');
+      const [activeName, activeVal] = cfg.breakdown[activeBreakdownIndex] || ['Category', 0];
+      infoEl.innerHTML = `<strong style="color:#d8f9e8">${activeName}</strong> contributes <strong style="color:#e8fff1">${activeVal}%</strong> of ${cfg.title.replace(' Intelligence','').toLowerCase()} use. ${breakdownHint(activeName)}`;
+      chipsEl.querySelectorAll('button[data-breakdown-idx]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.getAttribute('data-breakdown-idx') || 0);
+          activeBreakdownIndex = idx;
+          if (breakdownChart) {
+            breakdownChart.setActiveElements([{ datasetIndex: 0, index: idx }]);
+            breakdownChart.update();
+          }
+          renderBreakdownInteractive();
+        });
+      });
+    }
+
     const rangeCtx = document.getElementById('rangeChart');
     function renderRange(range){
       const data = cfg.period[range];
@@ -369,8 +691,6 @@
         }
       });
     }
-    renderRange(7);
-
     document.querySelectorAll('.range-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.range-btn').forEach(x => x.classList.remove('active'));
@@ -388,6 +708,208 @@
     bindLever('lever1', 'lever1Val', '%');
     bindLever('lever2', 'lever2Val', '');
     bindLever('lever3', 'lever3Val', '%');
+
+    function initHeroSectionChips() {
+      const chips = [
+        document.getElementById('chipA'),
+        document.getElementById('chipB'),
+        document.getElementById('chipC')
+      ].filter(Boolean);
+      if (!chips.length) return;
+
+      function setActiveChip(activeBtn) {
+        chips.forEach((c) => {
+          const on = c === activeBtn;
+          c.classList.toggle('chip-active', on);
+          c.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+      }
+
+      chips.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-section');
+          const el = id ? document.getElementById(id) : null;
+          if (el) {
+            const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+          }
+          setActiveChip(btn);
+        });
+      });
+    }
+
+    function parseBaselineDeltaPct(deltaLine) {
+      const s = String(deltaLine || '');
+      const m = s.match(/([\d.]+)\s*%/);
+      if (!m) return 0;
+      const n = parseFloat(m[1]);
+      if (/▼|↓|−|-/.test(s) && !/▲|↑/.test(s)) return -Math.abs(n);
+      if (/▲|↑/.test(s)) return Math.abs(n);
+      return Math.abs(n);
+    }
+
+    function parseEfficiencyScore(kpiValStr, kpiDeltaStr) {
+      const score = parseInt(String(kpiValStr || '').replace(/\D/g, ''), 10);
+      let target = 88;
+      const tm = String(kpiDeltaStr || '').match(/≥\s*(\d+)/);
+      if (tm) target = parseInt(tm[1], 10);
+      return { score: Number.isFinite(score) ? score : null, target };
+    }
+
+    function intelCardHtml(card) {
+      const tagExtra = card.tagClass ? ` ${card.tagClass}` : '';
+      const link = card.href
+        ? `<a href="${card.href}"${card.external ? ' target="_blank" rel="noopener noreferrer"' : ''}>${card.linkLabel || 'Open'}</a>`
+        : '';
+      return `
+        <article class="intel-card">
+          <span class="intel-tag${tagExtra}">${card.tag}</span>
+          <h4>${card.title}</h4>
+          <p>${card.body}</p>
+          ${link}
+        </article>`;
+    }
+
+    function buildElectricityIntelCards(cfg) {
+      const cards = [];
+      const deltaPct = parseBaselineDeltaPct(cfg.kpiDeltas[0]);
+      if (deltaPct > 1.5) {
+        cards.push({
+          tag: 'Signal',
+          tagClass: 'tag-amber',
+          title: 'Draw is above your operating baseline',
+          body: `Today sits about <strong style="color:#e8fff1">${Math.abs(deltaPct).toFixed(1)}%</strong> above the baseline used on the dashboard. That pattern usually rewards checking whether key loads are running efficiently versus manufacturer curves—not only planning new equipment.`,
+          href: './energy-savings-trajectory.html',
+          linkLabel: 'See trajectory & baseline framing'
+        });
+      } else if (deltaPct < -1.5) {
+        cards.push({
+          tag: 'Signal',
+          title: 'Below baseline — protect the win',
+          body: `Use is under baseline by roughly <strong style="color:#e8fff1">${Math.abs(deltaPct).toFixed(1)}%</strong>. Good time to document what changed (schedules, setpoints, staffing) so savings do not drift back when routines slip.`,
+          href: './Greenways%20Interface%20.html',
+          linkLabel: 'Back to main dashboard'
+        });
+      } else {
+        cards.push({
+          tag: 'Signal',
+          title: 'Near baseline — hunt hidden loads',
+          body: 'Totals are close to baseline, which often means a few assets are slightly high while others compensate. Compare largest categories below against run hours and maintenance logs before assuming “all fine.”',
+          href: './restaurant-equipment-deep-dive.html',
+          linkLabel: 'Equipment deep dive (ratings & benchmarks)',
+          external: true
+        });
+      }
+
+      const sorted = [...(cfg.breakdown || [])].sort((a, b) => b[1] - a[1]);
+      const [topName, topPct] = sorted[0] || ['Largest load', 0];
+      cards.push({
+        tag: 'Where to look',
+        tagClass: 'tag-blue',
+        title: `${topName} is your biggest slice (${topPct}%)`,
+        body: `${breakdownHint(topName)} Pair that share with sub-metering or equipment views when available; a large static share with a rising baseline often points to efficiency drift on a small set of machines.`,
+        href: './Greenways%20Interface%20.html',
+        linkLabel: 'Open equipment audit on dashboard'
+      });
+
+      const peak = cfg.kpis[1] || '';
+      cards.push({
+        tag: 'Timing',
+        title: `Peak concentration around ${peak}`,
+        body: `If this aligns with prep and line startup, consider staggering induction loads, wok line preheat, and HVAC pre-cool so the same work happens with a flatter demand curve—often without capital spend.`,
+        href: './energy-savings-trajectory.html',
+        linkLabel: 'Trajectory & timing levers'
+      });
+
+      const { score, target } = parseEfficiencyScore(cfg.kpis[2], cfg.kpiDeltas[2]);
+      if (score != null && score < target) {
+        cards.push({
+          tag: 'Efficiency',
+          tagClass: 'tag-amber',
+          title: `Score ${score} sits under the ${target} target`,
+          body: 'When the composite score lags, prioritize thermodynamics and controls: refrigeration condenser care, kitchen exhaust vs makeup balance, and lighting out-of-hours policy. Those moves are not marketplace-specific but they move kWh quickly.',
+          href: './restaurant-equipment-deep-dive.html',
+          linkLabel: 'Deep dive: equipment classes',
+          external: true
+        });
+      }
+
+      cards.push({
+        tag: 'Beyond Greenways',
+        title: 'Tariff, contract, and demand charges',
+        body: 'If kWh is steady but cost feels high, review time-of-use windows, demand ratchets, and contract pass-through clauses with your supplier or broker. That is outside the marketplace but directly affects the bill you are optimizing against.',
+        href: null
+      });
+
+      return cards;
+    }
+
+    function buildGasWaterPreviewCards(u, cfg) {
+      const label = u === 'gas' ? 'Gas' : 'Water';
+      const [topName, topPct] = [...(cfg.breakdown || [])].sort((a, b) => b[1] - a[1])[0] || ['Primary use', 0];
+      return [
+        {
+          tag: 'Preview',
+          tagClass: 'tag-blue',
+          title: `${label} savings rail (same idea as electricity)`,
+          body: `This section will grow like the electricity view: pairing classic conservation levers with your live split and peaks. For now, your largest category is <strong style="color:#e8fff1">${topName}</strong> at <strong style="color:#e8fff1">${topPct}%</strong>—use the breakdown above as the anchor.`,
+          href: null
+        },
+        {
+          tag: u === 'gas' ? 'Ideas' : 'Ideas',
+          title: u === 'gas' ? 'Combustion-side checks' : 'Flow and fixture side',
+          body: u === 'gas'
+            ? 'Typical next steps include burner tuning, pilot/idle policy, hot-water setpoints, and scheduling heavy cooking away from simultaneous hot-water peaks. We will wire these prompts to your actual curves next.'
+            : 'Typical next steps include spray-valve / aerator retrofits on pre-rinse, leak monitoring on overnight basins, ice machine reject flows, and dishwasher fill calibration. Interactive suggestions will follow the same data hooks as electricity.',
+          href: u === 'water' ? 'https://www.epa.gov/watersense' : null,
+          linkLabel: u === 'water' ? 'EPA WaterSense (reference)' : null,
+          external: u === 'water'
+        }
+      ];
+    }
+
+    function renderSavingsIntel() {
+      const sub = document.getElementById('savingsIntelSub');
+      const grid = document.getElementById('savingsIntelCards');
+      const foot = document.getElementById('savingsIntelFoot');
+      if (!sub || !grid || !foot) return;
+
+      if (utility === 'electricity') {
+        sub.textContent =
+          'Ideas mix operational housekeeping, equipment efficiency, and bill-side levers. They react to the headline signals and breakdown on this page—not every suggestion is a Greenways product.';
+        grid.innerHTML = buildElectricityIntelCards(cfg).map(intelCardHtml).join('');
+        foot.textContent = '';
+        foot.hidden = true;
+      } else {
+        sub.textContent =
+          utility === 'gas'
+            ? 'Gas-specific savings prompts (combustion tuning, scheduling, hot water) will mirror the electricity rail. Preview below until that pass ships.'
+            : 'Water-specific prompts (flow restrictors, rinse discipline, leak signatures) will mirror the electricity rail. Preview below until that pass ships.';
+        grid.innerHTML = buildGasWaterPreviewCards(utility, cfg).map(intelCardHtml).join('');
+        foot.hidden = false;
+        foot.textContent =
+          'Electricity already shows the full pattern: baseline signal, largest category, peak timing, score gap, and a non-marketplace bill lever. Gas and water will inherit the same structure with utility-specific playbooks.';
+      }
+    }
+
+    (async function init() {
+      await loadConfig();
+      renderBasics();
+      initHeroSectionChips();
+      renderCharts();
+      renderBreakdownInteractive();
+      document.getElementById('breakdownBars').innerHTML = cfg.breakdown.map(([name,val]) => `
+        <div class="breakdown-row">
+          <div style="min-width:130px">${name}</div>
+          <div style="flex:1">
+            <div class="bar"><span style="width:${val}%;background:${cfg.color}"></span></div>
+          </div>
+          <strong style="min-width:44px;text-align:right">${val}%</strong>
+        </div>
+      `).join('');
+      renderRange(7);
+      renderSavingsIntel();
+    })();
   </script>
 </body>
 </html>
