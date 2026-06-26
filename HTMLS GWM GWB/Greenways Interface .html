@@ -510,9 +510,6 @@
   }
 
   .upload-photo-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
     background: rgba(5,14,9,0.7);
     border: 1px solid var(--border-bright);
     border-radius: var(--radius-sm);
@@ -525,6 +522,29 @@
   }
 
   .upload-photo-btn:hover { background: var(--accent-green-glow); }
+
+  .venue-hero-actions {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 8px;
+    z-index: 2;
+  }
+
+  .reset-photo-btn {
+    background: rgba(5,14,9,0.7);
+    border: 1px solid rgba(255, 184, 48, 0.35);
+    border-radius: var(--radius-sm);
+    padding: 7px 12px;
+    font-size: 12px;
+    color: var(--accent-amber);
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all 0.15s;
+  }
+
+  .reset-photo-btn:hover { background: rgba(255, 184, 48, 0.12); }
 
   /* ─── Energy ticker block (isolated) ─── */
   .ticker-shell {
@@ -2959,7 +2979,10 @@
             </div>
           </div>
         </div>
-        <label class="upload-photo-btn" for="photoUpload">+ Upload Photo</label>
+        <div class="venue-hero-actions">
+          <button type="button" class="reset-photo-btn" id="btnResetHeroPhoto" title="Restore the default Amsterdam portfolio photo">Use default photo</button>
+          <label class="upload-photo-btn" for="photoUpload">+ Upload Photo</label>
+        </div>
         <input id="photoUpload" type="file" accept="image/*" style="display:none" onchange="handlePhoto(event)"/>
       </div>
 
@@ -4146,7 +4169,19 @@ function handlePhoto(e) {
     }
   };
   reader.readAsDataURL(file);
+  e.target.value = '';
 }
+
+function resetHeroPhotoToDefault() {
+  try {
+    localStorage.removeItem(HERO_PHOTO_STORAGE_KEY);
+  } catch (error) {
+    console.warn('Could not clear saved dashboard hero photo:', error.message);
+  }
+  setHeroPhoto(DEFAULT_HERO_PHOTO_URL);
+}
+
+document.getElementById('btnResetHeroPhoto')?.addEventListener('click', resetHeroPhotoToDefault);
 
 applyStoredHeroPhoto();
 
