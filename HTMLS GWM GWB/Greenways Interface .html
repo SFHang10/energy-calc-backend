@@ -2940,13 +2940,14 @@
 
       <!-- Venue Hero -->
       <div class="venue-hero">
-        <div class="venue-photo-placeholder">
+        <img class="venue-photo" src="../product-placement/Geography/0_ipevkOzKDvkhnGNh.jpg" alt="Greenways Buildings — Amsterdam commercial portfolio" />
+        <div class="venue-photo-placeholder" hidden>
           <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
             <rect x="4" y="10" width="28" height="20" rx="2" stroke="#405c4d" stroke-width="1.5"/>
             <circle cx="18" cy="20" r="5" stroke="#405c4d" stroke-width="1.5"/>
             <path d="M14 10V8a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="#405c4d" stroke-width="1.5"/>
           </svg>
-          <span style="font-size:11px;">Upload a restaurant photo to personalise this dashboard</span>
+          <span style="font-size:11px;">Upload a photo to replace the default portfolio image</span>
         </div>
         <div class="venue-overlay">
           <div class="venue-info">
@@ -4094,24 +4095,41 @@ initGreenwaysBackdropTheme();
 
 // ─── Photo upload ─────────────────────────────────────────
 const HERO_PHOTO_STORAGE_KEY = 'greenwaysDashboardHeroPhoto';
+const DEFAULT_HERO_PHOTO_URL = '../product-placement/Geography/0_ipevkOzKDvkhnGNh.jpg';
 
-function applyStoredHeroPhoto() {
-  const savedPhoto = localStorage.getItem(HERO_PHOTO_STORAGE_KEY);
-  if (!savedPhoto) return;
-
+function setHeroPhoto(src) {
   const hero = document.querySelector('.venue-hero');
   if (!hero) return;
 
   const placeholder = hero.querySelector('.venue-photo-placeholder');
-  if (placeholder) placeholder.style.display = 'none';
-
   let img = hero.querySelector('.venue-photo');
   if (!img) {
     img = document.createElement('img');
     img.className = 'venue-photo';
+    img.alt = 'Greenways Buildings — Amsterdam commercial portfolio';
     hero.insertBefore(img, hero.firstChild);
   }
-  img.src = savedPhoto;
+
+  img.style.display = '';
+  img.onerror = () => {
+    img.style.display = 'none';
+    if (placeholder) {
+      placeholder.hidden = false;
+      placeholder.style.display = 'flex';
+    }
+  };
+  img.onload = () => {
+    if (placeholder) {
+      placeholder.hidden = true;
+      placeholder.style.display = 'none';
+    }
+  };
+  img.src = src;
+}
+
+function applyStoredHeroPhoto() {
+  const savedPhoto = localStorage.getItem(HERO_PHOTO_STORAGE_KEY);
+  setHeroPhoto(savedPhoto || DEFAULT_HERO_PHOTO_URL);
 }
 
 function handlePhoto(e) {
@@ -4119,17 +4137,8 @@ function handlePhoto(e) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = ev => {
-    const hero = document.querySelector('.venue-hero');
-    const placeholder = hero.querySelector('.venue-photo-placeholder');
-    placeholder.style.display = 'none';
-    let img = hero.querySelector('.venue-photo');
-    if (!img) {
-      img = document.createElement('img');
-      img.className = 'venue-photo';
-      hero.insertBefore(img, hero.firstChild);
-    }
     const photoDataUrl = ev.target.result;
-    img.src = photoDataUrl;
+    setHeroPhoto(photoDataUrl);
     try {
       localStorage.setItem(HERO_PHOTO_STORAGE_KEY, photoDataUrl);
     } catch (error) {
