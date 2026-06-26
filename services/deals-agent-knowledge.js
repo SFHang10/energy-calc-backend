@@ -37,7 +37,8 @@ const PORTAL_PATH_MODULE_IDS = [
   ['deals-ticker-hub', 'deals-ticker'],
   ['water-saving-finder', 'water-saving-finder'],
   ['sustainable_product_deal_finder_portal', 'sustainable-product-finder'],
-  ['savings.html', 'savings-tour']
+  ['savings.html', 'savings-tour'],
+  ['finance-finder-restaurant', 'finance-finder']
 ];
 
 function isAgentChatPath(path) {
@@ -462,20 +463,39 @@ function buildWaterFinderAnswer(deals, tip) {
 
 function buildSavingsPortalAnswer(briefing, tip) {
   const paths = briefing.portalPaths || {};
+  const savingsHref = paths.savingsPortal || PORTAL_LINKS.savingsHub || './savings.html';
+
   return {
     answer:
-      `**Savings portal** — grants, EU schemes, and financial assistance in one hub:\n\n` +
-      `→ ${paths.savingsPortal || PORTAL_LINKS.savingsHub || './savings.html'}\n\n` +
-      `**Use with Zara when:** you have a tariff or product direction and need **funding** to implement it.\n\n` +
-      `- **Restaurant portal** · **EU schemes** · **Financial assistance** tabs\n` +
-      `- Pair with **European energy portal** for supply compare first\n\n` +
-      portalFooter(tip),
+      `I'm **Zara**. When you ask about the **savings portal**, you're really asking where Greenways pulls **grants and financial help** together — the step after you know *what* you want to change, not just where to buy energy.\n\n` +
+      `Our **Savings tour** page is that hub. It groups three paths in plain view: **restaurant grants**, **EU schemes**, and **financial assistance** (things like BNPL, equipment finance, and green loans). I point people here once a tariff or product direction makes sense and the next question is "how do I pay for it?" — grants can lower upfront cost, finance spreads it, and the EU tab covers wider schemes.\n\n` +
+      `On your sustainable journey, I'd usually compare supply on the **European energy portal** first if bills are the driver, then open the savings tab that matches (grant vs loan vs EU catalogue). **Andrieus** is who I send you to for scheme eligibility and side-by-side compare; **Vincent** for payback and which finance option fits your numbers.\n\n` +
+      `The tablets on the right open the savings tour, finance finder, and grants chat — each says what it is and how it can help. Would you like the restaurant grants tab or financial assistance first?\n\n` +
+      `_${tip}_`,
     blocks: linkOrModuleBlocks([
-          toLinkItem('Savings portal', paths.savingsPortal || './savings.html', 'Grants & finance hub'),
-          toLinkItem('Grants Agent', '/greenways/grants-agent', 'Scheme detail'),
-          toLinkItem('Finance Agent', '/greenways/finance-agent', 'Loans & BNPL')
-        ]),
-    suggestions: []
+      toLinkItem(
+        'Savings tour',
+        savingsHref,
+        'Start here — grants, EU schemes, and financial assistance in one walkthrough.'
+      ),
+      toLinkItem(
+        'Restaurant finance finder',
+        './finance-finder-restaurant.html',
+        'Open the **Financial assistance** lane — BNPL, equipment finance, and green loans with examples.'
+      ),
+      toLinkItem(
+        'Grants Agent (Andrieus)',
+        '/greenways/grants-agent',
+        'Scheme detail, deadlines, and compare when you know your upgrade category.'
+      ),
+      toLinkItem(
+        'European energy portal',
+        PORTAL_LINKS.europeanEnergy,
+        'Compare tariffs first — unit rate shapes every grant and payback story that follows.'
+      )
+    ]),
+    suggestions: [],
+    agentHandoffs: buildHandoffs(briefing, 'savings portal grants financial assistance', 'savings_portal')
   };
 }
 

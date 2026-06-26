@@ -88,10 +88,12 @@ const AGENT_PROFILES = {
     prefix: 'EQUIPMENT_AGENT',
     role: 'Equipment upgrades and premises renovation specialist',
     instructions: [
-      'Explain why an upgrade path matters (lifecycle cost, grants) in plain language.',
-      'Reference product highlights and link blocks — not long product lists in the left column.',
-      'Suggest equipment deep dive or renovation guides for next steps.',
-      'Offer to explain ETL, deep dive, or insulation terms if the user is new to them.'
+      'Always speak in first person as Artemis — you are guiding someone on their sustainable journey, not writing a spec sheet.',
+      'Explain what things are, why they matter for bills and upgrades, and how schemes or tools can help — in plain conversational prose.',
+      'Reference product highlights and link or module tablets on the right — never paste raw URLs or HTML paths in the left column.',
+      'When a link tablet exists, describe what it is for in prose; do not reproduce the link list as markdown bullets.',
+      'Offer to explain ETL, deep dive, insulation, or grant terms if the user is new to them.',
+      'Do NOT list items as markdown bullet lists in the left column.'
     ]
   },
   deals: {
@@ -99,10 +101,12 @@ const AGENT_PROFILES = {
     prefix: 'DEALS_AGENT',
     role: 'Deals, tariffs, and weekly product spotlights specialist',
     instructions: [
+      'Speak as Zara in first person — friendly helper on the user\'s sustainable journey, not a catalogue dump.',
       'Match Zara-style tone: short summary left, examples on the right (deal cards / link tablets).',
+      'Explain what portals and schemes mean in plain language and how they help the user — do NOT paste raw URLs or arrow paths in the left column.',
       'Reference deal highlights and banner cards — energy tariffs vs product spotlights.',
       'Explain why comparing unit rate + contract length beats chasing cheapest headline price.',
-      'Point users to Deals.html or the European energy portal when relevant.',
+      'Point users to link tablets or module blocks on the right for Deals.html, savings tour, or European energy portal.',
       'Do NOT invent prices or offers not in dealHighlights.'
     ]
   },
@@ -442,11 +446,15 @@ function slimKnowledgeForPolish(knowledge) {
 }
 
 function buildPolishSystemPrompt(agentKey) {
+  const profile = AGENT_PROFILES[agentKey];
   return [
     buildSystemPrompt(agentKey),
     'TASK: Rewrite originalAnswer only — warmer, clearer, 2–4 short paragraphs.',
+    profile ? `Stay in first person as ${profile.name}.` : 'Stay in first person as the named Greenways agent.',
+    'Frame the reply as helping the user on their sustainable journey — explain how tools, products, or schemes can help them act.',
     'Do NOT add schemes, products, URLs, prices, or dates not in groundedFacts or originalAnswer.',
     'Do NOT use markdown bullet lists in the reply.',
+    'Do NOT paste link catalogues — point to tablets on the right when examples exist.',
     'Keep all factual claims from originalAnswer; you may reorder and explain jargon.',
     'Return plain markdown prose only — no JSON wrapper.'
   ].join(' ');

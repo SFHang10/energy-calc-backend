@@ -399,25 +399,62 @@ async function buildEtlVerificationAnswer(profile, tip) {
   const briefing = await loadBriefing();
   const etl = briefing.etlProducts || {};
   const refs = await loadReferences();
+  const schemes = await loadSchemes();
   const etlRefs = (refs.external || []).filter((r) => /etl/i.test(r.id || r.title)).slice(0, 3);
+  const relatedSchemes = rankSchemes(schemes, 'equipment kitchen restaurant etl', profile, 3);
+
+  const region = String(profile.region || '').toLowerCase();
+  const sector = String(profile.sector || '').trim();
+  let profileSentence = '';
+  if (region && region !== 'all') {
+    const regionLabel = REGION_LABELS[region] || region.toUpperCase();
+    const sectorLabel =
+      sector && sector !== 'any' ? sector : 'business';
+    profileSentence = ` I often support **${regionLabel}** ${sectorLabel} teams on this path — the verified register is the same, and matched grants can appear on the **etl_*** products you shortlist.`;
+  }
+
+  const grantsSentence = relatedSchemes.length
+    ? ` When you pick an **etl_*** product here, funding options such as **${relatedSchemes
+        .slice(0, 2)
+        .map((s) => s.title || s.name)
+        .join('** or **')}** may show on the product card — **Andrieus** is who I send you to for eligibility, deadlines, and side-by-side scheme compare.`
+    : ` On Greenways, grant overlays attach to **etl_*** marketplace products automatically — **Andrieus** can walk you through what you may qualify for in your region.`;
+
+  const quartileNote = String(
+    etl.topQuartileNote || 'typically in the top quarter for energy efficiency in their class'
+  )
+    .trim()
+    .replace(/\.\s*$/, '');
+  const quartilePhrase =
+    quartileNote.charAt(0).toLowerCase() + quartileNote.slice(1);
 
   return {
     answer:
-      `**Energy Technology List (ETL)** — ${etl.topQuartileNote || 'independently verified efficient equipment'}.\n\n` +
-      `${etl.summary || ''}\n\n` +
-      `**On Greenways:** \`etl_*\` marketplace ids link specs, grant overlays, deep dive, and projection.\n\n` +
-      `**Why it matters:** reduces procurement risk versus unverified "efficient" marketing claims.\n\n` +
-      (etlRefs.length
-        ? `**Official references:**\n${etlRefs.map((r) => `- [${r.title}](${r.url}) — ${r.summary}`).join('\n')}\n\n`
-        : '') +
-      `Search products: ${etl.paths?.marketplaceFinder || PORTAL_LINKS.equipmentTool}\n\n_${tip}_`,
-    suggestions: [],
+      `I'm **Artemis**. When you ask about **ETL**, I'm really explaining how we help you choose equipment you can trust on your sustainable journey — not just marketing that says "efficient".\n\n` +
+      `The **Energy Technology List** is the UK's independently checked register. Products on the list are ${quartilePhrase}, so you are buying against tested performance rather than a brochure claim alone.${profileSentence}${grantsSentence}\n\n` +
+      `On Greenways, **etl_*** rows connect that verification to action: specs, grant chips, equipment deep dive comparisons, and savings projection so you can see payback before capex. I use those tools to move you from "sounds green" to a numbers-backed upgrade plan.\n\n` +
+      `The tablets on the right open the official ETL overview, our equipment finder, and deep dive — each explains what it does and how it can help your next step. Would you like me to apply this to a kitchen category, or show how grants stack on a specific **etl_*** pick?\n\n_${tip}_`,
+    suggestions: relatedSchemes.map(toSuggestion),
     blocks: linkOrModuleBlocks([
-      toLinkItem('ETL product search (UK)', 'https://etl.energysecurity.gov.uk/products', 'Official register'),
-      toLinkItem('Equipment intelligence tool', PORTAL_LINKS.equipmentTool, 'Greenways finder'),
-      toLinkItem('Deep dive', PORTAL_LINKS.deepDive, 'Compare current vs ETL alternatives')
+      ...etlRefs.map((r) =>
+        toLinkItem(
+          r.title,
+          r.url,
+          `${r.summary || 'Official ETL reference'} — open when you want the full register detail and category rules.`
+        )
+      ),
+      toLinkItem(
+        'Equipment intelligence tool',
+        PORTAL_LINKS.equipmentTool,
+        'Search verified **etl_*** products and check baseline use before you buy.'
+      ),
+      toLinkItem(
+        'Equipment deep dive',
+        PORTAL_LINKS.deepDive,
+        'Compare what you run today against efficient alternatives — grants and projection included.'
+      )
     ]),
-    agentHandoffs: buildHandoffs(briefing, '', 'etl_verification')
+    agentHandoffs: buildHandoffs(briefing, 'what is etl', 'etl_verification')
   };
 }
 
