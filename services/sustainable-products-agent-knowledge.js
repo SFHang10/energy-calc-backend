@@ -779,7 +779,7 @@ async function buildProductGrantsAnswer(question, profile, tip) {
     answer:
       `**Grants on marketplace products** (${region})\n\n` +
       `${note}\n\n` +
-      `**On Greenways** \`etl_*\` rows include grants overlay when enriched from \`schemes.json\`. ` +
+      `**On Greenways** \`etl_*\` rows include a grants overlay when matched from our **Schemes** catalogue. ` +
       `Ask with a product name or lane — I shortlist kit here and open **Andrieus** with your product context.\n\n` +
       `→ **Grants Agent:** ${PORTAL_LINKS.grantsAgent}\n` +
       `→ **Deep dive compare:** ${FINDER_LINKS.deepDive}\n\n_${tip}_`,

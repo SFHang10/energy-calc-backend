@@ -152,7 +152,7 @@ async function buildFinanceNewsAnswer(question, profile, tip, options = {}) {
       `${formatFinanceNewsBullets(picks, 6) || '_No tight match — try “Horizon Europe funding” or “EIB climate finance”._'}\n\n` +
       `**How Vincent uses this:** each headline links to **financial instruments on Greenways** — grants (Andrieus), green loans, BNPL, equipment finance, and ETL upgrades — not just the headline.\n\n` +
       `**Editions & pages:**\n${editionLinksBlock(catalog)}\n\n` +
-      `_Sources: data/news-category-knowledge.json, content-ops/sustainability-news, news-product-recommendations.json (same pipeline as Cheryce)._\n\n_${tip}_`,
+      `_Sources: sustainability news library and monthly editions (same pipeline as Cheryce)._\n\n_${tip}_`,
     suggestions: [],
     editionChips: pickEditionChips(catalog, { citedItems: picks, intentId: options.intentId || 'finance_news' }),
     intentId: options.intentId || 'finance_news'

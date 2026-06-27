@@ -90,7 +90,7 @@ async function checkServer() {
 
 async function checkGrants() {
   if (!fs.existsSync(PATHS.schemes)) {
-    return makeResult('grants', 'Grants & schemes', 'error', 'schemes.json not found.');
+    return makeResult('grants', 'Grants & schemes', 'error', 'Schemes catalogue not found.');
   }
 
   let schemes;
@@ -98,7 +98,7 @@ async function checkGrants() {
     const raw = await fsPromises.readFile(PATHS.schemes, 'utf8');
     schemes = JSON.parse(raw);
   } catch (e) {
-    return makeResult('grants', 'Grants & schemes', 'error', `Cannot read schemes.json: ${e.message}`);
+    return makeResult('grants', 'Grants & schemes', 'error', `Cannot read Schemes catalogue: ${e.message}`);
   }
 
   const active = Array.isArray(schemes)
@@ -126,7 +126,7 @@ async function checkGrants() {
 
   if (exportDate && schemesMtime > exportDate) {
     status = 'stale';
-    summary = `schemes.json updated after last product export — re-run integrator.`;
+    summary = `Schemes catalogue updated after last product export — re-run grants enrichment.`;
   } else if (schemesInExport && Number(schemesInExport[1]) < active.length - 2) {
     status = 'warn';
     summary = `Scheme count (${active.length}) may exceed export overlay (${schemesInExport[1]}).`;
@@ -145,7 +145,7 @@ async function checkProducts() {
     ? PATHS.productsGrantsBundle
     : PATHS.productsGrants;
   if (!fs.existsSync(productsPath)) {
-    return makeResult('products', 'Product grants overlay', 'error', 'products-with-grants export not found.');
+    return makeResult('products', 'Product grants overlay', 'error', 'Product grants export not found.');
   }
 
   const head = readHead(productsPath, 16000);
@@ -172,7 +172,7 @@ async function checkProducts() {
 
 async function checkCatalog() {
   if (!fs.existsSync(PATHS.catalog)) {
-    return makeResult('catalog', 'Sustainable catalog', 'error', 'sustainable-products-catalog.json missing.');
+    return makeResult('catalog', 'Sustainable catalog', 'error', 'Sustainable products catalogue missing.');
   }
   let data;
   try {
@@ -200,7 +200,7 @@ async function checkCatalog() {
 
 async function checkDeals() {
   if (!fs.existsSync(PATHS.dealsFeed)) {
-    return makeResult('deals', 'Deals feed', 'error', 'deals-feed.json missing.');
+    return makeResult('deals', 'Deals feed', 'error', 'Deals feed not found.');
   }
   let data;
   try {
@@ -226,7 +226,7 @@ async function checkDeals() {
 
 async function checkNews() {
   if (!fs.existsSync(PATHS.newsKb)) {
-    return makeResult('news', 'News knowledge', 'error', 'news-category-knowledge.json missing.');
+    return makeResult('news', 'News knowledge', 'error', 'News knowledge base not found.');
   }
   let data;
   try {

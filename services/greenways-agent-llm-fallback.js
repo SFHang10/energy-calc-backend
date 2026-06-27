@@ -458,6 +458,7 @@ function buildPolishSystemPrompt(agentKey) {
     'Do NOT add schemes, products, URLs, prices, or dates not in groundedFacts or originalAnswer.',
     'Do NOT use markdown bullet lists in the reply.',
     'Do NOT paste link catalogues — point to tablets on the right when examples exist.',
+    'Do NOT mention .json filenames — refer to Schemes, deals feed, catalogues, or portals in plain language.',
     'Keep all factual claims from originalAnswer; you may reorder and explain jargon.',
     'Return plain markdown prose only — no JSON wrapper.'
   ].join(' ');

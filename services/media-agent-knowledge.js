@@ -1305,7 +1305,7 @@ async function buildWixVideosAnswer(tip) {
       (source === 'wix'
         ? ''
         : source === 'catalog' || source === 'catalog+youtube'
-          ? '_Product MP4s from marketplace media; YouTube channel list from `wix-youtube-channels.json`. Re-export `/greenways` and run `npm run parse:greenways-youtube` to refresh._\n\n'
+          ? '_Product MP4s from marketplace media; YouTube titles from our channel catalogue. Re-export `/greenways` to refresh when new videos are added._\n\n'
           : '⚠️ Wix API credentials not live — showing catalog snapshot.\n\n') +
       `_${tip}_`,
     suggestions: [

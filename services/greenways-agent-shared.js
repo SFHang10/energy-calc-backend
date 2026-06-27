@@ -263,6 +263,7 @@ const CONVERSATIONAL_ANSWER_RULES = {
   leftColumn: [
     'Summarise in plain language — explain why it matters and how it can affect bills, timing, or planning.',
     'Do not dump long bullet lists, raw HTML paths, or article catalogues in the left column.',
+    'Do not mention JSON filenames or file extensions — say Schemes, deals feed, product catalogue, etc.',
     'Offer a follow-up when jargon may be unfamiliar (e.g. "Should I explain CBAM and what it means for your imports?").'
   ],
   rightColumn: [

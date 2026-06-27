@@ -354,7 +354,7 @@ function buildOverviewAnswer(deals, feedMeta, briefing, tip) {
         `**Zara — Deals & spotlights**`,
         briefing.roleSummary || 'Curated deals across energy, water, and sustainability lanes.'
       ) +
-      `**${deals.length}** rows in \`deals-feed.json\`:\n` +
+      `**${deals.length}** rows in the **deals feed**:\n` +
       `- **Energy tariffs & packages:** ${energy}\n` +
       `- **Water savings:** ${water}\n` +
       `- **Sustainability lane:** ${sust} (**${productSpotlights}** product spotlight${productSpotlights === 1 ? '' : 's'})\n\n` +
@@ -507,11 +507,9 @@ function buildFeedFreshnessAnswer(feedMeta, briefing, tip) {
   return {
     answer:
       `**Deals feed freshness**\n\n` +
-      `- **Output:** \`${wf.output || 'data/deals-feed.json'}\`\n` +
-      `- **Build:** \`${wf.buildCommand || 'npm run build:deals-feed'}\`\n` +
-      `- **Sources:** ${(wf.sources || []).join(', ') || 'deals-feed-seeds.json + weekly input'}\n` +
-      (feedMeta?.generatedAt ? `- **Last generated:** ${feedMeta.generatedAt}\n` : '') +
-      `\nWeekly product spotlights merge from \`deals-weekly-input.json\`. Ops can verify freshness via **Edwardo** systems checks.\n\n` +
+      `The **deals feed** is rebuilt from curated seeds and weekly product input.` +
+      (feedMeta?.generatedAt ? ` Last updated **${feedMeta.generatedAt}**.\n` : '\n') +
+      `\nWeekly product spotlights are merged in when the feed is refreshed. **Edwardo** can run read-only freshness checks if you need ops detail.\n\n` +
       portalFooter(tip),
     suggestions: []
   };
@@ -769,11 +767,11 @@ async function buildDealsFeedScanAnswer(deals, feedMeta, profile, question, tip,
   const intro =
     (focus === 'new'
       ? `I checked the deals feed for **new highlights** (last built **${generated}**).\n\n`
-      : `I checked **deals-feed.json** just now (last built **${generated}**).\n\n`) +
+      : `I checked the **deals feed** just now (last built **${generated}**).\n\n`) +
     `There are **${deals.length}** curated rows — **${newCount}** flagged as new` +
     (spotlightCount ? ` and **${spotlightCount}** product spotlight${spotlightCount === 1 ? '' : 's'}` : '') +
     `.\n\n` +
-    `On the right are my top picks${profileNote} — open a card for tariffs, water savings, or product spotlights on the live portal.\n\n` +
+    `On the right are live examples${profileNote} — open a card for tariffs, water savings, or product spotlights on the live portal.\n\n` +
     `_Prices and contract terms change — confirm on the linked page before switching._`;
 
   const linkItems = picks.map((d) =>

@@ -612,10 +612,10 @@ function buildProductComparisonAnswer(tip) {
 function buildSustainableAnswer(question, tip) {
   return {
     answer:
-      `**Sustainable catalog** — non-marketplace \`sust_*\` rows plus finder sessions persist to **data/sustainable-products-catalog.json**.\n\n` +
+      `**Sustainable catalog** — non-marketplace \`sust_*\` products we collect from finder searches (water, electricity, and gas lanes).\n\n` +
       `- Sustainable product finder portal\n` +
       `- Water Saving Finder\n` +
-      `- API: GET /api/equipment-intelligence/sustainable-products\n\n` +
+      `- Search runs through the sustainable products API\n\n` +
       `Marketplace **etl_*** rows and **sust_*** catalog cover different lanes — both can sit on one upgrade plan.\n\n_${tip}_`,
     suggestions: [],
     blocks: linkOrModuleBlocks([

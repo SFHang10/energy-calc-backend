@@ -138,10 +138,10 @@ function buildSyncHelpAnswer(tip) {
   return {
     answer:
       `**Verify selected** — re-runs read-only checks for the boxes you tick:\n\n` +
-      `- **Grants & schemes** — \`schemes.json\` vs \`products-with-grants\` export\n` +
+      `- **Grants & schemes** — Schemes catalogue vs marketplace product grants export\n` +
       `- **Product overlay** — grants export metadata\n` +
       `- **Sustainable catalog** — \`sust_*\` row count & update date\n` +
-      `- **Deals feed** — \`deals-feed.json\` generated date\n` +
+      `- **Deals feed** — last refresh date on the live feed\n` +
       `- **News knowledge** — policy/funding KB freshness\n` +
       `- **Greenways agents** — chat HTML pages present\n\n` +
       `Does **not** run \`product-grants-integrator.js\` or other build commands.\n\n_${tip}_`,
@@ -154,8 +154,8 @@ function buildPortalsAnswer(tip) {
     answer:
       `**Ops references** (full Systems skill — not run from consumer chat):\n\n` +
       `- \`Skills/Systems MD.md\` — Wix MCP, ETL API, Render deploy\n` +
-      `- \`AGENTS.md\` — edit \`schemes.json\` → \`node product-grants-integrator.js\`\n` +
-      `- \`npm run build:deals-feed\` — refresh deals ticker\n` +
+      `- \`AGENTS.md\` — update the **Schemes** catalogue → run product grants enrichment\n` +
+      `- Refresh the **deals feed** when weekly spotlights change\n` +
       `- Render: \`/health\` on energy-calc-backend.onrender.com\n\n_${tip}_`,
     suggestions: [],
     blocks: [
