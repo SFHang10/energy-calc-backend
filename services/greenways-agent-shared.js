@@ -281,6 +281,17 @@ function conversationalSystemLines() {
   ];
 }
 
+/** Third-person agent description — rendered as system highlight in chat UI (not agent voice). */
+function agentProfileBlock(...parts) {
+  const body = parts
+    .filter(Boolean)
+    .map((p) => String(p).trim())
+    .filter(Boolean)
+    .join('\n\n');
+  if (!body) return '';
+  return `:::agent-profile\n${body}\n:::\n\n`;
+}
+
 async function loadProductsWithGrants() {
   if (productsWithGrantsCache) return productsWithGrantsCache;
   for (const filePath of PRODUCT_FILES) {
@@ -626,6 +637,7 @@ module.exports = {
   toModuleItem,
   CONVERSATIONAL_ANSWER_RULES,
   conversationalSystemLines,
+  agentProfileBlock,
   loadProductsWithGrants,
   normalizeImageUrl,
   marketplaceHref,

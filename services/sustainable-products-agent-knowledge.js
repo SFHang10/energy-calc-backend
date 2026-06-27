@@ -14,7 +14,8 @@ const {
   normalizeImageUrl,
   marketplaceHref,
   toLinkItem,
-  toModuleItem
+  toModuleItem,
+  agentProfileBlock
 } = require('./greenways-agent-shared');
 const {
   applyPersona,
@@ -603,8 +604,10 @@ async function buildRoleResourcesAnswer(question, profile, tip) {
 
   return {
     answer:
-      `**Zyanne — sustainable products specialist** (${region})\n\n` +
-      `${briefing.roleProfile || briefing.roleSummary || ''}\n\n` +
+      agentProfileBlock(
+        `**Zyanne — sustainable products specialist** (${region})`,
+        briefing.roleProfile || briefing.roleSummary || ''
+      ) +
       `**Must-know themes:**\n${mustKnows.map((m) => `- ${m}`).join('\n')}\n\n` +
       `**How I advise:**\n${core.map((c) => `- ${c}`).join('\n')}\n\n` +
       `**Curated links:**\n${picks.map((r) => `- **${r.title}** — ${r.summary || ''}`).join('\n')}\n\n_${tip}_`,
@@ -626,8 +629,10 @@ async function buildOverviewAnswer(catalog, tip, briefing) {
   const journey = b.journeyPrinciple || '';
   return {
     answer:
-      `**Zyanne — sustainable products specialist**\n\n` +
-      `${b.roleSummary || ''}\n\n` +
+      agentProfileBlock(
+        `**Zyanne — sustainable products specialist**`,
+        b.roleSummary || ''
+      ) +
       `**Three utility lanes:**\n` +
       `- ${LANE_LABELS.water} — ${water} \`sust_*\` catalog rows + marketplace dishwashers & aerators\n` +
       `- ${LANE_LABELS.electricity} — ${elec} rows + ETL refrigeration & cooking\n` +

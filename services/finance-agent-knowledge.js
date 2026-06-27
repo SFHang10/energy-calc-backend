@@ -15,7 +15,8 @@ const {
   getDefaultProductSamples,
   buildAgentHandoff,
   FINANCE_HANDOFF_RULES,
-  toModuleItem
+  toModuleItem,
+  agentProfileBlock
 } = require('./greenways-agent-shared');
 const { mergeModuleRow } = require('./greenways-content-modules');
 
@@ -304,7 +305,10 @@ async function buildRoleResourcesAnswer(question, profile, tip) {
 
   return {
     answer:
-      `**How Vincent advises** — ${briefing?.roleProfile || briefing?.roleSummary || 'finance + sustainability coordinator'}\n\n` +
+      agentProfileBlock(
+        `**How Vincent advises**`,
+        briefing?.roleProfile || briefing?.roleSummary || 'finance + sustainability coordinator'
+      ) +
       `**Must-know themes:**\n${mustKnows.map((m) => `- ${m}`).join('\n')}\n\n` +
       `**Core lens:**\n${core.map((c) => `- ${c}`).join('\n')}\n\n` +
       (extBullets ? `**Background reading (summarised — open for depth):**\n${extBullets}\n\n` : '') +

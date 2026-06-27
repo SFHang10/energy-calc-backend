@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs/promises');
+const { agentProfileBlock } = require('./greenways-agent-shared');
 
 const DEFAULT_REGION_LABELS = {
   nl: 'Netherlands',
@@ -128,7 +129,9 @@ function applyPersona(result, ctx = {}) {
     opener = '';
   }
 
-  const pLine = shouldUseProfileLine(voice, intentId) ? profileLine(profile, regionLabels) : '';
+  const pLine = shouldUseProfileLine(voice, intentId)
+    ? agentProfileBlock(profileLine(profile, regionLabels))
+    : '';
   const tip = ctx.tip != null ? ctx.tip : pickTip(ctx.staticTips, intentId, { skipIntentIds: voice.skipTipIntents });
 
   const chunks = [opener, pLine, body].filter(Boolean);

@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs/promises');
-const { loadIntentsFrom, matchIntent, PORTAL_LINKS, toLinkItem, toModuleItem } = require('./greenways-agent-shared');
+const { loadIntentsFrom, matchIntent, PORTAL_LINKS, toLinkItem, toModuleItem, agentProfileBlock } = require('./greenways-agent-shared');
 const { mergeModuleRow } = require('./greenways-content-modules');
 const { applyPersona, loadAgentVoice, pickTip } = require('./greenways-agent-persona');
 const {
@@ -1403,8 +1403,10 @@ async function buildRoleResourcesAnswer(question, profile, tip) {
 
   return {
     answer:
-      `**Cheryce — role & references** (${region})\n\n` +
-      `${briefing.roleProfile || briefing.roleSummary || ''}\n\n` +
+      agentProfileBlock(
+        `**Cheryce — role & references** (${region})`,
+        briefing.roleProfile || briefing.roleSummary || ''
+      ) +
       `**Map data:** ${caseStudies.length} case studies · ${directory.length} directory organisations\n\n` +
       `**Must-know themes:**\n${mustKnows.map((m) => `- ${m}`).join('\n')}\n\n` +
       `**How I advise:**\n${core.map((c) => `- ${c}`).join('\n')}\n\n` +

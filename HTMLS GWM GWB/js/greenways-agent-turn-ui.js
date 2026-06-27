@@ -460,6 +460,127 @@
     tick();
   }
 
+  function formatAnswer(text, escapeHtmlFn) {
+    if (typeof escapeHtmlFn !== "function") {
+      throw new Error("GreenwaysAgentTurnUi.formatAnswer requires escapeHtml");
+    }
+    let raw = String(text || "");
+    const profiles = [];
+    raw = raw.replace(/:::agent-profile\s*\n([\s\S]*?)\n:::/g, function (_, content) {
+      profiles.push(String(content || "").trim());
+      return "[[AGENT_PROFILE_" + (profiles.length - 1) + "]]";
+    });
+
+    let html = escapeHtmlFn(raw)
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.+?)\*/g, "<em>$1</em>")
+      .replace(/_(.+?)_/g, "<em>$1</em>")
+      .replace(/`([^`]+)`/g, "<code>$1</code>")
+      .replace(/\n/g, "<br>");
+
+    profiles.forEach(function (content, idx) {
+      const placeholder = escapeHtmlFn("[[AGENT_PROFILE_" + idx + "]]");
+      const inner = escapeHtmlFn(content)
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*(.+?)\*/g, "<em>$1</em>")
+        .replace(/_(.+?)_/g, "<em>$1</em>")
+        .replace(/`([^`]+)`/g, "<code>$1</code>")
+        .replace(/\n/g, "<br>");
+      html = html.replace(
+        placeholder,
+        '<aside class="agent-system-profile" aria-label="About this specialist">' +
+          '<div class="agent-system-profile-label">About this specialist</div>' +
+          '<div class="agent-system-profile-body">' +
+          inner +
+          "</div></aside>"
+      );
+    });
+    return html;
+  }
+
+  function wrapMixedParagraphs(html) {
+    if (html.indexOf("agent-system-profile") === -1) {
+      var flat = String(html || "").replace(/^<br>|<br>$/g, "");
+      if (!flat) return "";
+      return "<p>" + flat + "</p>";
+    }
+    return String(html || "")
+      .split(/(<aside class="agent-system-profile"[\s\S]*?<\/aside>)/g)
+      .map(function (seg) {
+        if (!seg) return "";
+        if (seg.indexOf("<aside") === 0) return seg;
+        var t = seg.replace(/^<br>|<br>$/g, "").trim();
+        return t ? "<p>" + t + "</p>" : "";
+      })
+      .join("");
+  }
+
+  function formatAgentAnswerBody(text, escapeHtmlFn, options) {
+    options = options || {};
+    var html = formatAnswer(text, escapeHtmlFn);
+    if (options.linkify) {
+      html = html.replace(
+        /(https?:\/\/[^\s<]+)/g,
+        '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:#93c5fd">$1</a>'
+      );
+    }
+    if (options.wrapParagraphs) {
+      html = wrapMixedParagraphs(html);
+    }
+    return html;
+  }
+
+  function resolveHandoffHref(h) {
+    if (h && h.href) return h.href;
+    const base = (h && h.path) || "/greenways/grants-agent";
+    const q = (h && (h.prompt || h.question)) || "";
+    return base + (q ? "?q=" + encodeURIComponent(q) : "");
+  }
+
+  function agentHandoffChipsHtml(handoffs, escapeHtmlFn) {
+    if (typeof escapeHtmlFn !== "function") {
+      throw new Error("GreenwaysAgentTurnUi.agentHandoffChipsHtml requires escapeHtml");
+    }
+    if (!Array.isArray(handoffs) || !handoffs.length) return "";
+    const escapeHtml = escapeHtmlFn;
+    const chips = handoffs
+      .map(function (h) {
+        const prompt = h.prompt || h.question || "";
+        return (
+          '<a class="agent-handoff-chip" href="' +
+          escapeHtml(resolveHandoffHref(h)) +
+          '" target="_top" rel="noopener" data-prompt="' +
+          escapeHtml(prompt) +
+          '">' +
+          escapeHtml(h.name || h.id) +
+          "</a>"
+        );
+      })
+      .join("");
+    return (
+      '<div class="agent-handoff-block" aria-label="Other specialists">' +
+      '<div class="agent-handoff-label">Other agents that can also assist you</div>' +
+      '<div class="agent-handoff-chips">' +
+      chips +
+      "</div>" +
+      '<p class="agent-handoff-hint">Tap a name to open that specialist with your question. Use ' +
+      '<button type="button" class="agent-handoff-journey-link" data-open-journey="1">Journey</button> ' +
+      "at the top for a summary of your conversation across all our agents.</p>" +
+      "</div>"
+    );
+  }
+
+  if (typeof document !== "undefined") {
+    document.addEventListener("click", function (ev) {
+      const journeyBtn = ev.target.closest("[data-open-journey]");
+      if (!journeyBtn) return;
+      ev.preventDefault();
+      if (window.GreenwaysAgentTeam && typeof window.GreenwaysAgentTeam.openJourneySummary === "function") {
+        window.GreenwaysAgentTeam.openJourneySummary();
+      }
+    });
+  }
+
   /** Root-relative marketplace URL — agents live under /greenways/* so bare filenames 404. */
   function normalizeMarketplaceHref(href, productId) {
     var u = String(href || "").trim();
@@ -476,6 +597,10 @@
   }
 
   window.GreenwaysAgentTurnUi = {
+    agentHandoffChipsHtml: agentHandoffChipsHtml,
+    formatAnswer: formatAnswer,
+    formatAgentAnswerBody: formatAgentAnswerBody,
+    wrapMixedParagraphs: wrapMixedParagraphs,
     normalizeMarketplaceHref: normalizeMarketplaceHref,
     avatarMarkup: avatarMarkup,
     buildParts: buildParts,

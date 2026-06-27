@@ -1141,6 +1141,12 @@
   }
 
   function formatAnswer(text) {
+    if (window.GreenwaysAgentTurnUi && typeof window.GreenwaysAgentTurnUi.formatAgentAnswerBody === "function") {
+      return window.GreenwaysAgentTurnUi.formatAgentAnswerBody(text, escapeHtml, {
+        wrapParagraphs: true,
+        linkify: true
+      });
+    }
     let t = escapeHtml(text);
     t = t.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
     t = t.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:#93c5fd">$1</a>');
@@ -1493,12 +1499,7 @@
   }
 
   function agentHandoffChipsHtml(handoffs) {
-    if (!Array.isArray(handoffs) || !handoffs.length) return "";
-    const chips = handoffs.map(function (h) {
-      var prompt = h.prompt || h.question || "";
-      return '<a class="agent-handoff-chip" href="' + escapeHtml(agentHandoffHref(h)) + '" target="_top" rel="noopener" data-prompt="' + escapeHtml(prompt) + '">' + escapeHtml(h.name || h.id) + "</a>";
-    }).join("");
-    return '<div class="agent-handoff-chips" aria-label="Open specialist agent">' + chips + '</div><div class="agent-handoff-hint">Opens the specialist chat with your question</div>';
+    return TurnUi.agentHandoffChipsHtml(handoffs, escapeHtml);
   }
 
   function finishAgentTurn(el, payload) {

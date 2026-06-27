@@ -1241,6 +1241,28 @@
   }
 
   function formatAnswer(text) {
+    if (window.GreenwaysAgentTurnUi && typeof window.GreenwaysAgentTurnUi.formatAgentAnswerBody === "function") {
+      var html = window.GreenwaysAgentTurnUi.formatAgentAnswerBody(text, escapeHtml, { wrapParagraphs: false });
+      html = html.replace(
+        /(\.\/European(?:%20| )Company[^\s<]*Case(?:%20| )Study(?:%20| )Finder[^\s<]*\.html[^\s<]*)/gi,
+        '<button type="button" class="inline-map-open" data-map-open="1">Open sustainability map</button>'
+      );
+      html = html.replace(
+        /(\/HTMLS(?:%20| )GW(?:%20| )GWB\/European[^\s<]*Case(?:%20| )Study(?:%20| )Finder[^\s<]*\.html[^\s<]*)/gi,
+        '<button type="button" class="inline-map-open" data-map-open="1">Open sustainability map</button>'
+      );
+      html = html.replace(/(https?:\/\/[^\s<]+)/g, function (url) {
+        if (/Case(?:%20| )Study(?:%20| )Finder|European(?:%20| )Company/i.test(url)) {
+          return '<button type="button" class="inline-map-open" data-map-open="1">Open sustainability map</button>';
+        }
+        return '<a href="' + url + '" target="_blank" rel="noopener noreferrer" style="color:#93c5fd">' + url + "</a>";
+      });
+      if (window.GreenwaysAgentTurnUi.wrapMixedParagraphs) {
+        return window.GreenwaysAgentTurnUi.wrapMixedParagraphs(html);
+      }
+      html = html.replace(/\n\n/g, "</p><p>");
+      return "<p>" + html + "</p>";
+    }
     let t = escapeHtml(text);
     t = t.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
     t = t.replace(
@@ -2115,12 +2137,7 @@
   }
 
   function agentHandoffChipsHtml(handoffs) {
-    if (!Array.isArray(handoffs) || !handoffs.length) return "";
-    const chips = handoffs.map(function (h) {
-      var prompt = h.prompt || h.question || "";
-      return '<a class="agent-handoff-chip" href="' + escapeHtml(agentHandoffHref(h)) + '" target="_top" rel="noopener" data-prompt="' + escapeHtml(prompt) + '">' + escapeHtml(h.name || h.id) + "</a>";
-    }).join("");
-    return '<div class="agent-handoff-chips" aria-label="Open specialist agent">' + chips + '</div><div class="agent-handoff-hint">Opens the specialist chat with your question</div>';
+    return TurnUi.agentHandoffChipsHtml(handoffs, escapeHtml);
   }
 
   function isVideoChannelIntent(intentId) {

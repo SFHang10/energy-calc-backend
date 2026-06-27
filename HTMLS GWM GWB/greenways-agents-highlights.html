@@ -417,6 +417,11 @@
   }
 
   function formatAnswer(text) {
+    if (window.GreenwaysAgentTurnUi && typeof window.GreenwaysAgentTurnUi.formatAgentAnswerBody === "function") {
+      return window.GreenwaysAgentTurnUi.formatAgentAnswerBody(text, escapeHtml, {
+        wrapParagraphs: true
+      });
+    }
     var t = escapeHtml(String(text || "").trim());
     t = t.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
     t = t.replace(/\*(.+?)\*/g, "<em>$1</em>");

@@ -4,7 +4,7 @@
 
 const path = require('path');
 const fs = require('fs/promises');
-const { PORTAL_LINKS } = require('./greenways-agent-shared');
+const { PORTAL_LINKS, agentProfileBlock } = require('./greenways-agent-shared');
 const { linkOrModuleBlocks, guidesToModuleBlocks, systemsModuleBlock } = require('./systems-agent-module-blocks');
 
 const mathPath = path.join(__dirname, '..', 'data', 'systems-agent-dashboard-math.json');
@@ -154,8 +154,10 @@ async function buildRoleResourcesAnswer(question, tip) {
 
   return {
     answer:
-      `**Edwardo — systems & equipment specialist**\n\n` +
-      `${briefing.roleProfile || briefing.roleSummary || ''}\n\n` +
+      agentProfileBlock(
+        `**Edwardo — systems & equipment specialist**`,
+        briefing.roleProfile || briefing.roleSummary || ''
+      ) +
       `**Must-know themes:**\n${(briefing.mustKnows || []).slice(0, 6).map((m) => `- ${m}`).join('\n')}\n\n` +
       `**Core lens:**\n${(briefing.coreUnderstandings || []).slice(0, 4).map((c) => `- ${c}`).join('\n')}\n\n` +
       `**Greenways guides:**\n${picks.map((g) => `- **${g.title}** — ${g.summary}\n  → ${g.href}`).join('\n')}\n\n_${tip}_`,

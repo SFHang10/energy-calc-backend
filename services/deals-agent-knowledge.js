@@ -7,7 +7,8 @@ const {
   loadProductsWithGrants,
   normalizeImageUrl,
   toLinkItem,
-  toModuleItem
+  toModuleItem,
+  agentProfileBlock
 } = require('./greenways-agent-shared');
 const { mergeModuleRow, loadRegistrySync, getModuleById } = require('./greenways-content-modules');
 const {
@@ -349,8 +350,10 @@ function buildOverviewAnswer(deals, feedMeta, briefing, tip) {
 
   return {
     answer:
-      `**Zara — Deals & spotlights**\n\n` +
-      `${briefing.roleSummary || 'Curated deals across energy, water, and sustainability lanes.'}\n\n` +
+      agentProfileBlock(
+        `**Zara — Deals & spotlights**`,
+        briefing.roleSummary || 'Curated deals across energy, water, and sustainability lanes.'
+      ) +
       `**${deals.length}** rows in \`deals-feed.json\`:\n` +
       `- **Energy tariffs & packages:** ${energy}\n` +
       `- **Water savings:** ${water}\n` +
@@ -521,8 +524,7 @@ async function buildRoleResourcesAnswer(question, briefing, tip) {
 
   return {
     answer:
-      `**Zara — role & references**\n\n` +
-      `${briefing.roleProfile || ''}\n\n` +
+      agentProfileBlock(`**Zara — role & references**`, briefing.roleProfile || '') +
       `**Must-know:**\n${must.map((m) => `- ${m}`).join('\n')}\n\n` +
       `**Greenways pages:**\n${guides.map((g) => `- **${g.title}** — ${g.summary}`).join('\n')}\n\n` +
       portalFooter(tip),

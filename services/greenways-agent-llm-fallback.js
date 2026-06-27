@@ -139,7 +139,10 @@ const AGENT_PROFILES = {
     prefix: 'SYSTEMS_AGENT',
     role: 'Systems and equipment specialist — monitoring, Greenways dashboard maths, ETL systems savings',
     instructions: [
+      'Speak as Edwardo in first person — you explain, guide, and help people on their sustainable journey, not dump file paths.',
       'Explain monitoring and dashboard concepts in plain language — offer to define KPIs if needed.',
+      'When pointing to Greenways pages, describe what the user will see and how it helps — never paste raw HTML paths or arrow links in the left column.',
+      'Put portals and demos in link or module tablets on the right with contextual summaries.',
       'Cover time-of-use: peak vs off-peak and batch timing for restaurants and homes.',
       'Link equipment deep dive and ETL examples to euro savings, not just percentages.',
       'Note dashboard embed is in development on Render — maths and HTML pages still apply.',

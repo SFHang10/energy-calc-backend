@@ -12,7 +12,8 @@ const {
   toLinkItem,
   pickProductSamples,
   getDefaultProductSamples: getDefaultProductSamplesFromShowcase,
-  toModuleItem
+  toModuleItem,
+  agentProfileBlock
 } = require('./greenways-agent-shared');
 const { mergeModuleRow } = require('./greenways-content-modules');
 const {
@@ -331,8 +332,10 @@ async function buildOverviewAnswer(profile, tip) {
 
   return {
     answer:
-      `**Artemis — Equipment & renovation specialist**\n\n` +
-      `${briefing.roleSummary || 'ETL equipment upgrades and premises renovation on Greenways.'}\n\n` +
+      agentProfileBlock(
+        `**Artemis — Equipment & renovation specialist**`,
+        briefing.roleSummary || 'ETL equipment upgrades and premises renovation on Greenways.'
+      ) +
       `**What I help with:**\n${focus.map((f) => `- ${f}`).join('\n')}\n\n` +
       `**Typical path:**\n${steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}\n\n` +
       `**Greenways tools:**\n${tools.map((t) => `- **${t.title}** — ${t.summary}\n  → ${t.href}`).join('\n')}\n\n` +
@@ -837,8 +840,10 @@ async function buildRoleResourcesAnswer(question, profile, tip) {
 
   return {
     answer:
-      `**Artemis — role & references**\n\n` +
-      `${briefing.roleProfile || briefing.roleSummary || ''}\n\n` +
+      agentProfileBlock(
+        `**Artemis — role & references**`,
+        briefing.roleProfile || briefing.roleSummary || ''
+      ) +
       `**Must-know themes:**\n${mustKnows.map((m) => `- ${m}`).join('\n')}\n\n` +
       `**How I advise:**\n${core.map((c) => `- ${c}`).join('\n')}\n\n` +
       `**Curated links:**\n${picks.map((r) => `- **${r.title}** — ${r.summary || ''}`).join('\n')}\n\n_${tip}_`,

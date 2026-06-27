@@ -4,7 +4,7 @@
 
 const path = require('path');
 const fs = require('fs/promises');
-const { PORTAL_LINKS, pickProductSamples } = require('./greenways-agent-shared');
+const { pickProductSamples, agentProfileBlock } = require('./greenways-agent-shared');
 const { toolsToModuleBlocks } = require('./systems-agent-module-blocks');
 
 const guidePath = path.join(__dirname, '..', 'data', 'systems-agent-monitoring-guide.json');
@@ -74,6 +74,83 @@ function toolsToBlocks(tools, max = 5) {
   return toolsToModuleBlocks(tools, max);
 }
 
+/** Conversational one-liner for left-column prose — no raw HTML paths. */
+function greenwaysToolHelpSentence(tool = {}) {
+  const summary = String(tool.summary || '').trim().replace(/\.\s*$/, '');
+  const byId = {
+    'energy-monitoring-guide':
+      'Our **energy monitoring guide** explains in everyday language why measuring use *before* a big purchase saves money — I send people here when bills feel vague and they are not sure where to start.',
+    'energy-audit':
+      'The **energy audit walkthrough** helps you map appliance-level use room by room, so you know which circuits deserve a sensor or upgrade first.',
+    'sensor-dashboard':
+      'The **sensor dashboard** is a live-style demo — you can see power, gas, and water signals across sites and learn what “good visibility” looks like before you buy hardware.',
+    'greenways-dashboard':
+      'The **buildings dashboard** rolls electricity, gas, and water into portfolio KPIs — useful once you want site-level context, not just one meter.',
+    'utility-detail':
+      '**Utility detail** lets you drill into electricity, gas, or water on its own with charts and targets when one bill is the problem.',
+    'restaurant-data':
+      '**Restaurant site data** ties a single venue to whole-building savings projection — handy when you are planning a kitchen retrofit with numbers.',
+    'discover-savings':
+      '**Discover energy savings** walks consumer quick wins once monitoring shows where waste actually lives.'
+  };
+  if (byId[tool.id]) return byId[tool.id];
+  if (summary) {
+    return `**${tool.title}** — ${summary.charAt(0).toLowerCase()}${summary.slice(1)}.`;
+  }
+  return `**${tool.title}** — open the tablet when you are ready to explore that path.`;
+}
+
+function greenwaysToolTabletHint(tool = {}) {
+  const hints = {
+    'energy-monitoring-guide':
+      'Start here if monitoring is new — why measure first, and what to look for before capex.',
+    'energy-audit':
+      'Room-by-room audit — spot the appliances and circuits worth metering first.',
+    'sensor-dashboard':
+      'Demo live power, gas, and water lanes — see what actionable signals look like.',
+    'greenways-dashboard':
+      'Portfolio KPI tiles — electricity, gas, water, and site drill-down.',
+    'utility-detail':
+      'Chart one utility at a time when a single bill needs investigation.',
+    'restaurant-data':
+      'Single-site data plus whole-building savings projection.',
+    'discover-savings':
+      'Consumer quick-win paths after you know where waste is.'
+  };
+  return hints[tool.id] || tool.summary || '';
+}
+
+function toolsToBlocksWithHints(tools, max = 5) {
+  const enriched = (tools || []).slice(0, max).map((t) => ({
+    ...t,
+    summary: greenwaysToolTabletHint(t)
+  }));
+  return toolsToModuleBlocks(enriched, max);
+}
+
+function greenwaysToolsClosingParagraph(tools) {
+  if (!tools?.length) return '';
+  const sentences = tools.map(greenwaysToolHelpSentence);
+  return (
+    `**Where to explore on Greenways:** ${sentences.join(' ')} ` +
+    `I put each one on a tablet to the right — open when you want the full page; the tablet tells you what you will see and how it can help your next step.\n\n`
+  );
+}
+
+function sectorMonitoringAdvice(profile = {}) {
+  const sector = String(profile.sector || 'your site').toLowerCase();
+  if (sector === 'home') {
+    return 'At home, I usually start with one incomer or circuit meter on your fuse board, then add gas or water monitoring where bills surprise you — heating, hot water, and always-on loads are the usual culprits.';
+  }
+  if (sector === 'restaurant') {
+    return 'In restaurants, I start with incomer power, then refrigeration and dishwash lines — lunch peaks and overnight HVAC drift are where monitoring pays back fastest.';
+  }
+  if (sector === 'office') {
+    return 'In offices, tenant submeters and HVAC runtime monitors often expose after-hours waste before you spend on fabric upgrades.';
+  }
+  return `For **${profile.sector || 'your site'}**, start with one incomer or circuit meter, then add gas and water where bills hurt most.`;
+}
+
 function buildHandoffs(briefing, question) {
   const out = [];
   const eq = briefing?.handoffs?.equipmentToArtemis;
@@ -105,13 +182,16 @@ async function buildConsumerOverviewAnswer(profile, tip) {
 
   return {
     answer:
-      `**Edwardo — Systems & equipment specialist**\n\n` +
-      `${briefing.roleSummary || 'Monitoring, sensors, and building-system visibility for homes and restaurants.'}\n\n` +
+      agentProfileBlock(
+        `**Edwardo — Systems & equipment specialist**`,
+        briefing.roleSummary ||
+          'Monitoring, sensors, and building-system visibility for homes and restaurants.'
+      ) +
       `**What I help with:**\n${focus.map((f) => `- ${f}`).join('\n')}\n\n` +
-      `**Greenways entry points:**\n${tools.map((t) => `- **${t.title}** — ${t.summary}\n  → ${t.href}`).join('\n')}\n\n` +
-      `**Energy dashboard:** ${PORTAL_LINKS.greenwaysDashboard} — portfolio KPIs (embed still being finalised; Edwardo can explain the maths today).\n\n` +
+      greenwaysToolsClosingParagraph(tools) +
+      `**Energy dashboard:** portfolio KPIs on Greenways — I can explain the maths even while the live embed is being finalised.\n\n` +
       `_Ask about sensors for your **${profile.sector || 'site'}**, why monitoring matters, or product review themes._\n\n_${tip}_`,
-    blocks: toolsToBlocks(tools, 5),
+    blocks: toolsToBlocksWithHints(tools, 5),
     suggestions: [],
     agentHandoffs: buildHandoffs(briefing, '')
   };
@@ -127,9 +207,10 @@ async function buildMonitoringWhyAnswer(question, profile, tip) {
     answer:
       `**${why.headline || 'Why monitoring matters'}**\n\n` +
       `${(why.points || []).map((p) => `- ${p}`).join('\n')}\n\n` +
-      `For **${profile.sector || 'your site'}**, start with one incomer or circuit meter, then add gas/water where bills hurt most.\n\n` +
-      `**On Greenways:**\n${tools.map((t) => `- ${t.title} → ${t.href}`).join('\n')}\n\n_${tip}_`,
-    blocks: toolsToBlocks(tools, 4),
+      `${sectorMonitoringAdvice(profile)}\n\n` +
+      greenwaysToolsClosingParagraph(tools) +
+      `_${tip}_`,
+    blocks: toolsToBlocksWithHints(tools, 4),
     suggestions: []
   };
 }
@@ -165,8 +246,10 @@ async function buildSensorsSiteAnswer(siteKey, question, profile, tip) {
       `**Sensor types that matter:**\n${sensorBullets}\n\n` +
       `**Quick wins:**\n${(site?.quickWins || []).map((w) => `- ${w}`).join('\n')}\n` +
       exampleBlock +
-      `\n**Explore on Greenways:**\n${toolPicks.map((t) => `- ${t.title} → ${t.href}`).join('\n')}\n\n_${tip}_`,
-    blocks: toolsToBlocks(toolPicks, 4),
+      `\n` +
+      greenwaysToolsClosingParagraph(toolPicks) +
+      `_${tip}_`,
+    blocks: toolsToBlocksWithHints(toolPicks, 4),
     suggestions: [],
     agentHandoffs: buildHandoffs(await loadBriefing(), question)
   };
@@ -192,9 +275,9 @@ async function buildMonitoringProductsAnswer(question, profile, tip) {
         .map((t) => `- **${t.title}** — ${t.reviewAngle}`)
         .join('\n') +
       `\n\n**How I review:** fit-for-site granularity · alert quality · install cost · data export for grants/M&V · pairing with efficient equipment.\n\n` +
-      (tools.length ? `**Greenways guides:**\n${tools.map((t) => `- ${t.title} → ${t.href}`).join('\n')}\n\n` : '') +
+      (tools.length ? greenwaysToolsClosingParagraph(tools) : '') +
       `_Hardware varies by electrician and region — confirm compatibility before purchase._\n\n_${tip}_`,
-    blocks: toolsToBlocks(guide.greenwaysTools || [], 5),
+    blocks: toolsToBlocksWithHints(guide.greenwaysTools || [], 5),
     productSamples,
     suggestions: [],
     agentHandoffs: buildHandoffs(await loadBriefing(), question)
@@ -209,11 +292,11 @@ async function buildDashboardDemoAnswer(tip) {
   return {
     answer:
       `**Live-style dashboards on Greenways**\n\n` +
-      `- **Sensor intelligence dashboard** — ${dash?.href || './sensor-dashboard.html'} — demo power/gas/water signals for a multi-site restaurant portfolio.\n` +
-      `- **Buildings dashboard** — ${portfolio?.href || './Greenways%20Interface%20.html'} — KPI tiles for electricity, gas, water; open site detail for utility drill-down.\n` +
-      `- **Utility detail** — ${PORTAL_LINKS.utilityDetail}?type=electricity — chart one utility at a time.\n\n` +
-      `Use these to show stakeholders *where* energy goes before you quote upgrades or finance.\n\n_${tip}_`,
-    blocks: toolsToBlocks([dash, portfolio].filter(Boolean), 2),
+      `Use these to show stakeholders *where* energy goes before you quote upgrades or finance.\n\n` +
+      greenwaysToolsClosingParagraph([dash, portfolio].filter(Boolean)) +
+      `**Utility detail** charts one utility at a time when you need to isolate a single bill — ask me to open electricity, gas, or water.\n\n` +
+      `_${tip}_`,
+    blocks: toolsToBlocksWithHints([dash, portfolio].filter(Boolean), 2),
     suggestions: []
   };
 }

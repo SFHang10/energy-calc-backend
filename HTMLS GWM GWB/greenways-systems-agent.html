@@ -437,12 +437,7 @@
   }
 
   function agentHandoffChipsHtml(handoffs) {
-    if (!Array.isArray(handoffs) || !handoffs.length) return "";
-    const chips = handoffs.map(function (h) {
-      const prompt = h.prompt || "";
-      return '<a class="agent-handoff-chip" href="' + escapeHtml(h.href || "#") + '" target="_top" rel="noopener" data-prompt="' + escapeHtml(prompt) + '">' + escapeHtml(h.name || h.id) + "</a>";
-    }).join("");
-    return '<div class="agent-handoff-chips" aria-label="Open specialist agent">' + chips + "</div>";
+    return TurnUi.agentHandoffChipsHtml(handoffs, escapeHtml);
   }
   const CHECK_DEFS = [
     { id: "server", label: "API server" },
@@ -485,6 +480,9 @@
   }
 
   function formatAnswer(text) {
+    if (window.GreenwaysAgentTurnUi && typeof window.GreenwaysAgentTurnUi.formatAnswer === "function") {
+      return window.GreenwaysAgentTurnUi.formatAnswer(text, escapeHtml);
+    }
     return escapeHtml(text)
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
       .replace(/_(.+?)_/g, "<em>$1</em>")
