@@ -173,6 +173,7 @@ const PORTAL_PATH_MODULE_IDS = [
   ['european_energy_deals_portal', 'european-energy'],
   ['equipment-savings-projection', 'savings-projection'],
   ['energy-savings-trajectory', 'savings-trajectory'],
+  ['energy-cost-guide%20(1)', 'energy-cost-guide'],
   ['energy-cost-guide', 'energy-cost-guide'],
   ['equipment_intelligence_tool', 'etl-finder'],
   ['energy-calculator-enhanced', 'etl-calculator'],

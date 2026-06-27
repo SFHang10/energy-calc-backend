@@ -40,7 +40,7 @@ const PORTAL_LINKS = {
   utilityDetail: './utility-detail.html',
   savingsProjection: './equipment-savings-projection.html',
   energySavingsTrajectory: './energy-savings-trajectory.html',
-  energyCostGuide: './energy-cost-guide.html',
+  energyCostGuide: './energy-cost-guide%20(1).html',
   savingsHub: './savings.html',
   energyCalculator: '/energy-calculator/energy-calculator-enhanced-2.html',
   etlMarketplace: './equipment_intelligence_tool.html',

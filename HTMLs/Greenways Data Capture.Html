@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Greenways Buildings — Equipment Data Intelligence Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #2d8a4e;
+    --green-light: #3dab62;
+    --green-glow: #4ecca3;
+    --black: #0a0e0b;
+    --black-mid: #111a13;
+    --black-card: #141f16;
+    --silver: #a8b8ac;
+    --silver-light: #cdddd1;
+    --silver-dim: #5a6e5e;
+    --white: #f0f5f1;
+    --accent: #4ecca3;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--black);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, #0a0e0b 0%, #0f1f12 40%, #0a1a10 100%);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid #2d8a4e44;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 80% 50%, #2d8a4e18 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 10% 80%, #4ecca320 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .grid-lines {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(45,138,78,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(45,138,78,0.06) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+  .hero-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 40px 50px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 60px;
+  }
+  .hero-text { flex: 1; }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(78,204,163,0.12);
+    border: 1px solid rgba(78,204,163,0.3);
+    border-radius: 2px;
+    padding: 5px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .hero-badge::before { content: '◆'; font-size: 8px; }
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 7vw, 88px);
+    line-height: 0.92;
+    letter-spacing: 2px;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+  .hero h1 span { color: var(--green-light); }
+  .hero-sub {
+    font-size: 15px;
+    color: var(--silver);
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 480px;
+    margin-top: 16px;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+    margin-top: 36px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+  }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--silver-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-top: 4px;
+  }
+  .hero-visual {
+    flex: 0 0 340px;
+  }
+
+  /* Live pulse card */
+  .live-card {
+    background: var(--black-card);
+    border: 1px solid #2d8a4e55;
+    border-radius: 4px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .live-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--green-light), transparent);
+    animation: scanline 2.5s ease-in-out infinite;
+  }
+  @keyframes scanline {
+    0%, 100% { opacity: 0.3; } 50% { opacity: 1; }
+  }
+  .live-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .live-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--silver-dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .live-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(78,204,163,0.5); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(78,204,163,0); }
+  }
+  .live-metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #ffffff08;
+    font-size: 13px;
+  }
+  .live-metric:last-child { border-bottom: none; }
+  .metric-label { color: var(--silver-dim); }
+  .metric-value {
+    font-family: 'DM Mono', monospace;
+    color: var(--white);
+    font-size: 12px;
+  }
+  .metric-value.good { color: var(--accent); }
+  .metric-value.warn { color: #f4a435; }
+  .efficiency-bar {
+    margin-top: 16px;
+  }
+  .bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--silver-dim);
+    margin-bottom: 6px;
+    font-family: 'DM Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .bar-track {
+    height: 6px;
+    background: #ffffff10;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--accent));
+    border-radius: 3px;
+    width: 87%;
+    animation: barLoad 1.2s ease-out;
+  }
+  @keyframes barLoad { from { width: 0; } }
+
+  /* ── TABS ── */
+  .tabs-wrapper {
+    background: var(--black-mid);
+    border-bottom: 1px solid #2d8a4e33;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .tabs-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs-inner::-webkit-scrollbar { display: none; }
+  .tab {
+    padding: 16px 24px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--silver-dim);
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+  }
+  .tab:hover { color: var(--silver-light); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .tab-icon { font-size: 15px; }
+
+  /* ── CONTENT ── */
+  .content-area {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 40px;
+  }
+  .tab-content { display: none; animation: fadeIn 0.3s ease; }
+  .tab-content.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── SECTION TITLE ── */
+  .section-header {
+    margin-bottom: 36px;
+  }
+  .section-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 1px;
+    color: var(--white);
+    line-height: 1;
+  }
+  .section-title span { color: var(--green-light); }
+  .section-desc {
+    color: var(--silver);
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 1.7;
+    margin-top: 12px;
+    max-width: 700px;
+  }
+
+  /* ── CARDS ── */
+  .card-grid {
+    display: grid;
+    gap: 20px;
+  }
+  .card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .card {
+    background: var(--black-card);
+    border: 1px solid #2d8a4e33;
+    border-radius: 4px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .card:hover {
+    border-color: #2d8a4e99;
+    transform: translateY(-2px);
+  }
+  .card-accent {
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--green-light), transparent);
+  }
+  .card-icon {
+    font-size: 32px;
+    margin-bottom: 14px;
+    display: block;
+  }
+  .card h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: var(--white);
+    margin-bottom: 10px;
+  }
+  .card p {
+    font-size: 13px;
+    color: var(--silver);
+    line-height: 1.65;
+  }
+  .card-tag {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 3px 10px;
+    background: rgba(45,138,78,0.15);
+    border: 1px solid rgba(45,138,78,0.3);
+    border-radius: 2px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--green-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ── ILLUSTRATION BOXES ── */
+  .illustration {
+    border: 1px solid #2d8a4e33;
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--black-card);
+  }
+
+  /* ── CHART: POWER CYCLE ── */
+  .chart-container {
+    background: var(--black-card);
+    border: 1px solid #2d8a4e33;
+    border-radius: 4px;
+    padding: 28px;
+    margin: 24px 0;
+  }
+  .chart-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--silver-dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+  }
+  .chart-title strong { color: var(--accent); }
+
+  /* SVG Chart styles */
+  .chart-svg text { font-family: 'DM Mono', monospace; }
+
+  /* ── TABLE ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 20px 0;
+  }
+  .data-table thead th {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--silver-dim);
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #2d8a4e44;
+    background: #0a0e0b;
+  }
+  .data-table tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #ffffff06;
+    color: var(--silver-light);
+  }
+  .data-table tbody tr:hover td {
+    background: rgba(45,138,78,0.05);
+  }
+  .td-mono {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+  }
+  .badge {
+    display: inline-flex;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .badge-green { background: rgba(45,138,78,0.2); color: #4ecca3; border: 1px solid #2d8a4e44; }
+  .badge-amber { background: rgba(244,164,53,0.15); color: #f4a435; border: 1px solid #f4a43544; }
+  .badge-red { background: rgba(231,76,60,0.15); color: #e74c3c; border: 1px solid #e74c3c44; }
+
+  /* ── ALERT BOX ── */
+  .alert-list { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+  .alert-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 4px;
+    border: 1px solid;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .alert-item.good { background: rgba(78,204,163,0.06); border-color: rgba(78,204,163,0.2); color: var(--silver-light); }
+  .alert-item.warn { background: rgba(244,164,53,0.06); border-color: rgba(244,164,53,0.2); color: var(--silver-light); }
+  .alert-item.info { background: rgba(45,138,78,0.06); border-color: rgba(45,138,78,0.2); color: var(--silver-light); }
+  .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── ROW LAYOUT ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+  /* ── SENSOR VISUAL ── */
+  .sensor-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin: 24px 0;
+  }
+  .sensor-card {
+    background: var(--black-card);
+    border: 1px solid #2d8a4e33;
+    border-radius: 4px;
+    padding: 18px 14px;
+    text-align: center;
+  }
+  .sensor-icon { font-size: 28px; margin-bottom: 8px; }
+  .sensor-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--silver-dim);
+    margin-bottom: 6px;
+  }
+  .sensor-cost {
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ── COST BREAKDOWN ── */
+  .cost-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0;
+    font-size: 13px;
+  }
+  .cost-label { width: 160px; color: var(--silver); flex-shrink: 0; }
+  .cost-track { flex: 1; height: 8px; background: #ffffff08; border-radius: 4px; overflow: hidden; }
+  .cost-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--accent)); border-radius: 4px; }
+  .cost-val { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--accent); width: 60px; text-align: right; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #2d8a4e44, transparent);
+    margin: 40px 0;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--black-mid);
+    border-top: 1px solid #2d8a4e33;
+    padding: 30px 40px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--silver-dim);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+  }
+  footer span { color: var(--accent); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .hero-inner { flex-direction: column; gap: 32px; padding: 40px 20px; }
+    .hero-visual { flex: none; width: 100%; }
+    .content-area { padding: 32px 20px; }
+    .card-grid-3 { grid-template-columns: 1fr; }
+    .card-grid-2 { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+    .three-col { grid-template-columns: 1fr; }
+    .sensor-grid { grid-template-columns: repeat(2, 1fr); }
+    .tabs-inner { padding: 0 16px; }
+  }
+
+  /* ── IMAGE ILLUSTRATIONS ── */
+  .img-placeholder {
+    width: 100%;
+    aspect-ratio: 16/7;
+    background: var(--black-card);
+    border: 1px solid #2d8a4e33;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .img-placeholder svg { width: 100%; height: 100%; }
+
+  /* Duty Cycle donut */
+  .donut-wrap {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 24px;
+    background: var(--black-card);
+    border: 1px solid #2d8a4e33;
+    border-radius: 4px;
+  }
+  .donut-legend { display: flex; flex-direction: column; gap: 12px; }
+  .legend-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--silver); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- ══════════ HERO ══════════ -->
+<header class="hero">
+  <div class="grid-lines"></div>
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-badge">Greenways Buildings · Intelligence Series</div>
+      <h1>Equipment<br><span>Data</span><br>Intelligence</h1>
+      <p class="hero-sub">How monitoring your electrical equipment in real time can reduce energy bills, prevent costly breakdowns, and extend the life of your assets.</p>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num">£15</span><span class="stat-label">Smart plug entry cost</span></div>
+        <div class="stat"><span class="stat-num">30%</span><span class="stat-label">Avg. energy savings</span></div>
+        <div class="stat"><span class="stat-num">3–6</span><span class="stat-label">Month payback period</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="live-card">
+        <div class="live-header">
+          <span class="live-title">Live Equipment Monitor</span>
+          <span class="live-dot"></span>
+        </div>
+        <div class="live-metric"><span class="metric-label">Status</span><span class="metric-value good">● Compressor Active</span></div>
+        <div class="live-metric"><span class="metric-label">Power Draw</span><span class="metric-value">178 W</span></div>
+        <div class="live-metric"><span class="metric-label">Today's Usage</span><span class="metric-value">1.9 kWh · £0.28</span></div>
+        <div class="live-metric"><span class="metric-label">Cycle Duration</span><span class="metric-value">24 min avg</span></div>
+        <div class="live-metric"><span class="metric-label">Door Openings</span><span class="metric-value warn">18 today</span></div>
+        <div class="efficiency-bar">
+          <div class="bar-label"><span>Efficiency Score</span><span>87 / 100</span></div>
+          <div class="bar-track"><div class="bar-fill"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════ TABS ══════════ -->
+<nav class="tabs-wrapper">
+  <div class="tabs-inner">
+    <button class="tab active" onclick="showTab('overview')"><span class="tab-icon">⚡</span> Overview</button>
+    <button class="tab" onclick="showTab('monitoring')"><span class="tab-icon">📡</span> Monitoring Methods</button>
+    <button class="tab" onclick="showTab('energy')"><span class="tab-icon">🔋</span> Energy Savings</button>
+    <button class="tab" onclick="showTab('maintenance')"><span class="tab-icon">🔧</span> Predictive Maintenance</button>
+    <button class="tab" onclick="showTab('equipment')"><span class="tab-icon">🏭</span> Equipment Types</button>
+    <button class="tab" onclick="showTab('costs')"><span class="tab-icon">£</span> Costs & ROI</button>
+  </div>
+</nav>
+
+<!-- ══════════ CONTENT ══════════ -->
+<main class="content-area">
+
+<!-- ─────── OVERVIEW ─────── -->
+<section id="overview" class="tab-content active">
+  <div class="section-header">
+    <div class="section-eyebrow">Section 01 — Introduction</div>
+    <div class="section-title">Why <span>Data</span> Matters</div>
+    <p class="section-desc">Modern energy monitoring transforms guesswork into precision. A single smart plug captures dozens of data points every second, painting a complete picture of how your equipment is performing — and when it's about to fail.</p>
+  </div>
+
+  <div class="card-grid card-grid-3">
+    <div class="card">
+      <div class="card-accent"></div>
+      <span class="card-icon">⚡</span>
+      <h3>Real-Time Power Data</h3>
+      <p>Instantaneous readings of Watts, Volts, Amps, and Power Factor reveal exactly how much energy every device is consuming, moment to moment.</p>
+      <span class="card-tag">Live Monitoring</span>
+    </div>
+    <div class="card">
+      <div class="card-accent"></div>
+      <span class="card-icon">📈</span>
+      <h3>Trend Analysis</h3>
+      <p>Historical kWh data identifies gradual efficiency decline weeks before it becomes a visible problem — or before equipment fails entirely.</p>
+      <span class="card-tag">Historical Insight</span>
+    </div>
+    <div class="card">
+      <div class="card-accent"></div>
+      <span class="card-icon">🔔</span>
+      <h3>Automated Alerts</h3>
+      <p>Receive instant push notifications or emails when consumption spikes, cycles change, or efficiency drops outside of safe thresholds.</p>
+      <span class="card-tag">Smart Alerts</span>
+    </div>
+  </div>
+
+  <div class="chart-container" style="margin-top:32px;">
+    <div class="chart-title">Real-Time Data Points Captured — <strong>Energy Monitoring Plug</strong></div>
+    <svg class="chart-svg" viewBox="0 0 740 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+      <!-- Axes -->
+      <line x1="60" y1="20" x2="60" y2="175" stroke="#2d8a4e44" stroke-width="1"/>
+      <line x1="60" y1="175" x2="720" y2="175" stroke="#2d8a4e44" stroke-width="1"/>
+      <!-- Grid lines -->
+      <line x1="60" y1="60" x2="720" y2="60" stroke="#ffffff06" stroke-width="1" stroke-dasharray="4 4"/>
+      <line x1="60" y1="100" x2="720" y2="100" stroke="#ffffff06" stroke-width="1" stroke-dasharray="4 4"/>
+      <line x1="60" y1="140" x2="720" y2="140" stroke="#ffffff06" stroke-width="1" stroke-dasharray="4 4"/>
+      <!-- Y labels -->
+      <text x="50" y="63" fill="#5a6e5e" font-size="9" text-anchor="end">300W</text>
+      <text x="50" y="103" fill="#5a6e5e" font-size="9" text-anchor="end">200W</text>
+      <text x="50" y="143" fill="#5a6e5e" font-size="9" text-anchor="end">100W</text>
+      <text x="50" y="178" fill="#5a6e5e" font-size="9" text-anchor="end">0W</text>
+
+      <!-- Compressor ON (150-200W) -->
+      <rect x="65" y="90" width="90" height="85" fill="rgba(45,138,78,0.25)" rx="1"/>
+      <rect x="185" y="90" width="90" height="85" fill="rgba(45,138,78,0.25)" rx="1"/>
+      <rect x="365" y="90" width="90" height="85" fill="rgba(45,138,78,0.25)" rx="1"/>
+      <rect x="545" y="90" width="90" height="85" fill="rgba(45,138,78,0.25)" rx="1"/>
+
+      <!-- Defrost spike -->
+      <rect x="305" y="42" width="50" height="133" fill="rgba(244,164,53,0.15)" rx="1"/>
+      <text x="330" y="38" fill="#f4a435" font-size="8" text-anchor="middle">DEFROST</text>
+
+      <!-- Power line -->
+      <polyline points="65,172 65,95 155,95 155,172 185,172 185,95 275,95 275,172 305,172 305,45 355,45 355,172 365,172 365,95 455,95 455,172 545,172 545,95 635,95 635,172 720,172"
+        stroke="#4ecca3" stroke-width="2" fill="none"/>
+
+      <!-- Standby dots -->
+      <circle cx="165" cy="172" r="2" fill="#5a6e5e"/>
+      <circle cx="170" cy="172" r="2" fill="#5a6e5e"/>
+      <circle cx="295" cy="172" r="2" fill="#5a6e5e"/>
+
+      <!-- Labels -->
+      <text x="110" y="88" fill="#cdddd1" font-size="9" text-anchor="middle">Compressor ON</text>
+      <text x="110" y="100" fill="#4ecca3" font-size="9" text-anchor="middle">~178W</text>
+      <text x="480" y="172" fill="#5a6e5e" font-size="8" text-anchor="middle">1-2W standby</text>
+
+      <!-- X axis labels -->
+      <text x="110" y="188" fill="#5a6e5e" font-size="8" text-anchor="middle">08:00</text>
+      <text x="230" y="188" fill="#5a6e5e" font-size="8" text-anchor="middle">10:00</text>
+      <text x="330" y="188" fill="#5a6e5e" font-size="8" text-anchor="middle">12:00</text>
+      <text x="415" y="188" fill="#5a6e5e" font-size="8" text-anchor="middle">14:00</text>
+      <text x="590" y="188" fill="#5a6e5e" font-size="8" text-anchor="middle">16:00</text>
+    </svg>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- What data is captured -->
+  <div class="section-header">
+    <div class="section-eyebrow">Data Points</div>
+    <div class="section-title">What Gets <span>Measured</span></div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Data Point</th>
+        <th>Unit</th>
+        <th>What It Tells You</th>
+        <th>Update Rate</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Power Consumption</td><td class="td-mono">Watts (W)</td><td>Instantaneous energy draw</td><td><span class="badge badge-green">Real-time</span></td></tr>
+      <tr><td>Voltage</td><td class="td-mono">Volts (V)</td><td>Supply quality — detects under/overvoltage</td><td><span class="badge badge-green">Real-time</span></td></tr>
+      <tr><td>Current</td><td class="td-mono">Amps (A)</td><td>Load on circuit — detects shorts or faults</td><td><span class="badge badge-green">Real-time</span></td></tr>
+      <tr><td>Energy Usage</td><td class="td-mono">kWh</td><td>Cumulative consumption for billing/cost</td><td><span class="badge badge-amber">Per hour</span></td></tr>
+      <tr><td>Power Factor</td><td class="td-mono">0.0–1.0</td><td>Efficiency of power conversion</td><td><span class="badge badge-green">Real-time</span></td></tr>
+      <tr><td>Frequency</td><td class="td-mono">Hz</td><td>AC grid stability</td><td><span class="badge badge-green">Real-time</span></td></tr>
+      <tr><td>Compressor Cycles</td><td class="td-mono">Count/Duration</td><td>Equipment health and duty cycle</td><td><span class="badge badge-amber">Derived</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ─────── MONITORING METHODS ─────── -->
+<section id="monitoring" class="tab-content">
+  <div class="section-header">
+    <div class="section-eyebrow">Section 02 — Hardware</div>
+    <div class="section-title">Monitoring <span>Methods</span></div>
+    <p class="section-desc">From a simple £15 smart plug to a full IoT sensor network — choose the approach that fits your building, budget, and ambition.</p>
+  </div>
+
+  <div class="card-grid card-grid-3">
+    <div class="card">
+      <div class="card-accent"></div>
+      <span class="card-icon">🔌</span>
+      <h3>Smart Plugs</h3>
+      <p>Plug-and-play devices that sit between any appliance and the wall socket. Zero installation expertise needed. Instant cloud logging and mobile app access from day one.</p>
+      <span class="card-tag">Easiest · £15–30</span>
+    </div>
+    <div class="card">
+      <div class="card-accent"></div>
+      <span class="card-icon">📡</span>
+      <h3>IoT Sensor Networks</h3>
+      <p>Wireless temperature, pressure, flow, vibration, and level sensors attached directly to equipment. Ideal for commercial kitchens, plant rooms, and refrigerated storage.</p>
+      <span class="card-tag">Intermediate · £200–800</span>
+    </div>
+    <div class="card">
+      <div class="card-accent"></div>
+      <span class="card-icon">🏠</span>
+      <h3>Whole-Home Monitors</h3>
+      <p>Panel-level monitoring (Sense, Emporia Vue) that uses machine learning to identify individual appliances from their unique electrical signatures — no per-device hardware needed.</p>
+      <span class="card-tag">Advanced · £200–300</span>
+    </div>
+  </div>
+
+  <!-- Hardware Comparison Table -->
+  <div class="chart-container">
+    <div class="chart-title">Hardware Options — <strong>Comparison Guide</strong></div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Device</th>
+          <th>Type</th>
+          <th>Cost (est.)</th>
+          <th>Best For</th>
+          <th>Ease of Setup</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>TP-Link Kasa KP115</td><td>Smart Plug</td><td class="td-mono">£15–25</td><td>Individual appliances, home offices</td><td><span class="badge badge-green">Very Easy</span></td></tr>
+        <tr><td>Shelly Plug S</td><td>Smart Plug</td><td class="td-mono">£10–20</td><td>Local API access, smart home integration</td><td><span class="badge badge-green">Very Easy</span></td></tr>
+        <tr><td>Sonoff S31</td><td>Smart Plug</td><td class="td-mono">£12–25</td><td>Budget monitoring, automations</td><td><span class="badge badge-green">Very Easy</span></td></tr>
+        <tr><td>Monnit Wireless Sensors</td><td>IoT Network</td><td class="td-mono">£50–200/sensor</td><td>Commercial kitchens, multi-equipment sites</td><td><span class="badge badge-amber">Moderate</span></td></tr>
+        <tr><td>Sense Energy Monitor</td><td>Whole-Home</td><td class="td-mono">£250–300</td><td>Building-wide visibility, appliance detection</td><td><span class="badge badge-amber">Moderate</span></td></tr>
+        <tr><td>Emporia Vue</td><td>Whole-Home</td><td class="td-mono">£200–250</td><td>Circuit-level monitoring, EV chargers</td><td><span class="badge badge-amber">Moderate</span></td></tr>
+        <tr><td>Raspberry Pi + Sensors</td><td>DIY IoT</td><td class="td-mono">£100–300</td><td>Custom monitoring, hobbyist setups</td><td><span class="badge badge-red">Technical</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Sensor Types -->
+  <div class="section-header" style="margin-top:40px;">
+    <div class="section-eyebrow">IoT Sensors</div>
+    <div class="section-title">Sensor <span>Types</span></div>
+    <p class="section-desc">Beyond electricity, a range of physical sensors can give you a complete picture of how any piece of equipment is performing.</p>
+  </div>
+
+  <div class="sensor-grid">
+    <div class="sensor-card">
+      <div class="sensor-icon">🌡️</div>
+      <div class="sensor-name">Temperature</div>
+      <div class="sensor-cost">£20–100</div>
+    </div>
+    <div class="sensor-card">
+      <div class="sensor-icon">💧</div>
+      <div class="sensor-name">Pressure</div>
+      <div class="sensor-cost">£30–150</div>
+    </div>
+    <div class="sensor-card">
+      <div class="sensor-icon">🌊</div>
+      <div class="sensor-name">Flow Rate</div>
+      <div class="sensor-cost">£25–200</div>
+    </div>
+    <div class="sensor-card">
+      <div class="sensor-icon">📳</div>
+      <div class="sensor-name">Vibration</div>
+      <div class="sensor-cost">£50–300</div>
+    </div>
+    <div class="sensor-card">
+      <div class="sensor-icon">📏</div>
+      <div class="sensor-name">Level (Tank/Hopper)</div>
+      <div class="sensor-cost">£20–100</div>
+    </div>
+    <div class="sensor-card">
+      <div class="sensor-icon">💡</div>
+      <div class="sensor-name">Conductivity</div>
+      <div class="sensor-cost">£30–120</div>
+    </div>
+    <div class="sensor-card">
+      <div class="sensor-icon">🚪</div>
+      <div class="sensor-name">Door Open/Close</div>
+      <div class="sensor-cost">£10–40</div>
+    </div>
+    <div class="sensor-card">
+      <div class="sensor-icon">💨</div>
+      <div class="sensor-name">Humidity</div>
+      <div class="sensor-cost">£15–60</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────── ENERGY SAVINGS ─────── -->
+<section id="energy" class="tab-content">
+  <div class="section-header">
+    <div class="section-eyebrow">Section 03 — Energy</div>
+    <div class="section-title">Cutting <span>Costs</span> with Data</div>
+    <p class="section-desc">Energy waste is often invisible — until you start measuring. Monitoring exposes the hidden inefficiencies that silently inflate your electricity bill every single month.</p>
+  </div>
+
+  <div class="two-col">
+    <!-- Duty Cycle Chart -->
+    <div class="donut-wrap">
+      <svg viewBox="0 0 140 140" width="140" height="140" style="flex-shrink:0;">
+        <circle cx="70" cy="70" r="55" fill="none" stroke="#ffffff08" stroke-width="18"/>
+        <!-- Healthy zone (40-60%) -->
+        <circle cx="70" cy="70" r="55" fill="none" stroke="#2d8a4e" stroke-width="18"
+          stroke-dasharray="138 207" stroke-dashoffset="0" transform="rotate(-90 70 70)"/>
+        <!-- Current: 48% -->
+        <circle cx="70" cy="70" r="55" fill="none" stroke="#4ecca3" stroke-width="18"
+          stroke-dasharray="83 262" stroke-dashoffset="0" transform="rotate(-90 70 70)" opacity="0.7"/>
+        <text x="70" y="65" text-anchor="middle" fill="#f0f5f1" font-size="22" font-family="'Bebas Neue',sans-serif">48%</text>
+        <text x="70" y="80" text-anchor="middle" fill="#5a6e5e" font-size="9" font-family="'DM Mono',monospace">DUTY CYCLE</text>
+      </svg>
+      <div class="donut-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#4ecca3"></div>Current (48%) — Healthy ✓</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#2d8a4e"></div>Target range: 40–60%</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#e74c3c"></div>Warning threshold: 80%+</div>
+        <div style="font-size:12px; color:var(--silver-dim); margin-top:6px; line-height:1.5;">Duty cycle = compressor ON time<br>÷ total time × 100</div>
+      </div>
+    </div>
+
+    <!-- Energy patterns -->
+    <div class="card">
+      <div class="card-accent"></div>
+      <h3>Normal vs Problem Patterns</h3>
+      <p style="margin-bottom:16px;">Monitoring compressor behaviour reveals equipment health at a glance.</p>
+      <div class="alert-list">
+        <div class="alert-item good"><span class="alert-icon">✅</span><div><strong>Normal:</strong> Compressor runs 150–200W for 20–30 min, then rests for 30–40 min.</div></div>
+        <div class="alert-item warn"><span class="alert-icon">⚠️</span><div><strong>Concern:</strong> Compressor running 80%+ of the time may indicate a failing door seal or thermostat fault.</div></div>
+        <div class="alert-item warn"><span class="alert-icon">⚠️</span><div><strong>Concern:</strong> Very short cycles (under 10 min) suggest overcooling or thermostat issues.</div></div>
+        <div class="alert-item warn"><span class="alert-icon">⚠️</span><div><strong>Concern:</strong> Gradually increasing runtime over weeks indicates declining efficiency — act before failure.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monthly energy chart -->
+  <div class="chart-container" style="margin-top:28px;">
+    <div class="chart-title">Monthly Energy Use (kWh) — <strong>Fridge vs Efficient Baseline</strong></div>
+    <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+      <!-- axes -->
+      <line x1="60" y1="20" x2="60" y2="180" stroke="#2d8a4e44" stroke-width="1"/>
+      <line x1="60" y1="180" x2="690" y2="180" stroke="#2d8a4e44" stroke-width="1"/>
+      <!-- grid -->
+      <line x1="60" y1="60" x2="690" y2="60" stroke="#ffffff05" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="60" y1="100" x2="690" y2="100" stroke="#ffffff05" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="60" y1="140" x2="690" y2="140" stroke="#ffffff05" stroke-width="1" stroke-dasharray="3 3"/>
+      <!-- Y labels -->
+      <text x="52" y="63" fill="#5a6e5e" font-size="9" text-anchor="end">60</text>
+      <text x="52" y="103" fill="#5a6e5e" font-size="9" text-anchor="end">40</text>
+      <text x="52" y="143" fill="#5a6e5e" font-size="9" text-anchor="end">20</text>
+
+      <!-- Current fridge bars (slightly elevated in summer) -->
+      <g fill="rgba(45,138,78,0.5)" stroke="#2d8a4e" stroke-width="1">
+        <rect x="70" y="120" width="22" height="60"/> <!-- Jan 30 -->
+        <rect x="120" y="123" width="22" height="57"/> <!-- Feb -->
+        <rect x="170" y="118" width="22" height="62"/> <!-- Mar -->
+        <rect x="220" y="110" width="22" height="70"/> <!-- Apr -->
+        <rect x="270" y="98" width="22" height="82"/> <!-- May -->
+        <rect x="320" y="85" width="22" height="95"/> <!-- Jun -->
+        <rect x="370" y="80" width="22" height="100"/> <!-- Jul -->
+        <rect x="420" y="88" width="22" height="92"/> <!-- Aug -->
+        <rect x="470" y="100" width="22" height="80"/> <!-- Sep -->
+        <rect x="520" y="112" width="22" height="68"/> <!-- Oct -->
+        <rect x="570" y="120" width="22" height="60"/> <!-- Nov -->
+        <rect x="620" y="118" width="22" height="62"/> <!-- Dec -->
+      </g>
+      <!-- Baseline line -->
+      <polyline points="81,128 131,128 181,128 231,120 281,115 331,110 381,108 431,115 481,122 531,126 581,128 631,128"
+        stroke="#4ecca3" stroke-width="2" fill="none" stroke-dasharray="5 3"/>
+      <text x="640" y="125" fill="#4ecca3" font-size="9">Baseline</text>
+
+      <!-- Month labels -->
+      <text x="81" y="195" fill="#5a6e5e" font-size="8" text-anchor="middle">Jan</text>
+      <text x="131" y="195" fill="#5a6e5e" font-size="8" text-anchor="middle">Feb</text>
+      <text x="181" y="195" fill="#5a6e5e" font-size="8" text-anchor="middle">Mar</text>
+      <text x="231" y="195" fill="#5a6e5e" font-size="8" text-anchor="middle">Apr</text>
+      <text x="281" y="195" fill="#5a6e5e" font-size="8" text-anchor="middle">May</text>
+      <text x="331" y="195" fill="#5a6e5e" font-size="8" text-anchor="middle">Jun</text>
+      <text x="381" y="195" fill="#5a6e5e" font-size="8" text-anchor="middle">Jul</text>
+      <text x="431" y="195" fill="#5a6e5e" font-size="8" text-anchor="middle">Aug</text>
+      <text x="481" y="195" fill="#5a6e5e" font-size="8" text-anchor="middle">Sep</text>
+      <text x="531" y="195" fill="#5a6e5e" font-size="8" text-anchor="middle">Oct</text>
+      <text x="581" y="195" fill="#5a6e5e" font-size="8" text-anchor="middle">Nov</text>
+      <text x="631" y="195" fill="#5a6e5e" font-size="8" text-anchor="middle">Dec</text>
+    </svg>
+  </div>
+
+  <!-- Automated alert examples -->
+  <div class="section-header" style="margin-top:40px;">
+    <div class="section-eyebrow">Smart Alerts</div>
+    <div class="section-title">Example <span>Automated</span> Insights</div>
+  </div>
+  <div class="alert-list">
+    <div class="alert-item warn"><span class="alert-icon">⚠️</span>"Compressor running 83% of the time — check door seal and thermostat immediately."</div>
+    <div class="alert-item warn"><span class="alert-icon">⚠️</span>"Energy usage up 25% this week compared to 4-week average — possible fault detected."</div>
+    <div class="alert-item good"><span class="alert-icon">✅</span>"Efficiency normal — operating within expected parameters. No action required."</div>
+    <div class="alert-item info"><span class="alert-icon">💡</span>"Upgrading to an A+++ rated model would save an estimated £120/year based on current usage."</div>
+    <div class="alert-item info"><span class="alert-icon">🔧</span>"Defrost cycle frequency increasing — frost build-up likely. Schedule maintenance."</div>
+  </div>
+</section>
+
+<!-- ─────── PREDICTIVE MAINTENANCE ─────── -->
+<section id="maintenance" class="tab-content">
+  <div class="section-header">
+    <div class="section-eyebrow">Section 04 — Maintenance</div>
+    <div class="section-title">Fix It <span>Before</span> It Breaks</div>
+    <p class="section-desc">Predictive maintenance using data is up to 10× cheaper than emergency repair. By monitoring the signals equipment gives off before it fails, you can schedule maintenance on your terms — not during a crisis.</p>
+  </div>
+
+  <!-- Timeline -->
+  <div class="chart-container">
+    <div class="chart-title">Equipment Failure — <strong>Early Warning Timeline</strong></div>
+    <svg viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+      <!-- Timeline line -->
+      <line x1="40" y1="80" x2="660" y2="80" stroke="#2d8a4e" stroke-width="2"/>
+      <!-- Arrow -->
+      <polygon points="660,76 672,80 660,84" fill="#2d8a4e"/>
+
+      <!-- Stages -->
+      <!-- 1 Normal -->
+      <circle cx="100" cy="80" r="10" fill="#2d8a4e" stroke="#4ecca3" stroke-width="1.5"/>
+      <text x="100" y="84" text-anchor="middle" fill="#fff" font-size="10" font-family="'Bebas Neue',sans-serif">1</text>
+      <text x="100" y="108" text-anchor="middle" fill="#cdddd1" font-size="9" font-family="'DM Sans',sans-serif">Normal</text>
+      <text x="100" y="120" text-anchor="middle" fill="#5a6e5e" font-size="8" font-family="'DM Mono',sans-serif">Baseline</text>
+
+      <!-- 2 Subtle -->
+      <circle cx="240" cy="80" r="10" fill="#2d7a3e" stroke="#4ecca3" stroke-width="1.5"/>
+      <text x="240" y="84" text-anchor="middle" fill="#fff" font-size="10" font-family="'Bebas Neue',sans-serif">2</text>
+      <text x="240" y="108" text-anchor="middle" fill="#cdddd1" font-size="9">Subtle shift</text>
+      <text x="240" y="120" text-anchor="middle" fill="#5a6e5e" font-size="8" font-family="'DM Mono',sans-serif">+5% runtime</text>
+      <!-- Alert bubble -->
+      <rect x="195" y="38" width="90" height="22" rx="3" fill="rgba(78,204,163,0.15)" stroke="rgba(78,204,163,0.3)" stroke-width="1"/>
+      <text x="240" y="52" text-anchor="middle" fill="#4ecca3" font-size="8" font-family="'DM Mono',sans-serif">DATA DETECTS</text>
+
+      <!-- 3 Worsening -->
+      <circle cx="390" cy="80" r="10" fill="#b87a00" stroke="#f4a435" stroke-width="1.5"/>
+      <text x="390" y="84" text-anchor="middle" fill="#fff" font-size="10" font-family="'Bebas Neue',sans-serif">3</text>
+      <text x="390" y="108" text-anchor="middle" fill="#cdddd1" font-size="9">Worsening</text>
+      <text x="390" y="120" text-anchor="middle" fill="#5a6e5e" font-size="8" font-family="'DM Mono',sans-serif">+20% runtime</text>
+      <!-- Alert -->
+      <rect x="345" y="38" width="90" height="22" rx="3" fill="rgba(244,164,53,0.12)" stroke="rgba(244,164,53,0.3)" stroke-width="1"/>
+      <text x="390" y="52" text-anchor="middle" fill="#f4a435" font-size="8" font-family="'DM Mono',sans-serif">⚠ ALERT SENT</text>
+
+      <!-- 4 Failure -->
+      <circle cx="560" cy="80" r="12" fill="#8b1a1a" stroke="#e74c3c" stroke-width="2"/>
+      <text x="560" y="84" text-anchor="middle" fill="#fff" font-size="10" font-family="'Bebas Neue',sans-serif">✕</text>
+      <text x="560" y="108" text-anchor="middle" fill="#e74c3c" font-size="9">FAILURE</text>
+      <text x="560" y="120" text-anchor="middle" fill="#5a6e5e" font-size="8" font-family="'DM Mono',sans-serif">Without data</text>
+
+      <!-- Time labels -->
+      <text x="100" y="145" text-anchor="middle" fill="#5a6e5e" font-size="8" font-family="'DM Mono',sans-serif">Week 0</text>
+      <text x="240" y="145" text-anchor="middle" fill="#5a6e5e" font-size="8" font-family="'DM Mono',sans-serif">Week 4</text>
+      <text x="390" y="145" text-anchor="middle" fill="#5a6e5e" font-size="8" font-family="'DM Mono',sans-serif">Week 8</text>
+      <text x="560" y="145" text-anchor="middle" fill="#5a6e5e" font-size="8" font-family="'DM Mono',sans-serif">Week 12</text>
+    </svg>
+  </div>
+
+  <div class="two-col" style="margin-top:28px;">
+    <div class="card">
+      <div class="card-accent"></div>
+      <span class="card-icon">📊</span>
+      <h3>What to Watch For</h3>
+      <div class="alert-list" style="margin-top:10px;">
+        <div class="alert-item warn"><span class="alert-icon">📈</span>Gradually increasing compressor runtime over weeks</div>
+        <div class="alert-item warn"><span class="alert-icon">📳</span>Rising vibration on motors, pumps, or compressors</div>
+        <div class="alert-item warn"><span class="alert-icon">🌡️</span>Boiler or brewing temperature inconsistency</div>
+        <div class="alert-item warn"><span class="alert-icon">💧</span>Unusual pressure readings in hydraulic systems</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-accent"></div>
+      <span class="card-icon">💰</span>
+      <h3>Cost of Reactive vs Predictive</h3>
+      <p style="margin-bottom:16px; font-size:13px; color:var(--silver);">Emergency repairs typically cost 3–10× more than planned maintenance. Data-driven scheduling eliminates the surprise.</p>
+      <div class="cost-bar-row"><span class="cost-label">Planned maintenance</span><div class="cost-track"><div class="cost-fill" style="width:25%; background:var(--green)"></div></div><span class="cost-val">£150</span></div>
+      <div class="cost-bar-row"><span class="cost-label">Emergency callout</span><div class="cost-track"><div class="cost-fill" style="width:75%; background:#e74c3c"></div></div><span class="cost-val">£600+</span></div>
+      <div class="cost-bar-row"><span class="cost-label">Lost stock/downtime</span><div class="cost-track"><div class="cost-fill" style="width:90%; background:#c0392b"></div></div><span class="cost-val">£1,000+</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────── EQUIPMENT TYPES ─────── -->
+<section id="equipment" class="tab-content">
+  <div class="section-header">
+    <div class="section-eyebrow">Section 05 — Applications</div>
+    <div class="section-title">Equipment <span>by Type</span></div>
+    <p class="section-desc">Every type of commercial equipment has its own monitoring profile. Here's what can be tracked, and what insights each provides.</p>
+  </div>
+
+  <!-- Fridge -->
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-accent"></div>
+    <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
+      <span style="font-size:36px;">🧊</span>
+      <div>
+        <h3 style="margin-bottom:2px;">Refrigerators & Walk-in Freezers</h3>
+        <span class="card-tag">Smart Plug + IoT Sensors</span>
+      </div>
+    </div>
+    <div class="three-col">
+      <div>
+        <div style="font-family:'DM Mono',monospace; font-size:10px; color:var(--accent); text-transform:uppercase; letter-spacing:2px; margin-bottom:10px;">Monitorable</div>
+        <ul style="list-style:none; font-size:13px; color:var(--silver); line-height:1.9;">
+          <li>✓ Compressor cycle frequency & duration</li>
+          <li>✓ Duty cycle percentage</li>
+          <li>✓ Defrost cycle timing & wattage</li>
+          <li>✓ Door open/close events</li>
+          <li>✓ Multi-zone temperature</li>
+          <li>✓ Humidity levels</li>
+          <li>✓ Compressor vibration</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace; font-size:10px; color:var(--accent); text-transform:uppercase; letter-spacing:2px; margin-bottom:10px;">Problem Indicators</div>
+        <ul style="list-style:none; font-size:13px; color:var(--silver); line-height:1.9;">
+          <li>⚠ Constant running → seal failure</li>
+          <li>⚠ Short cycles → thermostat fault</li>
+          <li>⚠ Power spikes → compressor stress</li>
+          <li>⚠ Rising runtime → efficiency decline</li>
+          <li>⚠ Defrost changes → frost build-up</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace; font-size:10px; color:var(--accent); text-transform:uppercase; letter-spacing:2px; margin-bottom:10px;">Normal Range</div>
+        <div class="live-metric" style="border-color:#2d8a4e22; padding:6px 0;"><span class="metric-label" style="font-size:12px;">Compressor ON</span><span class="metric-value">150–200 W</span></div>
+        <div class="live-metric" style="border-color:#2d8a4e22; padding:6px 0;"><span class="metric-label" style="font-size:12px;">Cycle length</span><span class="metric-value">20–30 min</span></div>
+        <div class="live-metric" style="border-color:#2d8a4e22; padding:6px 0;"><span class="metric-label" style="font-size:12px;">Rest period</span><span class="metric-value">30–40 min</span></div>
+        <div class="live-metric" style="border-color:#2d8a4e22; padding:6px 0;"><span class="metric-label" style="font-size:12px;">Duty cycle</span><span class="metric-value good">40–60%</span></div>
+        <div class="live-metric" style="border-color:#2d8a4e22; padding:6px 0;"><span class="metric-label" style="font-size:12px;">Defrost spike</span><span class="metric-value">300–600 W</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Coffee Machine -->
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-accent"></div>
+    <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
+      <span style="font-size:36px;">☕</span>
+      <div>
+        <h3 style="margin-bottom:2px;">Commercial Coffee Machines</h3>
+        <span class="card-tag">IoT Sensors + Built-in Smart Features</span>
+      </div>
+    </div>
+    <div class="three-col">
+      <div>
+        <div style="font-family:'DM Mono',monospace; font-size:10px; color:var(--accent); text-transform:uppercase; letter-spacing:2px; margin-bottom:10px;">Monitorable</div>
+        <ul style="list-style:none; font-size:13px; color:var(--silver); line-height:1.9;">
+          <li>✓ Water reservoir level</li>
+          <li>✓ Bean hopper weight</li>
+          <li>✓ Boiler temperature</li>
+          <li>✓ Brew pressure</li>
+          <li>✓ Shot count & volume</li>
+          <li>✓ Descaling status</li>
+          <li>✓ Drip tray level</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace; font-size:10px; color:var(--accent); text-transform:uppercase; letter-spacing:2px; margin-bottom:10px;">Example Alerts</div>
+        <div class="alert-list">
+          <div class="alert-item warn" style="padding:8px 12px; font-size:12px;"><span class="alert-icon">⚠️</span>Water below 15% — refill needed</div>
+          <div class="alert-item warn" style="padding:8px 12px; font-size:12px;"><span class="alert-icon">🌡️</span>Temp dropped to 88°C — check boiler</div>
+          <div class="alert-item info" style="padding:8px 12px; font-size:12px;"><span class="alert-icon">🔧</span>450 shots today — descale in 2 days</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace; font-size:10px; color:var(--accent); text-transform:uppercase; letter-spacing:2px; margin-bottom:10px;">Setup Cost (3 machines)</div>
+        <div class="cost-bar-row" style="margin:6px 0;"><span class="cost-label" style="width:130px; font-size:12px;">Water sensor ×3</span><span class="cost-val" style="color:var(--silver)">£75</span></div>
+        <div class="cost-bar-row" style="margin:6px 0;"><span class="cost-label" style="width:130px; font-size:12px;">Bean sensor ×3</span><span class="cost-val" style="color:var(--silver)">£120</span></div>
+        <div class="cost-bar-row" style="margin:6px 0;"><span class="cost-label" style="width:130px; font-size:12px;">Temp probe ×3</span><span class="cost-val" style="color:var(--silver)">£45</span></div>
+        <div class="cost-bar-row" style="margin:6px 0;"><span class="cost-label" style="width:130px; font-size:12px;">Gateway (shared)</span><span class="cost-val" style="color:var(--silver)">£150</span></div>
+        <div style="height:1px; background:#2d8a4e33; margin:8px 0;"></div>
+        <div class="cost-bar-row" style="margin:6px 0;"><span class="cost-label" style="width:130px; font-size:13px; font-weight:600; color:var(--white);">Total</span><span class="cost-val" style="color:var(--accent); font-size:14px;">£390</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Other equipment grid -->
+  <div class="card-grid card-grid-3">
+    <div class="card">
+      <div class="card-accent"></div>
+      <span class="card-icon">🍽️</span>
+      <h3>Dishwashers</h3>
+      <ul style="list-style:none; font-size:12px; color:var(--silver); line-height:1.9; margin-top:8px;">
+        <li>✓ Water temperature</li>
+        <li>✓ Rinse aid & detergent levels</li>
+        <li>✓ Cycle count & duration</li>
+        <li>✓ Water flow rate</li>
+        <li>✓ Door seal integrity</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-accent"></div>
+      <span class="card-icon">🔥</span>
+      <h3>Commercial Fryers</h3>
+      <ul style="list-style:none; font-size:12px; color:var(--silver); line-height:1.9; margin-top:8px;">
+        <li>✓ Oil temperature</li>
+        <li>✓ Oil quality (viscosity)</li>
+        <li>✓ Oil level</li>
+        <li>✓ Filter condition</li>
+        <li>✓ Cook cycle count</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-accent"></div>
+      <span class="card-icon">🌬️</span>
+      <h3>HVAC Systems</h3>
+      <ul style="list-style:none; font-size:12px; color:var(--silver); line-height:1.9; margin-top:8px;">
+        <li>✓ Refrigerant pressure</li>
+        <li>✓ Filter status</li>
+        <li>✓ Air quality sensors</li>
+        <li>✓ Energy consumption</li>
+        <li>✓ Predictive maintenance alerts</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ─────── COSTS & ROI ─────── -->
+<section id="costs" class="tab-content">
+  <div class="section-header">
+    <div class="section-eyebrow">Section 06 — Investment</div>
+    <div class="section-title">Costs &amp; <span>Return</span></div>
+    <p class="section-desc">Energy monitoring pays for itself. Whether you start with a single £15 plug or a full commercial IoT network, the investment is recovered in months — not years.</p>
+  </div>
+
+  <!-- Tier cards -->
+  <div class="card-grid card-grid-3" style="margin-bottom:32px;">
+    <div class="card" style="border-color:#4ecca355;">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green),var(--accent));"></div>
+      <div style="font-family:'DM Mono',monospace; font-size:10px; color:var(--accent); text-transform:uppercase; letter-spacing:2px; margin-bottom:12px;">Tier 1 — Entry</div>
+      <div style="font-family:'Bebas Neue',sans-serif; font-size:48px; color:var(--white); line-height:1;">£15<span style="font-size:20px; color:var(--silver-dim)">–30</span></div>
+      <div style="font-size:12px; color:var(--silver-dim); margin-bottom:16px; font-family:'DM Mono',monospace;">per device</div>
+      <ul style="list-style:none; font-size:13px; color:var(--silver); line-height:1.9;">
+        <li>✓ Single smart plug</li>
+        <li>✓ Mobile app included</li>
+        <li>✓ kWh + Watt logging</li>
+        <li>✓ Basic alerts</li>
+        <li style="color:var(--silver-dim);">✗ No IoT sensors</li>
+      </ul>
+      <div style="margin-top:16px; padding-top:16px; border-top:1px solid #2d8a4e22; font-size:12px; color:var(--silver-dim);">Payback: <span style="color:var(--accent);">3–6 months</span></div>
+    </div>
+    <div class="card">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#2d8a4e,#2d7a3e);"></div>
+      <div style="font-family:'DM Mono',monospace; font-size:10px; color:var(--silver-dim); text-transform:uppercase; letter-spacing:2px; margin-bottom:12px;">Tier 2 — Commercial</div>
+      <div style="font-family:'Bebas Neue',sans-serif; font-size:48px; color:var(--white); line-height:1;">£200<span style="font-size:20px; color:var(--silver-dim)">–800</span></div>
+      <div style="font-size:12px; color:var(--silver-dim); margin-bottom:16px; font-family:'DM Mono',monospace;">per location</div>
+      <ul style="list-style:none; font-size:13px; color:var(--silver); line-height:1.9;">
+        <li>✓ IoT sensor network</li>
+        <li>✓ Cloud dashboard</li>
+        <li>✓ SMS + email alerts</li>
+        <li>✓ Historical trending</li>
+        <li>✓ Multi-equipment</li>
+      </ul>
+      <div style="margin-top:16px; padding-top:16px; border-top:1px solid #2d8a4e22; font-size:12px; color:var(--silver-dim);">Payback: <span style="color:var(--accent);">6–12 months</span></div>
+    </div>
+    <div class="card">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#5a6e5e,#a8b8ac);"></div>
+      <div style="font-family:'DM Mono',monospace; font-size:10px; color:var(--silver-dim); text-transform:uppercase; letter-spacing:2px; margin-bottom:12px;">Tier 3 — Enterprise</div>
+      <div style="font-family:'Bebas Neue',sans-serif; font-size:48px; color:var(--white); line-height:1;">£500<span style="font-size:20px; color:var(--silver-dim)">–5k</span></div>
+      <div style="font-size:12px; color:var(--silver-dim); margin-bottom:16px; font-family:'DM Mono',monospace;">full installation</div>
+      <ul style="list-style:none; font-size:13px; color:var(--silver); line-height:1.9;">
+        <li>✓ Full custom integration</li>
+        <li>✓ POS + BMS integration</li>
+        <li>✓ Automated reporting</li>
+        <li>✓ Multi-site dashboard</li>
+        <li>✓ Professional installation</li>
+      </ul>
+      <div style="margin-top:16px; padding-top:16px; border-top:1px solid #2d8a4e22; font-size:12px; color:var(--silver-dim);">Payback: <span style="color:var(--accent);">12–24 months</span></div>
+    </div>
+  </div>
+
+  <!-- ROI Visual -->
+  <div class="chart-container">
+    <div class="chart-title">Cumulative Savings vs. Investment — <strong>Smart Plug Scenario (£25 device)</strong></div>
+    <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+      <!-- axes -->
+      <line x1="60" y1="20" x2="60" y2="170" stroke="#2d8a4e44" stroke-width="1"/>
+      <line x1="60" y1="170" x2="680" y2="170" stroke="#2d8a4e44" stroke-width="1"/>
+      <!-- grid -->
+      <line x1="60" y1="60" x2="680" y2="60" stroke="#ffffff05" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="60" y1="110" x2="680" y2="110" stroke="#ffffff05" stroke-width="1" stroke-dasharray="3 3"/>
+      <!-- Y labels -->
+      <text x="52" y="63" fill="#5a6e5e" font-size="9" text-anchor="end">£100</text>
+      <text x="52" y="113" fill="#5a6e5e" font-size="9" text-anchor="end">£50</text>
+      <text x="52" y="173" fill="#5a6e5e" font-size="9" text-anchor="end">£0</text>
+
+      <!-- Investment line (flat at -£25) -->
+      <line x1="60" y1="155" x2="680" y2="155" stroke="#e74c3c" stroke-width="1.5" stroke-dasharray="6 3"/>
+      <text x="685" y="158" fill="#e74c3c" font-size="8">Cost £25</text>
+
+      <!-- Savings curve -->
+      <polyline points="60,170 160,165 260,153 360,137 460,118 560,96 660,70"
+        stroke="#4ecca3" stroke-width="2.5" fill="none"/>
+      <!-- Fill under curve -->
+      <polygon points="60,170 160,165 260,153 360,137 460,118 560,96 660,70 660,170"
+        fill="rgba(78,204,163,0.08)"/>
+
+      <!-- Break-even point -->
+      <circle cx="300" cy="149" r="5" fill="none" stroke="#4ecca3" stroke-width="1.5"/>
+      <line x1="300" y1="149" x2="300" y2="170" stroke="#4ecca344" stroke-width="1" stroke-dasharray="3 3"/>
+      <text x="300" y="185" fill="#4ecca3" font-size="8" text-anchor="middle">Break-even</text>
+
+      <!-- Month labels -->
+      <text x="60" y="185" fill="#5a6e5e" font-size="8" text-anchor="middle">Now</text>
+      <text x="160" y="185" fill="#5a6e5e" font-size="8" text-anchor="middle">Month 2</text>
+      <text x="260" y="185" fill="#5a6e5e" font-size="8" text-anchor="middle">Month 4</text>
+      <text x="360" y="185" fill="#5a6e5e" font-size="8" text-anchor="middle">Month 6</text>
+      <text x="460" y="185" fill="#5a6e5e" font-size="8" text-anchor="middle">Month 8</text>
+      <text x="560" y="185" fill="#5a6e5e" font-size="8" text-anchor="middle">Month 10</text>
+      <text x="660" y="185" fill="#5a6e5e" font-size="8" text-anchor="middle">Month 12</text>
+    </svg>
+  </div>
+
+  <!-- Bottom summary -->
+  <div class="card" style="margin-top:24px; background: linear-gradient(135deg, #0f1f12, #141f16);">
+    <div class="card-accent" style="background: linear-gradient(to bottom, var(--accent), transparent);"></div>
+    <div style="font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--white); margin-bottom:12px; letter-spacing:1px;">Beyond Energy: The Full Value of Data</div>
+    <div class="three-col">
+      <div>
+        <div style="font-family:'DM Mono',monospace; font-size:10px; color:var(--accent); text-transform:uppercase; letter-spacing:2px; margin-bottom:10px;">Operational</div>
+        <ul style="list-style:none; font-size:13px; color:var(--silver); line-height:1.9;">
+          <li>✓ Never run out of supplies mid-service</li>
+          <li>✓ Prevent breakdowns during peak hours</li>
+          <li>✓ Optimise maintenance scheduling</li>
+          <li>✓ Track equipment utilisation rates</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace; font-size:10px; color:var(--accent); text-transform:uppercase; letter-spacing:2px; margin-bottom:10px;">Quality Control</div>
+        <ul style="list-style:none; font-size:13px; color:var(--silver); line-height:1.9;">
+          <li>✓ Ensure consistent temperatures</li>
+          <li>✓ Monitor recipe compliance</li>
+          <li>✓ Detect degrading performance early</li>
+          <li>✓ Protect perishable stock</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace; font-size:10px; color:var(--accent); text-transform:uppercase; letter-spacing:2px; margin-bottom:10px;">Financial</div>
+        <ul style="list-style:none; font-size:13px; color:var(--silver); line-height:1.9;">
+          <li>✓ Eliminate emergency repair costs</li>
+          <li>✓ Data-driven equipment replacement</li>
+          <li>✓ Reduce food/product waste</li>
+          <li>✓ Calculate ROI for upgrades</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <span>GREENWAYS BUILDINGS</span> · Equipment Data Intelligence Guide · © 2025 · All monitoring data is indicative — consult a qualified engineer for installation advice.
+</footer>
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.currentTarget.classList.add('active');
+    window.scrollTo({ top: document.querySelector('.tabs-wrapper').offsetTop - 10, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

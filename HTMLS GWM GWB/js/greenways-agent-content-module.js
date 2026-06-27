@@ -40,6 +40,7 @@
     ["full%20schemes%20portal%20html", "schemes-portal-eu"],
     ["equipment-savings-projection", "savings-projection"],
     ["energy-savings-trajectory", "savings-trajectory"],
+    ["energy-cost-guide%20(1)", "energy-cost-guide"],
     ["energy-cost-guide", "energy-cost-guide"],
     ["equipment_intelligence_tool", "etl-finder"],
     ["energy-calculator-enhanced", "etl-calculator"],
@@ -74,6 +75,7 @@
     ["eco_project_planning_guide", "eco-project-planner"],
     ["members-section", "members-section"],
     ["declining_cost_renewable_energy", "declining-cost-renewables"],
+    ["greenways%20data%20capture", "equipment-data-capture"],
     ["water-saving-finder", "water-saving-finder"],
     ["water-saving-guide", "water-saving-guide"],
     ["water-saving-guide%20(1)", "water-saving-guide"],
@@ -104,7 +106,7 @@
     "energy-cost-guide": {
       id: "energy-cost-guide",
       title: "Energy cost guide",
-      href: "./energy-cost-guide.html",
+      href: "./energy-cost-guide%20(1).html",
       defaultOpenSize: "near-full"
     },
     "savings-projection": {
@@ -275,6 +277,14 @@
       description: "IRENA-style LCOE chart 2014–2026 — solar, wind, and why green supply keeps getting cheaper.",
       usageHint: "Review cost curves, then model solar or green-tariff payback in savings projection or finance finder.",
       href: "./declining_cost_renewable_energy.html",
+      defaultOpenSize: "near-full"
+    },
+    "equipment-data-capture": {
+      id: "equipment-data-capture",
+      title: "Equipment data intelligence guide",
+      description: "Live monitoring signals by equipment type — bills, breakdown prevention, upgrade timing.",
+      usageHint: "Review monitoring sections for your equipment, then open deep dive or Edwardo for sensors.",
+      href: "../HTMLs/Greenways%20Data%20Capture.Html",
       defaultOpenSize: "near-full"
     }
   };

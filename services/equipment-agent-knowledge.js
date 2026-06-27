@@ -60,6 +60,7 @@ const REF_MODULE_IDS = {
   intelligence: 'etl-finder',
   'deep-dive': 'equipment-deep-dive',
   comparison: 'appliance-comparison',
+  'data-capture': 'equipment-data-capture',
   renovations: 'sustainable-renovations',
   insulation: 'insulation-guide',
   'retrofit-roi': 'retrofit-roi-guide',
@@ -79,6 +80,7 @@ const PORTAL_PATH_MODULE_IDS = [
   ['energy-savings-trajectory', 'savings-trajectory'],
   ['restuarant%20appliance%20comparison', 'appliance-comparison'],
   ['marketplace%20variant', 'appliance-comparison'],
+  ['greenways%20data%20capture', 'equipment-data-capture'],
   ['sustainable_product_deal_finder', 'sustainable-product-finder'],
   ['water-saving-finder', 'water-saving-finder'],
   ['eco_project_planning_guide', 'eco-project-planner']
@@ -630,11 +632,39 @@ async function buildMonitoringHandoffAnswer(tip) {
   return {
     answer:
       `**Baseline before capex** — if bills hide where energy goes, measure first.\n\n` +
+      `- **Equipment data intelligence guide** — what to monitor by equipment type before you specify upgrades\n` +
       `- **Edwardo** (Systems) — sensors, sub-metering, Greenways dashboard maths\n` +
       `- **Importance of energy monitoring** — ${PORTAL_LINKS.energyMonitoring}\n\n` +
       `Once you know cookline vs refrigeration vs HVAC share, equipment swaps target the right loads.\n\n_${tip}_`,
     suggestions: [],
+    blocks: linkOrModuleBlocks([
+      toLinkItem(
+        'Equipment data intelligence guide',
+        '../HTMLs/Greenways%20Data%20Capture.Html',
+        'Live monitoring signals, failure warnings, and upgrade timing'
+      ),
+      toLinkItem('Importance of energy monitoring', PORTAL_LINKS.energyMonitoring, 'Why baseline measurement saves money')
+    ]),
     agentHandoffs: buildHandoffs(briefing, '', 'monitoring_handoff')
+  };
+}
+
+function buildEquipmentDataCaptureAnswer(tip) {
+  return {
+    answer:
+      `**Equipment data intelligence** — monitoring electrical equipment in real time helps you cut bills, catch breakdowns early, and time upgrades with evidence.\n\n` +
+      `The guide covers signals by equipment type (refrigeration, cookline, HVAC), what good baselines look like, and when to act before capex.\n\n` +
+      `Open the module on the right, then **Edwardo** for sensors and dashboard setup, or **equipment deep dive** when you are ready to compare replacements.\n\n_${tip}_`,
+    suggestions: [],
+    blocks: linkOrModuleBlocks([
+      toLinkItem(
+        'Equipment data intelligence guide',
+        '../HTMLs/Greenways%20Data%20Capture.Html',
+        'Monitoring signals, early warnings, and upgrade timing'
+      ),
+      toLinkItem('Equipment deep dive', PORTAL_LINKS.deepDive, 'Compare alternatives with grants'),
+      toLinkItem('Importance of energy monitoring', PORTAL_LINKS.energyMonitoring, 'Why measure before major capex')
+    ])
   };
 }
 
@@ -987,6 +1017,9 @@ async function answerFromKnowledge(question, profile = {}) {
       break;
     case 'monitoring_handoff':
       result = await buildMonitoringHandoffAnswer(tip);
+      break;
+    case 'equipment_data_capture':
+      result = buildEquipmentDataCaptureAnswer(tip);
       break;
     case 'portals':
       result = buildPortalsAnswer(tip);
