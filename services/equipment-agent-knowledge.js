@@ -70,6 +70,7 @@ const PORTAL_PATH_MODULE_IDS = [
   ['restaurant-equipment-deep-dive', 'equipment-deep-dive'],
   ['equipment_intelligence_tool', 'etl-finder'],
   ['sustainable%20renovations', 'sustainable-renovations'],
+  ['insulation%20.html', 'insulation-guide'],
   ['importance%20of%20insulation', 'insulation-guide'],
   ['renovation%20project%20plans', 'renovation-plans'],
   ['retrofit-tabbed', 'retrofit-roi-guide'],
@@ -77,6 +78,7 @@ const PORTAL_PATH_MODULE_IDS = [
   ['equipment-savings-projection', 'savings-projection'],
   ['energy-savings-trajectory', 'savings-trajectory'],
   ['restuarant%20appliance%20comparison', 'appliance-comparison'],
+  ['marketplace%20variant', 'appliance-comparison'],
   ['sustainable_product_deal_finder', 'sustainable-product-finder'],
   ['water-saving-finder', 'water-saving-finder'],
   ['eco_project_planning_guide', 'eco-project-planner']
@@ -266,7 +268,7 @@ function equipmentPortalLinks() {
     toLinkItem('Retrofit ROI guide', PORTAL_LINKS.retrofitRoiGuide, 'ETL retrofit payback and savings'),
     toLinkItem('Restaurant design', PORTAL_LINKS.restaurantDesign, 'Kitchen layout and ventilation savings'),
     toLinkItem('Insulation guide', PORTAL_LINKS.insulationGuide, 'Fabric and envelope improvements'),
-    toLinkItem('Appliance comparison', './Restuarant%20Appliance%20Comparison.html', 'Standard vs ETL side-by-side'),
+    toLinkItem('Appliance comparison', PORTAL_LINKS.applianceComparison, 'Standard vs ETL side-by-side with savings stories'),
     toLinkItem('Intelligence tool', PORTAL_LINKS.equipmentTool, 'Marketplace alternatives and specs'),
     toLinkItem('Savings projection', PORTAL_LINKS.savingsProjection, 'Payback chart with grants'),
     toLinkItem('Grants Agent', '/greenways/grants-agent', 'Schemes chat for funding options'),
@@ -488,7 +490,7 @@ async function buildBaselineEquipmentAnswer(tip) {
 
   return {
     answer:
-      `**Equipment baseline** — what your current kit should be consuming before you specify an upgrade.\n\n` +
+      `**Equipment baseline** — what your current equipment should be consuming before you specify an upgrade.\n\n` +
       `- **Greenways dashboard** (${PORTAL_LINKS.greenwaysDashboard}) — equipment baseline when site energy data is connected\n` +
       `- **Trajectory example:** ${paths.trajectoryBaseline || paths.trajectory}\n` +
       `- **Equipment intelligence tool:** ${paths.marketplaceFinder || PORTAL_LINKS.equipmentTool} — practical baseline check for consumers\n\n` +
@@ -510,12 +512,12 @@ async function buildEquipmentIntelligenceAnswer(tip) {
     answer:
       `**Equipment intelligence tool** — practical way to check **what baseline use should look like** and find ETL alternatives.\n\n` +
       `→ ${PORTAL_LINKS.equipmentTool}\n\n` +
-      `**Why it matters:** consumers see how efficient kit differs from what they run today before committing capex.\n\n` +
+      `**Why it matters:** consumers see how efficient equipment differs from what they run today before committing capex.\n\n` +
       `Pair with **deep dive** for grants and decision matrix, or **appliance comparison** for visual standard vs ETL stories.\n\n_${tip}_`,
     suggestions: [],
     blocks: linkOrModuleBlocks([
       toLinkItem('Open intelligence tool', PORTAL_LINKS.equipmentTool, 'Marketplace + alternatives'),
-      toLinkItem('Appliance comparison (marketplace)', './Restuarant%20Appliance%20Comparison%20-%20Marketplace%20variant.html', 'Illustrated savings'),
+      toLinkItem('Appliance comparison', PORTAL_LINKS.applianceComparison, 'Illustrated savings by category'),
       toLinkItem('Deep dive', PORTAL_LINKS.deepDive, 'Full compare + projection')
     ]),
     agentHandoffs: buildHandoffs(briefing, '', 'equipment_intelligence')
@@ -596,14 +598,11 @@ function buildSavingsProjectionAnswer(tip) {
 function buildProductComparisonAnswer(tip) {
   return {
     answer:
-      `**Restaurant appliance comparison** — visual **standard vs ETL** pages for key categories (ovens, refrigeration, dishwash, HVAC).\n\n` +
-      `- **Classic comparison:** ./Restuarant%20Appliance%20Comparison.html\n` +
-      `- **Marketplace variant** (illustrations + savings stories): ./Restuarant%20Appliance%20Comparison%20-%20Marketplace%20variant.html\n\n` +
-      `Use comparison for stakeholder buy-in; use **deep dive** for grants, decision matrix, and savings projection.\n\n_${tip}_`,
+      `**Restaurant appliance comparison** — visual **standard vs efficient equipment** for ovens, refrigeration, dishwash, and HVAC, with savings stories you can share with stakeholders.\n\n` +
+      `Open the comparison module on the right for illustrated marketplace examples. For grants, decision matrix, and payback charts, follow with **equipment deep dive**.\n\n_${tip}_`,
     suggestions: [],
     blocks: linkOrModuleBlocks([
-      toLinkItem('Appliance comparison', './Restuarant%20Appliance%20Comparison.html', 'Side-by-side visuals'),
-      toLinkItem('Marketplace variant', './Restuarant%20Appliance%20Comparison%20-%20Marketplace%20variant.html', 'Product illustrations'),
+      toLinkItem('Appliance comparison', PORTAL_LINKS.applianceComparison, 'Marketplace savings visuals'),
       toLinkItem('Equipment deep dive', PORTAL_LINKS.deepDive, 'Grants + projection detail')
     ])
   };

@@ -48,12 +48,15 @@ const PRODUCTS_MODULE = { theme: 'products', agentName: 'Zyanne' };
 
 const FINDER_LINKS = {
   water: './water-saving-finder.html',
+  waterGuide: './Water-Saving-Guide%20(1).html',
   products: './sustainable_product_deal_finder_portal.html',
   deepDive: './restaurant-equipment-deep-dive.html',
   equipmentTool: './equipment_intelligence_tool.html'
 };
 
 const PORTAL_PATH_MODULE_IDS = [
+  ['water-saving-guide', 'water-saving-guide'],
+  ['water-saving-guide%20(1)', 'water-saving-guide'],
   ['water-saving-finder', 'water-saving-finder'],
   ['sustainable_product_deal_finder_portal', 'sustainable-product-finder'],
   ['restaurant-equipment-deep-dive', 'equipment-deep-dive'],
@@ -124,7 +127,14 @@ function linkOrModuleBlocks(items) {
 function portalLinkItems(portal = 'all') {
   const items = [];
   if (portal === 'water' || portal === 'all') {
-    items.push(toLinkItem('Water Saving Finder', FINDER_LINKS.water, 'Water products, tips & grants'));
+    items.push(
+      toLinkItem(
+        'Water Saving Guide',
+        FINDER_LINKS.waterGuide,
+        'Why water efficiency matters — fixtures, leaks, dishwashers, and restaurant quick wins'
+      ),
+      toLinkItem('Water Saving Finder', FINDER_LINKS.water, 'Water products, tips & grants')
+    );
   }
   if (portal === 'products' || portal === 'all') {
     items.push(toLinkItem('Sustainable Product Finder', FINDER_LINKS.products, 'Category search across appliances'));
@@ -137,7 +147,7 @@ function portalLinkItems(portal = 'all') {
 }
 
 function laneModuleIds(lane) {
-  if (lane === 'water') return ['water-saving-finder', 'sustainable-product-finder'];
+  if (lane === 'water') return ['water-saving-guide', 'water-saving-finder', 'sustainable-product-finder'];
   if (lane === 'gas') return ['sustainable-product-finder', 'equipment-deep-dive'];
   return ['sustainable-product-finder', 'equipment-deep-dive', 'etl-finder'];
 }
@@ -260,6 +270,7 @@ function rankReferences(refs, question, limit = 6) {
       if (hay.includes(token)) score += 3;
     });
     if (/water|dishwasher|aerator/.test(q) && /water/.test(hay)) score += 4;
+    if (/water.*(guide|tip|save|bill|leak|fixture)/.test(q) && /water saving guide|guide/.test(hay)) score += 6;
     if (/fridge|refrig|etl|electric/.test(q) && /electric|etl|refrig/.test(hay)) score += 4;
     if (/wok|fryer|gas/.test(q) && /gas/.test(hay)) score += 4;
     if (/deal|spotlight/.test(q) && /deal/.test(hay)) score += 4;
@@ -437,9 +448,12 @@ function formatSearchAnswer(result, lane, tip) {
     answer:
       `${label} — matches from showcase + \`sust_*\` catalog:\n\n` +
       `${bullets || '_No close matches in chat — use the full finder with your appliance name._'}\n\n` +
-      `**Full search (all marketplace rows):**\n` +
-      `- Water: ${FINDER_LINKS.water}\n` +
-      `- Products: ${FINDER_LINKS.products}\n\n_${tip}_`,
+      (lane === 'water'
+        ? `**Full water lane:** **Water Saving Guide** (education) + **Water Saving Finder** (all marketplace rows).\n\n`
+        : `**Full search (all marketplace rows):**\n` +
+          `- Water: ${FINDER_LINKS.water}\n` +
+          `- Products: ${FINDER_LINKS.products}\n\n`) +
+      `_${tip}_`,
     suggestions: [],
     blocks: linkOrModuleBlocks(
       lane === 'water'
@@ -644,7 +658,7 @@ async function buildOverviewAnswer(catalog, tip, briefing) {
       `case studies ${paths.europeanBuildings || './sustainable_european_buildings_eco_materials.html'} · ` +
       `recycling ${paths.recycling || '../HTMLs/Recycling.html'}\n\n` +
       `**Deal spotlights:** **Zara** (${PORTAL_LINKS.dealsAgent}) — I search the full catalog here.\n\n` +
-      `**Full finders:** open the modules on the right for water and product search.\n\n_${tip}_`,
+      `**Water lane:** **Water Saving Guide** (education) + **Water Saving Finder** (product compare). Other lanes use the product finder module.\n\n_${tip}_`,
     suggestions: [],
     blocks: linkOrModuleBlocks([
       ...portalLinkItems('all'),
@@ -725,9 +739,34 @@ async function buildProductTransitionAnswer(tip) {
 async function buildLowEnergyExamplesAnswer(tip) {
   const briefing = await loadBriefing();
   const paths = briefing.guidePaths || {};
-  const href = paths.lowEnergyExamples || '../HTMLs/low-energy-equipment-savings.html';
+  const href = paths.lowEnergyExamples || PORTAL_LINKS.lowEnergyGuide;
   const narrative = briefing.guideNarratives?.lowEnergyExamples || '';
   return guideLinkBlock('Low-energy equipment examples', href, narrative, tip);
+}
+
+async function buildWaterSavingGuideAnswer(tip) {
+  const briefing = await loadBriefing();
+  const paths = briefing.guidePaths || {};
+  const href = paths.waterSavingGuide || FINDER_LINKS.waterGuide;
+  const narrative =
+    briefing.guideNarratives?.waterSavingGuide ||
+    'Interactive guide — why water efficiency matters, five proven upgrade paths, savings estimates, and restaurant-focused quick wins before you shortlist products.';
+  return {
+    answer:
+      `**Water Saving Guide**\n\n` +
+      `${narrative}\n\n` +
+      `**Practical path:**\n` +
+      `1. Read the guide sections (fixtures, leaks, dishwashers, greywater)\n` +
+      `2. Note priorities for your site type — home, office, or restaurant\n` +
+      `3. Open **Water Saving Finder** to compare products and stack grants via **Andrieus**\n\n` +
+      `Open the guide module on the right.\n\n_${tip}_`,
+    suggestions: [],
+    blocks: linkOrModuleBlocks([
+      toLinkItem('Water Saving Guide', href, narrative),
+      toLinkItem('Water Saving Finder', FINDER_LINKS.water, 'Full water-lane product search and compare')
+    ]),
+    agentHandoffs: buildHandoffs(briefing, '', 'water_saving_guide')
+  };
 }
 
 async function buildEuropeanBuildingsAnswer(tip) {
@@ -780,7 +819,7 @@ async function buildProductGrantsAnswer(question, profile, tip) {
       `**Grants on marketplace products** (${region})\n\n` +
       `${note}\n\n` +
       `**On Greenways** \`etl_*\` rows include a grants overlay when matched from our **Schemes** catalogue. ` +
-      `Ask with a product name or lane — I shortlist kit here and open **Andrieus** with your product context.\n\n` +
+      `Ask with a product name or lane — I shortlist equipment here and open **Andrieus** with your product context.\n\n` +
       `→ **Grants Agent:** ${PORTAL_LINKS.grantsAgent}\n` +
       `→ **Deep dive compare:** ${FINDER_LINKS.deepDive}\n\n_${tip}_`,
     suggestions: [],
@@ -803,11 +842,19 @@ function buildLaneAnswer(lane, catalog, showcase, tip) {
     ...rows.slice(0, 4).map((p) => formatExternalBullet(p, lane))
   ].join('\n');
   const finder = lane === 'water' ? FINDER_LINKS.water : FINDER_LINKS.products;
+  const waterLead =
+    lane === 'water'
+      ? `Start with the **Water Saving Guide** for fixture, leak, and dishwasher priorities, then **Water Saving Finder** for product compare.\n\n`
+      : '';
   return {
     answer:
       `${LANE_LABELS[lane]} — efficient product paths for restaurants:\n\n` +
+      `${waterLead}` +
       `${bullets || '_Browse the full finder for your appliance type._'}\n\n` +
-      `→ **Open finder:** ${finder}\n\n_${tip}_`,
+      (lane === 'water'
+        ? `Open the **Water Saving Guide** and **Water Saving Finder** modules on the right.\n\n`
+        : `→ **Open finder:** ${finder}\n\n`) +
+      `_${tip}_`,
     suggestions: [],
     blocks: linkOrModuleBlocks(
       lane === 'water' ? portalLinkItems('water') : portalLinkItems('products')
@@ -1030,7 +1077,10 @@ function shouldTryEquipmentLookup(question, intent, parsedQuery) {
 
 function buildPortalsAnswer(portal, tip) {
   const lines = [];
-  if (portal === 'water' || portal === 'all') lines.push(`- **Water Saving Finder:** ${FINDER_LINKS.water}`);
+  if (portal === 'water' || portal === 'all') {
+    lines.push(`- **Water Saving Guide** — education on fixtures, leaks, dishwashers, and restaurant quick wins`);
+    lines.push(`- **Water Saving Finder** — full product search, tips, and grants hooks`);
+  }
   if (portal === 'products' || portal === 'all') {
     lines.push(`- **Sustainable Product Finder:** ${FINDER_LINKS.products}`);
   }
@@ -1179,6 +1229,9 @@ async function answerFromKnowledge(question, profile = {}) {
         break;
       case 'low_energy_examples':
         result = await buildLowEnergyExamplesAnswer(tip);
+        break;
+      case 'water_saving_guide':
+        result = await buildWaterSavingGuideAnswer(tip);
         break;
       case 'european_buildings':
         result = await buildEuropeanBuildingsAnswer(tip);

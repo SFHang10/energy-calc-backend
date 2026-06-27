@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="wix-html-scroll" content="no-scroll">
+    <title>Water Saving Guide — Greenways</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --teal:      #16a085;
+            --teal-dark: #0e6655;
+            --teal-light:#1abc9c;
+            --ocean:     #1a6b8a;
+            --sky:       #3498db;
+            --sky-dark:  #2980b9;
+            --orange:    #e67e22;
+            --green:     #27ae60;
+            --green-dark:#1e8449;
+            --gold:      #f1c40f;
+            --white:     #ffffff;
+            --off-white: #f8fafb;
+            --grey-light:#ecf0f1;
+            --grey:      #bdc3c7;
+            --text:      #2c3e50;
+            --text-soft: #566573;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-md: 0 6px 20px rgba(0,0,0,0.12);
+            --shadow-lg: 0 14px 40px rgba(0,0,0,0.16);
+            --radius:    14px;
+            --radius-lg: 20px;
+        }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--off-white);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.65;
+        }
+
+        /* ═══════════════════════════════════════
+           STICKY NAV
+        ═══════════════════════════════════════ */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            background: rgba(22,160,133,0.97);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 16px rgba(14,102,85,0.3);
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 0;
+            padding: 0 20px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .nav-inner::-webkit-scrollbar { display:none; }
+
+        .nav-logo {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.25em;
+            color: white;
+            white-space: nowrap;
+            padding: 14px 20px 14px 0;
+            border-right: 1px solid rgba(255,255,255,0.25);
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.88);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88em;
+            font-weight: 500;
+            padding: 16px 16px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: color 0.2s, background 0.2s;
+            border-bottom: 3px solid transparent;
+            flex-shrink: 0;
+        }
+        .nav-btn:hover,
+        .nav-btn.active {
+            color: white;
+            border-bottom-color: var(--gold);
+            background: rgba(255,255,255,0.08);
+        }
+
+        /* ═══════════════════════════════════════
+           HERO
+        ═══════════════════════════════════════ */
+        .hero {
+            background: linear-gradient(135deg, #0e6655 0%, #16a085 45%, #1a6b8a 100%);
+            color: white;
+            padding: 70px 20px 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* animated water ripples */
+        .hero::before,
+        .hero::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.08);
+            animation: ripple 6s ease-out infinite;
+        }
+        .hero::before {
+            width: 600px; height: 600px;
+            top: -200px; right: -150px;
+            animation-delay: 0s;
+        }
+        .hero::after {
+            width: 400px; height: 400px;
+            bottom: -100px; left: -80px;
+            animation-delay: 3s;
+        }
+
+        @keyframes ripple {
+            0%   { transform: scale(0.8); opacity: 0.4; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+
+        /* shimmer */
+        .shimmer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.09) 50%, transparent 100%);
+            animation: shimmer 4s infinite;
+        }
+        @keyframes shimmer {
+            0%   { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .hero-eyebrow {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 30px;
+            padding: 5px 18px;
+            font-size: 0.82em;
+            font-weight: 600;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(2em, 6vw, 3.6em);
+            line-height: 1.2;
+            text-shadow: 0 3px 10px rgba(0,0,0,0.25);
+            position: relative;
+            z-index: 1;
+            max-width: 780px;
+            margin: 0 auto 18px;
+        }
+
+        .hero p {
+            font-size: clamp(1em, 2.5vw, 1.2em);
+            opacity: 0.92;
+            max-width: 600px;
+            margin: 0 auto 35px;
+            font-weight: 300;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-pills {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-pill {
+            background: rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.35);
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .hero-pill:hover { background: rgba(255,255,255,0.28); }
+
+        /* ═══════════════════════════════════════
+           SECTIONS
+        ═══════════════════════════════════════ */
+        .page-section {
+            display: none;
+            animation: fadeSection 0.35s ease;
+        }
+        .page-section.active { display: block; }
+
+        @keyframes fadeSection {
+            from { opacity:0; transform: translateY(12px); }
+            to   { opacity:1; transform: translateY(0); }
+        }
+
+        .section-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 55px 20px 70px;
+        }
+
+        .section-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(1.7em, 4vw, 2.4em);
+            color: var(--text);
+            border-bottom: 4px solid var(--teal);
+            padding-bottom: 14px;
+            margin-bottom: 35px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* ═══════════════════════════════════════
+           WHY IT MATTERS
+        ═══════════════════════════════════════ */
+        .why-intro {
+            background: white;
+            border-left: 6px solid var(--teal);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-sm);
+            font-size: 1.05em;
+            color: var(--text-soft);
+            line-height: 1.8;
+        }
+        .why-intro strong { color: var(--teal); }
+
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(260px,100%), 1fr));
+            gap: 22px;
+            margin-bottom: 40px;
+        }
+
+        .why-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 28px 24px;
+            border-top: 5px solid var(--teal);
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.25s, box-shadow 0.25s;
+            cursor: default;
+        }
+        .why-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-md);
+        }
+        .why-card .icon { font-size: 2.4em; margin-bottom: 14px; display: block; }
+        .why-card h3 { font-size: 1.1em; margin-bottom: 10px; color: var(--text); }
+        .why-card p  { font-size: 0.93em; color: var(--text-soft); line-height: 1.7; }
+
+        .why-card.c-orange { border-top-color: var(--orange); }
+        .why-card.c-sky    { border-top-color: var(--sky); }
+        .why-card.c-green  { border-top-color: var(--green); }
+
+        /* EU context strip */
+        .eu-strip {
+            background: linear-gradient(135deg, #1a6b8a, #2980b9);
+            border-radius: var(--radius-lg);
+            padding: 36px 32px;
+            color: white;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
+            gap: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(26,107,138,0.35);
+        }
+        .eu-strip .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+        }
+        .eu-stat { text-align: center; position: relative; z-index:1; }
+        .eu-num  {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(1.8em, 4vw, 2.6em);
+            color: var(--gold);
+            display: block;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.25);
+        }
+        .eu-label { font-size: 0.87em; opacity: 0.9; margin-top: 4px; line-height: 1.4; }
+
+        /* ═══════════════════════════════════════
+           5 WAYS — ACCORDION
+        ═══════════════════════════════════════ */
+        .accordion { display: flex; flex-direction: column; gap: 14px; }
+
+        .acc-item {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            border-left: 5px solid var(--teal);
+            transition: box-shadow 0.25s;
+        }
+        .acc-item:nth-child(2) { border-left-color: var(--sky); }
+        .acc-item:nth-child(3) { border-left-color: var(--green); }
+        .acc-item:nth-child(4) { border-left-color: var(--orange); }
+        .acc-item:nth-child(5) { border-left-color: #8e44ad; }
+
+        .acc-item.open { box-shadow: var(--shadow-md); }
+
+        .acc-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 24px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .acc-header:hover { background: var(--grey-light); }
+
+        .acc-num {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            background: var(--teal);
+            color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700;
+            font-size: 1em;
+            flex-shrink: 0;
+        }
+        .acc-item:nth-child(2) .acc-num { background: var(--sky); }
+        .acc-item:nth-child(3) .acc-num { background: var(--green); }
+        .acc-item:nth-child(4) .acc-num { background: var(--orange); }
+        .acc-item:nth-child(5) .acc-num { background: #8e44ad; }
+
+        .acc-title-group { flex: 1; }
+        .acc-title { font-size: 1.08em; font-weight: 600; color: var(--text); }
+        .acc-subtitle { font-size: 0.84em; color: var(--text-soft); margin-top: 2px; }
+
+        .acc-icon-wrap {
+            font-size: 1.5em;
+            flex-shrink: 0;
+        }
+
+        .acc-chevron {
+            font-size: 1em;
+            color: var(--grey);
+            transition: transform 0.3s;
+            flex-shrink: 0;
+        }
+        .acc-item.open .acc-chevron { transform: rotate(180deg); }
+
+        .acc-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.3s;
+            padding: 0 24px;
+        }
+        .acc-item.open .acc-body {
+            max-height: 600px;
+            padding: 0 24px 24px;
+        }
+
+        .acc-body-inner {
+            border-top: 1px solid var(--grey-light);
+            padding-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(220px,100%),1fr));
+            gap: 20px;
+        }
+
+        .acc-col h4 { font-size: 0.9em; font-weight: 600; color: var(--teal); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .acc-col ul { list-style: none; padding: 0; }
+        .acc-col ul li {
+            font-size: 0.93em;
+            color: var(--text-soft);
+            padding: 5px 0 5px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            position: relative;
+            line-height: 1.5;
+        }
+        .acc-col ul li:last-child { border-bottom: none; }
+        .acc-col ul li::before {
+            content: '✓';
+            position: absolute; left: 0;
+            color: var(--teal);
+            font-weight: 700;
+        }
+        .acc-item:nth-child(2) .acc-col h4 { color: var(--sky); }
+        .acc-item:nth-child(2) .acc-col ul li::before { color: var(--sky); }
+        .acc-item:nth-child(3) .acc-col h4 { color: var(--green); }
+        .acc-item:nth-child(3) .acc-col ul li::before { color: var(--green); }
+        .acc-item:nth-child(4) .acc-col h4 { color: var(--orange); }
+        .acc-item:nth-child(4) .acc-col ul li::before { color: var(--orange); }
+        .acc-item:nth-child(5) .acc-col h4 { color: #8e44ad; }
+        .acc-item:nth-child(5) .acc-col ul li::before { color: #8e44ad; }
+
+        .acc-saving-badge {
+            display: inline-block;
+            background: linear-gradient(120deg, #a8e6cf, #7ed6a8);
+            color: var(--teal-dark);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 0.82em;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        /* ═══════════════════════════════════════
+           SAVINGS CALCULATOR
+        ═══════════════════════════════════════ */
+        .calc-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        @media(max-width:700px){ .calc-wrapper { grid-template-columns: 1fr; } }
+
+        .calc-panel {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .calc-panel h3 {
+            font-size: 1.15em;
+            font-weight: 600;
+            margin-bottom: 22px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-row { margin-bottom: 18px; }
+        .form-row label {
+            display: block;
+            font-size: 0.88em;
+            font-weight: 600;
+            color: var(--text-soft);
+            margin-bottom: 7px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .form-row select,
+        .form-row input[type=range] {
+            width: 100%;
+        }
+        .form-row select {
+            background: var(--off-white);
+            border: 2px solid var(--grey-light);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95em;
+            color: var(--text);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2316a085' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .form-row select:focus { outline: none; border-color: var(--teal); }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--grey-light);
+            outline: none;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            background: var(--teal);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover { background: var(--teal-dark); }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78em;
+            color: var(--grey);
+            margin-top: 4px;
+        }
+
+        .measure-checklist { display: flex; flex-direction: column; gap: 10px; }
+        .measure-check {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: var(--off-white);
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            font-size: 0.93em;
+        }
+        .measure-check input { display: none; }
+        .measure-check.checked {
+            border-color: var(--teal);
+            background: rgba(22,160,133,0.06);
+        }
+        .check-box {
+            width: 22px; height: 22px;
+            border: 2px solid var(--grey);
+            border-radius: 5px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            transition: border-color 0.2s, background 0.2s;
+            font-size: 0.9em;
+        }
+        .measure-check.checked .check-box {
+            border-color: var(--teal);
+            background: var(--teal);
+            color: white;
+        }
+        .check-label { flex: 1; }
+        .check-saving {
+            font-size: 0.8em;
+            font-weight: 700;
+            color: var(--green);
+            white-space: nowrap;
+        }
+
+        /* Results panel */
+        .result-panel {
+            background: linear-gradient(135deg, var(--teal-dark), var(--teal));
+            color: white;
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            box-shadow: 0 6px 24px rgba(22,160,133,0.35);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-panel .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+        }
+
+        .result-panel h3 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.3em;
+            margin-bottom: 24px;
+            position: relative; z-index:1;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            position: relative; z-index:1;
+        }
+        .result-row:last-of-type { border-bottom: none; }
+        .result-label { font-size: 0.88em; opacity: 0.85; }
+        .result-value { font-weight: 700; font-size: 1.05em; }
+        .result-value.big {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2em;
+            color: var(--gold);
+        }
+
+        .result-bar-wrap {
+            background: rgba(255,255,255,0.15);
+            border-radius: 6px;
+            height: 10px;
+            margin: 12px 0;
+            overflow: hidden;
+            position: relative; z-index:1;
+        }
+        .result-bar {
+            height: 100%;
+            background: var(--gold);
+            border-radius: 6px;
+            transition: width 0.6s cubic-bezier(.4,0,.2,1);
+        }
+
+        .result-tip {
+            margin-top: 20px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-size: 0.88em;
+            line-height: 1.6;
+            position: relative; z-index:1;
+        }
+
+        /* ═══════════════════════════════════════
+           SAVINGS TABLE
+        ═══════════════════════════════════════ */
+        .savings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(220px,100%),1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .savings-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 26px 22px;
+            box-shadow: var(--shadow-sm);
+            border-top: 5px solid var(--teal);
+            transition: transform 0.25s, box-shadow 0.25s;
+            text-align: center;
+        }
+        .savings-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+        .savings-card:nth-child(2) { border-top-color: var(--sky); }
+        .savings-card:nth-child(3) { border-top-color: var(--green); }
+        .savings-card:nth-child(4) { border-top-color: var(--orange); }
+
+        .savings-card .s-icon { font-size: 2.2em; margin-bottom: 10px; }
+        .savings-card .s-label { font-weight: 600; font-size: 1em; margin-bottom: 16px; }
+
+        .savings-bar-section { margin: 14px 0; }
+        .bar-label {
+            display: flex; justify-content: space-between;
+            font-size: 0.78em; color: var(--text-soft); margin-bottom: 5px;
+        }
+        .bar-track {
+            background: var(--grey-light);
+            border-radius: 4px;
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+        .bar-fill-before { height: 100%; background: #bdc3c7; border-radius: 4px; }
+        .bar-fill-after  { height: 100%; background: var(--teal); border-radius: 4px; transition: width 1s ease; }
+        .savings-card:nth-child(2) .bar-fill-after { background: var(--sky); }
+        .savings-card:nth-child(3) .bar-fill-after { background: var(--green); }
+        .savings-card:nth-child(4) .bar-fill-after { background: var(--orange); }
+
+        .pct-badge {
+            display: inline-block;
+            background: linear-gradient(120deg,#a8e6cf,#7ed6a8);
+            color: var(--teal-dark);
+            border-radius: 20px;
+            padding: 5px 16px;
+            font-weight: 700;
+            font-size: 0.95em;
+            margin-top: 8px;
+        }
+
+        /* comparison table */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+        .compare-table th {
+            background: var(--teal);
+            color: white;
+            padding: 14px 18px;
+            text-align: left;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        .compare-table th:first-child { border-radius: 0; }
+        .compare-table td {
+            padding: 13px 18px;
+            border-bottom: 1px solid var(--grey-light);
+            font-size: 0.92em;
+            color: var(--text-soft);
+        }
+        .compare-table tr:last-child td { border-bottom: none; }
+        .compare-table tr:hover td { background: rgba(22,160,133,0.04); }
+        .compare-table .td-savings {
+            font-weight: 700;
+            color: var(--green);
+        }
+
+        /* ═══════════════════════════════════════
+           GRANTS & SUBSIDIES
+        ═══════════════════════════════════════ */
+        .grants-hero {
+            background: linear-gradient(135deg, var(--orange), #c0392b);
+            color: white;
+            border-radius: var(--radius-lg);
+            padding: 36px 32px;
+            margin-bottom: 36px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 6px 24px rgba(230,126,34,0.35);
+        }
+        .grants-hero .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+        }
+        .grants-hero h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(1.4em,3.5vw,2em);
+            margin-bottom: 10px;
+            position: relative; z-index:1;
+        }
+        .grants-hero p {
+            opacity: 0.9;
+            font-size: 1em;
+            max-width: 600px;
+            line-height: 1.7;
+            position: relative; z-index:1;
+        }
+
+        .grants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(280px,100%),1fr));
+            gap: 20px;
+            margin-bottom: 36px;
+        }
+
+        .grant-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            border-top: 5px solid var(--orange);
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+        .grant-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+        .grant-card:nth-child(2) { border-top-color: var(--sky); }
+        .grant-card:nth-child(3) { border-top-color: var(--green); }
+        .grant-card:nth-child(4) { border-top-color: #8e44ad; }
+
+        .grant-flag { font-size: 1.8em; margin-bottom: 10px; }
+        .grant-card h3 { font-size: 1.05em; margin-bottom: 8px; }
+        .grant-card p  { font-size: 0.9em; color: var(--text-soft); line-height: 1.7; }
+        .grant-tag {
+            display: inline-block;
+            margin-top: 12px;
+            background: rgba(230,126,34,0.1);
+            color: var(--orange);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 0.8em;
+            font-weight: 700;
+        }
+        .grant-card:nth-child(2) .grant-tag { background: rgba(52,152,219,0.1); color: var(--sky); }
+        .grant-card:nth-child(3) .grant-tag { background: rgba(39,174,96,0.1); color: var(--green); }
+        .grant-card:nth-child(4) .grant-tag { background: rgba(142,68,173,0.1); color: #8e44ad; }
+
+        .lessons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(240px,100%),1fr));
+            gap: 18px;
+        }
+        .lesson-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+        .lesson-num {
+            width: 36px; height: 36px;
+            background: var(--teal);
+            color: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+            font-size: 0.95em;
+        }
+        .lesson-card h4 { font-size: 0.97em; margin-bottom: 6px; }
+        .lesson-card p  { font-size: 0.88em; color: var(--text-soft); line-height: 1.6; }
+
+        /* ═══════════════════════════════════════
+           RESTAURANTS
+        ═══════════════════════════════════════ */
+        .restaurant-intro {
+            background: linear-gradient(135deg, var(--sky-dark), var(--ocean));
+            color: white;
+            border-radius: var(--radius-lg);
+            padding: 36px 32px;
+            margin-bottom: 36px;
+            position: relative; overflow: hidden;
+            box-shadow: 0 6px 24px rgba(41,128,185,0.35);
+        }
+        .restaurant-intro .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+        }
+        .restaurant-intro h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(1.4em,3.5vw,2em);
+            margin-bottom: 10px; position: relative; z-index:1;
+        }
+        .restaurant-intro p { opacity:0.9; max-width:600px; line-height:1.7; position:relative; z-index:1; }
+
+        .device-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; }
+
+        .device-item {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 24px;
+            border-left: 5px solid var(--sky);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .device-item:hover { transform: translateX(4px); box-shadow: var(--shadow-md); }
+        .device-item:nth-child(2) { border-left-color: var(--teal); }
+        .device-item:nth-child(3) { border-left-color: var(--green); }
+        .device-item:nth-child(4) { border-left-color: var(--orange); }
+        .device-item:nth-child(5) { border-left-color: #8e44ad; }
+        .device-item:nth-child(6) { border-left-color: #c0392b; }
+
+        .device-icon { font-size: 2em; flex-shrink: 0; }
+        .device-info { flex: 1; }
+        .device-info h4 { font-size: 1em; margin-bottom: 5px; }
+        .device-info p  { font-size: 0.9em; color: var(--text-soft); line-height: 1.6; }
+        .device-saving {
+            background: linear-gradient(120deg,#a8e6cf,#7ed6a8);
+            color: var(--teal-dark);
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 0.83em;
+            font-weight: 700;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .device-item:nth-child(2) .device-saving { background: linear-gradient(120deg,#a8d8ea,#76b9d3); color: var(--ocean); }
+        .device-item:nth-child(3) .device-saving { background: linear-gradient(120deg,#a8e6cf,#7ed6a8); color: var(--green-dark); }
+        .device-item:nth-child(4) .device-saving { background: linear-gradient(120deg,#fde8c8,#f5c88a); color: #a04000; }
+        .device-item:nth-child(5) .device-saving { background: linear-gradient(120deg,#e8d5f5,#c9a8e8); color: #6c3483; }
+        .device-item:nth-child(6) .device-saving { background: linear-gradient(120deg,#f5d5d5,#e8a8a8); color: #922b21; }
+
+        .roi-callout {
+            background: white;
+            border-radius: var(--radius);
+            padding: 28px;
+            box-shadow: var(--shadow-sm);
+            border-left: 6px solid var(--gold);
+        }
+        .roi-callout h3 { font-size: 1.1em; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .roi-callout ul { list-style: none; padding: 0; }
+        .roi-callout ul li {
+            padding: 7px 0 7px 22px;
+            border-bottom: 1px solid var(--grey-light);
+            font-size: 0.93em;
+            color: var(--text-soft);
+            position: relative;
+        }
+        .roi-callout ul li:last-child { border-bottom: none; }
+        .roi-callout ul li::before { content:'💡'; position: absolute; left: 0; font-size: 0.85em; }
+
+        /* ═══════════════════════════════════════
+           RESOURCES
+        ═══════════════════════════════════════ */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(280px,100%),1fr));
+            gap: 22px;
+        }
+
+        .video-card {
+            background: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+        .video-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+
+        .video-thumb {
+            background: linear-gradient(135deg, var(--teal-dark), var(--teal));
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3em;
+            position: relative;
+            overflow: hidden;
+        }
+        .video-card:nth-child(2) .video-thumb { background: linear-gradient(135deg, var(--sky-dark), var(--sky)); }
+        .video-card:nth-child(3) .video-thumb { background: linear-gradient(135deg, var(--green-dark), var(--green)); }
+        .video-card:nth-child(4) .video-thumb { background: linear-gradient(135deg, #8e44ad, #a569bd); }
+        .video-card:nth-child(5) .video-thumb { background: linear-gradient(135deg, var(--ocean), var(--sky)); }
+        .video-card:nth-child(6) .video-thumb { background: linear-gradient(135deg, #c0392b, var(--orange)); }
+
+        .video-duration {
+            position: absolute;
+            bottom: 8px; right: 10px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            font-size: 0.7em;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .play-btn {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+        }
+        .play-circle {
+            width: 54px; height: 54px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--teal-dark);
+            font-size: 0.55em;
+            padding-left: 4px;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .video-card:hover .play-circle { transform: scale(1.1); background: white; }
+
+        .video-info { padding: 16px 18px; }
+        .video-info h4 { font-size: 0.95em; margin-bottom: 6px; line-height: 1.4; }
+        .video-info p  { font-size: 0.84em; color: var(--text-soft); line-height: 1.55; }
+
+        /* ═══════════════════════════════════════
+           FOOTER STRIP
+        ═══════════════════════════════════════ */
+        .footer-strip {
+            background: linear-gradient(135deg, var(--teal-dark), var(--teal));
+            color: white;
+            text-align: center;
+            padding: 50px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .footer-strip .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+        }
+        .footer-strip h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(1.6em, 4vw, 2.4em);
+            margin-bottom: 14px;
+            position: relative; z-index:1;
+        }
+        .footer-strip p {
+            opacity: 0.9;
+            max-width: 560px;
+            margin: 0 auto 28px;
+            line-height: 1.7;
+            position: relative; z-index:1;
+        }
+        .footer-strip-btn {
+            display: inline-block;
+            background: var(--gold);
+            color: var(--text);
+            border: none;
+            padding: 16px 38px;
+            border-radius: 30px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.05em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+            position: relative; z-index:1;
+            box-shadow: 0 4px 14px rgba(241,196,15,0.4);
+        }
+        .footer-strip-btn:hover {
+            transform: scale(1.06);
+            background: #f39c12;
+            box-shadow: 0 6px 20px rgba(241,196,15,0.5);
+        }
+
+        /* ═══════════════════════════════════════
+           RESPONSIVE
+        ═══════════════════════════════════════ */
+        @media(max-width:600px){
+            .section-wrap { padding: 35px 15px 50px; }
+            .acc-header { padding: 16px 18px; }
+            .acc-body { padding: 0 18px; }
+            .acc-item.open .acc-body { padding: 0 18px 20px; }
+            .why-intro { padding: 20px; }
+            .grants-hero, .restaurant-intro { padding: 24px 20px; }
+            .device-item { flex-wrap: wrap; }
+            .device-saving { margin-top: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     STICKY NAV
+═══════════════════════════════════════════ -->
+<nav>
+    <div class="nav-inner">
+        <div class="nav-logo">💧 Greenways</div>
+        <button class="nav-btn active" onclick="showSection('why', this)">🌍 Why It Matters</button>
+        <button class="nav-btn" onclick="showSection('ways', this)">🚰 5 Ways to Save</button>
+        <button class="nav-btn" onclick="showSection('savings', this)">📊 Savings Data</button>
+        <button class="nav-btn" onclick="showSection('calculator', this)">🔢 Calculator</button>
+        <button class="nav-btn" onclick="showSection('grants', this)">🎁 Grants & Subsidies</button>
+        <button class="nav-btn" onclick="showSection('restaurants', this)">🍽️ Restaurants</button>
+        <button class="nav-btn" onclick="showSection('resources', this)">🎬 Resources</button>
+    </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════ -->
+<div class="hero">
+    <div class="shimmer"></div>
+    <div class="hero-eyebrow">💧 Water Efficiency Guide</div>
+    <h1>Save Water, Save Money,<br><em>Save the Planet</em></h1>
+    <p>Simple upgrades and smart technology that cut water bills and waste by up to 40% for homes, businesses, and restaurants.</p>
+    <div class="hero-pills">
+        <span class="hero-pill">🏠 Homes</span>
+        <span class="hero-pill">🏢 Offices</span>
+        <span class="hero-pill">🍽️ Restaurants</span>
+        <span class="hero-pill">🌍 EU Grants Available</span>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SECTION: WHY IT MATTERS
+═══════════════════════════════════════════ -->
+<div id="why" class="page-section active">
+    <div class="section-wrap">
+        <h2 class="section-title">🌍 Why Water Saving Matters</h2>
+
+        <div class="why-intro">
+            Water efficiency is one of the most impactful — and most overlooked — sustainability actions available to homes, offices, and restaurants today. The <strong>European Environment Agency</strong> highlights water efficiency as a key pillar of a water-resilient Europe, as increasing droughts and competing demands put pressure on finite freshwater supplies. Saving water also means saving energy: hot water preparation and pumping are major energy loads, so <strong>less water = lower energy bills and fewer carbon emissions</strong>.
+        </div>
+
+        <div class="why-grid">
+            <div class="why-card">
+                <span class="icon">🌡️</span>
+                <h3>Climate Pressure on Water</h3>
+                <p>Increasing drought frequency across Europe is putting freshwater under strain. Some regions already face seasonal water scarcity despite relatively high average resources per capita.</p>
+            </div>
+            <div class="why-card c-orange">
+                <span class="icon">💶</span>
+                <h3>Rising Water Bills</h3>
+                <p>Water and sewage costs continue to climb across the EU. A typical household or business can save hundreds to thousands of euros annually with the right measures in place.</p>
+            </div>
+            <div class="why-card c-sky">
+                <span class="icon">⚡</span>
+                <h3>Energy Savings Too</h3>
+                <p>Hot water heating accounts for 15–20% of energy bills in many homes and up to 30% in commercial kitchens. Saving water directly reduces this energy load and your carbon footprint.</p>
+            </div>
+            <div class="why-card c-green">
+                <span class="icon">📜</span>
+                <h3>EU Regulations & Incentives</h3>
+                <p>EU directives and national building codes increasingly require water efficiency standards. Governments offer grants and subsidies to accelerate adoption — making upgrades more affordable than ever.</p>
+            </div>
+        </div>
+
+        <!-- EU stats strip -->
+        <div class="eu-strip">
+            <div class="shimmer"></div>
+            <div class="eu-stat">
+                <span class="eu-num">30–40%</span>
+                <div class="eu-label">Typical water savings for homes with full measures</div>
+            </div>
+            <div class="eu-stat">
+                <span class="eu-num">25–40%</span>
+                <div class="eu-label">Savings in offices and commercial buildings</div>
+            </div>
+            <div class="eu-stat">
+                <span class="eu-num">€500+</span>
+                <div class="eu-label">Annual savings possible per household</div>
+            </div>
+            <div class="eu-stat">
+                <span class="eu-num">95%</span>
+                <div class="eu-label">Max subsidy coverage available under EU ERDF tourism schemes</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SECTION: 5 WAYS TO SAVE
+═══════════════════════════════════════════ -->
+<div id="ways" class="page-section">
+    <div class="section-wrap">
+        <h2 class="section-title">🚰 5 Proven Ways to Save Water</h2>
+
+        <div class="accordion">
+
+            <!-- 1 -->
+            <div class="acc-item open">
+                <div class="acc-header" onclick="toggleAcc(this)">
+                    <div class="acc-num">1</div>
+                    <div class="acc-icon-wrap">🚰</div>
+                    <div class="acc-title-group">
+                        <div class="acc-title">Tap Aerators &amp; Low-Flow Fixtures</div>
+                        <div class="acc-subtitle">Reduces tap flow from 15 L/min to 5–7 L/min</div>
+                    </div>
+                    <div class="acc-chevron">▼</div>
+                </div>
+                <div class="acc-body">
+                    <div class="acc-body-inner">
+                        <div class="acc-col">
+                            <h4>What It Is</h4>
+                            <ul>
+                                <li>Small attachments that fit onto existing taps</li>
+                                <li>Mix air with water to maintain perceived pressure</li>
+                                <li>No drop in user comfort or performance</li>
+                                <li>Available for kitchens, bathrooms, washrooms</li>
+                            </ul>
+                        </div>
+                        <div class="acc-col">
+                            <h4>Savings</h4>
+                            <ul>
+                                <li>Up to 50% less water from faucets at home</li>
+                                <li>40–60% savings in restaurant and office sinks</li>
+                                <li>A standard tap: 10–15 L/min reduced to 5–7 L/min</li>
+                                <li>Very low cost, typically €5–20 per aerator</li>
+                            </ul>
+                            <span class="acc-saving-badge">Save up to 50% per tap</span>
+                        </div>
+                        <div class="acc-col">
+                            <h4>Best For</h4>
+                            <ul>
+                                <li>All household kitchens and bathrooms</li>
+                                <li>Restaurant prep and washroom sinks</li>
+                                <li>Office restrooms and kitchen areas</li>
+                                <li>Fastest payback of any water measure</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2 -->
+            <div class="acc-item">
+                <div class="acc-header" onclick="toggleAcc(this)">
+                    <div class="acc-num">2</div>
+                    <div class="acc-icon-wrap">📱</div>
+                    <div class="acc-title-group">
+                        <div class="acc-title">Smart Water Meters &amp; Leak Detection Apps</div>
+                        <div class="acc-subtitle">Real-time usage monitoring — saves 15–25%</div>
+                    </div>
+                    <div class="acc-chevron">▼</div>
+                </div>
+                <div class="acc-body">
+                    <div class="acc-body-inner">
+                        <div class="acc-col">
+                            <h4>What It Is</h4>
+                            <ul>
+                                <li>Connected meters that track water use in real time</li>
+                                <li>Apps send alerts for leaks and unusual patterns</li>
+                                <li>Set daily, weekly, and monthly usage goals</li>
+                                <li>Wireless — retrofittable in most buildings</li>
+                            </ul>
+                        </div>
+                        <div class="acc-col">
+                            <h4>Savings</h4>
+                            <ul>
+                                <li>Homes: 15–20% by catching unnoticed leaks</li>
+                                <li>Businesses: up to 25% in high-use environments</li>
+                                <li>Restaurants see biggest gains — constant kitchen use</li>
+                                <li>Leaky toilets can waste 750 litres/day undetected</li>
+                            </ul>
+                            <span class="acc-saving-badge">Save 15–25% by detecting waste</span>
+                        </div>
+                        <div class="acc-col">
+                            <h4>Benefits</h4>
+                            <ul>
+                                <li>Identifies leaks in pipes, toilets, appliances</li>
+                                <li>Encourages water-conscious habits via data</li>
+                                <li>Reduces unexpected high bills</li>
+                                <li>Often eligible for business efficiency grants</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3 -->
+            <div class="acc-item">
+                <div class="acc-header" onclick="toggleAcc(this)">
+                    <div class="acc-num">3</div>
+                    <div class="acc-icon-wrap">🏠</div>
+                    <div class="acc-title-group">
+                        <div class="acc-title">Upgrade to Water-Efficient Appliances</div>
+                        <div class="acc-subtitle">Certified appliances use 30–60% less water</div>
+                    </div>
+                    <div class="acc-chevron">▼</div>
+                </div>
+                <div class="acc-body">
+                    <div class="acc-body-inner">
+                        <div class="acc-col">
+                            <h4>What It Is</h4>
+                            <ul>
+                                <li>WaterSense or EU Ecodesign-rated toilets</li>
+                                <li>High-efficiency washing machines</li>
+                                <li>Commercial-grade efficient dishwashers</li>
+                                <li>Pre-rinse spray valves for commercial kitchens</li>
+                            </ul>
+                        </div>
+                        <div class="acc-col">
+                            <h4>Savings</h4>
+                            <ul>
+                                <li>New toilet alone saves 20–30% indoor water use</li>
+                                <li>ENERGY STAR dishwashers save 5,600+ litres/year</li>
+                                <li>Pre-rinse valves save 26,500+ litres/year in kitchens</li>
+                                <li>Modern eco dishwasher cycles use ~10 L vs 60 L older</li>
+                            </ul>
+                            <span class="acc-saving-badge">Save 30–60% on appliance water</span>
+                        </div>
+                        <div class="acc-col">
+                            <h4>Best For</h4>
+                            <ul>
+                                <li>Replacing old toilets in homes and offices</li>
+                                <li>Restaurant kitchens — biggest ROI here</li>
+                                <li>Laundries and hospitality facilities</li>
+                                <li>Often eligible for EU equipment grants</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4 -->
+            <div class="acc-item">
+                <div class="acc-header" onclick="toggleAcc(this)">
+                    <div class="acc-num">4</div>
+                    <div class="acc-icon-wrap">🔧</div>
+                    <div class="acc-title-group">
+                        <div class="acc-title">Fix Leaks Promptly</div>
+                        <div class="acc-subtitle">A leaky toilet wastes up to 750 litres/day</div>
+                    </div>
+                    <div class="acc-chevron">▼</div>
+                </div>
+                <div class="acc-body">
+                    <div class="acc-body-inner">
+                        <div class="acc-col">
+                            <h4>The Impact</h4>
+                            <ul>
+                                <li>A dripping tap wastes 15–20 litres per day</li>
+                                <li>A leaking toilet: up to 750 litres per day</li>
+                                <li>Most leaks are invisible — silent but costly</li>
+                                <li>A running outdoor hose: thousands per day</li>
+                            </ul>
+                        </div>
+                        <div class="acc-col">
+                            <h4>Savings</h4>
+                            <ul>
+                                <li>Homes: 10–15% of total usage eliminated</li>
+                                <li>Businesses: potentially thousands of litres/month</li>
+                                <li>Audit + fix pays back immediately</li>
+                                <li>Smart meters make leak detection automatic</li>
+                            </ul>
+                            <span class="acc-saving-badge">Save 10–15% instantly</span>
+                        </div>
+                        <div class="acc-col">
+                            <h4>What to Check</h4>
+                            <ul>
+                                <li>Toilet cistern seals (dye test)</li>
+                                <li>Tap washers and O-rings</li>
+                                <li>Pipe joints under sinks</li>
+                                <li>Outdoor connections and garden hoses</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5 -->
+            <div class="acc-item">
+                <div class="acc-header" onclick="toggleAcc(this)">
+                    <div class="acc-num">5</div>
+                    <div class="acc-icon-wrap">⏰</div>
+                    <div class="acc-title-group">
+                        <div class="acc-title">Sensor-Activated &amp; Timed Fixtures</div>
+                        <div class="acc-subtitle">Prevents water running unnecessarily — saves 30–50%</div>
+                    </div>
+                    <div class="acc-chevron">▼</div>
+                </div>
+                <div class="acc-body">
+                    <div class="acc-body-inner">
+                        <div class="acc-col">
+                            <h4>What It Is</h4>
+                            <ul>
+                                <li>Sensor taps that only flow when hands are present</li>
+                                <li>Timed taps that shut off after set duration</li>
+                                <li>Push-button taps for public washrooms</li>
+                                <li>Sensor-controlled urinal flush systems</li>
+                            </ul>
+                        </div>
+                        <div class="acc-col">
+                            <h4>Savings</h4>
+                            <ul>
+                                <li>Homes (high use): 10–20% reduction</li>
+                                <li>Businesses/restaurants: up to 30–50% on washroom water</li>
+                                <li>Eliminates accidental running taps entirely</li>
+                                <li>Especially impactful in high-footfall venues</li>
+                            </ul>
+                            <span class="acc-saving-badge">Save 30–50% in washrooms</span>
+                        </div>
+                        <div class="acc-col">
+                            <h4>Best For</h4>
+                            <ul>
+                                <li>Restaurant and café customer bathrooms</li>
+                                <li>Office and public building restrooms</li>
+                                <li>Schools, gyms, and leisure facilities</li>
+                                <li>Any venue with high visitor throughput</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SECTION: SAVINGS DATA
+═══════════════════════════════════════════ -->
+<div id="savings" class="page-section">
+    <div class="section-wrap">
+        <h2 class="section-title">📊 Estimated Annual Water Savings</h2>
+
+        <div class="savings-grid">
+            <div class="savings-card">
+                <div class="s-icon">🏠</div>
+                <div class="s-label">Home (4 people)</div>
+                <div class="savings-bar-section">
+                    <div class="bar-label"><span>Before</span><span>~150,000 L/yr</span></div>
+                    <div class="bar-track"><div class="bar-fill-before" style="width:100%"></div></div>
+                    <div class="bar-label"><span>After measures</span><span>90k–105k L/yr</span></div>
+                    <div class="bar-track"><div class="bar-fill-after" style="width:63%"></div></div>
+                </div>
+                <span class="pct-badge">30–40% Saved</span>
+            </div>
+
+            <div class="savings-card">
+                <div class="s-icon">🏡</div>
+                <div class="s-label">Home (6 people)</div>
+                <div class="savings-bar-section">
+                    <div class="bar-label"><span>Before</span><span>~225,000 L/yr</span></div>
+                    <div class="bar-track"><div class="bar-fill-before" style="width:100%"></div></div>
+                    <div class="bar-label"><span>After measures</span><span>135k–158k L/yr</span></div>
+                    <div class="bar-track"><div class="bar-fill-after" style="width:63%"></div></div>
+                </div>
+                <span class="pct-badge">30–40% Saved</span>
+            </div>
+
+            <div class="savings-card">
+                <div class="s-icon">🏢</div>
+                <div class="s-label">Office (50 people)</div>
+                <div class="savings-bar-section">
+                    <div class="bar-label"><span>Before</span><span>~600,000 L/yr</span></div>
+                    <div class="bar-track"><div class="bar-fill-before" style="width:100%"></div></div>
+                    <div class="bar-label"><span>After measures</span><span>360k–450k L/yr</span></div>
+                    <div class="bar-track"><div class="bar-fill-after" style="width:67%"></div></div>
+                </div>
+                <span class="pct-badge">25–40% Saved</span>
+            </div>
+
+            <div class="savings-card">
+                <div class="s-icon">🏬</div>
+                <div class="s-label">Office (100 people)</div>
+                <div class="savings-bar-section">
+                    <div class="bar-label"><span>Before</span><span>~1,200,000 L/yr</span></div>
+                    <div class="bar-track"><div class="bar-fill-before" style="width:100%"></div></div>
+                    <div class="bar-label"><span>After measures</span><span>720k–900k L/yr</span></div>
+                    <div class="bar-track"><div class="bar-fill-after" style="width:67%"></div></div>
+                </div>
+                <span class="pct-badge">25–40% Saved</span>
+            </div>
+        </div>
+
+        <!-- Restaurant row -->
+        <h3 style="font-size:1.3em; margin: 30px 0 20px; color: var(--text); display:flex; align-items:center; gap:10px;">
+            🍽️ Restaurant Example
+        </h3>
+        <div class="savings-grid">
+            <div class="savings-card" style="border-top-color: #8e44ad">
+                <div class="s-icon">🍽️</div>
+                <div class="s-label">Restaurant (medium)</div>
+                <div class="savings-bar-section">
+                    <div class="bar-label"><span>Before</span><span>~1,000,000 L/yr</span></div>
+                    <div class="bar-track"><div class="bar-fill-before" style="width:100%"></div></div>
+                    <div class="bar-label"><span>After measures</span><span>600k–750k L/yr</span></div>
+                    <div class="bar-track"><div class="bar-fill-after" style="width:67%; background:#8e44ad"></div></div>
+                </div>
+                <span class="pct-badge" style="background: linear-gradient(120deg,#e8d5f5,#c9a8e8); color:#6c3483">25–40% Saved</span>
+            </div>
+        </div>
+
+        <!-- Compare table -->
+        <h3 style="font-size:1.3em; margin: 40px 0 20px; color: var(--text);">📋 Detailed Savings Comparison</h3>
+        <div style="overflow-x:auto;">
+        <table class="compare-table">
+            <thead>
+                <tr>
+                    <th>Measure</th>
+                    <th>Homes</th>
+                    <th>Offices</th>
+                    <th>Restaurants</th>
+                    <th>Typical Saving</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Tap Aerators</td>
+                    <td>✅ Highly effective</td>
+                    <td>✅ Highly effective</td>
+                    <td>✅ Highly effective</td>
+                    <td class="td-savings">40–50% at taps</td>
+                </tr>
+                <tr>
+                    <td>Smart Meters</td>
+                    <td>✅ 15–20%</td>
+                    <td>✅ Up to 25%</td>
+                    <td>✅ Up to 25%</td>
+                    <td class="td-savings">15–25% overall</td>
+                </tr>
+                <tr>
+                    <td>Efficient Toilets</td>
+                    <td>✅ 20–30% indoor</td>
+                    <td>✅ Very high ROI</td>
+                    <td>✅ Significant in busy venues</td>
+                    <td class="td-savings">20–30% indoor</td>
+                </tr>
+                <tr>
+                    <td>Fix Leaks</td>
+                    <td>✅ 10–15%</td>
+                    <td>✅ Up to 15%</td>
+                    <td>✅ Thousands L/month</td>
+                    <td class="td-savings">10–15% overall</td>
+                </tr>
+                <tr>
+                    <td>Sensor Fixtures</td>
+                    <td>⚡ 10–20% (high use)</td>
+                    <td>✅ Up to 30–50%</td>
+                    <td>✅ 30–50% washroom</td>
+                    <td class="td-savings">30–50% washroom</td>
+                </tr>
+                <tr>
+                    <td>Pre-rinse Valves</td>
+                    <td>— Not applicable</td>
+                    <td>— Not applicable</td>
+                    <td>✅ Top priority</td>
+                    <td class="td-savings">26,500 L/yr</td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SECTION: CALCULATOR
+═══════════════════════════════════════════ -->
+<div id="calculator" class="page-section">
+    <div class="section-wrap">
+        <h2 class="section-title">🔢 Water Saving Calculator</h2>
+
+        <div class="calc-wrapper">
+            <!-- Inputs -->
+            <div>
+                <div class="calc-panel" style="margin-bottom:22px;">
+                    <h3>🏠 Your Property</h3>
+
+                    <div class="form-row">
+                        <label>Property Type</label>
+                        <select id="propType" onchange="calcSavings()">
+                            <option value="home4">Home (4 people)</option>
+                            <option value="home6">Home (6 people)</option>
+                            <option value="office50">Office (50 people)</option>
+                            <option value="office100">Office (100 people)</option>
+                            <option value="restaurant">Restaurant (medium)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label>Water Rate (€ per m³): <strong id="rateDisplay">2.50</strong></label>
+                        <input type="range" id="waterRate" min="1" max="6" step="0.25" value="2.50" oninput="document.getElementById('rateDisplay').textContent=parseFloat(this.value).toFixed(2); calcSavings()">
+                        <div class="range-labels"><span>€1.00</span><span>€6.00</span></div>
+                    </div>
+                </div>
+
+                <div class="calc-panel">
+                    <h3>🚰 Select Measures to Implement</h3>
+                    <div class="measure-checklist" id="measureList">
+                        <div class="measure-check checked" data-pct="12" onclick="toggleCheck(this)">
+                            <div class="check-box">✓</div>
+                            <span class="check-label">🚰 Tap Aerators</span>
+                            <span class="check-saving">up to 12%</span>
+                        </div>
+                        <div class="measure-check checked" data-pct="8" onclick="toggleCheck(this)">
+                            <div class="check-box">✓</div>
+                            <span class="check-label">📱 Smart Meter / Leak Detection</span>
+                            <span class="check-saving">up to 8%</span>
+                        </div>
+                        <div class="measure-check" data-pct="10" onclick="toggleCheck(this)">
+                            <div class="check-box"></div>
+                            <span class="check-label">🏠 Efficient Appliances / Toilets</span>
+                            <span class="check-saving">up to 10%</span>
+                        </div>
+                        <div class="measure-check" data-pct="7" onclick="toggleCheck(this)">
+                            <div class="check-box"></div>
+                            <span class="check-label">🔧 Fix All Leaks</span>
+                            <span class="check-saving">up to 7%</span>
+                        </div>
+                        <div class="measure-check" data-pct="9" onclick="toggleCheck(this)">
+                            <div class="check-box"></div>
+                            <span class="check-label">⏰ Sensor / Timed Fixtures</span>
+                            <span class="check-saving">up to 9%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="result-panel">
+                <div class="shimmer"></div>
+                <h3>💧 Your Estimated Savings</h3>
+
+                <div class="result-row">
+                    <span class="result-label">Baseline annual use</span>
+                    <span class="result-value" id="r-baseline">150,000 L</span>
+                </div>
+
+                <div class="result-row">
+                    <span class="result-label">Measures selected</span>
+                    <span class="result-value" id="r-measures">2</span>
+                </div>
+
+                <div class="result-row">
+                    <span class="result-label">Total % reduction</span>
+                    <span class="result-value" id="r-pct">20%</span>
+                </div>
+
+                <div class="result-bar-wrap">
+                    <div class="result-bar" id="r-bar" style="width:20%"></div>
+                </div>
+
+                <div class="result-row">
+                    <span class="result-label">Litres saved per year</span>
+                    <span class="result-value" id="r-litres">30,000 L</span>
+                </div>
+
+                <div class="result-row">
+                    <span class="result-label">Estimated annual saving</span>
+                    <span class="result-value big" id="r-money">€75</span>
+                </div>
+
+                <div class="result-tip" id="r-tip">
+                    Great start! Adding more measures will increase your savings further. Try selecting all 5 to see your maximum potential.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SECTION: GRANTS & SUBSIDIES
+═══════════════════════════════════════════ -->
+<div id="grants" class="page-section">
+    <div class="section-wrap">
+        <h2 class="section-title">🎁 Grants &amp; Subsidies</h2>
+
+        <div class="grants-hero">
+            <div class="shimmer"></div>
+            <h2>EU &amp; National Funding for Water Efficiency</h2>
+            <p>Governments across Europe offer significant grants, subsidies, and tax incentives to make water-saving upgrades more affordable. Some schemes cover up to 95% of installation costs for eligible businesses.</p>
+        </div>
+
+        <div class="grants-grid">
+            <div class="grant-card">
+                <div class="grant-flag">🇪🇺</div>
+                <h3>EU Renovation Wave</h3>
+                <p>The EU's Renovation Wave programme allocates €72 billion through 2030 to improve building energy and resource efficiency. Water efficiency upgrades often qualify as part of broader building retrofits.</p>
+                <span class="grant-tag">€72B Available</span>
+            </div>
+
+            <div class="grant-card">
+                <div class="grant-flag">🇪🇸</div>
+                <h3>Canary Islands — ERDF Tourism Grants</h3>
+                <p>An ERDF-financed programme for non-accommodation tourism SMEs including restaurants has offered grants covering <strong>up to 95%</strong> of investment costs for energy and resource efficiency upgrades including kitchen equipment.</p>
+                <span class="grant-tag">Up to 95% covered</span>
+            </div>
+
+            <div class="grant-card">
+                <div class="grant-flag">🇳🇱</div>
+                <h3>Netherlands — ISDE Subsidy</h3>
+                <p>The Dutch Investment Subsidy Sustainable Energy (ISDE) supports businesses and homeowners in installing sustainable technologies. Water-efficient systems combined with energy upgrades often qualify for combined grants.</p>
+                <span class="grant-tag">Combined grants available</span>
+            </div>
+
+            <div class="grant-card">
+                <div class="grant-flag">🇫🇷</div>
+                <h3>France — MaPrimeRénov'</h3>
+                <p>France's flagship renovation subsidy covers a wide range of building efficiency improvements. Water-saving measures as part of a comprehensive renovation package qualify, with amounts based on household income and measure type.</p>
+                <span class="grant-tag">Income-based grants</span>
+            </div>
+
+            <div class="grant-card">
+                <div class="grant-flag">🇩🇪</div>
+                <h3>Germany — BEG Programme</h3>
+                <p>The Bundesförderung für effiziente Gebäude (BEG) provides loans and grants for efficient building upgrades. Water efficiency features as part of holistic building refurbishment projects are eligible for inclusion.</p>
+                <span class="grant-tag">Loans + grants</span>
+            </div>
+
+            <div class="grant-card">
+                <div class="grant-flag">🍽️</div>
+                <h3>EU Single Market Programme — Food</h3>
+                <p>This EU-level programme supports hospitality and food-service stakeholders to implement resource-efficiency practices, including measurement systems and operational improvements that complement technical water savings.</p>
+                <span class="grant-tag">Hospitality focused</span>
+            </div>
+        </div>
+
+        <h3 style="font-size:1.3em; margin:35px 0 20px; color:var(--text);">💡 Key Lessons from European Practice</h3>
+        <div class="lessons-grid">
+            <div class="lesson-card">
+                <div class="lesson-num">1</div>
+                <div>
+                    <h4>Integrate Water &amp; Energy</h4>
+                    <p>Many successful projects treat water and energy efficiency together, since hot water and pumping are major energy loads. Combined applications often attract higher grants.</p>
+                </div>
+            </div>
+            <div class="lesson-card">
+                <div class="lesson-num">2</div>
+                <div>
+                    <h4>Target High-Use Sectors First</h4>
+                    <p>Hospitality, large offices, and multi-family housing show the strongest returns because fixture use is intensive and savings scale accordingly.</p>
+                </div>
+            </div>
+            <div class="lesson-card">
+                <div class="lesson-num">3</div>
+                <div>
+                    <h4>Use Subsidies to Unlock Action</h4>
+                    <p>High subsidy rates in tourism and SME schemes show that grants can overcome upfront-cost barriers and dramatically accelerate adoption of efficient equipment.</p>
+                </div>
+            </div>
+            <div class="lesson-card">
+                <div class="lesson-num">4</div>
+                <div>
+                    <h4>Combine Technology &amp; Policy</h4>
+                    <p>Studies show that combining efficient fixtures and smart controls with supportive grants and building codes delivers the largest, most cost-effective reductions in water use.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SECTION: RESTAURANTS
+═══════════════════════════════════════════ -->
+<div id="restaurants" class="page-section">
+    <div class="section-wrap">
+        <h2 class="section-title">🍽️ Water Saving for Restaurants</h2>
+
+        <div class="restaurant-intro">
+            <div class="shimmer"></div>
+            <h2>Commercial Kitchens &amp; Hospitality</h2>
+            <p>Restaurants are among the highest water-consuming businesses per square metre. Dishwashing, pre-rinsing, cooking, and cleaning all drive intensive use — making them ideal candidates for rapid-payback water saving measures.</p>
+        </div>
+
+        <div class="device-list">
+            <div class="device-item">
+                <div class="device-icon">🚿</div>
+                <div class="device-info">
+                    <h4>Low-Flow Pre-Rinse Spray Valves</h4>
+                    <p>The single highest-impact device for commercial kitchens. Replacing old valves (3–7 gpm) with efficient models (≤1.2–1.6 gpm) can save over 26,500 litres per year, plus the energy cost of heating that water. Payback is typically just a few months.</p>
+                </div>
+                <div class="device-saving">Save 26,500 L/yr</div>
+            </div>
+
+            <div class="device-item">
+                <div class="device-icon">🍽️</div>
+                <div class="device-info">
+                    <h4>High-Efficiency Commercial Dishwashers</h4>
+                    <p>ENERGY STAR-certified commercial dishwashers can save over 21,000 litres of water and ~€300 in energy costs per year. Modern EU Ecodesign models use ~10 litres per cycle vs 60 litres in older machines.</p>
+                </div>
+                <div class="device-saving">Save 21,000 L/yr</div>
+            </div>
+
+            <div class="device-item">
+                <div class="device-icon">🚰</div>
+                <div class="device-info">
+                    <h4>Faucet Aerators on All Kitchen Taps</h4>
+                    <p>Adding aerators to prep sinks, hand-washing stations, and customer washroom taps cuts flow by ~30% while maintaining rinsing performance. Very low cost with fast payback across multiple sink locations.</p>
+                </div>
+                <div class="device-saving">Save 30% per tap</div>
+            </div>
+
+            <div class="device-item">
+                <div class="device-icon">🚽</div>
+                <div class="device-info">
+                    <h4>Efficient Toilets &amp; Waterless Urinals</h4>
+                    <p>High-efficiency or dual-flush toilets and waterless or ultra-low-flow urinals in customer and staff restrooms reduce water use significantly — especially impactful in high-footfall restaurants open long hours.</p>
+                </div>
+                <div class="device-saving">Save 20–30%</div>
+            </div>
+
+            <div class="device-item">
+                <div class="device-icon">📊</div>
+                <div class="device-info">
+                    <h4>Smart Meters &amp; Leak Detection</h4>
+                    <p>Real-time water monitoring catches hidden leaks in toilets, dishwashers, and pipes that can waste thousands of litres silently. Wireless sub-meters can be retrofitted and are widely used in commercial kitchens.</p>
+                </div>
+                <div class="device-saving">Save up to 25%</div>
+            </div>
+
+            <div class="device-item">
+                <div class="device-icon">⏰</div>
+                <div class="device-info">
+                    <h4>Sensor Taps &amp; Timed Controls</h4>
+                    <p>Sensor-activated taps in customer washrooms prevent water running between uses. Combined with eco-mode settings on dishwashers and rack-full sensors, operational savings compound the hardware benefits.</p>
+                </div>
+                <div class="device-saving">Save 30–50% washroom</div>
+            </div>
+        </div>
+
+        <div class="roi-callout">
+            <h3>💡 Getting the Best ROI — Practical Tips</h3>
+            <ul>
+                <li>Start with pre-rinse spray valves — fastest payback, often subsidised or free via utility programmes</li>
+                <li>Add aerators to all taps — very low cost, immediate savings, no operational change needed</li>
+                <li>Install a smart meter or sub-meter — reveals hidden leaks and validates other savings</li>
+                <li>Brief staff on scraping plates before rinsing and turning off spray between racks</li>
+                <li>Upgrade dishwashers and restroom fixtures when replacing — choose highest-rated efficiency</li>
+                <li>Consider local water rates and sewer charges — these vary widely and affect payback</li>
+                <li>Check for EU ERDF grants, especially if you're in a tourism or hospitality zone</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SECTION: RESOURCES / VIDEOS
+═══════════════════════════════════════════ -->
+<div id="resources" class="page-section">
+    <div class="section-wrap">
+        <h2 class="section-title">🎬 Video Resources</h2>
+
+        <div class="video-grid">
+            <div class="video-card">
+                <div class="video-thumb">
+                    <div class="play-btn"><div class="play-circle">▶</div></div>
+                    <span class="video-duration">04:33</span>
+                </div>
+                <div class="video-info">
+                    <h4>10 Tips to Save Water at Home 💧</h4>
+                    <p>From showering and toilet use to washing dishes and watering plants — practical tips across every area of your home.</p>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="video-thumb">
+                    <div class="play-btn"><div class="play-circle">▶</div></div>
+                    <span class="video-duration">03:18</span>
+                </div>
+                <div class="video-info">
+                    <h4>Water Conservation Tips at Home</h4>
+                    <p>National Geographic's tips on cutting back water use, from the bathroom to the driveway.</p>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="video-thumb">
+                    <div class="play-btn"><div class="play-circle">▶</div></div>
+                    <span class="video-duration">11:08</span>
+                </div>
+                <div class="video-info">
+                    <h4>Rainwater Harvesting: Top Mistakes!</h4>
+                    <p>Common pitfalls to avoid when setting up a rainwater harvesting system — parts list and practical guidance included.</p>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="video-thumb">
+                    <div class="play-btn"><div class="play-circle">▶</div></div>
+                    <span class="video-duration">13:18</span>
+                </div>
+                <div class="video-info">
+                    <h4>7 Ways This Farm Harvests FREE Water</h4>
+                    <p>Permaculture instructor visits a site with masterfully built ponds that have renewed the water supply in a dry Oregon valley.</p>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="video-thumb">
+                    <div class="play-btn"><div class="play-circle">▶</div></div>
+                    <span class="video-duration">02:10</span>
+                </div>
+                <div class="video-info">
+                    <h4>Alternative Water Sources for Green Buildings</h4>
+                    <p>Sustainable architecture animated glossary covering rainwater, greywater, and other alternative water sources for greener buildings.</p>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="video-thumb">
+                    <div class="play-btn"><div class="play-circle">▶</div></div>
+                    <span class="video-duration">11:23</span>
+                </div>
+                <div class="video-info">
+                    <h4>3 Thoughtful Ways to Conserve Water — TED Talk</h4>
+                    <p>Lana Mazahreh grew up in Jordan — a country facing water scarcity since 1973 — and shares lessons the world can learn.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER STRIP
+═══════════════════════════════════════════ -->
+<div class="footer-strip">
+    <div class="shimmer"></div>
+    <h2>💧 Start Saving Water Today</h2>
+    <p>Check your water bill, install a smart meter, or start with a simple tap aerator. Every litre saved is money back in your pocket and a step towards a more resilient future.</p>
+    <button class="footer-strip-btn" onclick="showSection('calculator', document.querySelectorAll('.nav-btn')[3])">
+        Calculate Your Savings →
+    </button>
+    <p style="margin-top:24px; opacity:0.65; font-size:0.85em;">© 2025 Greenways · Resource Saving Guides</p>
+</div>
+
+<script>
+    /* ── Section switching ── */
+    function showSection(id, btn) {
+        document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if (btn) btn.classList.add('active');
+        window.scrollTo({ top: document.querySelector('nav').offsetTop, behavior: 'smooth' });
+    }
+
+    /* ── Accordion ── */
+    function toggleAcc(header) {
+        const item = header.parentElement;
+        const allItems = document.querySelectorAll('.acc-item');
+        allItems.forEach(i => {
+            if (i !== item) i.classList.remove('open');
+        });
+        item.classList.toggle('open');
+    }
+
+    /* ── Measure checkboxes ── */
+    function toggleCheck(item) {
+        item.classList.toggle('checked');
+        const box = item.querySelector('.check-box');
+        box.textContent = item.classList.contains('checked') ? '✓' : '';
+        calcSavings();
+    }
+
+    /* ── Calculator ── */
+    const baselines = {
+        home4:      150000,
+        home6:      225000,
+        office50:   600000,
+        office100: 1200000,
+        restaurant:1000000
+    };
+
+    function calcSavings() {
+        const type    = document.getElementById('propType').value;
+        const rate    = parseFloat(document.getElementById('waterRate').value);
+        const base    = baselines[type];
+        const items   = document.querySelectorAll('#measureList .measure-check');
+        let totalPct  = 0;
+        let count     = 0;
+        items.forEach(item => {
+            if (item.classList.contains('checked')) {
+                totalPct += parseInt(item.dataset.pct);
+                count++;
+            }
+        });
+        // cap at 40%
+        const pct     = Math.min(totalPct, 40);
+        const saved   = Math.round(base * pct / 100);
+        const money   = (saved / 1000 * rate).toFixed(0);
+
+        document.getElementById('r-baseline').textContent = base.toLocaleString() + ' L';
+        document.getElementById('r-measures').textContent = count;
+        document.getElementById('r-pct').textContent      = pct + '%';
+        document.getElementById('r-litres').textContent   = saved.toLocaleString() + ' L';
+        document.getElementById('r-money').textContent    = '€' + parseInt(money).toLocaleString();
+        document.getElementById('r-bar').style.width      = Math.min(pct * 2.5, 100) + '%';
+
+        const tips = [
+            "Select some measures above to see your water saving potential.",
+            "Good start! Adding more measures will increase your savings further.",
+            "You're making progress. Consider adding sensor fixtures for even more.",
+            "Great combination! Smart meters plus aerators are a powerful pairing.",
+            "Excellent — a comprehensive approach. You're on track for 30%+ savings.",
+            "Maximum impact! All five measures deliver the full 30–40% reduction range."
+        ];
+        document.getElementById('r-tip').textContent = tips[Math.min(count, tips.length - 1)];
+    }
+
+    // init
+    calcSavings();
+</script>
+</body>
+</html>

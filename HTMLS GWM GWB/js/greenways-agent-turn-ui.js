@@ -129,7 +129,9 @@
                           ? "Open deals page"
                           : moduleId === "water-saving-finder"
                             ? "Open water finder"
-                            : moduleId === "sustainable-product-finder"
+                            : moduleId === "water-saving-guide"
+                              ? "Open water guide"
+                              : moduleId === "sustainable-product-finder"
                               ? "Open product finder"
                               : moduleId === "sustainability-news-edition" || moduleId === "tech-news-edition"
                                 ? "Open newsletter"
@@ -149,7 +151,9 @@
                                   ? "Open savings tour"
                                   : moduleId === "low-energy-equipment"
                                     ? "Open guide"
-                                    : "Open illustration";
+                                    : moduleId === "declining-cost-renewables"
+                                      ? "Open renewable chart"
+                                      : "Open illustration";
       const tabletClass =
         moduleId === "sustainability-map" ? "module-tablet module-tablet--map" : "module-tablet";
       return (

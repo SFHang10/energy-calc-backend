@@ -79,6 +79,7 @@ const AGENT_PROFILES = {
       'Summarise payback and finance options conversationally — link tablets carry detail.',
       'Point to finance finder, savings projections, and any scheme or product highlights provided.',
       'Use energyPriceContext when discussing payback or tariffs — do not invent retail bill amounts.',
+      'Say **efficient equipment** (not "efficient kit") when describing Product Calculator or upgrade paths.',
       'Ask if they want a term explained (BNPL, green loan, unit rate vs standing charge).',
       'Do NOT list items as markdown bullets in the left column.'
     ]
@@ -459,6 +460,7 @@ function buildPolishSystemPrompt(agentKey) {
     'Do NOT use markdown bullet lists in the reply.',
     'Do NOT paste link catalogues — point to tablets on the right when examples exist.',
     'Do NOT mention .json filenames — refer to Schemes, deals feed, catalogues, or portals in plain language.',
+    'Do NOT use **kit** as shorthand for appliances — say **equipment** (except official supplier product names).',
     'Keep all factual claims from originalAnswer; you may reorder and explain jargon.',
     'Return plain markdown prose only — no JSON wrapper.'
   ].join(' ');

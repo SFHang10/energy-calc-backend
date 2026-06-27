@@ -38,6 +38,7 @@ function rankTools(tools, question, limit = 8) {
     if (/audit|appliance/.test(q) && tool.id === 'energy-audit') score += 10;
     if (/ticker|wholesale|price/.test(q) && tool.category === 'prices') score += 6;
     if (/projection|payback|roi|trajectory/.test(q) && tool.category === 'payback') score += 6;
+    if (/renewable|solar|wind|lcoe|irena/.test(q) && tool.id === 'declining-cost-renewables') score += 10;
     if (/calculator|compare|etl/.test(q) && tool.id === 'energy-calculator') score += 8;
     return { tool, score };
   });
@@ -76,6 +77,7 @@ const TOOL_MODULE_IDS = {
   'quick-benefits': 'sustainability-quick-benefits',
   'prices-and-deals': 'prices-and-deals',
   'eco-project-planning': 'eco-project-planner',
+  'declining-cost-renewables': 'declining-cost-renewables',
   'deals-hub': 'deals-ticker'
 };
 

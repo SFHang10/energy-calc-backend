@@ -39,7 +39,8 @@ const PORTAL_PATH_MODULE_IDS = [
   ['water-saving-finder', 'water-saving-finder'],
   ['sustainable_product_deal_finder_portal', 'sustainable-product-finder'],
   ['savings.html', 'savings-tour'],
-  ['finance-finder-restaurant', 'finance-finder']
+  ['finance-finder-restaurant', 'finance-finder'],
+  ['low%20energy%20new', 'low-energy-equipment']
 ];
 
 function isAgentChatPath(path) {
@@ -399,12 +400,20 @@ function buildTariffBasicsAnswer(briefing, tip) {
       `**Energy tariff basics** — what to compare before switching:\n\n` +
       `${basics.map((b) => `- ${b}`).join('\n')}\n\n` +
       `**Live compare:** ${PORTAL_LINKS.europeanEnergy}\n\n` +
-      `For unit-cost impact on upgrades after you pick a direction → **Vincent**.\n\n` +
+      `For unit-cost impact on upgrades after you pick a direction → **Vincent**. Even on a better tariff, **efficient equipment** lowers the kWh you buy — open the **low energy equipment guide** on the right.\n\n` +
       portalFooter(tip),
-    blocks: linkOrModuleBlocks([
-          toLinkItem('European energy portal', PORTAL_LINKS.europeanEnergy, 'Postcode-style compare'),
-          toLinkItem('Finance Agent', '/greenways/finance-agent', 'Prices & payback')
-        ]),
+    blocks: [
+      ...linkOrModuleBlocks([
+        toLinkItem('European energy portal', PORTAL_LINKS.europeanEnergy, 'Postcode-style compare'),
+        toLinkItem('Finance Agent', '/greenways/finance-agent', 'Prices & payback')
+      ]),
+      dealsModuleBlock([
+        {
+          moduleId: 'low-energy-equipment',
+          usageHint: 'See how efficient equipment cuts demand — stack on top of a better tariff'
+        }
+      ])
+    ],
     suggestions: []
   };
 }
@@ -434,12 +443,21 @@ function buildPaybackSavingsAnswer(briefing, tip) {
       `- **Upgrade stack** — businesses often pair deals with controls, heat pumps, solar, or monitoring (Artemis / Edwardo)\n` +
       `- **Finance case** — Vincent models payback, BNPL, and green loans after numbers look sensible\n\n` +
       `${briefing.bestOfferPrinciple || ''}\n\n` +
+      `Even when you find a good deal on supply, **efficient equipment** lowers the kWh you still pay for — open the guide on the right.\n\n` +
       portalFooter(tip),
-    blocks: linkOrModuleBlocks([
-          toLinkItem('European energy portal', PORTAL_LINKS.europeanEnergy, 'Normalise €/kWh first'),
-          toLinkItem('Finance Agent', '/greenways/finance-agent', 'Payback & funding'),
-          toLinkItem('Equipment savings projection', PORTAL_LINKS.savingsProjection, 'Upgrade payback chart')
-        ]),
+    blocks: [
+      ...linkOrModuleBlocks([
+        toLinkItem('European energy portal', PORTAL_LINKS.europeanEnergy, 'Normalise €/kWh first'),
+        toLinkItem('Finance Agent', '/greenways/finance-agent', 'Payback & funding'),
+        toLinkItem('Equipment savings projection', PORTAL_LINKS.savingsProjection, 'Upgrade payback chart')
+      ]),
+      dealsModuleBlock([
+        {
+          moduleId: 'low-energy-equipment',
+          usageHint: 'Control bills two ways — cut demand with efficient equipment, not tariffs alone'
+        }
+      ])
+    ],
     suggestions: []
   };
 }

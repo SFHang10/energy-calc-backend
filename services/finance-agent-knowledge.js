@@ -158,7 +158,8 @@ const REF_MODULE_IDS = {
   'discover-savings': 'discover-savings',
   'quick-benefits': 'sustainability-quick-benefits',
   'prices-deals': 'prices-and-deals',
-  'eco-planning': 'eco-project-planner'
+  'eco-planning': 'eco-project-planner',
+  'declining-cost-renewables': 'declining-cost-renewables'
 };
 
 /** Map PORTAL_LINKS-style paths to registry module ids */
@@ -187,7 +188,8 @@ const PORTAL_PATH_MODULE_IDS = [
   ['Sustaniability%20Quick%20Benefits', 'sustainability-quick-benefits'],
   ['Prices%20and%20Deals', 'prices-and-deals'],
   ['eco_project_planning_guide', 'eco-project-planner'],
-  ['members-section', 'members-section']
+  ['members-section', 'members-section'],
+  ['declining_cost_renewable_energy', 'declining-cost-renewables']
 ];
 
 function portalPathToModuleId(path) {
@@ -266,6 +268,7 @@ function rankReferences(refs, question, limit = 6) {
       if (hay.includes(token)) score += 3;
     });
     if (/restaurant|kitchen|hospitality/.test(q) && /restaurant|kitchen|hospitality|food/.test(hay)) score += 4;
+    if (/renewable|solar|wind|lcoe|irena|green tariff/.test(q) && /renewable|solar|wind|lcoe/.test(hay)) score += 6;
     if (/role|learn|background|must know/.test(q)) score += 2;
     return { ref, score };
   });
@@ -376,12 +379,27 @@ function buildCategoryAnswer(category, schemes, profile, tip) {
   const q = prompts[category] || category;
   const related = rankSchemes(schemes, q, profile, 6);
   const label = category === 'solar' ? 'Solar PV' : 'Heat pump & heating';
+  const solarExtra =
+    category === 'solar'
+      ? `**Supply-side context:** IRENA’s 2024 data shows 91% of new renewable capacity beat fossil alternatives on cost, and solar PV LCOE fell ~90% since 2010 — see the renewable cost chart for the full curve through 2026 (2025–26 are illustrative projections).\n\n`
+      : '';
+  const blocks =
+    category === 'solar'
+      ? [
+          financeModuleBlock([
+            { moduleId: 'declining-cost-renewables', openSize: 'near-full' },
+            { moduleId: 'finance-finder', openSize: 'near-full' },
+            { moduleId: 'savings-projection', openSize: 'near-full' }
+          ])
+        ]
+      : [financeModuleBlock([{ moduleId: 'finance-finder', openSize: 'near-full' }])];
   return {
     answer:
       `**${label} finance** — start in the finance finder **Grants** or **Green loans** tabs with your region set.\n\n` +
+      solarExtra +
       `${formatSchemeBullets(related, 6) || '_No tight scheme match — browse the finance finder categories._'}\n\n` +
-      `Open the **finance finder** module on the right with your region set.\n\n_${tip}_`,
-    blocks: [financeModuleBlock([{ moduleId: 'finance-finder', openSize: 'near-full' }])],
+      `Open the modules on the right — ${category === 'solar' ? 'renewable cost chart, ' : ''}finance finder, and payback tools.\n\n_${tip}_`,
+    blocks,
     suggestions: related.map(toSuggestion)
   };
 }
@@ -407,7 +425,7 @@ async function buildCalculatorsAnswer(question, tip) {
   return {
     answer:
       `**Greenways calculators & finance tools** — Vincent's registry (canonical paths, not draft copies).\n\n` +
-      `**Product Calculator** is Greenways' compare tool — it models energy use for efficient products (including ETL-listed rows today; more product lanes over time). It is not an ETL-owned calculator.\n\n` +
+      `**Product Calculator** is Greenways' compare tool — it models energy use for **efficient equipment** (including ETL-listed rows today; more product lanes over time). It is not an ETL-owned calculator.\n\n` +
       `${formatToolsBullets(picks.slice(0, 6))}\n\n` +
       `**Audit → business case flow:**\n` +
       `1. **Energy audit** (${PORTAL_LINKS.energyAudit}) — baseline appliances (members on Render)\n` +
@@ -499,7 +517,7 @@ async function buildEnergyPricesAnswer(profile, tip) {
       `**Energy prices (${regionLabel})** — wholesale €/MWh helps you time upgrades and tariff reviews. Your bill also depends on supplier, pass-through clauses, and time-of-use, so retail contracts can move differently from the ticker.\n\n` +
       `${headline}\n\n` +
       (modelling ? `${modelling}\n\n` : '') +
-      `When unit costs rise, **ETL-listed equipment** lowers the kWh you still buy — open the modules on the right for the ticker, site utility view, and tariff compare.\n\n_${tip}_`,
+      `When unit costs rise, **ETL-listed equipment** lowers the kWh you still buy — open the modules on the right for the ticker, site utility view, and tariff compare. From there, the **Product Calculator** lets you compare the energy use of **efficient equipment** vs what you run today.\n\n_${tip}_`,
     blocks: [
       energyToolkitModules(profile),
       financeAgentLinkBlock('Deals Agent', PORTAL_LINKS.dealsAgent, 'Tariff lanes and supply deals')
@@ -571,14 +589,37 @@ function buildGreenLoansAnswer(schemes, profile, tip) {
 function buildCompareTariffsAnswer(tip) {
   return {
     answer:
-      `**Compare tariffs & packages** — retail supply is separate from wholesale ticker moves. Even on a better tariff, **efficient equipment** lowers the kWh you buy — pair switching with upgrades.\n\n` +
-      `Open the tariff portal and deals hub in the modules on the right, or ask **Zara** (Deals Agent) for live lanes.\n\n_${tip}_`,
+      `**Compare tariffs & packages** — retail supply is separate from wholesale ticker moves. Green tariffs often track falling renewable LCOE — solar and wind supply costs keep edging down through 2026 even when your bill feels volatile.\n\n` +
+      `Even on a better tariff, **efficient equipment** lowers the kWh you buy — pair switching with upgrades.\n\n` +
+      `Open the tariff portal, renewable cost chart, and deals hub in the modules on the right, or ask **Zara** (Deals Agent) for live lanes.\n\n_${tip}_`,
     blocks: [
       financeModuleBlock([
         { moduleId: 'european-energy', openSize: 'near-full' },
+        { moduleId: 'declining-cost-renewables', openSize: 'near-full' },
         { moduleId: 'deals-ticker', openSize: 'expanded' }
       ]),
       financeAgentLinkBlock('Deals Agent (Zara)', PORTAL_LINKS.dealsAgent, 'Product spotlights and tariff compare')
+    ],
+    suggestions: []
+  };
+}
+
+function buildRenewableCostsAnswer(tip) {
+  return {
+    answer:
+      `**Declining cost of renewable energy (2014–2026)**\n\n` +
+      `Global levelized costs for solar PV, onshore wind, and offshore wind keep falling — **IRENA** (*Renewable Power Generation Costs in 2024*, July 2025) reports **91%** of newly commissioned utility-scale renewables in 2024 undercut the cheapest new fossil option. That supports better green-tariff and rooftop-solar finance cases even when retail bills spike.\n\n` +
+      `**How to use this in a finance case:**\n` +
+      `1. Open the chart — IRENA 2024 solar PV global average **USD 0.043/kWh** (~€0.04/kWh on the chart)\n` +
+      `2. Stack **grants** or **green loans** on your chosen technology\n` +
+      `3. Model site payback in **savings projection** before you sign\n\n` +
+      `Open the renewable cost module on the right.\n\n_${tip}_`,
+    blocks: [
+      financeModuleBlock([
+        { moduleId: 'declining-cost-renewables', openSize: 'near-full' },
+        { moduleId: 'savings-projection', openSize: 'near-full' },
+        { moduleId: 'finance-finder', openSize: 'near-full' }
+      ])
     ],
     suggestions: []
   };
@@ -727,6 +768,9 @@ async function answerFromKnowledge(question, profile = {}) {
       break;
     case 'compare_tariffs':
       result = buildCompareTariffsAnswer(tip);
+      break;
+    case 'renewable_costs':
+      result = buildRenewableCostsAnswer(tip);
       break;
     case 'calculators_tools':
       result = await buildCalculatorsAnswer(question, tip);

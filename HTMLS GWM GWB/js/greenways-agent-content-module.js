@@ -49,11 +49,13 @@
     ["deals.html", "deals-full-page"],
     ["restaurant-equipment-deep-dive", "equipment-deep-dive"],
     ["sustainable%20renovations", "sustainable-renovations"],
+    ["insulation%20.html", "insulation-guide"],
     ["importance%20of%20insulation", "insulation-guide"],
     ["renovation%20project%20plans", "renovation-plans"],
     ["retrofit-tabbed", "retrofit-roi-guide"],
     ["restauarant%20design", "restaurant-design-sustainability"],
     ["restuarant%20appliance%20comparison", "appliance-comparison"],
+    ["marketplace%20variant", "appliance-comparison"],
     ["sensor-dashboard", "sensor-dashboard"],
     ["greenways%20interface", "greenways-dashboard"],
     ["utility-detail", "utility-detail"],
@@ -71,7 +73,10 @@
     ["prices%20and%20deals", "prices-and-deals"],
     ["eco_project_planning_guide", "eco-project-planner"],
     ["members-section", "members-section"],
+    ["declining_cost_renewable_energy", "declining-cost-renewables"],
     ["water-saving-finder", "water-saving-finder"],
+    ["water-saving-guide", "water-saving-guide"],
+    ["water-saving-guide%20(1)", "water-saving-guide"],
     ["sustainable_product_deal_finder_portal", "sustainable-product-finder"]
   ];
 
@@ -79,8 +84,8 @@
     "low-energy-equipment": {
       id: "low-energy-equipment",
       title: "Low energy equipment guide",
-      description: "Equipment examples and where efficient kit is used in practice.",
-      usageHint: "Browse case-study equipment paths, then ask Vincent how payback and finance options apply.",
+      description: "How efficient equipment lowers demand — stack savings on top of tariff deals.",
+      usageHint: "Browse savings examples by appliance type, then compare tariffs or open deal spotlights.",
       href: "./Low%20Energy%20New%20.HTML",
       defaultOpenSize: "near-full"
     },
@@ -175,7 +180,7 @@
       title: "Insulation guide",
       description: "Why fabric improvements come before heavy equipment or HVAC overspend.",
       usageHint: "Read insulation sections for your premises, then model payback in savings projection.",
-      href: "./Importance%20of%20Insulation.html",
+      href: "./Insulation%20.html",
       defaultOpenSize: "near-full"
     },
     "sensor-dashboard": {
@@ -254,6 +259,22 @@
       description: "Full water-lane search, tips, and interactive product compare.",
       usageHint: "Pick a water-saving category or tip, compare product rows, and open details when a match fits your site.",
       href: "./water-saving-finder.html",
+      defaultOpenSize: "near-full"
+    },
+    "water-saving-guide": {
+      id: "water-saving-guide",
+      title: "Water Saving Guide",
+      description: "Why water efficiency matters — fixtures, leaks, dishwashers, and restaurant quick wins.",
+      usageHint: "Browse guide sections for your site type, note priorities, then open Water Saving Finder to compare products.",
+      href: "./Water-Saving-Guide%20(1).html",
+      defaultOpenSize: "near-full"
+    },
+    "declining-cost-renewables": {
+      id: "declining-cost-renewables",
+      title: "Declining cost of renewable energy",
+      description: "IRENA-style LCOE chart 2014–2026 — solar, wind, and why green supply keeps getting cheaper.",
+      usageHint: "Review cost curves, then model solar or green-tariff payback in savings projection or finance finder.",
+      href: "./declining_cost_renewable_energy.html",
       defaultOpenSize: "near-full"
     }
   };

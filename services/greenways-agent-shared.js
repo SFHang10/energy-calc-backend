@@ -32,7 +32,7 @@ const PORTAL_LINKS = {
   deepDive: './restaurant-equipment-deep-dive.html',
   equipmentTool: './equipment_intelligence_tool.html',
   sustainableRenovations: './Sustainable%20Renovations%20New%20.html',
-  insulationGuide: './Importance%20of%20Insulation.html',
+  insulationGuide: './Insulation%20.html',
   renovationPlans: '../HTMLs/Renovation%20project%20plans.html',
   retrofitRoiGuide: '../HTMLs/Retrofit-Tabbed.html',
   restaurantDesign: '../HTMLs/Restauarant%20Design%20.html',
@@ -53,6 +53,7 @@ const PORTAL_LINKS = {
   greenwaysDashboard: './Greenways%20Interface%20.html',
   energyMonitoring: './Importance%20of%20Energy%20Monitoring.html',
   lowEnergyGuide: './Low%20Energy%20New%20.HTML',
+  applianceComparison: './Restuarant%20Appliance%20Comparison%20-%20Marketplace%20variant.html',
   discoverSavings: './Discover%20Energy%20Savings%20.html',
   europeSavings: './Europes%20Energy%20Saving%20.html',
   ecoProjectPlanning: '../HTMLs/eco_project_planning_guide_fixed.html',
@@ -264,6 +265,7 @@ const CONVERSATIONAL_ANSWER_RULES = {
     'Summarise in plain language — explain why it matters and how it can affect bills, timing, or planning.',
     'Do not dump long bullet lists, raw HTML paths, or article catalogues in the left column.',
     'Do not mention JSON filenames or file extensions — say Schemes, deals feed, product catalogue, etc.',
+    'Use **equipment** (not **kit**) for appliances and upgrades — keep **kit** only in official supplier product names.',
     'Offer a follow-up when jargon may be unfamiliar (e.g. "Should I explain CBAM and what it means for your imports?").'
   ],
   rightColumn: [
