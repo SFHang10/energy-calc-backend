@@ -1936,9 +1936,13 @@
     z-index: 120;
     bottom: calc(62px + env(safe-area-inset-bottom, 0px));
   }
-  html.embed-hub .map-hscroll-controls.is-active {
-    display: flex;
-    z-index: 1600;
+  html.embed-hub .map-hscroll-controls,
+  html.embed-hub .page-scroll-hint,
+  html.embed-hub .mobile-swipe-hint {
+    display: none !important;
+  }
+  html.embed-hub .map-top-actions::after {
+    display: none !important;
   }
   html.embed-hub .helper-popup { top: calc(var(--map-overlay-top) + 46px); max-height: min(68vh, 440px); width: min(400px, calc(100vw - 24px)); }
   html.embed-hub .helper-popup.minimized { max-height: none; width: 118px; }
@@ -2937,8 +2941,8 @@ function initToolbarScrollHint() {
   if (!bar) return;
   const isHubEmbed = document.documentElement.classList.contains("embed-hub");
   const isTouchUi = window.matchMedia("(hover: none), (max-width: 700px)").matches;
-  if (!isTouchUi && !isHubEmbed) return;
-  const hintKey = isHubEmbed ? TOOLBAR_SCROLL_HINT_KEY_HUB : TOOLBAR_SCROLL_HINT_KEY;
+  if (isHubEmbed || !isTouchUi) return;
+  const hintKey = TOOLBAR_SCROLL_HINT_KEY;
   try {
     if (localStorage.getItem(hintKey) === "1") return;
   } catch (_) { /* ignore */ }
@@ -3110,8 +3114,8 @@ function isHubEmbedMap() {
 }
 
 function mapHScrollEnabled() {
+  if (isHubEmbedMap()) return false;
   if (mapHScrollMax() < 4) return false;
-  if (isHubEmbedMap()) return true;
   return window.innerWidth <= 700;
 }
 
@@ -3287,6 +3291,7 @@ function initPageScrollHint() {
   const hint = document.getElementById("page-scroll-hint");
   const mapContainer = document.getElementById("map-container");
   if (!hint || !mapContainer) return;
+  if (document.documentElement.classList.contains("embed-hub")) return;
 
   const isTouchUi = window.matchMedia("(hover: none), (max-width: 700px)").matches;
   if (isTouchUi) {
