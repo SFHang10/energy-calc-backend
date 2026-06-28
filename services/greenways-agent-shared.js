@@ -263,14 +263,14 @@ function toModuleItem(opts = {}) {
 const CONVERSATIONAL_ANSWER_RULES = {
   leftColumn: [
     'Summarise in plain language — explain why it matters and how it can affect bills, timing, or planning.',
-    'Do not dump long bullet lists, raw HTML paths, or article catalogues in the left column.',
+    'Do not dump long bullet lists, raw page paths, or article catalogues in the left column.',
     'Do not mention JSON filenames or file extensions — say Schemes, deals feed, product catalogue, etc.',
     'Use **equipment** (not **kit**) for appliances and upgrades — keep **kit** only in official supplier product names.',
     'Offer a follow-up when jargon may be unfamiliar (e.g. "Should I explain CBAM and what it means for your imports?").'
   ],
   rightColumn: [
     'Put concrete examples, portals, and editions in link tablets (blocks) or banner cards — Zara-style.',
-    'Use module blocks for heavy HTML (maps, finders, tickers); chat stays open behind.'
+    'Use module blocks for heavy pages (maps, finders, tickers); chat stays open behind.'
   ]
 };
 
@@ -293,6 +293,76 @@ function agentProfileBlock(...parts) {
     .join('\n\n');
   if (!body) return '';
   return `:::agent-profile\n${body}\n:::\n\n`;
+}
+
+/** Profile region/sector context — rendered as "Your profile" highlight (not agent voice). */
+function profileContextBlock(...parts) {
+  const body = parts
+    .filter(Boolean)
+    .map((p) => String(p).trim())
+    .filter(Boolean)
+    .join('\n\n');
+  if (!body) return '';
+  return `:::profile-context\n${body}\n:::\n\n`;
+}
+
+const INTERNAL_PAGE_PATH_RE = /(?:\.\/|\.\.\/|\/)[^\s,;:)\]]+(?:\.html|\.HTML)/;
+
+/** Left-column tool list — summary only; links live on tablets/modules. */
+function formatToolsListProse(tools, max = 6) {
+  return (tools || [])
+    .slice(0, max)
+    .map((t) => {
+      const title = String(t?.title || 'Greenways tool').trim();
+      const summary = String(t?.summary || '').trim();
+      return summary
+        ? `- **${title}** — ${summary}`
+        : `- **${title}** — open the module on the right when you are ready.`;
+    })
+    .join('\n');
+}
+
+/**
+ * Remove internal file paths and IT jargon from agent chat prose (left column).
+ * Paths belong on link/module tablets — not in conversational answers.
+ */
+function sanitizeLeftColumnProse(text) {
+  let body = String(text || '').trim();
+  if (!body) return body;
+
+  body = body.replace(/^[ \t]*→\s+[^\n]*(?:\.html|\.HTML)[^\n]*\n?/gim, '');
+  body = body.replace(
+    /^([ \t]*[-•][^\n]*?)\s*→\s+[^\n]*(?:\.html|\.HTML)[^\n]*$/gim,
+    '$1 — open the module on the right.'
+  );
+  body = body.replace(
+    /^([ \t]*[-•]\s*\*\*[^*]+\*\*:?\s*)[^\n]*(?:\.html|\.HTML)[^\n]*/gim,
+    '$1open the page on the right.'
+  );
+  body = body.replace(/\(\s*(?:\.\/|\.\.\/)[^)]*(?:\.html|\.HTML)[^)]*\)/gi, '');
+  body = body.replace(/(?:\.\/|\.\.\/)[^\s,;:)\]]+(?:\.html|\.HTML)/gi, '');
+  body = body.replace(/ with (?:\.\/|\.\.\/)[^\s]+(?:\.html|\.HTML)/gi, ' — use the module on the right');
+  body = body.replace(
+    / with (\/[^\s]+(?:\.html|\.HTML))/gi,
+    ' — use the page on the right'
+  );
+  body = body.replace(
+    /:\s*(?:\.\/|\.\.\/|\/)[^\s]+(?:\.html|\.HTML)\s*(?=—|$|\n)/gi,
+    ': open the module on the right '
+  );
+  body = body.replace(/\bHTML pages?\b/gi, 'pages');
+  body = body.replace(/\bHTML guides?\b/gi, 'guides');
+  body = body.replace(/\bHTML editions?\b/gi, 'editions');
+  body = body.replace(/\bHTML\b/g, 'page');
+  body = body.replace(/\(\s*\)/g, '');
+  body = body.replace(/[ \t]+\n/g, '\n');
+  body = body.replace(/\n{3,}/g, '\n\n');
+  body = body.replace(/  +/g, ' ');
+  return body.trim();
+}
+
+function isInternalPagePath(value) {
+  return INTERNAL_PAGE_PATH_RE.test(String(value || ''));
 }
 
 async function loadProductsWithGrants() {
@@ -641,6 +711,10 @@ module.exports = {
   CONVERSATIONAL_ANSWER_RULES,
   conversationalSystemLines,
   agentProfileBlock,
+  profileContextBlock,
+  formatToolsListProse,
+  sanitizeLeftColumnProse,
+  isInternalPagePath,
   loadProductsWithGrants,
   normalizeImageUrl,
   marketplaceHref,

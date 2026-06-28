@@ -13,7 +13,8 @@ const {
   pickProductSamples,
   getDefaultProductSamples: getDefaultProductSamplesFromShowcase,
   toModuleItem,
-  agentProfileBlock
+  agentProfileBlock,
+  formatToolsListProse
 } = require('./greenways-agent-shared');
 const { mergeModuleRow } = require('./greenways-content-modules');
 const {
@@ -342,7 +343,7 @@ async function buildOverviewAnswer(profile, tip) {
       ) +
       `**What I help with:**\n${focus.map((f) => `- ${f}`).join('\n')}\n\n` +
       `**Typical path:**\n${steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}\n\n` +
-      `**Greenways tools:**\n${tools.map((t) => `- **${t.title}** — ${t.summary}\n  → ${t.href}`).join('\n')}\n\n` +
+      `**Greenways tools:**\n${formatToolsListProse(tools, 5)}\n\n` +
       `_Ask about a **${profile.sector || 'restaurant'}** category, renovation, deep dive, or savings projection._\n\n_${tip}_`,
     blocks: toolsToModuleBlocks(tools, 6),
     suggestions: [],
@@ -365,7 +366,7 @@ async function buildWhyEquipmentAnswer(profile, tip) {
       `**High-impact categories for ${profile.sector || 'restaurants'}:**\n` +
       `${cats.map((c) => `- **${c.name}** — ${c.priority}. _${c.tip}_`).join('\n')}\n\n` +
       (demos.length
-        ? `**See it on Greenways:**\n${demos.map((d) => `- **${d.title}** → ${d.href}`).join('\n')}\n\n`
+        ? `**See it on Greenways:**\n${formatToolsListProse(demos, 3)}\n\n`
         : '') +
       `_${tip}_`,
     blocks: demos.length ? toolsToModuleBlocks(demos, 5) : [],
@@ -392,7 +393,7 @@ async function buildLifecycleCostAnswer(tip) {
       `**Lifecycle cost & durability** — Artemis does not pick the lowest-energy label alone.\n\n` +
       `${fallback.map((c) => `- ${c}`).join('\n')}\n\n` +
       `**Specify for:** capacity · duty cycle · service access · controls · repairability · embodied materials.\n\n` +
-      `Model **total value** with ${PORTAL_LINKS.savingsProjection} or ${PORTAL_LINKS.energySavingsTrajectory} — then **Vincent** for finance.\n\n_${tip}_`,
+      `Model **total value** with the **savings projection** and **energy savings trajectory** modules — then **Vincent** for finance.\n\n_${tip}_`,
     suggestions: [],
     agentHandoffs: buildHandoffs(briefing, '', 'lifecycle_cost'),
     blocks: linkOrModuleBlocks([
@@ -467,7 +468,6 @@ async function buildEtlVerificationAnswer(profile, tip) {
 
 async function buildTrajectoryAnswer(tip) {
   const briefing = await loadBriefing();
-  const paths = briefing.etlProducts?.paths || {};
   const guide = await loadRenovationGuide();
   const demos = (guide.demonstrationTools || []).filter((d) =>
     /trajectory|projection/i.test((d.tags || []).join(' ') + d.title)
@@ -476,10 +476,10 @@ async function buildTrajectoryAnswer(tip) {
   return {
     answer:
       `**Energy savings trajectory** — show consumers how replacing certain equipment saves money in the **medium term**.\n\n` +
-      `- **Trajectory page:** ${paths.trajectory || PORTAL_LINKS.energySavingsTrajectory}\n` +
-      `- **Savings projection chart:** ${paths.savingsProjection || PORTAL_LINKS.savingsProjection}\n` +
-      `- **With dashboard baseline:** ${paths.trajectoryBaseline || paths.trajectory}\n\n` +
-      `Use trajectory for stakeholder stories; use projection for grant + tax bands on a single upgrade.\n\n_${tip}_`,
+      `- **Trajectory page** — medium-term equipment savings story for stakeholders\n` +
+      `- **Savings projection chart** — do-nothing vs upgrade with grants and tax bands\n` +
+      `- **Dashboard baseline** — tie trajectory to live site data when connected\n\n` +
+      `Open the modules on the right for trajectory and projection. Use trajectory for stakeholder stories; use projection for grant + tax bands on a single upgrade.\n\n_${tip}_`,
     suggestions: [],
     blocks: toolsToModuleBlocks(demos.length ? demos : guide.demonstrationTools || [], 5),
     agentHandoffs: buildHandoffs(briefing, '', 'trajectory')
@@ -493,10 +493,10 @@ async function buildBaselineEquipmentAnswer(tip) {
   return {
     answer:
       `**Equipment baseline** — what your current equipment should be consuming before you specify an upgrade.\n\n` +
-      `- **Greenways dashboard** (${PORTAL_LINKS.greenwaysDashboard}) — equipment baseline when site energy data is connected\n` +
-      `- **Trajectory example:** ${paths.trajectoryBaseline || paths.trajectory}\n` +
-      `- **Equipment intelligence tool:** ${paths.marketplaceFinder || PORTAL_LINKS.equipmentTool} — practical baseline check for consumers\n\n` +
-      `Without baseline, lifecycle payback is guesswork — **Edwardo** helps monitoring and dashboard maths when live data is thin.\n\n_${tip}_`,
+      `- **Greenways buildings dashboard** — equipment baseline when site energy data is connected\n` +
+      `- **Trajectory example** — see how savings build over time with a connected baseline\n` +
+      `- **Equipment intelligence module** — practical baseline check and ETL alternatives search\n\n` +
+      `Open the modules on the right to explore each path. Without baseline, lifecycle payback is guesswork — **Edwardo** helps monitoring and dashboard maths when live data is thin.\n\n_${tip}_`,
     suggestions: [],
     agentHandoffs: buildHandoffs(briefing, '', 'baseline_equipment'),
     blocks: linkOrModuleBlocks([
@@ -512,10 +512,10 @@ async function buildEquipmentIntelligenceAnswer(tip) {
 
   return {
     answer:
-      `**Equipment intelligence tool** — practical way to check **what baseline use should look like** and find ETL alternatives.\n\n` +
-      `→ ${PORTAL_LINKS.equipmentTool}\n\n` +
-      `**Why it matters:** consumers see how efficient equipment differs from what they run today before committing capex.\n\n` +
-      `Pair with **deep dive** for grants and decision matrix, or **appliance comparison** for visual standard vs ETL stories.\n\n_${tip}_`,
+      `**Equipment intelligence module** — practical way to check **what baseline use should look like** and find ETL alternatives.\n\n` +
+      `Open the **Equipment intelligence** module on the right to search alternatives, compare specs, and see how verified equipment differs from what you run today.\n\n` +
+      `**Why it matters:** you see efficient options before committing capex.\n\n` +
+      `Pair with **equipment deep dive** for grants and decision matrix, or **appliance comparison** for visual standard vs ETL stories.\n\n_${tip}_`,
     suggestions: [],
     blocks: linkOrModuleBlocks([
       toLinkItem('Open intelligence tool', PORTAL_LINKS.equipmentTool, 'Marketplace + alternatives'),
@@ -569,8 +569,7 @@ function buildDeepDiveAnswer(tip) {
   return {
     answer:
       `**Equipment deep dive** — compare current vs efficient alternatives with grant chips and **Savings projection** modal.\n\n` +
-      `→ ${PORTAL_LINKS.deepDive}\n\n` +
-      `Each profile includes decision-matrix rows, marketplace links, and optional \`sust_*\` external options.\n\n` +
+      `Open the **Equipment deep dive** module on the right for decision-matrix rows, marketplace links, and optional \`sust_*\` external options.\n\n` +
       `Ask about a specific appliance (combi steamer, wok, freezer) and I'll surface matching picks in the banner.\n\n_${tip}_`,
     suggestions: [],
     blocks: linkOrModuleBlocks([
@@ -584,9 +583,9 @@ function buildSavingsProjectionAnswer(tip) {
   return {
     answer:
       `**Savings projection** — chart **do nothing vs upgrade** with grant chips and illustrative tax bands.\n\n` +
-      `- Full page: ${PORTAL_LINKS.savingsProjection}\n` +
-      `- From deep dive: **Savings projection** button on each alternative card\n` +
-      `- Demo scenario: \`?scenario=fridge\`\n\n` +
+      `- Open the **Savings projection** module on the right for the full payback chart\n` +
+      `- From **equipment deep dive**: use **Savings projection** on each alternative card\n` +
+      `- Try the fridge demo scenario from the module when you want a worked example\n\n` +
       `Use projection to build the case — then **Vincent** for BNPL, equipment finance, or green loans.\n\n_${tip}_`,
     suggestions: [],
     agentHandoffs: buildHandoffs({}, '', 'savings_projection'),
@@ -634,7 +633,7 @@ async function buildMonitoringHandoffAnswer(tip) {
       `**Baseline before capex** — if bills hide where energy goes, measure first.\n\n` +
       `- **Equipment data intelligence guide** — what to monitor by equipment type before you specify upgrades\n` +
       `- **Edwardo** (Systems) — sensors, sub-metering, Greenways dashboard maths\n` +
-      `- **Importance of energy monitoring** — ${PORTAL_LINKS.energyMonitoring}\n\n` +
+      `- **Importance of energy monitoring** — why baseline measurement saves money before capex\n\n` +
       `Once you know cookline vs refrigeration vs HVAC share, equipment swaps target the right loads.\n\n_${tip}_`,
     suggestions: [],
     blocks: linkOrModuleBlocks([
@@ -807,7 +806,7 @@ function buildRenovationGrantsAnswer(schemes, profile, question, tip) {
       `${formatSchemeBullets(related, 7) || '_Browse Grants Agent or schemes portals for your region._'}\n\n` +
       `- **Andrieus (Grants Agent):** /greenways/grants-agent\n` +
       `- **Vincent (Finance):** /greenways/finance-agent\n` +
-      `- **Renovation guides:** ${PORTAL_LINKS.sustainableRenovations}\n\n_${tip}_`,
+      `- **Renovation guides** — open the sustainable renovations module on the right\n\n_${tip}_`,
     suggestions: related.map(toSuggestion),
     agentHandoffs: buildHandoffs({}, question, 'renovation_grants')
   };

@@ -470,42 +470,52 @@
     tick();
   }
 
+  function applyMarkdownInline(escapedText) {
+    return String(escapedText || "")
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.+?)\*/g, "<em>$1</em>")
+      .replace(/_([^_]+)_/g, "<em>$1</em>")
+      .replace(/`([^`]+)`/g, "<code>$1</code>")
+      .replace(/\n/g, "<br>");
+  }
+
+  function profileAsideHtml(content, label, escapeHtmlFn) {
+    const safeLabel = escapeHtmlFn(label || "About this specialist");
+    return (
+      '<aside class="agent-system-profile" aria-label="' +
+      safeLabel +
+      '">' +
+      '<div class="agent-system-profile-label">' +
+      safeLabel +
+      "</div>" +
+      '<div class="agent-system-profile-body">' +
+      applyMarkdownInline(escapeHtmlFn(content)) +
+      "</div></aside>"
+    );
+  }
+
   function formatAnswer(text, escapeHtmlFn) {
     if (typeof escapeHtmlFn !== "function") {
       throw new Error("GreenwaysAgentTurnUi.formatAnswer requires escapeHtml");
     }
     let raw = String(text || "");
     const profiles = [];
+    raw = raw.replace(/:::profile-context\s*\n([\s\S]*?)\n:::/g, function (_, content) {
+      profiles.push({ content: String(content || "").trim(), label: "Your profile" });
+      return "[[GWPROFILE" + (profiles.length - 1) + "]]";
+    });
     raw = raw.replace(/:::agent-profile\s*\n([\s\S]*?)\n:::/g, function (_, content) {
-      profiles.push(String(content || "").trim());
-      return "[[AGENT_PROFILE_" + (profiles.length - 1) + "]]";
+      profiles.push({ content: String(content || "").trim(), label: "About this specialist" });
+      return "[[GWPROFILE" + (profiles.length - 1) + "]]";
     });
 
-    let html = escapeHtmlFn(raw)
-      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/\*(.+?)\*/g, "<em>$1</em>")
-      .replace(/_(.+?)_/g, "<em>$1</em>")
-      .replace(/`([^`]+)`/g, "<code>$1</code>")
-      .replace(/\n/g, "<br>");
-
-    profiles.forEach(function (content, idx) {
-      const placeholder = escapeHtmlFn("[[AGENT_PROFILE_" + idx + "]]");
-      const inner = escapeHtmlFn(content)
-        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-        .replace(/\*(.+?)\*/g, "<em>$1</em>")
-        .replace(/_(.+?)_/g, "<em>$1</em>")
-        .replace(/`([^`]+)`/g, "<code>$1</code>")
-        .replace(/\n/g, "<br>");
-      html = html.replace(
-        placeholder,
-        '<aside class="agent-system-profile" aria-label="About this specialist">' +
-          '<div class="agent-system-profile-label">About this specialist</div>' +
-          '<div class="agent-system-profile-body">' +
-          inner +
-          "</div></aside>"
-      );
+    let html = escapeHtmlFn(raw);
+    profiles.forEach(function (block, idx) {
+      const placeholder = escapeHtmlFn("[[GWPROFILE" + idx + "]]");
+      html = html.replace(placeholder, profileAsideHtml(block.content, block.label, escapeHtmlFn));
     });
-    return html;
+
+    return applyMarkdownInline(html);
   }
 
   function wrapMixedParagraphs(html) {
@@ -525,9 +535,23 @@
       .join("");
   }
 
+  function sanitizeProseForDisplay(text) {
+    var body = String(text || "").trim();
+    if (!body) return body;
+    body = body.replace(/^[ \t]*→\s+[^\n]*(?:\.html|\.HTML)[^\n]*\n?/gim, "");
+    body = body.replace(
+      /^([ \t]*[-•][^\n]*?)\s*→\s+[^\n]*(?:\.html|\.HTML)[^\n]*$/gim,
+      "$1 — open the module on the right."
+    );
+    body = body.replace(/(?:\.\/|\.\.\/)[^\s,;:)\]]+(?:\.html|\.HTML)/gi, "");
+    body = body.replace(/\bHTML\b/g, "page");
+    body = body.replace(/\n{3,}/g, "\n\n");
+    return body.trim();
+  }
+
   function formatAgentAnswerBody(text, escapeHtmlFn, options) {
     options = options || {};
-    var html = formatAnswer(text, escapeHtmlFn);
+    var html = formatAnswer(sanitizeProseForDisplay(text), escapeHtmlFn);
     if (options.linkify) {
       html = html.replace(
         /(https?:\/\/[^\s<]+)/g,

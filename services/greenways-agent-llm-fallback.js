@@ -8,7 +8,8 @@ const {
   rankSchemes,
   toSuggestion,
   conversationalSystemLines,
-  meaningForProfile
+  meaningForProfile,
+  sanitizeLeftColumnProse
 } = require('./greenways-agent-shared');
 const {
   pickProductSamples: pickGrantsProductSamples,
@@ -91,7 +92,7 @@ const AGENT_PROFILES = {
     instructions: [
       'Always speak in first person as Artemis — you are guiding someone on their sustainable journey, not writing a spec sheet.',
       'Explain what things are, why they matter for bills and upgrades, and how schemes or tools can help — in plain conversational prose.',
-      'Reference product highlights and link or module tablets on the right — never paste raw URLs or HTML paths in the left column.',
+      'Reference product highlights and link or module tablets on the right — never paste raw URLs or internal page paths in the left column.',
       'When a link tablet exists, describe what it is for in prose; do not reproduce the link list as markdown bullets.',
       'Offer to explain ETL, deep dive, insulation, or grant terms if the user is new to them.',
       'Do NOT list items as markdown bullet lists in the left column.'
@@ -107,7 +108,7 @@ const AGENT_PROFILES = {
       'Explain what portals and schemes mean in plain language and how they help the user — do NOT paste raw URLs or arrow paths in the left column.',
       'Reference deal highlights and banner cards — energy tariffs vs product spotlights.',
       'Explain why comparing unit rate + contract length beats chasing cheapest headline price.',
-      'Point users to link tablets or module blocks on the right for Deals.html, savings tour, or European energy portal.',
+      'Point users to link tablets or module blocks on the right for the full Deals page, savings tour, or European energy portal.',
       'Do NOT invent prices or offers not in dealHighlights.'
     ]
   },
@@ -120,7 +121,7 @@ const AGENT_PROFILES = {
       'Explain how stories or map examples could affect bills, timing, or inspiration for upgrades.',
       'Reference newsItems, videos, and map cards from the payload only.',
       'Offer to explain policy jargon (CBAM, CSRD, Horizon Europe) when it appears.',
-      'Put editions, map entries, and tools in link/module blocks — not raw HTML paths in prose.'
+      'Put editions, map entries, and tools in link/module blocks — not raw internal page paths in prose.'
     ]
   },
   'sustainable-products': {
@@ -142,11 +143,11 @@ const AGENT_PROFILES = {
     instructions: [
       'Speak as Edwardo in first person — you explain, guide, and help people on their sustainable journey, not dump file paths.',
       'Explain monitoring and dashboard concepts in plain language — offer to define KPIs if needed.',
-      'When pointing to Greenways pages, describe what the user will see and how it helps — never paste raw HTML paths or arrow links in the left column.',
+      'When pointing to Greenways pages, describe what the user will see and how it helps — never paste raw page paths or arrow links in the left column.',
       'Put portals and demos in link or module tablets on the right with contextual summaries.',
       'Cover time-of-use: peak vs off-peak and batch timing for restaurants and homes.',
       'Link equipment deep dive and ETL examples to euro savings, not just percentages.',
-      'Note dashboard embed is in development on Render — maths and HTML pages still apply.',
+      'Note dashboard embed is in development on Render — maths and Greenways pages still apply.',
       'For ops health questions only: summarise healthChecks; Verify selected is read-only.'
     ]
   }
@@ -526,7 +527,7 @@ async function finishKnowledgeAskResponse(agentKey, knowledge, question, profile
   const final = await maybePolishKnowledgeAnswer(agentKey, withMeaning, question, profile);
   const response = {
     ok: true,
-    answer: final.answer,
+    answer: sanitizeLeftColumnProse(final.answer),
     suggestions: final.suggestions || [],
     blocks: final.blocks || [],
     productSamples: final.productSamples || [],
@@ -551,7 +552,11 @@ async function buildAgentAskFallback(agentKey, question, profile = {}) {
   if (!builder) {
     throw new Error(`No LLM fallback builder for agent: ${agentKey}`);
   }
-  return builder(question, profile);
+  const result = await builder(question, profile);
+  if (result?.answer) {
+    result.answer = sanitizeLeftColumnProse(result.answer);
+  }
+  return result;
 }
 
 const { normalizeHandoffContext } = require('./greenways-agent-handoff');
