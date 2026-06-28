@@ -470,6 +470,86 @@
       border: 0;
       background: #0d0d0d;
     }
+    .map-mobile-teaser {
+      display: none;
+      flex: 1 1 auto;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 28px 20px 32px;
+      gap: 0;
+      background:
+        radial-gradient(ellipse 85% 70% at 50% 18%, rgba(34, 212, 255, 0.08) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 50% at 80% 80%, rgba(240, 160, 58, 0.07) 0%, transparent 50%),
+        #0d0d0d;
+      border-top: 1px solid rgba(34, 212, 255, 0.12);
+    }
+    .map-mobile-teaser-icon {
+      font-size: 2.25rem;
+      line-height: 1;
+      margin-bottom: 12px;
+      filter: drop-shadow(0 0 14px rgba(240, 160, 58, 0.4));
+    }
+    .map-mobile-teaser h3 {
+      margin: 0 0 10px;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .map-mobile-teaser-lead {
+      margin: 0 0 14px;
+      max-width: 22rem;
+      font-family: var(--font-clean);
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: var(--text-dim);
+    }
+    .map-mobile-teaser-meta {
+      margin: 0 0 18px;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+    .map-mobile-teaser-venue {
+      margin: 0 0 14px;
+      font-family: var(--font-clean);
+      font-size: 0.8rem;
+      color: #ffcc80;
+      max-width: 20rem;
+    }
+    .map-mobile-teaser-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: min(100%, 17rem);
+      padding: 14px 22px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(34, 212, 255, 0.85);
+      background: linear-gradient(180deg, rgba(34, 212, 255, 0.18) 0%, rgba(34, 212, 255, 0.06) 100%);
+      color: #ffe4a8;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      box-shadow: 0 0 20px rgba(34, 212, 255, 0.22), 0 8px 24px rgba(0, 0, 0, 0.35);
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    }
+    .map-mobile-teaser-btn:hover,
+    .map-mobile-teaser-btn:focus-visible {
+      border-color: #5ce8ff;
+      background: linear-gradient(180deg, rgba(34, 212, 255, 0.28) 0%, rgba(34, 212, 255, 0.1) 100%);
+      color: #fff;
+      transform: translateY(-1px);
+    }
     .hub-scroll-separator {
       display: none;
       flex-shrink: 0;
@@ -534,12 +614,12 @@
     }
     @media (max-width: 700px) {
       body {
-        overflow-x: auto;
+        overflow-x: hidden;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
       }
       .shell {
-        overflow-x: auto;
+        overflow-x: hidden;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         padding-top: max(16px, env(safe-area-inset-top, 12px));
@@ -558,20 +638,29 @@
         width: 100%;
         justify-content: flex-start;
       }
+      .hub-scroll-separator {
+        display: none !important;
+      }
       .map-toolbar {
         padding-top: 12px;
         padding-bottom: 10px;
       }
+      .map-toolbar-actions .map-toolbar-hint,
+      .map-toolbar-actions .map-full-link {
+        display: none;
+      }
+      .map-preview-badge {
+        display: none;
+      }
       .hub-map-section {
-        min-height: 520px;
-        height: max(var(--map-panel-h), 55vh);
+        height: auto;
+        min-height: 0;
       }
       .map-frame-wrap {
-        overflow: visible;
-        -webkit-overflow-scrolling: touch;
+        display: none !important;
       }
-      .map-frame-wrap iframe {
-        min-height: 480px;
+      .map-mobile-teaser {
+        display: flex;
       }
       .sidebar-note {
         color: var(--text);
@@ -649,8 +738,16 @@
           <a class="map-full-link" id="mapFullLink" href="/live-music/map?from=hub" target="_top" rel="noopener noreferrer">Open full map →</a>
         </div>
       </div>
-      <div class="map-frame-wrap">
-        <iframe id="mapFrame" title="Live jam map" src="./live-music-finder.html?embed=hub" loading="eager"></iframe>
+      <div class="map-frame-wrap" id="mapFrameWrap">
+        <iframe id="mapFrame" title="Live jam map" data-map-src="./live-music-finder.html?embed=hub" loading="lazy"></iframe>
+      </div>
+      <div class="map-mobile-teaser" id="mapMobileTeaser" aria-label="Open full jam map">
+        <div class="map-mobile-teaser-icon" aria-hidden="true">📍</div>
+        <h3>Live jam map</h3>
+        <p class="map-mobile-teaser-lead">Browse Amsterdam venues with photos, inquiries, and the music guide — the full map works best on mobile.</p>
+        <p class="map-mobile-teaser-meta" id="mapMobileVenueCount">Amsterdam venues · jams &amp; open mics</p>
+        <p class="map-mobile-teaser-venue" id="mapMobileVenueHint" hidden></p>
+        <a class="map-mobile-teaser-btn" id="mapMobileCta" href="/live-music/map?from=hub" target="_top" rel="noopener noreferrer">Open full map →</a>
       </div>
     </section>
 
@@ -712,9 +809,55 @@
     const btnOpenTab = document.getElementById('btnOpenTab');
     const mapHint = document.getElementById('mapHint');
     const mapFullLink = document.getElementById('mapFullLink');
+    const mapMobileCta = document.getElementById('mapMobileCta');
+    const mapMobileVenueHint = document.getElementById('mapMobileVenueHint');
+    const mapMobileVenueCount = document.getElementById('mapMobileVenueCount');
     const navTabs = document.getElementById('navTabs');
     const mobileTabs = document.getElementById('mobileTabs');
     const MAP_HINT_DEFAULT = 'Compact preview — open full map for venues, guide, photos & inquiries';
+    const MAP_EMBED_SRC = './live-music-finder.html?embed=hub';
+
+    function isHubMobileMap() {
+      return window.matchMedia('(max-width: 700px)').matches;
+    }
+
+    function syncMapCtaHref(venueId) {
+      const href = fullMapHref(venueId);
+      if (mapFullLink) mapFullLink.href = href;
+      if (mapMobileCta) mapMobileCta.href = href;
+    }
+
+    async function loadMobileVenueCount() {
+      if (!mapMobileVenueCount) return;
+      try {
+        const res = await fetch('/api/music-venues');
+        if (!res.ok) return;
+        const data = await res.json();
+        const items = Array.isArray(data.items)
+          ? data.items
+          : Array.isArray(data.venues)
+            ? data.venues
+            : Array.isArray(data)
+              ? data
+              : [];
+        const n = items.length;
+        if (n > 0) {
+          mapMobileVenueCount.textContent =
+            n + ' Amsterdam venue' + (n === 1 ? '' : 's') + ' · photos, inquiries & guide';
+        }
+      } catch (_) { /* keep default copy */ }
+    }
+
+    function initHubMapPanel() {
+      syncMapCtaHref();
+      if (isHubMobileMap()) {
+        if (mapFrame) mapFrame.removeAttribute('src');
+        loadMobileVenueCount();
+        return;
+      }
+      if (!mapFrame || mapFrame.getAttribute('src')) return;
+      mapFrame.src = hubAssetHref(mapFrame.getAttribute('data-map-src') || MAP_EMBED_SRC);
+    }
 
     function fullMapHref(venueId) {
       const params = new URLSearchParams();
@@ -741,7 +884,7 @@
       return './' + clean;
     }
 
-    if (mapFullLink) mapFullLink.href = fullMapHref();
+    if (mapFullLink) syncMapCtaHref();
 
     function tabById(id) {
       return TABS.find((t) => t.id === id) || TABS[0];
@@ -837,10 +980,25 @@
       const id = Number(venueId);
       if (!id || !Number.isFinite(id)) return;
 
+      syncMapCtaHref(id);
+
+      if (isHubMobileMap()) {
+        if (mapMobileVenueHint) {
+          if (venueName) {
+            mapMobileVenueHint.textContent = 'Selected: ' + venueName + ' — open the full map to view the pin.';
+            mapMobileVenueHint.hidden = false;
+          } else {
+            mapMobileVenueHint.textContent = '';
+            mapMobileVenueHint.hidden = true;
+          }
+        }
+        document.getElementById('mapSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        return;
+      }
+
       mapHint.textContent = venueName
         ? 'Preview · showing: ' + venueName
         : MAP_HINT_DEFAULT;
-      if (mapFullLink) mapFullLink.href = fullMapHref(id);
 
       document.getElementById('mapSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
@@ -949,13 +1107,16 @@
     }
 
     initHubScrollSeparator();
+    initHubMapPanel();
 
-    mapFrame.addEventListener('load', () => {
-      mapFrame.dataset.ready = '1';
-      if (pendingMapVenueId != null) {
-        postVenueToMap(pendingMapVenueId);
-      }
-    });
+    if (mapFrame) {
+      mapFrame.addEventListener('load', () => {
+        mapFrame.dataset.ready = '1';
+        if (pendingMapVenueId != null) {
+          postVenueToMap(pendingMapVenueId);
+        }
+      });
+    }
 
     window.addEventListener('message', (ev) => {
       const d = ev.data;
