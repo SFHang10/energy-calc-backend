@@ -183,17 +183,23 @@
     });
   }
 
+  function externalLinkTarget(url) {
+    return /^https?:\/\//i.test(String(url || "")) ? '_top' : '_blank';
+  }
+
   function linkTabletsHtml(items, escapeHtml) {
     if (!Array.isArray(items) || !items.length) return "";
     const tablets = items.map(function (item) {
       const title = escapeHtml(item.title || "Link");
-      const url = escapeHtml(String(item.url || "#"));
+      const rawUrl = String(item.url || item.href || "").trim();
+      const url = escapeHtml(rawUrl || "#");
       const desc = escapeHtml(String(item.description || "").slice(0, 180));
+      const target = externalLinkTarget(rawUrl);
       return (
         '<article class="link-tablet">' +
         '<h4 class="link-tablet-title">' + title + "</h4>" +
         (desc ? '<p class="link-tablet-desc">' + desc + "</p>" : "") +
-        '<a class="link-tablet-open" href="' + url + '" target="_blank" rel="noopener">Open ↗</a>' +
+        '<a class="link-tablet-open" href="' + url + '" target="' + target + '" rel="noopener noreferrer">Open ↗</a>' +
         "</article>"
       );
     }).join("");
@@ -284,7 +290,7 @@
         ? '<span class="scheme-tablet-deadline">Deadline ' + deadline + "</span>"
         : "";
       const linkHtml = url
-        ? '<a class="scheme-tablet-link" href="' + url + '" target="_blank" rel="noopener">Official site ↗</a>'
+        ? '<a class="scheme-tablet-link" href="' + url + '" target="_top" rel="noopener noreferrer">Official site ↗</a>'
         : "";
       return (
         '<article class="scheme-tablet">' +
