@@ -1,0 +1,656 @@
+
+<h2 class="sr-only">Water Saving Product Finder — discover water-efficient devices, appliances, and tips for home, restaurant, and office across Europe</h2>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.portal { padding: 1.5rem 0; font-family: var(--font-sans); }
+.header { margin-bottom: 1.5rem; }
+.header h1 { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.header p { font-size: 14px; color: var(--color-text-secondary); }
+
+.tabs { display: flex; gap: 0; margin-bottom: 1.25rem; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+.tab-btn {
+  flex: 1; padding: 10px 8px;
+  background: var(--color-background-primary);
+  border: none; border-right: 0.5px solid var(--color-border-tertiary);
+  color: var(--color-text-secondary);
+  font-size: 13px; font-family: var(--font-sans);
+  cursor: pointer; transition: all 0.12s;
+}
+.tab-btn:last-child { border-right: none; }
+.tab-btn.active { background: var(--color-background-secondary); color: var(--color-text-primary); font-weight: 500; }
+.tab-btn .icon { display: block; font-size: 16px; margin-bottom: 3px; }
+
+.card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.section-label {
+  font-size: 12px; font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.quick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin-bottom: 14px; }
+.quick-btn {
+  padding: 10px 6px;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  background: var(--color-background-primary);
+  color: var(--color-text-secondary);
+  font-size: 12px; font-family: var(--font-sans);
+  cursor: pointer; text-align: center; transition: all 0.12s;
+}
+.quick-btn:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+.quick-btn.chosen { background: var(--color-background-info); color: var(--color-text-info); border-color: var(--color-border-info); font-weight: 500; }
+.quick-btn .icon { font-size: 18px; display: block; margin-bottom: 4px; }
+
+.search-row { display: flex; gap: 10px; margin-bottom: 14px; }
+.search-row input {
+  flex: 1; height: 42px; padding: 0 14px;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+  font-size: 14px; font-family: var(--font-sans);
+}
+.search-btn {
+  height: 42px; padding: 0 20px;
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-primary);
+  border-radius: var(--border-radius-md);
+  color: var(--color-text-primary);
+  font-size: 14px; font-family: var(--font-sans); font-weight: 500;
+  cursor: pointer; white-space: nowrap;
+}
+.search-btn:hover { background: var(--color-background-secondary); }
+.search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-group label { display: block; font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+.form-group select, .form-group input {
+  width: 100%; height: 38px; padding: 0 10px;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+  font-size: 14px; font-family: var(--font-sans); appearance: none;
+}
+
+.pill-group { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+.pill {
+  padding: 5px 13px;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 99px; font-size: 13px;
+  color: var(--color-text-secondary);
+  background: var(--color-background-primary);
+  cursor: pointer; transition: all 0.12s;
+}
+.pill.active { background: var(--color-background-info); color: var(--color-text-info); border-color: var(--color-border-info); font-weight: 500; }
+
+.loading {
+  display: flex; align-items: center; gap: 10px;
+  padding: 1.5rem; color: var(--color-text-secondary); font-size: 14px;
+  background: var(--color-background-secondary);
+  border-radius: var(--border-radius-lg);
+  border: 0.5px solid var(--color-border-tertiary);
+}
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid var(--color-border-tertiary);
+  border-top-color: var(--color-text-secondary);
+  border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.info-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+.info-metric { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.75rem 1rem; }
+.info-metric .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.info-metric .value { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
+.info-metric .sub { font-size: 11px; color: var(--color-text-secondary); }
+
+.results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.results-header h2 { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+.results-header span { font-size: 12px; color: var(--color-text-secondary); }
+
+.response-text {
+  font-size: 14px; line-height: 1.75;
+  color: var(--color-text-primary);
+  background: var(--color-background-secondary);
+  border-radius: var(--border-radius-lg);
+  padding: 1.25rem;
+  border: 0.5px solid var(--color-border-tertiary);
+  white-space: pre-wrap;
+}
+
+.action-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.btn-action {
+  padding: 7px 14px;
+  border-radius: var(--border-radius-md);
+  font-size: 13px; font-family: var(--font-sans);
+  cursor: pointer;
+  border: 0.5px solid var(--color-border-secondary);
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+}
+.btn-action:hover { background: var(--color-background-secondary); }
+
+.error-box {
+  background: var(--color-background-danger);
+  color: var(--color-text-danger);
+  border: 0.5px solid var(--color-border-danger);
+  border-radius: var(--border-radius-md);
+  padding: 12px 16px; font-size: 14px;
+}
+
+.tips-panel { display: none; }
+.tips-panel.visible { display: block; }
+
+.tip-card {
+  background: var(--color-background-secondary);
+  border-radius: var(--border-radius-md);
+  padding: 1rem 1.25rem;
+  margin-bottom: 10px;
+  border-left: 3px solid var(--color-border-info);
+}
+.tip-card h3 { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.tip-card p { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+.tip-saving { font-size: 12px; color: var(--color-text-success); font-weight: 500; margin-top: 6px; }
+</style>
+
+<div class="portal">
+  <div class="header">
+    <h1>💧 Water saving finder</h1>
+    <p>Discover water-efficient products, devices, and tips for home, restaurant & office across Europe</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('products', this)"><span class="icon">🔍</span>Find products</button>
+    <button class="tab-btn" onclick="switchTab('tips', this)"><span class="icon">💡</span>Quick tips</button>
+    <button class="tab-btn" onclick="switchTab('calculator', this)"><span class="icon">🧮</span>Usage calculator</button>
+    <button class="tab-btn" onclick="switchTab('grants', this)"><span class="icon">💶</span>Grants & schemes</button>
+  </div>
+
+  <!-- PRODUCTS TAB -->
+  <div id="tab-products">
+    <div class="card">
+      <div class="section-label">Quick select category</div>
+      <div class="quick-grid" id="quickGrid">
+        <button class="quick-btn" onclick="pickProduct('Water-saving tap aerator / faucet aerator', this)"><span class="icon">🚰</span>Tap aerators</button>
+        <button class="quick-btn" onclick="pickProduct('Low-flow showerhead', this)"><span class="icon">🚿</span>Showerhead</button>
+        <button class="quick-btn" onclick="pickProduct('Dual-flush toilet system', this)"><span class="icon">🚽</span>Dual-flush toilet</button>
+        <button class="quick-btn" onclick="pickProduct('Smart water meter', this)"><span class="icon">📊</span>Water meter</button>
+        <button class="quick-btn" onclick="pickProduct('Rainwater harvesting system', this)"><span class="icon">🌧️</span>Rainwater harvest</button>
+        <button class="quick-btn" onclick="pickProduct('Water-efficient dishwasher', this)"><span class="icon">🍽️</span>Eco dishwasher</button>
+        <button class="quick-btn" onclick="pickProduct('Water-efficient washing machine', this)"><span class="icon">👕</span>Eco washing machine</button>
+        <button class="quick-btn" onclick="pickProduct('Leak detection sensor', this)"><span class="icon">🔔</span>Leak detector</button>
+        <button class="quick-btn" onclick="pickProduct('Commercial pre-rinse spray valve', this)"><span class="icon">🍴</span>Pre-rinse valve</button>
+        <button class="quick-btn" onclick="pickProduct('Touchless / sensor tap', this)"><span class="icon">✋</span>Sensor tap</button>
+        <button class="quick-btn" onclick="pickProduct('Greywater recycling system', this)"><span class="icon">♻️</span>Greywater system</button>
+        <button class="quick-btn" onclick="pickProduct('Commercial ice machine low water use', this)"><span class="icon">🧊</span>Eco ice machine</button>
+        <button class="quick-btn" onclick="pickProduct('Water pressure regulator', this)"><span class="icon">⚙️</span>Pressure regulator</button>
+        <button class="quick-btn" onclick="pickProduct('Smart irrigation controller', this)"><span class="icon">🌿</span>Smart irrigation</button>
+      </div>
+
+      <div class="section-label">Or describe what you're looking for</div>
+      <div class="search-row">
+        <input type="text" id="productInput" placeholder="e.g. water-saving taps for restaurant kitchen, eco boiler, low-water dishwasher..." />
+        <button class="search-btn" id="searchBtn" onclick="searchProducts()">Search ↗</button>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Setting</label>
+          <select id="settingType">
+            <option value="restaurant or café">Restaurant / café</option>
+            <option value="home">Home / household</option>
+            <option value="office">Office</option>
+            <option value="hotel">Hotel</option>
+            <option value="any building type">Any</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Country</label>
+          <select id="countrySelect">
+            <option value="Netherlands">Netherlands</option>
+            <option value="Germany">Germany</option>
+            <option value="Belgium">Belgium</option>
+            <option value="United Kingdom">United Kingdom</option>
+            <option value="France">France</option>
+            <option value="Spain">Spain</option>
+            <option value="Italy">Italy</option>
+            <option value="Portugal">Portugal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Budget</label>
+          <select id="budgetSelect">
+            <option value="any budget">No limit</option>
+            <option value="under €50">Under €50</option>
+            <option value="under €200">Under €200</option>
+            <option value="under €500">Under €500</option>
+            <option value="under €2,000">Under €2,000</option>
+            <option value="under €10,000">Under €10,000</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-label">Focus areas</div>
+      <div class="pill-group">
+        <div class="pill active" onclick="togglePill(this)">Show current deals & prices</div>
+        <div class="pill active" onclick="togglePill(this)">Water litres saved per year</div>
+        <div class="pill" onclick="togglePill(this)">Certified / water label rated</div>
+        <div class="pill" onclick="togglePill(this)">Easy DIY install</div>
+        <div class="pill" onclick="togglePill(this)">Commercial / professional grade</div>
+        <div class="pill" onclick="togglePill(this)">Smart / connected devices</div>
+        <div class="pill" onclick="togglePill(this)">Payback period estimate</div>
+      </div>
+    </div>
+
+    <div id="resultsArea"></div>
+  </div>
+
+  <!-- TIPS TAB -->
+  <div id="tab-tips" class="tips-panel">
+    <div class="card">
+      <div class="section-label">Get personalised water saving tips</div>
+      <div class="form-row" style="margin-bottom:12px;">
+        <div class="form-group">
+          <label>Building type</label>
+          <select id="tipsSetting">
+            <option value="restaurant">Restaurant / café</option>
+            <option value="home">Home</option>
+            <option value="office">Office</option>
+            <option value="hotel">Hotel</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>No. of people / covers</label>
+          <select id="tipsSize">
+            <option value="1-2 people">1–2 people</option>
+            <option value="3-5 people">3–5 people</option>
+            <option value="under 20 covers">Under 20 covers</option>
+            <option value="20-50 covers">20–50 covers</option>
+            <option value="50-100 covers">50–100 covers</option>
+            <option value="100+ covers">100+ covers</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Country</label>
+          <select id="tipsCountry">
+            <option value="Netherlands">Netherlands</option>
+            <option value="Germany">Germany</option>
+            <option value="Belgium">Belgium</option>
+            <option value="United Kingdom">UK</option>
+            <option value="France">France</option>
+            <option value="Spain">Spain</option>
+          </select>
+        </div>
+      </div>
+      <button class="search-btn" style="width:100%;" id="tipsBtn" onclick="getTips()">Get water saving tips ↗</button>
+    </div>
+    <div id="tipsResults"></div>
+  </div>
+
+  <!-- CALCULATOR TAB -->
+  <div id="tab-calculator" class="tips-panel">
+    <div class="card">
+      <div class="section-label">Estimate your water usage & potential savings</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Building type</label>
+          <select id="calcSetting">
+            <option value="restaurant">Restaurant</option>
+            <option value="home">Home</option>
+            <option value="office">Office</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>People / covers per day</label>
+          <input type="number" id="calcPeople" value="30" min="1" />
+        </div>
+        <div class="form-group">
+          <label>Country</label>
+          <select id="calcCountry">
+            <option value="Netherlands">Netherlands</option>
+            <option value="Germany">Germany</option>
+            <option value="Belgium">Belgium</option>
+            <option value="United Kingdom">UK</option>
+            <option value="France">France</option>
+            <option value="Spain">Spain</option>
+          </select>
+        </div>
+      </div>
+      <button class="search-btn" style="width:100%;" id="calcBtn" onclick="getCalculation()">Calculate savings ↗</button>
+    </div>
+    <div id="calcResults"></div>
+  </div>
+
+  <!-- GRANTS TAB -->
+  <div id="tab-grants" class="tips-panel">
+    <div class="card">
+      <div class="section-label">Find water saving grants & subsidies in your country</div>
+      <div class="form-row" style="margin-bottom:12px;">
+        <div class="form-group">
+          <label>Country</label>
+          <select id="grantsCountry">
+            <option value="Netherlands">Netherlands</option>
+            <option value="Germany">Germany</option>
+            <option value="Belgium">Belgium</option>
+            <option value="United Kingdom">United Kingdom</option>
+            <option value="France">France</option>
+            <option value="Spain">Spain</option>
+            <option value="Italy">Italy</option>
+            <option value="Portugal">Portugal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Applicant type</label>
+          <select id="grantsType">
+            <option value="restaurant or food business">Restaurant / food business</option>
+            <option value="homeowner">Homeowner</option>
+            <option value="business or office">Business / office</option>
+            <option value="hotel">Hotel / hospitality</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Postcode (optional)</label>
+          <input type="text" id="grantsPostcode" placeholder="e.g. 1755 AJ" />
+        </div>
+      </div>
+      <button class="search-btn" style="width:100%;" id="grantsBtn" onclick="getGrants()">Search grants ↗</button>
+    </div>
+    <div id="grantsResults"></div>
+  </div>
+
+</div>
+
+<script src="./js/greenways-module-llm-client.js"></script>
+<script>
+let activeTab = 'products';
+
+function switchTab(tab, el) {
+  activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  ['products','tips','calculator','grants'].forEach(t => {
+    const el2 = document.getElementById('tab-' + t);
+    if (el2) el2.style.display = t === tab ? 'block' : 'none';
+  });
+}
+
+document.getElementById('tab-tips').style.display = 'none';
+document.getElementById('tab-calculator').style.display = 'none';
+document.getElementById('tab-grants').style.display = 'none';
+
+function pickProduct(name, el) {
+  document.getElementById('productInput').value = name;
+  document.querySelectorAll('.quick-btn').forEach(b => b.classList.remove('chosen'));
+  el.classList.add('chosen');
+}
+
+function togglePill(el) { el.classList.toggle('active'); }
+
+function getActivePills() {
+  return Array.from(document.querySelectorAll('.pill.active')).map(p => p.textContent).join(', ');
+}
+
+async function callClaude(prompt, meta, loadingEl) {
+  if (loadingEl) {
+    loadingEl.innerHTML = `<div class="loading"><div class="spinner"></div> Searching for water saving information...</div>`;
+  }
+  try {
+    if (!window.GreenwaysModuleLlm) throw new Error('Module LLM client failed to load.');
+    const tab = (meta && meta.tab) || activeTab || 'products';
+    return await GreenwaysModuleLlm.askWaterFinder(prompt, Object.assign({ tab: tab }, meta || {}));
+  } catch (err) {
+    if (loadingEl) {
+      loadingEl.innerHTML = `<div class="error-box">Search error: ${err.message}. Please try again.</div>`;
+    }
+    return null;
+  }
+}
+
+async function sendPrompt(question) {
+  const area = document.getElementById('resultsArea') || document.getElementById('tipsResults') || document.getElementById('calcResults') || document.getElementById('grantsResults');
+  if (!area) return;
+  area.innerHTML = `<div class="loading"><div class="spinner"></div> ${question.substring(0, 72)}…</div>`;
+  const country = document.getElementById('countrySelect')?.value || document.getElementById('tipsCountry')?.value || document.getElementById('calcCountry')?.value || document.getElementById('grantsCountry')?.value || 'Netherlands';
+  const result = await callClaude(question, { tab: activeTab, country: country, followUp: true }, area);
+  if (!result) return;
+  area.innerHTML = `<div class="results-header"><h2>↳ Follow-up</h2></div><div class="response-text">${result}</div>`;
+}
+
+async function searchProducts() {
+  const product = document.getElementById('productInput').value.trim();
+  if (!product) { document.getElementById('productInput').focus(); return; }
+  const setting = document.getElementById('settingType').value;
+  const country = document.getElementById('countrySelect').value;
+  const budget = document.getElementById('budgetSelect').value;
+  const focus = getActivePills();
+  const btn = document.getElementById('searchBtn');
+  const area = document.getElementById('resultsArea');
+  btn.disabled = true; btn.textContent = 'Searching...';
+  area.innerHTML = `<div class="loading"><div class="spinner"></div> Searching for water-saving "${product}" products in ${country}...</div>`;
+
+  const prompt = `You are a water efficiency and sustainability expert. Search the web for the best water-saving products matching: "${product}" for ${setting} use in ${country}.
+
+Budget: ${budget}
+Focus areas requested: ${focus}
+
+Please provide:
+
+1. TOP 4-5 PRODUCT RECOMMENDATIONS with for each:
+   - Product name, brand, model number
+   - How much water it saves (litres per day/year vs standard product)
+   - Current price in ${country} (€ or £ incl. VAT)
+   - Where to buy it (retailer name, e.g. Coolblue, Bol.com, Amazon, Toolstation, etc.)
+   - Any current deals, discounts or promotions
+   - Water efficiency certification if any (WRAS, Water Label, WELL, etc.)
+   - Installation difficulty (DIY or professional needed?)
+
+2. WATER & COST SAVINGS: Estimate annual water litres saved and annual cost saving (€/£) vs standard product. Use typical ${country} water tariffs.
+
+3. PAYBACK PERIOD: How quickly does each product pay for itself through water savings?
+
+4. BEST PICK: Which single product gives the best combination of price and water saving for a ${setting}?
+
+5. PRO TIP: One expert tip for maximising water savings in a ${setting} that most people miss.
+
+Search for current 2026 pricing and availability. Be specific with real product names, brands, and retailers.`;
+
+  const now = new Date().toLocaleDateString('en-GB', {month:'short', year:'numeric'});
+  const result = await callClaude(prompt, { tab: 'products', country, setting, budget, focus }, area);
+  if (!result) { btn.disabled = false; btn.textContent = 'Search ↗'; return; }
+
+  area.innerHTML = `
+    <div class="info-strip">
+      <div class="info-metric">
+        <div class="label">Searching for</div>
+        <div class="value" style="font-size:13px;margin-top:2px;">${product}</div>
+        <div class="sub">${setting}</div>
+      </div>
+      <div class="info-metric">
+        <div class="label">Market</div>
+        <div class="value" style="font-size:14px;margin-top:2px;">${country}</div>
+        <div class="sub">Budget: ${budget}</div>
+      </div>
+      <div class="info-metric">
+        <div class="label">Search date</div>
+        <div class="value" style="font-size:14px;margin-top:2px;">${now}</div>
+        <div class="sub">Live web search</div>
+      </div>
+    </div>
+    <div class="results-header">
+      <h2>💧 Water-saving products — ${product}</h2>
+      <span>${country} · ${setting}</span>
+    </div>
+    <div class="response-text">${result}</div>
+    <div class="action-btns">
+      <button class="btn-action" onclick="sendPrompt('What grants or subsidies are available in ${country} for water saving products for a ${setting} in 2026?')">Grants & subsidies ↗</button>
+      <button class="btn-action" onclick="sendPrompt('What are the best smart or connected water monitoring devices available in ${country} for a ${setting}?')">Smart water monitors ↗</button>
+      <button class="btn-action" onclick="sendPrompt('What are the top 5 no-cost or low-cost water saving habits and changes for a ${setting} that save the most water?')">Free saving tips ↗</button>
+      <button class="btn-action" onclick="sendPrompt('Are there any refurbished or second-hand water saving devices available in ${country} for a ${setting}?')">Refurbished options ↗</button>
+    </div>`;
+  btn.disabled = false; btn.textContent = 'Search ↗';
+}
+
+async function getTips() {
+  const setting = document.getElementById('tipsSetting').value;
+  const size = document.getElementById('tipsSize').value;
+  const country = document.getElementById('tipsCountry').value;
+  const btn = document.getElementById('tipsBtn');
+  const area = document.getElementById('tipsResults');
+  btn.disabled = true; btn.textContent = 'Loading...';
+  area.innerHTML = `<div class="loading"><div class="spinner"></div> Finding water saving tips for your ${setting}...</div>`;
+
+  const prompt = `You are a water efficiency expert. Provide a comprehensive, practical water saving guide for a ${setting} with ${size} in ${country} in 2026.
+
+Structure your response as:
+
+🚿 QUICK WINS (free or under €50, do today):
+List 5 immediate changes with estimated water/cost savings each.
+
+🔧 PRODUCT UPGRADES (€50–€500):
+List 5 recommended product upgrades with water savings, cost, and where to buy in ${country}.
+
+🏗️ BIGGER INVESTMENTS (€500+):
+List 3 larger investments with ROI and payback period.
+
+📊 BENCHMARK:
+What is the average water usage per day for a ${setting} with ${size} in ${country}? What is considered "water efficient"?
+
+💶 COST OF WATER:
+What is the average water cost per m³ in ${country} currently? What could this ${setting} save per year?
+
+🏆 TOP SINGLE TIP:
+The single most impactful water saving action for a ${setting} in ${country}.
+
+Use current 2026 data and be specific to ${country} context.`;
+
+  const result = await callClaude(prompt, { tab: 'tips', country, setting, size }, area);
+  if (!result) { btn.disabled = false; btn.textContent = 'Get water saving tips ↗'; return; }
+
+  area.innerHTML = `
+    <div class="results-header" style="margin-top:4px;">
+      <h2>💧 Water saving guide — ${setting}</h2>
+      <span>${country} · ${size}</span>
+    </div>
+    <div class="response-text">${result}</div>
+    <div class="action-btns" style="margin-top:12px;">
+      <button class="btn-action" onclick="sendPrompt('What specific water saving products should I buy first for a ${setting} with ${size} in ${country} on a tight budget?')">Budget products ↗</button>
+      <button class="btn-action" onclick="sendPrompt('What water saving certifications or audits are available for a ${setting} in ${country}?')">Certifications ↗</button>
+    </div>`;
+  btn.disabled = false; btn.textContent = 'Get water saving tips ↗';
+}
+
+async function getCalculation() {
+  const setting = document.getElementById('calcSetting').value;
+  const people = document.getElementById('calcPeople').value;
+  const country = document.getElementById('calcCountry').value;
+  const btn = document.getElementById('calcBtn');
+  const area = document.getElementById('calcResults');
+  btn.disabled = true; btn.textContent = 'Calculating...';
+  area.innerHTML = `<div class="loading"><div class="spinner"></div> Calculating water usage for your ${setting}...</div>`;
+
+  const prompt = `You are a water efficiency consultant. Calculate detailed water usage and savings potential for a ${setting} with ${people} people/covers per day in ${country} in 2026.
+
+Provide:
+
+📊 CURRENT ESTIMATED USAGE:
+Break down daily and annual water usage by activity (cooking, cleaning, toilets, washing etc.) for this ${setting} with ${people} people/covers. Give litres per day total.
+
+💰 CURRENT WATER COST:
+Using current ${country} water tariffs (€/m³), calculate current annual water bill.
+
+✅ WITH WATER-SAVING MEASURES:
+Show new usage and cost after implementing:
+- Low-flow taps and aerators
+- Efficient dishwasher/equipment
+- Dual flush toilets
+- Staff behaviour changes
+
+📉 SAVINGS SUMMARY:
+- Litres saved per day
+- Litres saved per year
+- € saved per year
+- % reduction achieved
+
+🎯 PRIORITY ACTIONS:
+Top 3 actions ranked by water saving potential with estimated cost of each upgrade.
+
+Be specific with real ${country} water price data for 2026.`;
+
+  const result = await callClaude(prompt, { tab: 'calculator', country, setting, people }, area);
+  if (!result) { btn.disabled = false; btn.textContent = 'Calculate savings ↗'; return; }
+
+  area.innerHTML = `
+    <div class="results-header" style="margin-top:4px;">
+      <h2>🧮 Water usage calculator — ${setting}</h2>
+      <span>${country} · ${people} people/covers/day</span>
+    </div>
+    <div class="response-text">${result}</div>
+    <div class="action-btns" style="margin-top:12px;">
+      <button class="btn-action" onclick="sendPrompt('Show me exactly which products to buy to achieve maximum water reduction for a ${setting} with ${people} people in ${country}, with prices and links.')">Find the products ↗</button>
+    </div>`;
+  btn.disabled = false; btn.textContent = 'Calculate savings ↗';
+}
+
+async function getGrants() {
+  const country = document.getElementById('grantsCountry').value;
+  const type = document.getElementById('grantsType').value;
+  const postcode = document.getElementById('grantsPostcode').value.trim();
+  const btn = document.getElementById('grantsBtn');
+  const area = document.getElementById('grantsResults');
+  btn.disabled = true; btn.textContent = 'Searching...';
+  area.innerHTML = `<div class="loading"><div class="spinner"></div> Searching for water saving grants in ${country}...</div>`;
+
+  const prompt = `You are a European sustainability grants expert. Search for all available water saving grants, subsidies, and schemes for a ${type} in ${country}${postcode ? ' (postcode: ' + postcode + ')' : ''} in 2026.
+
+Please find and list:
+
+🏛️ NATIONAL GOVERNMENT SCHEMES:
+Any national grants, tax credits, or subsidies for water saving equipment or rainwater harvesting.
+
+🏘️ REGIONAL / MUNICIPAL SCHEMES:
+Any local or regional water saving incentive programmes${postcode ? ' near ' + postcode : ''}.
+
+🏦 UTILITY COMPANY SCHEMES:
+Any water company rebates or free water-saving device programmes in ${country}.
+
+🌍 EU FUNDING:
+Any relevant EU funds (LIFE programme, cohesion funds, etc.) applicable to water saving for a ${type}.
+
+💼 BUSINESS-SPECIFIC SCHEMES (if applicable):
+Any schemes specifically for ${type}s, including sector grants.
+
+📋 HOW TO APPLY:
+For each scheme: eligibility criteria, how to apply, maximum grant amount, and application deadline.
+
+Search for current 2026 information. Be specific with scheme names, amounts, and application links.`;
+
+  const result = await callClaude(prompt, { tab: 'grants', country, applicant: type, postcode }, area);
+  if (!result) { btn.disabled = false; btn.textContent = 'Search grants ↗'; return; }
+
+  area.innerHTML = `
+    <div class="results-header" style="margin-top:4px;">
+      <h2>💶 Water saving grants — ${country}</h2>
+      <span>${type}${postcode ? ' · ' + postcode : ''}</span>
+    </div>
+    <div class="response-text">${result}</div>
+    <div class="action-btns" style="margin-top:12px;">
+      <button class="btn-action" onclick="sendPrompt('What water saving products qualify for grants in ${country} for a ${type} in 2026? Give product names and which grant covers each.')">Qualifying products ↗</button>
+      <button class="btn-action" onclick="sendPrompt('Are there any energy AND water saving combined grant schemes in ${country} for a ${type}?')">Combined energy + water grants ↗</button>
+    </div>`;
+  btn.disabled = false; btn.textContent = 'Search grants ↗';
+}
+
+document.getElementById('productInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') searchProducts();
+});
+</script>

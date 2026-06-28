@@ -896,9 +896,10 @@
     <div id="compareResults"></div>
   </div>
 
-  <p class="powered-by">Powered by AI live web search · Information is for guidance only — always verify with lenders, grant bodies, and financial advisers · © Greenways Market</p>
+  <p class="powered-by">Powered by Greenways server LLM (same keys as Vincent) · Information is for guidance only — always verify with lenders, grant bodies, and financial advisers · © Greenways Market</p>
 </main>
 
+<script src="./js/greenways-module-llm-client.js"></script>
 <script>
 // ── TAB SWITCHING ─────────────────────────────────────────────────
 function switchTab(tab, el) {
@@ -942,23 +943,14 @@ function nowLabel() {
   return new Date().toLocaleDateString('en-GB', {month:'short', year:'numeric'});
 }
 
-// ── CLAUDE API ────────────────────────────────────────────────────
-async function askClaude(prompt) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1500,
-      tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-      messages: [{ role: 'user', content: prompt }]
-    })
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error?.message || 'API error');
-  const text = data.content.filter(b => b.type === 'text').map(b => b.text).join('\n\n').trim();
-  if (!text) throw new Error('No results returned');
-  return text;
+// ── GREENWAYS MODULE LLM (server-side — same stack as Vincent) ───
+async function askClaude(prompt, meta) {
+  if (!window.GreenwaysModuleLlm) {
+    throw new Error('Module LLM client failed to load.');
+  }
+  const activeTab = document.querySelector('.tab-pane.active');
+  const tab = (meta && meta.tab) || (activeTab && activeTab.id ? activeTab.id.replace('tab-', '') : 'grants');
+  return GreenwaysModuleLlm.askFinanceFinder(prompt, Object.assign({ tab: tab }, meta || {}));
 }
 
 // ── RENDER RESULT ─────────────────────────────────────────────────
@@ -1025,7 +1017,7 @@ Which single scheme gives the most financial benefit for a ${bizType} wanting to
 Search for real, current 2026 schemes. Be specific with exact amounts, scheme names, and how to apply.`;
 
   try {
-    const result = await askClaude(prompt);
+    const result = await askClaude(prompt, { tab: 'grants', country: country, businessType: bizType, postcode: postcode, pills: pills });
     renderResult('grantsResults', q, country + ' · ' + bizType, result, [
       { q: 'What specific documents do I need to apply for sustainability grants for a ' + bizType + ' in ' + country + ' in 2026?', label: 'Application checklist ↗' },
       { q: 'Are there any buy now pay later or low-interest loan schemes to combine with grants for a ' + bizType + ' in ' + country + '?', label: 'Combine with finance ↗' },
@@ -1080,7 +1072,7 @@ Which single option gives a restaurant owner in ${country} the best deal for ${q
 Search for current 2026 providers and rates. Be specific.`;
 
   try {
-    const result = await askClaude(prompt);
+    const result = await askClaude(prompt, { tab: 'bnpl', country: country, value: value, term: term, pills: pills });
     renderResult('bnplResults', q, country + ' · ' + value + ' · ' + term, result, [
       { q: 'Are there any grants or subsidies I can combine with a BNPL or lease scheme for restaurant equipment in ' + country + '?', label: 'Stack with grants ↗' },
       { q: 'What credit score or financial requirements do restaurants typically need for BNPL equipment finance in ' + country + '?', label: 'Eligibility requirements ↗' },
@@ -1134,7 +1126,7 @@ Combining grants + tax savings + energy savings: what is the true net cost of re
 Use real 2026 data. Be specific and numerical.`;
 
   try {
-    const result = await askClaude(prompt);
+    const result = await askClaude(prompt, { tab: 'equipment', country: country, age: age, budget: budget, pills: pills });
     renderResult('equipResults', q, country + ' · Equipment aged ' + age, result, [
       { q: 'What finance options exist to spread the cost of replacing ' + q + ' for a restaurant in ' + country + '?', label: 'Finance options ↗' },
       { q: 'Which suppliers of ' + q + ' in ' + country + ' offer the best trade-in or part-exchange deals in 2026?', label: 'Trade-in deals ↗' },
@@ -1189,7 +1181,7 @@ The single best loan product available to a restaurant in ${country} needing ${a
 Search for real current lenders and 2026 interest rates. Be specific.`;
 
   try {
-    const result = await askClaude(prompt);
+    const result = await askClaude(prompt, { tab: 'loans', country: country, amount: amount, term: term, pills: pills });
     renderResult('loansResults', q, country + ' · ' + amount + ' · ' + term, result, [
       { q: 'Can I combine a green loan with a government grant in ' + country + ' for a restaurant? How does stacking finance work?', label: 'Stack loan + grant ↗' },
       { q: 'What is Qredits and how does it work for Dutch restaurant owners in 2026?', label: 'About Qredits ↗' },
@@ -1241,7 +1233,7 @@ Official websites, application portals, and contacts for each scheme.
 Search for real 2026 information. Include actual scheme names, amounts, and application links where possible.`;
 
   try {
-    const result = await askClaude(prompt);
+    const result = await askClaude(prompt, { tab: 'compare', country: country, compareType: type, sector: sector });
     renderResult('compareResults', q, country + ' · ' + type, result, [
       { q: 'Which European country currently has the most generous green restaurant grants in 2026 and why?', label: 'Best country for grants ↗' },
       { q: 'How can a restaurant in the Netherlands access EU Horizon or LIFE programme funding in 2026?', label: 'EU funding routes ↗' },
@@ -1259,7 +1251,9 @@ async function followUp(question, targetId) {
   div.innerHTML = loadingHTML('Searching: ' + question.substring(0,60) + '…');
   area.appendChild(div);
   try {
-    const result = await askClaude(question + '\n\nSearch the web for current 2026 information. Be specific, practical, and include real scheme names, amounts, and application details.');
+    const activeTab = document.querySelector('.tab-pane.active');
+    const tab = activeTab && activeTab.id ? activeTab.id.replace('tab-', '') : 'grants';
+    const result = await askClaude(question + '\n\nUse current 2026 information. Be specific, practical, and include real scheme names, amounts, and application details.', { tab: tab, followUp: true });
     div.innerHTML =
       '<div class="results-header"><h2>↳ ' + escHtml(question.substring(0,65)) + (question.length > 65 ? '…' : '') + '</h2></div>' +
       '<div class="response-box">' + escHtml(result) + '</div>';

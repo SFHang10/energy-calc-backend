@@ -386,6 +386,7 @@
             </div>
           </div>
           <button type="button" class="btn-wide" id="tipsBtn" onclick="getTips()">Load practical tips</button>
+          <button type="button" class="btn-wide" style="margin-top:10px" onclick="getAiTips()">Get AI water guide</button>
         </div>
         <div id="tipsResults"></div>
       </div>
@@ -417,6 +418,7 @@
             </div>
           </div>
           <button type="button" class="btn-wide" id="calcBtn" onclick="getCalculation()">Calculate</button>
+          <button type="button" class="btn-wide" style="margin-top:10px" onclick="getAiCalculation()">Get AI usage analysis</button>
         </div>
         <div id="calcResults"></div>
       </div>
@@ -453,6 +455,7 @@
             </div>
           </div>
           <button type="button" class="btn-wide" id="grantsBtn" onclick="getGrants()">Load scheme cards</button>
+          <button type="button" class="btn-wide" style="margin-top:10px" onclick="getAiGrants()">AI grant search</button>
         </div>
         <div id="grantsResults"></div>
       </div>
@@ -461,6 +464,7 @@
     </main>
   </div>
 
+  <script src="./js/greenways-module-llm-client.js"></script>
   <script>
     const PLACEHOLDER_M = './Product%20Comparison/Restuarants/Oven/Refrigerator/ETL.jpeg';
     const PLACEHOLDER_E = './Product%20Comparison/Restuarants/Oven/Refrigerator/Stanadard.webp';
@@ -725,7 +729,37 @@
           html += '</ul></div>';
         }
 
+        html += '<div id="waterAiSummaryMount"><div class="loading"><div class="spinner"></div> Generating AI pack summary…</div></div>';
+
         area.innerHTML = html;
+
+        if (window.GreenwaysModuleLlm) {
+          GreenwaysModuleLlm.summarizeWaterFinderPack({
+            product,
+            setting,
+            country,
+            budget,
+            focus,
+            marketplaceMatches: mp,
+            externalAlternatives: ext,
+            waterDeals,
+            schemes: []
+          })
+            .then((summary) => {
+              const mount = document.getElementById('waterAiSummaryMount');
+              if (!mount) return;
+              mount.innerHTML =
+                '<div class="col-head"><h2>AI pack summary</h2><p>Grounded on marketplace, archetypes, and deal cards — same LLM stack as Zyanne.</p></div>' +
+                '<div class="card" style="margin-top:0;white-space:pre-wrap;line-height:1.55">' + esc(summary) + '</div>';
+            })
+            .catch((err) => {
+              const mount = document.getElementById('waterAiSummaryMount');
+              if (mount) mount.innerHTML = '<div class="note">AI summary unavailable: ' + esc(err.message || 'error') + '</div>';
+            });
+        } else {
+          const mount = document.getElementById('waterAiSummaryMount');
+          if (mount) mount.innerHTML = '';
+        }
       } catch (e) {
         area.innerHTML = '<div class="error-box">' + esc(e.message || 'Error') + '. Use the backend origin so APIs resolve.</div>';
       }
@@ -890,6 +924,53 @@
       }
       btn.disabled = false;
       btn.textContent = 'Load scheme cards';
+    }
+
+    async function askWaterModule(prompt, tab, meta, area) {
+      if (!window.GreenwaysModuleLlm) {
+        area.innerHTML = '<div class="error-box">Module LLM client failed to load.</div>';
+        return;
+      }
+      area.innerHTML = '<div class="loading"><div class="spinner"></div> Asking Zyanne…</div>';
+      try {
+        const answer = await GreenwaysModuleLlm.askWaterFinder(prompt, Object.assign({ tab: tab }, meta || {}));
+        area.innerHTML =
+          '<div class="col-head"><h2>AI answer</h2><p>Server LLM · verify on official links.</p></div>' +
+          '<div class="card" style="white-space:pre-wrap;line-height:1.55">' + esc(answer) + '</div>';
+      } catch (e) {
+        area.innerHTML = '<div class="error-box">' + esc(e.message || 'AI ask failed') + '</div>';
+      }
+    }
+
+    function getAiTips() {
+      const setting = document.getElementById('tipsSetting').value;
+      const size = document.getElementById('tipsSize').value;
+      const country = document.getElementById('tipsCountry').value;
+      const area = document.getElementById('tipsResults');
+      const prompt =
+        'Provide a practical water saving guide for a ' + setting + ' with ' + size + ' scale in ' + country + ' in 2026. Include quick wins, product upgrades, benchmarks, and top single tip.';
+      askWaterModule(prompt, 'tips', { country, setting, size }, area);
+    }
+
+    function getAiCalculation() {
+      const setting = document.getElementById('calcSetting').value;
+      const people = document.getElementById('calcPeople').value;
+      const country = document.getElementById('calcCountry').value;
+      const area = document.getElementById('calcResults');
+      const prompt =
+        'Calculate detailed water usage and savings for a ' + setting + ' with ' + people + ' people/covers per day in ' + country + ' in 2026. Include current usage, cost, savings with measures, and priority actions.';
+      askWaterModule(prompt, 'calculator', { country, setting, people }, area);
+    }
+
+    function getAiGrants() {
+      const country = document.getElementById('grantsCountry').value;
+      const applicant = document.getElementById('grantsType').value;
+      const postcode = document.getElementById('grantsPostcode').value.trim();
+      const area = document.getElementById('grantsResults');
+      const prompt =
+        'Search for water saving grants, subsidies, and utility schemes for a ' + applicant + ' in ' + country +
+        (postcode ? ' near ' + postcode : '') + ' in 2026. List national, regional, utility, and EU options with how to apply.';
+      askWaterModule(prompt, 'grants', { country, applicant, postcode }, area);
     }
 
     document.getElementById('productInput').addEventListener('keydown', (e) => {

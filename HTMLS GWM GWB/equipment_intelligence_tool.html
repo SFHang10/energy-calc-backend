@@ -367,7 +367,20 @@
           <a class="btn" id="wokIntelDeepLink" href="./restaurant-equipment-deep-dive.html?site=wok-to-walk" style="text-decoration:none;border:1px solid rgba(95,180,255,.65);background:rgba(95,180,255,.12);color:#cfe9ff">Deep dive + alternatives</a>
         </div>
       </div>
-      <div class="small" style="margin-top: 8px;">Module endpoints: <code>/api/equipment-intelligence/search</code> and <code>/api/equipment-intelligence/compare</code></div>
+      <div class="small" style="margin-top: 8px;">Module endpoints: <code>/api/equipment-intelligence/search</code>, <code>/api/equipment-intelligence/compare</code>, and <code>/api/greenways-module/equipment-intelligence/ask</code> (natural language)</div>
+    </div>
+
+    <div class="card tool-panel" id="nl-ask-panel">
+      <div class="title">Ask in plain English</div>
+      <div class="subtitle">Uses the same server LLM as Artemis — extracts equipment fields, runs benchmark search, and summarizes results.</div>
+      <div class="field" style="margin-top:10px">
+        <label for="nl-question">Question</label>
+        <input id="nl-question" placeholder="e.g. How efficient is a Hobart AM15 dishwasher vs benchmark?" />
+      </div>
+      <div class="actions">
+        <button class="btn primary" type="button" id="nl-ask-btn">Ask AI</button>
+      </div>
+      <div id="nl-ask-result" class="small" style="margin-top:12px;display:none"></div>
     </div>
 
     <div class="card results-panel hidden" id="results-card">
@@ -375,6 +388,7 @@
     </div>
   </div>
 
+  <script src="./js/greenways-module-llm-client.js"></script>
   <script>
     const byId = (id) => document.getElementById(id);
     const resultsCard = byId('results-card');
@@ -910,6 +924,50 @@
     }
 
     loadWokIntelPanel();
+
+    async function runNlAsk() {
+      const question = (byId('nl-question').value || '').trim();
+      const out = byId('nl-ask-result');
+      const btn = byId('nl-ask-btn');
+      if (!question) {
+        byId('nl-question').focus();
+        return;
+      }
+      if (!window.GreenwaysModuleLlm) {
+        out.style.display = 'block';
+        out.textContent = 'Module LLM client failed to load.';
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = 'Thinking…';
+      out.style.display = 'block';
+      out.innerHTML = 'Running AI search…';
+      try {
+        const data = await GreenwaysModuleLlm.askEquipmentIntelligence(question);
+        const p = data.extractedParams || {};
+        if (p.name) byId('eq-name').value = p.name;
+        if (p.brand) byId('eq-brand').value = p.brand;
+        if (p.model) byId('eq-model').value = p.model;
+        if (p.type) byId('eq-type').value = p.type;
+        out.innerHTML = '<div style="margin-bottom:8px;font-weight:600;color:#7ec8ff">AI summary</div><div style="white-space:pre-wrap;line-height:1.5">' +
+          (data.summary || '').replace(/</g, '&lt;') + '</div>';
+        if (data.searchResult && data.searchResult.found) {
+          renderResult(data.searchResult);
+        } else if (data.searchResult && !data.searchResult.found) {
+          renderNotFound(data.searchResult);
+        }
+      } catch (err) {
+        out.textContent = err.message || 'AI ask failed.';
+      }
+      btn.disabled = false;
+      btn.textContent = 'Ask AI';
+    }
+
+    byId('nl-ask-btn').addEventListener('click', runNlAsk);
+    byId('nl-question').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') runNlAsk();
+    });
+
     const backBtn = byId('backToSourceBtn');
     if (backBtn) {
       backBtn.addEventListener('click', () => {

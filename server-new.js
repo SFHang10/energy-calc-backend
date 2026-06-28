@@ -405,6 +405,7 @@ let sustainableProductsAgentRouter;
 let systemsAgentRouter;
 let guideAgentRouter;
 let agentsAdminRouter;
+let greenwaysModuleRouter;
 let musicVenueInquiriesRouter;
 let musicMediaCandidatesRouter;
 try {
@@ -419,6 +420,7 @@ try {
   systemsAgentRouter = require('./routes/systems-agent');
   guideAgentRouter = require('./routes/guide-agent');
   agentsAdminRouter = require('./routes/agents-admin');
+  greenwaysModuleRouter = require('./routes/greenways-module');
   musicVenueInquiriesRouter = require('./routes/music-venue-inquiries');
   musicMediaCandidatesRouter = require('./routes/music-media-candidates');
   console.log('Live music routers loaded successfully');
@@ -435,6 +437,7 @@ try {
   systemsAgentRouter = null;
   guideAgentRouter = null;
   agentsAdminRouter = null;
+  greenwaysModuleRouter = null;
   musicVenueInquiriesRouter = null;
   musicMediaCandidatesRouter = null;
 }
@@ -516,6 +519,10 @@ function mountApiRoutes() {
   if (financeAgentRouter) {
     app.use('/api/finance-agent', financeAgentRouter);
     console.log('✅ /api/finance-agent route mounted');
+  }
+  if (greenwaysModuleRouter) {
+    app.use('/api/greenways-module', greenwaysModuleRouter);
+    console.log('✅ /api/greenways-module route mounted');
   }
   if (equipmentAgentRouter) {
     app.use('/api/equipment-agent', equipmentAgentRouter);

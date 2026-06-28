@@ -292,6 +292,7 @@
     <div id="resultsMount"></div>
   </div>
 
+  <script src="./js/greenways-module-llm-client.js"></script>
   <script>
     let selectedType = 'home';
     let selectedCountry = 'NL';
@@ -438,9 +439,45 @@
         html +=
           '<p class="note">Indicative totals use static regional benchmarks, not your postcode or DSO data. For live tariffs use an accredited comparison service in ' +
           esc(countryNames[selectedCountry]) +
-          '. When server LLM keys are configured, the Wok assistant can reason over your dashboard usage alongside this catalogue.</p>';
+          '.</p>';
+        html += '<div id="aiSummaryMount"><div class="loading"><div class="spinner"></div> Generating AI pack summary…</div></div>';
 
         mount.innerHTML = html;
+
+        if (window.GreenwaysModuleLlm) {
+          GreenwaysModuleLlm.summarizeTariffPack({
+            country: selectedCountry,
+            countryName: countryNames[selectedCountry],
+            propertyType: selectedType,
+            postcode,
+            elecUsage,
+            gasUsage,
+            estCost,
+            priority: document.getElementById('priority').value,
+            contractType: document.getElementById('contractType').value,
+            contractLength: document.getElementById('contractLength').value,
+            deals: energyDeals,
+            schemes
+          })
+            .then((summary) => {
+              const aiMount = document.getElementById('aiSummaryMount');
+              if (!aiMount) return;
+              aiMount.innerHTML =
+                '<div class="col-head"><h2>AI pack summary</h2><p>Grounded on the deal cards and schemes above — same LLM stack as Vincent and Zara.</p></div>' +
+                '<div class="search-card" style="margin-top:0"><div class="pcard-line" style="white-space:pre-wrap;color:var(--text)">' +
+                esc(summary) +
+                '</div></div>';
+            })
+            .catch((err) => {
+              const aiMount = document.getElementById('aiSummaryMount');
+              if (aiMount) {
+                aiMount.innerHTML = '<div class="note">AI summary unavailable: ' + esc(err.message || 'server error') + '</div>';
+              }
+            });
+        } else {
+          const aiMount = document.getElementById('aiSummaryMount');
+          if (aiMount) aiMount.innerHTML = '';
+        }
       } catch (e) {
         mount.innerHTML = '<div class="error-box">' + esc(e.message || 'Failed to load') + '</div>';
       }
