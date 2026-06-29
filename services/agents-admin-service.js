@@ -8,6 +8,7 @@ const ROOT = path.join(__dirname, '..');
 const REGISTRY_PATH = path.join(ROOT, 'data', 'greenways-agent-admin-registry.json');
 const ROSTER_PATH = path.join(ROOT, 'data', 'greenways-agent-roster.json');
 const CONTENT_MODULES_PATH = path.join(ROOT, 'data', 'greenways-content-modules.json');
+const MODULE_EXAMPLES_PATH = path.join(ROOT, 'data', 'greenways-module-examples.json');
 const ORCHESTRA_MAP_IMAGE =
   'https://static.wixstatic.com/media/c123de_7cad20d715d045e4a9f684d5936bab3a~mv2.jpg';
 
@@ -137,6 +138,16 @@ async function loadContentModules() {
     return Array.isArray(parsed.modules) ? parsed : { modules: [] };
   } catch (_) {
     return { modules: [] };
+  }
+}
+
+async function loadModuleExamples() {
+  try {
+    const raw = await fsPromises.readFile(MODULE_EXAMPLES_PATH, 'utf8');
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed.examples) ? parsed.examples : [];
+  } catch (_) {
+    return [];
   }
 }
 
@@ -431,6 +442,19 @@ async function layoutGraph(overview) {
   }
 
   const contentCatalog = await loadContentModules();
+  const moduleExamples = await loadModuleExamples();
+  const examplesByModule = new Map();
+  for (const ex of moduleExamples) {
+    if (!ex.moduleId) continue;
+    if (!examplesByModule.has(ex.moduleId)) examplesByModule.set(ex.moduleId, []);
+    examplesByModule.get(ex.moduleId).push({
+      id: ex.id,
+      title: ex.title,
+      summary: ex.summary || '',
+      params: ex.params || {},
+      agents: ex.agents || []
+    });
+  }
   const contentModules = (contentCatalog.modules || []).slice().sort((a, b) => {
     const aCount = (a.agents || []).length;
     const bCount = (b.agents || []).length;
@@ -466,6 +490,7 @@ async function layoutGraph(overview) {
       agentNotes,
       relatedModuleIds: mod.relatedModuleIds || [],
       knowledgeAgentCount: knowledgeAgents.length,
+      workedExamples: examplesByModule.get(mod.id) || [],
       shared,
       agentCount: linkedAgents.length,
       x: CX + moduleRadius * Math.cos(angle),

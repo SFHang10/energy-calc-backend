@@ -1679,7 +1679,8 @@ async function answerFromKnowledge(question, profile = {}) {
     enrichKnowledgeAnswer(result, {
       agentKey: 'media',
       question,
-      intentId: intentId || intent?.id
+      intentId: intentId || intent?.id,
+      profile
     });
     applyPersona(result, {
       voice,

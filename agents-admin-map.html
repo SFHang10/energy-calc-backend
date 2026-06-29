@@ -610,6 +610,19 @@
     if (node.relatedModuleIds && node.relatedModuleIds.length) {
       html += '<div class="detail-related"><strong>Related modules:</strong> ' + escapeHtml(node.relatedModuleIds.join(', ')) + '</div>';
     }
+    if (node.workedExamples && node.workedExamples.length) {
+      html += '<div class="detail-related" style="margin-top:10px"><strong>Worked examples</strong> (deep links for agents)</div><ul class="detail-list">';
+      node.workedExamples.slice(0, 6).forEach(function (ex) {
+        var paramStr = ex.params && Object.keys(ex.params).length
+          ? ' · ' + escapeHtml(Object.keys(ex.params).map(function (k) { return k + '=' + ex.params[k]; }).join(', '))
+          : '';
+        html += '<li><strong>' + escapeHtml(ex.title) + '</strong>' + paramStr + '</li>';
+      });
+      if (node.workedExamples.length > 6) {
+        html += '<li>…and ' + (node.workedExamples.length - 6) + ' more in <code>greenways-module-examples.json</code></li>';
+      }
+      html += '</ul>';
+    }
     html += '</div>';
     return html;
   }

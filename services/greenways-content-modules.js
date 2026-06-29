@@ -401,14 +401,19 @@ function insertBeforeAnswerTip(answer, insert) {
 
 /**
  * Append grounded module knowledge bullets to a knowledge /ask result (left column).
- * Does not add duplicate module tablets — blocks stay as built by each intent handler.
+ * Optionally attaches one curated worked example as a deep-linked module tablet.
  */
-function enrichKnowledgeAnswer(result, { agentKey, question, intentId } = {}) {
-  if (!result?.answer || String(result.answer).includes(KNOWLEDGE_SECTION_MARKER)) return result;
-  const ranked = rankModulesForKnowledge(agentKey, question, intentId, { limit: 2 });
-  const prose = formatModuleKnowledgeProse(ranked, agentKey, { maxBullets: 3 });
-  if (!prose) return result;
-  result.answer = insertBeforeAnswerTip(result.answer, prose);
+function enrichKnowledgeAnswer(result, { agentKey, question, intentId, profile = {} } = {}) {
+  if (!result?.answer) return result;
+
+  if (!String(result.answer).includes(KNOWLEDGE_SECTION_MARKER)) {
+    const ranked = rankModulesForKnowledge(agentKey, question, intentId, { limit: 2 });
+    const prose = formatModuleKnowledgeProse(ranked, agentKey, { maxBullets: 3 });
+    if (prose) result.answer = insertBeforeAnswerTip(result.answer, prose);
+  }
+
+  const { attachWorkedExample } = require('./greenways-module-examples');
+  attachWorkedExample(result, { agentKey, question, intentId, profile });
   return result;
 }
 

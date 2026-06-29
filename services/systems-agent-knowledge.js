@@ -325,7 +325,8 @@ async function answerFromKnowledge(question, profile = {}) {
       enrichKnowledgeAnswer(result, {
         agentKey: 'systems',
         question,
-        intentId: result.intentId
+        intentId: result.intentId,
+        profile
       });
     }
 
