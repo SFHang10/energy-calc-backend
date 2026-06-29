@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-14",
+  "updatedAt": "2026-06-17",
   "meta": {
     "title": "Greenways content modules",
     "description": "Independent HTML/video illustrations agents open in the shared modal shell — each row includes what-it-is (description) and how-to-use (usageHint)."
@@ -42,6 +42,14 @@
       "topics": ["energy", "prices", "ticker"],
       "supportsParams": ["region"],
       "defaultOpenSize": "expanded",
+      "relatedModuleIds": ["savings-trajectory", "utility-detail", "european-energy"],
+      "knowledgeBullets": {
+        "finance": [
+          "Live wholesale €/MWh lanes — same feed as the Greenways buildings dashboard — for timing upgrades and tariff reviews.",
+          "Retail bills can lag wholesale by weeks; use this as an early signal, not your contract rate.",
+          "Pair with savings trajectory when usage and unit costs both trend up."
+        ]
+      },
       "agentNotes": {
         "default": {
           "label": "Why watch wholesale prices?",
@@ -104,7 +112,23 @@
       "agents": ["finance", "deals"],
       "topics": ["tariffs", "compare", "energy"],
       "supportsParams": ["region"],
-      "defaultOpenSize": "near-full"
+      "defaultOpenSize": "near-full",
+      "relatedModuleIds": ["energy-prices-ticker", "deals-ticker", "savings-projection"],
+      "knowledgeBullets": {
+        "finance": [
+          "Headline business and site tariffs across NL, UK, DE, FR, and other EU markets — useful at contract renewal, not only when wholesale spikes.",
+          "Pair tariff rows with the energy prices ticker: retail packages can lag wholesale moves by weeks or months.",
+          "Even on a better tariff, efficient equipment lowers the kWh you still buy — stack supply switching with ETL upgrades."
+        ]
+      },
+      "agentNotes": {
+        "finance": {
+          "label": "Vincent — retail supply vs wholesale",
+          "body": "Wholesale €/MWh is the early signal; this portal is where you compare what you actually sign. I use it with clients before renewal windows close, then model whether upgrades shrink the kWh left on the bill.",
+          "ctaModuleId": "savings-projection",
+          "ctaLabel": "Model payback next"
+        }
+      }
     },
     {
       "id": "finance-finder",
@@ -117,7 +141,23 @@
       "agents": ["finance", "grants"],
       "topics": ["finance", "bnpl", "loans", "grants"],
       "supportsParams": ["region"],
-      "defaultOpenSize": "near-full"
+      "defaultOpenSize": "near-full",
+      "relatedModuleIds": ["savings-projection", "schemes-portal-restaurant", "etl-calculator"],
+      "knowledgeBullets": {
+        "finance": [
+          "Five lanes in one hub: grants, BNPL, equipment finance, green loans, and Europe-wide programmes — each with example tiles and hints.",
+          "Best used after payback looks credible: open savings projection or the Product Calculator first, then pick the tab that matches capex size.",
+          "Grants tab links non-repayable support; equipment finance and BNPL cover kitchen and HVAC when subsidies do not cover the full swap."
+        ]
+      },
+      "agentNotes": {
+        "finance": {
+          "label": "Vincent — stack funding paths",
+          "body": "I route clients here once the upgrade case is clear — grants shrink net capex, BNPL and equipment finance spread kitchen swaps, green loans suit building-scale retrofits. Andrieus owns scheme detail; I own how you pay for verified efficient equipment.",
+          "ctaModuleId": "savings-projection",
+          "ctaLabel": "Check payback first"
+        }
+      }
     },
     {
       "id": "schemes-portal-restaurant",
@@ -156,7 +196,20 @@
       "agents": ["finance", "equipment"],
       "topics": ["payback", "projection", "savings"],
       "supportsParams": ["region"],
-      "defaultOpenSize": "near-full"
+      "defaultOpenSize": "near-full",
+      "relatedModuleIds": ["finance-finder", "equipment-deep-dive", "etl-calculator"],
+      "knowledgeBullets": {
+        "equipment": [
+          "Charts do-nothing vs upgrade curves with grant chips and illustrative tax bands — capex bands for single equipment (~€25k) and whole-building (~€150k).",
+          "Opens from equipment deep dive alternative cards so payback stays tied to the spec you are comparing.",
+          "Use before handoff to Vincent: a credible curve makes BNPL, equipment finance, or green loans easier to justify."
+        ],
+        "finance": [
+          "Same payback chart Artemis uses — do nothing vs upgrade with grants and tax overlays so you finance against a visible break-even.",
+          "Fridge demo scenario gives a worked example when you want numbers before entering your own capex.",
+          "Pair with finance finder tabs once the upgrade curve crosses your comfort threshold."
+        ]
+      }
     },
     {
       "id": "etl-finder",
@@ -169,7 +222,28 @@
       "agents": ["finance", "equipment", "products"],
       "topics": ["etl", "products", "equipment"],
       "supportsParams": ["region"],
-      "defaultOpenSize": "near-full"
+      "defaultOpenSize": "near-full",
+      "relatedModuleIds": ["equipment-deep-dive", "savings-projection", "etl-calculator"],
+      "knowledgeBullets": {
+        "equipment": [
+          "Search verified ETL-listed kitchen and HVAC products with grant overlays matched to your region profile.",
+          "Each match links to marketplace detail (`etl_*` ids) and can feed the deep dive decision matrix.",
+          "Use when you know the asset class (combi, wok, fridge) but need a shortlist before comparing specs side by side."
+        ],
+        "finance": [
+          "ETL-listed products carry verified savings data — the business case Vincent needs before equipment finance or BNPL.",
+          "Grant overlays on each row show non-repayable support you can stack with green loans or leases.",
+          "Open the Product Calculator next to compare energy use vs your current model before signing finance."
+        ]
+      },
+      "agentNotes": {
+        "equipment": {
+          "label": "Artemis — verified shortlist",
+          "body": "Start here when you need ETL-backed options fast; follow with deep dive for side-by-side alternatives and savings projection for payback.",
+          "ctaModuleId": "equipment-deep-dive",
+          "ctaLabel": "Compare alternatives next"
+        }
+      }
     },
     {
       "id": "deals-ticker",
@@ -252,7 +326,23 @@
       "kind": "html",
       "agents": ["equipment", "products"],
       "topics": ["deep-dive", "restaurant"],
-      "supportsParams": ["region", "sector"]
+      "supportsParams": ["region", "sector"],
+      "relatedModuleIds": ["savings-projection", "etl-finder", "appliance-comparison"],
+      "knowledgeBullets": {
+        "equipment": [
+          "Profiles wok, combi steamer, refrigeration, dishwash, and HVAC with a decision matrix — standard vs efficient rows and grant chips.",
+          "Each alternative card opens marketplace detail and savings projection without leaving the compare flow.",
+          "External sustainable catalog rows (`sust_*`) appear when marketplace has no match — useful for water fixtures and niche equipment."
+        ]
+      },
+      "agentNotes": {
+        "equipment": {
+          "label": "Artemis — compare before you commit",
+          "body": "This is the main compare workspace: pick an asset class, read grant chips on each row, then model payback from the card you shortlist.",
+          "ctaModuleId": "savings-projection",
+          "ctaLabel": "Model payback next"
+        }
+      }
     },
     {
       "id": "sustainable-renovations",
@@ -265,7 +355,23 @@
       "agents": ["equipment", "finance", "grants"],
       "topics": ["renovation", "building", "retrofit"],
       "supportsParams": ["region", "sector"],
-      "defaultOpenSize": "near-full"
+      "defaultOpenSize": "near-full",
+      "relatedModuleIds": ["insulation-guide", "renovation-plans", "equipment-deep-dive"],
+      "knowledgeBullets": {
+        "equipment": [
+          "Phased retrofit paths — fabric, HVAC, and kitchen equipment — so you do not overspend on appliances before the building envelope is right.",
+          "Sections by premises type (restaurant, office, home) with timing notes before grants or finance applications.",
+          "Pair with insulation guide first when heat loss is driving HVAC overspend."
+        ]
+      },
+      "agentNotes": {
+        "equipment": {
+          "label": "Artemis — building + equipment together",
+          "body": "Renovation is not only swapping ovens — fabric and ventilation shape what equipment you need. Use this module for sequencing, then deep dive for the kitchen lanes you shortlist.",
+          "ctaModuleId": "insulation-guide",
+          "ctaLabel": "Check fabric first"
+        }
+      }
     },
     {
       "id": "insulation-guide",
@@ -277,7 +383,15 @@
       "kind": "html",
       "agents": ["equipment"],
       "topics": ["insulation", "building", "fabric"],
-      "defaultOpenSize": "near-full"
+      "defaultOpenSize": "near-full",
+      "relatedModuleIds": ["sustainable-renovations", "savings-projection"],
+      "knowledgeBullets": {
+        "equipment": [
+          "Explains why envelope and fabric upgrades should precede heavy HVAC or kitchen capex — less heat loss means smaller equipment specs.",
+          "Sections by premises type with quick wins vs deeper retrofit paths.",
+          "Stack with Andrieus for fabric grants and Vincent when payback justifies green loans."
+        ]
+      }
     },
     {
       "id": "renovation-plans",
@@ -289,7 +403,15 @@
       "kind": "html",
       "agents": ["equipment"],
       "topics": ["renovation", "planning", "project"],
-      "defaultOpenSize": "near-full"
+      "defaultOpenSize": "near-full",
+      "relatedModuleIds": ["sustainable-renovations", "equipment-deep-dive", "etl-finder"],
+      "knowledgeBullets": {
+        "equipment": [
+          "Template plans that order fabric, HVAC, and kitchen swaps — avoids buying efficient ovens before ventilation and insulation are addressed.",
+          "Pick a plan shape (quick wins vs full retrofit) then jump to ETL finder or deep dive for each equipment lane.",
+          "Useful when stakeholders need a phased timeline before capex sign-off."
+        ]
+      }
     },
     {
       "id": "retrofit-roi-guide",
@@ -325,7 +447,15 @@
       "kind": "html",
       "agents": ["equipment", "products"],
       "topics": ["comparison", "kitchen", "appliance"],
-      "defaultOpenSize": "near-full"
+      "defaultOpenSize": "near-full",
+      "relatedModuleIds": ["equipment-deep-dive", "savings-projection"],
+      "knowledgeBullets": {
+        "equipment": [
+          "Visual standard vs efficient comparisons for ovens, refrigeration, dishwash, and HVAC — built for stakeholder buy-in before spec detail.",
+          "Illustrated marketplace examples; follow with deep dive for grant chips, decision matrix, and payback entry points.",
+          "Good first step when the kitchen team needs pictures, not spreadsheets."
+        ]
+      }
     },
     {
       "id": "equipment-data-capture",
@@ -405,7 +535,15 @@
       "kind": "html",
       "agents": ["finance"],
       "topics": ["trajectory", "trend", "savings"],
-      "defaultOpenSize": "near-full"
+      "defaultOpenSize": "near-full",
+      "relatedModuleIds": ["energy-prices-ticker", "utility-detail", "savings-projection"],
+      "knowledgeBullets": {
+        "finance": [
+          "Seven-day usage trend — shows whether spend is drifting up even when tariffs look stable.",
+          "Pair with the energy prices ticker: rising wholesale plus rising usage is the signal to finance upgrades early.",
+          "Use before renewal conversations to show assessors a forward path, not a reactive bill spike."
+        ]
+      }
     },
     {
       "id": "energy-cost-guide",
@@ -417,7 +555,15 @@
       "kind": "html",
       "agents": ["finance"],
       "topics": ["costs", "bills", "guide"],
-      "defaultOpenSize": "near-full"
+      "defaultOpenSize": "near-full",
+      "relatedModuleIds": ["utility-detail", "savings-projection", "finance-finder"],
+      "knowledgeBullets": {
+        "finance": [
+          "Walks through where restaurant and site energy spend actually goes — electricity, gas, and hot-water drivers.",
+          "Use when the bill feels high but the team cannot name which loads to target first.",
+          "Follow with utility detail or savings projection once you know the biggest cost lane."
+        ]
+      }
     },
     {
       "id": "energy-audit",
@@ -441,7 +587,23 @@
       "kind": "html",
       "agents": ["finance"],
       "topics": ["calculator", "products", "compare"],
-      "defaultOpenSize": "near-full"
+      "defaultOpenSize": "near-full",
+      "relatedModuleIds": ["etl-finder", "savings-projection", "finance-finder"],
+      "knowledgeBullets": {
+        "finance": [
+          "Compare energy use of efficient products vs what you run today — ETL-listed rows are the primary input lane today.",
+          "Outputs savings figures you can carry into finance finder tabs or grants conversations with Andrieus.",
+          "Best after you have a product shortlist from ETL finder; best before you sign equipment finance."
+        ]
+      },
+      "agentNotes": {
+        "finance": {
+          "label": "Vincent — numbers before signatures",
+          "body": "I use the Product Calculator to ground BNPL and lease conversations — verified efficient equipment should show lower kWh before you commit to monthly payments.",
+          "ctaModuleId": "finance-finder",
+          "ctaLabel": "Open finance finder next"
+        }
+      }
     },
     {
       "id": "savings-tour",

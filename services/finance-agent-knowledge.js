@@ -18,7 +18,7 @@ const {
   toModuleItem,
   agentProfileBlock
 } = require('./greenways-agent-shared');
-const { mergeModuleRow } = require('./greenways-content-modules');
+const { mergeModuleRow, enrichKnowledgeAnswer } = require('./greenways-content-modules');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'finance-agent-intents.json');
 const showcasePath = path.join(__dirname, '..', 'data', 'finance-agent-showcase.json');
@@ -804,6 +804,11 @@ async function answerFromKnowledge(question, profile = {}) {
       result.productSamples = await pickFinanceSamples(question, profile, 3);
     }
     attachFinanceHandoffs(result, briefing, question, intent.id);
+    enrichKnowledgeAnswer(result, {
+      agentKey: 'finance',
+      question,
+      intentId: intent.id
+    });
     applyPersona(result, {
       voice,
       intentId: intent.id,
