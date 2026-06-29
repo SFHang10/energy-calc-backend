@@ -10,7 +10,7 @@ const {
   toModuleItem,
   agentProfileBlock
 } = require('./greenways-agent-shared');
-const { mergeModuleRow, loadRegistrySync, getModuleById } = require('./greenways-content-modules');
+const { mergeModuleRow, loadRegistrySync, getModuleById, enrichKnowledgeAnswer } = require('./greenways-content-modules');
 const {
   applyPersona,
   loadAgentVoice,
@@ -1011,6 +1011,11 @@ async function answerFromKnowledge(question, profile = {}) {
     if (!result.productSamples?.length) {
       result.productSamples = await pickDealSamples(question, profile, 3);
     }
+    enrichKnowledgeAnswer(result, {
+      agentKey: 'deals',
+      question,
+      intentId: result.intentId
+    });
     applyPersona(result, {
       voice,
       intentId: result.intentId,

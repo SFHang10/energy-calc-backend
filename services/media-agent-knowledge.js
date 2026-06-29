@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs/promises');
 const { loadIntentsFrom, matchIntent, PORTAL_LINKS, toLinkItem, toModuleItem, agentProfileBlock } = require('./greenways-agent-shared');
-const { mergeModuleRow } = require('./greenways-content-modules');
+const { mergeModuleRow, enrichKnowledgeAnswer } = require('./greenways-content-modules');
 const { applyPersona, loadAgentVoice, pickTip } = require('./greenways-agent-persona');
 const {
   loadEnergySnapshot,
@@ -1676,6 +1676,11 @@ async function answerFromKnowledge(question, profile = {}) {
     } else if (!keepSamples) {
       result.productSamples = await pickMediaSamples(question, profile, 4);
     }
+    enrichKnowledgeAnswer(result, {
+      agentKey: 'media',
+      question,
+      intentId: intentId || intent?.id
+    });
     applyPersona(result, {
       voice,
       intentId: intentId || 'overview',

@@ -7,7 +7,7 @@ const {
   spokenSummary
 } = require('./greenways-agent-persona');
 const { toModuleItem } = require('./greenways-agent-shared');
-const { mergeModuleRow } = require('./greenways-content-modules');
+const { mergeModuleRow, enrichKnowledgeAnswer } = require('./greenways-content-modules');
 const {
   buildHandoffTopicSummary,
   isReferralWelcomePair,
@@ -881,6 +881,11 @@ async function answerFromKnowledge(question, profile = {}) {
     result.intentId = intent.id;
     if (!result.agentHandoffs) result.agentHandoffs = [];
     result.productSamples = await pickProductSamples(question, profile, 3);
+    enrichKnowledgeAnswer(result, {
+      agentKey: 'grants',
+      question,
+      intentId: intent.id
+    });
     applyPersona(result, {
       voice,
       intentId: intent.id,

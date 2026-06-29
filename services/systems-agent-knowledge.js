@@ -1,5 +1,6 @@
 const path = require('path');
 const { loadIntentsFrom, matchIntent, toLinkItem } = require('./greenways-agent-shared');
+const { enrichKnowledgeAnswer } = require('./greenways-content-modules');
 const { runChecks, loadChecksConfig, resultsToSamples } = require('./systems-agent-health');
 const {
   buildConsumerOverviewAnswer,
@@ -318,6 +319,14 @@ async function answerFromKnowledge(question, profile = {}) {
       if (!result.productSamples?.length) {
         result.productSamples = await pickConsumerSamples(question, profile, 3);
       }
+    }
+
+    if (!isOps) {
+      enrichKnowledgeAnswer(result, {
+        agentKey: 'systems',
+        question,
+        intentId: result.intentId
+      });
     }
 
     applyPersona(result, {

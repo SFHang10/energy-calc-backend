@@ -22,7 +22,7 @@ const {
   loadAgentVoice,
   pickTip
 } = require('./greenways-agent-persona');
-const { mergeModuleRow, loadRegistrySync, getModuleById } = require('./greenways-content-modules');
+const { mergeModuleRow, loadRegistrySync, getModuleById, enrichKnowledgeAnswer } = require('./greenways-content-modules');
 const { EquipmentIntelligenceService } = require('./equipment-intelligence-service');
 const {
   buildHandoffTopicSummary,
@@ -1275,6 +1275,11 @@ async function answerFromKnowledge(question, profile = {}) {
       result.agentHandoffs = buildHandoffs(briefing, question, intentId || 'product_search');
     }
     result.productSamples = await pickProductSamples(question, profileWithLane, 3);
+    enrichKnowledgeAnswer(result, {
+      agentKey: 'products',
+      question,
+      intentId: intentId || intent?.id
+    });
     applyPersona(result, {
       voice,
       intentId: intentId || 'overview',
