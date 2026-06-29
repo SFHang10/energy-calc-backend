@@ -446,6 +446,12 @@ async function layoutGraph(overview) {
     const nodeId = `mod:${mod.id}`;
     const shared = linkedAgents.length >= 2;
 
+    const knowledgeBullets = mod.knowledgeBullets || {};
+    const agentNotes = mod.agentNotes || {};
+    const knowledgeAgents = linkedAgents.filter(
+      (id) => (knowledgeBullets[id] || []).length || agentNotes[id]
+    );
+
     nodes.push({
       id: nodeId,
       type: 'content-module',
@@ -456,6 +462,10 @@ async function layoutGraph(overview) {
       usageHint: mod.usageHint || '',
       topics: mod.topics || [],
       kind: mod.kind || 'html',
+      knowledgeBullets,
+      agentNotes,
+      relatedModuleIds: mod.relatedModuleIds || [],
+      knowledgeAgentCount: knowledgeAgents.length,
       shared,
       agentCount: linkedAgents.length,
       x: CX + moduleRadius * Math.cos(angle),

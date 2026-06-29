@@ -234,6 +234,49 @@
       border-bottom: 1px solid rgba(45, 55, 72, 0.6);
     }
     .detail-list li:last-child { border-bottom: none; }
+    .detail-knowledge {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(45, 55, 72, 0.6);
+    }
+    .detail-knowledge h3 {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-gold, #c9a961);
+      margin: 0 0 8px;
+      font-weight: 600;
+    }
+    .detail-knowledge .agent-kb {
+      margin-bottom: 10px;
+    }
+    .detail-knowledge .agent-kb-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-primary, #e8edf4);
+      margin-bottom: 4px;
+    }
+    .detail-knowledge ul {
+      list-style: disc;
+      margin: 0 0 0 1.1em;
+      padding: 0;
+    }
+    .detail-knowledge li {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+      line-height: 1.35;
+    }
+    .detail-knowledge .kb-empty {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+    .detail-related {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      margin-top: 8px;
+    }
     .legend { margin-top: 8px; }
     .legend-row {
       display: flex;
@@ -370,7 +413,7 @@
       </div>
       <div class="add-tool-panel" id="add-tool-panel">
         <h2>Add portal tool</h2>
-        <p class="hint">Registers a page in <code>greenways-content-modules.json</code> so agents can open it in chat module tablets. Run <code>npm run sync:agent-sidebar</code> if you also want a sidebar quick link.</p>
+        <p class="hint">Registers a page in <code>greenways-content-modules.json</code> so agents can open it in chat module tablets. Run <code>npm run sync:agent-sidebar</code> for sidebar quick links · <code>npm run sync:content-module-knowledge:apply</code> to draft agent knowledge bullets from page headings.</p>
         <form id="add-tool-form">
           <div class="field">
             <label for="tool-id">Module id (slug)</label>
@@ -534,6 +577,43 @@
     return '#8b9cb3';
   }
 
+  function renderModuleKnowledge(node) {
+    var kb = node.knowledgeBullets || {};
+    var notes = node.agentNotes || {};
+    var agents = Object.keys(kb).concat(Object.keys(notes)).filter(function (a, i, arr) {
+      return arr.indexOf(a) === i && a !== 'default';
+    });
+    if (!agents.length && !(node.relatedModuleIds || []).length) {
+      return '<div class="detail-knowledge"><h3>Agent knowledge</h3><p class="kb-empty">No knowledgeBullets yet — run <code>npm run sync:content-module-knowledge:apply</code></p></div>';
+    }
+    var html = '<div class="detail-knowledge"><h3>Agent knowledge</h3>';
+    agents.sort().forEach(function (agentId) {
+      var bullets = kb[agentId] || [];
+      var note = notes[agentId];
+      if (!bullets.length && !note) return;
+      html += '<div class="agent-kb"><div class="agent-kb-label">' + escapeHtml(agentId) + '</div>';
+      if (note && note.label) {
+        html += '<div class="meta" style="margin-bottom:4px">' + escapeHtml(note.label) + '</div>';
+      }
+      if (note && note.body) {
+        html += '<div class="meta" style="margin-bottom:6px">' + escapeHtml(note.body.slice(0, 220)) + (note.body.length > 220 ? '…' : '') + '</div>';
+      }
+      if (bullets.length) {
+        html += '<ul>';
+        bullets.forEach(function (b) {
+          html += '<li>' + escapeHtml(b) + '</li>';
+        });
+        html += '</ul>';
+      }
+      html += '</div>';
+    });
+    if (node.relatedModuleIds && node.relatedModuleIds.length) {
+      html += '<div class="detail-related"><strong>Related modules:</strong> ' + escapeHtml(node.relatedModuleIds.join(', ')) + '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
   function renderDetail(node) {
     var card = document.getElementById('detail-card');
     card.classList.toggle('is-pinned', !!(state.pinnedId && node && node.id === state.pinnedId));
@@ -573,6 +653,7 @@
         }
         html += '<p style="margin-top:10px"><a class="btn btn-primary" style="font-size:0.8rem;padding:8px 12px" href="' + escapeHtml(href) + '" target="_blank" rel="noopener">Open page</a></p>';
       }
+      html += renderModuleKnowledge(node);
     } else {
       html += '<div class="meta"><code style="font-size:0.78rem">' + escapeHtml(node.path) + '</code></div>';
       html += '<div class="meta" style="margin-top:6px">' + node.agentCount + ' agent' + (node.agentCount === 1 ? '' : 's') + (node.shared ? ' · shared' : '') + '</div>';
