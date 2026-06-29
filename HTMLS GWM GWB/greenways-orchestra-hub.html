@@ -209,6 +209,7 @@
     white-space: nowrap;
   }
   .ask-row button:disabled { opacity: 0.55; cursor: wait; }
+  .answer-box.is-team { max-height: none; }
   .answer-box {
     margin-top: 12px;
     padding: 12px 14px;
@@ -349,6 +350,7 @@
   };
 
   var QUICK = [
+    "Evaluate upgrading wok line + insulation — NL restaurant",
     "What grants fit kitchen equipment in my region?",
     "Find efficient refrigeration for my restaurant",
     "What deals are in the feed this week?",
@@ -485,7 +487,7 @@
     lastQuestion = q;
     updateCardLinks();
     answerBox.className = "answer-box is-visible is-thinking";
-    answerBox.innerHTML = "Routing to the best specialist…";
+    answerBox.innerHTML = "Thinking…";
     statusBar.textContent = "Thinking…";
     highlightAgents(null, []);
 
@@ -500,31 +502,54 @@
       var data = await res.json().catch(function () { return {}; });
       if (!res.ok || !data.ok) throw new Error(data.error || "Request failed");
 
-      answerBox.className = "answer-box is-visible";
-      answerBox.innerHTML = simpleMarkdown(data.answer || "No answer returned.");
-      highlightAgents(data.primaryAgent || null, data.routedTo || []);
-      statusBar.textContent =
-        data.primaryAgent
-          ? "Routed to " + (roster.find(function (a) { return a.id === data.primaryAgent; }) || {}).name || data.primaryAgent
-          : "Answered";
+      var isTeam = data.responseMode === "team" && data.lanes && data.lanes.length;
 
-      if (window.GreenwaysAgentTeam && typeof GreenwaysAgentTeam.recordTurn === "function") {
-        var routedName = data.primaryAgent
-          ? ((roster.find(function (a) { return a.id === data.primaryAgent; }) || {}).name || data.primaryAgent)
-          : "Greenways Guide";
-        var routedSlug = data.primaryAgent
-          ? ((roster.find(function (a) { return a.id === data.primaryAgent; }) || {}).slug || "orchestra-hub")
-          : "orchestra-hub";
-        GreenwaysAgentTeam.recordTurn({
-          slug: routedSlug,
-          agentName: "Orchestra → " + routedName,
-          question: q,
-          answer: data.answer || "",
-          intentId: data.intentId || "",
-          blocks: [],
-          spokenSummary: ""
-        });
-        refreshJourneyOrchestraPanel();
+      if (isTeam) {
+        answerBox.className = "answer-box is-visible is-team";
+        if (window.GreenwaysAgentTeam && typeof GreenwaysAgentTeam.buildTeamEvaluationHtml === "function") {
+          answerBox.innerHTML = GreenwaysAgentTeam.buildTeamEvaluationHtml(data, roster, {
+            lede: data.answer || ""
+          });
+        } else {
+          answerBox.innerHTML = simpleMarkdown(data.answer || data.plan || "Specialists collaborated on this.");
+        }
+        highlightAgents(data.primaryAgent || null, (data.agentIds || []).slice(1));
+        routeHint.hidden = !(data.agentIds && data.agentIds.length);
+        statusBar.textContent =
+          "Together — " + ((data.specialists || []).join(", ") || "specialists");
+
+        if (window.GreenwaysAgentTeam && typeof GreenwaysAgentTeam.seedFromEvaluation === "function") {
+          GreenwaysAgentTeam.seedFromEvaluation(data);
+          refreshJourneyOrchestraPanel();
+        }
+      } else {
+        answerBox.className = "answer-box is-visible";
+        answerBox.innerHTML = simpleMarkdown(data.answer || "No answer returned.");
+        highlightAgents(data.primaryAgent || null, data.routedTo || []);
+        routeHint.hidden = !data.primaryAgent;
+        statusBar.textContent =
+          data.primaryAgent
+            ? "Routed to " + (roster.find(function (a) { return a.id === data.primaryAgent; }) || {}).name || data.primaryAgent
+            : "Answered";
+
+        if (window.GreenwaysAgentTeam && typeof GreenwaysAgentTeam.recordTurn === "function") {
+          var routedName = data.primaryAgent
+            ? ((roster.find(function (a) { return a.id === data.primaryAgent; }) || {}).name || data.primaryAgent)
+            : "Greenways Guide";
+          var routedSlug = data.primaryAgent
+            ? ((roster.find(function (a) { return a.id === data.primaryAgent; }) || {}).slug || "orchestra-hub")
+            : "orchestra-hub";
+          GreenwaysAgentTeam.recordTurn({
+            slug: routedSlug,
+            agentName: "Orchestra → " + routedName,
+            question: q,
+            answer: data.answer || "",
+            intentId: data.intentId || "",
+            blocks: [],
+            spokenSummary: ""
+          });
+          refreshJourneyOrchestraPanel();
+        }
       }
     } catch (err) {
       answerBox.className = "answer-box is-visible";

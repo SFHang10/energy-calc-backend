@@ -206,7 +206,26 @@ async function answerFromKnowledge(question, profile = {}) {
   let routeAgent = forced;
   if (forced === 'equipment' && /\bgrants?\b|\bschemes?\b|\bsubsid/.test(qLower)) routeAgent = 'grants';
   if (forced === 'products' && /\bgrants?\b|\bschemes?\b/.test(qLower)) routeAgent = 'grants';
-  const ranked = rankAgents(question, profile, roster, routeAgent);
+
+  const fullRanked = rankAgents(question, profile, roster, null);
+  const {
+    evaluateProject,
+    shouldCollaborateAsTeam,
+    buildTeamOrchestraResponse
+  } = require('./guide-agent-team-evaluate');
+
+  if (shouldCollaborateAsTeam(question, profile, fullRanked)) {
+    try {
+      const team = await evaluateProject(question, profile);
+      const result = buildTeamOrchestraResponse(team);
+      result.intentId = intent?.id || 'team_collaboration';
+      return result;
+    } catch (err) {
+      console.warn('Orchestra team collaboration fallback:', err.message);
+    }
+  }
+
+  const ranked = routeAgent ? rankAgents(question, profile, roster, routeAgent) : fullRanked;
 
   if (!ranked.length) {
     const overview = buildOverviewAnswer(roster, tip);
@@ -223,6 +242,7 @@ async function answerFromKnowledge(question, profile = {}) {
   if (result) {
     result.source = 'orchestrator';
     result.intentId = intent?.id || `route_${primaryId}`;
+    result.responseMode = 'route';
   }
   return result;
 }
@@ -244,5 +264,7 @@ async function getDefaultRosterCards(limit = 6) {
 module.exports = {
   answerFromKnowledge,
   getDefaultRosterCards,
-  loadRoster
+  loadRoster,
+  rankAgents,
+  findRosterEntry
 };

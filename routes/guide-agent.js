@@ -1,6 +1,7 @@
 const express = require('express');
 const { answerFromKnowledge, getDefaultRosterCards } = require('../services/guide-agent-knowledge');
 const { summarizeJourney } = require('../services/guide-agent-journey-summary');
+const { evaluateProject } = require('../services/guide-agent-team-evaluate');
 
 const router = express.Router();
 
@@ -28,10 +29,11 @@ router.post('/ask', async (req, res) => {
     }
 
     const knowledge = await answerFromKnowledge(question, profile);
-    if (knowledge?.answer) {
-      return res.json({
+    if (knowledge?.answer || knowledge?.responseMode === 'team') {
+      const payload = {
         ok: true,
-        answer: knowledge.answer,
+        answer: knowledge.answer || '',
+        responseMode: knowledge.responseMode || 'route',
         suggestions: knowledge.suggestions || [],
         productSamples: knowledge.productSamples || [],
         agentHandoffs: knowledge.agentHandoffs || [],
@@ -39,7 +41,19 @@ router.post('/ask', async (req, res) => {
         primaryAgent: knowledge.primaryAgent || null,
         source: knowledge.source || 'orchestrator',
         intentId: knowledge.intentId || null
-      });
+      };
+
+      if (knowledge.responseMode === 'team') {
+        payload.plan = knowledge.plan || '';
+        payload.planSource = knowledge.planSource || 'heuristic';
+        payload.lanes = knowledge.lanes || [];
+        payload.turns = knowledge.turns || [];
+        payload.specialists = knowledge.specialists || [];
+        payload.agentIds = knowledge.agentIds || [];
+        payload.laneCount = knowledge.laneCount || 0;
+      }
+
+      return res.json(payload);
     }
 
     res.json({
@@ -55,6 +69,41 @@ router.post('/ask', async (req, res) => {
   } catch (error) {
     console.error('Guide agent ask error:', error.message);
     res.status(500).json({ ok: false, error: 'Failed to answer question.' });
+  }
+});
+
+router.post('/evaluate', async (req, res) => {
+  try {
+    const question = String(req.body?.question || '').trim();
+    const profile = {
+      region: String(req.body?.profile?.region || '').trim(),
+      sector: String(req.body?.profile?.sector || '').trim(),
+      focus: String(req.body?.profile?.focus || '').trim()
+    };
+    if (!question) {
+      return res.status(400).json({ ok: false, error: 'question is required.' });
+    }
+
+    const result = await evaluateProject(question, profile);
+    res.json({
+      ok: true,
+      question: result.question,
+      profile: result.profile,
+      plan: result.plan,
+      planSource: result.planSource,
+      laneCount: result.laneCount,
+      specialists: result.specialists,
+      agentIds: result.agentIds,
+      lanes: result.lanes,
+      turns: result.turns
+    });
+  } catch (error) {
+    const status = error.status || 500;
+    if (status >= 500) console.error('Guide agent evaluate error:', error.message);
+    res.status(status).json({
+      ok: false,
+      error: error.message || 'Failed to evaluate project.'
+    });
   }
 });
 

@@ -196,6 +196,34 @@ async function runLocalSmokes() {
     throw new Error('Orchestra: expected primaryAgent on routed answer');
   }
   console.log('OK Orchestra route grants question →', guideHit.primaryAgent);
+  if (guideHit.responseMode === 'team') {
+    throw new Error('Orchestra grants question: expected single-agent route, not team');
+  }
+
+  const teamAsk = await guideMod.answerFromKnowledge(
+    'Evaluate upgrading wok line and insulation for an NL restaurant',
+    profile
+  );
+  if (teamAsk.responseMode !== 'team' || !teamAsk.lanes || teamAsk.lanes.length < 2) {
+    throw new Error('Orchestra team ask: expected collaborative team response');
+  }
+  if (!teamAsk.plan || !String(teamAsk.plan).trim()) {
+    throw new Error('Orchestra team ask: expected synthesized plan');
+  }
+  console.log('OK Orchestra team collaboration →', teamAsk.specialists.join(', '));
+
+  const evalMod = require(path.join(ROOT, 'services/guide-agent-team-evaluate'));
+  const evalHit = await evalMod.evaluateProject(
+    'Evaluate upgrading wok line and insulation for an NL restaurant',
+    profile
+  );
+  if (!evalHit?.lanes || evalHit.lanes.length < 2) {
+    throw new Error('Orchestra team evaluate: expected at least 2 specialist lanes');
+  }
+  if (!evalHit.plan || !String(evalHit.plan).trim()) {
+    throw new Error('Orchestra team evaluate: expected synthesized plan');
+  }
+  console.log('OK Orchestra team evaluate →', evalHit.specialists.join(', '));
 
   const deepDiveHit = await equipMod.answerFromKnowledge('equipment deep dive compare alternatives', profile);
   const deepDiveMod = (deepDiveHit?.blocks || []).find((b) => b.type === 'module');

@@ -372,7 +372,7 @@
     if (!planPayload || !planPayload.plan) return;
     writeJson(JOURNEY_PLAN_KEY, {
       plan: String(planPayload.plan),
-      source: String(planPayload.source || 'heuristic'),
+      source: String(planPayload.source || planPayload.planSource || 'heuristic'),
       generatedAt: new Date().toISOString(),
       turnCount: planPayload.turnCount || 0,
       agentCount: planPayload.agentCount || 0
@@ -434,6 +434,149 @@
 
     writeJourneyPlan(data);
     return data;
+  }
+
+  async function requestTeamEvaluation(question, profile) {
+    var q = String(question || '').trim();
+    if (!q) throw new Error('Enter a project question first.');
+
+    var base = apiBase();
+    var url = (base || '') + '/api/guide-agent/evaluate';
+    var res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        question: q,
+        profile: profile || readSharedProfile() || {}
+      })
+    });
+
+    var data = await res.json().catch(function () {
+      return {};
+    });
+    if (!res.ok || !data.ok) {
+      throw new Error(data.error || 'Could not run team evaluation.');
+    }
+    return data;
+  }
+
+  function seedJourneyFromEvaluation(payload) {
+    if (!payload || !Array.isArray(payload.turns) || !payload.turns.length) return;
+
+    var journey = readJourney();
+    if (!journey.startedAt) journey.startedAt = new Date().toISOString();
+
+    payload.turns.forEach(function (turn) {
+      journey.turns.push({
+        id: 'j-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+        at: new Date().toISOString(),
+        slug: String(turn.slug || ''),
+        agentName: String(turn.agentName || turn.slug || 'Specialist'),
+        question: String(turn.question || payload.question || '').trim(),
+        summary: String(turn.summary || '').trim(),
+        intentId: String(turn.intentId || '').trim(),
+        highlights: Array.isArray(turn.highlights) ? turn.highlights : []
+      });
+    });
+
+    if (journey.turns.length > JOURNEY_MAX) {
+      journey.turns = journey.turns.slice(-JOURNEY_MAX);
+    }
+
+    writeJson(JOURNEY_KEY, journey);
+
+    if (payload.plan) {
+      writeJourneyPlan({
+        plan: payload.plan,
+        source: payload.planSource || 'heuristic',
+        turnCount: payload.turns.length,
+        agentCount: payload.laneCount || payload.turns.length
+      });
+    }
+
+    updateJourneyButtonBadge();
+    try {
+      global.dispatchEvent(
+        new CustomEvent('gw-journey-updated', {
+          detail: { count: journey.turns.length, teamEvaluation: true }
+        })
+      );
+    } catch (_) {}
+  }
+
+  function buildTeamEvaluationHtml(payload, roster, opts) {
+    opts = opts || {};
+    if (!payload || !Array.isArray(payload.lanes)) return '';
+
+    var lede =
+      opts.lede ||
+      'A few specialists weighed in together on your question — tap a portrait to go deeper with whoever fits best.';
+    var planSection = payload.plan
+      ? buildJourneyPlanHtml({ plan: payload.plan, source: payload.planSource || 'heuristic' })
+      : '';
+
+    var lanesHtml = payload.lanes
+      .map(function (lane) {
+        var agent = findAgentInRoster(roster, lane.slug);
+        var portrait = lane.imageUrl || (agent && agent.imageUrl) || '';
+        var path = lane.path || (agent && agent.path) || '/greenways/' + lane.slug;
+        var highlights =
+          lane.highlights && lane.highlights.length
+            ? '<ul class="gw-team-eval-highlights">' +
+              lane.highlights
+                .map(function (h) {
+                  if (h.href) {
+                    return (
+                      '<li><a href="' +
+                      escapeHtml(h.href) +
+                      '" target="_top" rel="noopener">' +
+                      escapeHtml(h.label) +
+                      '</a></li>'
+                    );
+                  }
+                  return '<li>' + escapeHtml(h.label) + '</li>';
+                })
+                .join('') +
+              '</ul>'
+            : '';
+
+        return (
+          '<article class="gw-team-eval-lane">' +
+          '<div class="gw-team-eval-lane-head">' +
+          (portrait
+            ? '<img class="gw-team-eval-portrait" src="' +
+              escapeHtml(portrait) +
+              '" alt="" width="36" height="36">'
+            : '') +
+          '<div class="gw-team-eval-lane-meta">' +
+          '<strong>' +
+          escapeHtml(lane.agentName || lane.slug) +
+          '</strong>' +
+          (lane.label ? '<span>' + escapeHtml(lane.label) + '</span>' : '') +
+          '</div>' +
+          '<a class="gw-team-eval-open" href="' +
+          escapeHtml(path + (lane.question ? '?q=' + encodeURIComponent(lane.question) : '')) +
+          '" target="_top" rel="noopener">Open chat</a>' +
+          '</div>' +
+          '<p class="gw-team-eval-summary">' +
+          escapeHtml(lane.summary || '') +
+          '</p>' +
+          highlights +
+          '</article>'
+        );
+      })
+      .join('');
+
+    return (
+      '<div class="gw-team-eval">' +
+      '<p class="gw-team-eval-lede">' +
+      simpleMarkdown(lede) +
+      '</p>' +
+      planSection +
+      '<div class="gw-team-eval-lanes">' +
+      lanesHtml +
+      '</div></div>'
+    );
   }
 
   function buildJourneyPlanHtml(planRecord) {
@@ -911,6 +1054,9 @@
     recordTurn: recordJourneyTurn,
     clearJourney: clearJourney,
     requestJourneyPlan: requestJourneyPlan,
+    requestTeamEvaluation: requestTeamEvaluation,
+    seedFromEvaluation: seedJourneyFromEvaluation,
+    buildTeamEvaluationHtml: buildTeamEvaluationHtml,
     openJourneySummary: openJourneySummary,
     renderInlinePanel: renderInlinePanel,
     buildJourneyCopyText: buildJourneyCopyText
