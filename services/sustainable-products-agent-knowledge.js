@@ -711,7 +711,7 @@ async function buildEcoJourneyAnswer(profile, tip) {
 async function buildCitizenBenefitsAnswer(tip) {
   const briefing = await loadBriefing();
   const paths = briefing.guidePaths || {};
-  const href = paths.citizenBenefits || '../HTMLs/Citizen%20benefits%20Guide%202%20brown.html';
+  const href = paths.citizenBenefits || '../HTMLs/New%20Citizen%20Benefits%20Guide.html';
   const narrative = briefing.guideNarratives?.citizenBenefits || '';
   return guideLinkBlock('Citizen benefits of sustainability', href, narrative, tip);
 }
