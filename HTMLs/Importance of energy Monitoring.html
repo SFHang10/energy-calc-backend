@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="wix-html-scroll" content="no-scroll">
+    <title>Energy Monitoring - Transform Your Energy Future</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --color-primary: #00a8cc;
+            --color-secondary: #2ecc71;
+            --color-accent: #00d4ff;
+            --color-silver: #c0c5ce;
+            --color-dark-silver: #8b95a5;
+            --color-dark: #1a1d29;
+            --color-darker: #0f1117;
+            --color-light: #f0f4f8;
+            --color-gradient-1: linear-gradient(135deg, #00a8cc 0%, #2ecc71 100%);
+            --color-gradient-2: linear-gradient(135deg, #0f1117 0%, #1a1d29 50%, #00a8cc 100%);
+            --shadow-glow: 0 0 30px rgba(0, 168, 204, 0.3);
+            --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: var(--color-darker);
+            color: var(--color-light);
+            overflow-x: hidden;
+            line-height: 1.6;
+            height: auto;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+            background: 
+                radial-gradient(circle at 20% 50%, var(--color-primary) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, var(--color-secondary) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, var(--color-accent) 0%, transparent 50%);
+            animation: bgShift 15s ease-in-out infinite;
+        }
+
+        @keyframes bgShift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, 30px) scale(1.1); }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 17, 23, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.2rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 2px solid var(--color-primary);
+            box-shadow: var(--shadow-card);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: var(--color-gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-menu a {
+            color: var(--color-silver);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-bottom: 5px;
+        }
+
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--color-secondary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-menu a:hover {
+            color: var(--color-secondary);
+        }
+
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 8rem 5% 4rem;
+            position: relative;
+        }
+
+        .hero-content h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4.5rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            background: var(--color-gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(0, 168, 204, 0.5);
+            animation: slideInDown 1s ease-out;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-content p {
+            font-size: 1.4rem;
+            color: var(--color-silver);
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1.2rem 3rem;
+            background: var(--color-gradient-1);
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-glow);
+            animation: fadeIn 2s ease-out;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 0 50px rgba(0, 168, 204, 0.6);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 6rem 5%;
+            background: rgba(26, 29, 41, 0.5);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(0, 168, 204, 0.1) 0%, rgba(46, 204, 113, 0.1) 100%);
+            border: 2px solid var(--color-primary);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-glow);
+            border-color: var(--color-secondary);
+        }
+
+        .stat-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--color-secondary);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: var(--color-silver);
+            font-weight: 600;
+        }
+
+        /* Content Sections */
+        section {
+            padding: 6rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 3rem;
+            text-align: center;
+            background: var(--color-gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-intro {
+            font-size: 1.2rem;
+            color: var(--color-silver);
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto 4rem;
+            line-height: 1.8;
+        }
+
+        /* Methods Grid */
+        .methods-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .method-card {
+            background: linear-gradient(135deg, rgba(15, 17, 23, 0.9) 0%, rgba(26, 29, 41, 0.9) 100%);
+            border: 2px solid var(--color-dark-silver);
+            border-radius: 15px;
+            padding: 2.5rem;
+            transition: all 0.4s ease;
+        }
+
+        .method-card:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 168, 204, 0.3);
+        }
+
+        .method-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--color-accent);
+            margin-bottom: 1rem;
+        }
+
+        .method-card p {
+            color: var(--color-silver);
+            line-height: 1.8;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: rgba(15, 17, 23, 0.8);
+            border: 2px solid var(--color-primary);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 3rem 0;
+            box-shadow: var(--shadow-card);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            margin-top: 2rem;
+        }
+
+        .chart-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: var(--color-accent);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        /* Case Studies */
+        .case-studies {
+            background: rgba(26, 29, 41, 0.5);
+        }
+
+        .case-study {
+            background: linear-gradient(135deg, rgba(0, 168, 204, 0.05) 0%, rgba(46, 204, 113, 0.05) 100%);
+            border-left: 4px solid var(--color-secondary);
+            padding: 2.5rem;
+            margin: 2rem 0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .case-study:hover {
+            border-left-color: var(--color-accent);
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px rgba(0, 168, 204, 0.2);
+        }
+
+        .case-study h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: var(--color-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .case-study .location {
+            color: var(--color-accent);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .case-study p {
+            color: var(--color-silver);
+            line-height: 1.8;
+        }
+
+        /* ETL Section */
+        .etl-section {
+            background: linear-gradient(135deg, rgba(0, 168, 204, 0.1) 0%, rgba(46, 204, 113, 0.1) 100%);
+            border-radius: 20px;
+            padding: 4rem;
+            margin: 4rem 0;
+        }
+
+        .etl-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .etl-card {
+            background: rgba(15, 17, 23, 0.8);
+            border: 2px solid var(--color-secondary);
+            border-radius: 15px;
+            padding: 2.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .etl-card:hover {
+            border-color: var(--color-accent);
+            box-shadow: 0 0 30px rgba(46, 204, 113, 0.3);
+        }
+
+        .etl-card h4 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            color: var(--color-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .etl-savings {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .savings-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem;
+            background: rgba(0, 168, 204, 0.1);
+            border-radius: 8px;
+        }
+
+        .savings-label {
+            color: var(--color-silver);
+        }
+
+        .savings-value {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--color-secondary);
+            font-weight: 700;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(15, 17, 23, 0.95);
+            padding: 3rem 5%;
+            text-align: center;
+            border-top: 2px solid var(--color-primary);
+        }
+
+        footer p {
+            color: var(--color-silver);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-content p {
+                font-size: 1.1rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .nav-menu {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .chart-wrapper {
+                height: 300px;
+            }
+
+            .etl-section {
+                padding: 2rem;
+            }
+        }
+
+        /* Scroll Animations */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-in-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .sources-banner {
+            max-width: 900px;
+            margin: 0 auto 2rem;
+            padding: 1rem 1.25rem;
+            background: rgba(0, 168, 204, 0.08);
+            border: 1px solid rgba(0, 168, 204, 0.35);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            color: var(--color-silver);
+            line-height: 1.65;
+            text-align: center;
+        }
+        .cite-type {
+            display: inline-block;
+            padding: 0.15rem 0.55rem;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            vertical-align: middle;
+        }
+        .cite-type-third-party { background: rgba(0, 168, 204, 0.2); color: #00d4ff; }
+        .cite-type-etl-official { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+        .cite-type-gw-tool { background: rgba(162, 155, 254, 0.2); color: #a29bfe; }
+        .cite-demo { color: var(--color-accent); font-weight: 700; }
+        .has-cite { position: relative; }
+        .cite-link {
+            margin-left: 0.2rem;
+            font-size: 0.6em;
+            font-weight: 800;
+            color: #fff;
+            background: var(--color-primary);
+            border-radius: 4px;
+            padding: 0 4px;
+            text-decoration: none;
+            vertical-align: super;
+        }
+        .cite-link:hover { background: var(--color-secondary); }
+        .stat-card.has-cite-wrap,
+        .etl-card { position: relative; }
+        .stat-card:has(.has-cite:hover),
+        .method-card:has(.has-cite:hover),
+        .case-study:has(.has-cite:hover),
+        .etl-card:has(.has-cite:hover) {
+            z-index: 5;
+        }
+        .etl-section,
+        .chart-container {
+            overflow: visible;
+        }
+    </style>
+</head>
+<body
+    data-gwm-cite-mode="energy-monitoring"
+    data-gwm-cite-refs="/HTMLS%20GWM%20GWB/Refrenece%20Energy%20monitoring%20.Html">
+    <div class="bg-animation"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">ENERGY INSIGHTS</div>
+        <ul class="nav-menu">
+            <li><a href="#benefits">Benefits</a></li>
+            <li><a href="#methods">Methods</a></li>
+            <li><a href="#visualizations">Data</a></li>
+            <li><a href="#cases">Case Studies</a></li>
+            <li><a href="#etl">ETL Equipment</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Transform Your Energy Future</h1>
+            <p>Discover how energy monitoring in homes, offices, and restaurants unlocks <span data-cite="ref-em-14">10-40% savings</span> while reducing your carbon footprint</p>
+            <a href="#benefits" class="cta-button">Explore the Power of Data</a>
+        </div>
+    </section>
+
+    <!-- Animated Stats Section -->
+    <section class="stats-section" id="benefits">
+        <div id="sources-banner" class="sources-banner" aria-live="polite"></div>
+        <div class="stats-grid">
+            <div class="stat-card has-cite-wrap">
+                <div class="stat-number" data-target="40">0</div>
+                <div class="stat-label" data-cite="ref-em-14">% Energy Savings Possible</div>
+            </div>
+            <div class="stat-card has-cite-wrap">
+                <div class="stat-number" data-target="65">0</div>
+                <div class="stat-label" data-cite="ref-em-06">% Reduction in Hotels</div>
+            </div>
+            <div class="stat-card has-cite-wrap">
+                <div class="stat-number" data-target="377">0</div>
+                <div class="stat-label" data-cite="ref-em-06">£K Annual Savings Example</div>
+            </div>
+            <div class="stat-card has-cite-wrap">
+                <div class="stat-number" data-target="15">0</div>
+                <div class="stat-label" data-cite="ref-em-10">% Savings via Submetering</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Measurement Matters -->
+    <section id="why-measure">
+        <h2>Why Measure Energy Data?</h2>
+        <p class="section-intro">
+            Measuring energy consumption reveals hidden waste, identifies inefficiencies, and empowers targeted action. 
+            From restaurants cutting refrigeration costs to offices optimizing HVAC schedules, data-driven decisions deliver 
+            measurable financial and environmental returns.
+        </p>
+
+        <div class="methods-grid">
+            <div class="method-card fade-in-up">
+                <h3>🏠 Homes</h3>
+                <p>Submetering and consumption-based billing typically leads to <span data-cite="ref-em-10">10-15% lower energy use</span>. Residents clearly see their own consumption patterns and can make informed decisions about heating, lighting, and appliance usage.</p>
+            </div>
+            <div class="method-card fade-in-up">
+                <h3>🏢 Offices</h3>
+                <p>Automatic monitoring and targeting (aM&T) systems help businesses identify <span data-cite="ref-em-11">4-20% energy savings</span> with average cost reductions around <span data-cite="ref-em-11">10-15%</span> by revealing patterns, anomalies, and unnecessary baseloads.</p>
+            </div>
+            <div class="method-card fade-in-up">
+                <h3>🍽️ Restaurants</h3>
+                <p><span data-cite="ref-em-13">Granular monitoring</span> of refrigeration, HVAC, and cooking equipment highlights abnormal loads and out-of-hours use, enabling staff to quickly intervene and reduce waste while maintaining service quality.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Monitoring Methods -->
+    <section id="methods">
+        <h2>Monitoring Methods</h2>
+        <p class="section-intro">
+            From whole-building meters to IoT sensors, multiple approaches enable comprehensive energy visibility
+        </p>
+
+        <div class="methods-grid">
+            <div class="method-card fade-in-up">
+                <h3>1. Whole-Building Metering</h3>
+                <p>Main utility meters with interval logging (15-minute data) track total consumption and trends. Ideal for high-level tracking, bill validation, and before/after comparisons.</p>
+            </div>
+            <div class="method-card fade-in-up">
+                <h3>2. Sub-metering & aM&T</h3>
+                <p>Submeters on key circuits enable load disaggregation by zone or function. Automatic collection to software platforms provides analysis, alerts, and actionable insights.</p>
+            </div>
+            <div class="method-card fade-in-up">
+                <h3>3. Portable Monitoring</h3>
+                <p>Temporary clamp-on analyzers and data loggers measure power and quality parameters. Perfect for audits, troubleshooting, and validating savings without permanent installation.</p>
+            </div>
+            <div class="method-card fade-in-up">
+                <h3>4. IoT & BMS Integration</h3>
+                <p>Smart devices and building management systems combine energy data with occupancy, temperature, and equipment status for advanced analytics and automated optimization.</p>
+            </div>
+            <div class="method-card fade-in-up">
+                <h3>5. Tenant Metering</h3>
+                <p>Individual meters in multi-unit buildings enable consumption-based billing. Transparency drives <span data-cite="ref-em-10">10-15% average savings</span> across EU housing stock when combined with regular feedback.</p>
+            </div>
+            <div class="method-card fade-in-up">
+                <h3>6. Digital Optimization</h3>
+                <p>Energy analytics platforms benchmark performance, detect anomalies, and continuously optimize systems. European buildings achieve <span data-cite="ref-em-12">20-40% heating savings</span> using data-driven optimization.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visualizations Section -->
+    <section id="visualizations">
+        <h2>Data Visualization Examples</h2>
+        <p class="section-intro">
+            Interactive charts demonstrate how monitoring reveals waste patterns and quantifies savings
+            (<span data-cite="ref-em-19">illustrative demo data</span>, not a single measured site).
+        </p>
+
+        <!-- Restaurant Time-of-Day Profile -->
+        <div class="chart-container fade-in-up" data-cite="ref-em-19">
+            <h3 class="chart-title">Restaurant Energy Profile: Before & After Optimization</h3>
+            <div class="chart-wrapper">
+                <canvas id="restaurantChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Office Monthly Savings -->
+        <div class="chart-container fade-in-up">
+            <h3 class="chart-title">Office Building: Monthly Energy & Cost Reduction</h3>
+            <div class="chart-wrapper">
+                <canvas id="officeChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Multi-Family Housing -->
+        <div class="chart-container fade-in-up">
+            <h3 class="chart-title">Multi-Family Housing: Heat Consumption Per Apartment</h3>
+            <div class="chart-wrapper">
+                <canvas id="housingChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Hotel Performance -->
+        <div class="chart-container fade-in-up">
+            <h3 class="chart-title">Hotel: Energy Use Per Room Sold</h3>
+            <div class="chart-wrapper">
+                <canvas id="hotelChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- European Case Studies -->
+    <section id="cases" class="case-studies">
+        <h2>European Success Stories</h2>
+        <p class="section-intro">
+            Real-world examples of energy monitoring delivering substantial savings across Europe
+        </p>
+
+        <div class="case-study fade-in-up" data-cite="ref-em-04">
+            <h3>Amsterdam & Bilbao</h3>
+            <span class="location">Netherlands & Spain - ATELIER Project</span>
+            <p>Through the ATELIER project, parts of Amsterdam and Bilbao are being transformed into "Positive Energy Districts" where districts generate more energy than they consume. Detailed monitoring of building consumption, local generation (solar), and storage optimizes self-consumption and proves that neighbourhood-scale decarbonisation is both technically and economically viable.</p>
+        </div>
+
+        <div class="case-study fade-in-up">
+            <h3>E.ON Glasgow Office</h3>
+            <span class="location">United Kingdom</span>
+            <p>Smart thermostatic radiator valve devices on two office floors with 5-minute data collection enabled room-by-room scheduling aligned with actual occupancy. Within two months, heating energy use dropped by <span data-cite="ref-em-05">33%</span>, saving 4.2 MWh and avoiding 0.8 tonnes of CO₂ while better matching comfort to hybrid working patterns.</p>
+        </div>
+
+        <div class="case-study fade-in-up">
+            <h3>European Hotel Project</h3>
+            <span class="location">Europe-wide</span>
+            <p>A European hotel combining an energy centre, CHP units, and comprehensive energy monitoring reduced grid electricity dependence by 75% and achieved total energy savings of <span data-cite="ref-em-06">65%</span>, translating to cost reductions of approximately <span data-cite="ref-em-06">£377,000</span> in 12 months.</p>
+        </div>
+
+        <div class="case-study fade-in-up">
+            <h3>Digital Optimization in Germany, Denmark & Spain</h3>
+            <span class="location">Multiple EU Countries - WE Data Europe</span>
+            <p>Real-life projects using submetering and smart controls to optimize heating systems in existing buildings achieved sustained heating energy savings of <span data-cite="ref-em-07">20-40%</span> without major structural works. Systems made buildings ready for low-temperature heat sources while supporting EU Energy Efficiency Directive objectives.</p>
+        </div>
+
+        <div class="case-study fade-in-up" data-cite="ref-em-08">
+            <h3>Paris Smart Lighting</h3>
+            <span class="location">France - Smart EPC Initiative</span>
+            <p>Paris upgraded public lighting with connected luminaires and integrated sensors, using monitoring data to intelligently dim lights and cut unnecessary consumption. The network also hosts environmental sensors producing heat maps of air quality and temperature that guide targeted actions, improving quality of life while reducing operating costs.</p>
+        </div>
+
+        <div class="case-study fade-in-up">
+            <h3>UK Commercial Property Portfolio</h3>
+            <span class="location">South West England</span>
+            <p>Multi-utility sub-metering system covering electricity, gas, oil-fired heating, and water across office buildings achieved over five years: <span data-cite="ref-em-09">50% reduction in carbon emissions</span>, <span data-cite="ref-em-09">£50,000 annual energy savings</span>, and <span data-cite="ref-em-09">54% reduction in water use</span> (£2,500/year) at one office complex.</p>
+        </div>
+    </section>
+
+    <!-- ETL Equipment Section -->
+    <section id="etl">
+        <h2>UK Energy Technology List (ETL)</h2>
+        <p class="section-intro">
+            <span data-cite="ref-em-etl-disclaimer">ETL-listed</span> monitoring equipment meets rigorous performance criteria; example economics below are from the <span data-cite="ref-em-02">UK Energy Technology List</span>, not Greenways estimates.
+        </p>
+
+        <div class="etl-section fade-in-up">
+            <h3 style="color: var(--color-accent); font-family: 'Orbitron', sans-serif; font-size: 2rem; margin-bottom: 2rem; text-align: center;">
+                Proven Equipment Performance
+            </h3>
+            
+            <div class="etl-grid">
+                <div class="etl-card">
+                    <h4>Portable Energy Monitoring</h4>
+                    <p style="color: var(--color-silver); margin-bottom: 1.5rem;">
+                        Power quality analyzers and portable data loggers (e.g., BlackBox units, portable testers) enable temporary, high-resolution monitoring of electrical systems.
+                    </p>
+                    <div class="etl-savings">
+                        <div class="savings-item">
+                            <span class="savings-label">Typical System:</span>
+                            <span class="savings-value">20 kW / 185,000 kWh/yr</span>
+                        </div>
+                        <div class="savings-item">
+                            <span class="savings-label">Equipment Cost:</span>
+                            <span class="savings-value" data-cite="ref-em-02">£1,550</span>
+                        </div>
+                        <div class="savings-item">
+                            <span class="savings-label">Annual Savings:</span>
+                            <span class="savings-value" data-cite="ref-em-02">£2,060 / 18,500 kWh</span>
+                        </div>
+                        <div class="savings-item">
+                            <span class="savings-label">CO₂ Avoided:</span>
+                            <span class="savings-value" data-cite="ref-em-02">6.5 tonnes/year</span>
+                        </div>
+                        <div class="savings-item">
+                            <span class="savings-label">Payback Period:</span>
+                            <span class="savings-value" data-cite="ref-em-02">~1 year</span>
+                        </div>
+                        <div class="savings-item">
+                            <span class="savings-label">Lifetime ROI:</span>
+                            <span class="savings-value" data-cite="ref-em-02">13x investment</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="etl-card">
+                    <h4>Automatic Monitoring & Targeting (aM&T)</h4>
+                    <p style="color: var(--color-silver); margin-bottom: 1.5rem;">
+                        Continuous sub-metering systems (e.g., Electrex Femto, Exa, Kilo) with automatic data collection and integration into aM&T platforms for large facilities.
+                    </p>
+                    <div class="etl-savings">
+                        <div class="savings-item">
+                            <span class="savings-label">Typical Site:</span>
+                            <span class="savings-value">5,000 MWh/year</span>
+                        </div>
+                        <div class="savings-item">
+                            <span class="savings-label">System Cost:</span>
+                            <span class="savings-value" data-cite="ref-em-02">£30,000</span>
+                        </div>
+                        <div class="savings-item">
+                            <span class="savings-label">Annual Savings:</span>
+                            <span class="savings-value" data-cite="ref-em-02">£45,000 / 500 MWh</span>
+                        </div>
+                        <div class="savings-item">
+                            <span class="savings-label">CO₂ Avoided:</span>
+                            <span class="savings-value" data-cite="ref-em-02">155 tonnes/year</span>
+                        </div>
+                        <div class="savings-item">
+                            <span class="savings-label">Payback Period:</span>
+                            <span class="savings-value" data-cite="ref-em-02">~1 year</span>
+                        </div>
+                        <div class="savings-item">
+                            <span class="savings-label">Lifetime ROI:</span>
+                            <span class="savings-value" data-cite="ref-em-02">14x investment</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 3rem; text-align: center; padding: 2rem; background: rgba(0, 168, 204, 0.1); border-radius: 15px;">
+                <h4 style="font-family: 'Orbitron', sans-serif; color: var(--color-secondary); font-size: 1.6rem; margin-bottom: 1rem;">
+                    Typical aM&T Impact
+                </h4>
+                <p style="color: var(--color-silver); font-size: 1.1rem;">
+                    ETL-compliant automatic monitoring and targeting equipment helps customers identify 
+                    <span style="color: var(--color-accent); font-weight: 700;" data-cite="ref-em-11">4-20% energy savings</span>, 
+                    with average cost reductions around 
+                    <span style="color: var(--color-accent); font-weight: 700;" data-cite="ref-em-11">10-15%</span> 
+                    by raising awareness, identifying waste, and supporting robust energy management
+                    (<span data-cite="ref-em-11">Carbon Trust aM&amp;T guidance</span>; ETL lists qualifying equipment per <span data-cite="ref-em-02">[2]</span>).
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Energy Insights. Powered by data-driven decisions. Transform your energy future today.</p>
+    </footer>
+
+    <script src="/HTMLS%20GWM%20GWB/js/energy-monitoring-citations.js"></script>
+    <script>
+        // Animated Counter for Stats
+        function animateCounter(element) {
+            const target = parseInt(element.getAttribute('data-target'));
+            const duration = 2000;
+            const increment = target / (duration / 16);
+            let current = 0;
+
+            const updateCounter = () => {
+                current += increment;
+                if (current < target) {
+                    element.textContent = Math.floor(current);
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.textContent = target;
+                }
+            };
+
+            updateCounter();
+        }
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    
+                    // Trigger counter animation for stat cards
+                    if (entry.target.classList.contains('stat-card')) {
+                        const counter = entry.target.querySelector('.stat-number');
+                        if (counter && !counter.classList.contains('animated')) {
+                            counter.classList.add('animated');
+                            animateCounter(counter);
+                        }
+                    }
+                }
+            });
+        }, observerOptions);
+
+        // Observe all fade-in elements
+        document.querySelectorAll('.fade-in-up, .stat-card').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Chart.js configurations
+        const chartColors = {
+            primary: '#00a8cc',
+            secondary: '#2ecc71',
+            accent: '#00d4ff',
+            silver: '#c0c5ce',
+            background: 'rgba(15, 17, 23, 0.8)'
+        };
+
+        // Restaurant Time-of-Day Profile
+        const restaurantCtx = document.getElementById('restaurantChart').getContext('2d');
+        new Chart(restaurantCtx, {
+            type: 'line',
+            data: {
+                labels: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00', '24:00'],
+                datasets: [{
+                    label: 'Before Monitoring',
+                    data: [35, 33, 32, 45, 85, 60, 95, 75, 38],
+                    borderColor: chartColors.silver,
+                    backgroundColor: 'rgba(192, 197, 206, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3
+                }, {
+                    label: 'After Optimization',
+                    data: [12, 10, 11, 42, 80, 58, 88, 70, 15],
+                    borderColor: chartColors.secondary,
+                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: chartColors.silver,
+                            font: { size: 14 }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 17, 23, 0.95)',
+                        titleColor: chartColors.accent,
+                        bodyColor: chartColors.silver,
+                        borderColor: chartColors.primary,
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Energy Use (kWh)',
+                            color: chartColors.silver
+                        },
+                        ticks: { color: chartColors.silver },
+                        grid: { color: 'rgba(192, 197, 206, 0.1)' }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time of Day',
+                            color: chartColors.silver
+                        },
+                        ticks: { color: chartColors.silver },
+                        grid: { color: 'rgba(192, 197, 206, 0.1)' }
+                    }
+                }
+            }
+        });
+
+        // Office Monthly Savings
+        const officeCtx = document.getElementById('officeChart').getContext('2d');
+        new Chart(officeCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Before aM&T (kWh)',
+                    data: [45000, 42000, 38000, 32000, 28000, 26000, 24000, 25000, 30000, 36000, 40000, 44000],
+                    backgroundColor: 'rgba(192, 197, 206, 0.7)',
+                    borderColor: chartColors.silver,
+                    borderWidth: 2
+                }, {
+                    label: 'After aM&T (kWh)',
+                    data: [38000, 36000, 32000, 27000, 24000, 22000, 20000, 21000, 25000, 30000, 34000, 37000],
+                    backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                    borderColor: chartColors.secondary,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: chartColors.silver,
+                            font: { size: 14 }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 17, 23, 0.95)',
+                        titleColor: chartColors.accent,
+                        bodyColor: chartColors.silver,
+                        borderColor: chartColors.primary,
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Energy Consumption (kWh)',
+                            color: chartColors.silver
+                        },
+                        ticks: { color: chartColors.silver },
+                        grid: { color: 'rgba(192, 197, 206, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: chartColors.silver },
+                        grid: { color: 'rgba(192, 197, 206, 0.1)' }
+                    }
+                }
+            }
+        });
+
+        // Multi-Family Housing
+        const housingCtx = document.getElementById('housingChart').getContext('2d');
+        new Chart(housingCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Apt 1', 'Apt 2', 'Apt 3', 'Apt 4', 'Apt 5', 'Apt 6', 'Apt 7', 'Apt 8'],
+                datasets: [{
+                    label: 'Before Submetering (assumed)',
+                    data: [8500, 8500, 8500, 8500, 8500, 8500, 8500, 8500],
+                    backgroundColor: 'rgba(192, 197, 206, 0.7)',
+                    borderColor: chartColors.silver,
+                    borderWidth: 2
+                }, {
+                    label: 'After Submetering (actual)',
+                    data: [6200, 7800, 5900, 8100, 7200, 6800, 7500, 6400],
+                    backgroundColor: 'rgba(0, 168, 204, 0.7)',
+                    borderColor: chartColors.primary,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: chartColors.silver,
+                            font: { size: 14 }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 17, 23, 0.95)',
+                        titleColor: chartColors.accent,
+                        bodyColor: chartColors.silver,
+                        borderColor: chartColors.primary,
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Heat Consumption (kWh/year)',
+                            color: chartColors.silver
+                        },
+                        ticks: { color: chartColors.silver },
+                        grid: { color: 'rgba(192, 197, 206, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: chartColors.silver },
+                        grid: { color: 'rgba(192, 197, 206, 0.1)' }
+                    }
+                }
+            }
+        });
+
+        // Hotel Performance
+        const hotelCtx = document.getElementById('hotelChart').getContext('2d');
+        new Chart(hotelCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Energy per Room Sold (kWh)',
+                    data: [40, 38, 35, 32, 28, 24, 22, 20, 20, 21, 22, 21],
+                    borderColor: chartColors.accent,
+                    backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: chartColors.silver,
+                            font: { size: 14 }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 17, 23, 0.95)',
+                        titleColor: chartColors.accent,
+                        bodyColor: chartColors.silver,
+                        borderColor: chartColors.primary,
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'kWh per Room Sold',
+                            color: chartColors.silver
+                        },
+                        ticks: { color: chartColors.silver },
+                        grid: { color: 'rgba(192, 197, 206, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: chartColors.silver },
+                        grid: { color: 'rgba(192, 197, 206, 0.1)' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
