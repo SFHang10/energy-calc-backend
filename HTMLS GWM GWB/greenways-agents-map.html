@@ -409,8 +409,8 @@
       { id: "finance", pinX: 62, pinY: 48, cardX: 3, cardY: 56 }
     ],
     "scene-chef-ai-callouts": [
-      { id: "media", pinX: 70, pinY: 30, cardRight: 3, cardY: 5 },
-      { id: "equipment", pinX: 35, pinY: 68, cardX: 3, cardY: 54 }
+      { id: "media", pinX: 48, pinY: 38, cardRight: 3, cardY: 5 },
+      { id: "equipment", pinX: 72, pinY: 50, cardX: 3, cardY: 54 }
     ],
     "scene-sustainability-callouts": [
       { id: "deals", pinX: 62, pinY: 35, cardRight: 3, cardY: 6 },
@@ -451,6 +451,25 @@
     }).join("");
   }
 
+  function cardEdgeToward(cardR, panelR, targetX, targetY) {
+    var left = cardR.left - panelR.left;
+    var right = cardR.right - panelR.left;
+    var top = cardR.top - panelR.top;
+    var bottom = cardR.bottom - panelR.top;
+    var cx = (left + right) / 2;
+    var cy = (top + bottom) / 2;
+    var dx = targetX - cx;
+    var dy = targetY - cy;
+    if (Math.abs(dx) < 0.001 && Math.abs(dy) < 0.001) return { x: cx, y: cy };
+    var hw = (right - left) / 2;
+    var hh = (bottom - top) / 2;
+    var scale = Math.min(
+      dx !== 0 ? hw / Math.abs(dx) : Infinity,
+      dy !== 0 ? hh / Math.abs(dy) : Infinity
+    );
+    return { x: cx + dx * scale, y: cy + dy * scale };
+  }
+
   function layoutSceneLines(sceneEl) {
     if (!sceneEl || window.matchMedia("(max-width: 560px)").matches) return;
     sceneEl.querySelectorAll(".scene-callout").forEach(function (row) {
@@ -465,15 +484,22 @@
       var cardR = card.getBoundingClientRect();
       var x1 = pinR.left + pinR.width / 2 - pr.left;
       var y1 = pinR.top + pinR.height / 2 - pr.top;
-      var x2 = cardR.left + cardR.width / 2 - pr.left;
-      var y2 = cardR.top + cardR.height / 2 - pr.top;
+      var edge = cardEdgeToward(cardR, pr, x1, y1);
+      var x2 = edge.x;
+      var y2 = edge.y;
       var dx = x2 - x1;
       var dy = y2 - y1;
       var len = Math.sqrt(dx * dx + dy * dy);
+      if (len < 1) {
+        line.style.width = "0";
+        return;
+      }
       var angle = Math.atan2(dy, dx) * (180 / Math.PI);
-      line.style.left = x1 + "px";
-      line.style.top = y1 + "px";
-      line.style.width = Math.max(24, len - 20) + "px";
+      var pinPad = 6;
+      var cardPad = 2;
+      line.style.left = (x1 + (dx / len) * pinPad) + "px";
+      line.style.top = (y1 + (dy / len) * pinPad) + "px";
+      line.style.width = Math.max(12, len - pinPad - cardPad) + "px";
       line.style.transform = "rotate(" + angle + "deg)";
     });
   }
