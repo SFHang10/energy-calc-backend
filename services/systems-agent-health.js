@@ -52,6 +52,12 @@ function daysSince(date) {
   return Math.floor((Date.now() - date.getTime()) / (24 * 60 * 60 * 1000));
 }
 
+function isLegacyHardcodedGrantsExport(grantsSystem) {
+  if (!grantsSystem) return false;
+  if (/combined grants system/i.test(grantsSystem)) return false;
+  return /hardcoded product-specific grants/i.test(grantsSystem);
+}
+
 function statusFromAge(days, warnAfter, staleAfter) {
   if (days === null) return 'unknown';
   if (days <= warnAfter) return 'ok';
@@ -120,23 +126,48 @@ async function checkGrants() {
   const exportMatch = head.match(/"exportDate"\s*:\s*"([^"]+)"/);
   const exportDate = parseIsoDate(exportMatch?.[1]);
   const schemesInExport = head.match(/"schemesJsonGrants"\s*:\s*(\d+)/);
+  const grantsSystem = head.match(/"grantsSystem"\s*:\s*"([^"]+)"/)?.[1];
+
+  let grantsOnlyExportDate = null;
+  if (fs.existsSync(PATHS.productsGrants)) {
+    const grantsHead = readHead(PATHS.productsGrants, 4096);
+    grantsOnlyExportDate = parseIsoDate(grantsHead.match(/"exportDate"\s*:\s*"([^"]+)"/)?.[1]);
+  }
 
   let status = 'ok';
   let summary = `${active.length} active schemes · export ${exportMatch?.[1] || 'unknown'}`;
+  let action = null;
 
   if (exportDate && schemesMtime > exportDate) {
     status = 'stale';
-    summary = `Schemes catalogue updated after last product export — re-run grants enrichment.`;
+    summary = 'Schemes catalogue updated after last product export — re-run grants enrichment.';
+    action = 'node product-grants-integrator.js && npm run build:products-grants-bundle';
+  } else if (
+    grantsOnlyExportDate &&
+    exportDate &&
+    grantsOnlyExportDate > exportDate &&
+    path.basename(productsPath) === 'products-with-grants-and-collection.json'
+  ) {
+    status = 'stale';
+    summary = 'Grants export is newer than collection bundle — rebuild the bundle.';
+    action = 'npm run build:products-grants-bundle';
+  } else if (isLegacyHardcodedGrantsExport(grantsSystem)) {
+    status = 'stale';
+    summary = 'Collection bundle still uses legacy hardcoded grants — rebuild from integrator output.';
+    action = 'node product-grants-integrator.js && npm run build:products-grants-bundle';
   } else if (schemesInExport && Number(schemesInExport[1]) < active.length - 2) {
     status = 'warn';
     summary = `Scheme count (${active.length}) may exceed export overlay (${schemesInExport[1]}).`;
+    action = 'node product-grants-integrator.js && npm run build:products-grants-bundle';
   }
 
   return makeResult('grants', 'Grants & schemes', status, summary, {
     schemesCount: active.length,
     exportDate: exportMatch?.[1] || null,
     schemesJsonGrants: schemesInExport ? Number(schemesInExport[1]) : null,
-    action: status === 'ok' ? null : 'node product-grants-integrator.js'
+    grantsSystem: grantsSystem || null,
+    grantsOnlyExportDate: grantsOnlyExportDate?.toISOString() || null,
+    action
   });
 }
 
@@ -152,8 +183,26 @@ async function checkProducts() {
   const exportDate = head.match(/"exportDate"\s*:\s*"([^"]+)"/)?.[1];
   const totalProducts = head.match(/"totalProducts"\s*:\s*(\d+)/)?.[1];
   const totalGrants = head.match(/"totalGrants"\s*:\s*(\d+)/)?.[1];
+  const grantsSystem = head.match(/"grantsSystem"\s*:\s*"([^"]+)"/)?.[1];
   const age = daysSince(parseIsoDate(exportDate));
-  const status = statusFromAge(age, 7, 30);
+  let status = statusFromAge(age, 7, 30);
+  let action = status !== 'ok' ? 'node product-grants-integrator.js && npm run build:products-grants-bundle' : null;
+
+  if (fs.existsSync(PATHS.productsGrants) && path.basename(productsPath) === 'products-with-grants-and-collection.json') {
+    const grantsHead = readHead(PATHS.productsGrants, 4096);
+    const grantsExport = grantsHead.match(/"exportDate"\s*:\s*"([^"]+)"/)?.[1];
+    const grantsDate = parseIsoDate(grantsExport);
+    const bundleDate = parseIsoDate(exportDate);
+    if (grantsDate && bundleDate && grantsDate > bundleDate) {
+      status = 'stale';
+      action = 'npm run build:products-grants-bundle';
+    }
+  }
+
+  if (isLegacyHardcodedGrantsExport(grantsSystem)) {
+    status = 'stale';
+    action = 'node product-grants-integrator.js && npm run build:products-grants-bundle';
+  }
 
   return makeResult(
     'products',
@@ -164,8 +213,10 @@ async function checkProducts() {
       exportDate,
       totalProducts: totalProducts ? Number(totalProducts) : null,
       totalGrants: totalGrants ? Number(totalGrants) : null,
+      grantsSystem: grantsSystem || null,
       ageDays: age,
-      file: path.basename(productsPath)
+      file: path.basename(productsPath),
+      action
     }
   );
 }

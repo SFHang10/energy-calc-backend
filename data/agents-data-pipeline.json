@@ -1,0 +1,121 @@
+{
+  "updatedAt": "2026-06-17",
+  "playbookSkill": "Skills/agents-data-refresh-playbook.md",
+  "orchestratorTriggers": [
+    "agents data refresh",
+    "refresh agent data",
+    "update agent databases",
+    "data cleaning agents",
+    "stale agent data",
+    "rebuild deals feed",
+    "refresh schemes"
+  ],
+  "staffLinks": {
+    "agentsAdmin": "/agents-admin.html",
+    "agentsAdminMap": "/agents-admin-map.html",
+    "systemsAgent": "/greenways/systems-agent",
+    "systemsStatusApi": "/api/systems-agent/status",
+    "registry": "data/greenways-agent-admin-registry.json"
+  },
+  "tiers": [
+    {
+      "id": "canonical",
+      "label": "Tier 1 — Canonical (edit here)",
+      "paths": [
+        "schemes.json",
+        "FULL-DATABASE-5554.json",
+        "data/sustainable-products-catalog.json",
+        "data/deals-feed-seeds.json",
+        "data/deals-weekly-input.json",
+        "data/greenways-content-modules.json",
+        "data/companies.json"
+      ]
+    },
+    {
+      "id": "generated",
+      "label": "Tier 2 — Generated (rebuild)",
+      "paths": [
+        "products-with-grants.json",
+        "products-with-grants-and-collection.json",
+        "data/deals-feed.json",
+        "data/media-daily-brief.json"
+      ]
+    }
+  ],
+  "pipeline": [
+    {
+      "id": "integrator",
+      "label": "Product grants export",
+      "command": "node product-grants-integrator.js",
+      "npmScript": null,
+      "when": "schemes.json changed",
+      "agents": ["grants", "equipment", "products", "finance"]
+    },
+    {
+      "id": "build-products-grants-bundle",
+      "label": "Grants + collection bundle",
+      "command": "npm run build:products-grants-bundle",
+      "npmScript": "build:products-grants-bundle",
+      "when": "after product-grants-integrator.js (marketplace widget + deep dive)",
+      "agents": ["grants", "equipment", "products", "finance", "systems"]
+    },
+    {
+      "id": "enrich-sustainable",
+      "label": "Sustainable catalog grants",
+      "command": "npm run enrich:sustainable-products",
+      "npmScript": "enrich:sustainable-products",
+      "when": "sustainable-products-catalog.json or schemes changed",
+      "agents": ["products"]
+    },
+    {
+      "id": "build-deals-feed",
+      "label": "Deals feed",
+      "command": "npm run build:deals-feed",
+      "npmScript": "build:deals-feed",
+      "when": "deals seeds or weekly input changed",
+      "agents": ["deals"]
+    },
+    {
+      "id": "build-media-brief",
+      "label": "Media daily brief",
+      "command": "npm run build:media-daily-brief",
+      "npmScript": "build:media-daily-brief",
+      "when": "new content-ops news edition",
+      "agents": ["media"]
+    },
+    {
+      "id": "sync-module-knowledge",
+      "label": "Portal module → agent knowledge",
+      "command": "npm run sync:content-module-knowledge:apply",
+      "npmScript": "sync:content-module-knowledge:apply",
+      "when": "greenways-content-modules.json changed",
+      "agents": ["grants", "finance", "equipment", "deals", "media", "products", "systems"]
+    },
+    {
+      "id": "sync-sidebar",
+      "label": "Agent sidebar quick links",
+      "command": "npm run sync:agent-sidebar",
+      "npmScript": "sync:agent-sidebar",
+      "when": "greenways-agent-sidebar-config.json changed",
+      "agents": ["grants", "finance", "equipment", "deals", "media", "products", "systems"]
+    }
+  ],
+  "validators": [
+    {
+      "id": "smoke-agents-ask",
+      "label": "Agent knowledge smoke",
+      "command": "npm run smoke:agents-ask",
+      "npmScript": "smoke:agents-ask"
+    },
+    {
+      "id": "smoke-agent-links",
+      "label": "Agent reference link smoke",
+      "command": "npm run smoke:agent-links",
+      "npmScript": "smoke:agent-links"
+    }
+  ],
+  "verify": {
+    "label": "Edwardo read-only verify",
+    "hint": "Open /greenways/systems-agent or GET /api/systems-agent/status — does not run scripts"
+  }
+}
