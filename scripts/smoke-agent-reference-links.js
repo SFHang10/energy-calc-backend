@@ -28,8 +28,17 @@ function addUrl(map, url, source) {
 async function headCheck(url) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const fetchOpts = {
+    redirect: 'follow',
+    signal: controller.signal,
+    headers: {
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      Accept: 'text/html,application/xhtml+xml'
+    }
+  };
   try {
-    const res = await fetch(url, { method: 'HEAD', redirect: 'follow', signal: controller.signal });
+    const res = await fetch(url, { method: 'HEAD', ...fetchOpts });
     if (res.status >= 200 && res.status < 400) {
       clearTimeout(timer);
       return { ok: true, status: res.status };
@@ -38,7 +47,7 @@ async function headCheck(url) {
     /* some hosts block HEAD — fall through to GET */
   }
   try {
-    const getRes = await fetch(url, { method: 'GET', redirect: 'follow', signal: controller.signal });
+    const getRes = await fetch(url, { method: 'GET', ...fetchOpts });
     clearTimeout(timer);
     return { ok: getRes.status >= 200 && getRes.status < 400, status: getRes.status };
   } catch (error) {

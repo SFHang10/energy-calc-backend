@@ -135,10 +135,13 @@ Uses same `combined-grants-loader.js` + `schemes.json`.
 
 ```bash
 npm run validate:agent-data
+npm run smoke:agent-links
 # or at minimum:
 npm run smoke:agents-ask
 node check-product-grants.js   # compares bundle vs legacy portal (informational)
 ```
+
+- **`npm run smoke:agent-links`** — HEAD/GET check on scheme primary links + agent reference URLs (80 URLs). Re-run after URL edits; helper map in `scripts/apply-scheme-link-fixes.js`.
 
 - Edwardo → verify **grants** + **products** checks
 - Spot-check: `/api/product-widget/etl_XX_XXXXX` grant chips vs Andrieus answer for same category
