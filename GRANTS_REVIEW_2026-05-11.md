@@ -1,6 +1,31 @@
 # Grants and Schemes Review - 2026-05-11
 
-## Summary
+## Applied status (2026-07-02)
+
+All proposals below were checked against `schemes.json` (78 schemes). **Applied in catalogue** unless noted.
+
+| # | ID | Action | Status |
+|---|-----|--------|--------|
+| N1 | `uk-warm-homes-plan` | Add | ✅ Active |
+| N2 | `eu-life-cet-2026` | Add | ✅ Active, deadline 2026-09-16, priority |
+| U1 | `bus-grant` | 2026 budget note + link | ✅ Applied |
+| U2 | `eco4` | Deadline → 2026-12-31 | ✅ Applied |
+| U3 | `seai-heat-pump` | Max → €12,500 | ✅ Applied |
+| U4 | `isde` | 2026 updates + RVO links | ✅ Applied (Jul 2026 link fix) |
+| U5 | `eia` | 2026 tax parameters | ✅ Applied |
+| U6 | `kfw-loans` | Heating support wording | ✅ Applied |
+| U7 | `maprimenov` | 2026 pathway notes | ✅ Applied |
+| U8 | `be-flanders-premium` | March 2026 reform note | ✅ Applied |
+| U9 | `be-wallonia-prime` | Temporary regime + cutoff | ✅ Applied, priority to Sep 2026 |
+| E1 | `gbis` | Expired (ended 2026-03-31) | ✅ Expired |
+| E2 | `be-brussels-prime` | Paused pending 2026 decision | ✅ Paused |
+| E3 | `moves-iii` | Time-bound calls | ✅ Expired (Feb 2026 window closed; IDAE note added) |
+
+**Next after catalogue edits:** `node product-grants-integrator.js` → `npm run build:products-grants-bundle` → commit + push.
+
+---
+
+## Summary (original review)
 - Total current schemes in `schemes.json`: 62
 - Review scope: official 2026 updates from UK GOV, SEAI, RVO, KfW, CINEA/LIFE, Belgium regional portals, IDAE, and Fundo Ambiental
 - Proposed actions before JSON update:
