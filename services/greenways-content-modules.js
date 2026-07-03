@@ -131,7 +131,7 @@ function toModuleItem(module, profile = {}, overrides = {}) {
     description: String(overrides.description || module.description || '').slice(0, 220),
     usageHint: String(overrides.usageHint || module.usageHint || '').slice(0, 220),
     href: modalHref,
-    fullPageHref: fullPageHref(baseHref),
+    fullPageHref: overrides.fullPageHref || module.fullPageHref || fullPageHref(baseHref),
     openMode: module.openMode || 'modal',
     kind: module.kind || 'html',
     openSize: overrides.openSize || module.defaultOpenSize || ''
@@ -169,7 +169,7 @@ const INTENT_MODULE_HINTS = {
     deep_dive: ['equipment-deep-dive', 'savings-projection'],
     savings_projection: ['savings-projection', 'equipment-deep-dive'],
     equipment_intelligence: ['etl-finder', 'equipment-deep-dive'],
-    etl_verification: ['etl-finder', 'equipment-deep-dive'],
+    etl_verification: ['etl-official-site', 'etl-finder', 'equipment-deep-dive'],
     product_comparison: ['appliance-comparison', 'equipment-deep-dive'],
     renovation: ['sustainable-renovations', 'insulation-guide', 'renovation-plans'],
     insulation: ['insulation-guide', 'sustainable-renovations'],

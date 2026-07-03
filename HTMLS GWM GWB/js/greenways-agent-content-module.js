@@ -43,6 +43,8 @@
     ["energy-cost-guide%20(1)", "energy-cost-guide"],
     ["energy-cost-guide", "energy-cost-guide"],
     ["equipment_intelligence_tool", "etl-finder"],
+    ["etl-official-site", "etl-official-site"],
+    ["etl.energysecurity.gov.uk", "etl-official-site"],
     ["energy-calculator-enhanced", "etl-calculator"],
     ["energy-audit-widget", "energy-audit"],
     ["savings.html", "savings-tour"],
@@ -127,6 +129,15 @@
       description: "Greenways product calculator — compare energy use of efficient products vs standard models.",
       usageHint: "Enter current equipment and usage, compare product options (including ETL-listed rows), then use savings figures in finance or grants conversations.",
       href: "/energy-calculator/energy-calculator-enhanced-2.html",
+      defaultOpenSize: "near-full"
+    },
+    "etl-official-site": {
+      id: "etl-official-site",
+      title: "Energy Technology List (official)",
+      description: "UK government-backed ETL register — browse the scheme in their own words.",
+      usageHint: "Read how ETL verifies products, then open the official site for categories and product search.",
+      href: "./etl-official-site.html",
+      fullPageHref: "https://etl.energysecurity.gov.uk/",
       defaultOpenSize: "near-full"
     },
     "schemes-portal-restaurant": {
@@ -474,6 +485,7 @@
       description: overrides.description || (reg && reg.description) || "",
       usageHint: overrides.usageHint || (reg && reg.usageHint) || "",
       href: href,
+      fullPageHref: overrides.fullPageHref || (reg && reg.fullPageHref) || "",
       openSize: overrides.openSize || (reg && reg.defaultOpenSize) || "",
       kind: (reg && reg.kind) || "html"
     });
@@ -724,7 +736,8 @@
     if (!reg) return item;
     return Object.assign({}, item, {
       description: item.description || reg.description || "",
-      usageHint: item.usageHint || reg.usageHint || ""
+      usageHint: item.usageHint || reg.usageHint || "",
+      fullPageHref: item.fullPageHref || reg.fullPageHref || ""
     });
   }
 

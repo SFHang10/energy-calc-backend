@@ -54,11 +54,17 @@ const RENOVATION_FOCUS = {
 
 const EQUIPMENT_MODULE = { theme: 'equipment', agentName: 'Artemis' };
 
+const EXTERNAL_URL_MODULE_IDS = [
+  ['etl.energysecurity.gov.uk', 'etl-official-site']
+];
+
 const REF_MODULE_IDS = {
   projection: 'savings-projection',
   trajectory: 'savings-trajectory',
   'trajectory-baseline': 'savings-trajectory',
   intelligence: 'etl-finder',
+  'etl-uk-home': 'etl-official-site',
+  'etl-products-search': 'etl-official-site',
   'deep-dive': 'equipment-deep-dive',
   comparison: 'appliance-comparison',
   'data-capture': 'equipment-data-capture',
@@ -97,6 +103,15 @@ function portalPathToModuleId(path) {
   for (const [needle, moduleId] of PORTAL_PATH_MODULE_IDS) {
     if (hay.includes(needle.toLowerCase())) return moduleId;
   }
+  return externalUrlToModuleId(path);
+}
+
+function externalUrlToModuleId(url) {
+  const hay = String(url || '').toLowerCase();
+  if (!hay) return '';
+  for (const [needle, moduleId] of EXTERNAL_URL_MODULE_IDS) {
+    if (hay.includes(needle.toLowerCase())) return moduleId;
+  }
   return '';
 }
 
@@ -107,23 +122,37 @@ function equipmentModuleBlock(rows) {
   };
 }
 
+function dedupeModuleRows(rows) {
+  const seen = new Set();
+  return (rows || []).filter((row) => {
+    const id = String(row.moduleId || '');
+    if (!id || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+}
+
 function linkOrModuleBlocks(items) {
   const modules = [];
   const links = [];
   for (const item of items) {
-    if (/^https?:\/\//i.test(item.url)) {
+    const url = String(item.url || item.href || '');
+    const moduleId = externalUrlToModuleId(url) || portalPathToModuleId(url);
+    if (moduleId) {
+      const row = { moduleId, title: item.title, openSize: 'near-full' };
+      if (url.includes('/products')) row.query = 'focus=products';
+      modules.push(row);
+      continue;
+    }
+    if (/^https?:\/\//i.test(url)) {
       links.push(item);
       continue;
     }
-    const moduleId = portalPathToModuleId(item.url);
-    if (moduleId) {
-      modules.push({ moduleId, title: item.title, openSize: 'near-full' });
-    } else {
-      links.push(item);
-    }
+    if (url) links.push(item);
   }
   const blocks = [];
-  if (modules.length) blocks.push(equipmentModuleBlock(modules));
+  const moduleRows = dedupeModuleRows(modules);
+  if (moduleRows.length) blocks.push(equipmentModuleBlock(moduleRows));
   if (links.length) blocks.push({ type: 'link', items: links });
   return blocks;
 }
@@ -152,11 +181,13 @@ function toolsToModuleBlocks(tools, max = 6) {
 }
 
 function referenceToModuleRow(ref = {}) {
-  const moduleId = REF_MODULE_IDS[ref.id] || portalPathToModuleId(ref.href || ref.url);
+  const url = String(ref.href || ref.url || '');
+  const moduleId =
+    REF_MODULE_IDS[ref.id] || portalPathToModuleId(url) || externalUrlToModuleId(url);
   if (!moduleId) return null;
   const row = { moduleId, title: ref.title, openSize: 'near-full' };
-  const href = String(ref.href || '');
-  if (href.includes('?')) row.query = href.split('?').slice(1).join('?');
+  if (url.includes('?')) row.query = url.split('?').slice(1).join('?');
+  else if (url.includes('/products')) row.query = 'focus=products';
   return row;
 }
 
@@ -164,16 +195,22 @@ function splitReferenceBlocks(picks) {
   const modules = [];
   const links = [];
   for (const ref of picks) {
-    if (ref.url && /^https?:\/\//i.test(ref.url)) {
-      links.push(toLinkItem(ref.title, ref.url, ref.summary || ''));
+    const url = String(ref.url || ref.href || '');
+    const row = referenceToModuleRow(ref);
+    if (row) {
+      if (url.includes('/products')) row.query = 'focus=products';
+      modules.push(row);
       continue;
     }
-    const row = referenceToModuleRow(ref);
-    if (row) modules.push(row);
-    else if (ref.href || ref.url) links.push(toLinkItem(ref.title, ref.href || ref.url, ref.summary || ''));
+    if (url && /^https?:\/\//i.test(url)) {
+      links.push(toLinkItem(ref.title, url, ref.summary || ''));
+      continue;
+    }
+    if (url) links.push(toLinkItem(ref.title, url, ref.summary || ''));
   }
   const blocks = [];
-  if (modules.length) blocks.push(equipmentModuleBlock(modules));
+  const moduleRows = dedupeModuleRows(modules);
+  if (moduleRows.length) blocks.push(equipmentModuleBlock(moduleRows));
   if (links.length) blocks.push({ type: 'link', items: links });
   return blocks;
 }
