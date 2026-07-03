@@ -37,13 +37,13 @@
         'ref-em-05': {
             num: 5,
             type: 'third-party',
-            short: 'E.ON Glasgow — 33% heating reduction in two months',
+            short: 'EcoSync / E.ON Glasgow — 33% heating reduction in two months',
             label: 'Glasgow TRV trial',
         },
         'ref-em-06': {
             num: 6,
             type: 'third-party',
-            short: 'European hotel — 65% savings, ~£377k/yr',
+            short: 'DoubleTree Dartford — 65% savings, ~£377k/yr (Spacewell case study)',
             label: 'Hotel CHP & monitoring case',
         },
         'ref-em-07': {
@@ -55,13 +55,13 @@
         'ref-em-08': {
             num: 8,
             type: 'third-party',
-            short: 'Paris Smart EPC — connected lighting',
+            short: 'Paris public lighting — connected luminaires & sensors (Eiffage Cielis)',
             label: 'Paris smart lighting',
         },
         'ref-em-09': {
             num: 9,
             type: 'third-party',
-            short: 'SW England portfolio — 50% carbon, £50k/yr',
+            short: 'SW England portfolio — 50% carbon, £50k/yr (Elcomponent case study)',
             label: 'Commercial sub-metering case',
         },
         'ref-em-10': {
@@ -284,6 +284,8 @@
             const link = document.createElement('a');
             link.className = 'cite-link';
             link.href = refHref(id);
+            link.target = '_top';
+            link.rel = 'noopener noreferrer';
             link.setAttribute('data-cite-type', meta.type);
             link.setAttribute('aria-label', `Source ${meta.num}: ${meta.short}. View in References.`);
             link.title = meta.short;
