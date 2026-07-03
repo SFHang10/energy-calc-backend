@@ -162,6 +162,19 @@ const enrichedProduct = addCombinedGrantsToProduct(product, 'uk.england');
 }
 ```
 
+### ETL API gap import (non-motor products)
+
+When the official ETL API has **current** listings not yet in `FULL-DATABASE-5554.json`, use the import script (motors / tech **11** excluded by default):
+
+```bash
+npm run import:etl-missing              # dry-run + grants preview report
+npm run import:etl-missing:apply        # FULL-DATABASE + SQLite → integrator → bundle
+```
+
+Report: `data/etl-missing-import-report.json` · Orchestrator: *“import missing ETL products”*
+
+**Order:** validate ETL rows → append to `FULL-DATABASE-5554.json` + `energy_calculator_central.db` → **`node product-grants-integrator.js`** → **`npm run build:products-grants-bundle`** → deploy.
+
 ### Step 5: Store in Database
 
 Update the database with enriched product:
