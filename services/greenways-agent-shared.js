@@ -384,11 +384,31 @@ async function loadProductsWithGrants() {
   return productsWithGrantsCache;
 }
 
+function isUsableBannerImageUrl(imageUrl) {
+  const url = String(imageUrl || '').trim().toLowerCase();
+  if (!url) return false;
+  if (url.includes('via.placeholder') || url.includes('placeholder.com')) return false;
+  if (url.includes('localhost') || url.includes('127.0.0.1')) return false;
+  if (/product[\s_-]?placement\//i.test(url) && /motor\.jpg|heatpumps?\.jpg|generic-placeholder|placeholder-auto/i.test(url)) {
+    return false;
+  }
+  return true;
+}
+
 function normalizeImageUrl(imageUrl) {
   const url = String(imageUrl || '').trim();
   if (!url) return '';
+  if (!isUsableBannerImageUrl(url)) return '';
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) return url;
   return `/product-placement/${url.replace(/^\.?\//, '')}`;
+}
+
+function sampleDedupeKey(product) {
+  return [
+    String(product.id || '').trim().toLowerCase(),
+    String(product.name || '').trim().toLowerCase(),
+    String(product.brand || product.subcategory || '').trim().toLowerCase()
+  ].join('|');
 }
 
 function marketplaceHref(productId) {
@@ -433,7 +453,11 @@ function scoreProductForQuery(product, question, profile, extraTokens = []) {
 
   let score = 0;
   if (String(product.id || '').startsWith('etl_')) score += 2;
-  if (product.imageUrl) score += 5;
+  if (isUsableBannerImageUrl(product.imageUrl)) {
+    if (/img\.etl\.energysecurity\.gov\.uk/i.test(product.imageUrl)) score += 18;
+    else if (/wixstatic\.com/i.test(product.imageUrl)) score += 14;
+    else score += 6;
+  }
   const grants = product.grants || [];
   if (grants.length) score += grants.length * 2;
 
@@ -487,7 +511,7 @@ async function pickProductSamples(showcasePath, question, profile = {}, limit = 
   const eligible = products.filter((p) => {
     const grants = Array.isArray(p.grants) ? p.grants : [];
     const hasGrants = requireGrants ? grants.length > 0 : true;
-    return p.id && hasGrants && p.imageUrl;
+    return p.id && hasGrants && isUsableBannerImageUrl(p.imageUrl);
   });
 
   const curated = [];
@@ -513,9 +537,12 @@ async function pickProductSamples(showcasePath, question, profile = {}, limit = 
   const dynamic = [];
   const seen = new Set();
   for (const { p } of ranked) {
-    if (seen.has(p.id)) continue;
-    seen.add(p.id);
-    dynamic.push(toProductSample(p));
+    const key = sampleDedupeKey(p);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const sample = toProductSample(p);
+    if (!sample.imageUrl) continue;
+    dynamic.push(sample);
     if (dynamic.length >= limit) break;
   }
 
@@ -524,7 +551,8 @@ async function pickProductSamples(showcasePath, question, profile = {}, limit = 
   const merged = [...dynamic];
   for (const sample of curated) {
     if (merged.length >= limit) break;
-    if (!merged.some((m) => m.id === sample.id)) merged.push(sample);
+    if (!sample.imageUrl) continue;
+    if (!merged.some((m) => sampleDedupeKey(m) === sampleDedupeKey(sample))) merged.push(sample);
   }
   return merged.slice(0, limit);
 }
@@ -717,6 +745,7 @@ module.exports = {
   isInternalPagePath,
   loadProductsWithGrants,
   normalizeImageUrl,
+  isUsableBannerImageUrl,
   marketplaceHref,
   deepDiveHref,
   toProductSample,

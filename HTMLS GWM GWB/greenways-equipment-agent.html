@@ -1245,14 +1245,38 @@
     quickReplyBar.hidden = false;
   }
 
+  function isUsableBannerImage(url) {
+    const u = String(url || "").trim().toLowerCase();
+    if (!u) return false;
+    if (u.indexOf("via.placeholder") !== -1 || u.indexOf("placeholder.com") !== -1) return false;
+    if (u.indexOf("localhost") !== -1 || u.indexOf("127.0.0.1") !== -1) return false;
+    if (/product[\s_-]?placement\//i.test(u) && /motor\.jpg|heatpumps?\.jpg|generic-placeholder|placeholder-auto/i.test(u)) return false;
+    return true;
+  }
+
+  function dedupeProductSamples(samples) {
+    const out = [];
+    const seen = new Set();
+    (samples || []).forEach(function (p) {
+      if (!p) return;
+      const key = String(p.id || "") + "|" + String(p.name || "").toLowerCase() + "|" + String(p.brand || p.subcategory || "").toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      out.push(p);
+    });
+    return out;
+  }
+
   function renderProductCards(samples) {
     if (!Array.isArray(samples) || !samples.length) return "";
-    return samples.slice(0, 3).map(function (p) {
+    return dedupeProductSamples(samples).slice(0, 3).map(function (p) {
       const name = escapeHtml(p.name || p.id || "Product");
       const rawName = String(p.name || p.id || "this product");
       const href = escapeHtml(TurnUi.normalizeMarketplaceHref(p.marketplaceHref, p.id));
       const askPrompt = "Tell me about upgrades and alternatives for " + rawName + " for my business profile?";
-      const img = p.imageUrl ? '<img src="' + escapeHtml(p.imageUrl) + '" alt="" loading="lazy">' : '<span aria-hidden="true">📦</span>';
+      const img = isUsableBannerImage(p.imageUrl)
+        ? '<img src="' + escapeHtml(p.imageUrl) + '" alt="" loading="lazy" decoding="async" onerror="this.outerHTML=\'<span aria-hidden=\\\'true\\\'>📦</span>\'">'
+        : '<span aria-hidden="true">📦</span>';
       const grantLabel = (p.topGrants && p.topGrants[0]) ? escapeHtml(p.topGrants[0]) : (p.grantsCount ? (p.grantsCount + " grant" + (p.grantsCount === 1 ? "" : "s")) : "Grants on file");
       const meta = escapeHtml(p.label || p.subcategory || "Marketplace");
       return (
@@ -1278,7 +1302,19 @@
   function paintBannerProducts(samples) {
     const list = document.getElementById("top-product-samples");
     if (!list) return;
-    const cards = renderProductCards(resolveProductSamples(samples));
+    let resolved = dedupeProductSamples(resolveProductSamples(samples));
+    const usable = resolved.filter(function (p) {
+      return isUsableBannerImage(p.imageUrl);
+    });
+    if (!usable.length) return;
+    resolved = usable.slice();
+    STATIC_PRODUCT_SAMPLES.forEach(function (fallback) {
+      if (resolved.length >= 3) return;
+      if (!resolved.some(function (p) { return String(p.id) === String(fallback.id); })) {
+        resolved.push(fallback);
+      }
+    });
+    const cards = renderProductCards(resolved);
     if (!cards) return;
     list.innerHTML = cards;
   }
