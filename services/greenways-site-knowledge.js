@@ -12,6 +12,9 @@ const scenariosPath = path.join(__dirname, '..', 'data', 'savings-projection-sce
 const dealsFeedPath = path.join(__dirname, '..', 'data', 'deals-feed.json');
 const schemesPath = path.join(__dirname, '..', 'schemes.json');
 const sustCatalogPath = path.join(__dirname, '..', 'data', 'sustainable-products-catalog.json');
+const mediaBriefPath = path.join(__dirname, '..', 'data', 'media-daily-brief.json');
+const companiesPath = path.join(__dirname, '..', 'data', 'companies.json');
+const orgsInlinePath = path.join(__dirname, '..', 'data', 'orgs-directory-inline.js');
 
 const { mergeModuleRow } = require('./greenways-content-modules');
 const { toModuleItem } = require('./greenways-agent-shared');
@@ -24,6 +27,8 @@ let scenariosCache = null;
 let dealsFeedCache = null;
 let schemesCache = null;
 let sustCatalogCache = null;
+let mediaBriefCache = null;
+let mapStatsCache = null;
 
 function loadCardsCatalog() {
   if (cardsCache) return cardsCache;
@@ -75,6 +80,102 @@ function loadSustProductsCatalog() {
     sustCatalogCache = [];
   }
   return sustCatalogCache;
+}
+
+function loadMediaDailyBrief() {
+  if (mediaBriefCache) return mediaBriefCache;
+  try {
+    mediaBriefCache = JSON.parse(fs.readFileSync(mediaBriefPath, 'utf8'));
+  } catch (_) {
+    mediaBriefCache = { meta: {}, stories: [], techStories: [] };
+  }
+  return mediaBriefCache;
+}
+
+function loadMapStats() {
+  if (mapStatsCache) return mapStatsCache;
+  let caseStudyCount = 0;
+  let directoryCount = 0;
+  try {
+    const parsed = JSON.parse(fs.readFileSync(companiesPath, 'utf8'));
+    const companies = Array.isArray(parsed) ? parsed : parsed.items || [];
+    caseStudyCount = companies.length;
+  } catch (_) {
+    caseStudyCount = 0;
+  }
+  try {
+    const raw = fs.readFileSync(orgsInlinePath, 'utf8');
+    const match = raw.match(/ORGS_DIRECTORY_INLINE=(\[[\s\S]*\]);/);
+    directoryCount = match ? JSON.parse(match[1]).length : 0;
+  } catch (_) {
+    directoryCount = 0;
+  }
+  mapStatsCache = { caseStudyCount, directoryCount };
+  return mapStatsCache;
+}
+
+function findBriefStory(brief = {}, keyword = '') {
+  const stories = brief.stories || [];
+  const kw = String(keyword || '').trim().toLowerCase();
+  if (kw) {
+    const hit = stories.find((s) => String(s.title || '').toLowerCase().includes(kw));
+    if (hit) return hit;
+  }
+  return stories[0] || null;
+}
+
+function findTechBriefStory(brief = {}, keyword = '') {
+  const stories = brief.techStories || [];
+  const kw = String(keyword || '').trim().toLowerCase();
+  if (kw) {
+    const hit = stories.find((s) => String(s.title || '').toLowerCase().includes(kw));
+    if (hit) return hit;
+  }
+  return stories[0] || null;
+}
+
+function hydrateDailyBriefEditionCard(card = {}) {
+  const brief = loadMediaDailyBrief();
+  const meta = brief.meta || {};
+  const lead = findBriefStory(brief, card.newsStoryKeyword);
+  return {
+    ...card,
+    evidence: {
+      edition: meta.edition || '',
+      editionTitle: meta.editionTitle || '',
+      storyCount: meta.storyCount || (brief.stories || []).length,
+      catalogItems: meta.catalogItems || '',
+      leadStoryTitle: lead?.title || '',
+      leadStorySummary: String(lead?.summary || '').slice(0, 140)
+    }
+  };
+}
+
+function hydrateTechEditionCard(card = {}) {
+  const brief = loadMediaDailyBrief();
+  const tech = brief.meta?.tech || {};
+  const lead = findTechBriefStory(brief, card.newsStoryKeyword);
+  return {
+    ...card,
+    evidence: {
+      edition: tech.edition || '',
+      editionTitle: tech.title || '',
+      storyCount: tech.storyCount || (brief.techStories || []).length,
+      leadStoryTitle: lead?.title || '',
+      leadStorySummary: String(lead?.summary || '').slice(0, 140)
+    }
+  };
+}
+
+function hydrateMapStatsCard(card = {}) {
+  const stats = loadMapStats();
+  return {
+    ...card,
+    evidence: {
+      caseStudyCount: stats.caseStudyCount,
+      directoryCount: stats.directoryCount
+    }
+  };
 }
 
 function catalogProductMatchesLane(product, lane) {
@@ -212,6 +313,9 @@ function hydrateCard(card = {}) {
   }
   if (card.useCatalogStats) return hydrateCatalogStatsCard(card);
   if (card.useSustCatalogLaneStats) return hydrateSustCatalogLaneStatsCard(card);
+  if (card.useDailyBriefEdition) return hydrateDailyBriefEditionCard(card);
+  if (card.useTechEditionStats) return hydrateTechEditionCard(card);
+  if (card.useMapCatalogStats) return hydrateMapStatsCard(card);
   if (!card.scenarioId) return { ...card };
   const row = (loadScenariosCatalog().scenarios || []).find((s) => s.id === card.scenarioId);
   if (!row) return { ...card };
@@ -277,6 +381,15 @@ function scoreCard(card, { agentKey, question, intentId, profile = {} }) {
   if (card.dealId && keywordHits > 0) score += 24;
   if (card.schemeId && keywordHits > 0) score += 24;
   if (card.catalogId && keywordHits > 0) score += 24;
+  if (card.useDailyBriefEdition && (intentId === 'monthly_news' || intentId === 'daily_brief')) score += 18;
+  if (card.useTechEditionStats && intentId === 'tech_news') score += 20;
+  if (card.useMapCatalogStats && (intentId === 'sustainability_map' || intentId === 'sustainability_map_explained')) score += 20;
+  if (intentId === 'policy_news' && card.id === 'evidence-cbam-declaration-runway') score += 18;
+  if (intentId === 'policy_news' && card.id === 'evidence-energy-omnibus-xii') score += 18;
+  if (intentId === 'daily_brief' && card.id === 'evidence-daily-brief-headlines') score += 20;
+  if (intentId === 'monthly_news' && card.id === 'evidence-latest-sustainability-edition') score += 20;
+  if (intentId === 'tech_news' && card.id === 'evidence-tech-omnibus-eprel') score += 20;
+  if (intentId === 'role_resources' && card.id === 'evidence-cheryce-news-curation') score += 18;
   if (card.useCatalogStats && intentId === 'overview') score += 12;
   if (card.useSustCatalogLaneStats && (intentId === 'overview' || intentId === 'role_resources')) score += 14;
   if (intentId === 'product_grants' && card.id === 'evidence-product-grants-enrichment') score += 20;
@@ -329,6 +442,15 @@ function scoreCard(card, { agentKey, question, intentId, profile = {} }) {
   if (/\b(wok|burner|cookline)\b/.test(q) && card.id === 'evidence-sust-wok-gas-retrofit') score += 16;
   if (/\b(dishwasher|warewash|aerator|water)\b/.test(q) && card.id === 'evidence-water-efficient-dishwasher') score += 14;
   if (/\b(fridge|refrigerat|cold storage)\b/.test(q) && card.id === 'evidence-fridge-catalog-benchmark') score += 14;
+
+  const asksOmnibus = /\b(omnibus|eprel|labelling|labeling)\b/.test(q);
+  const asksCbam = /\b(cbam|carbon border|embedded emissions)\b/.test(q);
+  const asksTechNews = /\b(tech news|green tech|innovation|qr registry|product registry)\b/.test(q);
+  const asksMap = /\b(sustainability map|case stud|company map|payback example)\b/.test(q);
+  if (asksOmnibus && (card.id === 'evidence-energy-omnibus-xii' || card.id === 'evidence-tech-omnibus-eprel')) score += 16;
+  if (asksCbam && card.id === 'evidence-cbam-declaration-runway') score += 16;
+  if (asksTechNews && card.id === 'evidence-tech-omnibus-eprel') score += 14;
+  if (asksMap && card.id === 'evidence-sustainability-map-catalogue') score += 16;
 
   if (asksEquipment && card.id === 'evidence-monitoring-before-capex') score -= 40;
   if (asksEquipment && card.scenarioId) score += 12;

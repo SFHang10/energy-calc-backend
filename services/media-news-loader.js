@@ -21,10 +21,10 @@ const CONTENT_OPS_SCAN_DIRS = [
 
 /** Latest published sustainability newsletter on Render (content-ops review). */
 const DEFAULT_SUSTAINABILITY_NEWS_HREF =
-  '/content-ops/review/sustainability-news/2026-04-sustainability-news.html';
+  '/content-ops/review/sustainability-news/2026-06-sustainability-news.html';
 
 const HTMLS_NEWS_PAGES = [
-  { href: DEFAULT_SUSTAINABILITY_NEWS_HREF, title: 'Sustainability news (April 2026 edition)', type: 'sustainability' }
+  { href: DEFAULT_SUSTAINABILITY_NEWS_HREF, title: 'Sustainability news (June 2026 edition)', type: 'sustainability' }
 ];
 
 let catalogCache = null;

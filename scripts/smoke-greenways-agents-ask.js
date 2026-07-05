@@ -279,6 +279,30 @@ async function runLocalSmokes() {
   }
   console.log('OK Cheryce portals module tablets');
 
+  const mediaMonthlyHit = await mediaMod.answerFromKnowledge('monthly sustainability news roundup', profile);
+  if (!mediaMonthlyHit?.answer?.includes('**Site example:**')) {
+    throw new Error('Cheryce monthly_news: expected **Site example:** grounded line');
+  }
+  if (!mediaMonthlyHit?.siteKnowledgeCardId) {
+    throw new Error('Cheryce monthly_news: expected siteKnowledgeCardId');
+  }
+  console.log('OK Cheryce site knowledge card:', mediaMonthlyHit.siteKnowledgeCardId);
+
+  const mediaTechHit = await mediaMod.answerFromKnowledge('tech news green tech innovation', profile);
+  if (!mediaTechHit?.answer?.includes('**Site example:**')) {
+    throw new Error('Cheryce tech_news: expected **Site example:** grounded line');
+  }
+  if (!mediaTechHit?.siteKnowledgeCardId) {
+    throw new Error('Cheryce tech_news: expected siteKnowledgeCardId');
+  }
+  console.log('OK Cheryce tech site card:', mediaTechHit.siteKnowledgeCardId);
+
+  const mediaMapHit = await mediaMod.answerFromKnowledge('explain the sustainability map and case studies', profile);
+  if (!mediaMapHit?.siteKnowledgeCardId) {
+    throw new Error('Cheryce sustainability_map_explained: expected siteKnowledgeCardId');
+  }
+  console.log('OK Cheryce map site card:', mediaMapHit.siteKnowledgeCardId);
+
   const dealsMod = require(path.join(ROOT, 'services/deals-agent-knowledge'));
   const dealsPortalHit = await dealsMod.answerFromKnowledge('open portal deals hub', profile);
   const dealsPortalMod = (dealsPortalHit?.blocks || []).find((b) => b.type === 'module');

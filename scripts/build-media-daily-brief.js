@@ -10,23 +10,25 @@ const { loadFullNewsCatalog, getLatestEdition, rankNewsItems } = require('../ser
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'data', 'media-daily-brief.json');
 const STORY_LIMIT = 5;
+const TECH_STORY_LIMIT = 3;
+
+function fromEditionItems(catalog, edition, editionType) {
+  return catalog.items.filter((item) => {
+    if (item.id?.startsWith('edition-summary-')) return false;
+    return (
+      item.edition === edition &&
+      item.editionType === editionType &&
+      item.catalogSource === 'content-ops-html'
+    );
+  });
+}
 
 function pickBriefStories(catalog) {
   const sust = getLatestEdition(catalog.editions, 'sustainability');
   const edition = sust?.edition || null;
   const editionPageHref = sust?.pageHref || null;
 
-  const fromEdition = (ed) =>
-    catalog.items.filter((item) => {
-      if (item.id?.startsWith('edition-summary-')) return false;
-      return (
-        item.edition === ed &&
-        item.editionType === 'sustainability' &&
-        item.catalogSource === 'content-ops-html'
-      );
-    });
-
-  let pool = edition ? fromEdition(edition) : [];
+  let pool = edition ? fromEditionItems(catalog, edition, 'sustainability') : [];
   if (pool.length < STORY_LIMIT) {
     const extra = catalog.items.filter((item) => {
       if (item.id?.startsWith('edition-summary-')) return false;
@@ -45,7 +47,7 @@ function pickBriefStories(catalog) {
     'policy funding circular energy restaurant netherlands uk',
     STORY_LIMIT * 2
   );
-  const primary = edition ? fromEdition(edition).slice(0, STORY_LIMIT) : [];
+  const primary = edition ? fromEditionItems(catalog, edition, 'sustainability').slice(0, STORY_LIMIT) : [];
   const stories = [];
   const seen = new Set();
 
@@ -74,9 +76,26 @@ function pickBriefStories(catalog) {
   return { edition, editionPageHref, stories, sust };
 }
 
+function pickTechStories(catalog) {
+  const tech = getLatestEdition(catalog.editions, 'tech');
+  const edition = tech?.edition || null;
+  const editionPageHref = tech?.pageHref || null;
+  const pool = edition ? fromEditionItems(catalog, edition, 'tech') : [];
+  const stories = pool.slice(0, TECH_STORY_LIMIT).map((item) => ({
+    id: item.id,
+    title: item.title,
+    summary: String(item.summary || '').slice(0, 220),
+    edition: item.edition || edition,
+    editionType: 'tech',
+    href: item.pageHref || editionPageHref || null
+  }));
+  return { tech, edition, editionPageHref, stories };
+}
+
 async function main() {
   const catalog = await loadFullNewsCatalog();
   const { edition, editionPageHref, stories, sust } = pickBriefStories(catalog);
+  const techPack = pickTechStories(catalog);
   const now = new Date();
 
   const payload = {
@@ -90,18 +109,28 @@ async function main() {
       editionPageHref,
       storyCount: stories.length,
       catalogItems: catalog.stats?.total || catalog.items.length,
+      tech: techPack.tech
+        ? {
+            edition: techPack.edition,
+            title: techPack.tech.title || `New in Tech — ${techPack.edition}`,
+            pageHref: techPack.editionPageHref,
+            storyCount: techPack.stories.length
+          }
+        : null,
       sources: [
         'content-ops/review/sustainability-news',
+        'content-ops/review/new-in-tech',
         'content-ops/drafts/sustainability-news',
         'data/news-category-knowledge.json'
       ]
     },
-    stories
+    stories,
+    techStories: techPack.stories
   };
 
   await fs.writeFile(OUT, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
   console.log(
-    `Wrote ${OUT} — ${stories.length} stories (edition ${edition || 'n/a'}, ${payload.meta.briefDate})`
+    `Wrote ${OUT} — ${stories.length} sustainability stories (edition ${edition || 'n/a'}), ${techPack.stories.length} tech stories (edition ${techPack.edition || 'n/a'}, ${payload.meta.briefDate})`
   );
 }
 
