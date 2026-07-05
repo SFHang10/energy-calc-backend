@@ -10,6 +10,7 @@ const fs = require('fs');
 const cardsPath = path.join(__dirname, '..', 'data', 'greenways-site-knowledge', 'cards.json');
 const scenariosPath = path.join(__dirname, '..', 'data', 'savings-projection-scenarios.json');
 const dealsFeedPath = path.join(__dirname, '..', 'data', 'deals-feed.json');
+const schemesPath = path.join(__dirname, '..', 'schemes.json');
 
 const { mergeModuleRow } = require('./greenways-content-modules');
 const { toModuleItem } = require('./greenways-agent-shared');
@@ -20,6 +21,7 @@ const SITE_EVIDENCE_MARKER = '**Site example:**';
 let cardsCache = null;
 let scenariosCache = null;
 let dealsFeedCache = null;
+let schemesCache = null;
 
 function loadCardsCatalog() {
   if (cardsCache) return cardsCache;
@@ -51,9 +53,55 @@ function loadDealsFeedCatalog() {
   return dealsFeedCache;
 }
 
+function loadSchemesCatalog() {
+  if (schemesCache) return schemesCache;
+  try {
+    const raw = JSON.parse(fs.readFileSync(schemesPath, 'utf8'));
+    schemesCache = Array.isArray(raw) ? raw : [];
+  } catch (_) {
+    schemesCache = [];
+  }
+  return schemesCache;
+}
+
 function scenarioGrantEur(row = {}) {
   const grants = Array.isArray(row.grants) ? row.grants : [];
   return grants.reduce((sum, g) => sum + (Number(g.amountEur) || 0), 0);
+}
+
+function hydrateSchemeCard(card = {}, scheme = {}) {
+  const desc = String(scheme.description || '').trim();
+  return {
+    ...card,
+    title: card.title || scheme.title,
+    evidence: {
+      title: scheme.title || '',
+      descriptionSnippet: desc.length > 120 ? `${desc.slice(0, 117)}…` : desc,
+      region: scheme.region || '',
+      type: scheme.type || '',
+      schemeId: scheme.id || card.schemeId || '',
+      deadline: scheme.deadline || ''
+    }
+  };
+}
+
+function hydrateCatalogStatsCard(card = {}) {
+  const schemes = loadSchemesCatalog();
+  let nlCount = 0;
+  let ukCount = 0;
+  for (const s of schemes) {
+    const r = String(s.region || '').toLowerCase();
+    if (r === 'nl') nlCount += 1;
+    else if (r === 'uk') ukCount += 1;
+  }
+  return {
+    ...card,
+    evidence: {
+      schemeCount: schemes.length,
+      nlCount,
+      ukCount
+    }
+  };
 }
 
 function hydrateDealCard(card = {}, deal = {}) {
@@ -75,6 +123,11 @@ function hydrateCard(card = {}) {
     const deal = (loadDealsFeedCatalog().deals || []).find((d) => d.id === card.dealId);
     if (deal) return hydrateDealCard(card, deal);
   }
+  if (card.schemeId) {
+    const scheme = loadSchemesCatalog().find((s) => s.id === card.schemeId);
+    if (scheme) return hydrateSchemeCard(card, scheme);
+  }
+  if (card.useCatalogStats) return hydrateCatalogStatsCard(card);
   if (!card.scenarioId) return { ...card };
   const row = (loadScenariosCatalog().scenarios || []).find((s) => s.id === card.scenarioId);
   if (!row) return { ...card };
@@ -138,6 +191,11 @@ function scoreCard(card, { agentKey, question, intentId, profile = {} }) {
 
   if (card.scenarioId && keywordHits > 0) score += 28;
   if (card.dealId && keywordHits > 0) score += 24;
+  if (card.schemeId && keywordHits > 0) score += 24;
+  if (card.useCatalogStats && intentId === 'overview') score += 12;
+  if (intentId === 'product_grants' && card.id === 'evidence-product-grants-enrichment') score += 20;
+  if (intentId === 'nl_hub' && card.id === 'evidence-nl-business-gov-hub') score += 20;
+  if (intentId === 'deadlines' && card.id === 'evidence-grants-deadline-verify') score += 20;
 
   if (card.dealId && card.evidence?.region) {
     const dealRegion = String(card.evidence.region).toUpperCase();
@@ -145,11 +203,14 @@ function scoreCard(card, { agentKey, question, intentId, profile = {} }) {
     if (pr && (dealRegion === pr || dealRegion === 'EU')) score += 10;
   }
 
-  const asksNl = /\b(nl|netherlands|dutch|amsterdam|hospitality)\b/.test(q);
-  const asksUk = /\b(uk|british|united kingdom)\b/.test(q) || /\bgreen tariff\b/.test(q);
-  if (asksNl && card.id === 'evidence-nl-restaurant-energy') score += 18;
-  if (asksUk && card.id === 'evidence-uk-green-tariff') score += 18;
+  if (card.schemeId && card.evidence?.region) {
+    const schemeRegion = String(card.evidence.region).toLowerCase();
+    const pr = String(profile.region || '').toLowerCase();
+    if (pr && (schemeRegion === pr || schemeRegion === 'eu')) score += 10;
+  }
 
+  const asksNl = /\b(nl|netherlands|dutch|amsterdam|hospitality|mia|vamil|business\.gov)\b/.test(q);
+  const asksUk = /\b(uk|british|united kingdom|warm homes|england|scotland)\b/.test(q) || /\bgreen tariff\b/.test(q);
   const equipmentTokens = [
     'fridge',
     'refrigeration',
@@ -159,9 +220,18 @@ function scoreCard(card, { agentKey, question, intentId, profile = {} }) {
     'freezer',
     'hvac',
     'ventilation',
-    'cookline'
+    'cookline',
+    'equipment',
+    'appliance',
+    'oven'
   ];
   const asksEquipment = equipmentTokens.some((t) => q.includes(t));
+  if (asksNl && card.id === 'evidence-nl-restaurant-energy') score += 18;
+  if (asksNl && (card.id === 'evidence-nl-business-gov-hub' || card.id === 'evidence-nl-mia-vamil')) score += 18;
+  if (asksUk && card.id === 'evidence-uk-green-tariff') score += 18;
+  if (asksUk && card.id === 'evidence-uk-warm-homes') score += 18;
+  if (asksEquipment && card.id === 'evidence-nl-mia-vamil') score += 14;
+
   if (asksEquipment && card.id === 'evidence-monitoring-before-capex') score -= 40;
   if (asksEquipment && card.scenarioId) score += 12;
 
@@ -245,6 +315,7 @@ module.exports = {
   loadCardsCatalog,
   loadScenariosCatalog,
   loadDealsFeedCatalog,
+  loadSchemesCatalog,
   hydrateCard,
   formatCardProse,
   scoreCard,

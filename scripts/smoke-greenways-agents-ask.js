@@ -145,6 +145,30 @@ async function runLocalSmokes() {
   }
   console.log('OK Andrieus portals module tablets');
 
+  const grantsOverviewHit = await grantsMod.answerFromKnowledge('how many grants in the catalogue overview', profile);
+  if (!grantsOverviewHit?.answer?.includes('**Site example:**')) {
+    throw new Error('Andrieus overview: expected **Site example:** grounded line');
+  }
+  if (!grantsOverviewHit?.siteKnowledgeCardId) {
+    throw new Error('Andrieus overview: expected siteKnowledgeCardId');
+  }
+  console.log('OK Andrieus site knowledge card:', grantsOverviewHit.siteKnowledgeCardId);
+
+  const grantsNlHit = await grantsMod.answerFromKnowledge('MIA Vamil Netherlands restaurant equipment', {
+    ...profile,
+    region: 'nl'
+  });
+  if (!grantsNlHit?.answer?.includes('**Site example:**')) {
+    throw new Error('Andrieus nl_schemes: expected **Site example:** grounded line');
+  }
+  console.log('OK Andrieus NL MIA/Vamil site card:', grantsNlHit.siteKnowledgeCardId);
+
+  const grantsProductHit = await grantsMod.answerFromKnowledge('which grant for my marketplace product', profile);
+  if (!grantsProductHit?.answer?.includes('**Site example:**')) {
+    throw new Error('Andrieus product_grants: expected **Site example:** grounded line');
+  }
+  console.log('OK Andrieus product grants site card:', grantsProductHit.siteKnowledgeCardId);
+
   const equipMod = require(path.join(ROOT, 'services/equipment-agent-knowledge'));
   const etlSiteHit = await equipMod.answerFromKnowledge('what is etl energy technology list', profile);
   if (!etlSiteHit?.answer?.includes('**Site example:**')) {
