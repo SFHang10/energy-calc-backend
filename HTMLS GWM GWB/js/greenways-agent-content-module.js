@@ -133,8 +133,8 @@
     },
     "etl-official-site": {
       id: "etl-official-site",
-      title: "Energy Technology List (official)",
-      description: "UK government-backed ETL register — browse the scheme in their own words.",
+      title: "Energy Technology List (ETL) — official list",
+      description: "UK government-backed Energy Technology List — browse the scheme in their own words.",
       usageHint: "Read how ETL verifies products, then open the official site for categories and product search.",
       href: "./etl-official-site.html",
       fullPageHref: "https://etl.energysecurity.gov.uk/",

@@ -455,7 +455,7 @@ async function buildEtlVerificationAnswer(profile, tip) {
     const regionLabel = REGION_LABELS[region] || region.toUpperCase();
     const sectorLabel =
       sector && sector !== 'any' ? sector : 'business';
-    profileSentence = ` I often support **${regionLabel}** ${sectorLabel} teams on this path — the verified register is the same, and matched grants can appear on the **etl_*** products you shortlist.`;
+    profileSentence = ` I often support **${regionLabel}** ${sectorLabel} teams on this path — the verified list is the same, and matched grants can appear on the **etl_*** products you shortlist.`;
   }
 
   const grantsSentence = relatedSchemes.length
@@ -476,7 +476,7 @@ async function buildEtlVerificationAnswer(profile, tip) {
   return {
     answer:
       `I'm **Artemis**. When you ask about **ETL**, I'm really explaining how we help you choose equipment you can trust on your sustainable journey — not just marketing that says "efficient".\n\n` +
-      `The **Energy Technology List** is the UK's independently checked register. Products on the list are ${quartilePhrase}, so you are buying against tested performance rather than a brochure claim alone.${profileSentence}${grantsSentence}\n\n` +
+      `The **Energy Technology List** is the UK's independently checked list. Products on the list are ${quartilePhrase}, so you are buying against tested performance rather than a brochure claim alone.${profileSentence}${grantsSentence}\n\n` +
       `On Greenways, **etl_*** rows connect that verification to action: specs, grant chips, equipment deep dive comparisons, and savings projection so you can see payback before capex. I use those tools to move you from "sounds green" to a numbers-backed upgrade plan.\n\n` +
       `The tablets on the right open the official ETL overview, our equipment finder, and deep dive — each explains what it does and how it can help your next step. Would you like me to apply this to a kitchen category, or show how grants stack on a specific **etl_*** pick?\n\n_${tip}_`,
     suggestions: relatedSchemes.map(toSuggestion),
@@ -485,7 +485,7 @@ async function buildEtlVerificationAnswer(profile, tip) {
         toLinkItem(
           r.title,
           r.url,
-          `${r.summary || 'Official ETL reference'} — open when you want the full register detail and category rules.`
+          `${r.summary || 'Official ETL reference'} — open when you want the full list detail and category rules.`
         )
       ),
       toLinkItem(
