@@ -30,12 +30,19 @@ function pickLine(lines, seed = '') {
 
 function stripTrailingTips(text) {
   let body = String(text || '').trim();
-  const tipRe = /\n\n_([^_\n][\s\S]*?)_\s*$/;
-  let match = body.match(tipRe);
-  while (match) {
-    body = body.slice(0, match.index).trim();
-    match = body.match(tipRe);
-  }
+  let prev;
+  do {
+    prev = body;
+    const lastBlock = body.lastIndexOf('\n\n_');
+    if (lastBlock < 0) break;
+    const tail = body.slice(lastBlock);
+    const tipMatch = tail.match(/^\n\n_([^_\n][\s\S]*?)_\s*$/);
+    if (tipMatch) {
+      body = body.slice(0, lastBlock).trim();
+    } else {
+      break;
+    }
+  } while (body !== prev);
   return body;
 }
 

@@ -263,6 +263,30 @@ async function runLocalSmokes() {
   }
   console.log('OK Zara portals module tablets');
 
+  const zaraTariffHit = await dealsMod.answerFromKnowledge('compare energy tariffs for my restaurant', profile);
+  if (!zaraTariffHit?.answer?.includes('**Site example:**')) {
+    throw new Error('Zara tariff_compare: expected **Site example:** grounded line');
+  }
+  if (!zaraTariffHit?.siteKnowledgeCardId) {
+    throw new Error('Zara tariff_compare: expected siteKnowledgeCardId');
+  }
+  console.log('OK Zara site knowledge card:', zaraTariffHit.siteKnowledgeCardId);
+
+  const zaraNlHit = await dealsMod.answerFromKnowledge('nl restaurant energy rates hospitality', {
+    ...profile,
+    region: 'nl'
+  });
+  if (!zaraNlHit?.answer?.includes('**Site example:**')) {
+    throw new Error('Zara nl_restaurant_energy: expected **Site example:** grounded line');
+  }
+  console.log('OK Zara NL restaurant site card:', zaraNlHit.siteKnowledgeCardId);
+
+  const zaraFeedHit = await dealsMod.answerFromKnowledge('check deals feed now for interesting offers', profile);
+  if (!zaraFeedHit?.answer?.includes('**Site example:**')) {
+    throw new Error('Zara deals_feed_scan: expected **Site example:** grounded line');
+  }
+  console.log('OK Zara feed scan site card:', zaraFeedHit.siteKnowledgeCardId);
+
   const productsMod = require(path.join(ROOT, 'services/sustainable-products-agent-knowledge'));
   const productsPortalHit = await productsMod.answerFromKnowledge('open portal finder', profile);
   const productsPortalMod = (productsPortalHit?.blocks || []).find((b) => b.type === 'module');

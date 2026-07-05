@@ -9,6 +9,7 @@ const fs = require('fs');
 
 const cardsPath = path.join(__dirname, '..', 'data', 'greenways-site-knowledge', 'cards.json');
 const scenariosPath = path.join(__dirname, '..', 'data', 'savings-projection-scenarios.json');
+const dealsFeedPath = path.join(__dirname, '..', 'data', 'deals-feed.json');
 
 const { mergeModuleRow } = require('./greenways-content-modules');
 const { toModuleItem } = require('./greenways-agent-shared');
@@ -18,6 +19,7 @@ const SITE_EVIDENCE_MARKER = '**Site example:**';
 
 let cardsCache = null;
 let scenariosCache = null;
+let dealsFeedCache = null;
 
 function loadCardsCatalog() {
   if (cardsCache) return cardsCache;
@@ -39,12 +41,40 @@ function loadScenariosCatalog() {
   return scenariosCache;
 }
 
+function loadDealsFeedCatalog() {
+  if (dealsFeedCache) return dealsFeedCache;
+  try {
+    dealsFeedCache = JSON.parse(fs.readFileSync(dealsFeedPath, 'utf8'));
+  } catch (_) {
+    dealsFeedCache = { deals: [], meta: {} };
+  }
+  return dealsFeedCache;
+}
+
 function scenarioGrantEur(row = {}) {
   const grants = Array.isArray(row.grants) ? row.grants : [];
   return grants.reduce((sum, g) => sum + (Number(g.amountEur) || 0), 0);
 }
 
+function hydrateDealCard(card = {}, deal = {}) {
+  return {
+    ...card,
+    title: card.title || deal.title,
+    evidence: {
+      title: deal.title || '',
+      line: deal.line || '',
+      region: deal.region || '',
+      category: deal.category || '',
+      dealId: deal.id || card.dealId || ''
+    }
+  };
+}
+
 function hydrateCard(card = {}) {
+  if (card.dealId) {
+    const deal = (loadDealsFeedCatalog().deals || []).find((d) => d.id === card.dealId);
+    if (deal) return hydrateDealCard(card, deal);
+  }
   if (!card.scenarioId) return { ...card };
   const row = (loadScenariosCatalog().scenarios || []).find((s) => s.id === card.scenarioId);
   if (!row) return { ...card };
@@ -107,6 +137,18 @@ function scoreCard(card, { agentKey, question, intentId, profile = {} }) {
   }
 
   if (card.scenarioId && keywordHits > 0) score += 28;
+  if (card.dealId && keywordHits > 0) score += 24;
+
+  if (card.dealId && card.evidence?.region) {
+    const dealRegion = String(card.evidence.region).toUpperCase();
+    const pr = String(profile.region || '').toUpperCase();
+    if (pr && (dealRegion === pr || dealRegion === 'EU')) score += 10;
+  }
+
+  const asksNl = /\b(nl|netherlands|dutch|amsterdam|hospitality)\b/.test(q);
+  const asksUk = /\b(uk|british|united kingdom)\b/.test(q) || /\bgreen tariff\b/.test(q);
+  if (asksNl && card.id === 'evidence-nl-restaurant-energy') score += 18;
+  if (asksUk && card.id === 'evidence-uk-green-tariff') score += 18;
 
   const equipmentTokens = [
     'fridge',
@@ -202,6 +244,7 @@ function attachSiteKnowledgeCards(result, { agentKey, question, intentId, profil
 module.exports = {
   loadCardsCatalog,
   loadScenariosCatalog,
+  loadDealsFeedCatalog,
   hydrateCard,
   formatCardProse,
   scoreCard,

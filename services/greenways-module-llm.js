@@ -200,7 +200,7 @@ function heuristicTariffSummary(pack) {
       ? `**${deals.length} curated deal route(s)** from the Greenways feed — open cards for comparison portals and supplier journeys.`
       : 'No energy deal cards matched this region filter — try EU-wide routes or refresh the deals feed.',
     schemes.length
-      ? `**${schemes.length} scheme(s)** from schemes.json may stack with tariff switches (verify eligibility).`
+      ? `**${schemes.length} scheme(s)** from our grants catalogue may stack with tariff switches (verify eligibility).`
       : 'No matching energy schemes in the catalogue for this filter.',
     '',
     '_Configure ASSISTANT_* on the server for an AI narrative over this pack; Vincent and Zara can also open this portal from chat._'
