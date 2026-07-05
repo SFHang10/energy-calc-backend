@@ -308,6 +308,133 @@
       .trim();
   }
 
+  /** Fallback when stored highlights lack moduleId (older journey entries). */
+  var HIGHLIGHT_LABEL_MODULE_ALIASES = {
+    'equipment savings projection': 'savings-projection',
+    'energy savings trajectory': 'savings-trajectory',
+    'water saving finder': 'water-saving-finder',
+    'water product compare': 'water-saving-finder',
+    'finance finder': 'finance-finder',
+    'energy prices ticker': 'energy-prices-ticker',
+    'energy audit': 'energy-audit',
+    'deals ticker hub': 'deals-ticker',
+    'full deals page': 'deals-full-page',
+    'sensor intelligence dashboard': 'sensor-dashboard',
+    'greenways buildings dashboard': 'greenways-dashboard',
+    'importance of energy monitoring': 'energy-monitoring',
+    'equipment deep dive': 'equipment-deep-dive',
+    'sustainability map': 'sustainability-map'
+  };
+
+  function resolveHighlightModuleId(highlight) {
+    if (!highlight) return '';
+    var moduleId = String(highlight.moduleId || '').trim();
+    if (!moduleId && highlight.label) {
+      moduleId = HIGHLIGHT_LABEL_MODULE_ALIASES[String(highlight.label).trim().toLowerCase()] || '';
+    }
+    if (!moduleId && highlight.href) {
+      var CM = global.GreenwaysAgentContentModule;
+      if (CM && typeof CM.findModuleIdForHref === 'function') {
+        moduleId = CM.findModuleIdForHref(highlight.href) || '';
+      }
+    }
+    return moduleId;
+  }
+
+  function resolveHighlightHref(highlight) {
+    if (!highlight) return '';
+    var href = String(highlight.href || '').trim();
+    var CM = global.GreenwaysAgentContentModule;
+    if (href) {
+      if (CM && typeof CM.stripEmbedParams === 'function') return CM.stripEmbedParams(href);
+      if (CM && typeof CM.resolveModuleWebHref === 'function') return CM.resolveModuleWebHref(href);
+      return href;
+    }
+    var moduleId = String(highlight.moduleId || '').trim();
+    if (!moduleId && highlight.label) {
+      moduleId = HIGHLIGHT_LABEL_MODULE_ALIASES[String(highlight.label).trim().toLowerCase()] || '';
+    }
+    if (moduleId && CM && typeof CM.hrefForModuleId === 'function') {
+      return CM.hrefForModuleId(moduleId) || '';
+    }
+    return '';
+  }
+
+  function renderHighlightListItem(highlight, suggesterSlug) {
+    var moduleId = resolveHighlightModuleId(highlight);
+    var label = escapeHtml(highlight && highlight.label ? highlight.label : '');
+    if (moduleId) {
+      return (
+        '<li><button type="button" class="gw-journey-highlight-link" data-journey-highlight="1" data-module-id="' +
+        escapeHtml(moduleId) +
+        '" data-suggester-slug="' +
+        escapeHtml(suggesterSlug || '') +
+        '">' +
+        label +
+        '</button></li>'
+      );
+    }
+    return '<li>' + label + '</li>';
+  }
+
+  function openHighlightFromJourney(highlight, suggesterSlug) {
+    var moduleId = resolveHighlightModuleId(highlight);
+    if (!moduleId) return;
+    suggesterSlug = String(suggesterSlug || '').trim();
+    var currentSlug = slugFromPath(global.location.pathname);
+    var CM = global.GreenwaysAgentContentModule;
+    var sameAgent =
+      suggesterSlug &&
+      currentSlug === suggesterSlug &&
+      CM &&
+      typeof CM.openById === 'function';
+
+    closeJourneyModal();
+
+    if (sameAgent) {
+      CM.openById(moduleId, {
+        returnLabel: '\u2190 Back to journey summary',
+        returnToJourney: true
+      });
+      return;
+    }
+
+    var targetSlug = suggesterSlug || currentSlug;
+    if (!targetSlug) return;
+    var url =
+      '/greenways/' +
+      encodeURIComponent(targetSlug) +
+      '?openModule=' +
+      encodeURIComponent(moduleId) +
+      '&fromJourney=1';
+    try {
+      if (global.top && global.top !== global) global.top.location.href = url;
+      else global.location.href = url;
+    } catch (_) {
+      global.location.href = url;
+    }
+  }
+
+  var journeyHighlightBound = false;
+
+  function bindJourneyHighlightClicks() {
+    if (journeyHighlightBound) return;
+    journeyHighlightBound = true;
+    document.addEventListener('click', function (ev) {
+      var btn = ev.target.closest('[data-journey-highlight]');
+      if (!btn) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      openHighlightFromJourney(
+        {
+          moduleId: btn.getAttribute('data-module-id') || '',
+          label: btn.textContent || ''
+        },
+        btn.getAttribute('data-suggester-slug') || ''
+      );
+    });
+  }
+
   function extractHighlights(blocks) {
     var items = [];
     if (!Array.isArray(blocks)) return items;
@@ -326,7 +453,8 @@
             items.push({
               kind: 'module',
               label: String(it.title || it.label),
-              moduleId: String(it.id || it.moduleId || '')
+              moduleId: String(it.id || it.moduleId || ''),
+              href: String(it.fullPageHref || it.href || '')
             });
           }
         });
@@ -523,20 +651,9 @@
         var highlights =
           lane.highlights && lane.highlights.length
             ? '<ul class="gw-team-eval-highlights">' +
-              lane.highlights
-                .map(function (h) {
-                  if (h.href) {
-                    return (
-                      '<li><a href="' +
-                      escapeHtml(h.href) +
-                      '" target="_top" rel="noopener">' +
-                      escapeHtml(h.label) +
-                      '</a></li>'
-                    );
-                  }
-                  return '<li>' + escapeHtml(h.label) + '</li>';
-                })
-                .join('') +
+              lane.highlights.map(function (h) {
+                return renderHighlightListItem(h, lane.slug);
+              }).join('') +
               '</ul>'
             : '';
 
@@ -675,7 +792,10 @@
       lines.push('   ' + turn.summary);
       if (turn.highlights && turn.highlights.length) {
         turn.highlights.forEach(function (h) {
-          lines.push('   • ' + h.label);
+          var line = '   • ' + h.label;
+          var href = resolveHighlightHref(h);
+          if (href) line += ' — ' + href;
+          lines.push(line);
         });
       }
       lines.push('');
@@ -698,11 +818,9 @@
         var highlights =
           turn.highlights && turn.highlights.length
             ? '<ul class="gw-journey-highlights">' +
-              turn.highlights
-                .map(function (h) {
-                  return '<li>' + escapeHtml(h.label) + '</li>';
-                })
-                .join('') +
+              turn.highlights.map(function (h) {
+                return renderHighlightListItem(h, turn.slug);
+              }).join('') +
               '</ul>'
             : '';
         var question = turn.question
@@ -1058,7 +1176,10 @@
     seedFromEvaluation: seedJourneyFromEvaluation,
     buildTeamEvaluationHtml: buildTeamEvaluationHtml,
     openJourneySummary: openJourneySummary,
+    openHighlightFromJourney: openHighlightFromJourney,
     renderInlinePanel: renderInlinePanel,
     buildJourneyCopyText: buildJourneyCopyText
   };
+
+  bindJourneyHighlightClicks();
 })(typeof window !== 'undefined' ? window : global);

@@ -24,6 +24,7 @@
   var loadingTimeoutId = null;
   var embedMessageHandler = null;
   var activeModuleId = "";
+  var activeReturnToJourney = false;
   var moduleRegistryById = {};
 
   var MODULE_ID_ALIASES = { "energy-ticker": "energy-prices-ticker" };
@@ -327,8 +328,38 @@
       theme: ctx.theme != null ? String(ctx.theme) : pageContext.theme,
       returnLabel: ctx.returnLabel != null ? String(ctx.returnLabel) : pageContext.returnLabel
     };
-    loadModuleRegistry();
+    loadModuleRegistry().then(function () {
+      setTimeout(consumeOpenModuleFromQuery, 350);
+    });
     return pageContext;
+  }
+
+  function consumeOpenModuleFromQuery() {
+    try {
+      var params = new URLSearchParams(global.location.search);
+      var moduleId = String(params.get("openModule") || "").trim();
+      if (!moduleId) return;
+      var fromJourney = params.get("fromJourney") === "1";
+      var overrides = {};
+      if (fromJourney) {
+        overrides.returnLabel = "\u2190 Back to journey summary";
+        overrides.returnToJourney = true;
+      }
+      if (
+        moduleId === "sustainability-map" &&
+        typeof global.openSustainabilityMapModule === "function" &&
+        !fromJourney
+      ) {
+        global.openSustainabilityMapModule();
+      } else {
+        openById(moduleId, overrides);
+      }
+      params.delete("openModule");
+      params.delete("fromJourney");
+      var q = params.toString();
+      var cleanUrl = global.location.pathname + (q ? "?" + q : "");
+      global.history.replaceState({}, "", cleanUrl);
+    } catch (_) {}
   }
 
   function applyRegistryData(data) {
@@ -487,7 +518,9 @@
       href: href,
       fullPageHref: overrides.fullPageHref || (reg && reg.fullPageHref) || "",
       openSize: overrides.openSize || (reg && reg.defaultOpenSize) || "",
-      kind: (reg && reg.kind) || "html"
+      kind: (reg && reg.kind) || "html",
+      returnLabel: overrides.returnLabel,
+      returnToJourney: !!overrides.returnToJourney
     });
   }
 
@@ -979,6 +1012,7 @@
   function open(item) {
     if (!item) return;
     item = prepareModuleItem(item);
+    activeReturnToJourney = !!item.returnToJourney;
     var kind = String(item.kind || "").toLowerCase();
     if (kind === "video" || item.videoUrl || item.videoId || (item.video && (item.video.videoUrl || item.video.videoId))) {
       openVideoModule(item);
@@ -1047,6 +1081,7 @@
 
   function close() {
     if (!modalEl) return;
+    var reopenJourney = activeReturnToJourney;
     renderAgentNote(null);
     clearStage();
     modalEl.classList.remove("is-open");
@@ -1054,6 +1089,22 @@
     modalEl.classList.remove("is-map-module");
     setExpanded(false);
     setBodyLock(false);
+    activeReturnToJourney = false;
+    if (
+      reopenJourney &&
+      global.GreenwaysAgentTeam &&
+      typeof global.GreenwaysAgentTeam.openJourneySummary === "function"
+    ) {
+      setTimeout(function () {
+        global.GreenwaysAgentTeam.openJourneySummary();
+      }, 0);
+    }
+  }
+
+  function hrefForModuleId(moduleId, overrides) {
+    var item = buildItemFromModuleId(moduleId, overrides || {});
+    if (!item) return "";
+    return item.fullPageHref || stripEmbedParams(item.href || "");
   }
 
   function encodePayload(item) {
@@ -1093,8 +1144,12 @@
     bindContainer: bindContainer,
     bindDocumentIntercept: bindDocumentIntercept,
     ensureModal: ensureModal,
+    consumeOpenModuleFromQuery: consumeOpenModuleFromQuery,
     findModuleIdForHref: findModuleIdForHref,
     buildModuleItemFromLink: buildModuleItemFromLink,
+    hrefForModuleId: hrefForModuleId,
+    resolveModuleWebHref: resolveModuleWebHref,
+    stripEmbedParams: stripEmbedParams,
     getContext: function () {
       return Object.assign({}, pageContext);
     }
