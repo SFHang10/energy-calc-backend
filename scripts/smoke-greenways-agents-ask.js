@@ -111,6 +111,15 @@ async function runLocalSmokes() {
   }
   console.log('OK Vincent energy_prices module tablets');
 
+  const siteEvidenceHit = await financeMod.answerFromKnowledge('energy prices payback fridge upgrade', profile);
+  if (!siteEvidenceHit?.answer?.includes('**Site example:**')) {
+    throw new Error('Vincent price_upgrade: expected **Site example:** grounded line');
+  }
+  if (!siteEvidenceHit?.siteKnowledgeCardId) {
+    throw new Error('Vincent price_upgrade: expected siteKnowledgeCardId');
+  }
+  console.log('OK Vincent site knowledge card:', siteEvidenceHit.siteKnowledgeCardId);
+
   const calcHit = await financeMod.answerFromKnowledge('calculators audit projection trajectory', profile);
   const calcMod = (calcHit?.blocks || []).find((b) => b.type === 'module');
   if (!calcMod?.items?.length) {
@@ -137,6 +146,12 @@ async function runLocalSmokes() {
   console.log('OK Andrieus portals module tablets');
 
   const equipMod = require(path.join(ROOT, 'services/equipment-agent-knowledge'));
+  const etlSiteHit = await equipMod.answerFromKnowledge('what is etl energy technology list', profile);
+  if (!etlSiteHit?.answer?.includes('**Site example:**')) {
+    throw new Error('Artemis etl_verification: expected **Site example:** grounded line');
+  }
+  console.log('OK Artemis site knowledge card:', etlSiteHit.siteKnowledgeCardId);
+
   const referralProfile = {
     ...profile,
     handoff: {

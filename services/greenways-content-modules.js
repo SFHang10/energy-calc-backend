@@ -414,6 +414,10 @@ function enrichKnowledgeAnswer(result, { agentKey, question, intentId, profile =
 
   const { attachWorkedExample } = require('./greenways-module-examples');
   attachWorkedExample(result, { agentKey, question, intentId, profile });
+
+  const { attachSiteKnowledgeCards } = require('./greenways-site-knowledge');
+  attachSiteKnowledgeCards(result, { agentKey, question, intentId, profile });
+
   return result;
 }
 
