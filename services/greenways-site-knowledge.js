@@ -11,6 +11,7 @@ const cardsPath = path.join(__dirname, '..', 'data', 'greenways-site-knowledge',
 const scenariosPath = path.join(__dirname, '..', 'data', 'savings-projection-scenarios.json');
 const dealsFeedPath = path.join(__dirname, '..', 'data', 'deals-feed.json');
 const schemesPath = path.join(__dirname, '..', 'schemes.json');
+const sustCatalogPath = path.join(__dirname, '..', 'data', 'sustainable-products-catalog.json');
 
 const { mergeModuleRow } = require('./greenways-content-modules');
 const { toModuleItem } = require('./greenways-agent-shared');
@@ -22,6 +23,7 @@ let cardsCache = null;
 let scenariosCache = null;
 let dealsFeedCache = null;
 let schemesCache = null;
+let sustCatalogCache = null;
 
 function loadCardsCatalog() {
   if (cardsCache) return cardsCache;
@@ -64,6 +66,34 @@ function loadSchemesCatalog() {
   return schemesCache;
 }
 
+function loadSustProductsCatalog() {
+  if (sustCatalogCache) return sustCatalogCache;
+  try {
+    const raw = JSON.parse(fs.readFileSync(sustCatalogPath, 'utf8'));
+    sustCatalogCache = Array.isArray(raw.products) ? raw.products : [];
+  } catch (_) {
+    sustCatalogCache = [];
+  }
+  return sustCatalogCache;
+}
+
+function catalogProductMatchesLane(product, lane) {
+  const up = product.utilityProfile || {};
+  const water = Number(up.dailyWaterLitres || 0);
+  const gas = Number(up.dailyGasKwh || 0);
+  const kwh = Number(up.dailyKwh || 0);
+  const hay = [product.name, product.category, product.type, product.summary, ...(product.search?.keywords || [])]
+    .join(' ')
+    .toLowerCase();
+  if (lane === 'water') {
+    return water > 10 || /water|aerator|dishwasher|tap|rinse|warewash/.test(hay);
+  }
+  if (lane === 'gas') {
+    return gas > 5 || /gas|wok|fryer|cooking|burner/.test(hay);
+  }
+  return kwh > 0 || /refrigerat|fridge|lighting|etl|electric|oven|steamer/.test(hay);
+}
+
 function scenarioGrantEur(row = {}) {
   const grants = Array.isArray(row.grants) ? row.grants : [];
   return grants.reduce((sum, g) => sum + (Number(g.amountEur) || 0), 0);
@@ -104,6 +134,55 @@ function hydrateCatalogStatsCard(card = {}) {
   };
 }
 
+function hydrateSustCatalogLaneStatsCard(card = {}) {
+  const products = loadSustProductsCatalog();
+  let waterCount = 0;
+  let electricityCount = 0;
+  let gasCount = 0;
+  for (const p of products) {
+    if (catalogProductMatchesLane(p, 'water')) waterCount += 1;
+    if (catalogProductMatchesLane(p, 'electricity')) electricityCount += 1;
+    if (catalogProductMatchesLane(p, 'gas')) gasCount += 1;
+  }
+  return {
+    ...card,
+    evidence: {
+      catalogCount: products.length,
+      waterCount,
+      electricityCount,
+      gasCount
+    }
+  };
+}
+
+function hydrateCatalogProductCard(card = {}, product = {}) {
+  const up = product.utilityProfile || {};
+  const impact = product.impactFactors || {};
+  const gasPct =
+    impact.gasReductionPct != null && !Number.isNaN(Number(impact.gasReductionPct))
+      ? Math.round(Number(impact.gasReductionPct) * 100)
+      : null;
+  const waterPct =
+    impact.waterReductionPct != null && !Number.isNaN(Number(impact.waterReductionPct))
+      ? Math.round(Number(impact.waterReductionPct) * 100)
+      : null;
+  const summary = String(product.summary || '').trim();
+  return {
+    ...card,
+    title: card.title || product.name,
+    evidence: {
+      name: product.name || '',
+      summarySnippet: summary.length > 100 ? `${summary.slice(0, 97)}…` : summary,
+      dailyKwh: up.dailyKwh != null ? String(up.dailyKwh) : '',
+      dailyWaterLitres: up.dailyWaterLitres != null ? String(up.dailyWaterLitres) : '',
+      dailyGasKwh: up.dailyGasKwh != null ? String(up.dailyGasKwh) : '',
+      gasReductionPct: gasPct != null ? `${gasPct}%` : '',
+      waterReductionPct: waterPct != null ? `${waterPct}%` : '',
+      catalogId: product.id || card.catalogId || ''
+    }
+  };
+}
+
 function hydrateDealCard(card = {}, deal = {}) {
   return {
     ...card,
@@ -127,7 +206,12 @@ function hydrateCard(card = {}) {
     const scheme = loadSchemesCatalog().find((s) => s.id === card.schemeId);
     if (scheme) return hydrateSchemeCard(card, scheme);
   }
+  if (card.catalogId) {
+    const product = loadSustProductsCatalog().find((p) => p.id === card.catalogId);
+    if (product) return hydrateCatalogProductCard(card, product);
+  }
   if (card.useCatalogStats) return hydrateCatalogStatsCard(card);
+  if (card.useSustCatalogLaneStats) return hydrateSustCatalogLaneStatsCard(card);
   if (!card.scenarioId) return { ...card };
   const row = (loadScenariosCatalog().scenarios || []).find((s) => s.id === card.scenarioId);
   if (!row) return { ...card };
@@ -192,10 +276,20 @@ function scoreCard(card, { agentKey, question, intentId, profile = {} }) {
   if (card.scenarioId && keywordHits > 0) score += 28;
   if (card.dealId && keywordHits > 0) score += 24;
   if (card.schemeId && keywordHits > 0) score += 24;
+  if (card.catalogId && keywordHits > 0) score += 24;
   if (card.useCatalogStats && intentId === 'overview') score += 12;
+  if (card.useSustCatalogLaneStats && (intentId === 'overview' || intentId === 'role_resources')) score += 14;
   if (intentId === 'product_grants' && card.id === 'evidence-product-grants-enrichment') score += 20;
   if (intentId === 'nl_hub' && card.id === 'evidence-nl-business-gov-hub') score += 20;
   if (intentId === 'deadlines' && card.id === 'evidence-grants-deadline-verify') score += 20;
+  if (intentId === 'marketplace_explainer' && card.id === 'evidence-two-product-columns') score += 20;
+  if (intentId === 'water_saving_guide' && card.id === 'evidence-water-guide-before-finder') score += 20;
+  if (intentId === 'find_dishwasher' && card.id === 'evidence-water-efficient-dishwasher') score += 20;
+  if (intentId === 'find_wok' && card.id === 'evidence-sust-wok-gas-retrofit') score += 20;
+  if (intentId === 'find_fridge' && card.id === 'evidence-fridge-catalog-benchmark') score += 20;
+  if (intentId === 'gas_lane' && card.id === 'evidence-sust-wok-gas-retrofit') score += 16;
+  if (intentId === 'water_lane' && card.id === 'evidence-water-efficient-dishwasher') score += 16;
+  if (intentId === 'electricity_lane' && card.id === 'evidence-fridge-catalog-benchmark') score += 16;
 
   if (card.dealId && card.evidence?.region) {
     const dealRegion = String(card.evidence.region).toUpperCase();
@@ -231,6 +325,10 @@ function scoreCard(card, { agentKey, question, intentId, profile = {} }) {
   if (asksUk && card.id === 'evidence-uk-green-tariff') score += 18;
   if (asksUk && card.id === 'evidence-uk-warm-homes') score += 18;
   if (asksEquipment && card.id === 'evidence-nl-mia-vamil') score += 14;
+  if (asksEquipment && card.id === 'evidence-fridge-catalog-benchmark') score += 12;
+  if (/\b(wok|burner|cookline)\b/.test(q) && card.id === 'evidence-sust-wok-gas-retrofit') score += 16;
+  if (/\b(dishwasher|warewash|aerator|water)\b/.test(q) && card.id === 'evidence-water-efficient-dishwasher') score += 14;
+  if (/\b(fridge|refrigerat|cold storage)\b/.test(q) && card.id === 'evidence-fridge-catalog-benchmark') score += 14;
 
   if (asksEquipment && card.id === 'evidence-monitoring-before-capex') score -= 40;
   if (asksEquipment && card.scenarioId) score += 12;
@@ -316,6 +414,7 @@ module.exports = {
   loadScenariosCatalog,
   loadDealsFeedCatalog,
   loadSchemesCatalog,
+  loadSustProductsCatalog,
   hydrateCard,
   formatCardProse,
   scoreCard,

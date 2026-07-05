@@ -319,6 +319,27 @@ async function runLocalSmokes() {
   }
   console.log('OK Zyanne portals module tablets');
 
+  const productsOverviewHit = await productsMod.answerFromKnowledge('sustainable products overview three lanes', profile);
+  if (!productsOverviewHit?.answer?.includes('**Site example:**')) {
+    throw new Error('Zyanne overview: expected **Site example:** grounded line');
+  }
+  if (!productsOverviewHit?.siteKnowledgeCardId) {
+    throw new Error('Zyanne overview: expected siteKnowledgeCardId');
+  }
+  console.log('OK Zyanne site knowledge card:', productsOverviewHit.siteKnowledgeCardId);
+
+  const productsWaterHit = await productsMod.answerFromKnowledge('water saving products dishwasher warewash', profile);
+  if (!productsWaterHit?.answer?.includes('**Site example:**')) {
+    throw new Error('Zyanne water_lane: expected **Site example:** grounded line');
+  }
+  console.log('OK Zyanne water lane site card:', productsWaterHit.siteKnowledgeCardId);
+
+  const productsWokHit = await productsMod.answerFromKnowledge('wok burner gas saving upgrade cookline', profile);
+  if (!productsWokHit?.answer?.includes('**Site example:**')) {
+    throw new Error('Zyanne gas_lane: expected **Site example:** grounded line');
+  }
+  console.log('OK Zyanne gas lane site card:', productsWokHit.siteKnowledgeCardId);
+
   const systemsMod = require(path.join(ROOT, 'services/systems-agent-knowledge'));
   const dashHit = await systemsMod.answerFromKnowledge('Where is the Greenways energy dashboard?', profile);
   const dashMod = (dashHit?.blocks || []).find((b) => b.type === 'module');
