@@ -328,6 +328,14 @@ async function answerFromKnowledge(question, profile = {}) {
         intentId: result.intentId,
         profile
       });
+    } else {
+      const { attachSiteKnowledgeCards } = require('./greenways-site-knowledge');
+      attachSiteKnowledgeCards(result, {
+        agentKey: 'systems',
+        question,
+        intentId: result.intentId,
+        profile
+      });
     }
 
     applyPersona(result, {

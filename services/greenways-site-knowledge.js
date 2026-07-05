@@ -15,6 +15,10 @@ const sustCatalogPath = path.join(__dirname, '..', 'data', 'sustainable-products
 const mediaBriefPath = path.join(__dirname, '..', 'data', 'media-daily-brief.json');
 const companiesPath = path.join(__dirname, '..', 'data', 'companies.json');
 const orgsInlinePath = path.join(__dirname, '..', 'data', 'orgs-directory-inline.js');
+const dashboardMathPath = path.join(__dirname, '..', 'data', 'systems-agent-dashboard-math.json');
+const monitoringGuidePath = path.join(__dirname, '..', 'data', 'systems-agent-monitoring-guide.json');
+const systemsChecksPath = path.join(__dirname, '..', 'data', 'systems-agent-checks.json');
+const newsKbPath = path.join(__dirname, '..', 'data', 'news-category-knowledge.json');
 
 const { mergeModuleRow } = require('./greenways-content-modules');
 const { toModuleItem } = require('./greenways-agent-shared');
@@ -29,6 +33,9 @@ let schemesCache = null;
 let sustCatalogCache = null;
 let mediaBriefCache = null;
 let mapStatsCache = null;
+let dashboardMathCache = null;
+let monitoringGuideCache = null;
+let systemsChecksCache = null;
 
 function loadCardsCatalog() {
   if (cardsCache) return cardsCache;
@@ -178,6 +185,110 @@ function hydrateMapStatsCard(card = {}) {
   };
 }
 
+function loadDashboardMath() {
+  if (dashboardMathCache) return dashboardMathCache;
+  try {
+    dashboardMathCache = JSON.parse(fs.readFileSync(dashboardMathPath, 'utf8'));
+  } catch (_) {
+    dashboardMathCache = { tariffs: {}, formulas: [] };
+  }
+  return dashboardMathCache;
+}
+
+function loadMonitoringGuide() {
+  if (monitoringGuideCache) return monitoringGuideCache;
+  try {
+    monitoringGuideCache = JSON.parse(fs.readFileSync(monitoringGuidePath, 'utf8'));
+  } catch (_) {
+    monitoringGuideCache = { siteProfiles: {}, sensorTypes: [] };
+  }
+  return monitoringGuideCache;
+}
+
+function loadSystemsChecksConfig() {
+  if (systemsChecksCache) return systemsChecksCache;
+  try {
+    systemsChecksCache = JSON.parse(fs.readFileSync(systemsChecksPath, 'utf8'));
+  } catch (_) {
+    systemsChecksCache = { checks: [] };
+  }
+  return systemsChecksCache;
+}
+
+function hydrateDashboardTariffCard(card = {}) {
+  const math = loadDashboardMath();
+  const t = math.tariffs || {};
+  const example = (math.formulas || []).find((f) => f.id === 'monthly-electricity-cost');
+  return {
+    ...card,
+    evidence: {
+      tariffSummary: t.summary || '',
+      electricityEurPerKwh: t.electricityEurPerKwh,
+      formulaExample: example?.example || ''
+    }
+  };
+}
+
+function hydrateRestaurantSensorCard(card = {}) {
+  const guide = loadMonitoringGuide();
+  const rest = guide.siteProfiles?.restaurant || {};
+  const sensors = rest.prioritySensors || [];
+  return {
+    ...card,
+    evidence: {
+      priorityCount: sensors.length,
+      topSensor: sensors[0] || '',
+      exampleSites: rest.exampleSites || ''
+    }
+  };
+}
+
+function hydrateSystemsOpsCard(card = {}) {
+  const cfg = loadSystemsChecksConfig();
+  return {
+    ...card,
+    evidence: {
+      checkCount: (cfg.checks || []).length
+    }
+  };
+}
+
+function hydrateNewsKbStatsCard(card = {}) {
+  const brief = loadMediaDailyBrief();
+  let storyCount = 0;
+  let updatedAt = '';
+  try {
+    const kb = JSON.parse(fs.readFileSync(newsKbPath, 'utf8'));
+    updatedAt = kb.updatedAt || '';
+    for (const rows of Object.values(kb.categories || {})) {
+      if (Array.isArray(rows)) storyCount += rows.length;
+    }
+  } catch (_) {
+    storyCount = 0;
+  }
+  return {
+    ...card,
+    evidence: {
+      storyCount,
+      updatedAt,
+      latestEdition: brief.meta?.edition || '',
+      editionTitle: brief.meta?.editionTitle || ''
+    }
+  };
+}
+
+function hydrateDealsFeedStatsCard(card = {}) {
+  const feed = loadDealsFeedCatalog();
+  const generatedAt = feed.meta?.generatedAt ? String(feed.meta.generatedAt).slice(0, 10) : '';
+  return {
+    ...card,
+    evidence: {
+      dealCount: Array.isArray(feed.deals) ? feed.deals.length : 0,
+      generatedAt
+    }
+  };
+}
+
 function catalogProductMatchesLane(product, lane) {
   const up = product.utilityProfile || {};
   const water = Number(up.dailyWaterLitres || 0);
@@ -316,6 +427,11 @@ function hydrateCard(card = {}) {
   if (card.useDailyBriefEdition) return hydrateDailyBriefEditionCard(card);
   if (card.useTechEditionStats) return hydrateTechEditionCard(card);
   if (card.useMapCatalogStats) return hydrateMapStatsCard(card);
+  if (card.useDashboardTariffs) return hydrateDashboardTariffCard(card);
+  if (card.useRestaurantSensorProfile) return hydrateRestaurantSensorCard(card);
+  if (card.useSystemsOpsChecks) return hydrateSystemsOpsCard(card);
+  if (card.useNewsKbStats) return hydrateNewsKbStatsCard(card);
+  if (card.useDealsFeedStats) return hydrateDealsFeedStatsCard(card);
   if (!card.scenarioId) return { ...card };
   const row = (loadScenariosCatalog().scenarios || []).find((s) => s.id === card.scenarioId);
   if (!row) return { ...card };
@@ -390,6 +506,13 @@ function scoreCard(card, { agentKey, question, intentId, profile = {} }) {
   if (intentId === 'monthly_news' && card.id === 'evidence-latest-sustainability-edition') score += 20;
   if (intentId === 'tech_news' && card.id === 'evidence-tech-omnibus-eprel') score += 20;
   if (intentId === 'role_resources' && card.id === 'evidence-cheryce-news-curation') score += 18;
+  if (card.useDashboardTariffs && (intentId === 'dashboard_math' || intentId === 'greenways_dashboard')) score += 20;
+  if (card.useRestaurantSensorProfile && intentId === 'sensors_restaurant') score += 20;
+  if (card.useSystemsOpsChecks && (intentId === 'health_overview' || intentId === 'sync_help')) score += 20;
+  if (card.useNewsKbStats && intentId === 'news_status') score += 20;
+  if (card.useDealsFeedStats && intentId === 'deals_status') score += 20;
+  if (intentId === 'monitoring_why' && card.id === 'evidence-edwardo-measure-first') score += 22;
+  if (intentId === 'deep_dive_systems' && card.id === 'evidence-systems-deep-dive-view') score += 18;
   if (card.useCatalogStats && intentId === 'overview') score += 12;
   if (card.useSustCatalogLaneStats && (intentId === 'overview' || intentId === 'role_resources')) score += 14;
   if (intentId === 'product_grants' && card.id === 'evidence-product-grants-enrichment') score += 20;
@@ -451,6 +574,15 @@ function scoreCard(card, { agentKey, question, intentId, profile = {} }) {
   if (asksCbam && card.id === 'evidence-cbam-declaration-runway') score += 16;
   if (asksTechNews && card.id === 'evidence-tech-omnibus-eprel') score += 14;
   if (asksMap && card.id === 'evidence-sustainability-map-catalogue') score += 16;
+
+  const asksMonitoring = /\b(monitor|sensor|submeter|sub-meter|baseline|m&v|dashboard math|cost formula)\b/.test(q);
+  const asksRestaurantSensor = /\b(restaurant|kitchen|cookline|cold room|hospitality|wok)\b/.test(q);
+  const asksOps = /\b(health|verify|sync|status|ops|platform health)\b/.test(q);
+  if (asksMonitoring && card.id === 'evidence-edwardo-measure-first') score += 16;
+  if (asksMonitoring && card.id === 'evidence-dashboard-tariff-model') score += 14;
+  if (asksRestaurantSensor && card.id === 'evidence-restaurant-sensor-priority') score += 16;
+  if (asksOps && card.id === 'evidence-edwardo-verify-readonly') score += 16;
+  if (asksEquipment && card.id === 'evidence-edwardo-measure-first') score += 12;
 
   if (asksEquipment && card.id === 'evidence-monitoring-before-capex') score -= 40;
   if (asksEquipment && card.scenarioId) score += 12;

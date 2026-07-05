@@ -372,6 +372,27 @@ async function runLocalSmokes() {
   }
   console.log('OK Edwardo dashboard module tablets');
 
+  const edMonitorHit = await systemsMod.answerFromKnowledge('why energy monitoring measure first baseline', profile);
+  if (!edMonitorHit?.answer?.includes('**Site example:**')) {
+    throw new Error('Edwardo monitoring_why: expected **Site example:** grounded line');
+  }
+  if (!edMonitorHit?.siteKnowledgeCardId) {
+    throw new Error('Edwardo monitoring_why: expected siteKnowledgeCardId');
+  }
+  console.log('OK Edwardo site knowledge card:', edMonitorHit.siteKnowledgeCardId);
+
+  const edMathHit = await systemsMod.answerFromKnowledge('how does the dashboard calculate cost formula', profile);
+  if (!edMathHit?.siteKnowledgeCardId) {
+    throw new Error('Edwardo dashboard_math: expected siteKnowledgeCardId');
+  }
+  console.log('OK Edwardo dashboard math site card:', edMathHit.siteKnowledgeCardId);
+
+  const edHealthHit = await systemsMod.answerFromKnowledge('platform health check overview', profile);
+  if (!edHealthHit?.siteKnowledgeCardId) {
+    throw new Error('Edwardo health_overview: expected siteKnowledgeCardId');
+  }
+  console.log('OK Edwardo ops site card:', edHealthHit.siteKnowledgeCardId);
+
   const REFERRAL_SMOOKES = [
     {
       label: 'Zyanne → Andrieus',
