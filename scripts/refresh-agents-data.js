@@ -15,6 +15,9 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const PIPELINE_PATH = path.join(ROOT, 'data', 'agents-data-pipeline.json');
+const VALIDATION_JSON_PATHS = [
+  'data/greenways-content-modules.json'
+];
 
 function loadPipeline() {
   const raw = fs.readFileSync(PIPELINE_PATH, 'utf8');
@@ -62,6 +65,24 @@ function runCommand(command, label) {
   console.log(`\n✓ Done: ${label}`);
 }
 
+function validateJsonFile(relPath) {
+  const absPath = path.join(ROOT, relPath);
+  try {
+    const raw = fs.readFileSync(absPath, 'utf8');
+    JSON.parse(raw);
+    console.log(`✓ JSON parse: ${relPath}`);
+  } catch (error) {
+    console.error(`\n✗ JSON parse failed: ${relPath}`);
+    console.error(`  ${error && error.message ? error.message : String(error)}`);
+    process.exit(1);
+  }
+}
+
+function runJsonParseChecks() {
+  console.log('\n--- JSON parse checks ---');
+  VALIDATION_JSON_PATHS.forEach((relPath) => validateJsonFile(relPath));
+}
+
 function main() {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run') || args.length === 0;
@@ -73,6 +94,7 @@ function main() {
   printHeader(pipeline);
 
   if (validate) {
+    runJsonParseChecks();
     (pipeline.validators || []).forEach((v) => runCommand(v.command, v.label));
     console.log('\nValidators passed.\n');
     return;
