@@ -278,7 +278,7 @@ const INTENT_MODULE_HINTS = {
   }
 };
 
-const KNOWLEDGE_SECTION_MARKER = '**What the linked tools cover**';
+const KNOWLEDGE_SECTION_MARKER = '**Good to know**';
 
 function getAgentNote(module, agentKey) {
   if (!module?.agentNotes) return null;

@@ -44,6 +44,27 @@ async function getWixAuthToken() {
   return null;
 }
 
+/** topic = channel/story/tips; product = marketplace equipment walkthrough MP4 */
+function resolveVideoKind(video) {
+  const explicit = String(video?.videoKind || '').trim().toLowerCase();
+  if (explicit === 'topic' || explicit === 'product') return explicit;
+  if (video?.productId || video?.source === 'catalog') return 'product';
+  if (video?.channelId || video?.source === 'wix-youtube') return 'topic';
+  const labels = (video?.tags || []).map((t) => String(t).toLowerCase());
+  if (labels.some((l) => l === 'product-demo' || l === 'product_demo' || l === 'product')) {
+    return 'product';
+  }
+  if (labels.some((l) => l === 'topic-video' || l === 'topic_video' || l === 'topic')) {
+    return 'topic';
+  }
+  return 'topic';
+}
+
+function withVideoKind(video) {
+  if (!video || typeof video !== 'object') return video;
+  return { ...video, videoKind: resolveVideoKind(video) };
+}
+
 function extractCategoryFromLabels(labels, filename) {
   const filenameLower = (filename || '').toLowerCase();
   const labelsLower = (labels || []).map((l) => (typeof l === 'string' ? l.toLowerCase() : ''));
@@ -95,7 +116,7 @@ function pickBestVideoUrl(file) {
 function mapWixFileToVideo(file, index) {
   const video = file.media?.video;
   const labels = file.labels || [];
-  return {
+  return withVideoKind({
     id: file.id || `wix-${index}`,
     title: file.displayName || 'Untitled Video',
     description: `Greenways video — ${file.displayName || ''}`,
@@ -106,7 +127,7 @@ function mapWixFileToVideo(file, index) {
     source: 'wix',
     duration: video?.duration ? formatDuration(video.duration) : '',
     wixFileId: file.id
-  };
+  });
 }
 
 function loadVideoCatalogFromFile() {
@@ -116,7 +137,9 @@ function loadVideoCatalogFromFile() {
     const raw = JSON.parse(fs.readFileSync(CATALOG_PATH, 'utf8'));
     const videos = (raw.videos || []).filter((v) => v.videoUrl);
     if (!videos.length) return null;
-    fileCatalogCache = videos.map((v) => ({ ...v, source: v.source || 'catalog' }));
+    fileCatalogCache = videos.map((v) =>
+      withVideoKind({ ...v, source: v.source || 'catalog', videoKind: v.videoKind || 'product' })
+    );
     return fileCatalogCache;
   } catch (error) {
     console.error('Media Agent: wix-video-catalog.json load failed:', error.message);
@@ -133,13 +156,14 @@ function loadYoutubeChannelVideos() {
     const channelById = Object.fromEntries(channels.map((c) => [c.id, c]));
     const videos = (raw.videos || []).map((v) => {
       const channel = channelById[v.channelId];
-      return {
+      return withVideoKind({
         ...v,
         source: v.source || 'wix-youtube',
         category: v.category || channel?.category || 'general',
         channelName: channel?.name || v.channelId || '',
+        videoKind: v.videoKind || 'topic',
         tags: [...(v.tags || []), channel?.name].filter(Boolean)
-      };
+      });
     });
     youtubeChannelCache = { channels, videos, meta: raw.meta || {} };
     return youtubeChannelCache;
@@ -156,7 +180,7 @@ function mergeVideoLibraries(primary, youtubeVideos) {
     const key = v.videoUrl || v.videoId || v.id;
     if (seen.has(key)) continue;
     seen.add(key);
-    out.push(v);
+    out.push(withVideoKind(v));
   }
   return out;
 }
@@ -318,6 +342,8 @@ module.exports = {
   fetchVideosFromWix,
   clearVideoCache,
   extractCategoryFromLabels,
+  resolveVideoKind,
+  withVideoKind,
   CATALOG_PATH,
   YOUTUBE_CHANNELS_PATH
 };

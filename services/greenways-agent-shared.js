@@ -561,6 +561,18 @@ async function getDefaultProductSamples(showcasePath, limit = 3, options = {}) {
   return pickProductSamples(showcasePath, '', {}, limit, options);
 }
 
+const INTENT_TOPIC_LABELS = {
+  video_restaurant: 'restaurant and kitchen energy videos',
+  video_energy: 'home and site energy videos',
+  video_water: 'water saving videos',
+  video_general: 'energy efficiency videos',
+  wix_videos: 'the Greenways video library',
+  'channel_restaurant-energy-savings': 'restaurant energy savings videos',
+  'channel_sustainability-in-action': 'sustainability in action videos',
+  'channel_home-energy-savings': 'home energy savings videos',
+  'channel_low-energy-electrical': 'low-energy electrical videos'
+};
+
 /**
  * One-line "what this means for you" from profile + intent context (launch mode Track A).
  * @param {object} profile — region, sector, focus
@@ -570,7 +582,12 @@ function meaningForProfile(profile = {}, context = {}) {
   const region = profileRegion(profile);
   const sector = String(profile.sector || '').trim().toLowerCase();
   const focus = String(profile.focus || '').trim().toLowerCase();
-  const topic = String(context.topic || context.intentId || '').replace(/_/g, ' ').trim();
+  const intentId = String(context.intentId || '').trim();
+  const topic =
+    INTENT_TOPIC_LABELS[intentId] ||
+    String(context.topic || intentId || '')
+      .replace(/_/g, ' ')
+      .trim();
 
   const where =
     region && REGION_LABELS[region]
@@ -594,10 +611,15 @@ function meaningForProfile(profile = {}, context = {}) {
           : 'running costs and upgrade timing';
 
   const topicHint = topic
-    ? `this **${topic}** topic`
+    ? intentId.startsWith('video_') || intentId.startsWith('channel_') || intentId === 'wix_videos'
+      ? topic
+      : `this **${topic}** topic`
     : 'these options';
 
   if (audience) {
+    if (intentId.startsWith('video_') || intentId.startsWith('channel_') || intentId === 'wix_videos') {
+      return `${where}, **${topic}** often connect to **${focusHint}** for ${audience}.`;
+    }
     return `${where}, ${topicHint} usually affects **${focusHint}** for ${audience} — not just headline savings.`;
   }
   return `${where}, ${topicHint} is about **${focusHint}** and what you can act on next.`;

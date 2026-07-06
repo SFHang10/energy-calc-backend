@@ -178,7 +178,7 @@ function compactSummary(answer, maxLen = 360) {
     .replace(/:::profile-context[\s\S]*?:::/g, '')
     .replace(/\*\*Greenways Guide\*\* → \*\*[^*]+\*\*\n\n/g, '')
     .replace(/\n\n\*\*Continue with a specialist:\*\*[\s\S]*$/m, '')
-    .replace(/\n\n\*\*What the linked tools cover\*\*[\s\S]*?(?=\n\n\*\*Worked example:|\n\n_|$)/m, '')
+    .replace(/\n\n\*\*(?:What the linked tools cover|Good to know)\*\*[\s\S]*?(?=\n\n\*\*Worked example:|\n\n_|$)/m, '')
     .replace(/\n\n\*\*Worked example:\*\*[^\n]+/g, '')
     .replace(/\n\n_Also relevant:[\s\S]*?(?=\n\n\*\*Continue|\n\n_|$)/m, '')
     .replace(/\n\n_[^_]+_\s*$/m, '')

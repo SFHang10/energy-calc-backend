@@ -23,13 +23,45 @@
     return answer;
   }
 
+  function isStaffAwarenessTip(tip) {
+    const t = String(tip || "").toLowerCase();
+    return (
+      /live on render|api credentials|full wix sync|cite when|mirror distant|what the linked tools cover/i.test(
+        t
+      ) || /product mp4s \+ youtube channel export/i.test(t)
+    );
+  }
+
+  function extractKnowledgeAwareness(body) {
+    const re =
+      /\n\n\*\*(?:What the linked tools cover|Good to know)\*\*\s*\n([\s\S]*?)(?=\n\n_|\n\n\*\*|$)/i;
+    const match = String(body || "").match(re);
+    if (!match) return { body: body, extras: [] };
+    const extras = match[1]
+      .split(/\n/)
+      .map(function (line) {
+        return line.replace(/^\s*-\s+/, "").trim();
+      })
+      .filter(Boolean);
+    const stripped =
+      String(body).slice(0, match.index).trim() +
+      String(body).slice(match.index + match[0].length).trim();
+    return { body: stripped, extras: extras };
+  }
+
   function extractAwarenessFromAnswer(answer) {
     const tips = [];
     let body = String(answer || "").trim();
+    const knowledge = extractKnowledgeAwareness(body);
+    body = knowledge.body;
+    knowledge.extras.forEach(function (bullet) {
+      if (bullet && !isStaffAwarenessTip(bullet)) tips.push(bullet);
+    });
     const tipRe = /\n\n_([^_\n][\s\S]*?)_\s*$/;
     let match = body.match(tipRe);
     while (match) {
-      tips.push(match[1].trim());
+      const tip = match[1].trim();
+      if (tip && !isStaffAwarenessTip(tip)) tips.push(tip);
       body = body.slice(0, match.index).trim();
       match = body.match(tipRe);
     }
@@ -55,7 +87,9 @@
 
   function awarenessPanelHtml(tips, escapeHtml) {
     if (!Array.isArray(tips) || !tips.length) return "";
-    const normalized = tips.map(normalizeAwarenessTip).filter(Boolean);
+    const normalized = tips.map(normalizeAwarenessTip).filter(Boolean).filter(function (tip) {
+      return !isStaffAwarenessTip(tip);
+    });
     const deduped = [];
     normalized.forEach(function (tip) {
       if (!deduped.some(function (row) { return row.toLowerCase() === tip.toLowerCase(); })) {

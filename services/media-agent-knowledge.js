@@ -9,7 +9,7 @@ const {
   formatWholesaleBullets,
   volatilityHint
 } = require('./finance-agent-energy');
-const { getVideosForAgent } = require('./wix-media-service');
+const { getVideosForAgent, resolveVideoKind } = require('./wix-media-service');
 const {
   loadFullNewsCatalog,
   rankNewsItems,
@@ -233,6 +233,24 @@ function isPlayableVideo(v) {
   return Boolean(v && (v.videoUrl || v.videoId));
 }
 
+function questionWantsProductVideos(question) {
+  const q = String(question || '').toLowerCase();
+  return /product demo|equipment demo|equipment video|marketplace video|product walkthrough|walkthrough video|demo video|etl product|oven demo|combi oven|dishwasher demo|fridge demo|product video|show me the .* oven|invoq|zanussi|eloma|magistar|joker|air fury|baxi auriga/.test(
+    q
+  );
+}
+
+function filterVideosForQuestion(pool, question, opts = {}) {
+  const wantsProduct =
+    opts.wantsProduct != null ? opts.wantsProduct : questionWantsProductVideos(question);
+  if (wantsProduct) {
+    const products = pool.filter((v) => resolveVideoKind(v) === 'product');
+    return products.length ? products : pool;
+  }
+  const topics = pool.filter((v) => resolveVideoKind(v) === 'topic');
+  return topics.length ? topics : pool.filter((v) => resolveVideoKind(v) !== 'product');
+}
+
 function rankVideosForQuestion(pool, question, limit = 3) {
   const q = String(question || '').toLowerCase();
   const ranked = pool
@@ -251,6 +269,8 @@ function rankVideosForQuestion(pool, question, limit = 3) {
         if (hay.includes(t)) score += 3;
       });
       if (q.includes(String(v.channelName || '').toLowerCase())) score += 6;
+      if (resolveVideoKind(v) === 'product' && questionWantsProductVideos(question)) score += 8;
+      if (resolveVideoKind(v) === 'topic' && !questionWantsProductVideos(question)) score += 5;
       return { v, score };
     })
     .sort((a, b) => b.score - a.score);
@@ -872,13 +892,22 @@ async function pickVideoSamples(question, profile = {}, limit = 3, categoryHint 
     category = channels.find((c) => c.id === categoryHint)?.category || categoryHint;
   }
 
-  let pool = [...videos];
+  let pool = filterVideosForQuestion([...videos], question, {
+    wantsProduct: questionWantsProductVideos(question)
+  });
   if (channelHint) {
     const matches = pool.filter((v) => v.channelId === channelHint);
     if (matches.length) pool = matches;
     if (pool.length && !pool.some(isPlayableVideo)) {
-      const playableCatalog = videos.filter((v) => v.videoUrl && v.category === (pool[0].category || 'restaurant'));
-      if (playableCatalog.length) pool = [playableCatalog[0], ...pool];
+      const playableCatalog = videos.filter(
+        (v) =>
+          v.videoUrl &&
+          resolveVideoKind(v) === 'product' &&
+          v.category === (pool[0].category || 'restaurant')
+      );
+      if (playableCatalog.length && questionWantsProductVideos(question)) {
+        pool = [playableCatalog[0], ...pool];
+      }
     }
   } else if (category) {
     const matches = pool.filter(
@@ -886,8 +915,8 @@ async function pickVideoSamples(question, profile = {}, limit = 3, categoryHint 
     );
     if (matches.length) pool = matches;
   }
-  if (profile.sector === 'restaurant' && !channelHint && !category) {
-    const rest = pool.filter((v) => v.category === 'restaurant');
+  if (profile.sector === 'restaurant' && !channelHint && !category && !questionWantsProductVideos(question)) {
+    const rest = pool.filter((v) => v.category === 'restaurant' && resolveVideoKind(v) === 'topic');
     if (rest.length) pool = rest;
   }
 
@@ -1204,9 +1233,13 @@ function videoToLinkItem(v) {
 }
 
 function videoToVideoBlockItem(v) {
+  const kindLabel =
+    resolveVideoKind(v) === 'product'
+      ? 'Product demo'
+      : v.channelName || 'Topic story';
   const desc = [
+    kindLabel,
     v.duration,
-    v.channelName,
     String(v.description || '').slice(0, 90)
   ]
     .filter(Boolean)
@@ -1221,20 +1254,39 @@ function videoToVideoBlockItem(v) {
     channelId: v.channelId || '',
     channelName: v.channelName || '',
     category: v.category || '',
+    videoKind: resolveVideoKind(v),
     duration: v.duration || '',
     source: v.source || '',
     pageHref: v.pageHref || 'https://www.greenwaysbuildings.com/greenways'
   };
 }
 
-function orderVideosForDisplay(list, max = 8) {
-  const playable = list.filter(isPlayableVideo);
-  const siteOnly = list.filter((v) => !isPlayableVideo(v));
+function orderVideosForDisplay(list, max = 8, opts = {}) {
+  const preferKind = opts.preferKind || '';
+  let pool = list;
+  if (preferKind === 'topic' || preferKind === 'product') {
+    const filtered = pool.filter((v) => resolveVideoKind(v) === preferKind);
+    if (filtered.length) pool = filtered;
+  }
+  const playable = pool.filter(isPlayableVideo);
+  const siteOnly = pool.filter((v) => !isPlayableVideo(v));
+  if (preferKind === 'topic') {
+    const topicPlayable = playable.filter((v) => resolveVideoKind(v) === 'topic');
+    const otherPlayable = playable.filter((v) => resolveVideoKind(v) !== 'topic');
+    const topicSite = siteOnly.filter((v) => resolveVideoKind(v) === 'topic');
+    const otherSite = siteOnly.filter((v) => resolveVideoKind(v) !== 'topic');
+    return [...topicPlayable, ...topicSite, ...otherPlayable, ...otherSite].slice(0, max);
+  }
+  if (preferKind === 'product') {
+    const productPlayable = playable.filter((v) => resolveVideoKind(v) === 'product');
+    const otherPlayable = playable.filter((v) => resolveVideoKind(v) !== 'product');
+    return [...productPlayable, ...otherPlayable, ...siteOnly].slice(0, max);
+  }
   return [...playable, ...siteOnly].slice(0, max);
 }
 
-function buildVideoBlocks(title, videos, max = 8) {
-  const items = orderVideosForDisplay(videos, max).map(videoToVideoBlockItem);
+function buildVideoBlocks(title, videos, max = 8, opts = {}) {
+  const items = orderVideosForDisplay(videos, max, opts).map(videoToVideoBlockItem);
   if (!items.length) return [];
   return [{ type: 'video', title, items }];
 }
@@ -1243,14 +1295,18 @@ async function buildChannelVideosAnswer(channelId, tip, question, profile = {}) 
   const { videos, channels = [] } = await getVideosForAgent();
   const channel = channels.find((c) => c.id === channelId);
   const label = channel?.name || channelId;
-  const list = videos.filter((v) => v.channelId === channelId);
+  const list = filterVideosForQuestion(
+    videos.filter((v) => v.channelId === channelId),
+    question,
+    { wantsProduct: false }
+  );
   const playable = list.filter(isPlayableVideo).length;
-  const picks = orderVideosForDisplay(list, 8);
+  const picks = orderVideosForDisplay(list, 8, { preferKind: 'topic' });
   return {
     answer:
-      `**${label}** — **${list.length}** videos on Greenways (**${playable}** play here with ▶).\n\n` +
-      `I know this channel well — browse the **${picks.length} cards on the right** from the same group. ` +
-      `After you watch one, the player suggests **more from this channel**.\n\n_${tip}_`,
+      `**${label}** — **${list.length}** topic videos on Greenways (**${playable}** play here with ▶).\n\n` +
+      `These are **subject and story clips** from the channel — not marketplace product walkthroughs. ` +
+      `Browse the **${picks.length} cards on the right**; after each clip the player suggests **more from this channel**.\n\n_${tip}_`,
     suggestions: picks.length > 1
       ? picks.slice(1, 4).map((v) => `Tell me about ${v.title}`)
       : [],
@@ -1260,28 +1316,60 @@ async function buildChannelVideosAnswer(channelId, tip, question, profile = {}) 
 }
 
 async function buildVideoCategoryAnswer(category, tip, question, profile = {}) {
-  const { videos, source } = await getVideosForAgent();
+  const { videos } = await getVideosForAgent();
   const label = VIDEO_CATEGORIES[category] || category;
-  const matches = videos.filter((v) => v.category === category || (category === 'energy' && v.category === 'general'));
-  const list = matches.length ? matches : videos;
-  const picks = orderVideosForDisplay(list, 8);
-  const syncNote =
-    source === 'wix'
-      ? ''
-      : source === 'catalog' || source === 'catalog+youtube'
-        ? '_Product MP4s + YouTube channel export — full Wix sync when API credentials are live on Render._\n\n'
-        : '_Sample showcase until Wix credentials are configured on Render._\n\n';
+  const wantsProduct = questionWantsProductVideos(question);
+  let matches = videos.filter(
+    (v) => v.category === category || (category === 'energy' && v.category === 'general')
+  );
+  matches = filterVideosForQuestion(matches, question, { wantsProduct });
+  const list = matches.length
+    ? matches
+    : filterVideosForQuestion(videos, question, { wantsProduct });
+  const kindLabel = wantsProduct ? 'product walkthrough demos' : 'subject and tip videos';
+  const picks = orderVideosForDisplay(list, 8, { preferKind: wantsProduct ? 'product' : 'topic' });
   return {
     answer:
-      `**${label}** across Greenways — **${picks.length}** picks on the right, grouped by topic. ` +
-      `Tap **▶** to watch; the player surfaces **more from the same channel** after each clip.\n\n` +
-      syncNote +
+      `**${label}** — **${picks.length}** ${kindLabel} on the right. ` +
+      (wantsProduct
+        ? 'These are **marketplace equipment demos** you can compare before upgrading.'
+        : 'These are **topic and story clips** — hospitality tips, show round-ups, and sector guidance (not product walkthroughs).') +
+      ` Tap **▶** to watch; related clips surface after each play.\n\n` +
       `_${tip}_`,
-    suggestions: picks.length > 1
-      ? picks.slice(1, 4).map((v) => `Play ${v.title}`)
-      : [],
-    intentId: `video_${category}`,
-    blocks: buildVideoBlocks(`${label} — video picks`, list, 8)
+    suggestions: wantsProduct
+      ? ['Show restaurant energy saving topic videos', 'Invoq combi oven demo']
+      : picks.length > 1
+        ? picks.slice(1, 4).map((v) => `Play ${v.title}`)
+        : ['Show product demo videos for kitchen equipment'],
+    intentId: wantsProduct ? `product_${category}` : `video_${category}`,
+    blocks: buildVideoBlocks(`${label} — ${kindLabel}`, list, 8, {
+      preferKind: wantsProduct ? 'product' : 'topic'
+    })
+  };
+}
+
+async function buildProductVideosAnswer(question, profile, tip) {
+  const { videos } = await getVideosForAgent();
+  const list = filterVideosForQuestion(videos, question, { wantsProduct: true });
+  const picks = orderVideosForDisplay(list, 8, { preferKind: 'product' });
+  const sector =
+    profile.sector === 'restaurant'
+      ? 'restaurant kitchen'
+      : profile.sector && profile.sector !== 'any'
+        ? profile.sector
+        : 'your site';
+  return {
+    answer:
+      `**Product demo videos** — **${picks.length}** marketplace walkthroughs on the right for **${sector}** equipment.\n\n` +
+      `These are **your Greenways MP4 demos** (ovens, dryers, heat pumps, etc.) — not YouTube topic channels. ` +
+      `Tap **▶** on a card, or ask **Artemis** for a deep dive on a specific model.\n\n_${tip}_`,
+    suggestions: [
+      'Show restaurant energy saving topic videos',
+      'Invoq combi oven demo',
+      'Water saving product demos'
+    ],
+    intentId: 'product_demo_videos',
+    blocks: buildVideoBlocks('Product demo walkthroughs — tap ▶', list, 8, { preferKind: 'product' })
   };
 }
 
@@ -1295,23 +1383,22 @@ async function buildWixVideosAnswer(tip) {
       return n ? `- **${c.name}:** ${n} videos` : `- **${c.name}** _(on site — export to sync titles)_`;
     })
     .join('\n');
-  const quickPicks = orderVideosForDisplay(videos.filter(isPlayableVideo), 6);
+  const quickPicks = orderVideosForDisplay(
+    filterVideosForQuestion(videos.filter(isPlayableVideo), '', { wantsProduct: false }),
+    6,
+    { preferKind: 'topic' }
+  );
   return {
     answer:
-      `**Greenways video library** on [/greenways](https://www.greenwaysbuildings.com/greenways) — **14 Wix Video channels** (YouTube feeds) plus marketplace product demos.\n\n` +
+      `**Greenways video library** on [/greenways](https://www.greenwaysbuildings.com/greenways) — **14 Wix Video channels** (YouTube topic feeds) plus **marketplace product demos**.\n\n` +
       `**Cheryce can see right now:** ${mp4Count} playable product MP4s + **${youtubeCount || videos.filter((v) => v.source === 'wix-youtube').length}** curated YouTube titles from your channel export (${ytCount} with ▶ embed IDs so far).\n\n` +
-      `**Quick picks** are on the right — ask for a **channel by name** and I will show **everything in that group**.\n\n` +
+      `**Quick picks** below are **topic stories** — ask for a **channel by name** or say **product demo videos** for equipment walkthroughs.\n\n` +
       `**Your Wix Video channels:**\n${channelLines}\n\n` +
-      (source === 'wix'
-        ? ''
-        : source === 'catalog' || source === 'catalog+youtube'
-          ? '_Product MP4s from marketplace media; YouTube titles from our channel catalogue. Re-export `/greenways` to refresh when new videos are added._\n\n'
-          : '⚠️ Wix API credentials not live — showing catalog snapshot.\n\n') +
       `_${tip}_`,
     suggestions: [
       'Show Restaurant Energy Savings videos',
       'Sustainability in Action videos',
-      'Home Energy Savings smart home videos'
+      'Show product demo videos for kitchen equipment'
     ],
     intentId: 'wix_videos',
     blocks: quickPicks.length
@@ -1619,6 +1706,10 @@ async function answerFromKnowledge(question, profile = {}) {
         result = await buildChannelVideosAnswer(intent.channelId, tip, question, profile);
         result.agentHandoffs = buildHandoffs(briefing, question, intent.id);
         break;
+      case 'product_videos':
+        result = await buildProductVideosAnswer(question, profile, tip);
+        result.agentHandoffs = buildHandoffs(briefing, question, 'product_demo_videos');
+        break;
       case 'wix_videos':
         result = await buildWixVideosAnswer(tip);
         break;
@@ -1661,6 +1752,7 @@ async function answerFromKnowledge(question, profile = {}) {
       intent &&
       (intent.answerType === 'video_category' ||
         intent.answerType === 'channel_videos' ||
+        intent.answerType === 'product_videos' ||
         intent.answerType === 'wix_videos' ||
         intent.id === 'restaurant_videos' ||
         intent.id === 'energy_videos' ||
@@ -1676,12 +1768,14 @@ async function answerFromKnowledge(question, profile = {}) {
     } else if (!keepSamples) {
       result.productSamples = await pickMediaSamples(question, profile, 4);
     }
-    enrichKnowledgeAnswer(result, {
-      agentKey: 'media',
-      question,
-      intentId: intentId || intent?.id,
-      profile
-    });
+    if (!videoIntent && !isVideoQuestion(question)) {
+      enrichKnowledgeAnswer(result, {
+        agentKey: 'media',
+        question,
+        intentId: intentId || intent?.id,
+        profile
+      });
+    }
     applyPersona(result, {
       voice,
       intentId: intentId || 'overview',

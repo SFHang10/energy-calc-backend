@@ -303,6 +303,33 @@ async function runLocalSmokes() {
   }
   console.log('OK Cheryce map site card:', mediaMapHit.siteKnowledgeCardId);
 
+  const mediaRestaurantVideos = await mediaMod.answerFromKnowledge(
+    'show restaurant and kitchen energy saving videos',
+    profile
+  );
+  const restaurantVideoItems = (mediaRestaurantVideos?.blocks || [])
+    .filter((b) => b.type === 'video')
+    .flatMap((b) => b.items || []);
+  if (!restaurantVideoItems.length) {
+    throw new Error('Cheryce restaurant_videos: expected video items');
+  }
+  if (restaurantVideoItems.some((b) => b.videoKind === 'product' || b.source === 'catalog')) {
+    throw new Error('Cheryce restaurant_videos: expected topic/channel clips only, not product catalog demos');
+  }
+  console.log('OK Cheryce restaurant topic videos:', restaurantVideoItems.length);
+
+  const mediaProductDemos = await mediaMod.answerFromKnowledge('product demo videos for commercial ovens', profile);
+  const productDemoItems = (mediaProductDemos?.blocks || [])
+    .filter((b) => b.type === 'video')
+    .flatMap((b) => b.items || []);
+  if (!productDemoItems.length) {
+    throw new Error('Cheryce product_demo_videos: expected video items');
+  }
+  if (productDemoItems.some((b) => b.videoKind !== 'product')) {
+    throw new Error('Cheryce product_demo_videos: expected product demos only');
+  }
+  console.log('OK Cheryce product demo videos:', productDemoItems.length);
+
   const dealsMod = require(path.join(ROOT, 'services/deals-agent-knowledge'));
   const dealsPortalHit = await dealsMod.answerFromKnowledge('open portal deals hub', profile);
   const dealsPortalMod = (dealsPortalHit?.blocks || []).find((b) => b.type === 'module');
