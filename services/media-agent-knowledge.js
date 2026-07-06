@@ -1305,8 +1305,9 @@ async function buildChannelVideosAnswer(channelId, tip, question, profile = {}) 
   return {
     answer:
       `**${label}** — **${list.length}** topic videos on Greenways (**${playable}** play here with ▶).\n\n` +
-      `These are **subject and story clips** from the channel — not marketplace product walkthroughs. ` +
-      `Browse the **${picks.length} cards on the right**; after each clip the player suggests **more from this channel**.\n\n_${tip}_`,
+      `These are **subject and story clips** from the channel. ` +
+      `I also have **product walkthrough videos** for equipment on our **energy efficiency products list** — ask for *product demo videos* when you want those. ` +
+      `Browse the **${picks.length} cards on the right**; after each clip the player suggests **more from this channel**.`,
     suggestions: picks.length > 1
       ? picks.slice(1, 4).map((v) => `Tell me about ${v.title}`)
       : [],
@@ -1315,7 +1316,7 @@ async function buildChannelVideosAnswer(channelId, tip, question, profile = {}) 
   };
 }
 
-async function buildVideoCategoryAnswer(category, tip, question, profile = {}) {
+async function buildVideoCategoryAnswer(category, tip, question, profile = {}, intentId = null) {
   const { videos } = await getVideosForAgent();
   const label = VIDEO_CATEGORIES[category] || category;
   const wantsProduct = questionWantsProductVideos(question);
@@ -1332,16 +1333,16 @@ async function buildVideoCategoryAnswer(category, tip, question, profile = {}) {
     answer:
       `**${label}** — **${picks.length}** ${kindLabel} on the right. ` +
       (wantsProduct
-        ? 'These are **marketplace equipment demos** you can compare before upgrading.'
-        : 'These are **topic and story clips** — hospitality tips, show round-ups, and sector guidance (not product walkthroughs).') +
-      ` Tap **▶** to watch; related clips surface after each play.\n\n` +
-      `_${tip}_`,
+        ? 'These are **marketplace equipment demos** from our energy efficiency products list — short walkthroughs you can compare before upgrading.'
+        : 'These are **topic and story clips** — hospitality tips, show round-ups, and sector guidance. ' +
+          'I also have **product walkthrough videos** for equipment on our **energy efficiency products list** — ask for *product demo videos* when you want those.') +
+      ` Tap **▶** to watch; related clips surface after each play.`,
     suggestions: wantsProduct
       ? ['Show restaurant energy saving topic videos', 'Invoq combi oven demo']
       : picks.length > 1
         ? picks.slice(1, 4).map((v) => `Play ${v.title}`)
         : ['Show product demo videos for kitchen equipment'],
-    intentId: wantsProduct ? `product_${category}` : `video_${category}`,
+    intentId: intentId || (wantsProduct ? `product_${category}` : `video_${category}`),
     blocks: buildVideoBlocks(`${label} — ${kindLabel}`, list, 8, {
       preferKind: wantsProduct ? 'product' : 'topic'
     })
@@ -1362,7 +1363,7 @@ async function buildProductVideosAnswer(question, profile, tip) {
     answer:
       `**Product demo videos** — **${picks.length}** marketplace walkthroughs on the right for **${sector}** equipment.\n\n` +
       `These are **your Greenways MP4 demos** (ovens, dryers, heat pumps, etc.) — not YouTube topic channels. ` +
-      `Tap **▶** on a card, or ask **Artemis** for a deep dive on a specific model.\n\n_${tip}_`,
+      `Tap **▶** on a card, or ask **Artemis** for a deep dive on a specific model.`,
     suggestions: [
       'Show restaurant energy saving topic videos',
       'Invoq combi oven demo',
@@ -1699,7 +1700,7 @@ async function answerFromKnowledge(question, profile = {}) {
         result.agentHandoffs = buildHandoffs(briefing, question, 'how_this_helps');
         break;
       case 'video_category':
-        result = await buildVideoCategoryAnswer(intent.category, tip, question, profile);
+        result = await buildVideoCategoryAnswer(intent.category, tip, question, profile, intent.id);
         result.agentHandoffs = buildHandoffs(briefing, question, intent.id);
         break;
       case 'channel_videos':

@@ -371,7 +371,8 @@ async function buildEnergyExamplesAnswer(question, profile, tip) {
 
   return {
     answer:
-      `These are **real energy savings examples** from the sustainability map — organisations with published kWh, € savings, or payback you can use as **benchmarks** when comparing upgrades (illustrative until you have your own meter data).\n\n` +
+      `These are **real energy savings examples** from the sustainability map — organisations with published kWh, € savings, or payback you can learn from when planning upgrades (illustrative until you have your own meter data). ` +
+      `For **product efficiency benchmarks**, use the **Product Finder**.\n\n` +
       `Each story shows **products, equipment, or processes** that made the difference. Open Cheryce’s **map panels** on the right — each opens zoomed on that organisation.\n\n` +
       `${mapFollowUpQuestion(profile)}\n\n_${tip}_`,
     suggestions: [],

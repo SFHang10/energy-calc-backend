@@ -17,8 +17,22 @@
     return intro;
   }
 
+  function isSchemeSuggestion(item) {
+    return (
+      item &&
+      typeof item === "object" &&
+      !Array.isArray(item) &&
+      (item.id || item.title)
+    );
+  }
+
+  function schemeSuggestionsOnly(suggestions) {
+    if (!Array.isArray(suggestions)) return [];
+    return suggestions.filter(isSchemeSuggestion);
+  }
+
   function agentDisplayAnswer(answer, suggestions, blocks) {
-    if (Array.isArray(suggestions) && suggestions.length) return introFromAnswer(answer);
+    if (schemeSuggestionsOnly(suggestions).length) return introFromAnswer(answer);
     if (Array.isArray(blocks) && blocks.length) return introFromAnswer(answer);
     return answer;
   }
@@ -354,8 +368,9 @@
     blockList.forEach(function (block) {
       if (block && block.type === "stat") ordered.push(blocksHtml([block], escapeHtml));
     });
-    if (Array.isArray(suggestions) && suggestions.length) {
-      ordered.push(schemeTabletsHtml(suggestions, escapeHtml));
+    const schemeItems = schemeSuggestionsOnly(suggestions);
+    if (schemeItems.length) {
+      ordered.push(schemeTabletsHtml(schemeItems, escapeHtml));
     }
     blockList.forEach(function (block) {
       if (block && block.type === "link") ordered.push(blocksHtml([block], escapeHtml));
