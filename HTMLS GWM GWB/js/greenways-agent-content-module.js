@@ -768,8 +768,10 @@
     var reg = moduleRegistryById[id] || staticModuleForId(id);
     if (!reg) return item;
     return Object.assign({}, item, {
+      title: item.title || reg.title || "",
       description: item.description || reg.description || "",
       usageHint: item.usageHint || reg.usageHint || "",
+      href: item.href || reg.href || "",
       fullPageHref: item.fullPageHref || reg.fullPageHref || ""
     });
   }
