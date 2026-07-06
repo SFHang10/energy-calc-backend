@@ -93,9 +93,12 @@ function resolveModuleWebHref(href) {
 function appendEmbedParams(href, profile = {}, module = {}) {
   const rel = resolveModuleWebHref(String(href || '').trim());
   if (!rel) return rel;
-  const qIndex = rel.indexOf('?');
-  const pathPart = qIndex >= 0 ? rel.slice(0, qIndex) : rel;
-  const params = new URLSearchParams(qIndex >= 0 ? rel.slice(qIndex + 1) : '');
+  const hashIndex = rel.indexOf('#');
+  const hash = hashIndex >= 0 ? rel.slice(hashIndex) : '';
+  const base = hashIndex >= 0 ? rel.slice(0, hashIndex) : rel;
+  const qIndex = base.indexOf('?');
+  const pathPart = qIndex >= 0 ? base.slice(0, qIndex) : base;
+  const params = new URLSearchParams(qIndex >= 0 ? base.slice(qIndex + 1) : '');
   if (!params.has('embed')) params.set('embed', '1');
   if (!params.has('popup')) params.set('popup', '1');
   const region = String(profile.region || '').trim();
@@ -107,18 +110,21 @@ function appendEmbedParams(href, profile = {}, module = {}) {
     params.set('sector', sector);
   }
   const q = params.toString();
-  return q ? `${pathPart}?${q}` : pathPart;
+  return `${q ? `${pathPart}?${q}` : pathPart}${hash}`;
 }
 
 function fullPageHref(href) {
   const rel = String(href || '');
-  if (!rel.includes('?')) return rel;
-  const [pathPart, query] = rel.split('?');
+  const hashIndex = rel.indexOf('#');
+  const hash = hashIndex >= 0 ? rel.slice(hashIndex) : '';
+  const base = hashIndex >= 0 ? rel.slice(0, hashIndex) : rel;
+  if (!base.includes('?')) return rel;
+  const [pathPart, query] = base.split('?');
   const params = new URLSearchParams(query);
   params.delete('embed');
   params.delete('popup');
   const q = params.toString();
-  return q ? `${pathPart}?${q}` : pathPart;
+  return `${q ? `${pathPart}?${q}` : pathPart}${hash}`;
 }
 
 function toModuleItem(module, profile = {}, overrides = {}) {

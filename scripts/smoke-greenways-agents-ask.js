@@ -288,6 +288,19 @@ async function runLocalSmokes() {
   }
   console.log('OK Cheryce site knowledge card:', mediaMonthlyHit.siteKnowledgeCardId);
 
+  const mediaMonthlyMod = (mediaMonthlyHit?.blocks || []).find((b) => b.type === 'module');
+  const omnibusRow = (mediaMonthlyMod?.items || []).find((i) => /omnibus published/i.test(i.title || ''));
+  if (
+    !/\/2026-06-sustainability-news\.html\?embed=1[^#]*#example-energy-omnibus-june-2026/.test(
+      omnibusRow?.href || ''
+    )
+  ) {
+    throw new Error(
+      'Cheryce monthly_news: expected Omnibus module href with query before #example-energy-omnibus-june-2026 anchor'
+    );
+  }
+  console.log('OK Cheryce monthly news story deep link');
+
   const mediaTechHit = await mediaMod.answerFromKnowledge('tech news green tech innovation', profile);
   if (!mediaTechHit?.answer?.includes('**Site example:**')) {
     throw new Error('Cheryce tech_news: expected **Site example:** grounded line');

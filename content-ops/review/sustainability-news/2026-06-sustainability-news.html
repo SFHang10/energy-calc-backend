@@ -1025,6 +1025,14 @@
     </footer>
     <script>
         (function () {
+            const scrollToHash = (behavior) => {
+                const hash = window.location.hash;
+                if (!hash || !hash.startsWith('#')) return;
+                const target = document.querySelector(hash);
+                if (!target) return;
+                target.scrollIntoView({ behavior: behavior || 'smooth', block: 'start' });
+            };
+
             const handleAnchorClick = (event) => {
                 const link = event.currentTarget;
                 const hash = link.getAttribute('href');
@@ -1039,6 +1047,12 @@
             document.querySelectorAll('.sidebar-nav a[href^="#"], .impact-cta[href^="#"]').forEach((link) => {
                 link.addEventListener('click', handleAnchorClick);
             });
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => scrollToHash('auto'));
+            } else {
+                scrollToHash('auto');
+            }
         })();
     </script>
     <script>

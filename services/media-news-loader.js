@@ -52,6 +52,31 @@ function contentOpsWebPath(absPath) {
   return `/${rel}`;
 }
 
+function pageHrefWithAnchor(pageHref, pageAnchor) {
+  if (!pageHref || !pageAnchor) return pageHref || null;
+  const base = String(pageHref).split('#')[0].split('?')[0];
+  const anchor = String(pageAnchor).replace(/^#/, '').trim();
+  return anchor ? `${base}#${anchor}` : pageHref;
+}
+
+/** Nearest in-page anchor for a newsletter card (card id or first internal impact-cta). */
+function extractCardAnchor(raw, titleIndex) {
+  const before = raw.slice(Math.max(0, titleIndex - 1200), titleIndex);
+  let cardId = null;
+  const cardIdRe = /<div class="card[^"]*"[^>]*\sid="([^"]+)"/gi;
+  let cardMatch;
+  while ((cardMatch = cardIdRe.exec(before)) !== null) {
+    cardId = cardMatch[1];
+  }
+  if (cardId) return cardId;
+
+  const after = raw.slice(titleIndex, titleIndex + 3000);
+  const ctaMatch = after.match(/<a class="impact-cta"[^>]*href="#([^"]+)"/);
+  if (ctaMatch) return ctaMatch[1];
+
+  return null;
+}
+
 async function loadJsonSafe(filePath, fallback) {
   try {
     return JSON.parse(await fs.readFile(filePath, 'utf8'));
@@ -138,6 +163,7 @@ async function parseNewsHtmlEdition(filePath) {
     const title = decodeHtml(match[1].replace(/<[^>]+>/g, ''));
     const summary = decodeHtml(match[2].replace(/<[^>]+>/g, ''));
     if (!title) continue;
+    const pageAnchor = extractCardAnchor(raw, match.index);
     items.push({
       id: slugId(`ed-${edition}-${editionType}`, title),
       title,
@@ -148,7 +174,8 @@ async function parseNewsHtmlEdition(filePath) {
       catalogSource: 'content-ops-html',
       edition,
       editionType,
-      pageHref
+      pageHref,
+      pageAnchor: pageAnchor || null
     });
   }
 
@@ -164,7 +191,8 @@ async function parseNewsHtmlEdition(filePath) {
       catalogSource: 'content-ops-html',
       edition,
       editionType,
-      pageHref
+      pageHref,
+      pageAnchor: 'summary'
     });
   }
 
@@ -218,6 +246,7 @@ function dedupeItems(items) {
       summary: existing.summary || item.summary,
       sources: [...new Set([...(existing.sources || []), ...(item.sources || [])])],
       pageHref: existing.pageHref || item.pageHref,
+      pageAnchor: existing.pageAnchor || item.pageAnchor || null,
       impact: existing.impact?.length ? existing.impact : item.impact,
       relatedProducts: existing.relatedProducts || item.relatedProducts
     });
@@ -337,7 +366,11 @@ function formatNewsItemBullet(item, newsProducts) {
   const impact = (item.impact || []).slice(0, 2).join(' · ');
   const head = `**${item.title}**${item.edition ? ` _(${item.edition} ${item.editionType || ''})_` : ''} — ${String(item.summary || '').slice(0, 140)}`;
   const impactLine = impact ? `\n  _Why it matters:_ ${impact}` : '';
-  const link = item.pageHref || item.moreLink || (item.sources && item.sources[0]) || '';
+  const link =
+    pageHrefWithAnchor(item.pageHref, item.pageAnchor) ||
+    item.moreLink ||
+    (item.sources && item.sources[0]) ||
+    '';
   const productLine =
     item.relatedProducts?.length
       ? `\n  _Related on Greenways:_ ${item.relatedProducts.map((p) => p.productName).join(', ')}`
@@ -449,6 +482,9 @@ module.exports = {
   getLatestEdition,
   pickEditionChips,
   contentOpsWebPath,
+  pageHrefWithAnchor,
+  extractCardAnchor,
+  parseNewsHtmlEdition,
   DEFAULT_SUSTAINABILITY_NEWS_HREF,
   HTMLS_NEWS_PAGES
 };

@@ -16,6 +16,7 @@ const {
   filterByCategory,
   getLatestEdition,
   pickEditionChips,
+  pageHrefWithAnchor,
   DEFAULT_SUSTAINABILITY_NEWS_HREF
 } = require('./media-news-loader');
 const {
@@ -588,7 +589,7 @@ function newsItemDescription(item) {
 
 function newsItemToLinkItem(item) {
   const url =
-    item.pageHref ||
+    pageHrefWithAnchor(item.pageHref, item.pageAnchor) ||
     item.moreLink ||
     (item.sources && item.sources[0]) ||
     MEDIA_PAGES.sustainabilityNews;
@@ -598,13 +599,13 @@ function newsItemToLinkItem(item) {
 function newsItemToModuleRow(item, catalog) {
   const desc = newsItemDescription(item) || 'News story';
   const url =
-    item.pageHref ||
+    pageHrefWithAnchor(item.pageHref, item.pageAnchor) ||
     item.moreLink ||
     (item.sources && item.sources[0]) ||
     '';
   if (isExternalNewsUrl(url)) return null;
 
-  let hint = resolveNewsModuleFromUrl(url, item.editionType);
+  let hint = resolveNewsModuleFromUrl(item.pageHref || url, item.editionType);
   if (!hint) {
     if (item.editionType === 'tech') {
       const tech = getLatestEdition(catalog?.editions, 'tech');
@@ -621,12 +622,17 @@ function newsItemToModuleRow(item, catalog) {
     }
   }
 
+  const baseHref = hint.href || item.pageHref || url || MEDIA_PAGES.sustainabilityNews;
+  const storyHref = item.pageAnchor
+    ? pageHrefWithAnchor(baseHref, item.pageAnchor)
+    : baseHref;
+
   return {
     moduleId: hint.moduleId,
     title: item.title || 'News story',
     description: desc,
     usageHint: 'Read the full story in Cheryce’s newsletter panel, then ask how it affects your sector.',
-    href: hint.href || url || MEDIA_PAGES.sustainabilityNews,
+    href: storyHref,
     openSize: 'near-full'
   };
 }

@@ -429,14 +429,18 @@
 
   function stripEmbedParams(href) {
     var rel = String(href || "").trim();
-    if (!rel || rel.indexOf("?") === -1) return resolveModuleWebHref(rel);
-    var parts = rel.split("?");
+    if (!rel) return resolveModuleWebHref(rel);
+    var hashIndex = rel.indexOf("#");
+    var hash = hashIndex >= 0 ? rel.slice(hashIndex) : "";
+    var base = hashIndex >= 0 ? rel.slice(0, hashIndex) : rel;
+    if (base.indexOf("?") === -1) return resolveModuleWebHref(base + hash);
+    var parts = base.split("?");
     var params = new URLSearchParams(parts[1]);
     params.delete("embed");
     params.delete("popup");
     params.delete("return");
     var q = params.toString();
-    return resolveModuleWebHref(q ? parts[0] + "?" + q : parts[0]);
+    return resolveModuleWebHref(q ? parts[0] + "?" + q + hash : parts[0] + hash);
   }
 
   function agentReturnUrl() {
@@ -454,14 +458,17 @@
   function appendEmbedParams(href, item) {
     var url = resolveModuleWebHref(String(href || "").trim());
     if (!url) return url;
-    var qIndex = url.indexOf("?");
-    var pathPart = qIndex >= 0 ? url.slice(0, qIndex) : url;
-    var params = new URLSearchParams(qIndex >= 0 ? url.slice(qIndex + 1) : "");
+    var hashIndex = url.indexOf("#");
+    var hash = hashIndex >= 0 ? url.slice(hashIndex) : "";
+    var base = hashIndex >= 0 ? url.slice(0, hashIndex) : url;
+    var qIndex = base.indexOf("?");
+    var pathPart = qIndex >= 0 ? base.slice(0, qIndex) : base;
+    var params = new URLSearchParams(qIndex >= 0 ? base.slice(qIndex + 1) : "");
     if (!params.has("embed")) params.set("embed", "1");
     if (!params.has("popup")) params.set("popup", "1");
     if (!params.has("return")) params.set("return", agentReturnUrl());
     var q = params.toString();
-    return q ? pathPart + "?" + q : pathPart;
+    return (q ? pathPart + "?" + q : pathPart) + hash;
   }
 
   function prepareModuleItem(item) {

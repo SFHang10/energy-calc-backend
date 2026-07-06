@@ -228,13 +228,17 @@ function resolvePortalPathToRootHref(path) {
 }
 
 function moduleEmbedHref(path, extraQuery = '') {
-  const base = resolvePortalPathToRootHref(path);
-  if (!base) return '';
+  const resolved = resolvePortalPathToRootHref(path);
+  if (!resolved) return '';
+  const hashIndex = resolved.indexOf('#');
+  const hash = hashIndex >= 0 ? resolved.slice(hashIndex) : '';
+  const base = hashIndex >= 0 ? resolved.slice(0, hashIndex) : resolved;
   const sep = base.includes('?') ? '&' : '?';
   const q = String(extraQuery || '')
     .replace(/^\?/, '')
     .replace(/^&/, '');
-  return `${base}${sep}embed=1&popup=1${q ? `&${q}` : ''}`;
+  const query = `embed=1&popup=1${q ? `&${q}` : ''}`;
+  return `${base}${sep}${query}${hash}`;
 }
 
 /**
