@@ -215,6 +215,7 @@ app.get('/greenways/restaurant-monitoring', (req, res) => sendLiveMusicHtml(res,
 app.get('/greenways/interactive-restaurants', (req, res) => sendLiveMusicHtml(res, 'interactive_restaurants_monitoring.html'));
 app.get('/greenways/buildings-dashboard', (req, res) => sendLiveMusicHtml(res, 'Greenways Interface .html'));
 app.get('/greenways/restaurant-data', (req, res) => sendLiveMusicHtml(res, 'restaurant-data.html'));
+app.get('/greenways/restaurant-energy-snapshot', (req, res) => sendLiveMusicHtml(res, 'restaurant-energy-snapshot.html'));
 app.get('/greenways/sensor-dashboard', (req, res) => sendLiveMusicHtml(res, 'sensor-dashboard.html'));
 app.get('/greenways/deals-hub', (req, res) => sendLiveMusicHtml(res, 'deals-ticker-hub.html'));
 app.get('/greenways/water-saving-finder', (req, res) => sendLiveMusicHtml(res, 'water-saving-finder.html'));
@@ -408,6 +409,7 @@ let agentsAdminRouter;
 let greenwaysModuleRouter;
 let musicVenueInquiriesRouter;
 let musicMediaCandidatesRouter;
+let restaurantSnapshotRouter;
 try {
   musicVenuesRouter = require('./routes/music-venues');
   musicGuideRouter = require('./routes/music-guide');
@@ -423,6 +425,7 @@ try {
   greenwaysModuleRouter = require('./routes/greenways-module');
   musicVenueInquiriesRouter = require('./routes/music-venue-inquiries');
   musicMediaCandidatesRouter = require('./routes/music-media-candidates');
+  restaurantSnapshotRouter = require('./routes/restaurant-snapshot');
   console.log('Live music routers loaded successfully');
 } catch (error) {
   console.error('❌ Failed to load live music routers:', error.message);
@@ -440,6 +443,7 @@ try {
   greenwaysModuleRouter = null;
   musicVenueInquiriesRouter = null;
   musicMediaCandidatesRouter = null;
+  restaurantSnapshotRouter = null;
 }
 
 function mountApiRoutes() {
@@ -519,6 +523,10 @@ function mountApiRoutes() {
   if (financeAgentRouter) {
     app.use('/api/finance-agent', financeAgentRouter);
     console.log('✅ /api/finance-agent route mounted');
+  }
+  if (restaurantSnapshotRouter) {
+    app.use('/api/restaurant-snapshot', restaurantSnapshotRouter);
+    console.log('✅ /api/restaurant-snapshot route mounted');
   }
   if (greenwaysModuleRouter) {
     app.use('/api/greenways-module', greenwaysModuleRouter);

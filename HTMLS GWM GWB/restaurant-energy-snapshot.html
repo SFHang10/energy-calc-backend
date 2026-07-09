@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Restaurant Energy Snapshot — Greenways</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --forest: #0d1f35;
+      --forest-mid: #162d4a;
+      --leaf: #38b6e8;
+      --leaf-bright: #7fd4f5;
+      --amber: #f5a623;
+      --cream: #e8f4fd;
+      --muted: #6b8aa8;
+      --safe: #1ba8d4;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-snap-type: y mandatory; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--forest);
+      color: var(--cream);
+      overflow-x: hidden;
+    }
+    .report-page {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      padding: clamp(1.25rem, 4vw, 2.5rem);
+    }
+    .page-inner {
+      flex: 1;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .page-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--leaf-bright);
+      margin-bottom: 0.75rem;
+    }
+    h1, h2 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      line-height: 1.15;
+    }
+    h1 { font-size: clamp(2rem, 5vw, 3.2rem); margin-bottom: 0.5rem; }
+    h2 { font-size: clamp(1.5rem, 3.5vw, 2.2rem); margin-bottom: 1rem; }
+    .lead { color: rgba(232,244,253,0.82); font-size: 1.05rem; line-height: 1.65; max-width: 52ch; }
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+    .pill {
+      font-size: 0.75rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid rgba(56,182,232,0.35);
+      background: rgba(56,182,232,0.1);
+      color: var(--leaf-bright);
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+      align-items: stretch;
+    }
+    .card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(56,182,232,0.18);
+      border-radius: 14px;
+      padding: 1.25rem;
+      backdrop-filter: blur(4px);
+    }
+    .kpi {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      color: var(--amber);
+      line-height: 1;
+    }
+    .kpi-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.35rem; }
+    .chart-wrap {
+      position: relative;
+      height: min(280px, 38vh);
+      margin-top: 0.5rem;
+    }
+    .equip-list { list-style: none; margin-top: 0.75rem; }
+    .equip-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 0.88rem;
+    }
+    .equip-list li span:last-child { font-family: 'DM Mono', monospace; color: var(--leaf-bright); }
+    .scenario-card {
+      display: grid;
+      grid-template-columns: 72px 1fr auto;
+      gap: 1rem;
+      align-items: center;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .scenario-card img {
+      width: 72px;
+      height: 72px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .scenario-save {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.95rem;
+      color: #7dffcb;
+      text-align: right;
+    }
+    .grant-row {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .grant-row a { color: var(--leaf-bright); text-decoration: none; font-weight: 600; }
+    .grant-row a:hover { text-decoration: underline; }
+    .grant-row p { font-size: 0.82rem; color: var(--muted); margin-top: 0.25rem; }
+    .steps { list-style: none; margin-top: 1rem; }
+    .steps li {
+      padding: 0.65rem 0;
+      border-left: 3px solid var(--amber);
+      padding-left: 1rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+    .agent-links { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.25rem; }
+    .agent-links a {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--forest);
+      background: var(--amber);
+      padding: 0.5rem 0.9rem;
+      border-radius: 999px;
+      text-decoration: none;
+    }
+    .nav-dots {
+      position: fixed;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .nav-dots a {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      border: 1px solid rgba(255,255,255,0.4);
+    }
+    .nav-dots a:hover { background: var(--leaf); }
+    .disclaimer {
+      font-size: 0.72rem;
+      color: rgba(232,244,253,0.45);
+      margin-top: auto;
+      padding-top: 1.5rem;
+      line-height: 1.5;
+    }
+    .page-hero-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0.22;
+    }
+    .page-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(13,31,53,0.92), rgba(22,45,74,0.88));
+    }
+    .page-hero .page-inner { position: relative; z-index: 1; }
+    .loading {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .toolbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 60;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 1rem;
+      background: rgba(13,31,53,0.85);
+      border-bottom: 1px solid rgba(56,182,232,0.2);
+      font-size: 0.8rem;
+    }
+    .toolbar button {
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.4rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid rgba(56,182,232,0.4);
+      background: rgba(56,182,232,0.12);
+      color: var(--leaf-bright);
+      cursor: pointer;
+    }
+    @media print {
+      html { scroll-snap-type: none; }
+      .nav-dots, .toolbar { display: none; }
+      .report-page { page-break-after: always; min-height: auto; padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar" id="toolbar" hidden>
+    <span id="toolbar-label">Restaurant Energy Snapshot</span>
+    <button type="button" onclick="window.print()">Print / Save PDF</button>
+  </div>
+  <nav class="nav-dots" id="nav-dots" aria-label="Report pages" hidden>
+    <a href="#page-1" title="Cover"></a>
+    <a href="#page-2" title="Utilities"></a>
+    <a href="#page-3" title="Equipment"></a>
+    <a href="#page-4" title="Upgrades"></a>
+    <a href="#page-5" title="Next steps"></a>
+  </nav>
+  <div class="loading" id="loading">
+    <p>Assembling your energy snapshot…</p>
+    <p style="font-size:0.85rem;color:var(--muted)">Loading site data, tariffs, and scenarios</p>
+  </div>
+  <main id="report-root" hidden></main>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const siteId = params.get('site') || 'w2w-amsterdam-02';
+    const region = params.get('region') || 'nl';
+    const apiBase = location.origin;
+    let charts = [];
+
+    function eur(n) {
+      return '€' + Number(n || 0).toLocaleString('en-GB', { maximumFractionDigits: 0 });
+    }
+
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = s == null ? '' : String(s);
+      return d.innerHTML;
+    }
+
+    function destroyCharts() {
+      charts.forEach((c) => c.destroy());
+      charts = [];
+    }
+
+    function makeChart(canvas, config) {
+      if (!canvas || !window.Chart) return;
+      charts.push(new Chart(canvas.getContext('2d'), config));
+    }
+
+    function renderReport(s) {
+      destroyCharts();
+      const root = document.getElementById('report-root');
+      const site = s.site;
+      const date = new Date(s.meta.generatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+      root.innerHTML =
+        '<section class="report-page page-hero" id="page-1">' +
+          (site.imageUrl ? '<div class="page-hero-bg" style="background-image:url(\'' + esc(site.imageUrl) + '\')"></div>' : '') +
+          '<div class="page-hero-overlay"></div>' +
+          '<div class="page-inner">' +
+            '<p class="page-tag">Greenways · Restaurant energy snapshot · Pilot</p>' +
+            '<h1>' + esc(site.name) + '</h1>' +
+            '<p class="lead">' + esc(s.narrative.coverTagline) + '</p>' +
+            '<div class="meta-row">' +
+              '<span class="pill">' + esc(site.address) + '</span>' +
+              '<span class="pill">' + esc(date) + '</span>' +
+              '<span class="pill">5-page brief</span>' +
+            '</div>' +
+            '<div class="grid-2" style="margin-top:2rem">' +
+              '<div class="card"><div class="kpi">' + eur(s.costs.total) + '</div><div class="kpi-label">Modelled utility spend / month</div></div>' +
+              '<div class="card"><div class="kpi">' + eur(s.costs.annualTotal) + '</div><div class="kpi-label">Annual equivalent (illustrative)</div></div>' +
+            '</div>' +
+            '<p class="disclaimer">' + esc(s.meta.disclaimer) + '</p>' +
+          '</div>' +
+        '</section>' +
+
+        '<section class="report-page" id="page-2" style="background:linear-gradient(180deg,#0d1f35,#122a42)">' +
+          '<div class="page-inner">' +
+            '<p class="page-tag">Page 2 · Your situation</p>' +
+            '<h2>Where the money goes</h2>' +
+            '<p class="lead">' + esc(s.narrative.situationSummary.replace(/\*\*/g, '')) + '</p>' +
+            '<div class="grid-2">' +
+              '<div class="card"><div class="chart-wrap"><canvas id="chart-utilities"></canvas></div></div>' +
+              '<div class="card">' +
+                '<p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.75rem">Monthly consumption</p>' +
+                '<ul class="equip-list">' +
+                  '<li><span>⚡ Electricity</span><span>' + Number(s.consumption.electricityKwhMonth).toLocaleString() + ' kWh</span></li>' +
+                  '<li><span>🔥 Gas</span><span>' + Number(s.consumption.gasM3Month).toLocaleString() + ' m³</span></li>' +
+                  '<li><span>💧 Water</span><span>' + Number(s.consumption.waterM3Month).toLocaleString() + ' m³</span></li>' +
+                '</ul>' +
+                '<p style="font-size:0.75rem;color:var(--muted);margin-top:1rem">' + esc(s.benchmark.note) + '</p>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</section>' +
+
+        '<section class="report-page" id="page-3" style="background:linear-gradient(180deg,#122a42,#0d1f35)">' +
+          '<div class="page-inner">' +
+            '<p class="page-tag">Page 3 · Equipment profile</p>' +
+            '<h2>Electricity by kitchen zone</h2>' +
+            '<p class="lead">Share of monthly electricity spend by typical restaurant load (illustrative split from site equipment rules).</p>' +
+            '<div class="grid-2">' +
+              '<div class="card"><div class="chart-wrap"><canvas id="chart-equipment"></canvas></div></div>' +
+              '<div class="card"><ul class="equip-list" id="equip-list"></ul></div>' +
+            '</div>' +
+            (s.site.sensors && s.site.sensors.length
+              ? '<p style="font-size:0.8rem;color:var(--muted);margin-top:1rem">Sensors on site: ' + esc(s.site.sensors.slice(0, 4).join(' · ')) + '</p>'
+              : '') +
+          '</div>' +
+        '</section>' +
+
+        '<section class="report-page" id="page-4" style="background:linear-gradient(180deg,#0d1f35,#162d4a)">' +
+          '<div class="page-inner">' +
+            '<p class="page-tag">Page 4 · Opportunities</p>' +
+            '<h2>Upgrade scenarios</h2>' +
+            '<p class="lead">' + esc(s.narrative.opportunitySummary.replace(/\*\*/g, '')) + ' ' + esc(s.narrative.buildingNote) + '</p>' +
+            '<div class="grid-2">' +
+              '<div class="card"><div class="chart-wrap"><canvas id="chart-scenarios"></canvas></div></div>' +
+              '<div class="card" id="scenario-list"></div>' +
+            '</div>' +
+            '<p style="font-size:0.72rem;color:var(--muted);margin-top:1rem">' + esc(s.scenarioTotals.note) + '</p>' +
+          '</div>' +
+        '</section>' +
+
+        '<section class="report-page" id="page-5" style="background:linear-gradient(180deg,#162d4a,#0d1f35)">' +
+          '<div class="page-inner">' +
+            '<p class="page-tag">Page 5 · Next steps</p>' +
+            '<h2>Prices, grants &amp; actions</h2>' +
+            '<div class="grid-2">' +
+              '<div class="card">' +
+                '<p style="font-weight:600;margin-bottom:0.5rem">Energy market context</p>' +
+                '<ul class="equip-list" id="wholesale-list"></ul>' +
+                '<p style="font-size:0.8rem;color:var(--muted);margin-top:0.75rem">' + esc(s.energyContext.volatility) + '</p>' +
+              '</div>' +
+              '<div class="card">' +
+                '<p style="font-weight:600;margin-bottom:0.5rem">Scheme hints (verify eligibility)</p>' +
+                '<div id="grant-list"></div>' +
+              '</div>' +
+            '</div>' +
+            '<ul class="steps" id="steps-list"></ul>' +
+            '<div class="agent-links" id="agent-links"></div>' +
+            '<p class="disclaimer">' + esc(s.meta.tariffNote) + '</p>' +
+          '</div>' +
+        '</section>';
+
+      const equipList = document.getElementById('equip-list');
+      s.equipment.forEach((row) => {
+        const li = document.createElement('li');
+        li.innerHTML = '<span>' + esc(row.icon + ' ' + row.name) + ' (' + row.sharePct + '%)</span><span>' + eur(row.eurMonth) + '</span>';
+        equipList.appendChild(li);
+      });
+
+      const scenarioList = document.getElementById('scenario-list');
+      s.scenarios.slice(0, 4).forEach((row) => {
+        const div = document.createElement('div');
+        div.className = 'scenario-card';
+        div.innerHTML =
+          (row.image ? '<img src="' + esc(row.image) + '" alt="">' : '<div></div>') +
+          '<div><strong>' + esc(row.title) + '</strong><br><span style="font-size:0.8rem;color:var(--muted)">' + esc(row.savingsNote) + '</span></div>' +
+          '<div class="scenario-save">−' + eur(row.monthlySavingEur) + '/mo</div>';
+        scenarioList.appendChild(div);
+      });
+
+      const wholesaleList = document.getElementById('wholesale-list');
+      (s.energyContext.wholesale || []).forEach((line) => {
+        const li = document.createElement('li');
+        li.innerHTML = '<span style="font-size:0.82rem">' + esc(line.replace(/\*\*/g, '').replace(/^- /, '')) + '</span>';
+        wholesaleList.appendChild(li);
+      });
+
+      const grantList = document.getElementById('grant-list');
+      if (!s.grants.length) {
+        grantList.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">No scheme rows matched — ask Andrieus for a tailored grants scan.</p>';
+      } else {
+        s.grants.forEach((g) => {
+          const div = document.createElement('div');
+          div.className = 'grant-row';
+          div.innerHTML =
+            '<a href="' + esc(g.url || '#') + '" target="_blank" rel="noopener">' + esc(g.title) + '</a>' +
+            '<p>' + esc(g.region) + ' · ' + esc(g.description) + '</p>';
+          grantList.appendChild(div);
+        });
+      }
+
+      const stepsList = document.getElementById('steps-list');
+      s.narrative.nextSteps.forEach((step, i) => {
+        const li = document.createElement('li');
+        li.textContent = (i + 1) + '. ' + step.label;
+        stepsList.appendChild(li);
+      });
+
+      const agentLinks = document.getElementById('agent-links');
+      s.agentLinks.forEach((a) => {
+        const link = document.createElement('a');
+        link.href = apiBase + a.href;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        link.textContent = a.name;
+        agentLinks.appendChild(link);
+      });
+
+      makeChart(document.getElementById('chart-utilities'), {
+        type: 'doughnut',
+        data: {
+          labels: s.utilitySplit.map((u) => u.label),
+          datasets: [{
+            data: s.utilitySplit.map((u) => u.eurMonth),
+            backgroundColor: s.utilitySplit.map((u) => u.color),
+            borderWidth: 0
+          }]
+        },
+        options: {
+          plugins: { legend: { position: 'bottom', labels: { color: '#e8f4fd' } } },
+          maintainAspectRatio: false
+        }
+      });
+
+      makeChart(document.getElementById('chart-equipment'), {
+        type: 'bar',
+        data: {
+          labels: s.equipment.map((e) => e.name),
+          datasets: [{
+            label: '€/month (elec share)',
+            data: s.equipment.map((e) => e.eurMonth),
+            backgroundColor: s.equipment.map((e) => e.color)
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#9ab4cc' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+            y: { ticks: { color: '#e8f4fd', font: { size: 10 } }, grid: { display: false } }
+          },
+          maintainAspectRatio: false
+        }
+      });
+
+      makeChart(document.getElementById('chart-scenarios'), {
+        type: 'bar',
+        data: {
+          labels: s.scenarios.map((r) => r.title.split(' ').slice(0, 2).join(' ')),
+          datasets: [{
+            label: 'Monthly saving €',
+            data: s.scenarios.map((r) => r.monthlySavingEur),
+            backgroundColor: '#7dffcb'
+          }]
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { ticks: { color: '#9ab4cc' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+            x: { ticks: { color: '#e8f4fd', font: { size: 9 } }, grid: { display: false } }
+          },
+          maintainAspectRatio: false
+        }
+      });
+
+      document.getElementById('loading').hidden = true;
+      root.hidden = false;
+      document.getElementById('toolbar').hidden = false;
+      document.getElementById('nav-dots').hidden = false;
+      document.getElementById('toolbar-label').textContent = site.name + ' — Energy Snapshot';
+    }
+
+    async function load() {
+      try {
+        const res = await fetch(apiBase + '/api/restaurant-snapshot/pilot?site=' + encodeURIComponent(siteId) + '&region=' + encodeURIComponent(region));
+        const data = await res.json();
+        if (!data.ok || !data.snapshot) throw new Error(data.error || 'No snapshot');
+        renderReport(data.snapshot);
+      } catch (err) {
+        document.getElementById('loading').innerHTML =
+          '<p>Could not load snapshot.</p><p style="font-size:0.85rem;color:#e05252">' + esc(err.message) + '</p>';
+      }
+    }
+
+    load();
+  </script>
+</body>
+</html>
