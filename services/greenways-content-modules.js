@@ -185,7 +185,7 @@ const INTENT_MODULE_HINTS = {
     equipment_data_capture: ['equipment-data-capture', 'equipment-deep-dive'],
     kitchen: ['equipment-deep-dive', 'etl-finder'],
     refrigeration: ['equipment-deep-dive', 'etl-finder'],
-    hvac: ['equipment-deep-dive', 'retrofit-roi-guide'],
+    hvac: ['marketplace-hvac', 'equipment-deep-dive', 'retrofit-roi-guide'],
     sustainable: ['sustainable-renovations', 'equipment-deep-dive'],
     trajectory: ['savings-trajectory', 'equipment-deep-dive'],
     portals: ['equipment-deep-dive', 'etl-finder', 'savings-projection'],
@@ -233,7 +233,7 @@ const INTENT_MODULE_HINTS = {
     explain_esg: ['schemes-portal-eu', 'schemes-portal-restaurant']
   },
   deals: {
-    overview: ['deals-full-page', 'deals-ticker', 'european-energy'],
+    overview: ['deals-full-page', 'deals-ticker', 'marketplace-home', 'european-energy'],
     deals_feed_scan: ['deals-ticker', 'deals-full-page'],
     tariff_compare: ['european-energy', 'deals-ticker', 'energy-prices-ticker'],
     nl_restaurant_energy: ['european-energy', 'deals-ticker'],
@@ -268,7 +268,8 @@ const INTENT_MODULE_HINTS = {
     scope_3: ['sustainability-news-page', 'sustainable-references']
   },
   products: {
-    overview: ['sustainable-product-finder', 'water-saving-finder'],
+    overview: ['marketplace-about', 'sustainable-product-finder', 'water-saving-finder'],
+    marketplace_explainer: ['marketplace-about', 'sustainable-product-finder', 'etl-finder'],
     water_lane: ['water-saving-finder', 'water-saving-guide'],
     water_saving_guide: ['water-saving-guide', 'water-saving-finder'],
     electricity_lane: ['sustainable-product-finder', 'etl-finder'],
@@ -277,7 +278,7 @@ const INTENT_MODULE_HINTS = {
     product_finder_page: ['sustainable-product-finder', 'etl-finder'],
     eco_journey: ['eco-project-planner', 'sustainable-product-finder'],
     product_grants: ['etl-finder', 'schemes-portal-restaurant'],
-    portals: ['water-saving-finder', 'sustainable-product-finder', 'equipment-deep-dive'],
+    portals: ['marketplace-home', 'water-saving-finder', 'sustainable-product-finder', 'equipment-deep-dive'],
     find_combi: ['etl-finder', 'equipment-deep-dive'],
     find_fridge: ['etl-finder', 'equipment-deep-dive'],
     find_wok: ['etl-finder', 'equipment-deep-dive'],
@@ -348,6 +349,12 @@ function scoreModuleForQuestion(module, question, agentKey) {
   }
   if (/tariff|wholesale|price|bill|finance|loan|bnpl/.test(q) && /tariff|price|finance|loan|bnpl|bill/.test(hay)) {
     score += 4;
+  }
+  if (/marketplace|market place|greenways market|greenwaysmarket|about us|shop hub/.test(q) && /marketplace|shop|greenways market/.test(hay)) {
+    score += 5;
+  }
+  if (/hvac|ventilation|air con|cheetah|quintex/.test(q) && /hvac|ventilation/.test(hay)) {
+    score += 5;
   }
   if (bullets.length) score += 3;
   if (getAgentNote(module, agentKey)) score += 2;
@@ -434,7 +441,9 @@ function insertBeforeAnswerTip(answer, insert) {
 function enrichKnowledgeAnswer(result, { agentKey, question, intentId, profile = {} } = {}) {
   if (!result?.answer) return result;
 
-  if (!String(result.answer).includes(KNOWLEDGE_SECTION_MARKER)) {
+  const skipKnowledgeBullets = intentId === 'marketplace_explainer';
+
+  if (!skipKnowledgeBullets && !String(result.answer).includes(KNOWLEDGE_SECTION_MARKER)) {
     const ranked = rankModulesForKnowledge(agentKey, question, intentId, { limit: 2 });
     const prose = formatModuleKnowledgeProse(ranked, agentKey, { maxBullets: 3 });
     if (prose) result.answer = insertBeforeAnswerTip(result.answer, prose);

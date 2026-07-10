@@ -82,7 +82,12 @@
     ["water-saving-finder", "water-saving-finder"],
     ["water-saving-guide", "water-saving-guide"],
     ["water-saving-guide%20(1)", "water-saving-guide"],
-    ["sustainable_product_deal_finder_portal", "sustainable-product-finder"]
+    ["sustainable_product_deal_finder_portal", "sustainable-product-finder"],
+    ["marketplace-about.html", "marketplace-about"],
+    ["marketplace-home.html", "marketplace-home"],
+    ["marketplace-hvac.html", "marketplace-hvac"],
+    ["greenwaysmarket.com/about-us", "marketplace-about"],
+    ["greenwaysmarket.com/new-air-and-ventilation", "marketplace-hvac"]
   ];
 
   var STATIC_MODULE_BY_ID = {
@@ -139,6 +144,33 @@
       usageHint: "Read how ETL verifies products, then open the official site for categories and product search.",
       href: "./etl-official-site.html",
       fullPageHref: "https://etl.energysecurity.gov.uk/",
+      defaultOpenSize: "near-full"
+    },
+    "marketplace-about": {
+      id: "marketplace-about",
+      title: "About Greenways Marketplace",
+      description: "Green technology mission and how shop listings connect to compare tools.",
+      usageHint: "Read the shop story, then open finders or greenwaysmarket.com in a new tab.",
+      href: "./marketplace-about.html",
+      fullPageHref: "https://www.greenwaysmarket.com/about-us",
+      defaultOpenSize: "near-full"
+    },
+    "marketplace-home": {
+      id: "marketplace-home",
+      title: "Greenways Marketplace — shop hub",
+      description: "Departments and links into Greenways compare tools.",
+      usageHint: "Jump to a shop department or continue in finder, deep dive, or deals.",
+      href: "./marketplace-home.html",
+      fullPageHref: "https://www.greenwaysmarket.com/",
+      defaultOpenSize: "near-full"
+    },
+    "marketplace-hvac": {
+      id: "marketplace-hvac",
+      title: "HVAC & ventilation on Greenways Market",
+      description: "Restaurant HVAC savings — demand control, rebates, Cheetah by Quintex.",
+      usageHint: "Read the story, then open deep dive or ETL finder for product compare.",
+      href: "./marketplace-hvac.html",
+      fullPageHref: "https://www.greenwaysmarket.com/new-air-and-ventilation-systems",
       defaultOpenSize: "near-full"
     },
     "schemes-portal-restaurant": {

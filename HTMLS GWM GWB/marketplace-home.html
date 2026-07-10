@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Greenways Marketplace — shop hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gw-green: #28a745;
+      --gw-green-dark: #1e7e34;
+      --gw-dark: #0e2117;
+      --bg: #f4f8f5;
+      --card: #ffffff;
+      --text: #0b1a12;
+      --muted: #4a5f52;
+      --border: rgba(40, 167, 69, 0.18);
+      --shadow: 0 8px 14px rgba(0, 0, 0, 0.06);
+      --radius: 14px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      min-height: 100%;
+      height: auto;
+      overflow-x: hidden;
+      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      background: #0e2117;
+      color: var(--text);
+      line-height: 1.55;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-image: url("/product-placement/green-buildings-1600-x-1067-wallpaper-richu29freg5tc1n.jpg");
+      background-size: cover;
+      background-position: center;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background:
+        linear-gradient(180deg, rgba(244, 248, 245, 0.9) 0%, rgba(232, 245, 238, 0.93) 45%, rgba(244, 248, 245, 0.91) 100%),
+        radial-gradient(circle at 20% 10%, rgba(40, 167, 69, 0.12), transparent 55%);
+      pointer-events: none;
+    }
+    .wrap { position: relative; z-index: 1; max-width: 920px; margin: 0 auto; padding: 24px 20px 40px; }
+    .banner {
+      background: linear-gradient(135deg, var(--gw-dark) 0%, #163322 100%);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 26px 26px 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+    .banner h1 { font-size: clamp(1.35rem, 3vw, 1.85rem); font-weight: 700; margin-bottom: 8px; }
+    .banner p { font-size: 0.95rem; opacity: 0.92; max-width: 66ch; }
+    .notice {
+      background: rgba(238, 249, 241, 0.94);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(40, 167, 69, 0.35);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.88rem;
+      color: #1a4d2a;
+      margin-bottom: 18px;
+    }
+    .section-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--gw-green-dark);
+      margin: 18px 0 10px;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: var(--gw-green-dark);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      transition: transform 0.15s ease;
+    }
+    .chip:hover { transform: translateY(-1px); background: #f0faf3; }
+    .chip.primary { background: var(--gw-green); color: #fff; border-color: var(--gw-green); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+    .card h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; color: var(--gw-green-dark); }
+    .card p { font-size: 0.86rem; color: var(--muted); margin-bottom: 12px; }
+    .btn {
+      display: inline-flex;
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      text-decoration: none;
+      background: var(--gw-green);
+      color: #fff;
+    }
+    .greenways {
+      background: var(--gw-dark);
+      color: #e8f5ee;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-top: 8px;
+    }
+    .greenways h2 { font-size: 0.95rem; margin-bottom: 6px; color: #9fd4b0; }
+    .greenways p { font-size: 0.88rem; color: rgba(232, 245, 238, 0.92); }
+    .foot {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 10px;
+    }
+    .foot a { color: var(--gw-green-dark); }
+  </style>
+  <script>
+    (function () {
+      var p = new URLSearchParams(location.search);
+      if (p.get("embed") === "1") document.documentElement.classList.add("embed-mode");
+      window.addEventListener("DOMContentLoaded", function () {
+        if (window.parent && window.parent !== window) {
+          try {
+            window.parent.postMessage({ type: "gw-module-embed-ready", moduleId: "marketplace-home" }, "*");
+          } catch (_) {}
+        }
+      });
+    })();
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <header class="banner">
+      <h1>Greenways Market Place — who we are &amp; what we do</h1>
+      <p>
+        Solar panels, low-energy products for home and business, restaurant energy services, smart home solutions,
+        and independently verified efficient electronics — save on energy and water with smarter choices.
+      </p>
+    </header>
+
+    <p class="notice">
+      Slim orientation hub. Open the full Wix shop to browse every category, or continue in Greenways compare tools below.
+    </p>
+
+    <p class="section-title">Open on Greenways Market</p>
+    <div class="chips">
+      <a class="chip primary" href="https://www.greenwaysmarket.com/" target="_blank" rel="noopener noreferrer">Full shop home ↗</a>
+      <a class="chip" href="https://www.greenwaysmarket.com/about-us" target="_blank" rel="noopener noreferrer">About us ↗</a>
+      <a class="chip" href="https://www.greenwaysmarket.com/new-air-and-ventilation-systems" target="_blank" rel="noopener noreferrer">HVAC &amp; ventilation ↗</a>
+      <a class="chip" href="https://www.greenwaysmarket.com/schemes-and-incentives" target="_blank" rel="noopener noreferrer">Schemes &amp; incentives ↗</a>
+      <a class="chip" href="https://www.greenwaysmarket.com/sensor-technology" target="_blank" rel="noopener noreferrer">Sensor technology ↗</a>
+      <a class="chip" href="https://www.greenwaysmarket.com/recycling-old-products" target="_blank" rel="noopener noreferrer">Recycling old products ↗</a>
+    </div>
+
+    <p class="section-title">Departments</p>
+    <div class="chips">
+      <a class="chip" href="https://www.greenwaysmarket.com/" target="_blank" rel="noopener noreferrer">Lighting &amp; sensors</a>
+      <a class="chip" href="https://www.greenwaysmarket.com/" target="_blank" rel="noopener noreferrer">Low-energy kitchenware</a>
+      <a class="chip" href="https://www.greenwaysmarket.com/new-air-and-ventilation-systems" target="_blank" rel="noopener noreferrer">Heat &amp; ventilation</a>
+      <a class="chip" href="https://www.greenwaysmarket.com/" target="_blank" rel="noopener noreferrer">Fridges &amp; freezers</a>
+      <a class="chip" href="https://www.greenwaysmarket.com/schemes-and-incentives" target="_blank" rel="noopener noreferrer">Grants &amp; subsidies</a>
+      <a class="chip" href="https://www.greenwaysmarket.com/restaurants-and-hotel-services" target="_blank" rel="noopener noreferrer">Restaurant &amp; commercial</a>
+    </div>
+
+    <p class="section-title">Continue in Greenways tools</p>
+    <div class="grid">
+      <article class="card">
+        <h2>Product finder</h2>
+        <p>Search marketplace and sustainable catalog — side-by-side compare with grant overlays.</p>
+        <a class="btn" href="./sustainable_product_deal_finder_portal.html?embed=1&amp;popup=1">Open finder</a>
+      </article>
+      <article class="card">
+        <h2>Equipment deep dive</h2>
+        <p>Kitchen and HVAC profiles with decision matrix and savings projection entry points.</p>
+        <a class="btn" href="./restaurant-equipment-deep-dive.html?embed=1&amp;popup=1">Open deep dive</a>
+      </article>
+      <article class="card">
+        <h2>Deals hub</h2>
+        <p>Weekly energy, water, and sustainability deal lanes plus search.</p>
+        <a class="btn" href="./deals-ticker-hub.html?embed=1&amp;popup=1">Open deals</a>
+      </article>
+      <article class="card">
+        <h2>About the marketplace</h2>
+        <p>Mission, strategy, and how shop listings connect to agent tools.</p>
+        <a class="btn" href="./marketplace-about.html?embed=1&amp;popup=1">About module</a>
+      </article>
+    </div>
+
+    <section class="greenways">
+      <h2>Shop vs tools</h2>
+      <p>
+        <strong>greenwaysmarket.com</strong> is where you browse and buy.
+        <strong>Greenways agents</strong> on Render help you compare, model payback, and match grants before you shortlist.
+      </p>
+    </section>
+
+    <p class="foot">
+      Source: <a href="https://www.greenwaysmarket.com/" target="_blank" rel="noopener noreferrer">greenwaysmarket.com</a>
+      · Hub bridge for agent modules.
+    </p>
+  </div>
+</body>
+</html>

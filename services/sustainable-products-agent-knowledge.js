@@ -315,10 +315,24 @@ function detectLane(question, profile = {}) {
   const lane = String(profile.lane || '').toLowerCase();
   if (lane === 'water' || lane === 'electricity' || lane === 'gas') return lane;
   const q = String(question || '').toLowerCase();
+  if (isMarketplaceMetaQuestion(q)) return profile.lane || 'electricity';
   if (/water|aerator|dishwasher|tap|leak|litre|liter|submeter|rinse/.test(q)) return 'water';
   if (/gas|wok|fryer|cooking|burner|heating/.test(q)) return 'gas';
   if (/electric|kwh|lighting|refrigerat|fridge|freezer|etl|combi|steamer|oven/.test(q)) return 'electricity';
   return 'electricity';
+}
+
+function isMarketplaceMetaQuestion(question) {
+  const q = String(question || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  if (!q) return false;
+  if (/greenways\s*market(?:\s*place)?|greenwaysmarket/.test(q)) {
+    if (/what|who|explain|tell|about|mean|describe|is\s+what|is\s+greenways/.test(q)) return true;
+    if (/^greenways\s*market(?:\s*place)?\s*\??$/.test(q)) return true;
+  }
+  if (/what\s+is\s+(?:the\s+)?(?:greenways\s+)?market(?:\s*place)?/.test(q)) return true;
+  if (/market(?:\s*place)?\s+is\s+what/.test(q)) return true;
+  if (/about\s+(?:the\s+)?(?:greenways\s+)?market(?:\s*place)?/.test(q)) return true;
+  return false;
 }
 
 function catalogMatchesLane(product, lane) {
@@ -863,18 +877,29 @@ function buildLaneAnswer(lane, catalog, showcase, tip) {
   };
 }
 
-function buildSourcesAnswer(tip) {
+function buildSourcesAnswer(tip, profile = {}) {
+  return buildMarketplaceExplainerAnswer(profile, tip);
+}
+
+async function buildMarketplaceExplainerAnswer(profile, tip) {
+  const briefing = await loadBriefing();
+  const region = profile.region ? REGION_LABELS[profile.region] || profile.region : 'your region';
+
   return {
     answer:
-      `**Two product columns** (same as dashboard finders):\n\n` +
-      `| Badge | Source | What it is |\n` +
-      `|-------|--------|------------|\n` +
-      `| **On Greenways** | \`etl_*\` | Listed marketplace products with grants overlay & photos |\n` +
-      `| **Market alternative** | \`sust_*\` | Broader catalog — gas/water/retrofit options not yet on marketplace |\n\n` +
-      `This chat uses showcase + catalog for fast answers. **Full marketplace search** runs on the finder HTML pages via \`/api/equipment-intelligence/alternatives\`.\n\n` +
-      `**Suggest for Greenways** intake stays on finder pages (staff workflow).\n\n_${tip}_`,
+      agentProfileBlock(
+        `**Zyanne — sustainable products specialist**`,
+        briefing.roleSummary ||
+          'I help you find efficient products across water, electricity, and gas — and explain how they save money and resources, not just link to pages.'
+      ) +
+      `**Greenways Market Place** ([greenwaysmarket.com](https://www.greenwaysmarket.com)) is the **shop** where you browse energy-efficient products for home, restaurant, and business — fridges, kitchen equipment, HVAC, sensors, lighting, and more. Everything there is chosen to help you **use less energy and water** and lower your running costs.\n\n` +
+      `When you look at a product on Greenways, we add a **tailored grants layer** on top of the listing: matched **schemes and subsidies** for your region (${region}) so you can see what might help pay for an upgrade — not only the product spec.\n\n` +
+      `**How that relates to this chat:** I do not replace the shop. I help you **understand** what fits your situation, compare efficient options, and shortlist before you buy. Listed shop products appear here as **On Greenways** rows; our wider **Market alternative** catalog covers extra water, gas, and retrofit ideas that may not be on the shop yet.\n\n` +
+      `Open **About Greenways Marketplace** on the right for the full shop story and departments, or **product finder** when you want to search and compare everything side by side. For grant eligibility on a shortlist → **Andrieus**; equipment lifecycle and renovation fit → **Artemis**; payback and finance → **Vincent**; weekly deal spotlights → **Zara**.\n\n_${tip}_`,
+    intentId: 'marketplace_explainer',
     suggestions: [],
-    blocks: linkOrModuleBlocks(portalLinkItems('all'))
+    blocks: [],
+    agentHandoffs: buildHandoffs(briefing, '', 'marketplace_explainer')
   };
 }
 
@@ -1204,7 +1229,12 @@ async function answerFromKnowledge(question, profile = {}) {
         result = await buildSearchIntentAnswer(intent, catalog, showcase, tip);
         break;
       case 'sources':
-        result = buildSourcesAnswer(tip);
+        result = await buildMarketplaceExplainerAnswer(profile, tip);
+        result = attachModules(result, [
+          'marketplace-about',
+          'marketplace-home',
+          'sustainable-product-finder'
+        ]);
         break;
       case 'portals':
         result = buildPortalsAnswer(intent.portal || 'all', tip);
@@ -1265,6 +1295,15 @@ async function answerFromKnowledge(question, profile = {}) {
     result = tryBuildGlossaryAnswer(question, profile, tip, { agentKey: 'products', minScore: 22 });
   }
 
+  if (!result && isMarketplaceMetaQuestion(question)) {
+    result = await buildMarketplaceExplainerAnswer(profile, tip);
+    result = attachModules(result, [
+      'marketplace-about',
+      'marketplace-home',
+      'sustainable-product-finder'
+    ]);
+  }
+
   if (!result) {
     result = await buildFallbackSearchAnswer(question, profile, catalog, showcase, tip);
   }
@@ -1310,5 +1349,6 @@ module.exports = {
   getDefaultProductSamples: (limit = 3, lane = 'electricity') =>
     pickShowcaseSamplesOnly({ lane: lane || 'electricity' }, limit),
   detectLane,
+  isMarketplaceMetaQuestion,
   FINDER_LINKS
 };

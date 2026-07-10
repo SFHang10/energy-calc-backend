@@ -142,6 +142,7 @@ function insertBeforeAnswerTip(answer, insert) {
 function attachWorkedExample(result, { agentKey, question, intentId, profile = {} } = {}) {
   if (!result?.answer) return result;
   if (String(result.answer).includes(WORKED_EXAMPLE_MARKER)) return result;
+  if (intentId === 'marketplace_explainer') return result;
 
   const example = pickExampleForKnowledge(agentKey, question, intentId, profile);
   if (!example) return result;

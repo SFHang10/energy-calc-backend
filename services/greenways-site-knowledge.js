@@ -645,6 +645,7 @@ function insertBeforeAnswerTip(answer, insert) {
 function attachSiteKnowledgeCards(result, { agentKey, question, intentId, profile = {} } = {}) {
   if (!result?.answer) return result;
   if (String(result.answer).includes(SITE_EVIDENCE_MARKER)) return result;
+  if (intentId === 'marketplace_explainer') return result;
 
   const card = pickCardForKnowledge(agentKey, question, intentId, profile);
   if (!card) return result;
