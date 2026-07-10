@@ -14,8 +14,7 @@ const {
   normalizeImageUrl,
   marketplaceHref,
   toLinkItem,
-  toModuleItem,
-  agentProfileBlock
+  toModuleItem
 } = require('./greenways-agent-shared');
 const {
   applyPersona,
@@ -179,6 +178,13 @@ const LANE_LABELS = {
   electricity: '⚡ Electricity savings',
   gas: '🔥 Gas savings'
 };
+
+function zyanneIntroParagraph(briefing = {}) {
+  const line =
+    briefing.roleSummaryFirstPerson ||
+    "Hi — I'm Zyanne, your sustainable products specialist who helps homes, restaurants, and SMEs on their sustainability journey — pairing practical product examples with stories about energy, water, gas, CO₂, and climate impact so choices feel achievable, not just a list of links.";
+  return `${line}\n\n`;
+}
 
 let catalogCache = null;
 
@@ -633,10 +639,7 @@ async function buildRoleResourcesAnswer(question, profile, tip) {
 
   return {
     answer:
-      agentProfileBlock(
-        `**Zyanne — sustainable products specialist** (${region})`,
-        briefing.roleProfile || briefing.roleSummary || ''
-      ) +
+      zyanneIntroParagraph(briefing) +
       `**Must-know themes:**\n${mustKnows.map((m) => `- ${m}`).join('\n')}\n\n` +
       `**How I advise:**\n${core.map((c) => `- ${c}`).join('\n')}\n\n` +
       `**Curated links:**\n${picks.map((r) => `- **${r.title}** — ${r.summary || ''}`).join('\n')}\n\n_${tip}_`,
@@ -658,10 +661,7 @@ async function buildOverviewAnswer(catalog, tip, briefing) {
   const journey = b.journeyPrinciple || '';
   return {
     answer:
-      agentProfileBlock(
-        `**Zyanne — sustainable products specialist**`,
-        b.roleSummary || ''
-      ) +
+      zyanneIntroParagraph(b) +
       `**Three utility lanes:**\n` +
       `- ${LANE_LABELS.water} — ${water} \`sust_*\` catalog rows + marketplace dishwashers & aerators\n` +
       `- ${LANE_LABELS.electricity} — ${elec} rows + ETL refrigeration & cooking\n` +
@@ -887,14 +887,10 @@ async function buildMarketplaceExplainerAnswer(profile, tip) {
 
   return {
     answer:
-      agentProfileBlock(
-        `**Zyanne — sustainable products specialist**`,
-        briefing.roleSummary ||
-          'I help you find efficient products across water, electricity, and gas — and explain how they save money and resources, not just link to pages.'
-      ) +
+      zyanneIntroParagraph(briefing) +
       `**Greenways Market Place** ([greenwaysmarket.com](https://www.greenwaysmarket.com)) is the **shop** where you browse energy-efficient products for home, restaurant, and business — fridges, kitchen equipment, HVAC, sensors, lighting, and more. Everything there is chosen to help you **use less energy and water** and lower your running costs.\n\n` +
-      `When you look at a product on Greenways, we add a **tailored grants layer** on top of the listing: matched **schemes and subsidies** for your region (${region}) so you can see what might help pay for an upgrade — not only the product spec.\n\n` +
-      `**How that relates to this chat:** I do not replace the shop. I help you **understand** what fits your situation, compare efficient options, and shortlist before you buy. Listed shop products appear here as **On Greenways** rows; our wider **Market alternative** catalog covers extra water, gas, and retrofit ideas that may not be on the shop yet.\n\n` +
+      `When you look at a product on the marketplace, I surface a **tailored grants layer** on top of the listing: matched **schemes and subsidies** for your region (${region}) so you can see what might help pay for an upgrade — not only the product spec.\n\n` +
+      `**How that relates to this chat:** I do not replace the shop. I help you **understand** what fits your situation, compare efficient options, and shortlist before you buy. Listed shop products appear here as **On Greenways** rows; my wider **Market alternative** catalog covers extra water, gas, and retrofit ideas that may not be on the shop yet.\n\n` +
       `Open **About Greenways Marketplace** on the right for the full shop story and departments, or **product finder** when you want to search and compare everything side by side. For grant eligibility on a shortlist → **Andrieus**; equipment lifecycle and renovation fit → **Artemis**; payback and finance → **Vincent**; weekly deal spotlights → **Zara**.\n\n_${tip}_`,
     intentId: 'marketplace_explainer',
     suggestions: [],
