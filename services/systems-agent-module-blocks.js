@@ -9,6 +9,7 @@ const SYSTEMS_MODULE = { theme: 'systems', agentName: 'Edwardo' };
 
 const TOOL_ID_MODULE_IDS = {
   'energy-monitoring-guide': 'energy-monitoring',
+  'smart-sensor-monitoring': 'smart-sensor-monitoring',
   'sensor-dashboard': 'sensor-dashboard',
   'greenways-dashboard': 'greenways-dashboard',
   'utility-detail': 'utility-detail',
@@ -19,6 +20,7 @@ const TOOL_ID_MODULE_IDS = {
 const REF_MODULE_IDS = {
   'greenways-dashboard': 'greenways-dashboard',
   'energy-monitoring': 'energy-monitoring',
+  'smart-sensors': 'smart-sensor-monitoring',
   'sensor-dashboard': 'sensor-dashboard',
   'deep-dive': 'equipment-deep-dive',
   'low-energy': 'low-energy-equipment',
@@ -32,6 +34,7 @@ const PORTAL_PATH_MODULE_IDS = [
   ['greenways%20interface', 'greenways-dashboard'],
   ['utility-detail', 'utility-detail'],
   ['importance%20of%20energy%20monitoring', 'energy-monitoring'],
+  ['smart%20sensor%20monitoring', 'smart-sensor-monitoring'],
   ['restaurant-data', 'restaurant-data'],
   ['restaurant-equipment-deep-dive', 'equipment-deep-dive'],
   ['equipment-savings-projection', 'savings-projection'],

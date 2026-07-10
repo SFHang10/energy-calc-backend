@@ -17,6 +17,7 @@ const {
   formatToolsListProse
 } = require('./greenways-agent-shared');
 const { mergeModuleRow, enrichKnowledgeAnswer } = require('./greenways-content-modules');
+const { buildGlossaryAnswer, tryBuildGlossaryAnswer } = require('./greenways-sustainability-glossary');
 const {
   buildHandoffTopicSummary,
   isReferralWelcomePair
@@ -1006,11 +1007,22 @@ async function answerFromKnowledge(question, profile = {}) {
   }
 
   const intent = matchIntent(question, intents);
-  if (!intent) return null;
-
-  const tip = pickTip(intents.staticTips, intent.id, { skipIntentIds: voice.skipTipIntents });
+  const tip = pickTip(intents.staticTips, intent?.id, { skipIntentIds: voice.skipTipIntents });
 
   let result;
+  if (intent?.answerType === 'scope_3') {
+    result = buildGlossaryAnswer(question, profile, {
+      agentKey: 'equipment',
+      tip,
+      preferId: 'scope-3'
+    });
+  } else if (intent?.answerType === 'sustainability_glossary') {
+    result = buildGlossaryAnswer(question, profile, {
+      agentKey: 'equipment',
+      tip,
+      preferId: intent.preferTermId || ''
+    });
+  } else if (intent) {
   switch (intent.answerType) {
     case 'overview':
       result = await buildOverviewAnswer(profile, tip);
@@ -1081,13 +1093,17 @@ async function answerFromKnowledge(question, profile = {}) {
     default:
       return null;
   }
+  } else {
+    result = tryBuildGlossaryAnswer(question, profile, tip, { agentKey: 'equipment', minScore: 24 });
+    if (!result) return null;
+  }
 
   if (result?.answer) {
     result.source = 'knowledge';
-    result.intentId = intent.id;
+    result.intentId = result.intentId || intent?.id || 'sustainability_glossary';
     if (!result.agentHandoffs?.length) {
       const briefing = await loadBriefing();
-      result.agentHandoffs = buildHandoffs(briefing, question, intent.id);
+      result.agentHandoffs = buildHandoffs(briefing, question, result.intentId);
     }
     if (!result.productSamples?.length) {
       result.productSamples = await pickEquipmentSamples(question, profile, 3);
@@ -1095,12 +1111,12 @@ async function answerFromKnowledge(question, profile = {}) {
     enrichKnowledgeAnswer(result, {
       agentKey: 'equipment',
       question,
-      intentId: intent.id,
+      intentId: result.intentId,
       profile
     });
     applyPersona(result, {
       voice,
-      intentId: intent.id,
+      intentId: result.intentId,
       question,
       profile,
       staticTips: intents.staticTips,

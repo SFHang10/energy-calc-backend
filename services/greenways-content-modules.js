@@ -188,7 +188,9 @@ const INTENT_MODULE_HINTS = {
     hvac: ['equipment-deep-dive', 'retrofit-roi-guide'],
     sustainable: ['sustainable-renovations', 'equipment-deep-dive'],
     trajectory: ['savings-trajectory', 'equipment-deep-dive'],
-    portals: ['equipment-deep-dive', 'etl-finder', 'savings-projection']
+    portals: ['equipment-deep-dive', 'etl-finder', 'savings-projection'],
+    sustainability_glossary: ['energy-monitoring', 'insulation-guide', 'low-energy-equipment'],
+    scope_3: ['equipment-deep-dive', 'savings-projection']
   },
   finance: {
     overview: ['finance-finder', 'energy-prices-ticker'],
@@ -206,7 +208,11 @@ const INTENT_MODULE_HINTS = {
     etl_products: ['etl-finder', 'etl-calculator', 'savings-projection'],
     portals: ['finance-finder', 'european-energy', 'energy-prices-ticker'],
     solar_finance: ['declining-cost-renewables', 'finance-finder'],
-    heat_pump_finance: ['finance-finder', 'savings-projection']
+    heat_pump_finance: ['finance-finder', 'savings-projection'],
+    sustainability_glossary: ['finance-finder', 'savings-projection'],
+    scope_3: ['savings-projection', 'energy-prices-ticker'],
+    explain_net_zero: ['declining-cost-renewables', 'finance-finder'],
+    explain_co2e: ['savings-projection', 'energy-cost-guide']
   },
   grants: {
     overview: ['schemes-portal-restaurant', 'schemes-portal-eu', 'finance-finder'],
@@ -220,7 +226,11 @@ const INTENT_MODULE_HINTS = {
     finance_portal: ['finance-finder', 'schemes-portal-restaurant'],
     product_grants: ['etl-finder', 'schemes-portal-restaurant'],
     why_grants: ['schemes-portal-restaurant', 'eco-project-planner'],
-    portals: ['schemes-portal-restaurant', 'schemes-portal-eu', 'finance-finder']
+    portals: ['schemes-portal-restaurant', 'schemes-portal-eu', 'finance-finder'],
+    sustainability_glossary: ['schemes-portal-eu', 'schemes-portal-restaurant'],
+    scope_3: ['schemes-portal-eu', 'finance-finder'],
+    explain_csrd: ['schemes-portal-eu'],
+    explain_esg: ['schemes-portal-eu', 'schemes-portal-restaurant']
   },
   deals: {
     overview: ['deals-full-page', 'deals-ticker', 'european-energy'],
@@ -237,7 +247,10 @@ const INTENT_MODULE_HINTS = {
     savings_portal: ['savings-tour', 'deals-ticker'],
     deals_page: ['deals-full-page', 'deals-ticker'],
     portals: ['deals-full-page', 'european-energy', 'water-saving-finder'],
-    payback_savings: ['savings-projection', 'low-energy-equipment']
+    payback_savings: ['savings-projection', 'low-energy-equipment'],
+    sustainability_glossary: ['european-energy', 'deals-ticker'],
+    scope_3: ['european-energy', 'low-energy-equipment'],
+    explain_renewable: ['european-energy', 'declining-cost-renewables']
   },
   media: {
     overview: ['sustainability-map', 'sustainability-news-page'],
@@ -250,7 +263,9 @@ const INTENT_MODULE_HINTS = {
     funding_news: ['sustainability-news-page', 'schemes-portal-eu'],
     energy_prices: ['energy-prices-ticker', 'savings-trajectory'],
     portals: ['sustainability-map', 'energy-prices-ticker', 'sustainable-references'],
-    tech_news: ['tech-news-edition', 'sustainability-news-page']
+    tech_news: ['tech-news-edition', 'sustainability-news-page'],
+    sustainability_glossary: ['sustainable-references', 'sustainability-map'],
+    scope_3: ['sustainability-news-page', 'sustainable-references']
   },
   products: {
     overview: ['sustainable-product-finder', 'water-saving-finder'],
@@ -266,11 +281,15 @@ const INTENT_MODULE_HINTS = {
     find_combi: ['etl-finder', 'equipment-deep-dive'],
     find_fridge: ['etl-finder', 'equipment-deep-dive'],
     find_wok: ['etl-finder', 'equipment-deep-dive'],
-    equipment_lookup: ['sustainable-product-finder', 'etl-finder']
+    equipment_lookup: ['sustainable-product-finder', 'etl-finder'],
+    sustainability_glossary: ['water-saving-guide', 'sustainable-product-finder'],
+    scope_3: ['water-saving-finder', 'sustainable-product-finder'],
+    explain_water_efficiency: ['water-saving-guide', 'water-saving-finder'],
+    explain_circular: ['water-saving-finder', 'eco-project-planner']
   },
   systems: {
     consumer_overview: ['greenways-dashboard', 'sensor-dashboard', 'energy-monitoring'],
-    monitoring_why: ['energy-monitoring', 'equipment-data-capture'],
+    monitoring_why: ['energy-monitoring', 'smart-sensor-monitoring'],
     sensors_restaurant: ['sensor-dashboard', 'greenways-dashboard'],
     sensors_home: ['sensor-dashboard', 'energy-monitoring'],
     sensors_office: ['sensor-dashboard', 'greenways-dashboard'],
@@ -280,7 +299,10 @@ const INTENT_MODULE_HINTS = {
     time_of_use: ['utility-detail', 'greenways-dashboard'],
     etl_systems_savings: ['equipment-data-capture', 'low-energy-equipment'],
     deep_dive_systems: ['equipment-deep-dive', 'equipment-data-capture'],
-    portals: ['greenways-dashboard', 'sensor-dashboard', 'utility-detail']
+    portals: ['greenways-dashboard', 'sensor-dashboard', 'utility-detail'],
+    sustainability_glossary: ['energy-monitoring', 'smart-sensor-monitoring'],
+    scope_3: ['equipment-data-capture', 'sensor-dashboard'],
+    explain_monitoring_baseline: ['energy-monitoring', 'equipment-data-capture']
   }
 };
 

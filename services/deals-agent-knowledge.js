@@ -11,6 +11,7 @@ const {
   agentProfileBlock
 } = require('./greenways-agent-shared');
 const { mergeModuleRow, loadRegistrySync, getModuleById, enrichKnowledgeAnswer } = require('./greenways-content-modules');
+const { resolveGlossaryFromIntent, tryBuildGlossaryAnswer } = require('./greenways-sustainability-glossary');
 const {
   applyPersona,
   loadAgentVoice,
@@ -931,12 +932,13 @@ async function answerFromKnowledge(question, profile = {}) {
     { skipIntentIds: voice.skipTipIntents }
   );
 
-  let result;
-  if (!intent && shouldTryDealsFeedScan(question)) {
+  let result = resolveGlossaryFromIntent(intent, question, profile, tip, 'deals');
+  if (!result && !intent && shouldTryDealsFeedScan(question)) {
     result = await buildDealsFeedScanAnswer(deals, feed.meta || {}, profile, question, tip);
-  } else if (!intent) {
-    return null;
-  } else {
+  } else if (!result && !intent) {
+    result = tryBuildGlossaryAnswer(question, profile, tip, { agentKey: 'deals', minScore: 24 });
+    if (!result) return null;
+  } else if (!result && intent) {
   switch (intent.answerType) {
     case 'overview':
       result = buildOverviewAnswer(deals, feed.meta || {}, briefing, tip);
@@ -1006,7 +1008,7 @@ async function answerFromKnowledge(question, profile = {}) {
 
   if (result?.answer) {
     result.source = 'knowledge';
-    result.intentId = result.intentId || intent?.id;
+    result.intentId = result.intentId || intent?.id || 'sustainability_glossary';
     result.agentHandoffs = buildHandoffs(briefing, question, result.intentId);
     if (!result.productSamples?.length) {
       result.productSamples = await pickDealSamples(question, profile, 3);

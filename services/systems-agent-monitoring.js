@@ -80,6 +80,8 @@ function greenwaysToolHelpSentence(tool = {}) {
   const byId = {
     'energy-monitoring-guide':
       'Our **energy monitoring guide** explains in everyday language why measuring use *before* a big purchase saves money — I send people here when bills feel vague and they are not sure where to start.',
+    'smart-sensor-monitoring':
+      '**Smart sensor monitoring** walks restaurant and commercial IoT lanes — power, gas, water, cold chain, and leak alerts — so you can see what to measure before you buy hardware.',
     'energy-audit':
       'The **energy audit walkthrough** helps you map appliance-level use room by room, so you know which circuits deserve a sensor or upgrade first.',
     'sensor-dashboard':
@@ -104,6 +106,8 @@ function greenwaysToolTabletHint(tool = {}) {
   const hints = {
     'energy-monitoring-guide':
       'Start here if monitoring is new — why measure first, and what to look for before capex.',
+    'smart-sensor-monitoring':
+      'IoT sensor lanes for restaurants — see what to meter and where alerts pay back before hardware spend.',
     'energy-audit':
       'Room-by-room audit — spot the appliances and circuits worth metering first.',
     'sensor-dashboard':

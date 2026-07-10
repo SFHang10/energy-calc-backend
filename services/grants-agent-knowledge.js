@@ -8,6 +8,7 @@ const {
 } = require('./greenways-agent-persona');
 const { toModuleItem } = require('./greenways-agent-shared');
 const { mergeModuleRow, enrichKnowledgeAnswer } = require('./greenways-content-modules');
+const { resolveGlossaryFromIntent, tryBuildGlossaryAnswer } = require('./greenways-sustainability-glossary');
 const {
   buildHandoffTopicSummary,
   isReferralWelcomePair,
@@ -838,9 +839,8 @@ async function answerFromKnowledge(question, profile = {}) {
   const defaultTip = (intents.staticTips || [])[0] || '';
   const intent = matchIntent(question, intents);
 
-  let result;
-  if (!intent) return null;
-
+  let result = resolveGlossaryFromIntent(intent, question, profile, defaultTip, 'grants');
+  if (!result && intent) {
   switch (intent.answerType) {
     case 'overview':
       result = buildOverviewAnswer(schemes, defaultTip);
@@ -875,25 +875,29 @@ async function answerFromKnowledge(question, profile = {}) {
     default:
       return null;
   }
+  } else if (!result) {
+    result = tryBuildGlossaryAnswer(question, profile, defaultTip, { agentKey: 'grants', minScore: 24 });
+    if (!result) return null;
+  }
 
   if (result?.answer) {
     result.source = 'knowledge';
-    result.intentId = intent.id;
+    result.intentId = result.intentId || intent?.id || 'sustainability_glossary';
     if (!result.agentHandoffs) result.agentHandoffs = [];
     result.productSamples = await pickProductSamples(question, profile, 3);
     enrichKnowledgeAnswer(result, {
       agentKey: 'grants',
       question,
-      intentId: intent.id,
+      intentId: result.intentId,
       profile
     });
     applyPersona(result, {
       voice,
-      intentId: intent.id,
+      intentId: result.intentId,
       profile,
       question,
       staticTips: intents.staticTips || [],
-      tip: pickTip(intents.staticTips, intent.id, { skipIntentIds: voice.skipTipIntents }),
+      tip: pickTip(intents.staticTips, result.intentId, { skipIntentIds: voice.skipTipIntents }),
       regionLabels: REGION_LABELS
     });
   }

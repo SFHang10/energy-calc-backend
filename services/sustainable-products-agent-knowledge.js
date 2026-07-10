@@ -23,6 +23,7 @@ const {
   pickTip
 } = require('./greenways-agent-persona');
 const { mergeModuleRow, loadRegistrySync, getModuleById, enrichKnowledgeAnswer } = require('./greenways-content-modules');
+const { resolveGlossaryFromIntent, tryBuildGlossaryAnswer } = require('./greenways-sustainability-glossary');
 const { EquipmentIntelligenceService } = require('./equipment-intelligence-service');
 const {
   buildHandoffTopicSummary,
@@ -1190,8 +1191,8 @@ async function answerFromKnowledge(question, profile = {}) {
   const intent = matchIntent(question, intents);
   const tip = pickTip(intents.staticTips, intent?.id, { skipIntentIds: voice.skipTipIntents });
 
-  let result;
-  if (intent) {
+  let result = resolveGlossaryFromIntent(intent, question, profile, tip, 'products');
+  if (!result && intent) {
     switch (intent.answerType) {
       case 'overview':
         result = await buildOverviewAnswer(catalog, tip, briefing);
@@ -1258,6 +1259,10 @@ async function answerFromKnowledge(question, profile = {}) {
     if (shouldTryEquipmentLookup(question, intent, equipmentQuery)) {
       result = await buildEquipmentLookupAnswer(question, profile, tip, equipmentQuery);
     }
+  }
+
+  if (!result) {
+    result = tryBuildGlossaryAnswer(question, profile, tip, { agentKey: 'products', minScore: 22 });
   }
 
   if (!result) {

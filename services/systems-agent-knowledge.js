@@ -1,6 +1,7 @@
 const path = require('path');
 const { loadIntentsFrom, matchIntent, toLinkItem } = require('./greenways-agent-shared');
 const { enrichKnowledgeAnswer } = require('./greenways-content-modules');
+const { resolveGlossaryFromIntent, tryBuildGlossaryAnswer } = require('./greenways-sustainability-glossary');
 const { runChecks, loadChecksConfig, resultsToSamples } = require('./systems-agent-health');
 const {
   buildConsumerOverviewAnswer,
@@ -236,6 +237,8 @@ async function answerFromKnowledge(question, profile = {}) {
     const needsReport = OPS_ANSWER_TYPES.has(intent.answerType);
     if (needsReport) report = await runChecks();
 
+    result = resolveGlossaryFromIntent(intent, question, profile, tip, 'systems');
+    if (!result) {
     switch (intent.answerType) {
       case 'consumer_overview':
         result = await buildConsumerOverviewAnswer(profile, tip);
@@ -294,6 +297,11 @@ async function answerFromKnowledge(question, profile = {}) {
       default:
         result = null;
     }
+    }
+  }
+
+  if (!result) {
+    result = tryBuildGlossaryAnswer(question, profile, tip, { agentKey: 'systems', minScore: 22 });
   }
 
   if (!result) {
@@ -303,7 +311,7 @@ async function answerFromKnowledge(question, profile = {}) {
 
   if (result?.answer) {
     result.source = result.source || 'knowledge';
-    result.intentId = intent?.id || 'consumer_overview';
+    result.intentId = result.intentId || intent?.id || 'consumer_overview';
 
     const isOps = intent && OPS_ANSWER_TYPES.has(intent.answerType);
     if (isOps) {

@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs/promises');
 const { loadIntentsFrom, matchIntent, PORTAL_LINKS, toLinkItem, toModuleItem, agentProfileBlock } = require('./greenways-agent-shared');
 const { mergeModuleRow, enrichKnowledgeAnswer } = require('./greenways-content-modules');
+const { buildGlossaryAnswer, tryBuildGlossaryAnswer } = require('./greenways-sustainability-glossary');
 const { applyPersona, loadAgentVoice, pickTip } = require('./greenways-agent-persona');
 const {
   loadEnergySnapshot,
@@ -1729,6 +1730,20 @@ async function answerFromKnowledge(question, profile = {}) {
       case 'role_resources':
         result = await buildRoleResourcesAnswer(question, profile, tip);
         break;
+      case 'scope_3':
+        result = buildGlossaryAnswer(question, profile, {
+          agentKey: 'media',
+          tip,
+          preferId: 'scope-3'
+        });
+        break;
+      case 'sustainability_glossary':
+        result = buildGlossaryAnswer(question, profile, {
+          agentKey: 'media',
+          tip,
+          preferId: intent.preferTermId || ''
+        });
+        break;
       default:
         result = null;
     }
@@ -1740,6 +1755,10 @@ async function answerFromKnowledge(question, profile = {}) {
       result.agentHandoffs = buildHandoffs(briefing, question, 'sustainability_map_explained');
       result = await attachModules(result, profile, ['sustainability-map']);
     }
+  }
+
+  if (!result) {
+    result = tryBuildGlossaryAnswer(question, profile, tip, { agentKey: 'media', minScore: 22 });
   }
 
   if (!result) {

@@ -22,7 +22,7 @@ const newsKbPath = path.join(__dirname, '..', 'data', 'news-category-knowledge.j
 
 const { mergeModuleRow } = require('./greenways-content-modules');
 const { toModuleItem } = require('./greenways-agent-shared');
-const { AGENT_MODULE_THEME, exampleQueryString, blocksAlreadyShowExample } = require('./greenways-module-examples');
+const { AGENT_MODULE_THEME, exampleQueryString, blocksAlreadyShowExample, blocksAlreadyShowModule } = require('./greenways-module-examples');
 
 const SITE_EVIDENCE_MARKER = '**Site example:**';
 
@@ -653,7 +653,11 @@ function attachSiteKnowledgeCards(result, { agentKey, question, intentId, profil
   if (!prose) return result;
 
   const block = cardToModuleBlock(card, profile, agentKey);
-  if (block && !blocksAlreadyShowExample(result.blocks, { query: cardQueryString(card), params: card.params })) {
+  if (
+    block &&
+    !blocksAlreadyShowExample(result.blocks, { query: cardQueryString(card), params: card.params }) &&
+    !blocksAlreadyShowModule(result.blocks, card.moduleId)
+  ) {
     result.blocks = [...(result.blocks || []), block];
   }
 

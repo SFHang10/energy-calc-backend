@@ -118,6 +118,18 @@ function blocksAlreadyShowExample(blocks, example) {
   return false;
 }
 
+function blocksAlreadyShowModule(blocks, moduleId) {
+  const id = String(moduleId || '').trim();
+  if (!id) return false;
+  for (const block of blocks || []) {
+    if (block.type !== 'module') continue;
+    for (const item of block.items || []) {
+      if (String(item.moduleId || '').trim() === id) return true;
+    }
+  }
+  return false;
+}
+
 function insertBeforeAnswerTip(answer, insert) {
   if (!insert) return answer;
   const tipMatch = String(answer || '').match(/\n\n_([^_\n]+)_\s*$/);
@@ -154,6 +166,7 @@ module.exports = {
   pickExampleForKnowledge,
   exampleToModuleBlock,
   blocksAlreadyShowExample,
+  blocksAlreadyShowModule,
   attachWorkedExample,
   AGENT_MODULE_THEME,
   WORKED_EXAMPLE_MARKER

@@ -19,6 +19,7 @@ const {
   agentProfileBlock
 } = require('./greenways-agent-shared');
 const { mergeModuleRow, enrichKnowledgeAnswer } = require('./greenways-content-modules');
+const { resolveGlossaryFromIntent, tryBuildGlossaryAnswer } = require('./greenways-sustainability-glossary');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'finance-agent-intents.json');
 const showcasePath = path.join(__dirname, '..', 'data', 'finance-agent-showcase.json');
@@ -718,9 +719,9 @@ async function answerFromKnowledge(question, profile = {}) {
 
   const tip = (intents.staticTips || [])[0] || '';
   const intent = matchIntent(question, intents);
-  if (!intent) return null;
 
-  let result;
+  let result = resolveGlossaryFromIntent(intent, question, profile, tip, 'finance');
+  if (!result && intent) {
   switch (intent.answerType) {
     case 'overview':
       result = await buildOverviewAnswer(schemes, profile, tip);
@@ -794,30 +795,34 @@ async function answerFromKnowledge(question, profile = {}) {
     default:
       return null;
   }
+  } else if (!result) {
+    result = tryBuildGlossaryAnswer(question, profile, tip, { agentKey: 'finance', minScore: 24 });
+    if (!result) return null;
+  }
 
   if (result?.answer) {
     const briefing = await loadBriefing();
     const voice = await loadAgentVoice(voicePath);
     result.source = 'knowledge';
-    result.intentId = intent.id;
+    result.intentId = result.intentId || intent?.id || 'sustainability_glossary';
     if (!result.productSamples?.length) {
       result.productSamples = await pickFinanceSamples(question, profile, 3);
     }
-    attachFinanceHandoffs(result, briefing, question, intent.id);
+    attachFinanceHandoffs(result, briefing, question, result.intentId);
     enrichKnowledgeAnswer(result, {
       agentKey: 'finance',
       question,
-      intentId: intent.id,
+      intentId: result.intentId,
       profile
     });
     applyPersona(result, {
       voice,
-      intentId: intent.id,
+      intentId: result.intentId,
       question,
       profile,
       staticTips: intents.staticTips,
       regionLabels: REGION_LABELS,
-      tip: pickTip(intents.staticTips, intent.id, { skipIntentIds: voice.skipTipIntents })
+      tip: pickTip(intents.staticTips, result.intentId, { skipIntentIds: voice.skipTipIntents })
     });
   }
   return result;
