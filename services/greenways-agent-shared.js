@@ -247,7 +247,14 @@ function moduleEmbedHref(path, extraQuery = '') {
  */
 function toModuleItem(opts = {}) {
   const path = opts.href || opts.portalPath || '';
-  const full = resolvePortalPathToRootHref(opts.fullPageHref || path);
+  const bridgeFull = resolvePortalPathToRootHref(
+    opts.fullPageHref && !/greenwaysmarket\.com/i.test(String(opts.fullPageHref))
+      ? opts.fullPageHref
+      : path
+  );
+  const liveSite = /greenwaysmarket\.com/i.test(String(opts.liveSiteHref || opts.fullPageHref || ''))
+    ? String(opts.liveSiteHref || opts.fullPageHref || '')
+    : '';
   const embed = opts.embedHref || moduleEmbedHref(path, opts.query || opts.extraQuery || '');
   return {
     moduleId: opts.moduleId || 'portal',
@@ -255,7 +262,8 @@ function toModuleItem(opts = {}) {
     description: String(opts.description || '').slice(0, 220),
     usageHint: String(opts.usageHint || '').slice(0, 220),
     href: embed,
-    fullPageHref: full,
+    fullPageHref: bridgeFull,
+    liveSiteHref: liveSite,
     kind: 'html',
     openSize: opts.openSize || '',
     theme: opts.theme || 'default',

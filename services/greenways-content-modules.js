@@ -62,6 +62,12 @@ function mergeModuleRow(row = {}) {
     description: row.description || mod?.description || '',
     usageHint: row.usageHint || mod?.usageHint || '',
     portalPath: row.portalPath || row.href || mod?.href || '',
+    fullPageHref:
+      row.fullPageHref ||
+      (mod?.href ? fullPageHref(resolveModuleWebHref(mod.href)) : mod?.fullPageHref || ''),
+    liveSiteHref:
+      row.liveSiteHref ||
+      (/greenwaysmarket\.com/i.test(String(mod?.fullPageHref || '')) ? mod.fullPageHref : ''),
     openSize: row.openSize || mod?.defaultOpenSize || ''
   };
 }
@@ -137,7 +143,10 @@ function toModuleItem(module, profile = {}, overrides = {}) {
     description: String(overrides.description || module.description || '').slice(0, 220),
     usageHint: String(overrides.usageHint || module.usageHint || '').slice(0, 220),
     href: modalHref,
-    fullPageHref: overrides.fullPageHref || module.fullPageHref || fullPageHref(baseHref),
+    fullPageHref: overrides.fullPageHref || fullPageHref(baseHref),
+    liveSiteHref:
+      overrides.liveSiteHref ||
+      (/greenwaysmarket\.com/i.test(String(module.fullPageHref || '')) ? module.fullPageHref : ''),
     openMode: module.openMode || 'modal',
     kind: module.kind || 'html',
     openSize: overrides.openSize || module.defaultOpenSize || ''

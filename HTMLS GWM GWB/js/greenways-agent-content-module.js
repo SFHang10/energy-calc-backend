@@ -87,7 +87,8 @@
     ["marketplace-home.html", "marketplace-home"],
     ["marketplace-hvac.html", "marketplace-hvac"],
     ["greenwaysmarket.com/about-us", "marketplace-about"],
-    ["greenwaysmarket.com/new-air-and-ventilation", "marketplace-hvac"]
+    ["greenwaysmarket.com/new-air-and-ventilation", "marketplace-hvac"],
+    ["greenwaysmarket.com/", "marketplace-home"]
   ];
 
   var STATIC_MODULE_BY_ID = {
@@ -150,7 +151,7 @@
       id: "marketplace-about",
       title: "About Greenways Marketplace",
       description: "Green technology mission and how shop listings connect to compare tools.",
-      usageHint: "Read the shop story, then open finders or greenwaysmarket.com in a new tab.",
+      usageHint: "Read the shop story in this module, then open finders from the cards below.",
       href: "./marketplace-about.html",
       fullPageHref: "https://www.greenwaysmarket.com/about-us",
       defaultOpenSize: "near-full"
@@ -159,7 +160,7 @@
       id: "marketplace-home",
       title: "Greenways Marketplace — shop hub",
       description: "Departments and links into Greenways compare tools.",
-      usageHint: "Jump to a shop department or continue in finder, deep dive, or deals.",
+      usageHint: "Browse departments here in the module; use Live shop ↗ in the header only when you need the full Wix site.",
       href: "./marketplace-home.html",
       fullPageHref: "https://www.greenwaysmarket.com/",
       defaultOpenSize: "near-full"
@@ -334,6 +335,13 @@
   };
 
   var registryLoadPromise = null;
+  var embedMessageListenerBound = false;
+
+  var MARKETPLACE_MODULE_IDS = {
+    "marketplace-about": true,
+    "marketplace-home": true,
+    "marketplace-hvac": true
+  };
 
   var SLUG_TO_THEME = {
     "finance-agent": "finance",
@@ -360,10 +368,37 @@
       theme: ctx.theme != null ? String(ctx.theme) : pageContext.theme,
       returnLabel: ctx.returnLabel != null ? String(ctx.returnLabel) : pageContext.returnLabel
     };
+    bindModuleEmbedMessages();
     loadModuleRegistry().then(function () {
       setTimeout(consumeOpenModuleFromQuery, 350);
     });
     return pageContext;
+  }
+
+  function isMarketplaceModuleId(moduleId) {
+    return !!MARKETPLACE_MODULE_IDS[resolveModuleId(String(moduleId || ""))];
+  }
+
+  function isExternalMarketplaceHref(href) {
+    return /greenwaysmarket\.com/i.test(String(href || ""));
+  }
+
+  function bridgeHrefForItem(item, reg) {
+    if (item && item.href) return stripEmbedParams(item.href);
+    if (reg && reg.href) return stripEmbedParams(reg.href);
+    return "";
+  }
+
+  function bindModuleEmbedMessages() {
+    if (embedMessageListenerBound) return;
+    embedMessageListenerBound = true;
+    window.addEventListener("message", function (event) {
+      var data = event && event.data;
+      if (!data || typeof data !== "object") return;
+      if (data.type === "gw-module-open" && data.moduleId) {
+        openById(String(data.moduleId), data.overrides || {});
+      }
+    });
   }
 
   function consumeOpenModuleFromQuery() {
@@ -631,10 +666,11 @@
       return;
     }
 
-    var linkOpen = e.target.closest(".link-tablet-open");
+    var linkOpen = e.target.closest(".link-tablet-open, a.agent-answer-link[href]");
     if (linkOpen) {
       var linkHref = String(linkOpen.getAttribute("href") || linkOpen.href || "").trim();
-      if (!linkHref || linkHref.indexOf("/greenways/") >= 0 || /^https?:\/\//i.test(linkHref)) return;
+      if (!linkHref || linkHref.indexOf("/greenways/") >= 0) return;
+      if (/^https?:\/\//i.test(linkHref) && !isExternalMarketplaceHref(linkHref)) return;
       var linkModuleId = findModuleIdForHref(linkHref);
       if (linkModuleId) {
         e.preventDefault();
@@ -806,12 +842,24 @@
     var id = String(item.moduleId || "");
     var reg = moduleRegistryById[id] || staticModuleForId(id);
     if (!reg) return item;
+    var bridgeFull = bridgeHrefForItem(item, reg);
+    var registryFull = String(reg.fullPageHref || "");
+    var itemFull = String(item.fullPageHref || "");
+    var liveSiteHref = "";
+    if (isExternalMarketplaceHref(registryFull)) {
+      liveSiteHref = registryFull;
+    }
+    if (isExternalMarketplaceHref(itemFull)) {
+      liveSiteHref = itemFull;
+      itemFull = bridgeFull || itemFull;
+    }
     return Object.assign({}, item, {
       title: item.title || reg.title || "",
       description: item.description || reg.description || "",
       usageHint: item.usageHint || reg.usageHint || "",
       href: item.href || reg.href || "",
-      fullPageHref: item.fullPageHref || reg.fullPageHref || ""
+      fullPageHref: itemFull || bridgeFull || registryFull || "",
+      liveSiteHref: item.liveSiteHref || liveSiteHref || ""
     });
   }
 
@@ -1053,6 +1101,13 @@
   function open(item) {
     if (!item) return;
     item = prepareModuleItem(item);
+    if (isExternalMarketplaceHref(item.href)) {
+      var marketplaceId = findModuleIdForHref(item.href);
+      if (marketplaceId) {
+        openById(marketplaceId);
+        return;
+      }
+    }
     activeReturnToJourney = !!item.returnToJourney;
     var kind = String(item.kind || "").toLowerCase();
     if (kind === "video" || item.videoUrl || item.videoId || (item.video && (item.video.videoUrl || item.video.videoId))) {
@@ -1079,8 +1134,11 @@
       usageEl.hidden = !usage;
     }
     if (fullLinkEl) {
-      fullLinkEl.href = item.fullPageHref || href || "#";
-      fullLinkEl.hidden = !(item.fullPageHref || href);
+      var liveHref = String(item.liveSiteHref || "").trim();
+      var fullHref = liveHref || item.fullPageHref || href || "#";
+      fullLinkEl.href = fullHref;
+      fullLinkEl.textContent = liveHref ? "Live shop ↗" : "New tab ↗";
+      fullLinkEl.hidden = !(liveHref || item.fullPageHref || href);
     }
     if (footEl) {
       footEl.hidden = true;

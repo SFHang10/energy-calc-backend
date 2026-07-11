@@ -154,8 +154,15 @@
       const payload = encodeModulePayload(item);
       const fullHref = escapeHtml(String(item.fullPageHref || item.href || "#"));
       const moduleId = String(item.moduleId || "");
+      const isMarketplaceModule = /^marketplace-/.test(moduleId);
       const openLabel =
-        moduleId === "sustainability-map"
+        moduleId === "marketplace-about"
+          ? "Open shop story"
+          : moduleId === "marketplace-home"
+            ? "Open shop hub"
+            : moduleId === "marketplace-hvac"
+              ? "Open HVAC story"
+              : moduleId === "sustainability-map"
           ? "Open map"
           : moduleId === "energy-ticker"
             ? "Open ticker"
@@ -211,7 +218,9 @@
         (usage ? '<p class="module-tablet-usage">' + usage + "</p>" : "") +
         '<div class="module-tablet-actions">' +
         '<button type="button" class="module-tablet-open module-tablet-open--primary" data-module-payload="' + payload + '">' + openLabel + "</button>" +
-        '<a class="module-tablet-full" href="' + fullHref + '" target="_blank" rel="noopener noreferrer">New tab ↗</a>' +
+        (isMarketplaceModule
+          ? ""
+          : '<a class="module-tablet-full" href="' + fullHref + '" target="_blank" rel="noopener noreferrer">New tab ↗</a>') +
         "</div></article>"
       );
     }).join("");
