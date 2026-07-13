@@ -154,7 +154,7 @@ function isAgentChatPath(path) {
 const REF_MODULE_IDS = {
   trajectory: 'savings-trajectory',
   'cost-guide': 'energy-cost-guide',
-  monitoring: 'energy-monitoring',
+  monitoring: 'restaurant-energy-monitoring-guide',
   'low-energy': 'low-energy-equipment',
   'discover-savings': 'discover-savings',
   'quick-benefits': 'sustainability-quick-benefits',
@@ -184,6 +184,7 @@ const PORTAL_PATH_MODULE_IDS = [
   ['restaurant-equipment-deep-dive', 'equipment-deep-dive'],
   ['restaurant-data', 'restaurant-data'],
   ['Importance%20of%20Energy%20Monitoring', 'energy-monitoring'],
+  ['restaurant-energy-monitoring-guide', 'restaurant-energy-monitoring-guide'],
   ['Low%20Energy%20New', 'low-energy-equipment'],
   ['Discover%20Energy%20Savings', 'discover-savings'],
   ['Europes%20Energy%20Saving', 'europe-savings'],

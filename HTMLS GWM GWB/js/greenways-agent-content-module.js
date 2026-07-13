@@ -64,6 +64,7 @@
     ["greenways%20interface", "greenways-dashboard"],
     ["utility-detail", "utility-detail"],
     ["importance%20of%20energy%20monitoring", "energy-monitoring"],
+    ["restaurant-energy-monitoring-guide", "restaurant-energy-monitoring-guide"],
     ["january%20sustainable%20news", "sustainability-news-page"],
     ["sustainability-news", "sustainability-news-edition"],
     ["new-in-tech", "tech-news-edition"],
@@ -160,7 +161,7 @@
       id: "marketplace-home",
       title: "Greenways Marketplace — shop hub",
       description: "Departments and links into Greenways compare tools.",
-      usageHint: "Browse departments here in the module; use Live shop ↗ in the header only when you need the full Wix site.",
+      usageHint: "Browse departments here in the module; use Live shop ↗ in the header only when you need the full shop on the website.",
       href: "./marketplace-home.html",
       fullPageHref: "https://www.greenwaysmarket.com/",
       defaultOpenSize: "near-full"
@@ -228,6 +229,14 @@
       description: "Why fabric improvements come before heavy equipment or HVAC overspend.",
       usageHint: "Read insulation sections for your premises, then model payback in savings projection.",
       href: "./Insulation%20.html",
+      defaultOpenSize: "near-full"
+    },
+    "restaurant-energy-monitoring-guide": {
+      id: "restaurant-energy-monitoring-guide",
+      title: "Restaurant energy monitoring guide",
+      description: "UK & Europe interactive guide — calculator, equipment split, demo dashboard, and hospitality case studies.",
+      usageHint: "Choose UK or Europe, set your monthly bill, explore equipment categories, then pair with Edwardo or Vincent for next steps.",
+      href: "./restaurant-energy-monitoring-guide.html",
       defaultOpenSize: "near-full"
     },
     "sensor-dashboard": {

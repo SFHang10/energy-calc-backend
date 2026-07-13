@@ -322,6 +322,8 @@
     'sensor intelligence dashboard': 'sensor-dashboard',
     'greenways buildings dashboard': 'greenways-dashboard',
     'importance of energy monitoring': 'energy-monitoring',
+    'restaurant energy monitoring guide': 'restaurant-energy-monitoring-guide',
+    'restaurant monitoring guide': 'restaurant-energy-monitoring-guide',
     'equipment deep dive': 'equipment-deep-dive',
     'sustainability map': 'sustainability-map'
   };

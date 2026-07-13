@@ -8,6 +8,7 @@ const { mergeModuleRow, loadRegistrySync, getModuleById } = require('./greenways
 const SYSTEMS_MODULE = { theme: 'systems', agentName: 'Edwardo' };
 
 const TOOL_ID_MODULE_IDS = {
+  'restaurant-energy-monitoring-guide': 'restaurant-energy-monitoring-guide',
   'energy-monitoring-guide': 'energy-monitoring',
   'smart-sensor-monitoring': 'smart-sensor-monitoring',
   'sensor-dashboard': 'sensor-dashboard',
@@ -34,6 +35,7 @@ const PORTAL_PATH_MODULE_IDS = [
   ['greenways%20interface', 'greenways-dashboard'],
   ['utility-detail', 'utility-detail'],
   ['importance%20of%20energy%20monitoring', 'energy-monitoring'],
+  ['restaurant-energy-monitoring-guide', 'restaurant-energy-monitoring-guide'],
   ['smart%20sensor%20monitoring', 'smart-sensor-monitoring'],
   ['restaurant-data', 'restaurant-data'],
   ['restaurant-equipment-deep-dive', 'equipment-deep-dive'],

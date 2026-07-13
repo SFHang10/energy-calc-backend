@@ -70,6 +70,7 @@ const TOOL_MODULE_IDS = {
   'utility-detail': 'utility-detail',
   'restaurant-data': 'restaurant-data',
   'tariff-compare': 'european-energy',
+  'restaurant-energy-monitoring-guide': 'restaurant-energy-monitoring-guide',
   'energy-monitoring': 'energy-monitoring',
   'low-energy-equipment': 'low-energy-equipment',
   'discover-savings': 'discover-savings',

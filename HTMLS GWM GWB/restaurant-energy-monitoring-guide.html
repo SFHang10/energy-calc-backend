@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Restaurant energy monitoring guide — UK &amp; Europe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green-900: #04342C;
+  --green-800: #085041;
+  --green-700: #0F6E56;
+  --green-600: #1D9E75;
+  --green-400: #5DCAA5;
+  --green-200: #9FE1CB;
+  --green-100: #E1F5EE;
+  --amber-600: #EF9F27;
+  --amber-400: #FAC775;
+  --amber-100: #FAEEDA;
+  --red-600: #E24B4A;
+  --red-100: #FCEBEB;
+  --blue-600: #185FA5;
+  --blue-100: #E6F1FB;
+  --gray-900: #2C2C2A;
+  --gray-700: #444441;
+  --gray-500: #5F5E5A;
+  --gray-400: #888780;
+  --gray-200: #D3D1C7;
+  --gray-100: #F1EFE8;
+  --white: #ffffff;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+html, body {
+  min-height: 100%;
+  height: auto;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--gray-900);
+  color: var(--white);
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+body.embed-mode .nav-links { display: none !important; }
+body.embed-mode nav { height: auto; min-height: 48px; flex-wrap: wrap; gap: 8px; padding: 8px 1rem; }
+body.embed-mode .region-bar { border-bottom: none; margin: 0; width: 100%; }
+
+.region-bar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 8px 2rem 10px;
+  background: rgba(8, 80, 65, 0.35);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.region-label { font-size: 11px; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.1em; }
+.region-btn, .case-filter-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--gray-400);
+  padding: 6px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+.region-btn.active, .case-filter-btn.active {
+  background: rgba(29,158,117,0.2);
+  border-color: var(--green-600);
+  color: var(--green-200);
+}
+.case-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.demo-note {
+  font-size: 11px; color: var(--amber-400);
+  margin: 0 1.5rem 10px;
+  padding: 8px 12px;
+  background: rgba(239,159,39,0.08);
+  border-left: 3px solid var(--amber-600);
+  border-radius: 6px;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(44,44,42,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px;
+}
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 14px; font-weight: 700;
+  color: var(--green-400);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.nav-links {
+  display: flex; gap: 2rem; list-style: none;
+}
+.nav-links a {
+  color: var(--gray-400); font-size: 13px;
+  text-decoration: none; transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--white); }
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 88vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 6rem 2rem 4rem;
+  max-width: 1100px; margin: 0 auto;
+  position: relative;
+}
+.hero-eyebrow {
+  font-family: var(--font-display);
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--green-400); margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero-eyebrow::before {
+  content: ''; display: inline-block;
+  width: 28px; height: 1px; background: var(--green-400);
+}
+.hero-headline {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 7vw, 6rem);
+  font-weight: 700; line-height: 1.0;
+  letter-spacing: -0.03em;
+  margin-bottom: 2rem;
+}
+.hero-headline em {
+  font-style: normal;
+  color: var(--green-400);
+}
+.hero-sub {
+  font-size: 18px; font-weight: 300; color: var(--gray-400);
+  max-width: 560px; line-height: 1.7; margin-bottom: 3rem;
+}
+.hero-stats {
+  display: flex; gap: 2.5rem; flex-wrap: wrap; margin-bottom: 3rem;
+}
+.hero-stat {}
+.hero-stat-num {
+  font-family: var(--font-display);
+  font-size: 2.8rem; font-weight: 700;
+  color: var(--white); line-height: 1;
+}
+.hero-stat-num span { color: var(--green-400); }
+.hero-stat-label {
+  font-size: 12px; color: var(--gray-400); margin-top: 4px;
+}
+.hero-cta-row {
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
+.btn-primary {
+  background: var(--green-600); color: var(--white);
+  border: none; padding: 12px 24px;
+  border-radius: 6px; font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: background 0.2s;
+  text-decoration: none; display: inline-block;
+}
+.btn-primary:hover { background: var(--green-700); }
+.btn-outline {
+  background: transparent; color: var(--white);
+  border: 1px solid rgba(255,255,255,0.2); padding: 12px 24px;
+  border-radius: 6px; font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; text-decoration: none;
+  display: inline-block;
+}
+.btn-outline:hover { border-color: var(--green-400); color: var(--green-400); }
+
+/* ─── TICKER ─── */
+.ticker-wrap {
+  background: var(--green-700);
+  padding: 10px 0; overflow: hidden;
+}
+.ticker-inner {
+  display: flex; gap: 0;
+  animation: ticker-scroll 30s linear infinite;
+  white-space: nowrap;
+}
+.ticker-item {
+  font-size: 12px; font-weight: 500; letter-spacing: 0.05em;
+  padding: 0 2.5rem; color: var(--white);
+  text-transform: uppercase; border-right: 1px solid rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ─── SECTIONS ─── */
+section {
+  max-width: 1100px; margin: 0 auto;
+  padding: 5rem 2rem;
+}
+.section-label {
+  font-family: var(--font-display);
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--green-400); margin-bottom: 1rem;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 700; line-height: 1.1;
+  letter-spacing: -0.02em; margin-bottom: 1rem;
+}
+.section-desc {
+  font-size: 16px; color: var(--gray-400);
+  max-width: 600px; line-height: 1.7; margin-bottom: 3rem;
+}
+hr.divider {
+  border: none; border-top: 1px solid rgba(255,255,255,0.07);
+  margin: 0 2rem;
+}
+
+/* ─── SAVINGS CALCULATOR ─── */
+.calc-wrap {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px; padding: 2.5rem;
+  margin-bottom: 3rem;
+}
+.calc-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 3rem; align-items: start;
+}
+.calc-inputs {}
+.calc-field { margin-bottom: 1.5rem; }
+.calc-field label {
+  display: block; font-size: 12px; font-weight: 500;
+  color: var(--gray-400); text-transform: uppercase;
+  letter-spacing: 0.08em; margin-bottom: 8px;
+}
+.calc-field input[type="range"] {
+  width: 100%; accent-color: var(--green-600);
+  height: 4px; cursor: pointer;
+}
+.calc-field .range-display {
+  display: flex; justify-content: space-between;
+  margin-top: 6px;
+}
+.range-val {
+  font-family: var(--font-display);
+  font-size: 1.4rem; font-weight: 700;
+  color: var(--white);
+}
+.calc-select {
+  width: 100%; background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--white); padding: 10px 14px;
+  border-radius: 8px; font-size: 14px;
+  font-family: var(--font-body); cursor: pointer;
+}
+.calc-results {}
+.result-card {
+  background: var(--green-900);
+  border: 1px solid var(--green-700);
+  border-radius: 12px; padding: 2rem;
+}
+.result-main {
+  font-family: var(--font-display);
+  font-size: 3.5rem; font-weight: 700;
+  color: var(--green-400); line-height: 1;
+  margin-bottom: 4px;
+}
+.result-label {
+  font-size: 13px; color: var(--green-200);
+  margin-bottom: 1.5rem;
+}
+.result-breakdown {}
+.result-row {
+  display: flex; justify-content: space-between;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.07);
+  font-size: 13px;
+}
+.result-row:last-child { border-bottom: none; }
+.result-row-label { color: var(--gray-400); }
+.result-row-val { color: var(--white); font-weight: 500; }
+
+/* ─── EQUIPMENT BREAKDOWN ─── */
+.equip-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px; margin-bottom: 2rem;
+}
+.equip-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 1.25rem;
+  cursor: pointer; transition: all 0.2s;
+  position: relative; overflow: hidden;
+}
+.equip-card::after {
+  content: ''; position: absolute;
+  bottom: 0; left: 0; right: 0; height: 3px;
+  background: var(--color, var(--green-600));
+  transform: scaleX(0); transition: transform 0.3s;
+  transform-origin: left;
+}
+.equip-card:hover::after, .equip-card.active::after { transform: scaleX(1); }
+.equip-card.active {
+  background: rgba(29,158,117,0.1);
+  border-color: var(--green-600);
+}
+.equip-icon {
+  font-size: 1.8rem; margin-bottom: 8px;
+}
+.equip-name {
+  font-family: var(--font-display);
+  font-size: 14px; font-weight: 600;
+  color: var(--white); margin-bottom: 4px;
+}
+.equip-pct {
+  font-family: var(--font-display);
+  font-size: 1.6rem; font-weight: 700;
+  color: var(--color, var(--green-400));
+}
+.equip-sub { font-size: 11px; color: var(--gray-400); }
+.equip-detail {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 1.5rem;
+  margin-top: 1rem; display: none;
+}
+.equip-detail.visible { display: block; }
+.equip-detail-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem; margin-top: 1rem;
+}
+.equip-detail-item {}
+.equip-detail-label {
+  font-size: 11px; color: var(--gray-400); text-transform: uppercase;
+  letter-spacing: 0.08em; margin-bottom: 4px;
+}
+.equip-detail-val {
+  font-family: var(--font-display);
+  font-size: 1.2rem; font-weight: 700;
+  color: var(--green-400);
+}
+
+/* ─── MONITORING BENEFITS TABS ─── */
+.tabs-nav {
+  display: flex; gap: 0; border-bottom: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 2.5rem; overflow-x: auto;
+}
+.tab-btn {
+  background: none; border: none; color: var(--gray-400);
+  padding: 12px 20px; font-size: 13px; font-weight: 500;
+  font-family: var(--font-body); cursor: pointer;
+  border-bottom: 2px solid transparent; transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--white); }
+.tab-btn.active {
+  color: var(--green-400);
+  border-bottom-color: var(--green-400);
+}
+.tab-panel { display: none; }
+.tab-panel.active { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+.benefit-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 1.5rem;
+}
+.benefit-icon { font-size: 1.5rem; margin-bottom: 10px; }
+.benefit-title {
+  font-family: var(--font-display);
+  font-size: 16px; font-weight: 600;
+  color: var(--white); margin-bottom: 8px;
+}
+.benefit-text { font-size: 13px; color: var(--gray-400); line-height: 1.7; }
+.benefit-stat {
+  margin-top: 12px; padding: 10px 14px;
+  background: rgba(29,158,117,0.1);
+  border-radius: 8px; border-left: 3px solid var(--green-600);
+  font-size: 13px; color: var(--green-200);
+}
+
+/* ─── LIVE MONITORING DASHBOARD SIM ─── */
+.dashboard-sim {
+  background: #0e1512;
+  border: 1px solid rgba(29,158,117,0.3);
+  border-radius: 16px; overflow: hidden;
+}
+.dash-header {
+  background: rgba(29,158,117,0.1);
+  padding: 12px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid rgba(29,158,117,0.2);
+}
+.dash-title {
+  font-family: var(--font-display);
+  font-size: 12px; font-weight: 600;
+  color: var(--green-400); text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.dash-live {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--green-400);
+}
+.dash-live-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green-400);
+  animation: live-pulse 1.5s ease-in-out infinite;
+}
+@keyframes live-pulse {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.dash-body {
+  padding: 1.5rem;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px; margin-bottom: 0;
+}
+.dash-metric {
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px; padding: 14px;
+}
+.dash-metric-label {
+  font-size: 10px; color: var(--gray-400);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.dash-metric-val {
+  font-family: var(--font-display);
+  font-size: 1.4rem; font-weight: 700;
+  color: var(--white);
+}
+.dash-metric-val.alert { color: var(--red-600); }
+.dash-metric-val.good { color: var(--green-400); }
+.dash-metric-val.warn { color: var(--amber-600); }
+.dash-metric-sub { font-size: 10px; margin-top: 3px; }
+.dash-chart-area {
+  padding: 0 1.5rem 1.5rem;
+}
+.dash-alerts {
+  padding: 0 1.5rem 1.5rem;
+}
+.alert-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px; border-radius: 8px; margin-bottom: 8px;
+  font-size: 12px;
+}
+.alert-item.warn {
+  background: rgba(239,159,39,0.1);
+  border-left: 3px solid var(--amber-600);
+  color: var(--amber-400);
+}
+.alert-item.ok {
+  background: rgba(29,158,117,0.08);
+  border-left: 3px solid var(--green-600);
+  color: var(--green-200);
+}
+.alert-item.crit {
+  background: rgba(226,75,74,0.1);
+  border-left: 3px solid var(--red-600);
+  color: #F09595;
+}
+.alert-time { font-size: 10px; color: var(--gray-400); margin-top: 2px; }
+
+/* ─── CASE STUDIES ─── */
+.cases-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+.case-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px; padding: 1.75rem;
+  cursor: pointer; transition: all 0.25s;
+}
+.case-card:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(29,158,117,0.4);
+  transform: translateY(-2px);
+}
+.case-flag {
+  font-size: 1.4rem; margin-bottom: 10px;
+}
+.case-brand {
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: 700;
+  color: var(--white); margin-bottom: 4px;
+}
+.case-type {
+  font-size: 11px; color: var(--gray-400);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 14px;
+}
+.case-stats {
+  display: flex; gap: 1rem; margin-bottom: 14px;
+}
+.case-stat {}
+.case-stat-val {
+  font-family: var(--font-display);
+  font-size: 1.5rem; font-weight: 700;
+  color: var(--green-400);
+}
+.case-stat-label {
+  font-size: 11px; color: var(--gray-400); margin-top: 2px;
+}
+.case-desc { font-size: 13px; color: var(--gray-400); line-height: 1.7; }
+.case-expand {
+  margin-top: 14px; padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  display: none; font-size: 13px; color: var(--gray-400); line-height: 1.7;
+}
+.case-expand.visible { display: block; }
+.case-read-more {
+  margin-top: 10px; font-size: 12px; color: var(--green-400);
+  cursor: pointer;
+}
+
+/* ─── COMPARISON TABLE ─── */
+.compare-wrap {
+  overflow-x: auto;
+}
+table.compare-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px;
+}
+.compare-table th {
+  text-align: left; padding: 12px 16px;
+  font-family: var(--font-display);
+  font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--gray-400);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.compare-table th.highlight { color: var(--green-400); }
+.compare-table td {
+  padding: 12px 16px; color: var(--gray-400);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.compare-table td.highlight-col {
+  background: rgba(29,158,117,0.06);
+  color: var(--white);
+}
+.compare-table td.feature-label {
+  color: var(--white); font-weight: 500;
+}
+.chk { color: var(--green-400); }
+.cross { color: var(--red-600); }
+.part { color: var(--amber-600); }
+
+/* ─── ROI TIMELINE ─── */
+.timeline {
+  position: relative; padding-left: 2rem;
+  border-left: 2px solid rgba(255,255,255,0.1);
+}
+.timeline-item {
+  position: relative; padding: 0 0 2.5rem 2rem;
+}
+.timeline-dot {
+  position: absolute; left: -2.6rem; top: 2px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--green-600);
+  border: 2px solid var(--gray-900);
+}
+.timeline-dot.future { background: rgba(255,255,255,0.15); }
+.timeline-period {
+  font-family: var(--font-display);
+  font-size: 12px; font-weight: 600;
+  color: var(--green-400); text-transform: uppercase;
+  letter-spacing: 0.1em; margin-bottom: 6px;
+}
+.timeline-title {
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: 700;
+  color: var(--white); margin-bottom: 6px;
+}
+.timeline-desc { font-size: 14px; color: var(--gray-400); line-height: 1.7; }
+.timeline-tag {
+  display: inline-block; margin-top: 10px;
+  font-size: 11px; font-weight: 500;
+  padding: 4px 10px; border-radius: 4px;
+  background: rgba(29,158,117,0.15);
+  color: var(--green-200);
+}
+
+/* ─── REGULATION SECTION ─── */
+.reg-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.reg-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 1.25rem;
+}
+.reg-badge {
+  display: inline-block; font-size: 10px;
+  font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.1em; padding: 3px 8px;
+  border-radius: 4px; margin-bottom: 10px;
+}
+.reg-badge.uk { background: rgba(24,95,165,0.2); color: #85B7EB; }
+.reg-badge.eu { background: rgba(239,159,39,0.2); color: var(--amber-400); }
+.reg-badge.net-zero { background: rgba(29,158,117,0.2); color: var(--green-200); }
+.reg-title {
+  font-family: var(--font-display);
+  font-size: 14px; font-weight: 600;
+  color: var(--white); margin-bottom: 6px;
+}
+.reg-text { font-size: 12px; color: var(--gray-400); line-height: 1.6; }
+
+/* ─── FOOTER ─── */
+footer {
+  background: #0c0c0b;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 3rem 2rem;
+  text-align: center;
+}
+.footer-logo {
+  font-family: var(--font-display);
+  font-size: 16px; font-weight: 700;
+  color: var(--green-400); margin-bottom: 1rem;
+}
+.footer-text {
+  font-size: 12px; color: var(--gray-400);
+  line-height: 1.8; max-width: 700px; margin: 0 auto 1.5rem;
+}
+.footer-sources {
+  font-size: 11px; color: var(--gray-500);
+  max-width: 800px; margin: 0 auto;
+  text-align: left; line-height: 1.9;
+}
+.footer-sources strong { color: var(--gray-400); }
+
+/* ─── CHART CANVAS ─── */
+.chart-container {
+  position: relative; width: 100%; height: 200px;
+}
+
+/* ─── MISC ─── */
+.two-col {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;
+  align-items: start;
+}
+.number-large {
+  font-family: var(--font-display);
+  font-size: clamp(2rem,5vw,4rem);
+  font-weight: 700; line-height: 1;
+}
+.pill {
+  display: inline-block; padding: 4px 12px;
+  border-radius: 100px; font-size: 11px; font-weight: 500;
+}
+.pill-green { background: rgba(29,158,117,0.15); color: var(--green-200); }
+.pill-amber { background: rgba(239,159,39,0.15); color: var(--amber-400); }
+.pill-red { background: rgba(226,75,74,0.15); color: #F09595; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .calc-grid, .two-col, .tab-panel.active { grid-template-columns: 1fr; }
+  .equip-detail-grid { grid-template-columns: 1fr 1fr; }
+  .dash-body { grid-template-columns: 1fr 1fr; }
+  .hero-stats { gap: 1.5rem; }
+  .hero-headline { font-size: 2.8rem; }
+  .nav-links { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-inner { animation: none; }
+  .dash-live-dot { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Greenways Market</div>
+  <ul class="nav-links">
+    <li><a href="#calculator">Calculator</a></li>
+    <li><a href="#equipment">Equipment</a></li>
+    <li><a href="#dashboard">Live View</a></li>
+    <li><a href="#cases">Case Studies</a></li>
+    <li><a href="#compliance">Compliance</a></li>
+    <li><a href="#roi">ROI</a></li>
+  </ul>
+</nav>
+
+<div class="region-bar" id="regionBar" aria-label="Region selector">
+  <span class="region-label">Region</span>
+  <button type="button" class="region-btn active" data-region="uk">United Kingdom (£)</button>
+  <button type="button" class="region-btn" data-region="eu">Europe (€)</button>
+  <span class="region-label" style="margin-left:auto;font-size:10px;opacity:0.85">Illustrative figures · verify grants with Andrieus</span>
+</div>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-inner" id="tickerInner">
+    <span class="ticker-item">UK catering industry: 20,600M kWh/year (Carbon Trust)</span>
+    <span class="ticker-item">Restaurants use 3× more energy per sq ft than retail (EIA)</span>
+    <span class="ticker-item">Monitoring reduces consumption by 25–40% in year 1 (Envigilance)</span>
+    <span class="ticker-item">Walk-in refrigeration: 70 kWh daily average</span>
+    <span class="ticker-item">Burger King franchise saved €5,500/year — ROI in under 6 months</span>
+    <span class="ticker-item">KFC Malaysia: energy savings across 105 sites with IoT monitoring</span>
+    <span class="ticker-item">Home monitors reduce usage 4–15% — restaurants can do far more</span>
+    <span class="ticker-item">UK restaurants: £1,000–£3,200/month on combined utilities (2026)</span>
+    <span class="ticker-item">Smart HVAC can cut consumption up to 30% (UK energy management firms)</span>
+    <span class="ticker-item">LED alone saves £100+/fixture/year (Carbon Trust UK)</span>
+    <!-- duplicate for seamless scroll -->
+    <span class="ticker-item">UK catering industry: 20,600M kWh/year (Carbon Trust)</span>
+    <span class="ticker-item">Restaurants use 3× more energy per sq ft than retail (EIA)</span>
+    <span class="ticker-item">Monitoring reduces consumption by 25–40% in year 1 (Envigilance)</span>
+    <span class="ticker-item">Walk-in refrigeration: 70 kWh daily average</span>
+    <span class="ticker-item">Burger King franchise saved €5,500/year — ROI in under 6 months</span>
+    <span class="ticker-item">KFC Malaysia: energy savings across 105 sites with IoT monitoring</span>
+    <span class="ticker-item">Home monitors reduce usage 4–15% — restaurants can do far more</span>
+    <span class="ticker-item">UK restaurants: £1,000–£3,200/month on combined utilities (2026)</span>
+    <span class="ticker-item">Smart HVAC can cut consumption up to 30% (UK energy management firms)</span>
+    <span class="ticker-item">LED alone saves £100+/fixture/year (Carbon Trust UK)</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Restaurant Energy Intelligence</div>
+  <h1 class="hero-headline">You can't fix<br>what you can't <em>see</em></h1>
+  <p class="hero-sub" id="heroSub">UK and European restaurants spend heavily on energy — with much of it wasted invisibly. Energy monitoring changes everything. Here is the complete picture.</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num"><span>80</span>%</div>
+      <div class="hero-stat-label">of energy can be wasted<br>without monitoring (PG&E)</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num"><span>3</span>×</div>
+      <div class="hero-stat-label">more energy/sq ft than<br>other retail (EIA)</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num"><span>25–40</span>%</div>
+      <div class="hero-stat-label">savings in year 1<br>with active monitoring</div>
+    </div>
+  </div>
+  <div class="hero-cta-row">
+    <a href="#calculator" class="btn-primary">Calculate my savings</a>
+    <a href="#cases" class="btn-outline">See case studies</a>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- CALCULATOR -->
+<section id="calculator">
+  <div class="section-label">Interactive tool</div>
+  <h2 class="section-title">Your savings calculator</h2>
+  <p class="section-desc">Enter your restaurant profile and see exactly how much energy monitoring could save you — based on real UK and European data.</p>
+
+  <div class="calc-wrap">
+    <div class="calc-grid">
+      <div class="calc-inputs">
+        <div class="calc-field">
+          <label>Restaurant type</label>
+          <select class="calc-select" id="restType">
+            <option value="casual">Casual dining / pub kitchen</option>
+            <option value="qsr">Quick service / fast casual</option>
+            <option value="fine">Fine dining</option>
+            <option value="cafe">Café / coffee shop</option>
+            <option value="chain">Chain / multi-site</option>
+          </select>
+        </div>
+        <div class="calc-field">
+          <label>Monthly energy bill: <span class="range-val" id="billDisplay">£2,000</span></label>
+          <input type="range" id="monthlyBill" min="500" max="8000" step="100" value="2000">
+          <div class="range-display">
+            <span id="billMinLbl" style="font-size:11px;color:var(--gray-400)">£500</span>
+            <span id="billMaxLbl" style="font-size:11px;color:var(--gray-400)">£8,000</span>
+          </div>
+        </div>
+        <div class="calc-field">
+          <label>Number of sites: <span class="range-val" id="sitesDisplay">1</span></label>
+          <input type="range" id="numSites" min="1" max="50" step="1" value="1">
+          <div class="range-display">
+            <span style="font-size:11px;color:var(--gray-400)">1 site</span>
+            <span style="font-size:11px;color:var(--gray-400)">50 sites</span>
+          </div>
+        </div>
+        <div class="calc-field">
+          <label>Equipment age</label>
+          <select class="calc-select" id="equipAge">
+            <option value="old">Older than 10 years (highest waste)</option>
+            <option value="mid" selected>Mixed — 5–10 years</option>
+            <option value="new">Mostly modern — under 5 years</option>
+          </select>
+        </div>
+      </div>
+      <div class="calc-results">
+        <div class="result-card">
+          <div class="result-main" id="resultMain">£8,160</div>
+          <div class="result-label">estimated annual savings</div>
+          <div class="result-breakdown">
+            <div class="result-row">
+              <span class="result-row-label">Current annual spend</span>
+              <span class="result-row-val" id="rAnnual">£24,000</span>
+            </div>
+            <div class="result-row">
+              <span class="result-row-label">Estimated waste</span>
+              <span class="result-row-val" id="rWaste">£9,600</span>
+            </div>
+            <div class="result-row">
+              <span class="result-row-label">Monitoring saving rate</span>
+              <span class="result-row-val" id="rRate">34%</span>
+            </div>
+            <div class="result-row">
+              <span class="result-row-label">Year 1 net saving</span>
+              <span class="result-row-val" id="rNet">£7,410</span>
+            </div>
+            <div class="result-row">
+              <span class="result-row-label">CO₂ reduction (est.)</span>
+              <span class="result-row-val" id="rCO2">12.4 tonnes</span>
+            </div>
+            <div class="result-row">
+              <span class="result-row-label">Typical payback</span>
+              <span class="result-row-val" id="rPayback">Under 6 months</span>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:11px;color:var(--gray-500);margin-top:12px;line-height:1.6;">Estimates based on Envigilance (2026), Carbon Trust UK, and Spacewell benchmarks. Actual results will vary.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- EQUIPMENT BREAKDOWN -->
+<section id="equipment">
+  <div class="section-label">Where energy goes</div>
+  <h2 class="section-title">Equipment deep-dive</h2>
+  <p class="section-desc">Click any category to see what monitoring catches, what it saves, and real daily kWh figures for UK restaurants.</p>
+
+  <div class="equip-grid">
+    <div class="equip-card" style="--color:#E24B4A" onclick="RemGuide.toggleEquip(this,'equip-refrigeration')">
+      <div class="equip-icon">🧊</div>
+      <div class="equip-name">Refrigeration</div>
+      <div class="equip-pct">43%</div>
+      <div class="equip-sub">of electricity use</div>
+    </div>
+    <div class="equip-card" style="--color:#EF9F27" onclick="RemGuide.toggleEquip(this,'equip-cooking')">
+      <div class="equip-icon">🍳</div>
+      <div class="equip-name">Cooking equipment</div>
+      <div class="equip-pct">14%</div>
+      <div class="equip-sub">of electricity use</div>
+    </div>
+    <div class="equip-card" style="--color:#185FA5" onclick="RemGuide.toggleEquip(this,'equip-hvac')">
+      <div class="equip-icon">🌀</div>
+      <div class="equip-name">HVAC & ventilation</div>
+      <div class="equip-pct">23%</div>
+      <div class="equip-sub">heating + cooling + fans</div>
+    </div>
+    <div class="equip-card" style="--color:#5DCAA5" onclick="RemGuide.toggleEquip(this,'equip-lighting')">
+      <div class="equip-icon">💡</div>
+      <div class="equip-name">Lighting</div>
+      <div class="equip-pct">6%</div>
+      <div class="equip-sub">of electricity use</div>
+    </div>
+    <div class="equip-card" style="--color:#888780" onclick="RemGuide.toggleEquip(this,'equip-water')">
+      <div class="equip-icon">💧</div>
+      <div class="equip-name">Water & dishwashing</div>
+      <div class="equip-pct">8%</div>
+      <div class="equip-sub">heating + equipment</div>
+    </div>
+    <div class="equip-card" style="--color:#B4B2A9" onclick="RemGuide.toggleEquip(this,'equip-other')">
+      <div class="equip-icon">⚡</div>
+      <div class="equip-name">Other / standby</div>
+      <div class="equip-pct">6%</div>
+      <div class="equip-sub">ICE machines, POS, misc</div>
+    </div>
+  </div>
+
+  <div id="equip-refrigeration" class="equip-detail">
+    <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--white);margin-bottom:8px">🧊 Refrigeration — the biggest drain</div>
+    <p style="font-size:13px;color:var(--gray-400);line-height:1.7;margin-bottom:12px">Walk-in coolers, under-counter fridges, display cases and ice machines run 24/7, making this the largest single electricity consumer in most UK restaurants. Without monitoring, failing door gaskets, mineral deposits and compressor issues go undetected for months.</p>
+    <div class="equip-detail-grid">
+      <div class="equip-detail-item"><div class="equip-detail-label">Daily kWh (walk-in)</div><div class="equip-detail-val">70 kWh</div></div>
+      <div class="equip-detail-item"><div class="equip-detail-label">Monitoring saving</div><div class="equip-detail-val">Up to 34%</div></div>
+      <div class="equip-detail-item"><div class="equip-detail-label">Annual waste cost</div><div class="equip-detail-val">£800–£2,400</div></div>
+    </div>
+    <div class="benefit-stat" style="margin-top:12px">Best.Energy IoT case: 34% reduction on one refrigeration unit across a European restaurant chain, plus extended compressor lifecycle.</div>
+  </div>
+
+  <div id="equip-cooking" class="equip-detail">
+    <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--white);margin-bottom:8px">🍳 Cooking equipment — idle time is the enemy</div>
+    <p style="font-size:13px;color:var(--gray-400);line-height:1.7;margin-bottom:12px">A commercial deep fat fryer uses ~18,000 kWh/year — more than an average UK home's entire electricity use. Monitoring reveals idle-on equipment, preheat timing and which appliances are drawing power after service ends.</p>
+    <div class="equip-detail-grid">
+      <div class="equip-detail-item"><div class="equip-detail-label">Daily kWh (grills)</div><div class="equip-detail-val">37 kWh</div></div>
+      <div class="equip-detail-item"><div class="equip-detail-label">Daily kWh (ovens)</div><div class="equip-detail-val">35 kWh</div></div>
+      <div class="equip-detail-item"><div class="equip-detail-label">Idle-time saving</div><div class="equip-detail-val">£350/fryer/yr</div></div>
+    </div>
+    <div class="benefit-stat" style="margin-top:12px">Turning off one unused fryer for 4 hours/day saves up to £350/year. Monitoring automates this across every appliance, every day.</div>
+  </div>
+
+  <div id="equip-hvac" class="equip-detail">
+    <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--white);margin-bottom:8px">🌀 HVAC & ventilation — the silent overspend</div>
+    <p style="font-size:13px;color:var(--gray-400);line-height:1.7;margin-bottom:12px">Extraction fans running on full speed during quiet periods, HVAC systems operating after close, and unzoned heating are the three most common sources of HVAC waste in UK restaurants. Smart monitoring can schedule, throttle and alert in real time.</p>
+    <div class="equip-detail-grid">
+      <div class="equip-detail-item"><div class="equip-detail-label">Smart HVAC saving</div><div class="equip-detail-val">Up to 30%</div></div>
+      <div class="equip-detail-item"><div class="equip-detail-label">Fryer ventilation</div><div class="equip-detail-val">44% saving</div></div>
+      <div class="equip-detail-item"><div class="equip-detail-label">Overnight scheduling</div><div class="equip-detail-val">Near-zero</div></div>
+    </div>
+    <div class="benefit-stat" style="margin-top:12px">Best.Energy achieved 44% energy reduction on fryer ventilation through two-step scheduling at a European restaurant site.</div>
+  </div>
+
+  <div id="equip-lighting" class="equip-detail">
+    <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--white);margin-bottom:8px">💡 Lighting — the quick win</div>
+    <p style="font-size:13px;color:var(--gray-400);line-height:1.7;margin-bottom:12px">Monitoring-integrated occupancy sensors can turn lighting off in storerooms and bathrooms automatically. The Carbon Trust estimates LED transition saves over £100 per fixture per year. Monitoring shows which zones are lit longest, guiding targeted interventions.</p>
+    <div class="equip-detail-grid">
+      <div class="equip-detail-item"><div class="equip-detail-label">LED saving/fixture</div><div class="equip-detail-val">>£100/yr</div></div>
+      <div class="equip-detail-item"><div class="equip-detail-label">Occupancy sensor</div><div class="equip-detail-val">Up to 30%</div></div>
+      <div class="equip-detail-item"><div class="equip-detail-label">Full transition</div><div class="equip-detail-val">Up to 80%</div></div>
+    </div>
+    <div class="benefit-stat" style="margin-top:12px">Carbon Trust UK: transitioning to LED saves over £100 per light fixture per year — monitoring identifies exactly which fixtures to prioritise.</div>
+  </div>
+
+  <div id="equip-water" class="equip-detail">
+    <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--white);margin-bottom:8px">💧 Water & dishwashing — hidden costs</div>
+    <p style="font-size:13px;color:var(--gray-400);line-height:1.7;margin-bottom:12px">UK restaurants use 300,000 gallons of water per year on average. Water heating is the third biggest energy use. A small leak under a dishwasher can go undetected for months, wasting thousands of litres. Monitoring with leak sensors delivers instant alerts.</p>
+    <div class="equip-detail-grid">
+      <div class="equip-detail-item"><div class="equip-detail-label">Annual water use</div><div class="equip-detail-val">300k gal</div></div>
+      <div class="equip-detail-item"><div class="equip-detail-label">Leak detection</div><div class="equip-detail-val">Real-time</div></div>
+      <div class="equip-detail-item"><div class="equip-detail-label">Off-peak scheduling</div><div class="equip-detail-val">Saves 15–25%</div></div>
+    </div>
+    <div class="benefit-stat" style="margin-top:12px">Monitoring enables off-peak dishwasher scheduling, saving on energy pricing differentials — particularly valuable under UK smart tariffs.</div>
+  </div>
+
+  <div id="equip-other" class="equip-detail">
+    <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--white);margin-bottom:8px">⚡ Standby & miscellaneous — death by a thousand cuts</div>
+    <p style="font-size:13px;color:var(--gray-400);line-height:1.7;margin-bottom:12px">2.5 million commercial buildings across the US use ice machines with a combined $1.62bn annual electricity bill. Standby loads from POS systems, signage, coffee equipment and music systems add up. Only monitoring makes the invisible visible.</p>
+    <div class="equip-detail-grid">
+      <div class="equip-detail-item"><div class="equip-detail-label">Ice machine waste</div><div class="equip-detail-val">High</div></div>
+      <div class="equip-detail-item"><div class="equip-detail-label">Standby loads</div><div class="equip-detail-val">Up to 10%</div></div>
+      <div class="equip-detail-item"><div class="equip-detail-label">Detection method</div><div class="equip-detail-val">Clamp sensors</div></div>
+    </div>
+    <div class="benefit-stat" style="margin-top:12px">Clamp-on energy monitors attach externally to any cable without modification — working on any equipment regardless of age, manufacturer or connection type.</div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- LIVE DASHBOARD SIM -->
+<section id="dashboard">
+  <div class="section-label">What you actually see</div>
+  <h2 class="section-title">Live monitoring dashboard</h2>
+  <p class="section-desc">This is what a restaurant operator sees every morning — illustrative metrics, automated alerts and anomaly detection. <strong>Demo only</strong> — not live site data.</p>
+
+  <div class="dashboard-sim">
+    <div class="dash-header">
+      <div class="dash-title" id="dashSiteTitle">The Anchor Kitchen &amp; Bar — Shoreditch, London</div>
+      <div class="dash-live"><div class="dash-live-dot"></div>Illustrative demo</div>
+    </div>
+    <p class="demo-note" id="dashDemoNote">Greenways demo dashboard — figures are illustrative. Pair with Edwardo for sensor rollout or the buildings dashboard for portfolio KPIs.</p>
+    <div class="dash-body">
+      <div class="dash-metric">
+        <div class="dash-metric-label">Today so far</div>
+        <div class="dash-metric-val good" id="dmKwh">127 kWh</div>
+        <div class="dash-metric-sub" style="color:var(--green-200)">↓ 18% vs last Tuesday</div>
+      </div>
+      <div class="dash-metric">
+        <div class="dash-metric-label">Est. today's cost</div>
+        <div class="dash-metric-val" id="dmCost">£28.40</div>
+        <div class="dash-metric-sub" id="dashKwhSub" style="color:var(--gray-400)">at 22p/kWh</div>
+      </div>
+      <div class="dash-metric">
+        <div class="dash-metric-label">Walk-in temp</div>
+        <div class="dash-metric-val warn" id="dmTemp">4.8°C</div>
+        <div class="dash-metric-sub" style="color:var(--amber-400)">⚠ 0.8° above target</div>
+      </div>
+      <div class="dash-metric">
+        <div class="dash-metric-label">HVAC status</div>
+        <div class="dash-metric-val good">Normal</div>
+        <div class="dash-metric-sub" style="color:var(--green-200)">All units on schedule</div>
+      </div>
+    </div>
+
+    <div class="dash-chart-area">
+      <div style="font-size:11px;color:var(--gray-400);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.08em">Energy consumption today vs 30-day average (kWh)</div>
+      <canvas id="dashChart" style="width:100%;height:150px" role="img" aria-label="Today's hourly energy consumption compared to 30-day average">Hourly energy chart for The Anchor Kitchen & Bar.</canvas>
+    </div>
+
+    <div class="dash-alerts">
+      <div style="font-size:11px;color:var(--gray-400);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.08em">Alerts &amp; insights today</div>
+      <div class="alert-item crit">
+        <div>
+          <div>Walk-in cooler compressor cycling every 19 min (usual: 12 min). Possible door seal issue — book engineer.</div>
+          <div class="alert-time">07:42 this morning</div>
+        </div>
+      </div>
+      <div class="alert-item warn">
+        <div>
+          <div>Exhaust fan running since 06:00 — kitchen opens at 09:00. Auto-schedule may not have applied.</div>
+          <div class="alert-time">09:15 this morning</div>
+        </div>
+      </div>
+      <div class="alert-item ok">
+        <div>
+          <div>Overnight standby load: 8.3 kWh. Target: under 10 kWh. ✓ Within benchmark.</div>
+          <div class="alert-time">00:00–07:00</div>
+        </div>
+      </div>
+      <div class="alert-item ok">
+        <div>
+          <div>Dishwasher shifted to off-peak window (23:30–00:30). Est. saving: £0.60 today / £219/year.</div>
+          <div class="alert-time">Automated last night</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- BENEFITS TABS -->
+<section>
+  <div class="section-label">The full picture</div>
+  <h2 class="section-title">Why monitoring pays for itself</h2>
+  <p class="section-desc">Energy monitoring isn't just a cost-cutting tool — it transforms operations, compliance, staff behaviour and your brand.</p>
+
+  <div class="tabs-nav">
+    <button class="tab-btn active" onclick="RemGuide.switchTab(this,'tab-financial')">Financial</button>
+    <button class="tab-btn" onclick="RemGuide.switchTab(this,'tab-ops')">Operational</button>
+    <button class="tab-btn" onclick="RemGuide.switchTab(this,'tab-food')">Food safety</button>
+    <button class="tab-btn" onclick="RemGuide.switchTab(this,'tab-carbon')">Carbon &amp; brand</button>
+    <button class="tab-btn" onclick="RemGuide.switchTab(this,'tab-staff')">Staff &amp; culture</button>
+  </div>
+
+  <div id="tab-financial" class="tab-panel active">
+    <div class="benefit-card">
+      <div class="benefit-icon">💷</div>
+      <div class="benefit-title">Direct utility bill reduction</div>
+      <div class="benefit-text">Real-time visibility eliminates the lag between waste and response. Traditional monthly bills arrive weeks after the waste has happened — monitoring closes that gap to seconds. UK restaurants spending £2,000/month can expect £500–£800 in monthly savings from year one.</div>
+      <div class="benefit-stat">Envigilance 2026: restaurants using comprehensive monitoring reduce costs by 25–40% in year 1. Minimum 10% reduction guaranteed by most MaaS providers.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">📉</div>
+      <div class="benefit-title">Peak demand charge avoidance</div>
+      <div class="benefit-text">UK commercial tariffs penalise peak demand heavily. Monitoring with smart scheduling shifts high-draw equipment like dishwashers and ice machines to off-peak windows, reducing both unit costs and demand charges simultaneously.</div>
+      <div class="benefit-stat">Off-peak scheduling of dishwashers and water heating can reduce energy costs by an additional 15–25% on top of consumption savings.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">🔧</div>
+      <div class="benefit-title">Maintenance cost reduction</div>
+      <div class="benefit-text">Anomaly detection catches failing equipment weeks before breakdown. A compressor working harder than normal, a fryer drawing unusual current, a refrigeration unit with unusual cycling patterns — all flagged before they become costly emergency repairs.</div>
+      <div class="benefit-stat">Best.Energy: 34% energy reduction on one refrigeration unit AND extended lifecycle from reduced compressor cycles at a European restaurant site.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">📊</div>
+      <div class="benefit-title">Multi-site benchmarking</div>
+      <div class="benefit-text">For chains, monitoring reveals which sites are outliers — consuming 40% more than comparable locations without obvious reason. This makes energy optimisation a commercial intelligence layer, not just a cost centre.</div>
+      <div class="benefit-stat">Monitoring as a Service (MaaS): for a £5,000/month utility spend, savings of £1,250–£2,000/month against a £750–£1,100 subscription — positive from day one.</div>
+    </div>
+  </div>
+
+  <div id="tab-ops" class="tab-panel">
+    <div class="benefit-card">
+      <div class="benefit-icon">⏱</div>
+      <div class="benefit-title">Early fault detection</div>
+      <div class="benefit-text">Monitoring systems alert to anomalies in real time — a walk-in cooler temperature climbing at 2am, a water leak under the dishwasher, HVAC running during closed hours. Problems are caught in minutes rather than discovered on the next bill.</div>
+      <div class="benefit-stat">Leak detection sensors under sinks, behind ice machines and near water heaters deliver alerts with the exact location the moment water is detected.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">📅</div>
+      <div class="benefit-title">Automated scheduling</div>
+      <div class="benefit-text">Equipment schedules can be automated based on booking data, opening hours and historical demand. Extraction fans ramp up before service and wind down after. Lighting adjusts with occupancy. HVAC pre-conditions rather than reacts.</div>
+      <div class="benefit-stat">Best.Energy: targeted overnight scheduling eliminated overnight energy spend on lighting not required for security — to near zero.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">📱</div>
+      <div class="benefit-title">Remote visibility for operators</div>
+      <div class="benefit-text">Area managers and group operators gain site-level visibility from a single dashboard. No wifi dependency — modern monitoring systems use cellular connectivity with their own gateway. Works with equipment of any age.</div>
+      <div class="benefit-stat">Modern monitoring installs externally — sensors clamp onto cables, mount on surfaces, or sit under fixtures — no modifications, no downtime.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">🔄</div>
+      <div class="benefit-title">Continuous improvement loop</div>
+      <div class="benefit-text">Monitoring data creates a feedback loop between action and outcome. Staff interventions are measurable. Equipment upgrades are quantified. The data builds a case for capital investment in more efficient appliances with documented payback periods.</div>
+      <div class="benefit-stat">Carbon Trust UK: even moderate efficiency improvements in catering can deliver 20% energy savings — monitoring identifies and quantifies each one.</div>
+    </div>
+  </div>
+
+  <div id="tab-food" class="tab-panel">
+    <div class="benefit-card">
+      <div class="benefit-icon">🌡</div>
+      <div class="benefit-title">Cold chain compliance</div>
+      <div class="benefit-text">Temperature monitoring protects food safety compliance under UK Food Standards Agency (FSA) and EU Regulation 852/2004. Digital logs replace manual temperature sheets with tamper-proof audit trails, reducing liability exposure.</div>
+      <div class="benefit-stat">Refrigeration compressor monitoring catches door seal failures, defrost cycle anomalies and blocked airflow — all of which push temperatures into the danger zone before any visible sign.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">📋</div>
+      <div class="benefit-title">Automated audit trails</div>
+      <div class="benefit-text">HACCP-compliant temperature logs are generated automatically with timestamps. Environmental health inspections become straightforward — data is exportable and verifiable. Manual recording errors that create compliance gaps are eliminated.</div>
+      <div class="benefit-stat">Monitoring replaces manual temperature checks with continuous recording — protecting operators from the reputational and legal consequences of a cold-chain failure.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">🚨</div>
+      <div class="benefit-title">Out-of-hours alerts</div>
+      <div class="benefit-text">A walk-in cooler failing at 2am on a Sunday — without monitoring, this might not be discovered until Monday morning with £10,000 of stock lost. With monitoring, the chef's phone alerts within minutes of temperature breach.</div>
+      <div class="benefit-stat">Alert latency: monitoring systems detect and notify refrigeration anomalies within 2–5 minutes of threshold breach — far faster than any manual check schedule.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">🛡</div>
+      <div class="benefit-title">Insurance and liability</div>
+      <div class="benefit-text">Documented monitoring logs demonstrate due diligence in food safety management. Some UK insurers now recognise continuous temperature monitoring as a risk reduction measure, with potential impact on premiums for larger operators.</div>
+      <div class="benefit-stat">Water leak monitoring prevents the mould, floor damage and slip-and-fall liability from small leaks left undetected — often far exceeding the cost of the monitoring system itself.</div>
+    </div>
+  </div>
+
+  <div id="tab-carbon" class="tab-panel">
+    <div class="benefit-card">
+      <div class="benefit-icon">🌍</div>
+      <div class="benefit-title">Scope 1 &amp; 2 emissions reduction</div>
+      <div class="benefit-text">Restaurant energy monitoring directly reduces Scope 1 (gas combustion) and Scope 2 (purchased electricity) emissions. For operators reporting under the UK's SECR (Streamlined Energy and Carbon Reporting) framework, monitored data provides defensible figures.</div>
+      <div class="benefit-stat">Budderfly: one nationally recognised brand reduced GHG emissions by 8% through smart monitoring alone — before any equipment changes.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">📣</div>
+      <div class="benefit-title">Verified sustainability credentials</div>
+      <div class="benefit-text">Monitored energy reductions are quantified and verifiable — unlike general claims about being "eco-friendly". This supports Green Restaurant Certification, B Corp applications, and supplier ESG requirements increasingly demanded by UK hotel groups and franchise partners.</div>
+      <div class="benefit-stat">Research shows customers increasingly trust sustainability claims backed by data. Verified energy monitoring output creates credible marketing content and investor-grade ESG reporting.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">🏆</div>
+      <div class="benefit-title">Net Zero pathway documentation</div>
+      <div class="benefit-text">UK government net zero targets and the EU Green Deal create increasing pressure on the hospitality sector. Continuous monitoring builds a year-on-year reduction record — exactly what Net Zero pathway documentation requires.</div>
+      <div class="benefit-stat">UK modelling (2025): enhanced refrigeration and kitchen equipment efficiency of 20% delivered a 15.7% reduction in carbon emissions at a UK quick-service restaurant site.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">💚</div>
+      <div class="benefit-title">Customer perception &amp; loyalty</div>
+      <div class="benefit-text">A growing segment of UK diners actively choose restaurants based on environmental credentials. Energy monitoring underpins these claims with data, not just intent — and can be communicated on menus, social media and booking platforms.</div>
+      <div class="benefit-stat">Budderfly: "Today's customer appreciates energy efficiency in operations... the energy efficiency frontier is becoming the new horizon for integrity and global citizenship."</div>
+    </div>
+  </div>
+
+  <div id="tab-staff" class="tab-panel">
+    <div class="benefit-card">
+      <div class="benefit-icon">👥</div>
+      <div class="benefit-title">Behaviour change through visibility</div>
+      <div class="benefit-text">The same principle that made home energy monitors reduce household consumption by 4–15% applies in restaurants. When staff can see the real-time impact of leaving equipment on, switching behaviours emerge naturally. Monitoring creates accountability without policing.</div>
+      <div class="benefit-stat">Hydro One (500 Ontario homes): 6.5% average electricity reduction from display monitors alone, before any structural changes. Restaurant staff have far more control than home residents — the effect is magnified.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">🎯</div>
+      <div class="benefit-title">Team energy targets</div>
+      <div class="benefit-text">Monitoring data enables kitchen teams to be set real, measurable energy targets. Weekly kWh benchmarks, idle equipment alerts and shift-by-shift comparisons give staff agency over an outcome that directly affects the business's profitability and planet impact.</div>
+      <div class="benefit-stat">Restaurants with staff energy training programmes see sustained savings beyond initial technology deployment — monitoring provides the data infrastructure for these programmes to work.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">📚</div>
+      <div class="benefit-title">Training and induction material</div>
+      <div class="benefit-text">Energy monitoring data feeds directly into onboarding. New staff can see what the kitchen's energy profile looks like on a busy Friday vs a quiet Tuesday. Understanding the "why" behind equipment protocols turns procedures into principles.</div>
+      <div class="benefit-stat">Simple protocols — turning off one unused fryer for 4 hours/day — save £350/year per appliance. Monitoring makes the financial case vivid and tangible for kitchen teams.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">🌱</div>
+      <div class="benefit-title">Talent attraction &amp; retention</div>
+      <div class="benefit-text">The UK hospitality sector faces persistent staffing challenges. An evidenced commitment to sustainability — particularly among younger workers — is increasingly a differentiator in attracting and retaining talent who want to work somewhere with purpose.</div>
+      <div class="benefit-stat">Sustainability commitment backed by data (not just words) is cited by hospitality workers aged 18–34 as a meaningful factor in employer choice in UK workforce surveys.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CASE STUDIES -->
+<section id="cases">
+  <div class="section-label">Real world results</div>
+  <h2 class="section-title">European &amp; UK case studies</h2>
+  <p class="section-desc">From independent bistros to multi-site chains — what happened when restaurants switched monitoring on.</p>
+
+  <div class="case-filters" aria-label="Case study filters">
+    <button type="button" class="case-filter-btn" data-filter="all">All regions</button>
+    <button type="button" class="case-filter-btn active" data-filter="uk">UK</button>
+    <button type="button" class="case-filter-btn" data-filter="eu">Europe</button>
+  </div>
+  <div class="cases-grid" id="casesGrid"></div>
+
+</section>
+
+<hr class="divider">
+
+<!-- COMPARISON TABLE -->
+<section>
+  <div class="section-label">Make the choice clear</div>
+  <h2 class="section-title">Monitored vs unmonitored</h2>
+  <p class="section-desc">A direct comparison across every dimension that matters to a UK or European restaurant operator.</p>
+
+  <div class="compare-wrap">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th style="width:30%">Area</th>
+          <th>Without monitoring</th>
+          <th class="highlight">With monitoring</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="feature-label">Energy waste visibility</td><td>Monthly bill only — weeks delayed</td><td class="highlight-col">Real-time, by equipment, by hour</td></tr>
+        <tr><td class="feature-label">Refrigeration fault detection</td><td>Discovered on next manual check</td><td class="highlight-col">Alert within 2–5 minutes of anomaly</td></tr>
+        <tr><td class="feature-label">Overnight standby cost</td><td>Unknown and uncontrolled</td><td class="highlight-col">Measured, scheduled, minimised</td></tr>
+        <tr><td class="feature-label">HVAC out-of-hours usage</td><td>Often running undetected</td><td class="highlight-col">Auto-scheduled off; alerts if deviated</td></tr>
+        <tr><td class="feature-label">Food safety temperature logs</td><td>Manual, gaps, paper-based</td><td class="highlight-col">Continuous digital, HACCP-compliant</td></tr>
+        <tr><td class="feature-label">Water leak detection</td><td>Found when damage visible</td><td class="highlight-col">Detected within seconds of event</td></tr>
+        <tr><td class="feature-label">Multi-site benchmarking</td><td class="cross">✗ Not possible</td><td class="highlight-col chk">✓ Automatic across all sites</td></tr>
+        <tr><td class="feature-label">Carbon reporting (SECR/ESG)</td><td>Estimated or manually compiled</td><td class="highlight-col">Automated, auditable data trail</td></tr>
+        <tr><td class="feature-label">Staff energy behaviour</td><td>No feedback loop</td><td class="highlight-col">Real-time dashboards drive change</td></tr>
+        <tr><td class="feature-label">Year 1 energy saving</td><td>0%</td><td class="highlight-col">25–40% (Envigilance 2026)</td></tr>
+        <tr><td class="feature-label">Equipment lifespan</td><td>Standard degradation</td><td class="highlight-col">Extended via early fault intervention</td></tr>
+        <tr><td class="feature-label">Stock loss risk</td><td>High (undetected cold chain failure)</td><td class="highlight-col">Dramatically reduced — 24/7 alerting</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- REGULATION -->
+<section id="compliance">
+  <div class="section-label">Stay ahead of the rules</div>
+  <h2 class="section-title" id="complianceLead">UK &amp; EU compliance landscape</h2>
+  <p class="section-desc" id="complianceDesc">Regulation is tightening across the board. Monitoring positions restaurants on the right side of every framework.</p>
+
+  <div class="reg-grid">
+    <div class="reg-card">
+      <div class="reg-badge uk">UK</div>
+      <div class="reg-title">SECR — Streamlined Energy &amp; Carbon Reporting</div>
+      <div class="reg-text">UK companies with 250+ employees must report energy use and GHG emissions annually. Monitoring provides the metered data needed for defensible SECR compliance — essential for multi-site restaurant groups.</div>
+    </div>
+    <div class="reg-card">
+      <div class="reg-badge eu">EU</div>
+      <div class="reg-title">EU Energy Efficiency Directive (EED)</div>
+      <div class="reg-text">Updated EED requires larger commercial operators to conduct regular energy audits and implement findings. Continuous monitoring satisfies the spirit and letter of EED audit requirements with ongoing data rather than point-in-time surveys.</div>
+    </div>
+    <div class="reg-card">
+      <div class="reg-badge uk">UK</div>
+      <div class="reg-title">Climate Change Levy (CCL)</div>
+      <div class="reg-text">UK restaurants consuming over 33 kWh electricity or 145 kWh gas per day pay CCL. Monitoring-driven reductions can bring sites below thresholds, eliminating CCL entirely — a significant and often overlooked saving.</div>
+    </div>
+    <div class="reg-card">
+      <div class="reg-badge eu">EU</div>
+      <div class="reg-title">EU Green Deal — Food Systems</div>
+      <div class="reg-text">The Farm to Fork strategy sets sustainability targets across the entire food chain, including food service. Energy monitoring is a practical first step in building the data infrastructure needed to engage with supply chain sustainability reporting.</div>
+    </div>
+    <div class="reg-card">
+      <div class="reg-badge uk">UK / EU</div>
+      <div class="reg-title">Food Safety — HACCP &amp; FSA Compliance</div>
+      <div class="reg-text">HACCP requires documented critical control point monitoring. Automated temperature monitoring eliminates manual log gaps, creates tamper-resistant records and demonstrates ongoing due diligence in FSA and EU 852/2004 audits.</div>
+    </div>
+    <div class="reg-card">
+      <div class="reg-badge net-zero">Net Zero</div>
+      <div class="reg-title">UK Net Zero 2050 Pathway</div>
+      <div class="reg-text">Commercial buildings must decarbonise as part of the UK's 2050 net zero commitment. Year-on-year monitored energy reduction data is the foundation of any credible net zero pathway for restaurant operators.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ROI TIMELINE -->
+<section id="roi">
+  <div class="section-label">The investment journey</div>
+  <div class="two-col">
+    <div>
+      <h2 class="section-title">What to expect,<br>month by month</h2>
+      <p class="section-desc">Energy monitoring pays back faster than almost any other hospitality technology investment. Here's a realistic timeline.</p>
+    </div>
+    <div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-period">Week 1–2</div>
+          <div class="timeline-title">Installation &amp; baseline</div>
+          <div class="timeline-desc">Sensors installed with no downtime, no equipment modification. Baseline energy profile established across all monitored systems. First alerts typically arrive within 48 hours as anomalies surface that were always there but invisible.</div>
+          <span class="timeline-tag">Zero disruption deployment</span>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-period">Month 1</div>
+          <div class="timeline-title">Quick wins</div>
+          <div class="timeline-desc">Overnight standby loads addressed. Extraction fan schedules corrected. First refrigeration anomalies flagged and resolved. Most operators see 10–15% reduction in the first full month from scheduling changes alone.</div>
+          <span class="timeline-tag">Typical saving: 10–15%</span>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-period">Months 2–3</div>
+          <div class="timeline-title">Behaviour shift &amp; fine-tuning</div>
+          <div class="timeline-desc">Staff respond to visibility. Kitchen teams see their shift's energy profile. Equipment maintenance triggered by anomaly data. Off-peak scheduling optimised. Month-on-month data begins to reveal seasonal and operational patterns.</div>
+          <span class="timeline-tag">Typical saving: 20–30%</span>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-period">Month 4–6</div>
+          <div class="timeline-title">Payback achieved</div>
+          <div class="timeline-desc">For most UK restaurants, the cumulative savings by month 4–6 exceed the monitoring subscription cost to date. The Burger King franchise case demonstrated payback in under 6 months on a minimal investment.</div>
+          <span class="timeline-tag">Subscription recovered</span>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-period">Year 1</div>
+          <div class="timeline-title">Full savings regime</div>
+          <div class="timeline-desc">Year-over-year comparison data available. SECR/ESG reporting populated automatically. Capital investment case built for equipment upgrades with documented payback periods. 25–40% reduction achieved for most operators.</div>
+          <span class="timeline-tag">25–40% energy reduction</span>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot future"></div>
+          <div class="timeline-period">Year 2+</div>
+          <div class="timeline-title">Compound gains</div>
+          <div class="timeline-desc">Equipment efficiency improvements layer on top of behavioural savings. Multi-site benchmarking identifies new outliers. Carbon reporting history builds a Net Zero pathway. Monitoring becomes a core operational asset, not just a cost tool.</div>
+          <span class="timeline-tag">Ongoing compound returns</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<footer>
+  <div class="footer-logo">Greenways Market</div>
+  <p class="footer-text">Helping the UK and European restaurant sector measure, manage and reduce its energy use — because visibility is the first step to change.</p>
+  <div class="footer-sources">
+    <strong>Sources &amp; references</strong><br>
+    &bull; EIA: Commercial Buildings Energy Consumption Survey, food service segment — cooking 40%, refrigeration 15%, space heating 12%<br>
+    &bull; Envigilance (2026): 25–40% year-1 savings; MaaS minimum 10% guarantee<br>
+    &bull; Carbon Trust UK: 20,600M kWh/year UK catering; 20% moderate efficiency saving; LED &gt;£100/fixture/year<br>
+    &bull; Budderfly (2025): 8% GHG reduction; 80% waste from outdated equipment (PG&amp;E/Green Restaurant Association)<br>
+    &bull; Best.Energy: 34% refrigeration reduction; 44% fryer ventilation; MENY &amp; SPAR 3M+ kWh/year, 100+ sites<br>
+    &bull; Spacewell/Nemetschek: Burger King franchise €5,500/year, payback under 6 months<br>
+    &bull; PMC/FIKElectricity (2023): Funchal restaurant kitchens, 1–5 Hz monitoring<br>
+    &bull; Energies/MDPI (March 2025): UK QSR — 20% efficiency = 15.7% CO2 reduction<br>
+    &bull; Hydro One / Wikipedia: home monitors 4–15% reduction; 500-home study 6.5%<br>
+    &bull; Utility Bidder UK (2026): £1,000–£3,200/month restaurant utility range<br>
+    &bull; Light Up Energy (2025): refrigeration 43% of electricity; small restaurants 15–25k kWh/year<br>
+    &bull; Restaurant Management UK (2024): smart HVAC saves up to 30%<br>
+    &bull; Bionic UK (2025): CCL thresholds, tariff structure, standing charges
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="./js/restaurant-energy-monitoring-guide.js"></script>
+</body>
+</html>
