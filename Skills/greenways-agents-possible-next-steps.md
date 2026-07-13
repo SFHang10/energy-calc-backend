@@ -1,5 +1,7 @@
 # Greenways Agents — Possible Next Steps
 
+**Working queue (single source now):** `Skills/greenways-agents-improvements-master.md` ⭐  
+
 **Purpose:** Working backlog of connective-tissue gaps (not new personas). Pick items one at a time; check off as shipped.  
 **Context:** Team knowledge architecture is sound for v1 — seven specialists, intents, catalogues, module tablets, handoffs, site knowledge cards, data-refresh playbook.  
 **Related:** `greenways-agents-roadmap.md` · `greenways-transition-agents.md` · `agents-data-refresh-playbook.md` · `WIX-GREENWAYS-AGENTS-EMBED.md`  
@@ -14,6 +16,7 @@
 - [x] Cross-agent routing — Orchestra hub, handoffs, module registry, admin map
 - [x] Ops hygiene — `data/agents-data-pipeline.json`, Edwardo verify, content-module sync
 - [x] Restaurant Energy Snapshot v1 mockup — `restaurant-energy-snapshot.html` + `/api/restaurant-snapshot/pilot` (commit `5ce0a5d`)
+- [x] **Site energy reading** — UK live postcode grid carbon + EU NL/ES/PT (zone benchmark until ENTSO-E key) — `site-energy-reading.html` · `/api/site-energy-reading` · module id `site-energy-reading` (commits `1ad6573`, `3681ccd`)
 
 ---
 
@@ -40,6 +43,7 @@
 
 | Step | Status | Notes |
 |------|--------|-------|
+| Register ENTSO-E API + set `ENTSOE_API_KEY` on Render for **site energy reading** (NL / ES / PT) | ☐ | [transparency.entsoe.eu](https://transparency.entsoe.eu/) → email transparency@entsoe.eu (“Restful API access”) → My Account → token → Render **Environment**. Verify: `/api/site-energy-reading/health` → `euLiveReady: true`; lookup `?country=nl&postcode=1012AB` → `live: true`, `source: ENTSO-E`. Optional: `ELECTRICITY_MAPS_API_KEY` for EU 24h forecast. |
 | Document which KPIs are live vs placeholder in agent copy | ☐ | Avoid implying live feeds when demo |
 | Wire `company-map-buildings.json` site id into member profile → agent context | ☐ | Natural link to snapshot service |
 | When `/api/dashboard/live` (or site feed) returns real data, surface in Edwardo intents | ☐ | `energy-dashboard-skill.md` |
@@ -149,6 +153,22 @@
 
 ---
 
+## Gap 10 — Cheryce doesn’t know what videos are about
+
+**Problem:** HTML modules have `usageHint` + `knowledgeBullets` in `greenways-content-modules.json`. Videos only have a one-line `description` in `wix-youtube-channels.json` / `wix-video-catalog.json` (truncated to ~90 chars in chat). Cheryce surfaces and routes videos but does **not** watch or transcribe them — she cannot explain content unless metadata is rich.
+
+| Step | Status | Notes |
+|------|--------|-------|
+| Add `data/greenways-video-knowledge.json` — per-video `summary`, `takeaways[]`, optional `agentNotes.cheryce`, `relatedModuleIds[]` | ☐ | Lightweight pointers only at runtime (no full transcript in `/ask`) |
+| Script `npm run enrich:video-knowledge` — `videoId` → YouTube captions → LLM summarise → draft rows | ☐ | Human approve before merge; store raw transcript in `content-ops/` if kept |
+| Wire `media-agent-knowledge.js` to prefer video-knowledge over card blurb when user asks “what is this video about?” | ☐ | `resolveVideoSeed` + related-video intents |
+| Extend `media-videos-admin.html` — review / edit summaries for catalog rows | ☐ | Same approval pattern as live-music media candidates |
+| Pilot **10–20** high-traffic Greenways YouTube clips + key product MP4 demos | ☐ | Start with rows that already have `videoId` in `wix-youtube-channels.json` |
+
+**Key files:** `data/wix-youtube-channels.json` · `data/wix-video-catalog.json` · `services/media-agent-knowledge.js` · `Skills/sustainability-video-finder.md` · `HTMLS GWM GWB/media-videos-admin.html`
+
+---
+
 ## What you probably don’t need (yet)
 
 - More chat personas — water-only, renovation-only, etc. are correctly folded into the seven
@@ -169,7 +189,8 @@ Work through in this order unless a launch deadline forces a swap:
 6. **Gap 6** — One regional pack (pick DE or FR first)
 7. **Gap 2** — Live meter path (when hardware/API ready)
 8. **Gap 7** — Pick one thin narrative (recycling or CBAM)
-9. **Gap 9** — Orchestra depth (when membership embed exists)
+9. **Gap 10** — Cheryce video knowledge pointers (transcript enrich + approve pilot set)
+10. **Gap 9** — Orchestra depth (when membership embed exists)
 
 ---
 
@@ -179,7 +200,9 @@ Work through in this order unless a launch deadline forces a swap:
 |------|------|-------|
 | 2026-07-10 | Doc created | Captured gap analysis from agent team review |
 | 2026-07-10 | **Sustainability glossary v1** | `data/greenways-sustainability-glossary.json` + `services/greenways-sustainability-glossary.js` — all seven agents |
-| | | |
+| 2026-07-13 | **Site energy reading module** | UK + EU NL/ES/PT postcode grid carbon; Edwardo / Vincent / Zara wiring; commits `1ad6573`, `3681ccd` |
+| 2026-07-13 | **TODO — ENTSO-E live EU grid** | Gap 2: register token + `ENTSOE_API_KEY` on Render (EU still on zone benchmark until done) |
+| 2026-07-13 | **TODO — Cheryce video knowledge** | Gap 10: per-video summary/takeaways registry + optional transcript→LLM enrich; Cheryce explains from pointers not footage |
 
 ---
 

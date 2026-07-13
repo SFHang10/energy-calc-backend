@@ -2333,6 +2333,23 @@
             
             // Check if user is admin
             checkAdminAccess();
+
+            // Store lightweight member context for Greenways agent chats (other pages/iframes).
+            // Fail-open: if anything is missing, agents just behave like public visitors.
+            try {
+                const ctx = {
+                    version: 1,
+                    updatedAt: new Date().toISOString(),
+                    memberId: currentUser?.id || null,
+                    tier: currentUser?.subscription_tier || '',
+                    status: currentUser?.subscription_status || '',
+                    siteId: '',
+                    wix: {}
+                };
+                localStorage.setItem('greenways_member_context_v1', JSON.stringify(ctx));
+            } catch (error) {
+                // ignore
+            }
         }
         
         // Check if user has admin role and show admin section

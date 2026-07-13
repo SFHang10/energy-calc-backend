@@ -8,6 +8,9 @@ const fs = require('fs/promises');
 const fsSync = require('fs');
 
 const registryPath = path.join(__dirname, '..', 'data', 'greenways-content-modules.json');
+const ROOT = path.join(__dirname, '..');
+const DEALS_FEED_PATH = path.join(ROOT, 'data', 'deals-feed.json');
+const SCHEMES_PATH = path.join(ROOT, 'schemes.json');
 
 /** Client-facing ids that map to a canonical registry row */
 const MODULE_ID_ALIASES = {
@@ -15,6 +18,7 @@ const MODULE_ID_ALIASES = {
 };
 
 let registryCache = null;
+let moduleAsOfCache = null;
 
 function resolveModuleId(moduleId) {
   const id = String(moduleId || '').trim();
@@ -47,6 +51,73 @@ function getModuleById(registry, moduleId) {
   return (registry.modules || []).find((m) => m.id === id) || null;
 }
 
+function extractIsoFromJsonHead(filePath, keys = []) {
+  try {
+    if (!fsSync.existsSync(filePath)) return '';
+    const fd = fsSync.openSync(filePath, 'r');
+    try {
+      const buf = Buffer.alloc(16000);
+      const n = fsSync.readSync(fd, buf, 0, buf.length, 0);
+      const head = buf.slice(0, n).toString('utf8');
+      for (const key of keys) {
+        const re = new RegExp(`"${key}"\\s*:\\s*"([^"]+)"`);
+        const m = head.match(re);
+        if (m && m[1]) return m[1];
+      }
+      return '';
+    } finally {
+      fsSync.closeSync(fd);
+    }
+  } catch (_) {
+    return '';
+  }
+}
+
+function formatAsOf(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return String(iso).slice(0, 10);
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function moduleAsOfMap() {
+  if (moduleAsOfCache) return moduleAsOfCache;
+  const dealsAsOf = extractIsoFromJsonHead(DEALS_FEED_PATH, ['generatedAt']) || '';
+  const schemesAsOf = extractIsoFromJsonHead(SCHEMES_PATH, ['updatedAt', 'generatedAt']) || '';
+  moduleAsOfCache = {
+    dealsAsOf,
+    schemesAsOf
+  };
+  return moduleAsOfCache;
+}
+
+function asOfSuffixForModuleId(moduleId) {
+  const id = resolveModuleId(moduleId);
+  const { dealsAsOf, schemesAsOf } = moduleAsOfMap();
+
+  // Deals feed-backed pages.
+  if (['deals-ticker', 'deals-full-page', 'deals-ticker-hub'].includes(id)) {
+    const when = formatAsOf(dealsAsOf);
+    return when ? `Data as of ${when}` : '';
+  }
+
+  // Schemes catalogue-backed portals.
+  if (['schemes-portal-restaurant', 'schemes-portal-eu'].includes(id)) {
+    const when = formatAsOf(schemesAsOf);
+    return when ? `Schemes as of ${when}` : '';
+  }
+
+  return '';
+}
+
+function appendAsOfHint(usageHint, moduleId) {
+  const base = String(usageHint || '').trim();
+  const suffix = asOfSuffixForModuleId(moduleId);
+  if (!suffix) return base;
+  if (base.toLowerCase().includes('as of') || base.toLowerCase().includes('data as of')) return base;
+  return base ? `${base} · ${suffix}` : suffix;
+}
+
 /**
  * Merge agent row overrides with registry copy (description + usageHint) and defaults.
  * @param {object} row — moduleId, optional title, portalPath/href, query, openSize
@@ -55,9 +126,10 @@ function mergeModuleRow(row = {}) {
   const registry = loadRegistrySync();
   const mod = getModuleById(registry, row.moduleId);
   const requestedId = String(row.moduleId || mod?.id || '').trim();
-  return {
+  const moduleId = requestedId || mod?.id || 'portal';
+  const merged = {
     ...row,
-    moduleId: requestedId || mod?.id || 'portal',
+    moduleId,
     title: row.title || mod?.title || 'Greenways tool',
     description: row.description || mod?.description || '',
     usageHint: row.usageHint || mod?.usageHint || '',
@@ -70,6 +142,8 @@ function mergeModuleRow(row = {}) {
       (/greenwaysmarket\.com/i.test(String(mod?.fullPageHref || '')) ? mod.fullPageHref : ''),
     openSize: row.openSize || mod?.defaultOpenSize || ''
   };
+  merged.usageHint = appendAsOfHint(merged.usageHint, moduleId);
+  return merged;
 }
 
 function modulesForAgent(registry, agentKey) {
@@ -152,11 +226,12 @@ function toModuleItem(module, profile = {}, overrides = {}) {
   if (!module) return null;
   const baseHref = resolveModuleWebHref(overrides.href || module.href);
   const modalHref = appendEmbedParams(baseHref, profile, module);
+  const usageHint = appendAsOfHint(overrides.usageHint || module.usageHint || '', overrides.moduleId || module.id);
   return {
     moduleId: overrides.moduleId || module.id,
     title: overrides.title || module.title,
     description: String(overrides.description || module.description || '').slice(0, 220),
-    usageHint: String(overrides.usageHint || module.usageHint || '').slice(0, 220),
+    usageHint: String(usageHint).slice(0, 220),
     href: modalHref,
     fullPageHref: overrides.fullPageHref || fullPageHref(baseHref),
     liveSiteHref:

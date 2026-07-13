@@ -12,8 +12,10 @@
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-team.css">
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-sidebar.css">
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-product-shortlist.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-team.js"></script>
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-sidebar.js"></script>
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-product-shortlist.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.js"></script>
 <script>
@@ -1080,6 +1082,11 @@
       <p class="sidebar-hint" id="gw-sidebar-helpers-hint"></p>
       <div class="helper-list" id="helper-list"></div>
     </div>
+    <div class="sidebar-section sidebar-section--shortlist" id="gw-sidebar-shortlist-section" hidden>
+      <div class="sidebar-label">Your shortlist <span id="gw-shortlist-count"></span></div>
+      <p class="sidebar-hint">Saved while you browse — opens on the marketplace with grants.</p>
+      <div class="gw-shortlist-list" id="gw-shortlist-list"></div>
+    </div>
     <div class="sidebar-section sidebar-section--links">
       <div class="sidebar-label">Quick links</div>
       <p class="sidebar-hint" id="gw-sidebar-links-hint"></p>
@@ -1373,6 +1380,9 @@
     const cards = renderProductCards(resolveProductSamples(samples));
     if (!cards) return;
     list.innerHTML = cards;
+    if (window.GreenwaysAgentProductShortlist) {
+      GreenwaysAgentProductShortlist.decorateBanner(list);
+    }
   }
 
   function isProductGrantsQuestion(question) {
@@ -1972,6 +1982,10 @@
       card.addEventListener("click", function () { sendQuestion(h.prompt); });
       document.getElementById("helper-list").appendChild(card);
     });
+  }
+
+  if (window.GreenwaysAgentProductShortlist) {
+    GreenwaysAgentProductShortlist.init();
   }
 
   updateCompareUi();

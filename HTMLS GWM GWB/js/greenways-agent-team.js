@@ -130,6 +130,7 @@
         : getProfile && typeof getProfile === 'object'
           ? getProfile
           : {};
+    base = mergeMemberContext(base);
     var ho = takeHandoffForAsk(currentSlug || '');
     if (!ho) return base;
     var out = {};
@@ -144,13 +145,33 @@
     return readJson(PROFILE_KEY);
   }
 
+  function readMemberContext() {
+    return readJson('greenways_member_context_v1');
+  }
+
+  function mergeMemberContext(profile) {
+    var ctx = readMemberContext();
+    if (!ctx || typeof ctx !== 'object') return profile || {};
+    var out = {};
+    Object.keys(profile || {}).forEach(function (k) {
+      out[k] = profile[k];
+    });
+    if (!out.tier && ctx.tier) out.tier = String(ctx.tier);
+    if (!out.memberId && ctx.memberId != null) out.memberId = String(ctx.memberId);
+    if (!out.siteId && ctx.siteId) out.siteId = String(ctx.siteId);
+    return out;
+  }
+
   function writeSharedProfile(profile) {
     if (!profile || typeof profile !== 'object') return;
     writeJson(PROFILE_KEY, {
       region: profile.region != null ? String(profile.region) : '',
       sector: profile.sector != null ? String(profile.sector) : '',
       focus: profile.focus != null ? String(profile.focus) : '',
-      lane: profile.lane != null ? String(profile.lane) : ''
+      lane: profile.lane != null ? String(profile.lane) : '',
+      tier: profile.tier != null ? String(profile.tier) : '',
+      memberId: profile.memberId != null ? String(profile.memberId) : '',
+      siteId: profile.siteId != null ? String(profile.siteId) : ''
     });
   }
 

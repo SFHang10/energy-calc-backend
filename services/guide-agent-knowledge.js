@@ -17,11 +17,11 @@ const SPECIALIST_LOADERS = {
 const ROUTE_TOKENS = {
   grants: ['grant', 'scheme', 'subsidy', 'mia', 'vamil', 'isde', 'deadline', 'funding'],
   finance: ['finance', 'loan', 'bnpl', 'payback', 'roi', 'warmtefonds', 'bmkb', 'energy price', 'tariff cost', '€/kwh'],
-  equipment: ['equipment', 'deep dive', 'renovation', 'insulation', 'marketplace', 'combi', 'steamer', 'hvac', 'retrofit'],
+  equipment: ['equipment', 'deep dive', 'renovation', 'insulation', 'marketplace', 'combi', 'steamer', 'hvac', 'retrofit', 'upgrade plan', 'step by step upgrade'],
   products: ['find', 'water saving', 'aerator', 'dishwasher', 'refrigerat', 'catalog', 'sust_', 'gas saving', 'efficient'],
   deals: ['deal', 'tariff', 'ticker', 'spotlight', 'switch supplier', 'weekly offer', 'deals feed'],
   media: ['news', 'video', 'policy', 'edition', 'sustainability news', 'tech news'],
-  systems: ['systems agent', 'health check', 'verify selected', 'stale feed', 'server status', 'deploy']
+  systems: ['systems agent', 'health check', 'verify selected', 'stale feed', 'server status', 'deploy', 'refresh agent data', 'agents admin', 'data pipeline']
 };
 
 let rosterCache = null;
@@ -120,6 +120,50 @@ function buildOverviewAnswer(roster, tip) {
   };
 }
 
+async function buildDataRefreshAnswer(question, roster, tip) {
+  const pipelinePath = path.join(__dirname, '..', 'data', 'agents-data-pipeline.json');
+  let pipeline = { pipeline: [], validators: [], staffLinks: {} };
+  try {
+    pipeline = JSON.parse(await fs.readFile(pipelinePath, 'utf8'));
+  } catch (_) {
+    /* use empty */
+  }
+
+  const steps = (pipeline.pipeline || [])
+    .slice(0, 6)
+    .map((s, i) => `${i + 1}. **${s.label}** — \`${s.command}\` _(${s.when})_`)
+    .join('\n');
+
+  const edwardo = findRosterEntry(roster, 'systems') || (roster.staffOnly || [])[0];
+
+  return {
+    answer:
+      `**Greenways Guide** — **staff data refresh**\n\n` +
+      `Agents read published JSON on Render; they do not rebuild catalogues themselves. Use the playbook, run matching steps locally, then verify with **Edwardo**.\n\n` +
+      `**Playbook:** \`Skills/agents-data-refresh-playbook.md\`\n` +
+      `**Grants detail:** \`Skills/grants-refresh-playbook.md\` (schemes + marketplace overlay)\n` +
+      `**Checklist:** \`npm run refresh:agents-data\` (dry-run)\n` +
+      `**After rebuild:** \`npm run validate:agent-data\`\n\n` +
+      `**Staff cockpit**\n` +
+      `- [Agents admin](${pipeline.staffLinks?.agentsAdmin || '/agents-admin.html'}) — stale badges per data file\n` +
+      `- [Network map](${pipeline.staffLinks?.agentsAdminMap || '/agents-admin-map.html'}) — handoffs + shared modules\n` +
+      `- [Edwardo verify](${pipeline.staffLinks?.systemsAgent || '/greenways/systems-agent'}) — read-only freshness checks\n\n` +
+      `**Common pipeline steps**\n${steps || '_See playbook for full order._'}\n\n` +
+      (question ? `_Your question: "${question}"_\n\n` : '') +
+      `_${tip}_`,
+    suggestions: [
+      'Which data files are stale?',
+      'How do I refresh after schemes.json changes?',
+      'Run Edwardo verify on deals and news'
+    ],
+    agentHandoffs: edwardo
+      ? [{ id: edwardo.id, name: edwardo.name, href: edwardo.path, prompt: 'Verify grants, deals, and news freshness' }]
+      : [],
+    routedTo: edwardo ? ['systems'] : [],
+    primaryAgent: edwardo?.id || 'systems'
+  };
+}
+
 function buildHandoffOnlyAnswer(entry, question, tip) {
   return {
     answer:
@@ -172,11 +216,13 @@ async function delegateToSpecialist(agentId, question, profile, roster, ranked) 
       specialist.answer +
       secondary +
       formatHandoffBlock(handoffs),
-    agentHandoffs: handoffs,
+    agentHandoffs: specialist.agentHandoffs?.length ? specialist.agentHandoffs : handoffs,
     routedTo: ranked.map((r) => r.id),
     primaryAgent: agentId,
     suggestions: specialist.suggestions || [],
-    productSamples: specialist.productSamples || []
+    productSamples: specialist.productSamples || [],
+    blocks: specialist.blocks || [],
+    intentId: specialist.intentId || null
   };
 }
 
@@ -201,6 +247,13 @@ async function answerFromKnowledge(question, profile = {}) {
     return result;
   }
 
+  if (intent?.answerType === 'data_refresh') {
+    const result = await buildDataRefreshAnswer(question, roster, tip);
+    result.source = 'orchestrator';
+    result.intentId = intent.id;
+    return result;
+  }
+
   const forced = intent?.answerType === 'route' ? intent.agent : null;
   const qLower = String(question || '').toLowerCase();
   let routeAgent = forced;
@@ -214,7 +267,11 @@ async function answerFromKnowledge(question, profile = {}) {
     buildTeamOrchestraResponse
   } = require('./guide-agent-team-evaluate');
 
-  if (shouldCollaborateAsTeam(question, profile, fullRanked)) {
+  const skipTeamForUpgradePlan =
+    intent?.id === 'route_upgrade_plan' ||
+    /\bupgrade plan\b|\bstep by step upgrade\b/.test(qLower);
+
+  if (!skipTeamForUpgradePlan && shouldCollaborateAsTeam(question, profile, fullRanked)) {
     try {
       const team = await evaluateProject(question, profile);
       const result = buildTeamOrchestraResponse(team);

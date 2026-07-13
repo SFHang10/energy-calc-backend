@@ -31,7 +31,7 @@ const AGENT_SMOOKES = [
     key: 'equipment',
     route: '/api/equipment-agent/ask',
     load: () => require(path.join(ROOT, 'services/equipment-agent-knowledge')),
-    questions: ['insulation guide restaurant', 'equipment deep dive']
+    questions: ['insulation guide restaurant', 'equipment deep dive', 'fridge upgrade plan']
   },
   {
     key: 'deals',
@@ -270,6 +270,29 @@ async function runLocalSmokes() {
     throw new Error('Artemis deep_dive: expected equipment-deep-dive module item');
   }
   console.log('OK Artemis deep dive module tablets');
+
+  const upgradePlanHit = await equipMod.answerFromKnowledge('fridge upgrade plan for my restaurant', profile);
+  if (upgradePlanHit?.intentId !== 'equipment_upgrade_plan') {
+    throw new Error('Artemis upgrade plan: expected equipment_upgrade_plan intent');
+  }
+  const upgradePlanBlock = (upgradePlanHit?.blocks || []).find((b) => b.type === 'upgrade_plan');
+  if (!upgradePlanBlock?.steps?.length) {
+    throw new Error('Artemis upgrade plan: expected upgrade_plan block with steps');
+  }
+  if (!upgradePlanBlock.totalGrantHint || !upgradePlanBlock.paybackHint) {
+    throw new Error('Artemis upgrade plan: expected grant and payback hints from scenario JSON');
+  }
+  console.log('OK Artemis fridge upgrade plan →', upgradePlanBlock.steps.length, 'steps');
+
+  const orchestraUpgradeHit = await guideMod.answerFromKnowledge('step by step fridge upgrade plan', profile);
+  if (orchestraUpgradeHit.primaryAgent !== 'equipment') {
+    throw new Error('Orchestra upgrade plan: expected route to equipment');
+  }
+  const orchestraPlan = (orchestraUpgradeHit?.blocks || []).find((b) => b.type === 'upgrade_plan');
+  if (!orchestraPlan?.steps?.length) {
+    throw new Error('Orchestra upgrade plan: expected upgrade_plan block forwarded from Artemis');
+  }
+  console.log('OK Orchestra upgrade plan route → equipment');
 
   const mediaMod = require(path.join(ROOT, 'services/media-agent-knowledge'));
   const mediaPortalHit = await mediaMod.answerFromKnowledge('where is news page', profile);

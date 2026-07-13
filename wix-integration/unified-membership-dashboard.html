@@ -661,6 +661,41 @@
             
             // Check if user is admin and show admin section
             checkAdminAccess();
+
+            // Store lightweight member context for Greenways agent chats (other pages/iframes).
+            // Fail-open: if anything is missing, agents just behave like public visitors.
+            try {
+                const marketplace = data.membership_sync?.marketplace || data.wix_sync?.marketplace || {};
+                const buildings = data.membership_sync?.buildings || data.wix_sync?.buildings || {};
+                const preferredSiteId = (marketplace && marketplace.hasAccess && marketplace.siteId)
+                    ? marketplace.siteId
+                    : (buildings && buildings.hasAccess && buildings.siteId)
+                        ? buildings.siteId
+                        : '';
+                const ctx = {
+                    version: 1,
+                    updatedAt: new Date().toISOString(),
+                    memberId: data?.member?.id || null,
+                    tier: data?.member?.subscription_tier || '',
+                    status: data?.member?.subscription_status || '',
+                    siteId: preferredSiteId || '',
+                    wix: {
+                        buildings: {
+                            siteId: buildings.siteId || '',
+                            memberId: buildings.memberId || '',
+                            hasAccess: !!buildings.hasAccess
+                        },
+                        marketplace: {
+                            siteId: marketplace.siteId || '',
+                            memberId: marketplace.memberId || '',
+                            hasAccess: !!marketplace.hasAccess
+                        }
+                    }
+                };
+                localStorage.setItem('greenways_member_context_v1', JSON.stringify(ctx));
+            } catch (error) {
+                // ignore
+            }
         }
         
         // Check if user has admin role

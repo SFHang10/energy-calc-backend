@@ -305,6 +305,56 @@
     return '<div class="video-tablets">' + heading + '<div class="video-tablets-grid">' + tablets + "</div></div>";
   }
 
+  function upgradePlanHtml(block, escapeHtml) {
+    if (!block || block.type !== "upgrade_plan") return "";
+    const steps = Array.isArray(block.steps) ? block.steps : [];
+    if (!steps.length) return "";
+    const title = escapeHtml(block.title || "Upgrade plan");
+    const summary = escapeHtml(String(block.summary || "").slice(0, 320));
+    const grantHint = block.totalGrantHint
+      ? '<p class="upgrade-plan-hint"><span class="upgrade-plan-hint-label">Grants</span> ' +
+        escapeHtml(String(block.totalGrantHint)) +
+        "</p>"
+      : "";
+    const paybackHint = block.paybackHint
+      ? '<p class="upgrade-plan-hint"><span class="upgrade-plan-hint-label">Payback</span> ' +
+        escapeHtml(String(block.paybackHint)) +
+        "</p>"
+      : "";
+    const stepRows = steps
+      .map(function (step) {
+        const order = escapeHtml(String(step.order || ""));
+        const stepTitle = escapeHtml(step.title || "Step");
+        const body = escapeHtml(String(step.body || "").slice(0, 240));
+        const moduleId = step.moduleId ? String(step.moduleId) : "";
+        const handoff = step.handoffLabel ? escapeHtml(step.handoffLabel) : "";
+        const tag = moduleId
+          ? '<span class="upgrade-plan-step-tag">Tool: ' + escapeHtml(moduleId.replace(/-/g, " ")) + "</span>"
+          : handoff
+            ? '<span class="upgrade-plan-step-tag">' + handoff + "</span>"
+            : "";
+        return (
+          '<li class="upgrade-plan-step">' +
+          '<div class="upgrade-plan-step-head">' +
+          '<span class="upgrade-plan-step-num">' + order + "</span>" +
+          '<h4 class="upgrade-plan-step-title">' + stepTitle + "</h4>" +
+          "</div>" +
+          (body ? '<p class="upgrade-plan-step-body">' + body + "</p>" : "") +
+          tag +
+          "</li>"
+        );
+      })
+      .join("");
+    return (
+      '<section class="upgrade-plan-block" aria-label="Upgrade plan">' +
+      '<h3 class="upgrade-plan-title">' + title + "</h3>" +
+      (summary ? '<p class="upgrade-plan-summary">' + summary + "</p>" : "") +
+      '<div class="upgrade-plan-hints">' + grantHint + paybackHint + "</div>" +
+      '<ol class="upgrade-plan-steps">' + stepRows + "</ol>" +
+      "</section>"
+    );
+  }
+
   function blocksHtml(blocks, escapeHtml) {
     if (!Array.isArray(blocks) || !blocks.length) return "";
     const parts = blocks.map(function (block) {
@@ -326,6 +376,7 @@
       }
       if (block.type === "module") return moduleTabletsHtml(block.items, escapeHtml);
       if (block.type === "video") return videoTabletsHtml(block, escapeHtml);
+      if (block.type === "upgrade_plan") return upgradePlanHtml(block, escapeHtml);
       return "";
     }).filter(Boolean);
     if (!parts.length) return "";
@@ -383,6 +434,9 @@
     }
     blockList.forEach(function (block) {
       if (block && block.type === "link") ordered.push(blocksHtml([block], escapeHtml));
+    });
+    blockList.forEach(function (block) {
+      if (block && block.type === "upgrade_plan") ordered.push(blocksHtml([block], escapeHtml));
     });
     blockList.forEach(function (block) {
       if (block && block.type === "module") ordered.push(blocksHtml([block], escapeHtml));

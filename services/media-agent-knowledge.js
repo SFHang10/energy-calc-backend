@@ -20,6 +20,7 @@ const {
   pageHrefWithAnchor,
   DEFAULT_SUSTAINABILITY_NEWS_HREF
 } = require('./media-news-loader');
+const { loadVideoKnowledge, findVideoPointer } = require('./greenways-video-knowledge');
 const {
   MAP_PAGE_HREF,
   loadCompanies,
@@ -298,7 +299,7 @@ const SUSTAINABILITY_STORY_ARCS = {
 
 function whyPickRelatedVideo(seed, video) {
   if (seed.channelId && video.channelId === seed.channelId && video.channelName) {
-    return `Same Wix channel · ${video.channelName}`;
+    return `Same channel · ${video.channelName}`;
   }
   if (seed.category && video.category === seed.category) {
     return VIDEO_CATEGORIES[video.category] || video.category;
@@ -1132,7 +1133,7 @@ async function buildOverviewAnswer(catalog, videos, tip, briefing) {
   return {
     answer:
       `I'm **Cheryce** — I turn sustainability headlines into **practical context**: what changed, why it matters for your bills or upgrades, and where to go next on Greenways.\n\n` +
-      `Ask about **monthly news**, the **sustainability map** (${caseStudies.length} case studies + ${directory.length} organisations), **Wix videos**, or the **energy price ticker**. I summarise here and put editions, map examples, and tools on the right.\n\n` +
+      `Ask about **monthly news**, the **sustainability map** (${caseStudies.length} case studies + ${directory.length} organisations), **videos**, or the **energy price ticker**. I summarise here and put editions, map examples, and tools on the right.\n\n` +
       `Not sure where to start? Try "latest sustainability roundup" or "organisations on the map for restaurant savings".\n\n_${tip}_`,
     suggestions: [],
     agentHandoffs: buildHandoffs(b, '', 'overview'),
@@ -1381,6 +1382,63 @@ async function buildProductVideosAnswer(question, profile, tip) {
   };
 }
 
+async function buildVideoExplainedAnswer(question, profile, tip) {
+  const { videos } = await getVideosForAgent();
+  const knowledge = await loadVideoKnowledge();
+  const pointers = Array.isArray(knowledge.items) ? knowledge.items : [];
+
+  const q = String(question || '').toLowerCase().trim();
+  const scored = (videos || [])
+    .map((v) => {
+      const hay = [v.title, v.description, v.channelName, v.channelId, ...(v.tags || [])]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      let score = 0;
+      q.split(/\s+/).filter((t) => t.length >= 4).forEach((t) => {
+        if (hay.includes(t)) score += 2;
+      });
+      if (v.videoId && q.includes(String(v.videoId).toLowerCase())) score += 50;
+      if (v.id && q.includes(String(v.id).toLowerCase())) score += 40;
+      return { v, score };
+    })
+    .sort((a, b) => b.score - a.score);
+
+  const best = scored.length ? scored[0].v : null;
+  if (!best) {
+    return {
+      answer:
+        `If you paste the **video title** (or a YouTube id), I can explain it.\n\n` +
+        `Right now I only understand clips through pointers (title + description + saved summary/takeaways), not by watching the footage.\n\n_${tip}_`,
+      suggestions: []
+    };
+  }
+
+  const pointer = findVideoPointer(pointers, best);
+  const summary = String(pointer?.summary || best.description || '').trim();
+  const takeaways = Array.isArray(pointer?.takeaways) ? pointer.takeaways : [];
+
+  const bullets = takeaways.length
+    ? `**Key takeaways:**\n${takeaways.slice(0, 5).map((t) => `- ${t}`).join('\n')}\n\n`
+    : '';
+
+  const note = pointer
+    ? ''
+    : '_(Tip: this clip only has a short description today — we can add a proper summary/takeaways pointer to improve this answer.)_\n\n';
+
+  return {
+    answer:
+      `**${best.title || 'Video'}**\n\n` +
+      (summary ? `${summary}\n\n` : '') +
+      bullets +
+      note +
+      `If you tell me what you’re trying to decide (upgrade, monitoring, retrofit), I’ll connect the clip to the right Greenways tools.\n\n_${tip}_`,
+    suggestions: [],
+    intentId: 'video_explained',
+    blocks: best ? buildVideoBlocks('Video — tap ▶', [best], 1) : []
+  };
+}
+
 async function buildWixVideosAnswer(tip) {
   const { videos, source, channels = [], youtubeCount = 0 } = await getVideosForAgent();
   const mp4Count = videos.filter((v) => v.videoUrl).length;
@@ -1398,10 +1456,10 @@ async function buildWixVideosAnswer(tip) {
   );
   return {
     answer:
-      `**Greenways video library** on [/greenways](https://www.greenwaysbuildings.com/greenways) — **14 Wix Video channels** (YouTube topic feeds) plus **marketplace product demos**.\n\n` +
+      `**Greenways video library** on [/greenways](https://www.greenwaysbuildings.com/greenways) — **14 topic channels** (YouTube feeds) plus **marketplace product demos**.\n\n` +
       `**Cheryce can see right now:** ${mp4Count} playable product MP4s + **${youtubeCount || videos.filter((v) => v.source === 'wix-youtube').length}** curated YouTube titles from your channel export (${ytCount} with ▶ embed IDs so far).\n\n` +
       `**Quick picks** below are **topic stories** — ask for a **channel by name** or say **product demo videos** for equipment walkthroughs.\n\n` +
-      `**Your Wix Video channels:**\n${channelLines}\n\n` +
+      `**Your video channels:**\n${channelLines}\n\n` +
       `_${tip}_`,
     suggestions: [
       'Show Restaurant Energy Savings videos',
@@ -1425,7 +1483,7 @@ async function buildPhotosAnswer(tip) {
     answer:
       `**Photos & visuals** on Greenways — used in news, finders, and chat banners:\n\n` +
       `${bullets}\n\n` +
-      `Images are served from **Wix Media** (static URLs). Tap a banner card to open the linked page.\n\n_${tip}_`,
+      `Images are served from the **Greenways media library** (static URLs). Tap a banner card to open the linked page.\n\n_${tip}_`,
     suggestions: []
   };
 }
@@ -1435,7 +1493,7 @@ function buildPortalsAnswer(catalog, tip) {
     answer:
       `**Media & news on Greenways** — pick a portal on the right to browse editions, references, the map, ticker, or finders.\n\n` +
       `**Monthly editions (content-ops):**\n${editionLinksBlock(catalog)}\n\n` +
-      `Videos: Wix Media library (site video sections by topic).\n\n_${tip}_`,
+      `Videos: Greenways video library (sections by topic).\n\n_${tip}_`,
     suggestions: [],
     blocks: linkOrModuleBlocks([
       toLinkItem('Sustainability news', MEDIA_PAGES.sustainabilityNews, 'Site news page'),
@@ -1705,6 +1763,10 @@ async function answerFromKnowledge(question, profile = {}) {
       case 'how_this_helps':
         result = await buildHowThisHelpsAnswer(question, catalog, profile, tip);
         result.agentHandoffs = buildHandoffs(briefing, question, 'how_this_helps');
+        break;
+      case 'video_explained':
+        result = await buildVideoExplainedAnswer(question, profile, tip);
+        result.agentHandoffs = buildHandoffs(briefing, question, 'video_explained');
         break;
       case 'video_category':
         result = await buildVideoCategoryAnswer(intent.category, tip, question, profile, intent.id);

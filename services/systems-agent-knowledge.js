@@ -20,6 +20,7 @@ const {
   buildDeepDiveSystemsAnswer,
   buildRoleResourcesAnswer
 } = require('./systems-agent-dashboard');
+const { systemsModuleBlock } = require('./systems-agent-module-blocks');
 const {
   applyPersona,
   loadAgentVoice,
@@ -199,6 +200,34 @@ async function buildReferralWelcomeAnswer(question, profile, tip) {
   };
 }
 
+function buildRestaurantSnapshotAnswer(profile, tip) {
+  const region = String(profile.region || '').trim().toLowerCase();
+  const regionParam = region.startsWith('uk.') ? 'uk' : 'nl';
+  const siteId = String(profile.siteId || '').trim();
+
+  const query = new URLSearchParams();
+  if (siteId) query.set('site', siteId);
+  if (regionParam) query.set('region', regionParam);
+
+  return {
+    answer:
+      `I can open a **Restaurant Energy Snapshot** — a quick “site brief” that helps you spot where the bill is likely coming from before you buy sensors or upgrades.\n\n` +
+      `Open the module on the right. If your membership has a saved site, it will pre-fill.\n\n_${tip}_`,
+    suggestions: [],
+    blocks: [
+      systemsModuleBlock([
+        {
+          moduleId: 'restaurant-energy-snapshot',
+          title: 'Restaurant energy snapshot',
+          usageHint: 'A quick shareable site brief before upgrades',
+          openSize: 'near-full',
+          query: query.toString() || undefined
+        }
+      ])
+    ]
+  };
+}
+
 async function answerFromKnowledge(question, profile = {}) {
   const intents = await loadIntentsFrom(intentsPath);
   const voice = await loadAgentVoice(voicePath);
@@ -260,6 +289,9 @@ async function answerFromKnowledge(question, profile = {}) {
         break;
       case 'greenways_dashboard':
         result = await buildGreenwaysDashboardAnswer(profile, tip);
+        break;
+      case 'restaurant_energy_snapshot':
+        result = buildRestaurantSnapshotAnswer(profile, tip);
         break;
       case 'dashboard_math':
         result = await buildDashboardMathAnswer(question, profile, tip);

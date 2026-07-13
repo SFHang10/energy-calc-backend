@@ -456,12 +456,42 @@ function formatTemplate(template, evidence = {}) {
   });
 }
 
-function formatCardProse(card = {}) {
-  if (card.prose) return String(card.prose).trim();
-  if (card.proseTemplate && card.evidence) {
-    return formatTemplate(card.proseTemplate, card.evidence).trim();
+function formatAsOfDate(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  const d = new Date(raw);
+  if (Number.isNaN(d.getTime())) {
+    // Handle YYYY-MM-DD style strings
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+      const parts = raw.split('-').map(Number);
+      const dd = new Date(parts[0], parts[1] - 1, parts[2]);
+      if (!Number.isNaN(dd.getTime())) {
+        return dd.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      }
+    }
+    return raw;
   }
-  if (card.claim) return String(card.claim).trim();
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function appendFreshness(prose, evidence = {}) {
+  const body = String(prose || '').trim();
+  if (!body) return body;
+  const already = /\bas of\b/i.test(body);
+  if (already) return body;
+  const generatedAt = evidence.generatedAt || evidence.generated || '';
+  const updatedAt = evidence.updatedAt || evidence.updated || '';
+  const when = formatAsOfDate(generatedAt || updatedAt);
+  if (!when) return body;
+  return `${body} _(as of ${when})_`;
+}
+
+function formatCardProse(card = {}) {
+  if (card.prose) return appendFreshness(String(card.prose).trim(), card.evidence || {});
+  if (card.proseTemplate && card.evidence) {
+    return appendFreshness(formatTemplate(card.proseTemplate, card.evidence).trim(), card.evidence || {});
+  }
+  if (card.claim) return appendFreshness(String(card.claim).trim(), card.evidence || {});
   return '';
 }
 

@@ -22,6 +22,7 @@ const {
   buildHandoffTopicSummary,
   isReferralWelcomePair
 } = require('./greenways-agent-handoff');
+const { buildUpgradePlan } = require('./greenways-upgrade-plan');
 const {
   applyPersona,
   loadAgentVoice,
@@ -850,6 +851,15 @@ function buildRenovationGrantsAnswer(schemes, profile, question, tip) {
   };
 }
 
+async function buildUpgradePlanAnswer(question, profile, tip) {
+  const plan = await buildUpgradePlan({ profile, question });
+  if (!plan?.answer) return null;
+  return {
+    ...plan,
+    answer: `${plan.answer}\n\n_${tip}_`
+  };
+}
+
 async function buildRenovationPlanAnswer(tip, guide = {}) {
   const briefing = await loadBriefing();
   const steps = briefing.workflowSteps || [
@@ -1086,6 +1096,9 @@ async function answerFromKnowledge(question, profile = {}) {
       break;
     case 'renovation_plan':
       result = await buildRenovationPlanAnswer(tip, guide);
+      break;
+    case 'upgrade_plan':
+      result = await buildUpgradePlanAnswer(question, profile, tip);
       break;
     case 'role_resources':
       result = await buildRoleResourcesAnswer(question, profile, tip);

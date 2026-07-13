@@ -346,7 +346,7 @@ async function buildMediaFallback(question, profile) {
   }
   const productSamples = await pickMediaSamples(question, profile, 3);
   const heuristicAnswer =
-    `No news or media matches for "${question}". Try **policy**, **funding**, **monthly news**, **tech news**, **Wix videos**, or the **sustainability map**.`;
+    `No news or media matches for "${question}". Try **policy**, **funding**, **monthly news**, **tech news**, **videos**, or the **sustainability map**.`;
   const llmAnswer = await callAgentLlm('media', question, profile, {
     newsItems,
     videos,
@@ -567,7 +567,10 @@ function normalizeAskProfile(body) {
     region: String(body?.profile?.region || '').trim(),
     sector: String(body?.profile?.sector || '').trim(),
     focus: String(body?.profile?.focus || '').trim(),
-    lane: String(body?.profile?.lane || '').trim().toLowerCase()
+    lane: String(body?.profile?.lane || '').trim().toLowerCase(),
+    tier: String(body?.profile?.tier || '').trim(),
+    memberId: String(body?.profile?.memberId || '').trim(),
+    siteId: String(body?.profile?.siteId || '').trim()
   };
   if (handoff) profile.handoff = handoff;
   return profile;

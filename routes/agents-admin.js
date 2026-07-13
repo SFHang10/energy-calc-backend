@@ -1,5 +1,6 @@
 const express = require('express');
 const { getOverview, getGraph, addContentModule } = require('../services/agents-admin-service');
+const { readRecentAskLogs } = require('../services/greenways-ask-logger');
 
 const router = express.Router();
 
@@ -25,6 +26,11 @@ router.get('/graph', async (req, res) => {
 
 router.get('/health', (req, res) => {
   res.json({ ok: true, service: 'agents-admin', phase: 2 });
+});
+
+router.get('/ask-logs', (req, res) => {
+  const limit = Math.min(500, Math.max(1, Number(req.query.limit) || 200));
+  res.json(readRecentAskLogs(limit));
 });
 
 router.post('/content-modules', async (req, res) => {

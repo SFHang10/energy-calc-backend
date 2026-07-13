@@ -508,6 +508,33 @@ function buildPortalsAnswer(tip) {
   };
 }
 
+function buildRestaurantSnapshotAnswer(profile, tip) {
+  const region = String(profile.region || '').trim().toLowerCase();
+  const regionParam = region.startsWith('uk.') ? 'uk' : 'nl';
+  const siteId = String(profile.siteId || '').trim();
+
+  const query = new URLSearchParams();
+  if (siteId) query.set('site', siteId);
+  if (regionParam) query.set('region', regionParam);
+
+  return {
+    answer: withTip(
+      'I can generate a **Restaurant Energy Snapshot** — a quick, shareable “site brief” style view you can use before choosing finance or grants. Open the module on the right; if you have a saved site, it will pre-fill automatically.',
+      tip
+    ),
+    blocks: [
+      financeModuleBlock([
+        {
+          moduleId: 'restaurant-energy-snapshot',
+          openSize: 'near-full',
+          query: query.toString() || undefined
+        }
+      ])
+    ],
+    suggestions: []
+  };
+}
+
 async function buildEnergyPricesAnswer(profile, tip) {
   const snapshot = await loadEnergySnapshot();
   const bullets = formatWholesaleBullets(snapshot, profile, 4);
@@ -764,6 +791,9 @@ async function answerFromKnowledge(question, profile = {}) {
       break;
     case 'portals':
       result = buildPortalsAnswer(tip);
+      break;
+    case 'restaurant_energy_snapshot':
+      result = buildRestaurantSnapshotAnswer(profile, tip);
       break;
     case 'energy_prices':
       result = await buildEnergyPricesAnswer(profile, tip);

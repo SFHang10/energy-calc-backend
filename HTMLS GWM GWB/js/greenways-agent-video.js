@@ -144,11 +144,11 @@
     var src = video && video.source;
     footEl.textContent =
       src === "wix"
-        ? "Streaming from Greenways Wix Media"
+        ? "Streaming from the Greenways media library"
         : src === "catalog"
-          ? "Greenways video catalog (Wix MP4)"
+          ? "Greenways video catalog (MP4)"
           : src === "wix-youtube"
-            ? "Greenways Wix Video channel (YouTube feed)"
+            ? "Greenways video channel (YouTube feed)"
             : "Greenways sustainable video library";
   }
 
