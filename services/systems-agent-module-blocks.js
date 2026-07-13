@@ -9,6 +9,7 @@ const SYSTEMS_MODULE = { theme: 'systems', agentName: 'Edwardo' };
 
 const TOOL_ID_MODULE_IDS = {
   'restaurant-energy-monitoring-guide': 'restaurant-energy-monitoring-guide',
+  'site-energy-reading': 'site-energy-reading',
   'energy-monitoring-guide': 'energy-monitoring',
   'smart-sensor-monitoring': 'smart-sensor-monitoring',
   'sensor-dashboard': 'sensor-dashboard',
@@ -36,6 +37,7 @@ const PORTAL_PATH_MODULE_IDS = [
   ['utility-detail', 'utility-detail'],
   ['importance%20of%20energy%20monitoring', 'energy-monitoring'],
   ['restaurant-energy-monitoring-guide', 'restaurant-energy-monitoring-guide'],
+  ['site-energy-reading', 'site-energy-reading'],
   ['smart%20sensor%20monitoring', 'smart-sensor-monitoring'],
   ['restaurant-data', 'restaurant-data'],
   ['restaurant-equipment-deep-dive', 'equipment-deep-dive'],

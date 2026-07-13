@@ -15,6 +15,9 @@
     ["sustainable_product_deal_finder_portal", "sustainable-product-finder"],
     ["restaurant-equipment-deep-dive", "equipment-deep-dive"],
     ["deals-ticker-hub", "deals-ticker"],
+    ["european_energy_deals_portal", "european-energy"],
+    ["utility-detail", "utility-detail"],
+    ["site-energy-reading", "site-energy-reading"],
     ["marketplace-about", "marketplace-about"],
     ["marketplace-home", "marketplace-home"],
     ["marketplace-hvac", "marketplace-hvac"]

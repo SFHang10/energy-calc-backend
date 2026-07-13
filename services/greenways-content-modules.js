@@ -96,6 +96,17 @@ function resolveModuleWebHref(href) {
   return rel;
 }
 
+function profileCountryFromRegion(region) {
+  const r = String(region || '').toLowerCase();
+  if (!r) return '';
+  if (r.startsWith('uk') || r.includes('united kingdom')) return 'uk';
+  if (r.includes('netherlands') || r === 'nl') return 'nl';
+  if (r.includes('spain') || r === 'es') return 'es';
+  if (r.includes('portugal') || r === 'pt') return 'pt';
+  if (r === 'eu' || r.includes('europe')) return 'nl';
+  return '';
+}
+
 function appendEmbedParams(href, profile = {}, module = {}) {
   const rel = resolveModuleWebHref(String(href || '').trim());
   if (!rel) return rel;
@@ -111,6 +122,10 @@ function appendEmbedParams(href, profile = {}, module = {}) {
   const sector = String(profile.sector || '').trim();
   if (region && (module.supportsParams || []).includes('region') && !params.has('region')) {
     params.set('region', region);
+  }
+  if ((module.supportsParams || []).includes('country') && !params.has('country')) {
+    const country = profileCountryFromRegion(region);
+    if (country) params.set('country', country);
   }
   if (sector && (module.supportsParams || []).includes('sector') && !params.has('sector')) {
     params.set('sector', sector);
@@ -203,7 +218,7 @@ const INTENT_MODULE_HINTS = {
   },
   finance: {
     overview: ['finance-finder', 'energy-prices-ticker'],
-    energy_prices: ['energy-prices-ticker', 'savings-trajectory', 'utility-detail'],
+    energy_prices: ['energy-prices-ticker', 'site-energy-reading', 'savings-trajectory', 'utility-detail'],
     price_upgrade_case: ['restaurant-energy-monitoring-guide', 'energy-prices-ticker', 'savings-projection', 'low-energy-equipment'],
     compare_tariffs: ['european-energy', 'declining-cost-renewables', 'deals-ticker'],
     renewable_costs: ['declining-cost-renewables', 'savings-projection'],
@@ -221,7 +236,7 @@ const INTENT_MODULE_HINTS = {
     sustainability_glossary: ['finance-finder', 'savings-projection'],
     scope_3: ['savings-projection', 'energy-prices-ticker'],
     explain_net_zero: ['declining-cost-renewables', 'finance-finder'],
-    explain_co2e: ['savings-projection', 'energy-cost-guide']
+    explain_co2e: ['site-energy-reading', 'savings-projection', 'energy-cost-guide']
   },
   grants: {
     overview: ['schemes-portal-restaurant', 'schemes-portal-eu', 'finance-finder'],
@@ -244,8 +259,8 @@ const INTENT_MODULE_HINTS = {
   deals: {
     overview: ['deals-full-page', 'deals-ticker', 'marketplace-home', 'european-energy'],
     deals_feed_scan: ['deals-ticker', 'deals-full-page'],
-    tariff_compare: ['european-energy', 'deals-ticker', 'energy-prices-ticker'],
-    nl_restaurant_energy: ['european-energy', 'deals-ticker'],
+    tariff_compare: ['site-energy-reading', 'european-energy', 'deals-ticker', 'energy-prices-ticker'],
+    nl_restaurant_energy: ['site-energy-reading', 'european-energy', 'deals-ticker'],
     uk_green_tariff: ['european-energy', 'deals-ticker'],
     green_tariff: ['european-energy', 'declining-cost-renewables'],
     energy_deals: ['deals-ticker', 'european-energy'],
@@ -300,13 +315,13 @@ const INTENT_MODULE_HINTS = {
   systems: {
     consumer_overview: ['restaurant-energy-monitoring-guide', 'greenways-dashboard', 'sensor-dashboard', 'energy-monitoring'],
     monitoring_why: ['restaurant-energy-monitoring-guide', 'energy-monitoring', 'smart-sensor-monitoring'],
-    sensors_restaurant: ['restaurant-energy-monitoring-guide', 'sensor-dashboard', 'greenways-dashboard'],
+    sensors_restaurant: ['site-energy-reading', 'restaurant-energy-monitoring-guide', 'sensor-dashboard', 'greenways-dashboard'],
     sensors_home: ['sensor-dashboard', 'energy-monitoring'],
     sensors_office: ['sensor-dashboard', 'greenways-dashboard'],
     monitoring_products: ['equipment-data-capture', 'sensor-dashboard'],
     greenways_dashboard: ['greenways-dashboard', 'utility-detail'],
     dashboard_math: ['greenways-dashboard', 'utility-detail'],
-    time_of_use: ['utility-detail', 'greenways-dashboard'],
+    time_of_use: ['site-energy-reading', 'utility-detail', 'greenways-dashboard'],
     etl_systems_savings: ['equipment-data-capture', 'low-energy-equipment'],
     deep_dive_systems: ['equipment-deep-dive', 'equipment-data-capture'],
     portals: ['greenways-dashboard', 'sensor-dashboard', 'utility-detail'],

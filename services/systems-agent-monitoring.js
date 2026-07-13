@@ -80,6 +80,8 @@ function greenwaysToolHelpSentence(tool = {}) {
   const byId = {
     'restaurant-energy-monitoring-guide':
       'The **restaurant energy monitoring guide** is our full UK & EU walkthrough — calculator, equipment split, demo dashboard, and case studies — I open it when a kitchen team needs the “why monitor?” story with numbers.',
+    'site-energy-reading':
+      '**Site energy reading** pulls live UK grid carbon (or NL/ES/PT zone data) from a postcode — intensity gauge, generation mix, network operator, and the cleanest 2-hour window for high-draw kitchen tasks.',
     'energy-monitoring-guide':
       'Our **energy monitoring guide** explains in everyday language why measuring use *before* a big purchase saves money — I send people here when bills feel vague and they are not sure where to start.',
     'smart-sensor-monitoring':
@@ -108,6 +110,8 @@ function greenwaysToolTabletHint(tool = {}) {
   const hints = {
     'restaurant-energy-monitoring-guide':
       'UK or Europe — set your bill, see savings estimate, equipment breakdown, and real hospitality case studies.',
+    'site-energy-reading':
+      'UK, Netherlands, Spain, or Portugal — enter postcode for grid carbon, mix, operator, and kitchen timing tips.',
     'energy-monitoring-guide':
       'Start here if monitoring is new — why measure first, and what to look for before capex.',
     'smart-sensor-monitoring':

@@ -410,6 +410,7 @@ let greenwaysModuleRouter;
 let musicVenueInquiriesRouter;
 let musicMediaCandidatesRouter;
 let restaurantSnapshotRouter;
+let siteEnergyReadingRouter;
 try {
   musicVenuesRouter = require('./routes/music-venues');
   musicGuideRouter = require('./routes/music-guide');
@@ -426,6 +427,7 @@ try {
   musicVenueInquiriesRouter = require('./routes/music-venue-inquiries');
   musicMediaCandidatesRouter = require('./routes/music-media-candidates');
   restaurantSnapshotRouter = require('./routes/restaurant-snapshot');
+  siteEnergyReadingRouter = require('./routes/site-energy-reading');
   console.log('Live music routers loaded successfully');
 } catch (error) {
   console.error('❌ Failed to load live music routers:', error.message);
@@ -444,6 +446,7 @@ try {
   musicVenueInquiriesRouter = null;
   musicMediaCandidatesRouter = null;
   restaurantSnapshotRouter = null;
+  siteEnergyReadingRouter = null;
 }
 
 function mountApiRoutes() {
@@ -527,6 +530,10 @@ function mountApiRoutes() {
   if (restaurantSnapshotRouter) {
     app.use('/api/restaurant-snapshot', restaurantSnapshotRouter);
     console.log('✅ /api/restaurant-snapshot route mounted');
+  }
+  if (siteEnergyReadingRouter) {
+    app.use('/api/site-energy-reading', siteEnergyReadingRouter);
+    console.log('✅ /api/site-energy-reading route mounted');
   }
   if (greenwaysModuleRouter) {
     app.use('/api/greenways-module', greenwaysModuleRouter);

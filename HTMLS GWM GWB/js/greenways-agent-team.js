@@ -324,6 +324,9 @@
     'importance of energy monitoring': 'energy-monitoring',
     'restaurant energy monitoring guide': 'restaurant-energy-monitoring-guide',
     'restaurant monitoring guide': 'restaurant-energy-monitoring-guide',
+    'site energy reading': 'site-energy-reading',
+    'grid carbon postcode': 'site-energy-reading',
+    'postcode grid carbon': 'site-energy-reading',
     'equipment deep dive': 'equipment-deep-dive',
     'sustainability map': 'sustainability-map'
   };

@@ -65,6 +65,7 @@
     ["utility-detail", "utility-detail"],
     ["importance%20of%20energy%20monitoring", "energy-monitoring"],
     ["restaurant-energy-monitoring-guide", "restaurant-energy-monitoring-guide"],
+    ["site-energy-reading", "site-energy-reading"],
     ["january%20sustainable%20news", "sustainability-news-page"],
     ["sustainability-news", "sustainability-news-edition"],
     ["new-in-tech", "tech-news-edition"],
@@ -237,6 +238,15 @@
       description: "UK & Europe interactive guide — calculator, equipment split, demo dashboard, and hospitality case studies.",
       usageHint: "Choose UK or Europe, set your monthly bill, explore equipment categories, then pair with Edwardo or Vincent for next steps.",
       href: "./restaurant-energy-monitoring-guide.html",
+      defaultOpenSize: "near-full"
+    },
+    "site-energy-reading": {
+      id: "site-energy-reading",
+      title: "Site energy reading",
+      description: "UK + EU postcode lookup — grid carbon intensity, generation mix, network operator, and 24h kitchen timing window.",
+      usageHint: "Pick UK, Netherlands, Spain, or Portugal, enter the site postcode, then schedule high-draw prep in the cleanest window.",
+      href: "./site-energy-reading.html",
+      supportsParams: ["country", "region", "postcode"],
       defaultOpenSize: "near-full"
     },
     "sensor-dashboard": {
@@ -531,6 +541,37 @@
     return global.location.origin + path.split("?")[0];
   }
 
+  function readEmbedProfile() {
+    try {
+      if (global.GreenwaysAgentTeam && typeof global.GreenwaysAgentTeam.readSharedProfile === "function") {
+        return global.GreenwaysAgentTeam.readSharedProfile() || {};
+      }
+      var raw = global.sessionStorage.getItem("gw-team-profile-v1");
+      return raw ? JSON.parse(raw) : {};
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function profileCountryFromRegion(region) {
+    var r = String(region || "").toLowerCase();
+    if (!r) return "";
+    if (r.indexOf("uk") === 0 || r.indexOf("united kingdom") >= 0) return "uk";
+    if (r.indexOf("netherlands") >= 0 || r === "nl") return "nl";
+    if (r.indexOf("spain") >= 0 || r === "es") return "es";
+    if (r.indexOf("portugal") >= 0 || r === "pt") return "pt";
+    if (r === "eu" || r.indexOf("europe") >= 0) return "nl";
+    return "";
+  }
+
+  function moduleSupportsParam(moduleId, param) {
+    var id = String(moduleId || "").trim();
+    if (!id) return false;
+    var reg = moduleRegistryById[id] || staticModuleForId(id);
+    var supports = (reg && reg.supportsParams) || [];
+    return supports.indexOf(param) >= 0;
+  }
+
   function appendEmbedParams(href, item) {
     var url = resolveModuleWebHref(String(href || "").trim());
     if (!url) return url;
@@ -543,6 +584,16 @@
     if (!params.has("embed")) params.set("embed", "1");
     if (!params.has("popup")) params.set("popup", "1");
     if (!params.has("return")) params.set("return", agentReturnUrl());
+    var moduleId = item && (item.moduleId || "");
+    var profile = readEmbedProfile();
+    var region = String(profile.region || "").trim();
+    if (region && moduleSupportsParam(moduleId, "region") && !params.has("region")) {
+      params.set("region", region);
+    }
+    if (moduleSupportsParam(moduleId, "country") && !params.has("country")) {
+      var country = profileCountryFromRegion(region);
+      if (country) params.set("country", country);
+    }
     var q = params.toString();
     return (q ? pathPart + "?" + q : pathPart) + hash;
   }

@@ -93,8 +93,9 @@ async function buildTimeOfUseAnswer(profile, tip) {
     answer:
       `**${tou.headline || 'When you use energy matters'}**\n\n` +
       `${(tou.points || []).map((p) => `- ${p}`).join('\n')}\n\n` +
-      `**For a ${profile.sector || 'restaurant'}:** open the **24h trend** on ${PORTAL_LINKS.utilityDetail}?type=electricity — identify peak band, then ask Artemis which ETL equipment lowers baseline vs peak.\n\n` +
+      `**For a ${profile.sector || 'restaurant'}:** open **Site energy reading** with your postcode for live grid carbon and the cleanest 2-hour window — or the **24h trend** on ${PORTAL_LINKS.utilityDetail}?type=electricity for peak bands, then ask Artemis which ETL equipment lowers baseline vs peak.\n\n` +
       `**Finance angle:** Vincent can model payback if you shift load *and* upgrade — Edwardo shows *where* the kWh lives.\n\n_${tip}_`,
+    blocks: systemsModuleBlock([{ moduleId: 'site-energy-reading', openSize: 'near-full' }]),
     suggestions: []
   };
 }

@@ -39,6 +39,7 @@ function rankTools(tools, question, limit = 8) {
     if (/ticker|wholesale|price/.test(q) && tool.category === 'prices') score += 6;
     if (/projection|payback|roi|trajectory/.test(q) && tool.category === 'payback') score += 6;
     if (/renewable|solar|wind|lcoe|irena/.test(q) && tool.id === 'declining-cost-renewables') score += 10;
+    if (/carbon|postcode|grid intensity|gco2|generation mix/.test(q) && tool.id === 'site-energy-reading') score += 10;
     if (/calculator|compare|etl/.test(q) && tool.id === 'energy-calculator') score += 8;
     return { tool, score };
   });
@@ -71,6 +72,7 @@ const TOOL_MODULE_IDS = {
   'restaurant-data': 'restaurant-data',
   'tariff-compare': 'european-energy',
   'restaurant-energy-monitoring-guide': 'restaurant-energy-monitoring-guide',
+  'site-energy-reading': 'site-energy-reading',
   'energy-monitoring': 'energy-monitoring',
   'low-energy-equipment': 'low-energy-equipment',
   'discover-savings': 'discover-savings',

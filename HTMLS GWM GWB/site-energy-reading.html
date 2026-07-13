@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Site Energy Reading — Greenways Market</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#171c1a;
+    --panel:#1f2622;
+    --panel-raised:#26302a;
+    --hairline:#37423b;
+    --cream:#f2efe4;
+    --muted:#93a099;
+    --amber:#e8a33d;
+    --amber-dim:#a9782f;
+    --teal:#4fa097;
+    --clay:#c1544c;
+    --clay-dim:#8a423d;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--cream);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:32px 20px 80px;}
+
+  /* ---------- Header / meter panel ---------- */
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin:0 0 10px;
+  }
+  h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:clamp(28px,4.5vw,42px);
+    line-height:1.08;
+    margin:0 0 12px;
+    letter-spacing:-0.01em;
+  }
+  .lede{
+    color:var(--muted);
+    font-size:15.5px;
+    line-height:1.55;
+    max-width:56ch;
+    margin:0 0 28px;
+  }
+
+  .search-panel{
+    background:var(--panel);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    padding:18px;
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .search-panel .plug{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:.05em;
+    white-space:nowrap;
+    padding-right:4px;
+  }
+  #postcode{
+    flex:1;
+    min-width:0;
+    background:var(--ink);
+    border:1px solid var(--hairline);
+    border-radius:8px;
+    padding:12px 14px;
+    color:var(--cream);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:16px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+  }
+  #postcode::placeholder{color:#5b655e;text-transform:none;letter-spacing:0;}
+  #postcode:focus{outline:2px solid var(--amber);outline-offset:1px;}
+  button{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:15px;
+    background:var(--amber);
+    color:var(--ink);
+    border:none;
+    border-radius:8px;
+    padding:12px 20px;
+    cursor:pointer;
+    transition:background .15s ease, transform .1s ease;
+  }
+  button:hover{background:#f2b455;}
+  button:active{transform:translateY(1px);}
+  button:focus-visible{outline:2px solid var(--cream);outline-offset:2px;}
+  button:disabled{background:var(--amber-dim);cursor:wait;}
+
+  .status-line{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:var(--muted);
+    margin:12px 2px 0;
+    min-height:16px;
+  }
+  .status-line.err{color:var(--clay);}
+
+  /* ---------- Results ---------- */
+  #results{margin-top:36px;display:none;}
+  #results.show{display:block;}
+
+  .locality{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--muted);
+    margin-bottom:18px;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--hairline);
+  }
+  .locality b{color:var(--cream);font-weight:500;}
+
+  .grid{
+    display:grid;
+    grid-template-columns:1.15fr 0.85fr;
+    gap:18px;
+  }
+  @media (max-width:680px){ .grid{grid-template-columns:1fr;} }
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    padding:22px;
+  }
+  .card h2{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:14px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    margin:0 0 4px;
+    color:var(--cream);
+  }
+  .card .sub{
+    font-size:12.5px;
+    color:var(--muted);
+    margin:0 0 18px;
+  }
+
+  /* Gauge */
+  .gauge-card{grid-column:1 / -1;}
+  .gauge-body{display:flex;gap:28px;align-items:center;flex-wrap:wrap;}
+  .gauge-face{width:240px;flex:0 0 240px;}
+  .readout{flex:1;min-width:200px;}
+  .readout .index-label{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:26px;
+    font-weight:700;
+    margin:0 0 4px;
+  }
+  .readout .gco2{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:14px;
+    color:var(--muted);
+    margin:0 0 16px;
+  }
+  .readout .gco2 span{color:var(--cream);font-size:16px;}
+  .readout p{font-size:13.5px;color:var(--muted);line-height:1.55;margin:0;}
+
+  /* Generation mix */
+  .mix-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;}
+  .mix-fuel{width:64px;flex:0 0 64px;color:var(--muted);text-transform:capitalize;}
+  .mix-bar-track{flex:1;height:8px;background:var(--panel-raised);border-radius:4px;overflow:hidden;}
+  .mix-bar-fill{height:100%;border-radius:4px;background:var(--teal);}
+  .mix-pct{width:38px;flex:0 0 38px;text-align:right;color:var(--cream);}
+
+  /* DNO card */
+  .kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--hairline);font-size:13.5px;}
+  .kv:last-child{border-bottom:none;}
+  .kv .k{color:var(--muted);}
+  .kv .v{color:var(--cream);font-weight:500;text-align:right;}
+
+  /* Recommendations */
+  .rec-card{grid-column:1 / -1;}
+  .rec-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:14px 22px;}
+  @media (max-width:680px){ .rec-list{grid-template-columns:1fr;} }
+  .rec-list li{
+    font-size:13.5px;
+    line-height:1.55;
+    color:var(--cream);
+    padding-left:20px;
+    position:relative;
+  }
+  .rec-list li::before{
+    content:"";
+    position:absolute;left:0;top:6px;
+    width:8px;height:8px;border-radius:2px;
+    background:var(--amber);
+  }
+  .rec-list b{display:block;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;margin-bottom:2px;}
+
+  /* Forecast */
+  .forecast-card{grid-column:1 / -1;}
+  .forecast-callout{
+    font-size:13.5px;
+    color:var(--cream);
+    background:var(--panel-raised);
+    border:1px solid var(--hairline);
+    border-radius:10px;
+    padding:12px 14px;
+    margin-bottom:18px;
+    line-height:1.5;
+  }
+  .forecast-callout b{color:var(--amber);}
+  .forecast-chart{
+    display:flex;
+    align-items:flex-end;
+    gap:3px;
+    height:80px;
+    overflow-x:auto;
+    padding-bottom:2px;
+  }
+  .fbar{
+    flex:0 0 auto;
+    width:9px;
+    border-radius:2px 2px 0 0;
+    min-height:4px;
+    cursor:default;
+  }
+  .fbar.best{outline:1.5px solid var(--cream);outline-offset:0;}
+  .forecast-axis{
+    display:flex;
+    justify-content:space-between;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:var(--muted);
+    margin-top:8px;
+    padding:0 1px;
+  }
+  .forecast-legend{
+    display:flex;
+    gap:16px;
+    margin-top:14px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--muted);
+    flex-wrap:wrap;
+  }
+  .forecast-legend span{display:inline-flex;align-items:center;gap:5px;}
+  .forecast-legend i{width:8px;height:8px;border-radius:2px;display:inline-block;}
+
+  footer{
+    margin-top:30px;
+    font-size:11.5px;
+    color:#5b655e;
+    line-height:1.6;
+    border-top:1px solid var(--hairline);
+    padding-top:16px;
+  }
+  footer a{color:var(--muted);}
+
+  .country-bar {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 18px;
+    padding: 10px 14px;
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+  }
+  .country-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+  }
+  .country-btn {
+    background: var(--panel-raised);
+    border: 1px solid var(--hairline);
+    color: var(--muted);
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .country-btn.active {
+    background: rgba(79, 160, 151, 0.2);
+    border-color: var(--teal);
+    color: var(--cream);
+  }
+  body.embed-mode .wrap { padding-top: 16px; padding-bottom: 40px; }
+  body.embed-mode footer { display: none; }
+  body.embed-mode .country-bar { margin-bottom: 14px; }
+
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 100px;
+    margin-bottom: 14px;
+  }
+  .live-badge.is-live {
+    background: rgba(79, 160, 151, 0.15);
+    border: 1px solid rgba(79, 160, 151, 0.45);
+    color: #9fd4cc;
+  }
+  .live-badge.is-benchmark {
+    background: rgba(232, 163, 61, 0.12);
+    border: 1px solid rgba(232, 163, 61, 0.4);
+    color: var(--amber);
+  }
+  .result-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .result-chip {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    background: var(--panel-raised);
+    border: 1px solid var(--hairline);
+    color: var(--cream);
+    padding: 8px 14px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .result-chip:hover {
+    border-color: var(--teal);
+    background: rgba(79, 160, 151, 0.12);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Greenways Market — Site Energy Reading</p>
+  <h1>What's your premises working with?</h1>
+  <p class="lede" id="heroLede">Enter a UK postcode to pull the live carbon intensity of the local grid, the current generation mix, and the network operator for that site — plus what it means for running a kitchen there.</p>
+
+  <div class="country-bar" aria-label="Country selector">
+    <span class="country-label">Market</span>
+    <button type="button" class="country-btn active" data-country="uk">🇬🇧 UK</button>
+    <button type="button" class="country-btn" data-country="nl">🇳🇱 Netherlands</button>
+    <button type="button" class="country-btn" data-country="es">🇪🇸 Spain</button>
+    <button type="button" class="country-btn" data-country="pt">🇵🇹 Portugal</button>
+  </div>
+
+  <div class="search-panel">
+    <span class="plug" id="postcodeLabel">POSTCODE</span>
+    <input id="postcode" type="text" placeholder="e.g. SW1A 1AA" maxlength="8" autocomplete="off" spellcheck="false">
+    <button id="lookupBtn">Read site</button>
+  </div>
+  <p class="status-line" id="status"></p>
+
+  <div id="results">
+    <p class="locality" id="locality"></p>
+    <p class="live-badge" id="liveBadge" hidden></p>
+    <div class="result-links" id="resultLinks" hidden>
+      <button type="button" class="result-chip" data-module-id="european-energy">Compare tariffs →</button>
+      <button type="button" class="result-chip" data-module-id="utility-detail" data-module-query="type=electricity">Site utility view →</button>
+    </div>
+
+    <div class="grid">
+      <div class="card gauge-card">
+        <h2>Grid carbon intensity, right now</h2>
+        <p class="sub">How carbon-heavy the electricity on this part of the grid is at this moment</p>
+        <div class="gauge-body">
+          <div class="gauge-face">
+            <svg id="gaugeSvg" viewBox="0 0 240 150" width="100%" height="auto">
+              <!-- zones -->
+              <path d="M 20 130 A 100 100 0 0 1 60.4 51.7" fill="none" stroke="#4fa097" stroke-width="16" stroke-linecap="round"/>
+              <path d="M 60.4 51.7 A 100 100 0 0 1 105.9 21.2" fill="none" stroke="#7fae5e" stroke-width="16" stroke-linecap="round"/>
+              <path d="M 105.9 21.2 A 100 100 0 0 1 134.1 21.2" fill="none" stroke="#e8a33d" stroke-width="16" stroke-linecap="round"/>
+              <path d="M 134.1 21.2 A 100 100 0 0 1 179.6 51.7" fill="none" stroke="#cf7a3d" stroke-width="16" stroke-linecap="round"/>
+              <path d="M 179.6 51.7 A 100 100 0 0 1 220 130" fill="none" stroke="#c1544c" stroke-width="16" stroke-linecap="round"/>
+              <!-- needle -->
+              <g id="needle" transform="rotate(-90 120 130)" style="transition: transform 1.1s cubic-bezier(.4,1.4,.4,1);">
+                <line x1="120" y1="130" x2="120" y2="42" stroke="#f2efe4" stroke-width="3" stroke-linecap="round"/>
+              </g>
+              <circle cx="120" cy="130" r="7" fill="#f2efe4"/>
+              <text x="20" y="146" font-family="IBM Plex Mono" font-size="9" fill="#93a099">LOW</text>
+              <text x="185" y="146" font-family="IBM Plex Mono" font-size="9" fill="#93a099">HIGH</text>
+            </svg>
+          </div>
+          <div class="readout">
+            <p class="index-label" id="indexLabel">—</p>
+            <p class="gco2" id="gco2Label">Forecast intensity: <span>—</span></p>
+            <p id="indexNote">Search a postcode to read the current grid position.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card forecast-card">
+        <h2>Next 24 hours</h2>
+        <p class="sub">Forecast carbon intensity in 30-minute steps, so energy-heavy tasks can be timed around it</p>
+        <div class="forecast-callout" id="forecastCallout">Loading forecast…</div>
+        <div class="forecast-chart" id="forecastChart"></div>
+        <div class="forecast-axis" id="forecastAxis"></div>
+        <div class="forecast-legend">
+          <span><i style="background:#4fa097"></i>Very low</span>
+          <span><i style="background:#7fae5e"></i>Low</span>
+          <span><i style="background:#e8a33d"></i>Moderate</span>
+          <span><i style="background:#cf7a3d"></i>High</span>
+          <span><i style="background:#c1544c"></i>Very high</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Generation mix</h2>
+        <p class="sub">What's actually filling the grid right now</p>
+        <div id="mixList"></div>
+      </div>
+
+      <div class="card">
+        <h2>Network &amp; area</h2>
+        <p class="sub">Who runs the wires, and where you sit</p>
+        <div id="areaList"></div>
+      </div>
+
+      <div class="card rec-card">
+        <h2>What this means for the kitchen</h2>
+        <p class="sub">Tailored to the current reading — not generic advice</p>
+        <ul class="rec-list" id="recList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p id="sourceNote">UK: live Carbon Intensity API + postcodes.io. EU (NL, ES, PT): geocoded via OpenStreetMap; live mix when ENTSO-E or Electricity Maps keys are set on Render, otherwise zone benchmark.</p>
+    UK power cuts: call <b>105</b> free. Netherlands outages: check your DSO (e.g. Liander, Stedin). Spain/Portugal: contact your local distribuidora. Building EPCs are not included — use the official national register for the site.
+  </footer>
+</div>
+
+<script src="./js/site-energy-reading.js"></script>
+</body>
+</html>
