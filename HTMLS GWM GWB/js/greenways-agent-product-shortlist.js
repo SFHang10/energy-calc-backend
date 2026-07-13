@@ -1,6 +1,6 @@
 /**
  * Greenways product shortlist — sessionStorage pilot for agent banner cards.
- * GreenwaysAgentProductShortlist.init({ bannerSelector, sidebarListId, sidebarSectionId })
+ * GreenwaysAgentProductShortlist.init({ bannerSelector, sidebarListId, agentSlug, agentName })
  */
 (function (global) {
   "use strict";
@@ -58,7 +58,12 @@
   }
 
   function marketplaceHrefFor(id, existing) {
-    if (existing) return String(existing);
+    if (existing) {
+      var href = String(existing).trim();
+      if (/^https?:\/\//i.test(href)) return href;
+      if (href.charAt(0) === "/") return href;
+      return "/" + href.replace(/^\.\//, "");
+    }
     if (!id) return "";
     return "/product-page-v2-marketplace.html?product=" + encodeURIComponent(id) + "&fromPopup=true";
   }
@@ -90,6 +95,11 @@
       return String(row.id) !== String(id);
     });
     writeShortlist(list);
+    return true;
+  }
+
+  function clearAll() {
+    writeShortlist([]);
     return true;
   }
 
@@ -131,13 +141,19 @@
     btn.setAttribute("aria-pressed", saved ? "true" : "false");
   }
 
-  function decorateBanner(listEl) {
+  function decorateContainer(listEl) {
     if (!listEl) return;
     listEl.querySelectorAll(".product-sample-card").forEach(function (card) {
       var link = card.querySelector('a.product-sample-link[href*="product="]');
       if (!link) return;
       var id = extractProductId(link.getAttribute("href") || "");
       if (!isShortlistableId(id)) return;
+
+      var normalizedHref = marketplaceHrefFor(id, link.getAttribute("href") || "");
+      link.setAttribute("href", normalizedHref);
+      link.setAttribute("target", "_top");
+      link.setAttribute("rel", "noopener");
+      link.setAttribute("title", "Open on marketplace with grants");
 
       var titleEl = card.querySelector(".product-sample-name");
       var title = titleEl ? titleEl.textContent.trim() : id;
@@ -149,14 +165,14 @@
         btn.className = "product-shortlist-btn";
         btn.setAttribute("data-shortlist-id", id);
         btn.setAttribute("data-shortlist-title", title);
-        btn.setAttribute("data-shortlist-href", link.getAttribute("href") || "");
+        btn.setAttribute("data-shortlist-href", normalizedHref);
         btn.addEventListener("click", function (e) {
           e.preventDefault();
           e.stopPropagation();
           var saved = toggleItem({
             id: id,
             title: btn.getAttribute("data-shortlist-title") || title,
-            marketplaceHref: btn.getAttribute("data-shortlist-href") || ""
+            marketplaceHref: btn.getAttribute("data-shortlist-href") || normalizedHref
           });
           syncButton(btn);
           showToast(saved ? "Added to your shortlist" : "Removed from shortlist");
@@ -168,10 +184,86 @@
       } else {
         btn.setAttribute("data-shortlist-id", id);
         btn.setAttribute("data-shortlist-title", title);
-        btn.setAttribute("data-shortlist-href", link.getAttribute("href") || "");
+        btn.setAttribute("data-shortlist-href", normalizedHref);
       }
       syncButton(btn);
     });
+  }
+
+  function decorateAll() {
+    decorateContainer(document.querySelector(state.bannerSelector || "#top-product-samples"));
+    document.querySelectorAll(".product-samples .product-sample-card").forEach(function (card) {
+      var parent = card.parentElement;
+      if (parent) decorateContainer(parent);
+    });
+  }
+
+  function readProfile() {
+    try {
+      if (global.GreenwaysAgentTeam && typeof global.GreenwaysAgentTeam.readSharedProfile === "function") {
+        return global.GreenwaysAgentTeam.readSharedProfile() || {};
+      }
+      var raw = global.sessionStorage.getItem("gw-team-profile-v1");
+      return raw ? JSON.parse(raw) : {};
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function openMarketplaceTop(href) {
+    var url = marketplaceHrefFor("", href) || String(href || "").trim();
+    if (!url) return;
+    try {
+      global.top.location.href = url.charAt(0) === "/" ? url : "/" + url.replace(/^\.\//, "");
+    } catch (_) {
+      global.location.href = url;
+    }
+  }
+
+  function handoffToGrants(items) {
+    if (!items.length) return;
+    var names = items
+      .map(function (row) {
+        return row.title || row.id;
+      })
+      .slice(0, 4)
+      .join(", ");
+    var question = "Which grants apply to my shortlisted products: " + names + "?";
+    var profile = readProfile();
+    if (global.GreenwaysAgentTeam && typeof global.GreenwaysAgentTeam.writeHandoff === "function") {
+      global.GreenwaysAgentTeam.writeHandoff({
+        fromSlug: state.agentSlug || "sustainable-products-agent",
+        fromName: state.agentName || "Agent",
+        toSlug: "grants-agent",
+        question: question,
+        summary: "Shortlist: " + names,
+        topicSummary: "you saved " + items.length + " product(s) to your shortlist",
+        fromIntentId: "product_shortlist",
+        handoffKey: "",
+        profile: profile
+      });
+      if (profile && typeof global.GreenwaysAgentTeam.writeSharedProfile === "function") {
+        global.GreenwaysAgentTeam.writeSharedProfile(profile);
+      }
+    }
+    try {
+      global.top.location.href = "/greenways/grants-agent?q=" + encodeURIComponent(question);
+    } catch (_) {
+      global.location.href = "/greenways/grants-agent?q=" + encodeURIComponent(question);
+    }
+  }
+
+  function ensureSidebarActions(mount) {
+    if (!mount) return null;
+    var section = document.getElementById(state.sidebarSectionId || "gw-sidebar-shortlist-section");
+    var actions = document.getElementById("gw-shortlist-actions");
+    if (!actions && section) {
+      actions = document.createElement("div");
+      actions.id = "gw-shortlist-actions";
+      actions.className = "gw-shortlist-actions";
+      section.appendChild(actions);
+    }
+    return actions;
   }
 
   function renderSidebar() {
@@ -201,6 +293,7 @@
       open.href = row.marketplaceHref || marketplaceHrefFor(row.id);
       open.target = "_top";
       open.rel = "noopener";
+      open.title = "Open on marketplace with grants";
       open.textContent = "Open";
 
       var remove = document.createElement("button");
@@ -211,7 +304,7 @@
         removeItem(row.id);
         showToast("Removed from shortlist");
         renderSidebar();
-        decorateBanner(document.querySelector(state.bannerSelector || "#top-product-samples"));
+        decorateAll();
       });
 
       actions.appendChild(open);
@@ -220,14 +313,75 @@
       item.appendChild(actions);
       mount.appendChild(item);
     });
+
+    var footer = ensureSidebarActions(mount);
+    if (footer) {
+      footer.replaceChildren();
+      if (items.length) {
+        var grantsBtn = document.createElement("button");
+        grantsBtn.type = "button";
+        grantsBtn.className = "gw-shortlist-grants";
+        grantsBtn.textContent = "Check grants with Andrieus";
+        grantsBtn.addEventListener("click", function () {
+          handoffToGrants(items);
+        });
+
+        var clearBtn = document.createElement("button");
+        clearBtn.type = "button";
+        clearBtn.className = "gw-shortlist-clear";
+        clearBtn.textContent = "Clear shortlist";
+        clearBtn.addEventListener("click", function () {
+          clearAll();
+          showToast("Shortlist cleared");
+          renderSidebar();
+          decorateAll();
+        });
+
+        footer.appendChild(grantsBtn);
+        footer.appendChild(clearBtn);
+      }
+    }
   }
 
   var state = {
     bannerSelector: "#top-product-samples",
     sidebarListId: "gw-shortlist-list",
     sidebarSectionId: "gw-sidebar-shortlist-section",
-    sidebarCountId: "gw-shortlist-count"
+    sidebarCountId: "gw-shortlist-count",
+    agentSlug: "sustainable-products-agent",
+    agentName: "Agent"
   };
+
+  var embedListenerBound = false;
+
+  function bindEmbedMessages() {
+    if (embedListenerBound) return;
+    embedListenerBound = true;
+    global.addEventListener("message", function (event) {
+      var data = event && event.data;
+      if (!data || typeof data !== "object") return;
+
+      if (data.type === "gw-open-marketplace") {
+        var productId = String(data.productId || data.id || "").trim();
+        var href = data.marketplaceHref || (productId ? marketplaceHrefFor(productId) : "");
+        if (href) openMarketplaceTop(href);
+        return;
+      }
+
+      if (data.type === "gw-shortlist-toggle") {
+        var id = String(data.id || "").trim();
+        if (!isShortlistableId(id)) return;
+        var saved = toggleItem({
+          id: id,
+          title: data.title || id,
+          marketplaceHref: data.marketplaceHref || marketplaceHrefFor(id)
+        });
+        showToast(saved ? "Added to your shortlist" : "Removed from shortlist");
+        renderSidebar();
+        decorateAll();
+      }
+    });
+  }
 
   function init(opts) {
     opts = opts || {};
@@ -235,13 +389,16 @@
     state.sidebarListId = opts.sidebarListId || state.sidebarListId;
     state.sidebarSectionId = opts.sidebarSectionId || state.sidebarSectionId;
     state.sidebarCountId = opts.sidebarCountId || state.sidebarCountId;
+    state.agentSlug = opts.agentSlug || state.agentSlug;
+    state.agentName = opts.agentName || state.agentName;
 
+    bindEmbedMessages();
     renderSidebar();
-    decorateBanner(document.querySelector(state.bannerSelector));
+    decorateAll();
 
     global.addEventListener("gw-shortlist-change", function () {
       renderSidebar();
-      decorateBanner(document.querySelector(state.bannerSelector));
+      decorateAll();
     });
   }
 
@@ -251,10 +408,15 @@
     readShortlist: readShortlist,
     addItem: addItem,
     removeItem: removeItem,
+    clearAll: clearAll,
     toggleItem: toggleItem,
     isSaved: isSaved,
-    decorateBanner: decorateBanner,
+    decorateBanner: decorateContainer,
+    decorateContainer: decorateContainer,
+    decorateAll: decorateAll,
     renderSidebar: renderSidebar,
-    showToast: showToast
+    showToast: showToast,
+    marketplaceHrefFor: marketplaceHrefFor,
+    openMarketplaceTop: openMarketplaceTop
   };
 })(typeof window !== "undefined" ? window : globalThis);

@@ -19,7 +19,8 @@ const {
 const {
   applyPersona,
   loadAgentVoice,
-  pickTip
+  pickTip,
+  agentIntroParagraph
 } = require('./greenways-agent-persona');
 const { mergeModuleRow, loadRegistrySync, getModuleById, enrichKnowledgeAnswer } = require('./greenways-content-modules');
 const { resolveGlossaryFromIntent, tryBuildGlossaryAnswer } = require('./greenways-sustainability-glossary');
@@ -180,10 +181,7 @@ const LANE_LABELS = {
 };
 
 function zyanneIntroParagraph(briefing = {}) {
-  const line =
-    briefing.roleSummaryFirstPerson ||
-    "Hi — I'm Zyanne, your sustainable products specialist who helps homes, restaurants, and SMEs on their sustainability journey — pairing practical product examples with stories about energy, water, gas, CO₂, and climate impact so choices feel achievable, not just a list of links.";
-  return `${line}\n\n`;
+  return agentIntroParagraph('products', briefing);
 }
 
 let catalogCache = null;

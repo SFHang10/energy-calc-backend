@@ -520,6 +520,54 @@
   <script>
     const PLACEHOLDER_MARKET = './Product%20Comparison/Restuarants/Oven/Refrigerator/ETL.jpeg';
     const PLACEHOLDER_EXT = './Product%20Comparison/Restuarants/Oven/Refrigerator/Stanadard.webp';
+    const EMBED = (() => {
+      try {
+        return new URLSearchParams(location.search).get('embed') === '1';
+      } catch (_) {
+        return false;
+      }
+    })();
+    const EMBED_MODULE_ID = 'sustainable-product-finder';
+
+    function marketplaceOpenTarget() {
+      return EMBED ? '_top' : '_blank';
+    }
+
+    function notifyEmbedReady() {
+      if (!EMBED || !window.parent) return;
+      try {
+        window.parent.postMessage({ type: 'gw-module-embed-ready', moduleId: EMBED_MODULE_ID }, '*');
+      } catch (_) {}
+    }
+
+    function postShortlistToggle(item) {
+      if (!EMBED || !window.parent) return;
+      try {
+        window.parent.postMessage(
+          {
+            type: 'gw-shortlist-toggle',
+            id: item.id,
+            title: item.title,
+            marketplaceHref: marketplaceHref(item.id)
+          },
+          '*'
+        );
+      } catch (_) {}
+    }
+
+    function postOpenMarketplace(id) {
+      if (!EMBED || !window.parent) return;
+      try {
+        window.parent.postMessage(
+          {
+            type: 'gw-open-marketplace',
+            productId: id,
+            marketplaceHref: marketplaceHref(id)
+          },
+          '*'
+        );
+      } catch (_) {}
+    }
 
     const BASELINE_BY_TYPE = {
       dishwasher: { actualDailyKwh: 14, actualDailyWaterLitres: 220, actualDailyGasKwh: 0 },
@@ -586,7 +634,21 @@
     }
 
     function marketplaceHref(id) {
-      return './product-page-v2-marketplace.html?product=' + encodeURIComponent(id) + '&fromPopup=true';
+      const q = 'product=' + encodeURIComponent(id) + '&fromPopup=true';
+      return EMBED
+        ? '/product-page-v2-marketplace.html?' + q
+        : './product-page-v2-marketplace.html?' + q;
+    }
+
+    function shortlistBtnHtml(item) {
+      if (!EMBED || !/^etl_/i.test(String(item.id || ''))) return '';
+      return (
+        '<button type="button" class="btn-sm gw-embed-shortlist" data-shortlist-id="' +
+        esc(item.id) +
+        '" data-shortlist-title="' +
+        esc(item.name || item.id || '') +
+        '">Save to shortlist</button>'
+      );
     }
 
     function formatConsumerInsightHtml(consumer) {
@@ -624,9 +686,10 @@
             grantLine +
           '</div>' +
           '<div class="btn-row">' +
-            '<a class="btn-sm primary" href="' + esc(href) + '" target="_blank" rel="noopener noreferrer">Open product page</a>' +
+            '<a class="btn-sm primary" href="' + esc(href) + '" target="' + marketplaceOpenTarget() + '" rel="noopener noreferrer">Open product page</a>' +
+            shortlistBtnHtml(item) +
           '</div>' +
-          '<div class="pcard-foot"><a href="' + esc(href) + '" target="_blank" rel="noopener noreferrer">Marketplace</a><span>ETL / Greenways</span></div>' +
+          '<div class="pcard-foot"><a href="' + esc(href) + '" target="' + marketplaceOpenTarget() + '" rel="noopener noreferrer">Marketplace</a><span>ETL / Greenways</span></div>' +
         '</article>'
       );
     }
@@ -808,6 +871,18 @@
     document.getElementById('productInput').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') searchProducts();
     });
+
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.gw-embed-shortlist');
+      if (!btn) return;
+      e.preventDefault();
+      postShortlistToggle({
+        id: btn.getAttribute('data-shortlist-id') || '',
+        title: btn.getAttribute('data-shortlist-title') || ''
+      });
+    });
+
+    if (EMBED) notifyEmbedReady();
   </script>
 </body>
 </html>

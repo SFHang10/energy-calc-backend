@@ -4,6 +4,7 @@ const {
   applyPersona,
   loadAgentVoice,
   pickTip,
+  agentIntroParagraph,
   spokenSummary
 } = require('./greenways-agent-persona');
 const { toModuleItem } = require('./greenways-agent-shared');
@@ -355,7 +356,7 @@ function buildCheryceHandoffs(question, briefing = {}) {
   ];
 }
 
-function buildOverviewAnswer(schemes, tip) {
+function buildOverviewAnswer(schemes, tip, briefing = {}) {
   const byRegion = {};
   for (const s of schemes) {
     const r = String(s.region || 'eu').toLowerCase();
@@ -375,7 +376,8 @@ function buildOverviewAnswer(schemes, tip) {
     ' — set your region filter above for tighter matches.\n\n';
   return {
     answer: withTip(
-      focusLine +
+      agentIntroParagraph('grants', briefing) +
+        focusLine +
         `We track **${schemes.length}** active funding schemes in the Greenways catalogue, across several regions.\n\n` +
         'On the right you will see how they break down by country, plus portals to browse the full catalogue.',
       tip
@@ -843,7 +845,7 @@ async function answerFromKnowledge(question, profile = {}) {
   if (!result && intent) {
   switch (intent.answerType) {
     case 'overview':
-      result = buildOverviewAnswer(schemes, defaultTip);
+      result = buildOverviewAnswer(schemes, defaultTip, briefing);
       break;
     case 'nl_hub':
       result = buildNlHubAnswer(schemes, defaultTip);

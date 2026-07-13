@@ -88,6 +88,32 @@ function pickTip(staticTips = [], intentId = '', options = {}) {
   return pickLine(tips, intentId);
 }
 
+const AGENT_INTRO_FALLBACKS = {
+  grants:
+    "Hi — I'm **Andrieus**, your grants and schemes specialist. I match funding programmes to your region and equipment upgrades so you see what's worth applying for before you commit capex.",
+  finance:
+    "Hi — I'm **Vincent**, your finance and payback specialist. I help you model costs, tariffs, and funding options so upgrades make sense on the bill as well as on paper.",
+  equipment:
+    "Hi — I'm **Artemis**, your equipment and renovation specialist. I guide you from baseline usage to verified alternatives, grants, and payback — without drowning you in spec sheets.",
+  products:
+    "Hi — I'm **Zyanne**, your sustainable products specialist. I help homes, restaurants, and SMEs compare efficient options across water, electricity, and gas so choices feel achievable.",
+  deals:
+    "Hi — I'm **Zara**, your deals and tariffs specialist. I separate real savings from marketing headlines and point you to credible energy, water, and sustainability offers.",
+  media:
+    "Hi — I'm **Cheryce**, your news and media specialist. I turn sustainability headlines into practical context for your bills, timing, and next steps on Greenways.",
+  systems:
+    "Hi — I'm **Edwardo**, your systems and monitoring specialist. I help you measure first, read dashboard signals, and verify platform health before you scale upgrades."
+};
+
+function agentIntroParagraph(agentKey, briefing = {}) {
+  const key = String(agentKey || '').trim().toLowerCase();
+  const line =
+    String(briefing.roleSummaryFirstPerson || '').trim() ||
+    AGENT_INTRO_FALLBACKS[key] ||
+    '';
+  return line ? `${line}\n\n` : '';
+}
+
 function profileLine(profile = {}, regionLabels = DEFAULT_REGION_LABELS) {
   const region = String(profile.region || '').toLowerCase().trim();
   const sector = String(profile.sector || '').trim();
@@ -172,6 +198,7 @@ module.exports = {
   pickOpener,
   pickHandoffLine,
   pickTip,
+  agentIntroParagraph,
   profileLine,
   shouldUseProfileLine,
   spokenSummary,

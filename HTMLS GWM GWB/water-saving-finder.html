@@ -486,6 +486,41 @@
       default: { actualDailyKwh: 10, actualDailyWaterLitres: 420, actualDailyGasKwh: 0 }
     };
 
+    const EMBED = (() => {
+      try {
+        return new URLSearchParams(location.search).get('embed') === '1';
+      } catch (_) {
+        return false;
+      }
+    })();
+    const EMBED_MODULE_ID = 'water-saving-finder';
+
+    function marketplaceOpenTarget() {
+      return EMBED ? '_top' : '_blank';
+    }
+
+    function notifyEmbedReady() {
+      if (!EMBED || !window.parent) return;
+      try {
+        window.parent.postMessage({ type: 'gw-module-embed-ready', moduleId: EMBED_MODULE_ID }, '*');
+      } catch (_) {}
+    }
+
+    function postShortlistToggle(item) {
+      if (!EMBED || !window.parent) return;
+      try {
+        window.parent.postMessage(
+          {
+            type: 'gw-shortlist-toggle',
+            id: item.id,
+            title: item.title,
+            marketplaceHref: marketplaceHref(item.id)
+          },
+          '*'
+        );
+      } catch (_) {}
+    }
+
     function resolveApiUrl(pathname) {
       if (/^https?:\/\//i.test(pathname)) return pathname;
       if (window.location.protocol === 'file:') return 'http://localhost:4000' + pathname;
@@ -532,7 +567,21 @@
     }
 
     function marketplaceHref(id) {
-      return './product-page-v2-marketplace.html?product=' + encodeURIComponent(id) + '&fromPopup=true';
+      const q = 'product=' + encodeURIComponent(id) + '&fromPopup=true';
+      return EMBED
+        ? '/product-page-v2-marketplace.html?' + q
+        : './product-page-v2-marketplace.html?' + q;
+    }
+
+    function shortlistBtnHtml(it) {
+      if (!EMBED || !/^etl_/i.test(String(it.id || ''))) return '';
+      return (
+        '<button type="button" class="btn-sm gw-embed-shortlist" data-shortlist-id="' +
+        esc(it.id) +
+        '" data-shortlist-title="' +
+        esc(it.name || it.id || '') +
+        '">Save to shortlist</button>'
+      );
     }
 
     function formatConsumerInsightHtml(consumer) {
@@ -564,7 +613,10 @@
         formatConsumerInsightHtml(it.consumer) +
         '<div class="pcard-line">' + esc(it.brand || '') + (it.model ? ' · ' + esc(it.model) : '') + '<br/>Est. annual savings vs baseline: €' + esc(Number((it.savings || {}).annualEstimatedCostSavedEur || 0).toFixed(0)) + ' · ' + esc(Number((it.savings || {}).annualWaterSavedLitres || 0).toFixed(0)) + ' L/yr water delta</div>' +
         '<div class="pcard-line" style="margin-top:8px">' + gLine + '</div>' +
-        '<div class="pcard-foot"><a href="' + esc(href) + '" target="_blank" rel="noopener noreferrer">Open product page →</a></div></article>'
+        '<div class="pcard-foot">' +
+        '<a href="' + esc(href) + '" target="' + marketplaceOpenTarget() + '" rel="noopener noreferrer">Open product page →</a>' +
+        shortlistBtnHtml(it) +
+        '</div></article>'
       );
     }
 
@@ -976,6 +1028,18 @@
     document.getElementById('productInput').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') searchProducts();
     });
+
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.gw-embed-shortlist');
+      if (!btn) return;
+      e.preventDefault();
+      postShortlistToggle({
+        id: btn.getAttribute('data-shortlist-id') || '',
+        title: btn.getAttribute('data-shortlist-title') || ''
+      });
+    });
+
+    if (EMBED) notifyEmbedReady();
   </script>
 </body>
 </html>

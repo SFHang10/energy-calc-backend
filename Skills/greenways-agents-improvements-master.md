@@ -55,7 +55,10 @@
 
 ### Wave 4 (W4) — Actions from chat
 
-- [ ] **W4:** Product shortlist add/remove on cards (client-side sessionStorage pilot)
+- [x] **W4:** Product shortlist add/remove on cards (sessionStorage pilot on Zyanne + Artemis)
+- [x] **W4:** Open marketplace with grants from banner, shortlist row, and finder module embed (`target=_top`, `fromPopup=true`)
+- [x] **W4:** Shortlist sidebar — Check grants with Andrieus handoff + Clear shortlist
+- [x] **W4:** Copy upgrade plan to clipboard (`upgrade_plan` block in turn UI)
 
 ### Wave 6–9 (W6–W9) — later
 

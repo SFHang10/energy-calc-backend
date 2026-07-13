@@ -305,6 +305,68 @@
     return '<div class="video-tablets">' + heading + '<div class="video-tablets-grid">' + tablets + "</div></div>";
   }
 
+  function upgradePlanPlainText(block) {
+    if (!block) return "";
+    const lines = [];
+    lines.push(String(block.title || "Upgrade plan").trim());
+    if (block.summary) lines.push("", String(block.summary).replace(/\*\*/g, ""));
+    if (block.totalGrantHint) lines.push("", "Grants: " + block.totalGrantHint);
+    if (block.paybackHint) lines.push("Payback: " + block.paybackHint);
+    lines.push("", "Steps:");
+    (block.steps || []).forEach(function (step) {
+      lines.push(String(step.order || "") + ". " + String(step.title || "Step"));
+      if (step.body) lines.push("   " + String(step.body).replace(/\*\*/g, ""));
+      if (step.moduleId) lines.push("   Tool: " + step.moduleId);
+      if (step.handoffLabel) lines.push("   " + step.handoffLabel);
+    });
+    return lines.join("\n").trim();
+  }
+
+  function encodeUpgradePlanPayload(block) {
+    try {
+      return encodeURIComponent(JSON.stringify(block || {}));
+    } catch (_) {
+      return "";
+    }
+  }
+
+  function copyTextToClipboard(text, onDone) {
+    const value = String(text || "");
+    if (!value) {
+      if (typeof onDone === "function") onDone(false);
+      return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard
+        .writeText(value)
+        .then(function () {
+          if (typeof onDone === "function") onDone(true);
+        })
+        .catch(function () {
+          copyTextToClipboardFallback(value, onDone);
+        });
+      return;
+    }
+    copyTextToClipboardFallback(value, onDone);
+  }
+
+  function copyTextToClipboardFallback(text, onDone) {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      if (typeof onDone === "function") onDone(!!ok);
+    } catch (_) {
+      if (typeof onDone === "function") onDone(false);
+    }
+  }
+
   function upgradePlanHtml(block, escapeHtml) {
     if (!block || block.type !== "upgrade_plan") return "";
     const steps = Array.isArray(block.steps) ? block.steps : [];
@@ -345,9 +407,18 @@
         );
       })
       .join("");
+    const payload = encodeUpgradePlanPayload(block);
+    const copyBtn = payload
+      ? '<button type="button" class="upgrade-plan-copy-btn" data-copy-upgrade-plan="1" data-upgrade-plan-payload="' +
+        escapeHtml(payload) +
+        '">Copy plan</button>'
+      : "";
     return (
       '<section class="upgrade-plan-block" aria-label="Upgrade plan">' +
+      '<div class="upgrade-plan-head">' +
       '<h3 class="upgrade-plan-title">' + title + "</h3>" +
+      copyBtn +
+      "</div>" +
       (summary ? '<p class="upgrade-plan-summary">' + summary + "</p>" : "") +
       '<div class="upgrade-plan-hints">' + grantHint + paybackHint + "</div>" +
       '<ol class="upgrade-plan-steps">' + stepRows + "</ol>" +
@@ -718,6 +789,24 @@
 
   if (typeof document !== "undefined") {
     document.addEventListener("click", function (ev) {
+      const copyPlanBtn = ev.target.closest("[data-copy-upgrade-plan]");
+      if (copyPlanBtn) {
+        ev.preventDefault();
+        let block = null;
+        try {
+          block = JSON.parse(decodeURIComponent(copyPlanBtn.getAttribute("data-upgrade-plan-payload") || "{}"));
+        } catch (_) {
+          block = null;
+        }
+        const label = copyPlanBtn.textContent;
+        copyTextToClipboard(upgradePlanPlainText(block), function (ok) {
+          copyPlanBtn.textContent = ok ? "Copied!" : "Copy failed";
+          setTimeout(function () {
+            copyPlanBtn.textContent = label;
+          }, 1800);
+        });
+        return;
+      }
       const journeyBtn = ev.target.closest("[data-open-journey]");
       if (!journeyBtn) return;
       ev.preventDefault();

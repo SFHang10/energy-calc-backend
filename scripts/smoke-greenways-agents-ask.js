@@ -146,6 +146,9 @@ async function runLocalSmokes() {
   console.log('OK Andrieus portals module tablets');
 
   const grantsOverviewHit = await grantsMod.answerFromKnowledge('how many grants in the catalogue overview', profile);
+  if (!grantsOverviewHit?.answer?.includes("I'm **Andrieus**")) {
+    throw new Error('Andrieus overview: expected first-person intro');
+  }
   if (!grantsOverviewHit?.answer?.includes('**Site example:**')) {
     throw new Error('Andrieus overview: expected **Site example:** grounded line');
   }
@@ -153,6 +156,12 @@ async function runLocalSmokes() {
     throw new Error('Andrieus overview: expected siteKnowledgeCardId');
   }
   console.log('OK Andrieus site knowledge card:', grantsOverviewHit.siteKnowledgeCardId);
+
+  const grantsWhoHit = await grantsMod.answerFromKnowledge('who are you', profile);
+  if (!grantsWhoHit?.answer?.includes("I'm **Andrieus**")) {
+    throw new Error('Andrieus who: expected first-person intro');
+  }
+  console.log('OK Andrieus first-person intro');
 
   const grantsNlHit = await grantsMod.answerFromKnowledge('MIA Vamil Netherlands restaurant equipment', {
     ...profile,

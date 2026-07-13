@@ -417,6 +417,41 @@
       if (data.type === "gw-module-open" && data.moduleId) {
         openById(String(data.moduleId), data.overrides || {});
       }
+      if (data.type === "gw-open-marketplace") {
+        var productId = String(data.productId || data.id || "").trim();
+        var href =
+          data.marketplaceHref ||
+          (productId
+            ? "/product-page-v2-marketplace.html?product=" +
+              encodeURIComponent(productId) +
+              "&fromPopup=true"
+            : "");
+        if (!href) return;
+        var topHref = href.charAt(0) === "/" ? href : "/" + String(href).replace(/^\.\//, "");
+        try {
+          global.top.location.href = topHref;
+        } catch (_) {
+          global.location.href = topHref;
+        }
+      }
+      if (data.type === "gw-shortlist-toggle" && global.GreenwaysAgentProductShortlist) {
+        var sid = String(data.id || "").trim();
+        if (!sid) return;
+        var saved = global.GreenwaysAgentProductShortlist.toggleItem({
+          id: sid,
+          title: data.title || sid,
+          marketplaceHref: data.marketplaceHref || ""
+        });
+        if (typeof global.GreenwaysAgentProductShortlist.showToast === "function") {
+          global.GreenwaysAgentProductShortlist.showToast(
+            saved ? "Added to your shortlist" : "Removed from shortlist"
+          );
+        }
+        global.GreenwaysAgentProductShortlist.renderSidebar();
+        if (typeof global.GreenwaysAgentProductShortlist.decorateAll === "function") {
+          global.GreenwaysAgentProductShortlist.decorateAll();
+        }
+      }
     });
   }
 
