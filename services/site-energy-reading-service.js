@@ -295,6 +295,16 @@ async function geocodeEu(countryKey, postcode) {
   };
 }
 
+function entsoeXmlHasError(xml) {
+  const text = String(xml || '');
+  if (!text.trim()) return 'Empty ENTSO-E response';
+  if (/<Acknowledgement_MarketDocument/i.test(text) && !/<TimeSeries>/i.test(text)) {
+    const reason = text.match(/<text>([^<]+)<\/text>/i);
+    return reason ? reason[1].trim() : 'ENTSO-E returned no data for this window';
+  }
+  return '';
+}
+
 function mixFromEntsoeXml(xml) {
   const series = [];
   const blocks = xml.split('<TimeSeries>').slice(1);
@@ -325,78 +335,102 @@ function mixFromEntsoeXml(xml) {
   return { mix, intensity: Math.round(intensity) };
 }
 
-async function lookupEntsoe(countryKey, geo) {
+async function lookupEntsoe(countryKey) {
   const cfg = loadConfig().countries[countryKey];
   const apiKey = process.env.ENTSOE_API_KEY;
   if (!apiKey || !cfg?.entsoeDomain) return null;
 
-  const end = new Date();
-  const start = new Date(end.getTime() - 3 * 3600000);
-  const fmt = (d) => d.toISOString().replace(/[-:T]/g, '').slice(0, 12);
-  const params = new URLSearchParams({
-    securityToken: apiKey,
-    documentType: 'A75',
-    processType: 'A16',
-    in_Domain: cfg.entsoeDomain,
-    out_Domain: cfg.entsoeDomain,
-    periodStart: fmt(start),
-    periodEnd: fmt(end)
-  });
-  const xml = await fetchText(`https://web-api.tp.entsoe.eu/api?${params}`);
-  const { mix, intensity } = mixFromEntsoeXml(xml);
-  if (!mix.length || !intensity) return null;
+  try {
+    const end = new Date();
+    const start = new Date(end.getTime() - 3 * 3600000);
+    const fmt = (d) => d.toISOString().replace(/[-:T]/g, '').slice(0, 12);
+    const params = new URLSearchParams({
+      securityToken: apiKey,
+      documentType: 'A75',
+      processType: 'A16',
+      in_Domain: cfg.entsoeDomain,
+      out_Domain: cfg.entsoeDomain,
+      periodStart: fmt(start),
+      periodEnd: fmt(end)
+    });
+    const xml = await fetchText(`https://web-api.tp.entsoe.eu/api?${params}`);
+    const xmlError = entsoeXmlHasError(xml);
+    if (xmlError) {
+      console.warn('[site-energy-reading] ENTSO-E:', xmlError);
+      return null;
+    }
+    const { mix, intensity } = mixFromEntsoeXml(xml);
+    if (!mix.length || !intensity) return null;
 
-  return {
-    mix,
-    intensity,
-    source: 'ENTSO-E',
-    live: true
-  };
+    return {
+      mix,
+      intensity,
+      forecastPeriods: [],
+      source: 'ENTSO-E',
+      live: true
+    };
+  } catch (error) {
+    console.warn('[site-energy-reading] ENTSO-E lookup failed:', error.message || error);
+    return null;
+  }
 }
 
 async function lookupElectricityMaps(geo) {
   const apiKey = process.env.ELECTRICITY_MAPS_API_KEY;
   if (!apiKey) return null;
 
-  const headers = { 'auth-token': apiKey };
-  const latest = await fetchJson(
-    `https://api.electricitymaps.com/v3/carbon-intensity/latest?lat=${geo.lat}&lon=${geo.lon}`,
-    { headers }
-  );
-  const forecast = await fetchJson(
-    `https://api.electricitymaps.com/v3/carbon-intensity/forecast?lat=${geo.lat}&lon=${geo.lon}`,
-    { headers }
-  ).catch(() => null);
+  try {
+    const headers = { 'auth-token': apiKey };
+    const latest = await fetchJson(
+      `https://api.electricitymaps.com/v3/carbon-intensity/latest?lat=${geo.lat}&lon=${geo.lon}`,
+      { headers }
+    );
+    const forecast = await fetchJson(
+      `https://api.electricitymaps.com/v3/carbon-intensity/forecast?lat=${geo.lat}&lon=${geo.lon}`,
+      { headers }
+    ).catch(() => null);
 
-  const carbon = latest?.carbonIntensity;
-  if (carbon == null) return null;
+    const carbon = latest?.carbonIntensity;
+    if (carbon == null) return null;
 
-  const mix = (latest.fossilFuelPercentage != null
-    ? [
-        { fuel: 'wind', perc: Math.max(0, 100 - latest.fossilFuelPercentage - 15), color: FUEL_COLORS.wind },
-        { fuel: 'solar', perc: 8, color: FUEL_COLORS.solar },
-        { fuel: 'gas', perc: latest.fossilFuelPercentage * 0.65, color: FUEL_COLORS.gas },
-        { fuel: 'other', perc: latest.fossilFuelPercentage * 0.35, color: FUEL_COLORS.other }
-      ]
-    : []
-  ).filter((m) => m.perc > 0);
+    const mix = (latest.fossilFuelPercentage != null
+      ? [
+          { fuel: 'wind', perc: Math.max(0, 100 - latest.fossilFuelPercentage - 15), color: FUEL_COLORS.wind },
+          { fuel: 'solar', perc: 8, color: FUEL_COLORS.solar },
+          { fuel: 'gas', perc: latest.fossilFuelPercentage * 0.65, color: FUEL_COLORS.gas },
+          { fuel: 'other', perc: latest.fossilFuelPercentage * 0.35, color: FUEL_COLORS.other }
+        ]
+      : []
+    ).filter((m) => m.perc > 0);
 
-  const forecastPeriods =
-    forecast?.forecast?.map((p) => ({
-      from: p.datetime,
-      to: p.datetime,
-      intensity: {
-        forecast: p.carbonIntensity,
-        index: intensityToIndex(p.carbonIntensity)
-      }
-    })) || [];
+    const forecastPeriods =
+      forecast?.forecast?.map((p) => ({
+        from: p.datetime,
+        to: p.datetime,
+        intensity: {
+          forecast: p.carbonIntensity,
+          index: intensityToIndex(p.carbonIntensity)
+        }
+      })) || [];
 
+    return {
+      mix,
+      intensity: Math.round(carbon),
+      forecastPeriods,
+      source: 'Electricity Maps',
+      live: true
+    };
+  } catch (error) {
+    console.warn('[site-energy-reading] Electricity Maps lookup failed:', error.message || error);
+    return null;
+  }
+}
+
+function getDataSourceStatus() {
   return {
-    mix,
-    intensity: Math.round(carbon),
-    forecastPeriods,
-    source: 'Electricity Maps',
-    live: true
+    entsoe: Boolean(process.env.ENTSOE_API_KEY),
+    electricityMaps: Boolean(process.env.ELECTRICITY_MAPS_API_KEY),
+    euLiveWhen: 'ENTSO-E gives live generation mix + intensity; Electricity Maps adds forecast when set'
   };
 }
 
@@ -429,7 +463,7 @@ async function lookupEu(countryKey, postcode) {
   const geo = await geocodeEu(countryKey, postcode);
   let reading =
     (await lookupElectricityMaps(geo)) ||
-    (await lookupEntsoe(countryKey, geo)) ||
+    (await lookupEntsoe(countryKey)) ||
     lookupBaseline(countryKey);
 
   const intensityVal = reading.intensity;
@@ -505,5 +539,6 @@ module.exports = {
   lookupSiteEnergyReading,
   enrichWithRecommendations,
   normalizeCountry,
-  intensityToIndex
+  intensityToIndex,
+  getDataSourceStatus
 };

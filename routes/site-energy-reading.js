@@ -3,13 +3,21 @@ const {
   lookupSiteEnergyReading,
   enrichWithRecommendations,
   normalizeCountry,
-  loadConfig
+  loadConfig,
+  getDataSourceStatus
 } = require('../services/site-energy-reading-service');
 
 const router = express.Router();
 
 router.get('/health', (_req, res) => {
-  res.json({ ok: true, service: 'site-energy-reading', version: '1' });
+  const sources = getDataSourceStatus();
+  res.json({
+    ok: true,
+    service: 'site-energy-reading',
+    version: '1',
+    dataSources: sources,
+    euLiveReady: sources.entsoe || sources.electricityMaps
+  });
 });
 
 router.get('/config', (_req, res) => {
