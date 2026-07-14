@@ -1,6 +1,6 @@
 const express = require('express');
 const { getOverview, getGraph, addContentModule } = require('../services/agents-admin-service');
-const { readRecentAskLogs } = require('../services/greenways-ask-logger');
+const { readRecentAskLogs, aggregateTopMisses } = require('../services/greenways-ask-logger');
 
 const router = express.Router();
 
@@ -31,6 +31,12 @@ router.get('/health', (req, res) => {
 router.get('/ask-logs', (req, res) => {
   const limit = Math.min(500, Math.max(1, Number(req.query.limit) || 200));
   res.json(readRecentAskLogs(limit));
+});
+
+router.get('/ask-misses', (req, res) => {
+  const days = Math.min(30, Math.max(1, Number(req.query.days) || 7));
+  const limit = Math.min(25, Math.max(1, Number(req.query.limit) || 10));
+  res.json(aggregateTopMisses({ days, limit }));
 });
 
 router.post('/content-modules', async (req, res) => {

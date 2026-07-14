@@ -18,6 +18,7 @@
 - [x] **W5 — Copy audit + intros:** no Wix/bridge in customer copy; `agentIntroParagraph()` on all seven specialists — 2026-07-14
 - [x] **W4 — Actions from chat:** shortlist, marketplace open, grants handoff, copy plan — 2026-07-14
 - [x] **W7 / Gap 4 — Measurement (partial):** `/ask` JSONL logging + admin viewer — 2026-07-13
+- [x] **W7 / US-021:** Top misses panel on `agents-admin.html` (`GET /api/agents-admin/ask-misses`) — 2026-07-14
 - [x] **W6 — Proactive nudges (partial):** sidebar “This week”, Andrieus deadline chip, Zara welcome spotlight — 2026-07-14
 - [x] **Gap 2 (partial):** Site energy reading module (UK live; EU benchmark until ENTSO-E key) — 2026-07-13
 
@@ -48,7 +49,7 @@
 
 ### Wave 7–9 (W7–W9) — later
 
-- [ ] **W7:** Top misses panel on agents-admin (aggregate ask logs)
+- [x] **W7:** Top misses panel on agents-admin (aggregate ask logs) — 2026-07-14
 - [ ] **W7:** Restaurant asset benchmark line when `siteId` known (US-022)
 - [ ] **W8:** Agent voice (speak/listen) — enable all seven + premium TTS optional
 - [ ] **W9:** Agent email (send me this) (SkillBoss optional)

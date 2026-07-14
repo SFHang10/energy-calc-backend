@@ -10,7 +10,7 @@ const { loadEnergySnapshot, formatWholesaleBullets, formatModellingTariffLine } 
 const { loadFullNewsCatalog } = require('../services/media-news-loader');
 const { rankFinanceNews } = require('../services/finance-agent-news');
 const { buildAgentAskFallback, normalizeAskProfile, finishKnowledgeAskResponse } = require('../services/greenways-agent-llm-fallback');
-const { logAskEvent } = require('../services/greenways-ask-logger');
+const { createAskLogger } = require('../services/greenways-ask-logger');
 const { enrichAskProfileWithMember } = require('../services/greenways-member-context');
 const { profileLine } = require('../services/greenways-agent-persona');
 const { profileContextBlock } = require('../services/greenways-agent-shared');
@@ -123,54 +123,44 @@ router.get('/news', async (req, res) => {
 
 router.post('/ask', async (req, res) => {
   const startedAt = Date.now();
+  const question = String(req.body?.question || '').trim();
   try {
-    const question = String(req.body?.question || '').trim();
     const profile = await enrichAskProfileWithMember(normalizeAskProfile(req.body));
     if (!question) {
       return res.status(400).json({ ok: false, error: 'question is required.' });
     }
+    const logAsk = createAskLogger(req, startedAt, profile, question);
 
     const knowledge = await answerFromKnowledge(question, profile);
     const response = await finishKnowledgeAskResponse('finance', knowledge, question, profile);
     if (response) {
       response.answer = attachProfileContext(response.answer, profile);
-      logAskEvent({
+      logAsk({
         agent: 'finance',
         ok: true,
         source: response.source,
-        intentId: response.intentId,
-        ms: Date.now() - startedAt,
-        profile,
-        ip: req.ip,
-        ua: req.headers['user-agent']
+        intentId: response.intentId
       });
       return res.json(response);
     }
 
     const fallback = await buildAgentAskFallback('finance', question, profile);
     if (fallback?.answer) fallback.answer = attachProfileContext(fallback.answer, profile);
-    logAskEvent({
+    logAsk({
       agent: 'finance',
       ok: true,
       source: fallback?.source || 'fallback',
-      intentId: fallback?.intentId || null,
-      ms: Date.now() - startedAt,
-      profile,
-      ip: req.ip,
-      ua: req.headers['user-agent']
+      intentId: fallback?.intentId || null
     });
     res.json(fallback);
   } catch (error) {
     console.error('Finance agent ask error:', error.message);
-    logAskEvent({
+    const profile = await enrichAskProfileWithMember(normalizeAskProfile(req.body));
+    createAskLogger(req, startedAt, profile, question)({
       agent: 'finance',
       ok: false,
       source: 'error',
       intentId: null,
-      ms: Date.now() - startedAt,
-      profile: await enrichAskProfileWithMember(normalizeAskProfile(req.body)),
-      ip: req.ip,
-      ua: req.headers['user-agent'],
       error: error.message
     });
     res.status(500).json({ ok: false, error: 'Failed to answer question.' });

@@ -92,6 +92,29 @@
     .platform-section {
       padding: 24px 32px 8px;
     }
+    .misses-section {
+      padding: 8px 32px 16px;
+    }
+    .misses-section h2 {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .misses-meta {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    .misses-empty {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      padding: 12px 0;
+    }
     .platform-section h2 {
       font-family: var(--font-display);
       font-size: 0.8rem;
@@ -318,6 +341,9 @@
       <a class="btn btn-primary" href="/schemes-admin.html" target="_blank" rel="noopener">
         <i class="fas fa-landmark"></i> Grants &amp; Schemes Admin
       </a>
+      <a class="btn btn-secondary" href="/media-videos-admin.html" target="_blank" rel="noopener">
+        <i class="fa-solid fa-film"></i> Video catalog
+      </a>
       <a class="btn btn-secondary" href="/agents-admin-map.html" target="_blank" rel="noopener">
         <i class="fas fa-project-diagram"></i> Network map
       </a>
@@ -340,6 +366,13 @@
       <h2>Platform health</h2>
       <div class="platform-row" id="platform-row"></div>
     </div>
+    <div class="misses-section">
+      <h2>Top ask misses (7 days)</h2>
+      <div class="misses-meta" id="misses-meta">Fallback / heuristic / LLM paths — anonymised question patterns only.</div>
+      <div class="table-wrap" id="misses-table-wrap">
+        <div class="misses-empty" id="misses-loading"><i class="fas fa-spinner fa-spin"></i> Loading ask misses…</div>
+      </div>
+    </div>
     <div class="layout">
       <aside class="sidebar" id="sidebar"></aside>
       <main class="main" id="main"></main>
@@ -349,7 +382,7 @@
 <script>
 (function () {
   var API_BASE = location.origin;
-  var state = { overview: null, selectedId: "grants" };
+  var state = { overview: null, selectedId: "grants", askMisses: null };
 
   function statusClass(s) {
     return "status-" + (s || "unknown");
@@ -399,6 +432,7 @@
       state.overview = data;
       if (!state.selectedId && data.agents.length) state.selectedId = data.agents[0].id;
       render();
+      loadAskMisses();
       document.getElementById("loading").hidden = true;
       document.getElementById("app").hidden = false;
     } catch (err) {
@@ -407,6 +441,59 @@
       em.hidden = false;
       em.className = "error-box";
       em.textContent = err.message || "Could not load overview. Is the server running with /api/agents-admin?";
+    }
+  }
+
+  async function loadAskMisses() {
+    var wrap = document.getElementById("misses-table-wrap");
+    var meta = document.getElementById("misses-meta");
+    wrap.innerHTML = '<div class="misses-empty"><i class="fas fa-spinner fa-spin"></i> Loading ask misses…</div>';
+    try {
+      var res = await fetch(API_BASE + "/api/agents-admin/ask-misses?days=7&limit=10");
+      var data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || "Failed to load ask misses");
+      state.askMisses = data;
+      meta.textContent =
+        (data.missEvents || 0) +
+        " miss events from " +
+        (data.totalEvents || 0) +
+        " logged asks in the last " +
+        data.days +
+        " days · patterns from " +
+        (data.logPath || "greenways-agent-ask-log.jsonl");
+      if (!data.items || !data.items.length) {
+        wrap.innerHTML =
+          '<div class="misses-empty">No fallback or low-confidence asks logged yet. Traffic on Render will populate this panel.</div>';
+        return;
+      }
+      var rows = data.items
+        .map(function (row) {
+          return (
+            "<tr><td>" +
+            escapeHtml(row.agent) +
+            '</td><td class="mono">' +
+            escapeHtml(row.pattern || "—") +
+            "</td><td>" +
+            escapeHtml(row.source || "") +
+            "</td><td>" +
+            escapeHtml(String(row.count)) +
+            "</td><td>" +
+            escapeHtml(row.topRegion || "—") +
+            "</td><td>" +
+            escapeHtml(formatWhen(row.lastTs)) +
+            "</td></tr>"
+          );
+        })
+        .join("");
+      wrap.innerHTML =
+        '<table><thead><tr><th>Agent</th><th>Question pattern</th><th>Source</th><th>Count</th><th>Top region</th><th>Last seen</th></tr></thead><tbody>' +
+        rows +
+        "</tbody></table>";
+    } catch (err) {
+      wrap.innerHTML =
+        '<div class="misses-empty" style="color:var(--accent-orange)">' +
+        escapeHtml(err.message || "Could not load ask misses") +
+        "</div>";
     }
   }
 
