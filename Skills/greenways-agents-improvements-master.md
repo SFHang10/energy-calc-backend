@@ -36,7 +36,7 @@
 - [x] **W5:** Shared `agentIntroParagraph()` — **prepend only**; keeps workflow, tools, and module blocks after the intro
 - [x] **W5:** `roleSummaryFirstPerson` in all seven briefing JSONs (derived from existing `roleSummary` / overview copy)
 - [x] **W5:** Wire intro helper on overview / who-are-you intents for Vincent, Artemis, Zara, Cheryce, Edwardo (prepend only; smokes in `smoke-greenways-agents-ask.js`) — 2026-07-14
-- [ ] **W5 / US-016:** Expand LLM polish pilot to Artemis key intents
+- [x] **W5 / US-016:** Expand LLM polish pilot to Artemis (`deep_dive`, `why_equipment`, `insulation`) — 2026-07-14
 
 ### Gap 10 — Cheryce video understanding (pointers)
 

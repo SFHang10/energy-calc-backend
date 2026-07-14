@@ -351,6 +351,45 @@ async function runLocalSmokes() {
   }
   console.log('OK Artemis restaurant asset benchmark (siteId pilot)');
 
+  const { isPolishIntentAllowed, EQUIPMENT_POLISH_INTENT_DEFAULTS } = require(path.join(
+    ROOT,
+    'services/greenways-agent-llm-fallback'
+  ));
+  const { isInternalPagePath } = require(path.join(ROOT, 'services/greenways-agent-shared'));
+  const artemisPilot = [
+    { q: 'open equipment deep dive decision matrix', intentId: 'deep_dive' },
+    { q: 'why upgrade efficient restaurant equipment', intentId: 'why_equipment' },
+    { q: 'insulation guide restaurant building fabric', intentId: 'insulation' }
+  ];
+  for (const intentId of EQUIPMENT_POLISH_INTENT_DEFAULTS) {
+    if (!isPolishIntentAllowed('equipment', intentId)) {
+      throw new Error(`Artemis polish pilot: expected intent ${intentId} allowed`);
+    }
+  }
+  for (const pilot of artemisPilot) {
+    const knowledge = await equipMod.answerFromKnowledge(pilot.q, profile);
+    if (knowledge?.intentId !== pilot.intentId) {
+      throw new Error(
+        `Artemis pilot ${pilot.intentId}: got intent ${knowledge?.intentId || '—'}`
+      );
+    }
+    const blocksBefore = JSON.stringify(knowledge.blocks || []);
+    const finished = await finishKnowledgeAskResponse('equipment', knowledge, pilot.q, profile);
+    if (!finished?.answer) {
+      throw new Error(`Artemis pilot ${pilot.intentId}: finishKnowledgeAskResponse empty`);
+    }
+    if (isInternalPagePath(finished.answer) || /\.\/[^\s]+\.html/i.test(finished.answer)) {
+      throw new Error(`Artemis pilot ${pilot.intentId}: raw path dump in left column`);
+    }
+    if (JSON.stringify(finished.blocks || []) !== blocksBefore) {
+      throw new Error(`Artemis pilot ${pilot.intentId}: blocks[] changed after finish`);
+    }
+  }
+  console.log(
+    'OK Artemis conversational pilot intents',
+    isPolishEnabled('equipment') ? '(polish enabled)' : '(polish off — no LLM key)'
+  );
+
   const upgradePlanHit = await equipMod.answerFromKnowledge('fridge upgrade plan for my restaurant', profile);
   if (upgradePlanHit?.intentId !== 'equipment_upgrade_plan') {
     throw new Error('Artemis upgrade plan: expected equipment_upgrade_plan intent');
@@ -699,7 +738,10 @@ async function runLocalSmokes() {
         '→',
         finished.intentId,
         finished.source,
-        agent.key === 'finance' && isPolishEnabled('finance') ? '(polish on)' : ''
+        (agent.key === 'finance' && isPolishEnabled('finance')) ||
+          (agent.key === 'equipment' && isPolishEnabled('equipment'))
+          ? '(polish on)'
+          : ''
       );
     }
   }

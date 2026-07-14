@@ -398,16 +398,24 @@ async function buildWhyEquipmentAnswer(profile, tip) {
   const why = guide.whyUpgrade || {};
   const cats = (guide.kitchenCategories || []).slice(0, 4);
   const demos = (guide.demonstrationTools || []).slice(0, 3);
+  const sector = profile.sector || 'restaurants';
+  const whyLead = (why.points || []).slice(0, 2).join(' ');
+  const categoryNames = cats.map((c) => c.name).filter(Boolean);
 
   return {
     answer:
       `**${why.headline || 'Why upgrade equipment'}**\n\n` +
       (briefing.etlPrinciple ? `${briefing.etlPrinciple}\n\n` : '') +
-      `${(why.points || []).map((p) => `- ${p}`).join('\n')}\n\n` +
-      `**High-impact categories for ${profile.sector || 'restaurants'}:**\n` +
-      `${cats.map((c) => `- **${c.name}** — ${c.priority}. _${c.tip}_`).join('\n')}\n\n` +
+      `For **${sector}**, efficient equipment is about more than a green label on paper — it is verified performance, durability, and a better match to how you actually cook, cool, and ventilate. ` +
+      (whyLead ? `${whyLead} ` : '') +
+      `That is why I steer you through ETL-listed options and Greenways compare tools rather than marketing claims alone.\n\n` +
+      (categoryNames.length
+        ? `The lanes I see move the needle first are **${categoryNames.slice(0, 3).join('**, **')}**` +
+          (categoryNames.length > 3 ? `, and **${categoryNames[3]}**` : '') +
+          `. Open the modules on the right when you want illustrated examples and payback stories.\n\n`
+        : '') +
       (demos.length
-        ? `**See it on Greenways:**\n${formatToolsListProse(demos, 3)}\n\n`
+        ? `When you are ready to explore, the demonstration tools on the right walk through deep dive, comparison, and projection paths step by step.\n\n`
         : '') +
       `_${tip}_`,
     blocks: demos.length ? toolsToModuleBlocks(demos, 5) : [],
@@ -609,9 +617,9 @@ function buildGrantsLinkAnswer(schemes, profile, question, tip) {
 function buildDeepDiveAnswer(tip) {
   return {
     answer:
-      `**Equipment deep dive** — compare current vs efficient alternatives with grant chips and **Savings projection** modal.\n\n` +
-      `Open the **Equipment deep dive** module on the right for decision-matrix rows, marketplace links, and optional \`sust_*\` external options.\n\n` +
-      `Ask about a specific appliance (combi steamer, wok, freezer) and I'll surface matching picks in the banner.\n\n_${tip}_`,
+      `**Equipment deep dive** compares what you run today with efficient alternatives — grant chips, decision-matrix rows, and an optional savings projection when you are ready to build the business case.\n\n` +
+      `Open the **Equipment deep dive** module on the right for marketplace links, \`sust_*\` external options where we have them, and side-by-side specs. ` +
+      `If you name a specific appliance (combi steamer, wok line, freezer), I can surface matching picks in the banner while you browse.\n\n_${tip}_`,
     suggestions: [],
     blocks: linkOrModuleBlocks([
       toLinkItem('Open deep dive', PORTAL_LINKS.deepDive, 'Restaurant equipment profiles'),
@@ -731,16 +739,16 @@ function buildRenovationAnswer(focus, schemes, profile, tip, guide = {}) {
 
   return {
     answer:
-      `**${label}** — fabric, HVAC, and efficient equipment together support **sustainability targets** and lower running costs.\n\n` +
+      `**${label}** — fabric, HVAC, and efficient equipment work together when you are chasing sustainability targets and lower running costs.\n\n` +
       `${benefits.summary || 'Green retrofits cut operating costs, unlock grants, and improve climate resilience alongside kWh savings.'}\n\n` +
       (themes.length ? `${themes.join(' ')}\n\n` : '') +
       (isRestaurant && design.summary
         ? `**Hospitality note:** ${design.summary}\n\n`
         : focus === 'insulation'
-          ? `Start with fabric and insulation before oversized HVAC or heavy kitchen equipment — lower baseload makes equipment upgrades pay back faster.\n\n`
+          ? `I usually start with fabric and insulation before oversized HVAC or heavy cookline capex — a lower baseload makes every equipment upgrade pay back faster.\n\n`
           : `Combine **building improvements** with **ETL equipment** swaps — grants may stack across both.\n\n`) +
-      `Open the renovation guides on the right for retrofit pathways, payback examples, and ${isRestaurant ? 'kitchen design' : 'building'} savings.\n\n` +
-      `For payback modelling see **Vincent**; for scheme eligibility see **Andrieus**.\n\n_${tip}_`,
+      `The renovation guides on the right cover retrofit pathways, payback examples, and ${isRestaurant ? 'kitchen design' : 'building'} savings. ` +
+      `When you want payback modelling, **Vincent** can help; for scheme eligibility, **Andrieus** has the catalogue.\n\n_${tip}_`,
     suggestions: relatedSchemes.map(toSuggestion),
     blocks: [
       ...(statItems.length ? [{ type: 'stat', items: statItems }] : []),

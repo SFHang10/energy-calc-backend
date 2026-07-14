@@ -416,7 +416,7 @@ const FALLBACK_BUILDERS = {
 };
 
 function polishAllowlist() {
-  const raw = String(process.env.GREENWAYS_AGENT_POLISH_AGENTS || 'finance').trim();
+  const raw = String(process.env.GREENWAYS_AGENT_POLISH_AGENTS || 'finance,equipment').trim();
   if (raw === 'all') return null;
   return new Set(
     raw
@@ -424,6 +424,27 @@ function polishAllowlist() {
       .map((s) => s.trim())
       .filter(Boolean)
   );
+}
+
+const EQUIPMENT_POLISH_INTENT_DEFAULTS = ['deep_dive', 'why_equipment', 'insulation'];
+
+function equipmentPolishIntents() {
+  const raw = String(
+    process.env.EQUIPMENT_AGENT_POLISH_INTENTS || EQUIPMENT_POLISH_INTENT_DEFAULTS.join(',')
+  ).trim();
+  return new Set(
+    raw
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+  );
+}
+
+function isPolishIntentAllowed(agentKey, intentId) {
+  if (agentKey !== 'equipment') return true;
+  const id = String(intentId || '').trim();
+  if (!id) return false;
+  return equipmentPolishIntents().has(id);
 }
 
 function isPolishEnabled(agentKey) {
@@ -472,6 +493,7 @@ function buildPolishSystemPrompt(agentKey) {
  */
 async function maybePolishKnowledgeAnswer(agentKey, knowledge, question, profile = {}) {
   if (!knowledge?.answer || !isPolishEnabled(agentKey)) return knowledge;
+  if (!isPolishIntentAllowed(agentKey, knowledge.intentId)) return knowledge;
 
   const polished = await maybeCallGreenwaysLlm({
     prefix: AGENT_PROFILES[agentKey].prefix,
@@ -584,5 +606,7 @@ module.exports = {
   maybePolishKnowledgeAnswer,
   finishKnowledgeAskResponse,
   enrichWithMeaning,
-  isPolishEnabled
+  isPolishEnabled,
+  isPolishIntentAllowed,
+  EQUIPMENT_POLISH_INTENT_DEFAULTS
 };
