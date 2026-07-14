@@ -329,6 +329,28 @@ async function runLocalSmokes() {
   }
   console.log('OK Artemis deep dive module tablets');
 
+  const baselineSiteHit = await equipMod.answerFromKnowledge(
+    'equipment baseline dashboard what should baseline use',
+    { ...profile, siteId: 'w2w-amsterdam-02' }
+  );
+  if (!baselineSiteHit?.answer?.includes('**Site inventory:**')) {
+    throw new Error('Artemis baseline_equipment + siteId: expected **Site inventory:** line');
+  }
+  if (!baselineSiteHit?.answer?.includes('Wok To Walk')) {
+    throw new Error('Artemis baseline_equipment + siteId: expected Wok To Walk brand');
+  }
+  if (!baselineSiteHit?.restaurantAssetSiteId) {
+    throw new Error('Artemis baseline_equipment + siteId: expected restaurantAssetSiteId');
+  }
+  const baselineNoSite = await equipMod.answerFromKnowledge(
+    'equipment baseline dashboard what should baseline use',
+    profile
+  );
+  if (baselineNoSite?.answer?.includes('**Site inventory:**')) {
+    throw new Error('Artemis baseline_equipment without siteId: should not add inventory line');
+  }
+  console.log('OK Artemis restaurant asset benchmark (siteId pilot)');
+
   const upgradePlanHit = await equipMod.answerFromKnowledge('fridge upgrade plan for my restaurant', profile);
   if (upgradePlanHit?.intentId !== 'equipment_upgrade_plan') {
     throw new Error('Artemis upgrade plan: expected equipment_upgrade_plan intent');

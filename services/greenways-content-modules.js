@@ -554,6 +554,11 @@ function enrichKnowledgeAnswer(result, { agentKey, question, intentId, profile =
   const { attachSiteKnowledgeCards } = require('./greenways-site-knowledge');
   attachSiteKnowledgeCards(result, { agentKey, question, intentId, profile });
 
+  if (agentKey === 'equipment') {
+    const { attachRestaurantAssetBenchmark } = require('./restaurant-asset-service');
+    attachRestaurantAssetBenchmark(result, { question, intentId, profile });
+  }
+
   return result;
 }
 

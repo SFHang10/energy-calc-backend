@@ -50,7 +50,7 @@
 ### Wave 7–9 (W7–W9) — later
 
 - [x] **W7:** Top misses panel on agents-admin (aggregate ask logs) — 2026-07-14
-- [ ] **W7:** Restaurant asset benchmark line when `siteId` known (US-022)
+- [x] **W7:** Restaurant asset benchmark line when `siteId` known (US-022) — `baseline_equipment` + `data/restaurant-assets/` — 2026-07-14
 - [ ] **W8:** Agent voice (speak/listen) — enable all seven + premium TTS optional
 - [ ] **W9:** Agent email (send me this) (SkillBoss optional)
 
