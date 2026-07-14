@@ -44,7 +44,7 @@
 
 ### Wave 6 (W6) — Proactive intelligence (remaining)
 
-- [ ] **W6:** Refresh highlights on profile region change (re-pick deal/deadline)
+- [x] **W6:** Refresh highlights on profile region change (re-pick deal/deadline) — 2026-07-14
 - [ ] **W6:** Schedule `npm run build:agent-highlights` weekly on Render/cron
 
 ### Wave 7–9 (W7–W9) — later

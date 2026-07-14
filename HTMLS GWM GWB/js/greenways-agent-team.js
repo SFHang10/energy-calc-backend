@@ -164,7 +164,7 @@
 
   function writeSharedProfile(profile) {
     if (!profile || typeof profile !== 'object') return;
-    writeJson(PROFILE_KEY, {
+    var row = {
       region: profile.region != null ? String(profile.region) : '',
       sector: profile.sector != null ? String(profile.sector) : '',
       focus: profile.focus != null ? String(profile.focus) : '',
@@ -172,7 +172,13 @@
       tier: profile.tier != null ? String(profile.tier) : '',
       memberId: profile.memberId != null ? String(profile.memberId) : '',
       siteId: profile.siteId != null ? String(profile.siteId) : ''
-    });
+    };
+    writeJson(PROFILE_KEY, row);
+    try {
+      global.dispatchEvent(new CustomEvent('gw-profile-changed', { detail: row }));
+    } catch (_) {
+      /* ignore */
+    }
   }
 
   function applySharedProfile() {

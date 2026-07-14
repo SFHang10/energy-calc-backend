@@ -415,6 +415,10 @@
     var section = document.getElementById("gw-sidebar-highlight-section");
     if (!mount) return;
 
+    mount.querySelectorAll(".gw-sidebar-deadline-chip").forEach(function (chip) {
+      chip.remove();
+    });
+
     var profile = readSharedProfile();
     var region =
       profile.region ||
@@ -455,6 +459,28 @@
     });
   }
 
+  function refreshProactiveNudges(slug, opts) {
+    if (!slug) slug = detectAgentSlug(opts);
+    if (!slug) return;
+    renderWeeklyHighlight(slug, opts);
+    renderGrantDeadlineChip(slug, opts);
+    if (typeof opts.onProfileRegionChange === "function") {
+      opts.onProfileRegionChange(readSharedProfile());
+    }
+  }
+
+  function bindProfileRefresh(slug, opts) {
+    var refresh = function () {
+      refreshProactiveNudges(slug, opts);
+    };
+    var regionEl = document.getElementById("profile-region");
+    if (regionEl) regionEl.addEventListener("change", refresh);
+    global.addEventListener("storage", function (e) {
+      if (e.key === "gw-team-profile-v1") refresh();
+    });
+    global.addEventListener("gw-profile-changed", refresh);
+  }
+
   function init(opts) {
     opts = opts || {};
     var linksMount =
@@ -479,6 +505,7 @@
     if (slug) {
       renderWeeklyHighlight(slug, opts);
       renderGrantDeadlineChip(slug, opts);
+      bindProfileRefresh(slug, opts);
     }
 
     return { linksMount: linksMount, helpersMount: helpersMount };
@@ -490,6 +517,7 @@
     renderHelpers: renderHelpers,
     renderWeeklyHighlight: renderWeeklyHighlight,
     renderGrantDeadlineChip: renderGrantDeadlineChip,
+    refreshProactiveNudges: refreshProactiveNudges,
     contentBase: contentBase,
     gwbPageHref: gwbPageHref,
     escapeHtml: escapeHtml
