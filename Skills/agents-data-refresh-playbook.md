@@ -55,6 +55,7 @@ Staff / scripts / review  →  Tier 1 canonical JSON  →  Tier 2 generators  �
 | `node product-grants-integrator.js` | `products-with-grants.json` | After **any** `schemes.json` change |
 | Merge / regen | `products-with-grants-and-collection.json` | When widget/deep dive uses collection bundle |
 | `npm run build:deals-feed` | `data/deals-feed.json` | Weekly or after deals seeds/input |
+| `npm run build:agent-highlights` | `data/greenways-agent-highlights.json` | Weekly — powers sidebar **This week** nudge on all seven agents |
 | `npm run build:media-daily-brief` | `data/media-daily-brief.json` | After new news edition |
 | `npm run enrich:sustainable-products` | Grant overlay on `sust_*` catalog | After catalog or schemes change |
 | `npm run sync:content-module-knowledge:apply` | Agent knowledge module blocks | After portal copy in content-modules |
@@ -123,7 +124,7 @@ Drafts and research stay in **content-ops** or review JSON — never unreviewed 
 
 | Frequency | Task |
 |-----------|------|
-| **Weekly** | `build:deals-feed`, check admin stale badges |
+| **Weekly** | `build:deals-feed`, `build:agent-highlights`, check admin stale badges |
 | **After scheme edits** | `product-grants-integrator.js` |
 | **After news edition** | `build:media-daily-brief` |
 | **Monthly** | `enrich:sustainable-products`, ETL image sync (`sync:etl-images:apply`) |

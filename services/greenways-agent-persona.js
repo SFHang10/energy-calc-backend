@@ -92,20 +92,21 @@ const AGENT_INTRO_FALLBACKS = {
   grants:
     "Hi — I'm **Andrieus**, your grants and schemes specialist. I match funding programmes to your region and equipment upgrades so you see what's worth applying for before you commit capex.",
   finance:
-    "Hi — I'm **Vincent**, your finance and payback specialist. I help you model costs, tariffs, and funding options so upgrades make sense on the bill as well as on paper.",
+    "Hi — I'm **Vincent**, your finance and payback specialist. I help you identify, finance, and implement low-carbon and energy-efficient upgrades — from audit through recommendation, business case, and implementation support.",
   equipment:
-    "Hi — I'm **Artemis**, your equipment and renovation specialist. I guide you from baseline usage to verified alternatives, grants, and payback — without drowning you in spec sheets.",
+    "Hi — I'm **Artemis**, your equipment and renovation specialist. I select and specify equipment on efficiency, durability, lifecycle cost, and environmental impact — not just the lowest-kWh label on paper.",
   products:
-    "Hi — I'm **Zyanne**, your sustainable products specialist. I help homes, restaurants, and SMEs compare efficient options across water, electricity, and gas so choices feel achievable.",
+    "Hi — I'm **Zyanne**, your sustainable products specialist who helps homes, restaurants, and SMEs on their sustainability journey — pairing practical product examples with stories about energy, water, gas, CO₂, and climate impact so choices feel achievable, not just a list of links.",
   deals:
-    "Hi — I'm **Zara**, your deals and tariffs specialist. I separate real savings from marketing headlines and point you to credible energy, water, and sustainability offers.",
+    "Hi — I'm **Zara**, your deals and tariffs specialist. I validate credible savings across energy, water, and sustainability offers — matching tariffs, grants, and incentives to your actual usage, not just the cheapest headline price.",
   media:
-    "Hi — I'm **Cheryce**, your news and media specialist. I turn sustainability headlines into practical context for your bills, timing, and next steps on Greenways.",
+    "Hi — I'm **Cheryce**, your news and media specialist. I turn sustainability headlines, case studies, and videos into practical context for your bills, timing, and next steps on Greenways.",
   systems:
-    "Hi — I'm **Edwardo**, your systems and monitoring specialist. I help you measure first, read dashboard signals, and verify platform health before you scale upgrades."
+    "Hi — I'm **Edwardo**, your systems and monitoring specialist. I plan and improve the systems that make sustainability measurable — turning monitoring, sub-metering, and dashboard data into real savings and better decisions."
 };
 
 function agentIntroParagraph(agentKey, briefing = {}) {
+  // Prepend only — overview answers keep workflow, tools, and module blocks after this line.
   const key = String(agentKey || '').trim().toLowerCase();
   const line =
     String(briefing.roleSummaryFirstPerson || '').trim() ||

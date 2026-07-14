@@ -189,6 +189,47 @@
     line-height: 1.5;
     margin-bottom: 14px;
   }
+  .welcome-deal-spotlight {
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(255, 140, 26, 0.12);
+    border: 1px solid rgba(255, 140, 26, 0.35);
+    text-align: left;
+  }
+  .welcome-deal-spotlight-label {
+    display: block;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #fdba74;
+    margin-bottom: 4px;
+  }
+  .welcome-deal-spotlight-title {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .welcome-deal-spotlight-line {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--muted);
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+  .welcome-deal-spotlight-btn {
+    font: inherit;
+    font-size: 0.64rem;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    color: #fff7ed;
+    border: 1px solid rgba(255, 140, 26, 0.5);
+    background: rgba(120, 53, 15, 0.45);
+  }
   .welcome-tags {
     display: flex;
     flex-wrap: wrap;
@@ -1474,10 +1515,11 @@
     tick();
   }
 
-  function welcomeCardInnerHtml() {
+  function welcomeCardInnerHtml(spotlightHtml) {
     return (
       '<h2>Ask Zara</h2>' +
       '<p>Zara matches <strong>energy, water &amp; sustainability offers</strong> to your usage — not just the cheapest deal. Tariffs, grants, spotlights, and upgrade incentives with clear pros and cons.</p>' +
+      (spotlightHtml || "") +
       '<div class="welcome-tags">' +
       '<button type="button" class="welcome-tag" data-prompt="Why use Greenways deals — not just the cheapest price?">Why Zara?</button>' +
       '<button type="button" class="welcome-tag" data-prompt="Explain fixed vs variable tariffs and standing charges">Tariff basics</button>' +
@@ -1488,6 +1530,58 @@
       '<button type="button" class="welcome-tag" data-prompt="What grants am I eligible for?">Grant eligibility</button>' +
       '</div>'
     );
+  }
+
+  function pickDealForProfile(deals, region) {
+    if (!Array.isArray(deals) || !deals.length) return null;
+    var r = String(region || "").toLowerCase();
+    var pool = deals.filter(function (d) {
+      var dr = String(d.region || "EU").toLowerCase();
+      if (r === "nl" || r === "netherlands") return dr === "nl";
+      if (r.indexOf("uk") === 0) return dr === "uk" || dr === "eu";
+      return dr === "eu" || dr === r;
+    });
+    if (!pool.length) pool = deals.slice();
+    pool.sort(function (a, b) {
+      return String(b.addedAt || "").localeCompare(String(a.addedAt || ""));
+    });
+    return pool.find(function (d) { return d.isNew; }) || pool[0];
+  }
+
+  function welcomeSpotlightHtml(deal) {
+    if (!deal) return "";
+    return (
+      '<div class="welcome-deal-spotlight" id="welcome-deal-spotlight">' +
+      '<span class="welcome-deal-spotlight-label">Deal spotlight</span>' +
+      '<span class="welcome-deal-spotlight-title">' + escapeHtml(deal.title || "Featured deal") + "</span>" +
+      '<span class="welcome-deal-spotlight-line">' + escapeHtml(deal.line || "") + "</span>" +
+      '<button type="button" class="welcome-deal-spotlight-btn" data-module-open="deals-ticker">Open deals hub</button>' +
+      "</div>"
+    );
+  }
+
+  async function loadWelcomeDealSpotlight() {
+    var card = document.getElementById("welcome-card");
+    if (!card) return;
+    try {
+      var base = apiBase();
+      var res = await fetch(base + "/data/deals-feed.json");
+      if (!res.ok) res = await fetch(base + "/../data/deals-feed.json");
+      if (!res.ok) return;
+      var data = await res.json();
+      var profile = typeof getProfile === "function" ? getProfile() : {};
+      var deal = pickDealForProfile(data.deals, profile.region);
+      if (!deal) return;
+      var tags = card.querySelector(".welcome-tags");
+      var existing = document.getElementById("welcome-deal-spotlight");
+      if (existing) existing.remove();
+      if (tags) {
+        tags.insertAdjacentHTML("beforebegin", welcomeSpotlightHtml(deal));
+        bindWelcomeTags();
+      }
+    } catch (_) {
+      /* optional nudge */
+    }
   }
 
   function agentHandoffHref(h) {
@@ -1779,6 +1873,15 @@
         sendQuestion(btn.getAttribute("data-prompt"));
       });
     });
+    var spotlightBtn = document.querySelector(".welcome-deal-spotlight-btn");
+    if (spotlightBtn) {
+      spotlightBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (window.GreenwaysAgentContentModule) {
+          GreenwaysAgentContentModule.openById("deals-ticker");
+        }
+      });
+    }
   }
 
   function autoResize(el) {
@@ -1879,6 +1982,7 @@
 
             if (window.GreenwaysAgentSidebar) {
     GreenwaysAgentSidebar.init({
+      agentSlug: "deals-agent",
       quickLinks: [{"icon":"🏷️","name":"Full Deals page","desc":"Ticker + sidebar","moduleOpen":true,"moduleId":"deals-full-page","href":"./Deals.html","action":"Open"},{"icon":"⚡","name":"Energy portal","desc":"Tariff compare","moduleOpen":true,"moduleId":"european-energy","href":"./european_energy_deals_portal.html","action":"Open"},{"icon":"📡","name":"Deals ticker hub","desc":"Three lanes","moduleOpen":true,"moduleId":"deals-ticker","href":"./deals-ticker-hub.html","action":"Open"},{"icon":"⚡","name":"Low energy guide","desc":"Control bills","moduleOpen":true,"moduleId":"low-energy-equipment","href":"./Low%20Energy%20New%20.HTML","action":"Open"},{"icon":"🌿","name":"Products Agent","desc":"Zyanne · catalog","href":"/greenways/sustainable-products-agent","agent":true},{"icon":"💧","name":"Water finder","desc":"Saving products","moduleOpen":true,"moduleId":"water-saving-finder","gwbFile":"water-saving-finder.html","action":"Open"}],
       linksHint: "Portals open in-panel with a short guide — chat stays open behind.",
       helpersHint: "Tariffs, spotlights, water deals, and portals.",
@@ -1898,6 +2002,7 @@
   }
 
   updateCompareUi();
+  loadWelcomeDealSpotlight();
   
   var gwVoiceHandle = null;
   if (window.GreenwaysAgentVoice) {
