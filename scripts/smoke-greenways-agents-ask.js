@@ -163,6 +163,55 @@ async function runLocalSmokes() {
   }
   console.log('OK Andrieus first-person intro');
 
+  const financeOverviewHit = await financeMod.answerFromKnowledge('finance overview who are you', profile);
+  if (!financeOverviewHit?.answer?.includes("I'm **Vincent**")) {
+    throw new Error('Vincent overview: expected first-person intro');
+  }
+  if (!financeOverviewHit?.answer?.includes('Grants & subsidies')) {
+    throw new Error('Vincent overview: expected grants bullet preserved');
+  }
+  console.log('OK Vincent first-person intro + overview content');
+
+  const equipModEarly = require(path.join(ROOT, 'services/equipment-agent-knowledge'));
+  const artemisWhoHit = await equipModEarly.answerFromKnowledge('who are you', profile);
+  if (!artemisWhoHit?.answer?.includes("I'm **Artemis**")) {
+    throw new Error('Artemis who: expected first-person intro');
+  }
+  if (!artemisWhoHit?.answer?.includes('What I help with')) {
+    throw new Error('Artemis overview: expected What I help with section');
+  }
+  console.log('OK Artemis first-person intro + overview content');
+
+  const dealsModEarly = require(path.join(ROOT, 'services/deals-agent-knowledge'));
+  const zaraWhoHit = await dealsModEarly.answerFromKnowledge('who are you', profile);
+  if (!zaraWhoHit?.answer?.includes("I'm **Zara**")) {
+    throw new Error('Zara who: expected first-person intro');
+  }
+  if (!zaraWhoHit?.answer?.includes('deals feed')) {
+    throw new Error('Zara overview: expected deals feed stats');
+  }
+  console.log('OK Zara first-person intro + overview content');
+
+  const mediaModEarly = require(path.join(ROOT, 'services/media-agent-knowledge'));
+  const cheryceWhoHit = await mediaModEarly.answerFromKnowledge('who are you', profile);
+  if (!cheryceWhoHit?.answer?.includes("I'm **Cheryce**")) {
+    throw new Error('Cheryce who: expected first-person intro');
+  }
+  if (!cheryceWhoHit?.answer?.includes('sustainability map')) {
+    throw new Error('Cheryce overview: expected map mention preserved');
+  }
+  console.log('OK Cheryce first-person intro + overview content');
+
+  const systemsModEarly = require(path.join(ROOT, 'services/systems-agent-knowledge'));
+  const edwardoWhoHit = await systemsModEarly.answerFromKnowledge('who are you', profile);
+  if (!edwardoWhoHit?.answer?.includes("I'm **Edwardo**")) {
+    throw new Error('Edwardo who: expected first-person intro');
+  }
+  if (!edwardoWhoHit?.answer?.includes('What I help with')) {
+    throw new Error('Edwardo overview: expected What I help with section');
+  }
+  console.log('OK Edwardo first-person intro + overview content');
+
   const grantsNlHit = await grantsMod.answerFromKnowledge('MIA Vamil Netherlands restaurant equipment', {
     ...profile,
     region: 'nl'

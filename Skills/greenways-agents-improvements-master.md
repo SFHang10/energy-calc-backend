@@ -15,7 +15,7 @@
 - [x] **W3 / Gap 8 — Trust & freshness:** “Data as of” on modules + site evidence — 2026-07-13
 - [x] **Gap 3 — Restaurant energy snapshot:** content module + Vincent/Edwardo intents — 2026-07-13
 - [x] **Gap 10 — Video pointers:** `greenways-video-knowledge.json` + Cheryce `video_explained` — 2026-07-13
-- [x] **W5 — Copy audit + intros:** no Wix/bridge in customer copy; `agentIntroParagraph()` (Andrieus + Zyanne) — 2026-07-13
+- [x] **W5 — Copy audit + intros:** no Wix/bridge in customer copy; `agentIntroParagraph()` on all seven specialists — 2026-07-14
 - [x] **W4 — Actions from chat:** shortlist, marketplace open, grants handoff, copy plan — 2026-07-14
 - [x] **W7 / Gap 4 — Measurement (partial):** `/ask` JSONL logging + admin viewer — 2026-07-13
 - [x] **W6 — Proactive nudges (partial):** sidebar “This week”, Andrieus deadline chip, Zara welcome spotlight — 2026-07-14
@@ -34,7 +34,7 @@
 
 - [x] **W5:** Shared `agentIntroParagraph()` — **prepend only**; keeps workflow, tools, and module blocks after the intro
 - [x] **W5:** `roleSummaryFirstPerson` in all seven briefing JSONs (derived from existing `roleSummary` / overview copy)
-- [ ] **W5:** Wire intro helper on overview / who-are-you intents for Vincent, Artemis, Zara, Cheryce, Edwardo (Andrieus + Zyanne done)
+- [x] **W5:** Wire intro helper on overview / who-are-you intents for Vincent, Artemis, Zara, Cheryce, Edwardo (prepend only; smokes in `smoke-greenways-agents-ask.js`) — 2026-07-14
 - [ ] **W5 / US-016:** Expand LLM polish pilot to Artemis key intents
 
 ### Gap 10 — Cheryce video understanding (pointers)

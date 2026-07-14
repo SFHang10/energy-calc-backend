@@ -39,7 +39,8 @@ const {
 const {
   applyPersona,
   loadAgentVoice,
-  pickTip
+  pickTip,
+  agentIntroParagraph
 } = require('./greenways-agent-persona');
 const {
   buildSustainabilityFinanceNewsAnswer,
@@ -313,6 +314,7 @@ async function buildRoleResourcesAnswer(question, profile, tip) {
 
   return {
     answer:
+      agentIntroParagraph('finance', briefing) +
       agentProfileBlock(
         `**How Vincent advises**`,
         briefing?.roleProfile || briefing?.roleSummary || 'finance + sustainability coordinator'
@@ -339,7 +341,8 @@ async function buildOverviewAnswer(schemes, profile, tip) {
     .join('\n');
   return {
     answer:
-      `**Greenways Finance Agent** — ${briefing?.roleGoal || 'funding and the energy-price story for upgrades'}\n\n` +
+      agentIntroParagraph('finance', briefing) +
+      `**Focus:** ${briefing?.roleGoal || 'funding and the energy-price story for upgrades'}\n\n` +
       `- **Grants & subsidies** — non-repayable support (scheme detail → **Andrieus**)\n` +
       `- **BNPL** — split equipment payments where providers allow\n` +
       `- **Equipment finance** — leases & hire purchase for kitchen equipment\n` +

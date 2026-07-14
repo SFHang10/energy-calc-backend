@@ -15,7 +15,8 @@ const { resolveGlossaryFromIntent, tryBuildGlossaryAnswer } = require('./greenwa
 const {
   applyPersona,
   loadAgentVoice,
-  pickTip
+  pickTip,
+  agentIntroParagraph
 } = require('./greenways-agent-persona');
 const {
   buildHandoffTopicSummary,
@@ -352,6 +353,7 @@ function buildOverviewAnswer(deals, feedMeta, briefing, tip) {
 
   return {
     answer:
+      agentIntroParagraph('deals', briefing) +
       agentProfileBlock(
         `**Zara — Deals & spotlights**`,
         briefing.roleSummary || 'Curated deals across energy, water, and sustainability lanes.'
@@ -541,6 +543,7 @@ async function buildRoleResourcesAnswer(question, briefing, tip) {
 
   return {
     answer:
+      agentIntroParagraph('deals', briefing) +
       agentProfileBlock(`**Zara — role & references**`, briefing.roleProfile || '') +
       `**Must-know:**\n${must.map((m) => `- ${m}`).join('\n')}\n\n` +
       `**Greenways pages:**\n${guides.map((g) => `- **${g.title}** — ${g.summary}`).join('\n')}\n\n` +

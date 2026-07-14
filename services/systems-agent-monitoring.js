@@ -5,6 +5,7 @@
 const path = require('path');
 const fs = require('fs/promises');
 const { pickProductSamples, agentProfileBlock } = require('./greenways-agent-shared');
+const { agentIntroParagraph } = require('./greenways-agent-persona');
 const { toolsToModuleBlocks } = require('./systems-agent-module-blocks');
 
 const guidePath = path.join(__dirname, '..', 'data', 'systems-agent-monitoring-guide.json');
@@ -194,6 +195,7 @@ async function buildConsumerOverviewAnswer(profile, tip) {
 
   return {
     answer:
+      agentIntroParagraph('systems', briefing) +
       agentProfileBlock(
         `**Edwardo — Systems & equipment specialist**`,
         briefing.roleSummary ||

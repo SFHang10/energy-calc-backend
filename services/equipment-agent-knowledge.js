@@ -26,7 +26,8 @@ const { buildUpgradePlan } = require('./greenways-upgrade-plan');
 const {
   applyPersona,
   loadAgentVoice,
-  pickTip
+  pickTip,
+  agentIntroParagraph
 } = require('./greenways-agent-persona');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'equipment-agent-intents.json');
@@ -376,6 +377,7 @@ async function buildOverviewAnswer(profile, tip) {
 
   return {
     answer:
+      agentIntroParagraph('equipment', briefing) +
       agentProfileBlock(
         `**Artemis — Equipment & renovation specialist**`,
         briefing.roleSummary || 'ETL equipment upgrades and premises renovation on Greenways.'
@@ -916,6 +918,7 @@ async function buildRoleResourcesAnswer(question, profile, tip) {
 
   return {
     answer:
+      agentIntroParagraph('equipment', briefing) +
       agentProfileBlock(
         `**Artemis — role & references**`,
         briefing.roleProfile || briefing.roleSummary || ''

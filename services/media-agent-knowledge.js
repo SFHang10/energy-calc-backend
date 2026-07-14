@@ -3,7 +3,7 @@ const fs = require('fs/promises');
 const { loadIntentsFrom, matchIntent, PORTAL_LINKS, toLinkItem, toModuleItem, agentProfileBlock } = require('./greenways-agent-shared');
 const { mergeModuleRow, enrichKnowledgeAnswer } = require('./greenways-content-modules');
 const { buildGlossaryAnswer, tryBuildGlossaryAnswer } = require('./greenways-sustainability-glossary');
-const { applyPersona, loadAgentVoice, pickTip } = require('./greenways-agent-persona');
+const { applyPersona, loadAgentVoice, pickTip, agentIntroParagraph } = require('./greenways-agent-persona');
 const {
   loadEnergySnapshot,
   formatModellingTariffLine,
@@ -1132,7 +1132,7 @@ async function buildOverviewAnswer(catalog, videos, tip, briefing) {
   const { caseStudies, directory } = await loadMapCatalog();
   return {
     answer:
-      `I'm **Cheryce** — I turn sustainability headlines into **practical context**: what changed, why it matters for your bills or upgrades, and where to go next on Greenways.\n\n` +
+      agentIntroParagraph('media', b) +
       `Ask about **monthly news**, the **sustainability map** (${caseStudies.length} case studies + ${directory.length} organisations), **videos**, or the **energy price ticker**. I summarise here and put editions, map examples, and tools on the right.\n\n` +
       `Not sure where to start? Try "latest sustainability roundup" or "organisations on the map for restaurant savings".\n\n_${tip}_`,
     suggestions: [],
@@ -1556,6 +1556,7 @@ async function buildRoleResourcesAnswer(question, profile, tip) {
 
   return {
     answer:
+      agentIntroParagraph('media', briefing) +
       agentProfileBlock(
         `**Cheryce — role & references** (${region})`,
         briefing.roleProfile || briefing.roleSummary || ''
