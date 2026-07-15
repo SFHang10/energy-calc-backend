@@ -51,7 +51,10 @@
 
 - [x] **W7:** Top misses panel on agents-admin (aggregate ask logs) — 2026-07-14
 - [x] **W7:** Restaurant asset benchmark line when `siteId` known (US-022) — `baseline_equipment` + `data/restaurant-assets/` — 2026-07-14
-- [ ] **W8:** Agent voice (speak/listen) — enable all seven + premium TTS optional
+- [x] **W8 / US-023:** Browser voice on all seven agents (`voiceEnabled` in voice config) — 2026-07-15
+- [x] **W8 / US-024:** `spokenSummary` on all `/ask` knowledge responses + smoke — 2026-07-15
+- [ ] **W8 / US-025:** Server TTS route pilot (SkillBoss / premium voice)
+- [ ] **W8 / US-026–027:** Per-agent voice mapping + member auto-speak pilot
 - [ ] **W9:** Agent email (send me this) (SkillBoss optional)
 
 ---

@@ -67,6 +67,25 @@ async function runLocalSmokes() {
   ));
   const fs = require('fs');
 
+  const voiceCfg = JSON.parse(
+    fs.readFileSync(path.join(ROOT, 'data/greenways-agent-voice-config.json'), 'utf8')
+  );
+  const voiceSlugs = [
+    'grants-agent',
+    'finance-agent',
+    'equipment-agent',
+    'deals-agent',
+    'media-agent',
+    'sustainable-products-agent',
+    'systems-agent'
+  ];
+  for (const slug of voiceSlugs) {
+    if (!voiceCfg.agents?.[slug]?.voiceEnabled) {
+      throw new Error(`voice config: ${slug} must have voiceEnabled true`);
+    }
+  }
+  console.log('OK voice config: all seven agents voiceEnabled');
+
   const meaning = meaningForProfile(profile, { intentId: 'energy_prices' });
   if (!meaning || meaning.length < 20) {
     throw new Error('meaningForProfile returned empty');
@@ -730,6 +749,12 @@ async function runLocalSmokes() {
       const finished = await finishKnowledgeAskResponse(agent.key, knowledge, question, profile);
       if (!finished?.answer || !finished.intentId) {
         throw new Error(`${agent.key}: finishKnowledgeAskResponse incomplete for "${question}"`);
+      }
+      if (!finished.spokenSummary || finished.spokenSummary.length < 12) {
+        throw new Error(`${agent.key}: missing spokenSummary for "${question}"`);
+      }
+      if (/\*\*|__|\[/.test(finished.spokenSummary)) {
+        throw new Error(`${agent.key}: spokenSummary contains markdown for "${question}"`);
       }
       console.log(
         'OK',

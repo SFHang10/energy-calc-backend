@@ -90,6 +90,25 @@ https://energy-calc-backend.onrender.com/greenways/deals-agent?q=What+product+de
 
 ---
 
+## Voice (mic + listen) in Wix iframes
+
+All seven agents expose **🎤 Speak** and **🔊 Listen** on the compose row when `voiceEnabled` is true in `data/greenways-agent-voice-config.json`.
+
+**Wix iframe limits:**
+
+- **Listen (🔊)** — usually works inside an embed; uses browser `speechSynthesis` and the agent’s `spokenSummary` from `/ask`.
+- **Mic (🎤)** — may be blocked when the chat runs in a cross-origin iframe. Browsers often deny `SpeechRecognition` unless the user grants microphone permission to the **Render** origin (`energy-calc-backend.onrender.com`), not only the Wix parent page.
+- **Workaround for demos:** open the agent **full page** (no `?embed=1`) in a new tab so mic permission targets Render directly:
+
+```
+https://energy-calc-backend.onrender.com/greenways/grants-agent
+https://energy-calc-backend.onrender.com/greenways/sustainable-products-agent
+```
+
+- **Sync after config changes:** `node scripts/sync-greenways-agent-voice.js` (wires assets + buttons on all seven HTML shells).
+
+---
+
 ## After backend changes
 
 Push GitHub → wait for Render deploy → test `/health` → hard-refresh Wix page (iframe cache).

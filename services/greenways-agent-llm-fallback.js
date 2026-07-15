@@ -547,15 +547,16 @@ async function finishKnowledgeAskResponse(agentKey, knowledge, question, profile
       ? knowledge
       : enrichWithMeaning(knowledge, profile, context);
   const final = await maybePolishKnowledgeAnswer(agentKey, withMeaning, question, profile);
+  const answer = sanitizeLeftColumnProse(final.answer);
   const response = {
     ok: true,
-    answer: sanitizeLeftColumnProse(final.answer),
+    answer,
     suggestions: final.suggestions || [],
     blocks: final.blocks || [],
     productSamples: final.productSamples || [],
     agentHandoffs: final.agentHandoffs || [],
     editionChips: final.editionChips || [],
-    spokenSummary: final.spokenSummary || '',
+    spokenSummary: spokenSummary(answer, 45),
     source: final.source || 'knowledge',
     intentId: final.intentId || null,
     meaningLine: final.meaningLine || ''
