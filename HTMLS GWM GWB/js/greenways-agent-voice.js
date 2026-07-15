@@ -2,12 +2,14 @@
   'use strict';
 
   var CONFIG_URL = '/data/greenways-agent-voice-config.json';
+  var LISTEN_MODE_KEY = 'gw-voice-listen-mode-v1';
   var configCache = null;
   var lastSummary = '';
   var activeAudio = null;
+  var speakingActive = false;
 
   function speechSupported() {
-    return !!(global.speechSynthesis && (global.SpeechRecognition || global.webkitSpeechRecognition));
+    return ttsSupported() || sttSupported();
   }
 
   function ttsSupported() {
@@ -56,10 +58,94 @@
     return '';
   }
 
+  function readJsonLocal(key) {
+    try {
+      var raw = global.localStorage && global.localStorage.getItem(key);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function resolveProfile(getProfile) {
+    var base = {};
+    if (typeof getProfile === 'function') {
+      try {
+        base = getProfile() || {};
+      } catch (_) {
+        base = {};
+      }
+    }
+    if (global.GreenwaysAgentTeam && typeof global.GreenwaysAgentTeam.profileForAsk === 'function') {
+      try {
+        return global.GreenwaysAgentTeam.profileForAsk(base, agentSlugFromPath()) || base;
+      } catch (_) {
+        /* fall through */
+      }
+    }
+    var shared =
+      global.GreenwaysAgentTeam && typeof global.GreenwaysAgentTeam.readSharedProfile === 'function'
+        ? global.GreenwaysAgentTeam.readSharedProfile()
+        : readJsonLocal('gw-team-profile-v1');
+    var member = readJsonLocal('greenways_member_context_v1');
+    var out = {};
+    Object.keys(base || {}).forEach(function (k) {
+      out[k] = base[k];
+    });
+    if (shared && typeof shared === 'object') {
+      Object.keys(shared).forEach(function (k) {
+        if (out[k] == null || out[k] === '') out[k] = shared[k];
+      });
+    }
+    if (member && typeof member === 'object') {
+      if (!out.tier && member.tier) out.tier = String(member.tier);
+      if (!out.memberId && member.memberId != null) out.memberId = String(member.memberId);
+      if (!out.siteId && member.siteId) out.siteId = String(member.siteId);
+    }
+    return out;
+  }
+
+  function isMemberProfile(profile) {
+    var tier = String((profile && profile.tier) || '')
+      .trim()
+      .toLowerCase();
+    return tier === 'member' || tier === 'paid' || tier === 'pro';
+  }
+
+  function getListenMode() {
+    try {
+      return global.localStorage && global.localStorage.getItem(LISTEN_MODE_KEY) === '1';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function setListenMode(on) {
+    try {
+      if (global.localStorage) {
+        if (on) global.localStorage.setItem(LISTEN_MODE_KEY, '1');
+        else global.localStorage.removeItem(LISTEN_MODE_KEY);
+      }
+    } catch (_) {
+      /* ignore */
+    }
+  }
+
   function setSpeakingState(speakBtn, isSpeaking) {
+    speakingActive = !!isSpeaking;
     if (!speakBtn) return;
-    if (isSpeaking) speakBtn.classList.add('is-speaking');
-    else speakBtn.classList.remove('is-speaking');
+    if (isSpeaking) {
+      speakBtn.classList.add('is-speaking');
+      speakBtn.setAttribute('aria-label', 'Stop reading aloud');
+      speakBtn.setAttribute('title', 'Stop');
+      speakBtn.textContent = '⏹';
+    } else {
+      speakBtn.classList.remove('is-speaking');
+      speakBtn.setAttribute('aria-label', 'Read last answer aloud');
+      speakBtn.setAttribute('title', 'Listen');
+      speakBtn.textContent = '🔊';
+    }
   }
 
   function stopActiveAudio() {
@@ -85,25 +171,34 @@
       .trim();
   }
 
-  function stopSpeaking() {
+  function stopSpeaking(speakBtn) {
     stopActiveAudio();
-    if (!ttsSupported()) return;
-    global.speechSynthesis.cancel();
+    if (ttsSupported()) {
+      try {
+        global.speechSynthesis.cancel();
+      } catch (_) {}
+    }
+    setSpeakingState(speakBtn, false);
   }
 
   function speakBrowser(text, options) {
     if (!ttsSupported()) return false;
     var plain = stripForSpeech(text);
     if (!plain) return false;
-    stopSpeaking();
+    var btn = options && options.speakBtn;
+    stopSpeaking(btn);
     var utter = new SpeechSynthesisUtterance(plain);
     utter.lang = (options && options.lang) || 'en-GB';
     utter.rate = (options && options.rate) || 1;
-    var btn = options && options.speakBtn;
     if (btn) {
       setSpeakingState(btn, true);
       utter.onend = utter.onerror = function () {
         setSpeakingState(btn, false);
+      };
+    } else {
+      speakingActive = true;
+      utter.onend = utter.onerror = function () {
+        speakingActive = false;
       };
     }
     global.speechSynthesis.speak(utter);
@@ -124,12 +219,13 @@
       if (!res.ok) return false;
       var blob = await res.blob();
       if (!blob || !blob.size) return false;
-      stopSpeaking();
+      stopSpeaking(btn);
       var url = URL.createObjectURL(blob);
       var audio = new Audio(url);
       audio._objectUrl = url;
       activeAudio = audio;
       if (btn) setSpeakingState(btn, true);
+      else speakingActive = true;
       audio.onended = audio.onerror = function () {
         setSpeakingState(btn, false);
         stopActiveAudio();
@@ -159,12 +255,35 @@
     return lastSummary;
   }
 
+  function syncAutoSpeakUi(autoSpeakBtn, enabled, on) {
+    if (!autoSpeakBtn) return;
+    if (!enabled) {
+      autoSpeakBtn.hidden = true;
+      autoSpeakBtn.classList.remove('is-on');
+      autoSpeakBtn.setAttribute('aria-pressed', 'false');
+      return;
+    }
+    autoSpeakBtn.hidden = false;
+    autoSpeakBtn.classList.toggle('is-on', !!on);
+    autoSpeakBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    autoSpeakBtn.setAttribute(
+      'title',
+      on ? 'Auto-listen on — click to turn off' : 'Auto-listen off — read each answer aloud'
+    );
+    autoSpeakBtn.setAttribute(
+      'aria-label',
+      on ? 'Turn off auto-listen mode' : 'Turn on auto-listen mode'
+    );
+  }
+
   /**
    * @param {object} opts
    * @param {string} [opts.agentSlug]
    * @param {HTMLTextAreaElement} opts.input
    * @param {HTMLButtonElement} opts.micBtn
    * @param {HTMLButtonElement} opts.speakBtn
+   * @param {HTMLButtonElement} [opts.autoSpeakBtn]
+   * @param {function} [opts.getProfile]
    * @param {function} [opts.onTranscript] — (text) => void, e.g. sendQuestion
    */
   async function init(opts) {
@@ -173,27 +292,73 @@
     var input = opts.input;
     var micBtn = opts.micBtn;
     var speakBtn = opts.speakBtn;
+    var autoSpeakBtn = opts.autoSpeakBtn;
     var onTranscript = opts.onTranscript;
+    var getProfile = opts.getProfile;
+
+    function memberNow() {
+      return isMemberProfile(resolveProfile(getProfile));
+    }
+
+    function listenModeOn() {
+      return getListenMode();
+    }
+
+    function refreshMemberUi() {
+      var member = memberNow();
+      var on = member && listenModeOn();
+      syncAutoSpeakUi(autoSpeakBtn, member && ttsSupported(), on);
+      return { member: member, listenMode: on };
+    }
 
     if (!agentCfg.voiceEnabled) {
       if (micBtn) micBtn.hidden = true;
       if (speakBtn) speakBtn.hidden = true;
+      if (autoSpeakBtn) autoSpeakBtn.hidden = true;
       return { agentCfg: agentCfg, supported: speechSupported() };
     }
 
-    if (!speechSupported()) {
+    if (!ttsSupported() && !sttSupported()) {
       if (micBtn) micBtn.disabled = true;
       if (speakBtn) speakBtn.disabled = true;
+      if (autoSpeakBtn) autoSpeakBtn.hidden = true;
       return { agentCfg: agentCfg, supported: false };
     }
 
-    if (speakBtn) {
+    refreshMemberUi();
+
+    try {
+      global.addEventListener('gw-profile-changed', refreshMemberUi);
+    } catch (_) {
+      /* ignore */
+    }
+
+    if (autoSpeakBtn) {
+      autoSpeakBtn.addEventListener('click', function () {
+        if (!memberNow()) {
+          refreshMemberUi();
+          return;
+        }
+        var next = !listenModeOn();
+        setListenMode(next);
+        refreshMemberUi();
+        if (!next) stopSpeaking(speakBtn);
+      });
+    }
+
+    if (speakBtn && ttsSupported()) {
       speakBtn.hidden = false;
+      speakBtn.disabled = false;
       speakBtn.addEventListener('click', function () {
+        if (speakingActive) {
+          stopSpeaking(speakBtn);
+          return;
+        }
         var text = getLastSpokenSummary();
-        if (!text && global.GreenwaysAgentTurnUi) {
-          /* fallback: last agent bubble intro */
-          var bubble = document.querySelector('.msg-row.agent:last-child .typed-body, .msg-row.agent:last-child .msg-bubble .typed-body');
+        if (!text) {
+          var bubble = document.querySelector(
+            '.msg-row.agent:last-child .typed-body, .msg-row.agent:last-child .msg-bubble .typed-body'
+          );
           if (bubble) text = bubble.textContent || '';
         }
         speak(text, {
@@ -204,6 +369,8 @@
           useServerTts: agentCfg.useServerTts
         });
       });
+    } else if (speakBtn) {
+      speakBtn.disabled = true;
     }
 
     if (micBtn && sttSupported()) {
@@ -254,17 +421,28 @@
     return {
       agentCfg: agentCfg,
       supported: true,
+      isMember: memberNow,
+      getListenMode: listenModeOn,
+      setListenMode: setListenMode,
+      refreshMemberUi: refreshMemberUi,
+      stop: function () {
+        stopSpeaking(speakBtn);
+      },
       maybeAutoSpeak: function (spokenSummary) {
         setLastSpokenSummary(spokenSummary);
-        if (agentCfg.autoSpeakOnReply && spokenSummary) {
-          speak(spokenSummary, {
-            lang: agentCfg.lang,
-            rate: agentCfg.speechRate,
-            speakBtn: speakBtn,
-            agentSlug: agentCfg.slug,
-            useServerTts: agentCfg.useServerTts
-          });
-        }
+        var state = refreshMemberUi();
+        var allow =
+          Boolean(spokenSummary) &&
+          state.member &&
+          (state.listenMode || agentCfg.autoSpeakOnReply);
+        if (!allow) return;
+        speak(spokenSummary, {
+          lang: agentCfg.lang,
+          rate: agentCfg.speechRate,
+          speakBtn: speakBtn,
+          agentSlug: agentCfg.slug,
+          useServerTts: agentCfg.useServerTts
+        });
       }
     };
   }
@@ -277,6 +455,10 @@
     getLastSpokenSummary: getLastSpokenSummary,
     isSupported: speechSupported,
     loadConfig: loadConfig,
-    getAgentVoiceConfig: getAgentVoiceConfig
+    getAgentVoiceConfig: getAgentVoiceConfig,
+    isMemberProfile: isMemberProfile,
+    getListenMode: getListenMode,
+    setListenMode: setListenMode,
+    LISTEN_MODE_KEY: LISTEN_MODE_KEY
   };
 })(typeof window !== 'undefined' ? window : global);

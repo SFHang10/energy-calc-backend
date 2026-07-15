@@ -1197,6 +1197,8 @@
     writeHandoff: writeHandoff,
     takeHandoffForAsk: takeHandoffForAsk,
     profileForAsk: profileForAsk,
+    readMemberContext: readMemberContext,
+    mergeMemberContext: mergeMemberContext,
     readSharedProfile: readSharedProfile,
     writeSharedProfile: writeSharedProfile,
     slugFromPath: slugFromPath,

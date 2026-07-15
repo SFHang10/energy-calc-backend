@@ -55,7 +55,7 @@
 - [x] **W8 / US-024:** `spokenSummary` on all `/ask` knowledge responses + smoke — 2026-07-15
 - [x] **W8 / US-025:** Server TTS route pilot (`POST /api/agent-voice/tts`) — falls back to browser without key — 2026-07-15
 - [x] **W8 / US-026 (partial):** Andrieus + Zyanne `voiceId` in voice config; Andrieus `useServerTts: true` — 2026-07-15
-- [ ] **W8 / US-027:** Member auto-speak pilot (`autoSpeakOnReply` + tier gate)
+- [x] **W8 / US-027:** Member auto-speak pilot — 🔁 Listen mode (`tier=member` + local opt-in); ⏹ stop while speaking — 2026-07-15
 - [ ] **W9 (deferred):** Agent email — mailbox registry + “Email me this” when ready
 
 ---

@@ -934,6 +934,7 @@
         <textarea id="chat-input" rows="1" placeholder="Ask about finance, energy prices, payback, BNPL, green loans…" aria-label="Your question"></textarea>
                 <button type="button" class="gw-voice-btn" id="voice-mic-btn" aria-label="Speak your question" title="Speak">🎤</button>
         <button type="button" class="gw-voice-btn" id="voice-speak-btn" aria-label="Read last answer aloud" title="Listen">🔊</button>
+        <button type="button" class="gw-voice-btn" id="voice-auto-btn" aria-label="Turn on auto-listen mode" title="Auto-listen" aria-pressed="false" hidden>🔁</button>
 <button type="button" class="send-btn" id="send-btn" aria-label="Send message" title="Send">➤</button>
       </div>
       <div class="compose-hint">Enter to send · Shift+Enter new line</div>
@@ -1816,6 +1817,8 @@
       input: input,
       micBtn: document.getElementById("voice-mic-btn"),
       speakBtn: document.getElementById("voice-speak-btn"),
+      autoSpeakBtn: document.getElementById("voice-auto-btn"),
+      getProfile: typeof profileForAsk === "function" ? profileForAsk : (typeof getProfile === "function" ? getProfile : null),
       onTranscript: function (text) {
         if (String(text || "").trim()) sendQuestion(text);
       }
