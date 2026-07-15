@@ -29,7 +29,7 @@
 ### Gap 2 — Live data vs illustrative data
 
 - [ ] **Gap 2 / W3:** ENTSO-E token + Render env `ENTSOE_API_KEY` so EU site energy reading becomes live (NL/ES/PT)
-- [ ] **W3 / Gap 2:** Document what is live vs placeholder in KPI/dashboard copy (avoid implying live feeds)
+- [x] **W3 / Gap 2:** Dashboard trust labels — demo model vs live feed in system status + KPI badges — 2026-07-15
 
 ### Wave 5 (W5) — Voice & depth parity (copy)
 
@@ -45,7 +45,7 @@
 ### Wave 6 (W6) — Proactive intelligence (remaining)
 
 - [x] **W6:** Refresh highlights on profile region change (re-pick deal/deadline) — 2026-07-14
-- [ ] **W6:** Schedule `npm run build:agent-highlights` weekly on Render/cron
+- [x] **W6:** Weekly highlights refresh — `npm run refresh:agents-weekly` + playbook scheduling notes — 2026-07-15
 
 ### Wave 7–9 (W7–W9) — later
 

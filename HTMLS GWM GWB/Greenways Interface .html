@@ -674,6 +674,7 @@
   .system-status-pill { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; border: 1px solid rgba(0, 245, 130, 0.4); color: #00f582; background: transparent; }
   .system-status-pill.live { animation: systemStatusLivePulse 2.8s ease-in-out infinite; }
   .system-status-pill.hold { border-color: rgba(255, 184, 48, 0.45); color: #ffe29f; background: rgba(255, 184, 48, 0.12); }
+  .system-status-pill.demo { border-color: rgba(83, 184, 255, 0.45); color: #b5e3ff; background: rgba(83, 184, 255, 0.1); }
   .system-status-pill.err { border-color: rgba(255, 107, 107, 0.45); color: #ffb4b4; }
   .system-status-pill.syncing { color: #b5e3ff; border-color: rgba(83, 184, 255, 0.4); }
   @keyframes systemStatusLivePulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(0, 245, 130, 0); } 50% { box-shadow: 0 0 12px rgba(0, 245, 130, 0.25); } }
@@ -713,6 +714,12 @@
   .system-status-ico.err { background: #ff6b6b; }
   .system-status-line { flex: 1; min-width: 0; }
   .system-status-stamp { margin: 10px 0 10px; font-size: 10px; font-family: var(--mono); color: #6a8f7a; }
+  .system-status-trust {
+    margin: 0 0 10px;
+    font-size: 10px;
+    line-height: 1.45;
+    color: #6a8f7a;
+  }
   .system-status-wok-btn {
     width: 100%;
     border: 1px solid rgba(130, 170, 210, 0.38);
@@ -2875,6 +2882,7 @@
         <li><span class="system-status-ico ok" id="systemStatusIcoEquip"></span><span class="system-status-line" id="systemStatusLineEquip">Equipment sensors — connecting</span></li>
         <li><span class="system-status-ico ok" id="systemStatusIcoDamp"></span><span class="system-status-line" id="systemStatusLineDamp">Damp sensors — connecting</span></li>
       </ul>
+      <p class="system-status-trust" id="systemStatusTrust">KPIs use an illustrative demo model until live meters connect per site. Energy ticker and schemes catalogue are separate live or file-backed feeds.</p>
       <p class="system-status-stamp" id="systemStatusStamp">Updated —</p>
       <button type="button" class="system-status-wok-btn" id="systemStatusWokBtn">Ask in Wok Assist</button>
     </section>
@@ -3157,7 +3165,7 @@
               <div class="card-title">Portfolio</div>
               <div class="card-sub">Site preview, IoT schematic, and utility shortcuts</div>
             </div>
-            <span class="badge badge-green badge-live-sync"><span class="pulse-dot"></span>Live Sync</span>
+            <span class="badge badge-green badge-live-sync"><span class="pulse-dot"></span>Demo portfolio</span>
           </div>
           <div class="portfolio-tab-label">Restaurant sites</div>
           <div class="portfolio-tabs" id="portfolioTabs"></div>
@@ -3391,7 +3399,7 @@
               <div class="card-title">Grants & Schemes Radar</div>
               <div class="card-sub">Notify members when new funding is available</div>
             </div>
-            <span class="badge badge-amber grant-radar-badge-live" id="grantAlertBadge">Live</span>
+            <span class="badge badge-amber grant-radar-badge-live" id="grantAlertBadge">Catalogue</span>
           </div>
           <div class="grant-radar-shell">
             <div class="grant-radar-toolbar">
@@ -3999,23 +4007,39 @@ function updateSystemStatusPanel(opts) {
   opts = opts || {};
   const pill = document.getElementById('systemStatusPill');
   const stamp = document.getElementById('systemStatusStamp');
+  const trust = document.getElementById('systemStatusTrust');
   if (!pill) return;
-  const mode = opts.mode || 'live';
+  let mode = opts.mode || 'live';
   const sourceLabel = opts.sourceLabel || 'Energy Feed';
+  const illustrative = Boolean(
+    opts.illustrative ||
+      /illustrative|demo model/i.test(String(sourceLabel))
+  );
+  if (illustrative && mode === 'live') mode = 'demo';
   const panel = document.getElementById('systemStatusPanel');
   if (panel) {
     panel.classList.remove('status-sync-ok', 'status-hold', 'status-issue');
     if (mode === 'live') panel.classList.add('status-sync-ok');
-    else if (mode === 'hold') panel.classList.add('status-hold');
+    else if (mode === 'hold' || mode === 'demo') panel.classList.add('status-hold');
     else if (mode === 'error') panel.classList.add('status-issue');
   }
   pill.className = 'system-status-pill ' + mode;
   if (mode === 'live') pill.classList.add('live');
-  pill.textContent = mode === 'hold' ? 'Hold' : mode === 'error' ? 'Feed issue' : mode === 'syncing' ? 'Syncing' : 'Live';
+  pill.textContent =
+    mode === 'hold' ? 'Hold' :
+    mode === 'error' ? 'Feed issue' :
+    mode === 'syncing' ? 'Syncing' :
+    mode === 'demo' ? 'Demo model' :
+    'Live';
   const now = new Date();
   const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   if (stamp) stamp.textContent = (mode === 'hold' ? 'Display frozen — ' : 'Updated — ' + now.toLocaleDateString('en-GB', { weekday: 'short' }) + ' ') + timeStr;
-  const period = 'tracked for this period';
+  if (trust) {
+    trust.textContent = illustrative
+      ? 'KPIs use an illustrative demo model until live meters connect per site. Energy ticker and schemes catalogue are separate live or file-backed feeds.'
+      : 'Live utility feed connected. Sensor lines below reflect the latest refresh from your energy connector.';
+  }
+  const period = illustrative ? 'illustrative demo for this period' : 'tracked for this period';
   const feed = document.getElementById('systemStatusLineFeed');
   const elec = document.getElementById('systemStatusLineElec');
   const gas = document.getElementById('systemStatusLineGas');
@@ -4032,9 +4056,17 @@ function updateSystemStatusPanel(opts) {
     if (equip) equip.textContent = hasLast ? 'Equipment sensors — last snapshot; refresh when feed recovers.' : 'Equipment sensors — unavailable until feed returns.';
     if (damp) damp.textContent = hasLast ? 'Damp sensors — last snapshot only.' : 'Damp sensors — unavailable until feed returns.';
   } else {
-    setSystemStatusIconStates({ feed: 'ok', elec: 'ok', gas: 'ok', water: 'ok', equip: 'ok', damp: 'ok' });
-    if (equip) equip.textContent = 'Equipment sensors — connected · HVAC monitored · no major issues detected.';
-    if (damp) damp.textContent = 'Damp sensors — connected.';
+    setSystemStatusIconStates({ feed: 'ok', elec: 'ok', gas: 'ok', water: 'ok', equip: illustrative ? 'warn' : 'ok', damp: illustrative ? 'warn' : 'ok' });
+    if (equip) {
+      equip.textContent = illustrative
+        ? 'Equipment sensors — illustrative until site IoT is connected.'
+        : 'Equipment sensors — connected · HVAC monitored · no major issues detected.';
+    }
+    if (damp) {
+      damp.textContent = illustrative
+        ? 'Damp sensors — placeholder until hardware is live.'
+        : 'Damp sensors — connected.';
+    }
   }
 }
 function initSystemStatusPanel() {
@@ -6167,13 +6199,14 @@ function applyDashboardData(data) {
   if (document.getElementById('equipSummaryGrid')) renderEquipSummaryGrid(selectedCategory);
   updateSystemStatusPanel({
     mode: demoModeLocked ? 'hold' : 'live',
-    sourceLabel: ranged.sourceLabel || 'Energy Feed'
+    sourceLabel: ranged.sourceLabel || 'Energy Feed',
+    illustrative: /illustrative|demo model/i.test(String(ranged.sourceLabel || ''))
   });
 }
 
 function normalizePayload(payload) {
   return {
-    sourceLabel: payload.sourceLabel || 'Live Feed',
+    sourceLabel: payload.sourceLabel || 'Illustrative demo model',
     totals: {
       electricityKwh: Number(payload.totals?.electricityKwh ?? 0),
       gasM3: Number(payload.totals?.gasM3 ?? 0),
@@ -6206,7 +6239,7 @@ function normalizePayload(payload) {
 function createMockPayload() {
   const jitter = (value, spread) => Math.max(0, value + (Math.random() * spread * 2 - spread));
   return {
-    sourceLabel: 'Energy Feed',
+    sourceLabel: 'Illustrative demo model',
     totals: {
       electricityKwh: jitter(142, 6),
       gasM3: jitter(38, 3),

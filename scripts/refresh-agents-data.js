@@ -6,7 +6,7 @@
  * Usage:
  *   node scripts/refresh-agents-data.js --dry-run     (default — print checklist)
  *   node scripts/refresh-agents-data.js --validate    (run validator smokes only)
- *   node scripts/refresh-agents-data.js --step integrator
+ *   node scripts/refresh-agents-data.js --weekly    (deals feed + agent highlights)
  */
 
 const { spawnSync } = require('child_process');
@@ -87,11 +87,20 @@ function main() {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run') || args.length === 0;
   const validate = args.includes('--validate');
+  const weekly = args.includes('--weekly');
   const stepIdx = args.indexOf('--step');
   const stepId = stepIdx >= 0 ? args[stepIdx + 1] : null;
 
   const pipeline = loadPipeline();
   printHeader(pipeline);
+
+  if (weekly) {
+    console.log('--- Weekly agent refresh (sidebar nudges + deals feed) ---');
+    runCommand('npm run build:deals-feed', 'Deals feed');
+    runCommand('npm run build:agent-highlights', 'Agent highlights');
+    console.log('\nWeekly refresh complete. Commit data/deals-feed.json and data/greenways-agent-highlights.json if changed.\n');
+    return;
+  }
 
   if (validate) {
     runJsonParseChecks();

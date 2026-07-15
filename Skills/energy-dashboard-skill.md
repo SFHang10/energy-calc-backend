@@ -92,7 +92,7 @@ Safety references:
 
 ### Overview: system status, KPI strip, analytics row, ticker (May 2026)
 
-- **System status** (sidebar, under nav): `updateSystemStatusPanel` + `setSystemStatusIconStates`; fed from `applyDashboardData` / `dashboardRuntime.refreshNow` (error path updates panel too). Sections **Energy & utilities** and **Sensors & equipment** (equipment + damp lines — extend when real sensor API exists). **Ask in Wok Assist** switches to `wok-assist` tab. `prefers-reduced-motion` disables live pulse on the panel.
+- **System status** (sidebar, under nav): `updateSystemStatusPanel` + `setSystemStatusIconStates`; fed from `applyDashboardData` / `dashboardRuntime.refreshNow` (error path updates panel too). **Demo model** pill when `sourceLabel` is illustrative (default `MockConnector`); trust line explains KPIs vs live ticker/schemes. Sections **Energy & utilities** and **Sensors & equipment** (equipment + damp lines — extend when real sensor API exists). **Ask in Wok Assist** switches to `wok-assist` tab. `prefers-reduced-motion` disables live pulse on the panel.
 - **KPI row** (`.kpi-card`): match **energy ticker** card surface — same gradient and border as `content-ops/drafts/energy-ticker/energy-ticker-green-wire.html` (`.ticker-container`), not the near-black system-status fill.
 - **Metric typography:** CSS **`--font-clean`** loads **IBM Plex Sans** (Google Fonts) for large KPI values, analytics headline numbers, target chips, and data-quality numerals; main UI stays **Space Grotesk**. **Alert Center** (`.demo-list`) intentionally **not** forced to `--font-clean` so list copy stays on the lighter default stack.
 - **Analytics trio** (`.charts-row-3`): Usage Breakdown, 7-Day Trend, AI Insights — **cyan** rim on `.charts-row-3 > .card` (and hover) so they stand out from generic `.card` borders.
@@ -115,9 +115,9 @@ Safety references:
 ### Equipment tab (critical wiring)
 
 - **`equipmentGroups`** drives category cards + instance chips. Venue merge: **`mergeWokVenueInventory()`** loads `data/restaurant-assets/wok-to-walk-equipment-list.json` and **appends** rows by `equipmentIntelligenceType` → group (`ovens`, `cold`, `hvac`, `lighting`, `ops`).
-- **`EQUIPMENT_PHOTO`** — canonical **Wix static URLs** for on-site kit photos. **`fridge`** must **never** reuse **`wokBurner`** URL (same media caused Fridge to show the wok still).
+- **`EQUIPMENT_PHOTO`** — canonical **Wix static URLs** for on-site equipment photos. **`fridge`** must **never** reuse **`wokBurner`** URL (same media caused Fridge to show the wok still).
 - **Three woks:** same **`wokBurner`** image + distinct **`photoTint`** overlays; detail panel uses **`#detailPhotoFrame`** / **`#detailPhotoTint`**.
-- **`hidden: true`** on an appliance row **excludes** it from chips, counts, savings pipeline, and priority queue (`visibleAppliancesList()`, `resolveApplianceInGroup()`). Use for kit not on site (keep row for future).
+- **`hidden: true`** on an appliance row **excludes** it from chips, counts, savings pipeline, and priority queue (`visibleAppliancesList()`, `resolveApplianceInGroup()`). Use for equipment not on site (keep row for future).
 - **`wokPhotoForItem()`** maps merged venue **names** → photo URLs; keep **ice-water chiller** patterns **before** generic fridge regex so “Ice Water Chiller” does not pick the fridge asset.
 - **`INSTANCE_CHIPS_SCROLL_ALL`:** all instance chips stay in a **horizontal scroll** row (8+ items) — do not cap visible chips at 6 when the user needs every burner/line visible.
 - **Zone detail panel:** selected zone uses **`--equip-zone-accent`** from the zone card (e.g. yellow for Wok); **no `scrollIntoView`** on zone select (avoids whole-page jump).
@@ -219,7 +219,7 @@ Local smoke: `http://localhost:4000/HTMLS%20GWM%20GWB/equipment-savings-projecti
 ### Implementation notes
 
 - **`lockProposedFromUrl`:** when savings come from URL/deep dive, do not let the efficiency slider crush proposed monthly below the passed value (extended cap when not locked).
-- **Capex slider:** product mode must reach **~€25k** (commercial equipment); use staged tiers from **`savings-projection-model.js`**, not a flat €4k default for large kit.
+- **Capex slider:** product mode must reach **~€25k** (commercial equipment); use staged tiers from **`savings-projection-model.js`**, not a flat €4k default for large equipment.
 - **Modal placement:** `#savingsProjectionModal` must live **before** closing `</body>` script listeners (not after `</script>`).
 - **Wix images only** in embeds (`static.wixstatic.com`); larger product thumb in popup (~148px).
 - **`company-map.html`:** dashboard back is **sidebar only** — do not re-add a duplicate header **Back to dashboard** button.
@@ -285,7 +285,9 @@ Do **not** re-add the removed **Classic portal backdrop** toggle on savings unle
 
 **Clone pattern for next agents:** **`Skills/greenways-chat-interface-skill.md`** (do not one-off a new layout).
 
-**TODO (dashboard):** compact embed tab on `Greenways Interface .html` when user wants agents on buildings overview.
+**↺ New chat (Jun 2026):** Only **Grants Agent** has `#new-chat-btn` / `clearChat()` today. When adding dashboard agent tabs, port from `greenways-grants-agent.html` per **`greenways-chat-interface-skill.md`** § Next agents.
+
+**TODO (dashboard):** compact embed tab on `Greenways Interface .html` when user wants agents on buildings overview; each new chat gets **New chat** + renamed `SESSION_KEY`.
 
 ### Local URLs
 
@@ -624,7 +626,7 @@ Carry-forward next:
 
 ### 2026-05-04 (Latest) — Main dashboard, equipment, assistant
 
-- **`Greenways Interface .html`:** Wix **`EQUIPMENT_PHOTO`** for on-site kit; **reordered** cookline to list restaurant-photo items first; **`hidden: true`** on Combi / Convection / Griddle (not on site); **removed** commercial coffee row; **`visibleAppliancesList()`** + **`resolveApplianceInGroup()`** so hidden rows do not appear in chips, counts, or ROI lists; **fixed Fridge** using dedicated fridge glass URL (was wrongly same as wok still); **three woks** share one image + **`photoTint`**; **detail** image uses **`detailPhotoFrame` + `detailPhotoTint`**.
+- **`Greenways Interface .html`:** Wix **`EQUIPMENT_PHOTO`** for on-site equipment; **reordered** cookline to list restaurant-photo items first; **`hidden: true`** on Combi / Convection / Griddle (not on site); **removed** commercial coffee row; **`visibleAppliancesList()`** + **`resolveApplianceInGroup()`** so hidden rows do not appear in chips, counts, or ROI lists; **fixed Fridge** using dedicated fridge glass URL (was wrongly same as wok still); **three woks** share one image + **`photoTint`**; **detail** image uses **`detailPhotoFrame` + `detailPhotoTint`**.
 - **Copy:** toolbar **Live refresh** / **Reset hold** (no “Demo Live” phrasing for external demos).
 - **Navigation:** **Green Table** restored in **top + left**; **Wok Assist** embeds `Chef%203%20W2W%20.html` with full-page actions.
 - **Backend:** `dashboard-live-service` + `routes/assistant.js` use **Energy Feed** labelling; **`scrubLegacyDataSourceLabels`** removes stray “Mock Live” in text; `createMockPayload` sourceLabel **Energy Feed**.

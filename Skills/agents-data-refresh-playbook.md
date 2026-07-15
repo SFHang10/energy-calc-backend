@@ -124,7 +124,7 @@ Drafts and research stay in **content-ops** or review JSON — never unreviewed 
 
 | Frequency | Task |
 |-----------|------|
-| **Weekly** | `build:deals-feed`, `build:agent-highlights`, check admin stale badges |
+| **Weekly** | `npm run refresh:agents-weekly` (or `build:deals-feed` + `build:agent-highlights`), check admin stale badges |
 | **After scheme edits** | `product-grants-integrator.js` |
 | **After news edition** | `build:media-daily-brief` |
 | **Monthly** | `enrich:sustainable-products`, ETL image sync (`sync:etl-images:apply`) |
@@ -141,6 +141,19 @@ Registry `globalTasks` are listed in admin UI but **not** one-click run yet. Tar
 - CI: `validate:agent-data` blocks merge on smoke failure
 
 Until then: run commands locally from this playbook.
+
+### Render / scheduled weekly (W6)
+
+Run **`npm run refresh:agents-weekly`** every Monday (or after major catalogue edits). It rebuilds:
+
+- `data/deals-feed.json` — Zara welcome spotlight + deals lanes
+- `data/greenways-agent-highlights.json` — sidebar **This week** on all seven agents
+
+**Options:**
+
+1. **Local / staff** — `npm run refresh:agents-weekly` → commit both JSON files → push (Render serves static `data/`).
+2. **GitHub Actions** (optional) — weekly workflow on `main` that runs the script and opens a PR when outputs change.
+3. **Render Cron Job** (optional) — separate cron service in the same repo: `npm run refresh:agents-weekly` then commit is not automatic on Render; prefer (1) or (2) unless you add a staff-only rebuild endpoint.
 
 ---
 
