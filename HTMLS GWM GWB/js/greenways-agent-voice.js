@@ -4,6 +4,7 @@
   var CONFIG_URL = '/data/greenways-agent-voice-config.json';
   var configCache = null;
   var lastSummary = '';
+  var activeAudio = null;
 
   function speechSupported() {
     return !!(global.speechSynthesis && (global.SpeechRecognition || global.webkitSpeechRecognition));
@@ -42,8 +43,37 @@
       voiceEnabled: row.voiceEnabled !== false,
       lang: row.lang || cfg.defaultLang || 'en-GB',
       speechRate: row.speechRate != null ? row.speechRate : cfg.defaultSpeechRate || 1,
-      autoSpeakOnReply: !!cfg.autoSpeakOnReply
+      autoSpeakOnReply: !!cfg.autoSpeakOnReply,
+      useServerTts: !!row.useServerTts,
+      voiceId: row.voiceId || ''
     };
+  }
+
+  function apiBase() {
+    if (global.GreenwaysAgentShared && typeof global.GreenwaysAgentShared.apiBase === 'function') {
+      return global.GreenwaysAgentShared.apiBase();
+    }
+    return '';
+  }
+
+  function setSpeakingState(speakBtn, isSpeaking) {
+    if (!speakBtn) return;
+    if (isSpeaking) speakBtn.classList.add('is-speaking');
+    else speakBtn.classList.remove('is-speaking');
+  }
+
+  function stopActiveAudio() {
+    if (!activeAudio) return;
+    try {
+      activeAudio.pause();
+      activeAudio.currentTime = 0;
+    } catch (_) {}
+    if (activeAudio._objectUrl) {
+      try {
+        URL.revokeObjectURL(activeAudio._objectUrl);
+      } catch (_) {}
+    }
+    activeAudio = null;
   }
 
   function stripForSpeech(text) {
@@ -56,11 +86,12 @@
   }
 
   function stopSpeaking() {
+    stopActiveAudio();
     if (!ttsSupported()) return;
     global.speechSynthesis.cancel();
   }
 
-  function speak(text, options) {
+  function speakBrowser(text, options) {
     if (!ttsSupported()) return false;
     var plain = stripForSpeech(text);
     if (!plain) return false;
@@ -70,13 +101,54 @@
     utter.rate = (options && options.rate) || 1;
     var btn = options && options.speakBtn;
     if (btn) {
-      btn.classList.add('is-speaking');
+      setSpeakingState(btn, true);
       utter.onend = utter.onerror = function () {
-        btn.classList.remove('is-speaking');
+        setSpeakingState(btn, false);
       };
     }
     global.speechSynthesis.speak(utter);
     return true;
+  }
+
+  async function speakServer(text, options) {
+    var plain = stripForSpeech(text);
+    if (!plain) return false;
+    var btn = options && options.speakBtn;
+    var slug = (options && options.agentSlug) || agentSlugFromPath();
+    try {
+      var res = await fetch(apiBase() + '/api/agent-voice/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: plain, agentSlug: slug })
+      });
+      if (!res.ok) return false;
+      var blob = await res.blob();
+      if (!blob || !blob.size) return false;
+      stopSpeaking();
+      var url = URL.createObjectURL(blob);
+      var audio = new Audio(url);
+      audio._objectUrl = url;
+      activeAudio = audio;
+      if (btn) setSpeakingState(btn, true);
+      audio.onended = audio.onerror = function () {
+        setSpeakingState(btn, false);
+        stopActiveAudio();
+      };
+      await audio.play();
+      return true;
+    } catch (_) {
+      setSpeakingState(btn, false);
+      return false;
+    }
+  }
+
+  async function speak(text, options) {
+    options = options || {};
+    if (options.useServerTts) {
+      var played = await speakServer(text, options);
+      if (played) return true;
+    }
+    return speakBrowser(text, options);
   }
 
   function setLastSpokenSummary(summary) {
@@ -127,7 +199,9 @@
         speak(text, {
           lang: agentCfg.lang,
           rate: agentCfg.speechRate,
-          speakBtn: speakBtn
+          speakBtn: speakBtn,
+          agentSlug: agentCfg.slug,
+          useServerTts: agentCfg.useServerTts
         });
       });
     }
@@ -183,7 +257,13 @@
       maybeAutoSpeak: function (spokenSummary) {
         setLastSpokenSummary(spokenSummary);
         if (agentCfg.autoSpeakOnReply && spokenSummary) {
-          speak(spokenSummary, { lang: agentCfg.lang, rate: agentCfg.speechRate, speakBtn: speakBtn });
+          speak(spokenSummary, {
+            lang: agentCfg.lang,
+            rate: agentCfg.speechRate,
+            speakBtn: speakBtn,
+            agentSlug: agentCfg.slug,
+            useServerTts: agentCfg.useServerTts
+          });
         }
       }
     };

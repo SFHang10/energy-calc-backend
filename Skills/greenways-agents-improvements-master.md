@@ -28,7 +28,7 @@
 
 ### Gap 2 — Live data vs illustrative data
 
-- [ ] **Gap 2 / W3:** ENTSO-E token + Render env `ENTSOE_API_KEY` so EU site energy reading becomes live (NL/ES/PT)
+- [ ] **Gap 2 / W3 (ops — when ready):** ENTSO-E token + Render `ENTSOE_API_KEY` — code + module already live; EU uses zone benchmark until key set
 - [x] **W3 / Gap 2:** Dashboard trust labels — demo model vs live feed in system status + KPI badges — 2026-07-15
 
 ### Wave 5 (W5) — Voice & depth parity (copy)
@@ -53,9 +53,10 @@
 - [x] **W7:** Restaurant asset benchmark line when `siteId` known (US-022) — `baseline_equipment` + `data/restaurant-assets/` — 2026-07-14
 - [x] **W8 / US-023:** Browser voice on all seven agents (`voiceEnabled` in voice config) — 2026-07-15
 - [x] **W8 / US-024:** `spokenSummary` on all `/ask` knowledge responses + smoke — 2026-07-15
-- [ ] **W8 / US-025:** Server TTS route pilot (SkillBoss / premium voice)
-- [ ] **W8 / US-026–027:** Per-agent voice mapping + member auto-speak pilot
-- [ ] **W9:** Agent email (send me this) (SkillBoss optional)
+- [x] **W8 / US-025:** Server TTS route pilot (`POST /api/agent-voice/tts`) — falls back to browser without key — 2026-07-15
+- [x] **W8 / US-026 (partial):** Andrieus + Zyanne `voiceId` in voice config; Andrieus `useServerTts: true` — 2026-07-15
+- [ ] **W8 / US-027:** Member auto-speak pilot (`autoSpeakOnReply` + tier gate)
+- [ ] **W9 (deferred):** Agent email — mailbox registry + “Email me this” when ready
 
 ---
 

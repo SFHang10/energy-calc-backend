@@ -106,6 +106,7 @@ https://energy-calc-backend.onrender.com/greenways/sustainable-products-agent
 ```
 
 - **Sync after config changes:** `node scripts/sync-greenways-agent-voice.js` (wires assets + buttons on all seven HTML shells).
+- **Premium TTS (optional):** set `SKILLBOSS_API_KEY` or `ELEVENLABS_API_KEY` on Render — Andrieus tries `POST /api/agent-voice/tts` first (`useServerTts: true` in voice config), others use browser voice until enabled.
 
 ---
 
