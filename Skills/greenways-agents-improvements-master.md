@@ -40,7 +40,9 @@
 
 ### Gap 10 — Cheryce video understanding (pointers)
 
-- [ ] **Gap 10 (optional):** `enrich:video-knowledge` pipeline (captions → summarise → human approve)
+- [x] **Gap 10:** `enrich:video-knowledge` pipeline — captions when available, else metadata drafts → human approve → merge — 2026-07-15
+- [x] **Gap 10:** Pilot merge of 6 restaurant/home clips into `greenways-video-knowledge.json` (8 pointers live) — 2026-07-15
+- [ ] **Gap 10 (optional):** Admin UI review in `media-videos-admin.html`; re-run with LLM when `ASSISTANT_*` key set for richer captions
 
 ### Wave 6 (W6) — Proactive intelligence (remaining)
 

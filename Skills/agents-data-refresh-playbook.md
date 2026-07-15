@@ -58,6 +58,7 @@ Staff / scripts / review  →  Tier 1 canonical JSON  →  Tier 2 generators  �
 | `npm run build:agent-highlights` | `data/greenways-agent-highlights.json` | Weekly — powers sidebar **This week** nudge on all seven agents |
 | `npm run build:media-daily-brief` | `data/media-daily-brief.json` | After new news edition |
 | `npm run enrich:sustainable-products` | Grant overlay on `sust_*` catalog | After catalog or schemes change |
+| `npm run enrich:video-knowledge` | Draft Cheryce video summaries (captions/metadata → approve → `--merge`) | When adding YouTube ids or refreshing pointers |
 | `npm run sync:content-module-knowledge:apply` | Agent knowledge module blocks | After portal copy in content-modules |
 | `npm run sync:agent-sidebar` | Sidebar quick links JSON → HTML shells | After sidebar config change |
 

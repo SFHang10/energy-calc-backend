@@ -159,11 +159,11 @@
 
 | Step | Status | Notes |
 |------|--------|-------|
-| Add `data/greenways-video-knowledge.json` — per-video `summary`, `takeaways[]`, optional `agentNotes.cheryce`, `relatedModuleIds[]` | ☐ | Lightweight pointers only at runtime (no full transcript in `/ask`) |
-| Script `npm run enrich:video-knowledge` — `videoId` → YouTube captions → LLM summarise → draft rows | ☐ | Human approve before merge; store raw transcript in `content-ops/` if kept |
-| Wire `media-agent-knowledge.js` to prefer video-knowledge over card blurb when user asks “what is this video about?” | ☐ | `resolveVideoSeed` + related-video intents |
+| Add `data/greenways-video-knowledge.json` — per-video `summary`, `takeaways[]`, optional `agentNotes.cheryce`, `relatedModuleIds[]` | ☑ | Lightweight pointers only at runtime (no full transcript in `/ask`) |
+| Script `npm run enrich:video-knowledge` — `videoId` → YouTube captions → LLM summarise → draft rows | ☑ | Human approve before merge; store raw transcript in `content-ops/drafts/video-knowledge/` when captions available |
+| Wire `media-agent-knowledge.js` to prefer video-knowledge over card blurb when user asks “what is this video about?” | ☑ | `buildVideoExplainedAnswer` + `findVideoPointer` |
 | Extend `media-videos-admin.html` — review / edit summaries for catalog rows | ☐ | Same approval pattern as live-music media candidates |
-| Pilot **10–20** high-traffic Greenways YouTube clips + key product MP4 demos | ☐ | Start with rows that already have `videoId` in `wix-youtube-channels.json` |
+| Pilot **10–20** high-traffic Greenways YouTube clips + key product MP4 demos | ☑ partial | 8 live pointers (2 curated + 6 metadata pilot); remaining drafts pending |
 
 **Key files:** `data/wix-youtube-channels.json` · `data/wix-video-catalog.json` · `services/media-agent-knowledge.js` · `Skills/sustainability-video-finder.md` · `HTMLS GWM GWB/media-videos-admin.html`
 
@@ -202,7 +202,7 @@ Work through in this order unless a launch deadline forces a swap:
 | 2026-07-10 | **Sustainability glossary v1** | `data/greenways-sustainability-glossary.json` + `services/greenways-sustainability-glossary.js` — all seven agents |
 | 2026-07-13 | **Site energy reading module** | UK + EU NL/ES/PT postcode grid carbon; Edwardo / Vincent / Zara wiring; commits `1ad6573`, `3681ccd` |
 | 2026-07-13 | **TODO — ENTSO-E live EU grid** | Gap 2: register token + `ENTSOE_API_KEY` on Render (EU still on zone benchmark until done) |
-| 2026-07-13 | **TODO — Cheryce video knowledge** | Gap 10: per-video summary/takeaways registry + optional transcript→LLM enrich; Cheryce explains from pointers not footage |
+| 2026-07-15 | **Gap 10 enrich pipeline** | `npm run enrich:video-knowledge` → drafts in `content-ops/drafts/video-knowledge/`; `--merge` for approved; 8 live Cheryce pointers |
 
 ---
 
