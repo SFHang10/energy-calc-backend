@@ -25,21 +25,51 @@
       --font-clean: 'IBM Plex Sans', system-ui, sans-serif;
       --radius: 16px;
       --shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+      /* Same green-glass building backdrop as Greenways Interface */
+      --page-backdrop-image: url("../product-placement/Sustainability Round Up/Building Pic/OIP (24).jpeg");
     }
     * { box-sizing: border-box; }
     html, body {
       margin: 0;
       min-height: 100%;
-      background:
-        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(61, 207, 122, 0.12), transparent 55%),
-        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(78, 200, 232, 0.08), transparent 50%),
-        var(--bg);
+      background: var(--bg);
       color: var(--text);
       font-family: var(--font);
       overflow-x: hidden;
+      position: relative;
+    }
+    .greenways-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(rgba(5, 14, 9, 0.52), rgba(5, 14, 9, 0.52)),
+        radial-gradient(circle at 20% 20%, rgba(0, 245, 130, 0.1), transparent 45%),
+        var(--page-backdrop-image);
+      background-size: cover, cover, cover;
+      background-position: center, center, center;
+      background-repeat: no-repeat;
+      opacity: 0.48;
+      filter: brightness(1.16);
+      transition: filter 0.45s ease, opacity 0.45s ease, background-image 0.45s ease;
+    }
+    body.gw-backdrop-day .greenways-backdrop {
+      background-image:
+        linear-gradient(rgba(5, 14, 9, 0.24), rgba(5, 14, 9, 0.30)),
+        radial-gradient(circle at 20% 20%, rgba(0, 245, 130, 0.14), transparent 45%),
+        var(--page-backdrop-image);
+      opacity: 0.72;
+      filter: brightness(1.45) saturate(1.1) contrast(1.02);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .greenways-backdrop { transition: none; }
     }
     a { color: inherit; text-decoration: none; }
     .wrap {
+      position: relative;
+      z-index: 1;
       max-width: 1180px;
       margin: 0 auto;
       padding: 20px 18px 64px;
@@ -68,16 +98,74 @@
     }
     .lede {
       margin: 8px 0 0;
-      color: var(--muted);
+      color: #d7ebe0;
       font-size: 0.98rem;
       max-width: 38rem;
       line-height: 1.45;
+      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.45);
     }
     .top-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       align-items: center;
+      justify-content: flex-end;
+    }
+    .curator-row {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      margin: -4px 0 16px;
+    }
+    .curator-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #c5e6d4;
+      font-family: var(--font-clean);
+      font-weight: 600;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+    }
+    .curator-faces {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 0;
+      padding: 4px 2px;
+    }
+    .curator-face {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 2px solid rgba(18, 32, 24, 0.95);
+      padding: 0;
+      margin-left: -8px;
+      background: var(--bg-elev);
+      cursor: pointer;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      transition: transform 0.15s, border-color 0.15s, z-index 0s;
+      position: relative;
+      z-index: 1;
+    }
+    .curator-face:first-child { margin-left: 0; }
+    .curator-face:hover {
+      transform: translateY(-2px) scale(1.08);
+      border-color: var(--green);
+      z-index: 3;
+    }
+    .curator-face.is-active {
+      border-color: var(--green);
+      z-index: 2;
+      box-shadow: 0 0 0 2px rgba(61, 207, 122, 0.35);
+    }
+    .curator-face img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
     .btn {
       display: inline-flex;
@@ -86,7 +174,9 @@
       padding: 10px 14px;
       border-radius: 12px;
       border: 1px solid var(--line);
-      background: var(--green-dim);
+      background: rgba(61, 207, 122, 0.14);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       color: var(--text);
       font: 600 0.88rem var(--font);
       cursor: pointer;
@@ -96,6 +186,33 @@
       background: transparent;
       border-color: var(--line-soft);
     }
+    .btn-topbar-theme {
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(18, 32, 24, 0.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: var(--muted);
+      font: 600 0.82rem var(--font);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    .btn-topbar-theme:hover {
+      border-color: rgba(61, 207, 122, 0.55);
+      color: var(--text);
+    }
+    #btnGreenwaysBackdropTheme .backdrop-theme-label--day {
+      color: #ffb830;
+      font-weight: 600;
+    }
+    #btnGreenwaysBackdropTheme .backdrop-theme-label--night {
+      color: #22d4ff;
+      font-weight: 600;
+    }
     .profile-chip {
       display: inline-flex;
       align-items: center;
@@ -103,7 +220,9 @@
       padding: 8px 12px;
       border-radius: 999px;
       border: 1px solid var(--line);
-      background: rgba(0, 0, 0, 0.25);
+      background: rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       font-size: 0.82rem;
       color: var(--muted);
       font-family: var(--font-clean);
@@ -125,9 +244,14 @@
       padding: 6px 12px 6px 6px;
       border-radius: 999px;
       border: 1px solid var(--line-soft);
-      background: var(--bg-elev);
+      background: rgba(18, 32, 24, 0.62);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       font-size: 0.82rem;
       font-weight: 500;
+      color: var(--text);
+      font-family: var(--font);
+      cursor: pointer;
       transition: border-color 0.15s, transform 0.15s;
     }
     .team-pill:hover {
@@ -154,7 +278,9 @@
       padding: 16px 16px 14px;
       border-radius: var(--radius);
       border: 1px solid var(--line);
-      background: linear-gradient(165deg, rgba(21, 38, 28, 0.95), rgba(11, 20, 16, 0.9));
+      background: linear-gradient(165deg, rgba(21, 38, 28, 0.72), rgba(11, 20, 16, 0.58));
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       box-shadow: var(--shadow);
     }
     .section-head {
@@ -274,6 +400,13 @@
       margin-bottom: 10px;
     }
     .news-rail .news-item:hover { border-color: rgba(78, 200, 232, 0.4); }
+    .news-rail .rail-hint {
+      margin: -4px 0 12px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: var(--font-clean);
+      line-height: 1.4;
+    }
     .news-item .tag {
       font-size: 0.68rem;
       color: var(--cyan);
@@ -294,19 +427,148 @@
       font-family: var(--font-clean);
       line-height: 1.4;
     }
+    .video-drops {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .video-drops > .label {
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: var(--font-clean);
+      font-weight: 600;
+    }
+    .video-drop {
+      border: 1px solid var(--line-soft);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.22);
+      overflow: hidden;
+    }
+    .video-drop summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 10px 12px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 0.82rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .video-drop summary::-webkit-details-marker { display: none; }
+    .video-drop summary::after {
+      content: '▾';
+      margin-left: auto;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .video-drop[open] summary::after { content: '▴'; }
+    .video-drop summary:hover { background: rgba(78, 200, 232, 0.06); }
+    .video-drop .thumb {
+      width: 48px;
+      height: 36px;
+      border-radius: 6px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: #1a2e22;
+    }
+    .video-drop .v-meta {
+      min-width: 0;
+    }
+    .video-drop .v-meta small {
+      display: block;
+      margin-top: 3px;
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-weight: 500;
+      font-family: var(--font-clean);
+    }
+    .video-drop .v-body {
+      padding: 0 12px 12px;
+      border-top: 1px solid var(--line-soft);
+    }
+    .video-drop .v-body p {
+      margin: 10px 0 8px;
+      font-size: 0.76rem;
+      color: var(--muted);
+      font-family: var(--font-clean);
+      line-height: 1.4;
+    }
+    .video-drop .v-player {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 0;
+      border-radius: 8px;
+      background: #000;
+      display: block;
+    }
+    .video-drop .v-player-video {
+      width: 100%;
+      max-height: 200px;
+      border-radius: 8px;
+      background: #000;
+    }
+    .video-drop .v-link {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 0.75rem;
+      color: var(--cyan);
+      font-weight: 600;
+    }
+    .glance-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .glance-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(78, 200, 232, 0.4);
+      background: rgba(78, 200, 232, 0.1);
+      color: #b5e3ff;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-family: var(--font-clean);
+    }
+    .glance-pill .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4ec8e8;
+      box-shadow: 0 0 6px rgba(78, 200, 232, 0.6);
+    }
     .glance {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
     }
-    @media (max-width: 560px) {
+    @media (max-width: 720px) {
+      .glance { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 420px) {
       .glance { grid-template-columns: 1fr; }
     }
     .kpi {
       padding: 12px;
       border-radius: 12px;
       border: 1px solid var(--line);
-      background: linear-gradient(180deg, #0e2117, #0b1a12);
+      background: linear-gradient(180deg, rgba(14, 33, 23, 0.75), rgba(11, 26, 18, 0.65));
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .kpi--cost {
+      border-color: rgba(201, 169, 97, 0.35);
     }
     .kpi .label {
       font-size: 0.72rem;
@@ -320,11 +582,93 @@
       font-size: 1.25rem;
       font-weight: 600;
     }
+    .kpi .value .unit {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-left: 4px;
+    }
+    .kpi .delta {
+      margin-top: 6px;
+      font-size: 0.72rem;
+      font-family: var(--font-clean);
+      font-weight: 600;
+    }
+    .kpi .delta.down { color: var(--green); }
+    .kpi .delta.up { color: #ffb830; }
+    .glance-panel {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+    @media (max-width: 640px) {
+      .glance-panel { grid-template-columns: 1fr; }
+    }
+    .glance-card {
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(34, 212, 255, 0.22);
+      background: linear-gradient(165deg, rgba(14, 33, 23, 0.7), rgba(11, 20, 16, 0.55));
+    }
+    .glance-card h3 {
+      margin: 0 0 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #9ec8b0;
+    }
+    .glance-card .sub {
+      margin: 0 0 10px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-family: var(--font-clean);
+    }
+    .spark {
+      width: 100%;
+      height: 56px;
+      display: block;
+    }
+    .spark-path {
+      fill: none;
+      stroke: #22d4ff;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .spark-fill {
+      fill: rgba(34, 212, 255, 0.12);
+      stroke: none;
+    }
+    .spark-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+      font-size: 0.65rem;
+      color: var(--muted);
+      font-family: var(--font-clean);
+    }
+    .glance-insight {
+      margin: 0;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: #d7ebe0;
+      font-family: var(--font-clean);
+    }
+    .glance-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
     .trust {
       margin-top: 10px;
       font-size: 0.75rem;
       color: var(--gold);
       font-family: var(--font-clean);
+      line-height: 1.4;
     }
     .footer-note {
       margin-top: 8px;
@@ -333,22 +677,259 @@
       color: var(--muted);
       font-family: var(--font-clean);
     }
+    .ticker-shell {
+      margin-bottom: 14px;
+      padding: 10px 12px 12px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: linear-gradient(165deg, rgba(21, 38, 28, 0.72), rgba(11, 20, 16, 0.58));
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+    }
+    .ticker-shell-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .ticker-shell-title {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-family: var(--font-clean);
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .ticker-shell-title .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .ticker-shell-title .dot--green {
+      background: var(--green);
+      box-shadow: 0 0 8px rgba(61, 207, 122, 0.5);
+    }
+    .ticker-shell-title .dot--cyan {
+      background: #4da6ff;
+      box-shadow: 0 0 6px rgba(77, 166, 255, 0.45);
+    }
+    .ticker-shell-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .ticker-toggle-btn {
+      border: 1px solid rgba(61, 207, 122, 0.45);
+      background: rgba(5, 14, 9, 0.55);
+      color: var(--green);
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-family: var(--font);
+      text-decoration: none;
+    }
+    .ticker-toggle-btn:hover {
+      background: var(--green-dim);
+    }
+    .ticker-frame-wrap {
+      width: 100%;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #060f0a;
+    }
+    .ticker-shell.collapsed .ticker-frame-wrap {
+      display: none;
+    }
+    .ticker-shell.collapsed .ticker-shell-header {
+      margin-bottom: 0;
+    }
+    .ticker-frame {
+      width: 100%;
+      height: 312px;
+      border: 0;
+      display: block;
+      background: transparent;
+    }
+    .ticker-frame--events { height: 154px; }
+    .ticker-frame--deals { height: 232px; }
+    .module-shell {
+      margin-top: 8px;
+      margin-bottom: 18px;
+      padding: 12px 14px 14px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: linear-gradient(165deg, rgba(21, 38, 28, 0.72), rgba(11, 20, 16, 0.58));
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+    }
+    .module-shell .ticker-shell-header { margin-bottom: 10px; }
+    .module-shell.collapsed .ticker-frame-wrap,
+    .module-shell.collapsed .module-body { display: none; }
+    .module-shell.collapsed .ticker-shell-header { margin-bottom: 0; }
+    .module-lede {
+      margin: 0 0 10px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-family: var(--font-clean);
+      line-height: 1.45;
+    }
+    .module-lede strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .module-lede + .module-lede {
+      margin-top: -4px;
+    }
+    .module-frame {
+      width: 100%;
+      border: 0;
+      display: block;
+      background: #060f0a;
+    }
+    .module-frame--map { height: min(520px, 70vh); min-height: 360px; }
+    .module-frame--agent { height: min(680px, 78vh); min-height: 480px; }
+    .module-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      min-height: 200px;
+      padding: 24px;
+      text-align: center;
+      color: var(--muted);
+      font-family: var(--font-clean);
+      font-size: 0.9rem;
+    }
+    .desk-picker {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 0 10px;
+      margin-bottom: 4px;
+      scrollbar-width: thin;
+    }
+    .desk-pill {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 11px 5px 5px;
+      border-radius: 999px;
+      border: 1px solid var(--line-soft);
+      background: rgba(0, 0, 0, 0.28);
+      color: var(--text);
+      font: 500 0.78rem var(--font);
+      cursor: pointer;
+    }
+    .desk-pill img {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .desk-pill.is-active {
+      border-color: var(--green);
+      background: var(--green-dim);
+    }
+    .desk-pill--guide {
+      border-color: rgba(201, 169, 97, 0.45);
+    }
+    .team-pill.is-active {
+      border-color: var(--green);
+      box-shadow: 0 0 0 1px rgba(61, 207, 122, 0.35);
+    }
   </style>
 </head>
 <body>
+  <div class="greenways-backdrop" aria-hidden="true"></div>
   <div class="wrap">
     <header class="topbar">
       <div>
         <p class="brand-mark">Greenways</p>
         <h1>Your hub</h1>
-        <p class="lede">Saved picks, specialist suggestions, deals, and news — shaped by your profile. Not an ops meter dashboard.</p>
+        <p class="lede">Saved picks, specialist suggestions, deals, and news — curated by your Transition Agents from your profile. Not an ops meter dashboard.</p>
+        <div class="curator-row" aria-label="Specialists curating this hub">
+          <span class="curator-label">Curated with the Transition Agents</span>
+          <div class="curator-faces" id="curator-faces"></div>
+        </div>
       </div>
       <div class="top-actions">
+        <button type="button" class="btn-topbar-theme" id="btnGreenwaysBackdropTheme" aria-pressed="false" aria-label="Switch to day mode (page look)" title="Switch to day mode (page look)">☀ <span class="backdrop-theme-label backdrop-theme-label--day">Day Mode</span></button>
         <span class="profile-chip" id="profile-chip">Loading profile…</span>
         <a class="btn ghost" href="/greenways/orchestra-hub">Orchestra</a>
         <a class="btn" href="/wix-integration/unified-membership-dashboard.html">Membership</a>
       </div>
     </header>
+
+    <div class="ticker-shell" id="energyTickerShell">
+      <div class="ticker-shell-header">
+        <div class="ticker-shell-title">
+          <span class="dot dot--green" aria-hidden="true"></span>
+          Energy prices context
+        </div>
+        <button class="ticker-toggle-btn" id="tickerToggleBtn" type="button">Hide Ticker</button>
+      </div>
+      <div class="ticker-frame-wrap" id="tickerFrameWrap">
+        <iframe
+          id="energyTickerFrame"
+          class="ticker-frame"
+          src="/content-ops/drafts/energy-ticker/energy-ticker-green-wire.html"
+          title="Energy Prices Ticker"
+          loading="lazy"></iframe>
+      </div>
+    </div>
+
+    <div class="ticker-shell" id="eventsTickerShell">
+      <div class="ticker-shell-header">
+        <div class="ticker-shell-title">
+          <span class="dot dot--cyan" aria-hidden="true"></span>
+          Amsterdam events &amp; catering
+        </div>
+        <div class="ticker-shell-actions">
+          <a class="ticker-toggle-btn" href="/greenways/events-ticker" target="_blank" rel="noopener noreferrer">Open full page</a>
+          <button class="ticker-toggle-btn" id="eventsTickerToggleBtn" type="button">Hide Ticker</button>
+        </div>
+      </div>
+      <div class="ticker-frame-wrap" id="eventsTickerFrameWrap">
+        <iframe
+          id="eventsTickerFrame"
+          class="ticker-frame ticker-frame--events"
+          src="/greenways/events-ticker?embed=1"
+          title="Amsterdam events and catering ticker"
+          loading="lazy"></iframe>
+      </div>
+    </div>
+
+    <div class="ticker-shell" id="dealsTickerShell">
+      <div class="ticker-shell-header">
+        <div class="ticker-shell-title">
+          <span class="dot dot--green" aria-hidden="true"></span>
+          Deals lanes · energy · water · products
+        </div>
+        <div class="ticker-shell-actions">
+          <a class="ticker-toggle-btn" href="/greenways/deals-hub" target="_blank" rel="noopener noreferrer">Open deals hub</a>
+          <button class="ticker-toggle-btn" id="dealsTickerToggleBtn" type="button">Hide Ticker</button>
+        </div>
+      </div>
+      <div class="ticker-frame-wrap" id="dealsTickerFrameWrap">
+        <iframe
+          id="dealsTickerFrame"
+          class="ticker-frame ticker-frame--deals"
+          src="/greenways/deals-hub?embed=1"
+          title="Deals ticker lanes"
+          loading="lazy"></iframe>
+      </div>
+    </div>
 
     <nav class="team-strip" id="team-strip" aria-label="Talk to a specialist"></nav>
 
@@ -383,12 +964,50 @@
             <h2 id="glance-heading"><img id="edwardo-face" alt="" hidden> Site glance</h2>
             <a class="hint" href="/greenways/buildings-dashboard">Full buildings dashboard →</a>
           </div>
-          <div class="glance">
-            <div class="kpi"><div class="label">Electricity</div><div class="value">—</div></div>
-            <div class="kpi"><div class="label">Gas</div><div class="value">—</div></div>
-            <div class="kpi"><div class="label">Water</div><div class="value">—</div></div>
+          <div class="glance-toolbar">
+            <span class="glance-pill" id="glance-source-pill"><span class="dot" aria-hidden="true"></span> Demo model</span>
+            <span class="hint" id="glance-site-label">Illustrative site · same language as the energy dash</span>
           </div>
-          <p class="trust">Illustrative demo model until your site meters are connected — not a live feed.</p>
+          <div class="glance" id="glance-kpis">
+            <div class="kpi">
+              <div class="label">Electricity</div>
+              <div class="value" data-kpi="elec">—<span class="unit">kWh</span></div>
+              <div class="delta down" data-delta="elec">—</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Gas</div>
+              <div class="value" data-kpi="gas">—<span class="unit">m³</span></div>
+              <div class="delta up" data-delta="gas">—</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Water</div>
+              <div class="value" data-kpi="water">—<span class="unit">m³</span></div>
+              <div class="delta down" data-delta="water">—</div>
+            </div>
+            <div class="kpi kpi--cost">
+              <div class="label">Cost today</div>
+              <div class="value" data-kpi="cost">—</div>
+              <div class="delta down" data-delta="cost">—</div>
+            </div>
+          </div>
+          <div class="glance-panel">
+            <div class="glance-card">
+              <h3>7-day trend</h3>
+              <p class="sub">Daily cost shape (demo) — open the full dash for charts &amp; alerts</p>
+              <svg class="spark" id="glance-spark" viewBox="0 0 220 56" preserveAspectRatio="none" aria-hidden="true"></svg>
+              <div class="spark-labels"><span>Mon</span><span>Wed</span><span>Fri</span><span>Sun</span></div>
+            </div>
+            <div class="glance-card">
+              <h3>Edwardo’s read</h3>
+              <p class="sub">Quick take from the demo pattern</p>
+              <p class="glance-insight" id="glance-insight">Loading…</p>
+            </div>
+          </div>
+          <div class="glance-actions">
+            <a class="btn" href="/greenways/buildings-dashboard">Open buildings dashboard</a>
+            <button type="button" class="btn ghost" id="ask-edwardo-btn">Ask Edwardo in desk</button>
+          </div>
+          <p class="trust">Illustrative demo model until your site meters are connected — not a live feed. KPIs mirror the buildings dashboard vocabulary so the full ops view feels familiar.</p>
         </section>
       </main>
 
@@ -396,12 +1015,75 @@
         <div class="section-head">
           <h2 id="news-heading"><img id="cheryce-face" alt="" hidden> Worth knowing</h2>
         </div>
+        <p class="rail-hint">From Cheryce’s updates — editions, stories, and a couple of short videos you can open here.</p>
         <div id="news-list"></div>
-        <a class="btn ghost" style="width:100%;justify-content:center;margin-top:4px" href="/greenways/media-agent?q=What%20should%20I%20read%20this%20week">Ask Cheryce</a>
+        <div class="video-drops" id="video-drops" hidden>
+          <div class="label">Watch · restaurant tips + product demo</div>
+          <div id="video-drops-list"></div>
+        </div>
+        <button type="button" class="btn ghost" id="ask-cheryce-btn" style="width:100%;justify-content:center;margin-top:10px">Ask Cheryce in desk</button>
       </aside>
     </div>
 
-    <p class="footer-note">Customer Hub v1 · CH-001 shell · Personalisation deepens as profile &amp; shortlist grow</p>
+    <section class="module-shell" id="mapModuleShell" aria-labelledby="map-module-title">
+      <div class="ticker-shell-header">
+        <div class="ticker-shell-title" id="map-module-title">
+          <span class="dot dot--green" aria-hidden="true"></span>
+          Sustainability map
+        </div>
+        <div class="ticker-shell-actions">
+          <a class="ticker-toggle-btn" id="mapOpenFull" href="/HTMLS%20GWM%20GWB/European%20Company%20-%20Case%20Study%20Finder%20(Standalone)%20-%20Wix%20bundle.html" target="_blank" rel="noopener noreferrer">Open full</a>
+          <button class="ticker-toggle-btn" id="mapModuleToggleBtn" type="button">Hide</button>
+        </div>
+      </div>
+      <div class="module-body">
+        <p class="module-lede">Why this map is here: it surfaces <strong>organisations and sustainability projects</strong> that can be useful for what your business is trying to achieve — savings examples, techniques, and peers to learn from.</p>
+        <p class="module-lede">See this <strong>growing list of organisations making an impact</strong> across Europe. Filter by sector or place, then open a marker for the story behind the numbers. The map loads on demand so the hub stays light.</p>
+        <div class="ticker-frame-wrap" id="mapFrameWrap">
+          <div class="module-placeholder" id="mapPlaceholder">
+            <span>Ready when you are — explore organisations and projects that match your direction.</span>
+            <button type="button" class="btn" id="mapLoadBtn">Load map</button>
+          </div>
+          <iframe
+            id="mapModuleFrame"
+            class="module-frame module-frame--map"
+            title="Sustainability map — organisations and projects making an impact"
+            hidden
+            data-src="/HTMLS%20GWM%20GWB/European%20Company%20-%20Case%20Study%20Finder%20(Standalone)%20-%20Wix%20bundle.html?embed=1&amp;popup=1"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <section class="module-shell" id="agentDeskShell" aria-labelledby="agent-desk-title">
+      <div class="ticker-shell-header">
+        <div class="ticker-shell-title" id="agent-desk-title">
+          <span class="dot dot--cyan" aria-hidden="true"></span>
+          Agent desk · <span id="agentDeskLabel">Orchestra</span>
+        </div>
+        <div class="ticker-shell-actions">
+          <a class="ticker-toggle-btn" id="agentOpenFull" href="/greenways/orchestra-hub" target="_blank" rel="noopener noreferrer">Open full</a>
+          <button class="ticker-toggle-btn" id="agentDeskToggleBtn" type="button">Hide</button>
+        </div>
+      </div>
+      <div class="module-body">
+        <p class="module-lede">Ask after browsing ideas above — one specialist at a time. Pick from the strip or the chips below.</p>
+        <div class="desk-picker" id="desk-picker" aria-label="Choose specialist for desk"></div>
+        <div class="ticker-frame-wrap" id="agentFrameWrap">
+          <div class="module-placeholder" id="agentPlaceholder">
+            <span>Agent desk ready</span>
+            <button type="button" class="btn" id="agentLoadBtn">Load Orchestra</button>
+          </div>
+          <iframe
+            id="agentDeskFrame"
+            class="module-frame module-frame--agent"
+            title="Greenways agent desk"
+            hidden
+            data-src="/greenways/orchestra-hub?embed=1"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <p class="footer-note">Customer Hub · browse ideas above, then ask in the agent desk — modules load on demand</p>
   </div>
 
   <script>
@@ -435,7 +1117,9 @@
       region: String(member.region || shared.region || 'nl').toLowerCase(),
       sector: String(member.sector || shared.sector || 'restaurant').toLowerCase(),
       tier: String(member.tier || shared.tier || ''),
-      siteId: String(member.siteId || shared.siteId || '')
+      siteId: String(member.siteId || shared.siteId || ''),
+      memberId: member.memberId || shared.memberId || null,
+      memberStatus: String(member.status || '')
     };
   }
 
@@ -504,14 +1188,159 @@
 
   function renderTeam(roster) {
     var strip = document.getElementById('team-strip');
-    strip.innerHTML = (roster.agents || []).map(function (a) {
+    var picker = document.getElementById('desk-picker');
+    var curators = document.getElementById('curator-faces');
+    var agents = roster.agents || [];
+
+    if (curators) {
+      curators.innerHTML = agents.map(function (a) {
+        return (
+          '<button type="button" class="curator-face" data-desk-path="' + escapeHtml(a.path) + '" data-desk-label="' + escapeHtml(a.name) + '" title="' + escapeHtml(a.name) + ' helps curate this hub — open in agent desk">' +
+            (a.imageUrl ? '<img src="' + escapeHtml(a.imageUrl) + '" alt="' + escapeHtml(a.name) + '">' : '') +
+          '</button>'
+        );
+      }).join('');
+    }
+
+    strip.innerHTML = agents.map(function (a) {
       return (
-        '<a class="team-pill" href="' + escapeHtml(a.path) + '" title="' + escapeHtml(a.shortLabel || a.name) + '">' +
+        '<button type="button" class="team-pill" data-desk-path="' + escapeHtml(a.path) + '" data-desk-label="' + escapeHtml(a.name) + '" title="Open ' + escapeHtml(a.name) + ' in agent desk">' +
           '<img src="' + escapeHtml(a.imageUrl) + '" alt="">' +
           escapeHtml(a.name) +
-        '</a>'
+        '</button>'
       );
     }).join('');
+
+    var guidePill =
+      '<button type="button" class="desk-pill desk-pill--guide is-active" data-desk-path="/greenways/orchestra-hub" data-desk-label="Orchestra" data-desk-embed="1">' +
+        '🎼 Orchestra' +
+      '</button>';
+    picker.innerHTML = guidePill + agents.map(function (a) {
+      return (
+        '<button type="button" class="desk-pill" data-desk-path="' + escapeHtml(a.path) + '" data-desk-label="' + escapeHtml(a.name) + '">' +
+          (a.imageUrl ? '<img src="' + escapeHtml(a.imageUrl) + '" alt="">' : '') +
+          escapeHtml(a.name) +
+        '</button>'
+      );
+    }).join('');
+
+    function onDeskPick(ev) {
+      var btn = ev.target.closest('[data-desk-path]');
+      if (!btn) return;
+      openAgentInDesk(btn.getAttribute('data-desk-path'), btn.getAttribute('data-desk-label'), btn.getAttribute('data-desk-embed') === '1');
+    }
+    if (curators) curators.addEventListener('click', onDeskPick);
+    strip.addEventListener('click', onDeskPick);
+    picker.addEventListener('click', onDeskPick);
+  }
+
+  function setDeskActive(path) {
+    document.querySelectorAll('.desk-pill, .team-pill, .curator-face').forEach(function (el) {
+      el.classList.toggle('is-active', el.getAttribute('data-desk-path') === path);
+    });
+  }
+
+  function loadLazyFrame(frameId, placeholderId) {
+    var frame = document.getElementById(frameId);
+    var placeholder = document.getElementById(placeholderId);
+    if (!frame) return false;
+    var src = frame.getAttribute('data-src');
+    if (!src) return false;
+    if (frame.getAttribute('src') !== src) frame.setAttribute('src', src);
+    frame.hidden = false;
+    if (placeholder) placeholder.hidden = true;
+    return true;
+  }
+
+  function openAgentInDesk(path, label, forceEmbed) {
+    var shell = document.getElementById('agentDeskShell');
+    var frame = document.getElementById('agentDeskFrame');
+    var openFull = document.getElementById('agentOpenFull');
+    var labelEl = document.getElementById('agentDeskLabel');
+    if (!frame || !path) return;
+
+    if (shell) shell.classList.remove('collapsed');
+    var hideBtn = document.getElementById('agentDeskToggleBtn');
+    if (hideBtn) hideBtn.textContent = 'Hide';
+    try { localStorage.setItem('customerHubAgentDeskHidden', '0'); } catch (_) { /* ignore */ }
+
+    var embed = forceEmbed || path.indexOf('orchestra-hub') !== -1;
+    var embedSrc = path + (path.indexOf('?') >= 0 ? '&' : '?') + 'embed=1';
+    var src = embed ? embedSrc : path;
+    frame.setAttribute('data-src', src);
+    frame.setAttribute('src', src);
+    frame.hidden = false;
+    var placeholder = document.getElementById('agentPlaceholder');
+    if (placeholder) placeholder.hidden = true;
+
+    if (labelEl) labelEl.textContent = label || 'Agent';
+    if (openFull) {
+      openFull.href = path;
+      openFull.textContent = 'Open full';
+    }
+    setDeskActive(path);
+    shell.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function initModuleToggle(shellId, btnId, storageKey, onExpand) {
+    var shell = document.getElementById(shellId);
+    var btn = document.getElementById(btnId);
+    if (!shell || !btn) return;
+    function setCollapsed(collapsed) {
+      shell.classList.toggle('collapsed', collapsed);
+      btn.textContent = collapsed ? 'Show' : 'Hide';
+      try { localStorage.setItem(storageKey, collapsed ? '1' : '0'); } catch (_) { /* ignore */ }
+      if (!collapsed && typeof onExpand === 'function') onExpand();
+    }
+    var initial = false;
+    try { initial = localStorage.getItem(storageKey) === '1'; } catch (_) { /* ignore */ }
+    setCollapsed(initial);
+    btn.addEventListener('click', function () {
+      setCollapsed(!shell.classList.contains('collapsed'));
+    });
+  }
+
+  function initLazyModules() {
+    var mapLoadBtn = document.getElementById('mapLoadBtn');
+    var agentLoadBtn = document.getElementById('agentLoadBtn');
+    if (mapLoadBtn) {
+      mapLoadBtn.addEventListener('click', function () {
+        loadLazyFrame('mapModuleFrame', 'mapPlaceholder');
+      });
+    }
+    if (agentLoadBtn) {
+      agentLoadBtn.addEventListener('click', function () {
+        openAgentInDesk('/greenways/orchestra-hub', 'Orchestra', true);
+      });
+    }
+
+    initModuleToggle('mapModuleShell', 'mapModuleToggleBtn', 'customerHubMapModuleHidden', function () {
+      /* keep placeholder until explicit load or intersection */
+    });
+    initModuleToggle('agentDeskShell', 'agentDeskToggleBtn', 'customerHubAgentDeskHidden', function () {
+      /* load on demand via button / desk pick */
+    });
+
+    if ('IntersectionObserver' in window) {
+      var mapShell = document.getElementById('mapModuleShell');
+      var agentShell = document.getElementById('agentDeskShell');
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          if (entry.target.id === 'mapModuleShell' && !entry.target.classList.contains('collapsed')) {
+            /* wait for Load map — avoid auto-heavy map; only warm agent desk */
+          }
+          if (entry.target.id === 'agentDeskShell' && !entry.target.classList.contains('collapsed')) {
+            var frame = document.getElementById('agentDeskFrame');
+            if (frame && !frame.getAttribute('src')) {
+              openAgentInDesk('/greenways/orchestra-hub', 'Orchestra', true);
+            }
+          }
+        });
+      }, { rootMargin: '120px 0px', threshold: 0.15 });
+      if (mapShell) io.observe(mapShell);
+      if (agentShell) io.observe(agentShell);
+    }
   }
 
   async function loadJson(url) {
@@ -592,59 +1421,378 @@
     }).join('');
   }
 
-  async function renderNews(roster) {
+  async function renderNews(roster, profile) {
     var list = document.getElementById('news-list');
     var cheryce = agentById(roster, 'media');
     setFace('cheryce-face', cheryce);
-    var data = await loadJson('/api/media-agent/samples') || await loadJson('/api/media-agent/news');
-    var items = (data && (data.samples || data.news || data.items || data.stories)) || [];
+
+    var q = profile && profile.sector ? String(profile.sector) : '';
+    var newsUrl = '/api/media-agent/news?limit=6' + (q ? '&q=' + encodeURIComponent(q) : '');
+    var data = await loadJson(newsUrl);
+    if (!data || !(data.items || []).length) {
+      data = await loadJson('/api/media-agent/news?limit=6');
+    }
+    var items = (data && data.items) || [];
+
+    // Prefer real edition / KB stories over empty shells
+    items = items.filter(function (n) {
+      return n && (n.title || n.summary) && n.id !== 'empty';
+    });
+
     if (!items.length) {
-      list.innerHTML = emptyHtml('News samples load when the media agent API is up. <a href="/greenways/media-agent">Open Cheryce</a>');
+      list.innerHTML = emptyHtml('Cheryce’s updates will appear here when the news feed is available. <a href="/greenways/media-agent">Open Cheryce</a>');
+    } else {
+      list.innerHTML = items.slice(0, 5).map(function (n) {
+        var title = n.title || 'Story';
+        var line = n.summary || n.description || n.excerpt || '';
+        var tag = n.newsCategory || n.editionType || n.edition || n.category || 'Update';
+        var href = n.pageHref || n.href || n.url ||
+          ('/greenways/media-agent?q=' + encodeURIComponent(title));
+        if (n.pageAnchor && href.indexOf('#') < 0) href += '#' + n.pageAnchor;
+        return (
+          '<a class="news-item" href="' + escapeHtml(href) + '" target="_blank" rel="noopener noreferrer">' +
+            '<div class="tag">' + escapeHtml(String(tag)) + (n.edition ? ' · ' + escapeHtml(String(n.edition)) : '') + '</div>' +
+            '<h3>' + escapeHtml(title) + '</h3>' +
+            (line ? '<p>' + escapeHtml(String(line).slice(0, 140)) + '</p>' : '') +
+          '</a>'
+        );
+      }).join('');
+    }
+
+    await renderCheryceVideos(profile);
+  }
+
+  function youtubeIdFromVideo(v) {
+    if (!v) return '';
+    if (v.youtubeId) return String(v.youtubeId);
+    if (v.videoId && /^[A-Za-z0-9_-]{6,}$/.test(String(v.videoId)) && !String(v.videoUrl || '').includes('wixstatic')) {
+      return String(v.videoId);
+    }
+    var url = String(v.videoUrl || v.url || v.href || '');
+    var m = url.match(/(?:youtu\.be\/|v=|embed\/)([A-Za-z0-9_-]{6,})/);
+    return m ? m[1] : '';
+  }
+
+  function videoPlayerHtml(v) {
+    var yt = youtubeIdFromVideo(v);
+    if (yt) {
+      return '<iframe class="v-player" src="https://www.youtube.com/embed/' + escapeHtml(yt) +
+        '?rel=0" title="' + escapeHtml(v.title || 'Video') + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>';
+    }
+    var mp4 = v.videoUrl || '';
+    if (mp4 && /\.mp4(\?|$)/i.test(mp4)) {
+      return '<video class="v-player-video" controls preload="none" poster="' + escapeHtml(v.thumbnail || '') + '">' +
+        '<source src="' + escapeHtml(mp4) + '" type="video/mp4"></video>';
+    }
+    var open = v.videoUrl || v.url || v.href || '';
+    if (open) {
+      return '<a class="v-link" href="' + escapeHtml(open) + '" target="_blank" rel="noopener noreferrer">Open video →</a>';
+    }
+    return '';
+  }
+
+  async function renderCheryceVideos(profile) {
+    var wrap = document.getElementById('video-drops');
+    var list = document.getElementById('video-drops-list');
+    if (!wrap || !list) return;
+
+    var videosData = await loadJson('/api/media-agent/videos');
+    var videos = (videosData && videosData.videos) || [];
+
+    var knowledge = await loadJson('/data/greenways-video-knowledge.json');
+    var pointers = (knowledge && knowledge.items) || [];
+
+    function knowledgeFor(v) {
+      var yt = youtubeIdFromVideo(v);
+      return pointers.find(function (p) {
+        return (yt && p.videoId === yt) || (p.id && v.id && p.id === v.id) ||
+          (p.title && v.title && String(p.title).toLowerCase() === String(v.title).toLowerCase());
+      }) || null;
+    }
+
+    function isPlayable(v) {
+      return v && (v.videoUrl || youtubeIdFromVideo(v) || v.thumbnail);
+    }
+
+    function blob(v) {
+      return [v.id, v.title, v.category, v.videoKind, v.description, (v.tags || []).join(' ')].join(' ').toLowerCase();
+    }
+
+    function isRestaurantTopic(v) {
+      var b = blob(v);
+      if (!/restaurant|hospitality|foodservice|kitchen|hrc|catering/.test(b)) return false;
+      // Topic / tips / round-up — not a product equipment demo
+      if (v.videoKind === 'product' || v.source === 'catalog') return false;
+      return /topic|tips|energy.?sav|efficiency|rebate|round-?up|hrc/.test(b) ||
+        String(v.id || '').indexOf('yt-restaurant') === 0;
+    }
+
+    function isProductDemo(v) {
+      var b = blob(v);
+      return v.videoKind === 'product' || v.source === 'catalog' ||
+        (/oven|combi|dryer|heat.?pump|magistar|eloma|invoq|zanussi/.test(b) && /restaurant|kitchen|water|hvac|energy/.test(b));
+    }
+
+    function fromPointer(p, label) {
+      return {
+        id: p.id,
+        title: p.title,
+        description: p.summary,
+        videoId: p.videoId,
+        youtubeId: p.videoId,
+        category: label || 'restaurant',
+        videoKind: 'topic',
+        thumbnail: p.videoId ? ('https://i.ytimg.com/vi/' + p.videoId + '/hqdefault.jpg') : ''
+      };
+    }
+
+    var picks = [];
+
+    // 1) Restaurant story / tips video (prefer knowledge pointers)
+    var restaurantPointer = pointers.find(function (p) {
+      return p.videoId && (
+        p.id === 'yt-restaurant-energy-saving-tips' ||
+        p.id === 'yt-restaurant-energy-star' ||
+        String(p.id || '').indexOf('yt-restaurant') === 0 ||
+        /restaurant/i.test(p.title || '')
+      );
+    });
+    var restaurantFromApi = videos.find(function (v) { return isPlayable(v) && isRestaurantTopic(v); });
+
+    if (restaurantPointer) {
+      picks.push(fromPointer(restaurantPointer, 'Restaurant'));
+    } else if (restaurantFromApi) {
+      picks.push(restaurantFromApi);
+    }
+
+    // 2) One product demo (kitchen / efficiency equipment)
+    var demo = videos.find(function (v) {
+      if (!isPlayable(v) || !isProductDemo(v)) return false;
+      // Prefer restaurant kitchen demos first
+      return /restaurant|kitchen|oven|combi|magistar|eloma|invoq|zanussi/.test(blob(v));
+    }) || videos.find(function (v) { return isPlayable(v) && isProductDemo(v); });
+
+    if (demo) {
+      // Avoid duplicating the restaurant pick
+      var demoId = demo.id || demo.title;
+      if (!picks.some(function (p) { return (p.id || p.title) === demoId; })) {
+        picks.push(demo);
+      }
+    }
+
+    // Fill if still short
+    if (picks.length < 2) {
+      videos.filter(isPlayable).forEach(function (v) {
+        if (picks.length >= 2) return;
+        if (picks.some(function (p) { return p.id === v.id; })) return;
+        picks.push(v);
+      });
+    }
+
+    if (!picks.length) {
+      wrap.hidden = true;
+      list.innerHTML = '';
       return;
     }
-    list.innerHTML = items.slice(0, 5).map(function (n) {
-      var title = n.title || n.name || 'Story';
-      var line = n.summary || n.description || n.excerpt || n.category || '';
-      var href = n.href || n.url || ('/greenways/media-agent?q=' + encodeURIComponent(title));
+
+    wrap.hidden = false;
+    var labelEl = wrap.querySelector('.label');
+    if (labelEl) labelEl.textContent = 'Watch · restaurant tips + product demo';
+
+    list.innerHTML = picks.slice(0, 2).map(function (v) {
+      var k = knowledgeFor(v);
+      var blurb = (k && k.summary) || v.description || v.summary || 'A short clip from Cheryce’s media lane.';
+      var takeaways = (k && k.takeaways) || [];
+      var takeHtml = takeaways.slice(0, 2).map(function (t) {
+        return '<li>' + escapeHtml(t) + '</li>';
+      }).join('');
+      var kindLabel = isProductDemo(v) && v.videoKind !== 'topic'
+        ? 'Product demo'
+        : (v.category === 'Restaurant' || /restaurant/i.test(v.title || '') || String(v.id || '').indexOf('yt-restaurant') === 0
+          ? 'Restaurant'
+          : (v.category || v.videoKind || 'Media'));
+      var thumb = v.thumbnail
+        ? '<img class="thumb" src="' + escapeHtml(v.thumbnail) + '" alt="">'
+        : '<span class="thumb" aria-hidden="true"></span>';
       return (
-        '<a class="news-item" href="' + escapeHtml(href) + '">' +
-          '<div class="tag">' + escapeHtml(n.category || n.edition || 'News') + '</div>' +
-          '<h3>' + escapeHtml(title) + '</h3>' +
-          (line ? '<p>' + escapeHtml(String(line).slice(0, 120)) + '</p>' : '') +
-        '</a>'
+        '<details class="video-drop">' +
+          '<summary>' + thumb +
+            '<span class="v-meta">' + escapeHtml(v.title || 'Video') +
+              '<small>' + escapeHtml(kindLabel) + '</small>' +
+            '</span>' +
+          '</summary>' +
+          '<div class="v-body">' +
+            '<p>' + escapeHtml(String(blurb).slice(0, 220)) + '</p>' +
+            (takeHtml ? '<ul style="margin:0 0 8px;padding-left:1.1rem;font-size:0.74rem;color:var(--muted);font-family:var(--font-clean);line-height:1.4">' + takeHtml + '</ul>' : '') +
+            videoPlayerHtml(v) +
+          '</div>' +
+        '</details>'
       );
     }).join('');
   }
 
-  function renderGlance(roster) {
+  function renderGlanceSpark(values) {
+    var svg = document.getElementById('glance-spark');
+    if (!svg || !values || !values.length) return;
+    var w = 220;
+    var h = 56;
+    var pad = 4;
+    var min = Math.min.apply(null, values);
+    var max = Math.max.apply(null, values);
+    var span = Math.max(1, max - min);
+    var pts = values.map(function (v, i) {
+      var x = pad + (i / (values.length - 1)) * (w - pad * 2);
+      var y = h - pad - ((v - min) / span) * (h - pad * 2);
+      return [x, y];
+    });
+    var line = pts.map(function (p, i) { return (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' ');
+    var fill = line + ' L' + (w - pad) + ' ' + h + ' L' + pad + ' ' + h + ' Z';
+    svg.innerHTML =
+      '<path class="spark-fill" d="' + fill + '"></path>' +
+      '<path class="spark-path" d="' + line + '"></path>';
+  }
+
+  function renderGlance(roster, profile) {
     setFace('edwardo-face', agentById(roster, 'systems'));
-    var kpis = document.querySelectorAll('.glance .kpi .value');
-    // Placeholder illustrative figures — trust line already explains demo model
-    var demo = ['€42', '€18', '1.2 m³'];
-    kpis.forEach(function (el, i) { el.textContent = demo[i] || '—'; });
+
+    // Align with buildings dashboard demo vocabulary (kWh / m³ / cost today)
+    var demo = {
+      elec: { value: '142', unit: 'kWh', delta: '▼ 8% vs yesterday', dir: 'down' },
+      gas: { value: '38', unit: 'm³', delta: '▲ 3% vs yesterday', dir: 'up' },
+      water: { value: '1.8', unit: 'm³', delta: '▼ 5% vs yesterday', dir: 'down' },
+      cost: { value: '€84', unit: '', delta: '▼ €12 vs target', dir: 'down' }
+    };
+
+    Object.keys(demo).forEach(function (key) {
+      var row = demo[key];
+      var valEl = document.querySelector('[data-kpi="' + key + '"]');
+      var deltaEl = document.querySelector('[data-delta="' + key + '"]');
+      if (valEl) {
+        valEl.innerHTML = escapeHtml(row.value) +
+          (row.unit ? '<span class="unit">' + escapeHtml(row.unit) + '</span>' : '');
+      }
+      if (deltaEl) {
+        deltaEl.textContent = row.delta;
+        deltaEl.classList.toggle('down', row.dir === 'down');
+        deltaEl.classList.toggle('up', row.dir === 'up');
+      }
+    });
+
+    // Gentle 7-day cost shape around €84
+    renderGlanceSpark([78, 82, 91, 86, 80, 88, 84]);
+
+    var insight = document.getElementById('glance-insight');
+    if (insight) {
+      var sector = (profile && profile.sector) || 'restaurant';
+      var siteBit = (profile && profile.siteId) ? ' for your linked site' : '';
+      insight.textContent =
+        'Kitchen and cold-room loads usually dominate ' + sector + ' sites' + siteBit +
+        '. Today’s demo cost (€84) is under target — when meters connect, this glance will track the same utilities you see on the full buildings dashboard.';
+    }
+
+    var siteLabel = document.getElementById('glance-site-label');
+    if (siteLabel && profile && profile.siteId) {
+      siteLabel.textContent = 'Site ' + profile.siteId + ' · demo figures until live meters connect';
+    }
+
+    var askEd = document.getElementById('ask-edwardo-btn');
+    if (askEd && !askEd._bound) {
+      askEd._bound = true;
+      askEd.addEventListener('click', function () {
+        openAgentInDesk('/greenways/systems-agent', 'Edwardo', false);
+      });
+    }
   }
 
   function renderProfile(profile) {
     var region = REGION_LABELS[profile.region] || profile.region || 'Region';
     var sector = profile.sector ? profile.sector.charAt(0).toUpperCase() + profile.sector.slice(1) : 'Your business';
-    var tier = profile.tier ? ' · ' + profile.tier : '';
+    var tier = profile.tier ? ' · ' + profile.tier : (profile.memberId ? '' : ' · Guest');
     document.getElementById('profile-chip').innerHTML =
       '<strong>' + escapeHtml(region) + '</strong> · ' + escapeHtml(sector) + escapeHtml(tier);
   }
 
+  function initGreenwaysBackdropTheme() {
+    var BACKDROP_THEME_KEY = 'greenways_backdrop_theme';
+    var btn = document.getElementById('btnGreenwaysBackdropTheme');
+
+    function applyBackdropTheme(mode) {
+      var day = mode === 'day';
+      document.body.classList.toggle('gw-backdrop-day', day);
+      if (btn) {
+        btn.innerHTML = day
+          ? '🌙 <span class="backdrop-theme-label backdrop-theme-label--night">Night Mode</span>'
+          : '☀ <span class="backdrop-theme-label backdrop-theme-label--day">Day Mode</span>';
+        btn.setAttribute('aria-pressed', day ? 'true' : 'false');
+        btn.setAttribute('aria-label', day ? 'Switch to night mode (page look)' : 'Switch to day mode (page look)');
+        btn.title = day ? 'Switch to night mode (page look)' : 'Switch to day mode (page look)';
+      }
+    }
+
+    function getBackdropTheme() {
+      try {
+        var saved = localStorage.getItem(BACKDROP_THEME_KEY);
+        if (saved === 'day' || saved === 'night') return saved;
+      } catch (_) { /* ignore */ }
+      return 'night';
+    }
+
+    function setBackdropTheme(mode) {
+      var next = mode === 'day' ? 'day' : 'night';
+      applyBackdropTheme(next);
+      try { localStorage.setItem(BACKDROP_THEME_KEY, next); } catch (_) { /* ignore */ }
+    }
+
+    applyBackdropTheme(getBackdropTheme());
+    if (btn) {
+      btn.addEventListener('click', function () {
+        setBackdropTheme(document.body.classList.contains('gw-backdrop-day') ? 'night' : 'day');
+      });
+    }
+  }
+
+  function initTickerToggle(shellId, btnId, storageKey) {
+    var shell = document.getElementById(shellId);
+    var btn = document.getElementById(btnId);
+    if (!shell || !btn) return;
+    function setCollapsed(collapsed) {
+      shell.classList.toggle('collapsed', collapsed);
+      btn.textContent = collapsed ? 'Show Ticker' : 'Hide Ticker';
+      try { localStorage.setItem(storageKey, collapsed ? '1' : '0'); } catch (_) { /* ignore */ }
+    }
+    var initial = false;
+    try { initial = localStorage.getItem(storageKey) === '1'; } catch (_) { /* ignore */ }
+    setCollapsed(initial);
+    btn.addEventListener('click', function () {
+      setCollapsed(!shell.classList.contains('collapsed'));
+    });
+  }
+
   async function init() {
+    initGreenwaysBackdropTheme();
+    initTickerToggle('energyTickerShell', 'tickerToggleBtn', 'customerHubEnergyTickerHidden');
+    initTickerToggle('eventsTickerShell', 'eventsTickerToggleBtn', 'customerHubEventsTickerHidden');
+    initTickerToggle('dealsTickerShell', 'dealsTickerToggleBtn', 'customerHubDealsTickerHidden');
+    initLazyModules();
     var profile = getProfile();
     renderProfile(profile);
     renderSaved(document.getElementById('saved-lane'));
 
     var roster = await loadJson('/data/greenways-agent-roster.json') || { agents: [] };
     renderTeam(roster);
-    renderGlance(roster);
+    renderGlance(roster, profile);
     await Promise.all([
       renderSuggestions(roster, profile),
       renderDeals(roster, profile),
-      renderNews(roster)
+      renderNews(roster, profile)
     ]);
+
+    var askCheryce = document.getElementById('ask-cheryce-btn');
+    if (askCheryce) {
+      askCheryce.addEventListener('click', function () {
+        openAgentInDesk('/greenways/media-agent', 'Cheryce', false);
+      });
+    }
   }
 
   init();

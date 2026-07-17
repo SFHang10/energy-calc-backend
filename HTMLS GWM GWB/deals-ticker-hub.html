@@ -365,6 +365,47 @@
       color: #444;
       letter-spacing: 0.08em;
     }
+
+    /* Customer Hub / iframe — lanes only */
+    body.embed-mode {
+      background: transparent;
+      min-height: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    body.embed-mode.hub-page--backdrop {
+      background: transparent;
+    }
+    body.embed-mode .hub-page-backdrop,
+    body.embed-mode .header,
+    body.embed-mode .meta-bar,
+    body.embed-mode .control-card,
+    body.embed-mode .section-title,
+    body.embed-mode .highlights,
+    body.embed-mode .deal-grid,
+    body.embed-mode .empty-state,
+    body.embed-mode .footer-note,
+    body.embed-mode #errBox {
+      display: none !important;
+    }
+    body.embed-mode .wrap {
+      max-width: none;
+      margin: 0;
+      padding: 0;
+    }
+    body.embed-mode .ticker-block {
+      margin: 0;
+    }
+    body.embed-mode.hub-page--backdrop .ticker-block {
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      box-shadow: none;
+    }
+    body.embed-mode .ticker-row:last-child {
+      margin-bottom: 0;
+    }
   </style>
 </head>
 <body class="hub-page--backdrop">
@@ -420,6 +461,9 @@
   </div>
 
   <script>
+    const isEmbed = /[?&]embed=1/.test(location.search);
+    if (isEmbed) document.body.classList.add('embed-mode');
+
     const FEED_URLS = ['../data/deals-feed.json', '/data/deals-feed.json'];
     let FEED = { meta: {}, deals: [], highlights: [] };
     let activeCat = 'all';
@@ -427,6 +471,17 @@
 
     function pickFeedUrl() {
       return FEED_URLS[0];
+    }
+
+    function openDealHref(href) {
+      if (!href) return;
+      try {
+        if (isEmbed && window.top && window.top !== window) {
+          window.top.location.href = href;
+          return;
+        }
+      } catch (_) { /* cross-origin top — fall through */ }
+      window.location.href = href;
     }
 
     async function loadFeed() {
@@ -469,7 +524,7 @@
           (d.isNew ? '<span class="ti-new">NEW</span>' : '') +
           '<span>' + escapeHtml(d.title) + ' — ' + escapeHtml(d.line) + '</span>';
         el.addEventListener('click', () => {
-          if (d.href) window.location.href = d.href;
+          openDealHref(d.href);
         });
         track.appendChild(el);
       });
@@ -597,10 +652,12 @@
 
     (async function init() {
       await loadFeed();
-      renderMeta();
+      if (!isEmbed) {
+        renderMeta();
+        renderHighlights();
+        renderGrid();
+      }
       renderTickers();
-      renderHighlights();
-      renderGrid();
     })();
   </script>
 </body>
