@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Greenways — Customer Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b1410;
+      --bg-elev: #122018;
+      --bg-card: #15261c;
+      --line: rgba(75, 140, 104, 0.28);
+      --line-soft: rgba(255, 255, 255, 0.08);
+      --text: #e8f0ea;
+      --muted: #9bb5a4;
+      --green: #3dcf7a;
+      --green-dim: rgba(61, 207, 122, 0.14);
+      --cyan: #4ec8e8;
+      --gold: #c9a961;
+      --font: 'Space Grotesk', system-ui, sans-serif;
+      --font-clean: 'IBM Plex Sans', system-ui, sans-serif;
+      --radius: 16px;
+      --shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(61, 207, 122, 0.12), transparent 55%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(78, 200, 232, 0.08), transparent 50%),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 20px 18px 64px;
+    }
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+    .brand-mark {
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--green);
+      font-weight: 600;
+      margin: 0 0 6px;
+    }
+    .topbar h1 {
+      margin: 0;
+      font-size: clamp(1.55rem, 3vw, 2.1rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    .lede {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+      max-width: 38rem;
+      line-height: 1.45;
+    }
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--green-dim);
+      color: var(--text);
+      font: 600 0.88rem var(--font);
+      cursor: pointer;
+    }
+    .btn:hover { border-color: rgba(61, 207, 122, 0.55); }
+    .btn.ghost {
+      background: transparent;
+      border-color: var(--line-soft);
+    }
+    .profile-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.25);
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-family: var(--font-clean);
+    }
+    .profile-chip strong { color: var(--text); font-weight: 600; }
+    .team-strip {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 4px 2px 14px;
+      margin-bottom: 8px;
+      scrollbar-width: thin;
+    }
+    .team-pill {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px 6px 6px;
+      border-radius: 999px;
+      border: 1px solid var(--line-soft);
+      background: var(--bg-elev);
+      font-size: 0.82rem;
+      font-weight: 500;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .team-pill:hover {
+      border-color: var(--green);
+      transform: translateY(-1px);
+    }
+    .team-pill img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+    .section {
+      margin-bottom: 22px;
+      padding: 16px 16px 14px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: linear-gradient(165deg, rgba(21, 38, 28, 0.95), rgba(11, 20, 16, 0.9));
+      box-shadow: var(--shadow);
+    }
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .section-head h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-head h2 img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid var(--line);
+    }
+    .section-head .hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-family: var(--font-clean);
+    }
+    .lane {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: thin;
+    }
+    .card {
+      flex: 0 0 min(240px, 78vw);
+      scroll-snap-align: start;
+      position: relative;
+      border-radius: 14px;
+      border: 1px solid var(--line-soft);
+      background: var(--bg-card);
+      overflow: hidden;
+      min-height: 168px;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .card:hover {
+      border-color: rgba(61, 207, 122, 0.45);
+      transform: translateY(-2px);
+    }
+    .card-media {
+      height: 96px;
+      background:
+        linear-gradient(135deg, rgba(61, 207, 122, 0.2), rgba(78, 200, 232, 0.08)),
+        #1a2e22;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+    }
+    .card-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .card-body {
+      padding: 10px 12px 12px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .card-body h3 {
+      margin: 0;
+      font-size: 0.88rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .card-body p {
+      margin: 0;
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.35;
+      font-family: var(--font-clean);
+    }
+    .agent-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 2px solid rgba(11, 20, 16, 0.85);
+      object-fit: cover;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+      background: #1a2e22;
+    }
+    .empty {
+      padding: 18px 14px;
+      border-radius: 12px;
+      border: 1px dashed var(--line-soft);
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-family: var(--font-clean);
+    }
+    .empty a { color: var(--green); text-decoration: underline; }
+    .news-rail .news-item {
+      display: block;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line-soft);
+      background: rgba(0, 0, 0, 0.2);
+      margin-bottom: 10px;
+    }
+    .news-rail .news-item:hover { border-color: rgba(78, 200, 232, 0.4); }
+    .news-item .tag {
+      font-size: 0.68rem;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+    }
+    .news-item h3 {
+      margin: 4px 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .news-item p {
+      margin: 0;
+      font-size: 0.76rem;
+      color: var(--muted);
+      font-family: var(--font-clean);
+      line-height: 1.4;
+    }
+    .glance {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 560px) {
+      .glance { grid-template-columns: 1fr; }
+    }
+    .kpi {
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #0e2117, #0b1a12);
+    }
+    .kpi .label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .kpi .value {
+      margin-top: 4px;
+      font-family: var(--font-clean);
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .trust {
+      margin-top: 10px;
+      font-size: 0.75rem;
+      color: var(--gold);
+      font-family: var(--font-clean);
+    }
+    .footer-note {
+      margin-top: 8px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-family: var(--font-clean);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <div>
+        <p class="brand-mark">Greenways</p>
+        <h1>Your hub</h1>
+        <p class="lede">Saved picks, specialist suggestions, deals, and news — shaped by your profile. Not an ops meter dashboard.</p>
+      </div>
+      <div class="top-actions">
+        <span class="profile-chip" id="profile-chip">Loading profile…</span>
+        <a class="btn ghost" href="/greenways/orchestra-hub">Orchestra</a>
+        <a class="btn" href="/wix-integration/unified-membership-dashboard.html">Membership</a>
+      </div>
+    </header>
+
+    <nav class="team-strip" id="team-strip" aria-label="Talk to a specialist"></nav>
+
+    <div class="layout">
+      <main>
+        <section class="section" aria-labelledby="saved-heading">
+          <div class="section-head">
+            <h2 id="saved-heading">Saved for you</h2>
+            <span class="hint" id="saved-count">Shortlist</span>
+          </div>
+          <div class="lane" id="saved-lane"></div>
+        </section>
+
+        <section class="section" aria-labelledby="suggest-heading">
+          <div class="section-head">
+            <h2 id="suggest-heading"><img id="artemis-face" alt="" hidden> Suggested for you</h2>
+            <span class="hint">From Artemis &amp; Zyanne · based on sector</span>
+          </div>
+          <div class="lane" id="suggest-lane"></div>
+        </section>
+
+        <section class="section" aria-labelledby="deals-heading">
+          <div class="section-head">
+            <h2 id="deals-heading"><img id="zara-face" alt="" hidden> Deals &amp; tariffs</h2>
+            <a class="hint" href="/greenways/deals-hub">Open deals hub →</a>
+          </div>
+          <div class="lane" id="deals-lane"></div>
+        </section>
+
+        <section class="section" aria-labelledby="glance-heading">
+          <div class="section-head">
+            <h2 id="glance-heading"><img id="edwardo-face" alt="" hidden> Site glance</h2>
+            <a class="hint" href="/greenways/buildings-dashboard">Full buildings dashboard →</a>
+          </div>
+          <div class="glance">
+            <div class="kpi"><div class="label">Electricity</div><div class="value">—</div></div>
+            <div class="kpi"><div class="label">Gas</div><div class="value">—</div></div>
+            <div class="kpi"><div class="label">Water</div><div class="value">—</div></div>
+          </div>
+          <p class="trust">Illustrative demo model until your site meters are connected — not a live feed.</p>
+        </section>
+      </main>
+
+      <aside class="section news-rail" aria-labelledby="news-heading">
+        <div class="section-head">
+          <h2 id="news-heading"><img id="cheryce-face" alt="" hidden> Worth knowing</h2>
+        </div>
+        <div id="news-list"></div>
+        <a class="btn ghost" style="width:100%;justify-content:center;margin-top:4px" href="/greenways/media-agent?q=What%20should%20I%20read%20this%20week">Ask Cheryce</a>
+      </aside>
+    </div>
+
+    <p class="footer-note">Customer Hub v1 · CH-001 shell · Personalisation deepens as profile &amp; shortlist grow</p>
+  </div>
+
+  <script>
+(function () {
+  'use strict';
+
+  var REGION_LABELS = {
+    nl: 'Netherlands', uk: 'United Kingdom', ie: 'Ireland', de: 'Germany',
+    fr: 'France', be: 'Belgium', es: 'Spain', pt: 'Portugal', eu: 'EU-wide', all: 'All regions'
+  };
+
+  function readJson(key) {
+    try {
+      var raw = localStorage.getItem(key) || sessionStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) { return null; }
+  }
+
+  function escapeHtml(s) {
+    return String(s || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function getProfile() {
+    var member = readJson('greenways_member_context_v1') || {};
+    var shared = readJson('gw-team-profile-v1') || {};
+    return {
+      region: String(member.region || shared.region || 'nl').toLowerCase(),
+      sector: String(member.sector || shared.sector || 'restaurant').toLowerCase(),
+      tier: String(member.tier || shared.tier || ''),
+      siteId: String(member.siteId || shared.siteId || '')
+    };
+  }
+
+  function readShortlist() {
+    try {
+      var raw = sessionStorage.getItem('greenways-product-shortlist');
+      var parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (_) { return []; }
+  }
+
+  function agentById(roster, id) {
+    return (roster.agents || []).find(function (a) { return a.id === id || a.slug === id; }) || null;
+  }
+
+  function setFace(elId, agent) {
+    var el = document.getElementById(elId);
+    if (!el || !agent || !agent.imageUrl) return;
+    el.src = agent.imageUrl;
+    el.alt = agent.name || '';
+    el.hidden = false;
+  }
+
+  function cardHtml(opts) {
+    var badge = opts.agent && opts.agent.imageUrl
+      ? '<img class="agent-badge" src="' + escapeHtml(opts.agent.imageUrl) + '" alt="' + escapeHtml(opts.agent.name || '') + '" title="' + escapeHtml(opts.agent.name || '') + '">'
+      : '';
+    var media = opts.image
+      ? '<div class="card-media"><img src="' + escapeHtml(opts.image) + '" alt=""></div>'
+      : '<div class="card-media">' + (opts.emoji || '📦') + '</div>';
+    return (
+      '<a class="card" href="' + escapeHtml(opts.href) + '">' +
+        badge + media +
+        '<div class="card-body"><h3>' + escapeHtml(opts.title) + '</h3>' +
+        (opts.line ? '<p>' + escapeHtml(opts.line) + '</p>' : '') +
+        '</div></a>'
+    );
+  }
+
+  function emptyHtml(msg) {
+    return '<div class="empty">' + msg + '</div>';
+  }
+
+  function renderSaved(lane) {
+    var items = readShortlist();
+    document.getElementById('saved-count').textContent = items.length
+      ? items.length + ' shortlisted'
+      : 'Nothing saved yet';
+    if (!items.length) {
+      lane.innerHTML = emptyHtml(
+        'Save products from Artemis or Zyanne chat — they will appear here. ' +
+        '<a href="/greenways/equipment-agent">Ask Artemis</a>'
+      );
+      return;
+    }
+    lane.innerHTML = items.slice(0, 10).map(function (item) {
+      return cardHtml({
+        title: item.name || item.title || item.id || 'Saved product',
+        line: item.id || '',
+        image: item.imageUrl || item.image || '',
+        href: item.href || ('/product-page-v2-marketplace.html?product=' + encodeURIComponent(item.id || '')),
+        emoji: '⭐'
+      });
+    }).join('');
+  }
+
+  function renderTeam(roster) {
+    var strip = document.getElementById('team-strip');
+    strip.innerHTML = (roster.agents || []).map(function (a) {
+      return (
+        '<a class="team-pill" href="' + escapeHtml(a.path) + '" title="' + escapeHtml(a.shortLabel || a.name) + '">' +
+          '<img src="' + escapeHtml(a.imageUrl) + '" alt="">' +
+          escapeHtml(a.name) +
+        '</a>'
+      );
+    }).join('');
+  }
+
+  async function loadJson(url) {
+    try {
+      var res = await fetch(url);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (_) { return null; }
+  }
+
+  async function renderSuggestions(roster, profile) {
+    var lane = document.getElementById('suggest-lane');
+    var artemis = agentById(roster, 'equipment');
+    var zyanne = agentById(roster, 'products');
+    setFace('artemis-face', artemis);
+
+    var samples = await loadJson('/api/equipment-agent/samples');
+    var products = (samples && (samples.products || samples.samples || samples.items)) || [];
+    if (!products.length) {
+      samples = await loadJson('/api/sustainable-products-agent/samples?lane=electricity');
+      products = (samples && (samples.products || samples.samples || samples.items)) || [];
+    }
+
+    if (!products.length) {
+      lane.innerHTML = emptyHtml(
+        'Suggestions will appear when product samples are available. ' +
+        '<a href="/greenways/equipment-agent?q=restaurant%20fridge%20upgrade">Browse with Artemis</a>'
+      );
+      return;
+    }
+
+    var sectorHint = /restaurant|hospitality|food/i.test(profile.sector) ? 'restaurant' : '';
+    lane.innerHTML = products.slice(0, 8).map(function (p, i) {
+      var agent = i % 2 === 0 ? artemis : zyanne;
+      var id = p.id || p.productId || '';
+      return cardHtml({
+        title: p.name || p.title || id,
+        line: (p.category || p.subcategory || sectorHint || 'Equipment') + (agent ? ' · ' + agent.name : ''),
+        image: p.imageUrl || p.image || p.thumbnail || '',
+        href: id
+          ? '/product-page-v2-marketplace.html?product=' + encodeURIComponent(id)
+          : (agent ? agent.path : '/greenways/equipment-agent'),
+        agent: agent,
+        emoji: '🔧'
+      });
+    }).join('');
+  }
+
+  async function renderDeals(roster, profile) {
+    var lane = document.getElementById('deals-lane');
+    var zara = agentById(roster, 'deals');
+    setFace('zara-face', zara);
+    var feed = await loadJson('/data/deals-feed.json') || await loadJson('../data/deals-feed.json');
+    var deals = (feed && feed.deals) || [];
+    var region = profile.region;
+    var filtered = deals.filter(function (d) {
+      if (!region || region === 'all' || region === 'eu') return true;
+      var r = String(d.region || '').toLowerCase();
+      return !r || r === 'eu' || r === region || (d.tags || []).some(function (t) {
+        return String(t).toLowerCase() === region;
+      });
+    });
+    if (!filtered.length) filtered = deals;
+    if (!filtered.length) {
+      lane.innerHTML = emptyHtml('<a href="/greenways/deals-hub">Open the deals hub</a> for live lanes.');
+      return;
+    }
+    lane.innerHTML = filtered.slice(0, 10).map(function (d) {
+      var href = d.href || '/greenways/deals-hub';
+      if (href.indexOf('./') === 0) href = '/HTMLS%20GWM%20GWB/' + href.slice(2);
+      return cardHtml({
+        title: d.title || 'Deal',
+        line: d.line || d.category || '',
+        href: href,
+        agent: zara,
+        emoji: d.category === 'water' ? '💧' : '⚡'
+      });
+    }).join('');
+  }
+
+  async function renderNews(roster) {
+    var list = document.getElementById('news-list');
+    var cheryce = agentById(roster, 'media');
+    setFace('cheryce-face', cheryce);
+    var data = await loadJson('/api/media-agent/samples') || await loadJson('/api/media-agent/news');
+    var items = (data && (data.samples || data.news || data.items || data.stories)) || [];
+    if (!items.length) {
+      list.innerHTML = emptyHtml('News samples load when the media agent API is up. <a href="/greenways/media-agent">Open Cheryce</a>');
+      return;
+    }
+    list.innerHTML = items.slice(0, 5).map(function (n) {
+      var title = n.title || n.name || 'Story';
+      var line = n.summary || n.description || n.excerpt || n.category || '';
+      var href = n.href || n.url || ('/greenways/media-agent?q=' + encodeURIComponent(title));
+      return (
+        '<a class="news-item" href="' + escapeHtml(href) + '">' +
+          '<div class="tag">' + escapeHtml(n.category || n.edition || 'News') + '</div>' +
+          '<h3>' + escapeHtml(title) + '</h3>' +
+          (line ? '<p>' + escapeHtml(String(line).slice(0, 120)) + '</p>' : '') +
+        '</a>'
+      );
+    }).join('');
+  }
+
+  function renderGlance(roster) {
+    setFace('edwardo-face', agentById(roster, 'systems'));
+    var kpis = document.querySelectorAll('.glance .kpi .value');
+    // Placeholder illustrative figures — trust line already explains demo model
+    var demo = ['€42', '€18', '1.2 m³'];
+    kpis.forEach(function (el, i) { el.textContent = demo[i] || '—'; });
+  }
+
+  function renderProfile(profile) {
+    var region = REGION_LABELS[profile.region] || profile.region || 'Region';
+    var sector = profile.sector ? profile.sector.charAt(0).toUpperCase() + profile.sector.slice(1) : 'Your business';
+    var tier = profile.tier ? ' · ' + profile.tier : '';
+    document.getElementById('profile-chip').innerHTML =
+      '<strong>' + escapeHtml(region) + '</strong> · ' + escapeHtml(sector) + escapeHtml(tier);
+  }
+
+  async function init() {
+    var profile = getProfile();
+    renderProfile(profile);
+    renderSaved(document.getElementById('saved-lane'));
+
+    var roster = await loadJson('/data/greenways-agent-roster.json') || { agents: [] };
+    renderTeam(roster);
+    renderGlance(roster);
+    await Promise.all([
+      renderSuggestions(roster, profile),
+      renderDeals(roster, profile),
+      renderNews(roster)
+    ]);
+  }
+
+  init();
+})();
+  </script>
+</body>
+</html>

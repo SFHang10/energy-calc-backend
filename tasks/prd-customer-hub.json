@@ -1,0 +1,127 @@
+{
+  "featureName": "Greenways Customer Hub",
+  "branchName": "feature/customer-hub",
+  "description": "Member-facing home that personalises discovery from profile, shortlist/saved items, and Transition Agents. Distinct from the Buildings energy dashboard (ops) and Agents admin (staff). Scrollable lanes inspired by deals ticker + music finder; agent portraits attribute suggestions.",
+  "targetSkills": [
+    "energy-dashboard-skill.md",
+    "greenways-chat-interface-skill.md",
+    "greenways-transition-agents.md",
+    "Skills/greenways-agents-improvements-master.md"
+  ],
+  "principles": [
+    "Customer hub — not a second ops energy dashboard",
+    "Reuse feeds (shortlist, deals-feed, news samples, agent roster) before new APIs",
+    "Trust labels when energy glance is illustrative",
+    "Agent faces attribute who suggested what",
+    "Empty states when profile/shortlist empty — never fake personalisation"
+  ],
+  "waves": [
+    { "id": "CH1", "name": "Shell + static lanes", "weeks": "1" },
+    { "id": "CH2", "name": "Profile + shortlist + saved wiring", "weeks": "1-2" },
+    { "id": "CH3", "name": "Personalised suggestions + Wix embed", "weeks": "2-3" },
+    { "id": "CH4", "name": "Site glance + membership deep link", "weeks": "3+" }
+  ],
+  "userStories": [
+    {
+      "id": "CH-001",
+      "wave": "CH1",
+      "title": "Customer Hub scrollable shell",
+      "description": "As a member, I want a single scrollable home with clear sections so I can see saved items, suggestions, deals, and news without opening seven tools.",
+      "acceptanceCriteria": [
+        "HTML at HTMLS GWM GWB/greenways-customer-hub.html",
+        "Route GET /greenways/customer-hub",
+        "Sections: header/profile, team strip, Saved, Suggested for you, Deals lane, News rail, optional Site glance",
+        "Wix no-scroll meta; works desktop and mobile (news rail stacks below on narrow)",
+        "Demo mode works without login using localStorage profile + shortlist"
+      ],
+      "priority": 1,
+      "estimatedEffort": "medium",
+      "passes": false
+    },
+    {
+      "id": "CH-002",
+      "wave": "CH1",
+      "title": "Agent-attributed suggestion cards",
+      "description": "As a visitor, I want product/suggestion cards to show which specialist recommended them.",
+      "acceptanceCriteria": [
+        "Cards can show agent portrait badge (from greenways-agent-roster.json)",
+        "Click opens agent chat with optional ?q= or marketplace product page",
+        "At least Artemis (equipment) and Zara (deals) lanes in v1"
+      ],
+      "priority": 2,
+      "estimatedEffort": "small",
+      "passes": false
+    },
+    {
+      "id": "CH-003",
+      "wave": "CH2",
+      "title": "Saved + shortlist surface",
+      "description": "As a member, I want my shortlisted products and saved items on the hub.",
+      "acceptanceCriteria": [
+        "Reads greenways-product-shortlist from sessionStorage",
+        "When member auth present, also try GET /api/members/saved-items",
+        "Empty state with CTA to browse marketplace or ask Artemis/Zyanne"
+      ],
+      "priority": 3,
+      "estimatedEffort": "medium",
+      "passes": false
+    },
+    {
+      "id": "CH-004",
+      "wave": "CH2",
+      "title": "Profile-aware header",
+      "description": "As a member, I want the hub to reflect my region and sector.",
+      "acceptanceCriteria": [
+        "Reads greenways_member_context_v1 and/or gw-team-profile-v1",
+        "Shows region/sector chip; filters deals lane by region when tags allow",
+        "Link to Orchestra hub and membership dashboard"
+      ],
+      "priority": 4,
+      "estimatedEffort": "small",
+      "passes": false
+    },
+    {
+      "id": "CH-005",
+      "wave": "CH1",
+      "title": "Cheryce news rail",
+      "description": "As a visitor, I want a news strip attributed to Cheryce.",
+      "acceptanceCriteria": [
+        "Loads /api/media-agent/samples or /api/media-agent/news with graceful fallback",
+        "Cheryce portrait on section header",
+        "Open media-agent with ?q= for follow-up"
+      ],
+      "priority": 5,
+      "estimatedEffort": "small",
+      "passes": false
+    },
+    {
+      "id": "CH-006",
+      "wave": "CH4",
+      "title": "Site energy glance (trust-safe)",
+      "description": "As a member with a site, I want a small energy snapshot without mistaking demo KPIs for live meters.",
+      "acceptanceCriteria": [
+        "Optional strip linking to buildings dashboard or restaurant-energy-snapshot",
+        "Trust label Demo model or Catalogue when not live",
+        "Does not clone full sensor/KPI dashboard"
+      ],
+      "priority": 6,
+      "estimatedEffort": "medium",
+      "dependencies": ["CH-001"],
+      "passes": false
+    }
+  ],
+  "outOfScopeV1": [
+    "Full buildings KPI / sensor clone",
+    "Agent email from hub",
+    "Rate limits",
+    "New backend personalisation engine"
+  ],
+  "keyFiles": [
+    "HTMLS GWM GWB/greenways-customer-hub.html",
+    "tasks/prd-customer-hub.json",
+    "wix-integration/unified-membership-dashboard.html",
+    "data/greenways-agent-roster.json",
+    "data/deals-feed.json",
+    "HTMLS GWM GWB/js/greenways-agent-product-shortlist.js"
+  ]
+}

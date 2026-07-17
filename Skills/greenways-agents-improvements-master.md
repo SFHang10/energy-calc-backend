@@ -26,6 +26,15 @@
 
 ## One combined queue (work order)
 
+### Customer Hub (member home) — new track
+
+- [x] **CH-001 shell:** `greenways-customer-hub.html` + `/greenways/customer-hub` — scrollable Saved / Suggested / Deals / News / Site glance — 2026-07-17
+- [x] **PRD:** `tasks/prd-customer-hub.json` (CH1–CH4 waves)
+- [ ] **CH-002–004:** Tighten agent badges, shortlist empty states, profile filter polish
+- [ ] **CH-003 deep:** Wire `/api/members/saved-items` when auth present
+- [ ] **CH-006:** Richer site glance (optional snapshot module) with trust labels
+- [ ] **Wix:** Embed / membership dashboard entry link to Customer Hub
+
 ### Gap 2 — Live data vs illustrative data
 
 - [ ] **Gap 2 / W3 (ops — when ready):** ENTSO-E token + Render `ENTSOE_API_KEY` — code + module already live; EU uses zone benchmark until key set
