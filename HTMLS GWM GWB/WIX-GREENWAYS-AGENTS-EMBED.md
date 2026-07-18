@@ -27,11 +27,12 @@ Alias: `/greenways/guide-agent` → same hub HTML. API: `POST /api/guide-agent/a
 **Portal entry pages (Wix marketing):**
 
 ```
+https://energy-calc-backend.onrender.com/greenways/customer-hub
 https://energy-calc-backend.onrender.com/greenways/agents-story
 https://energy-calc-backend.onrender.com/greenways/agents-highlights
 ```
 
-Story = why the agents exist · Highlights = weekly grounded picks per specialist (`npm run build:agent-highlights`). Both link to Orchestra hub and individual agent chats.
+**Your Hub** = member home (saved / suggestions / deals / news) — open without sign-in for preview for now; membership gate later. Story = why the agents exist · Highlights = weekly grounded picks per specialist (`npm run build:agent-highlights`). Shared portal nav links Hub ↔ story ↔ highlights ↔ Orchestra ↔ agent map.
 
 ---
 
