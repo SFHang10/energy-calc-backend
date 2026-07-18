@@ -1,0 +1,115 @@
+{
+  "featureName": "Greenways Agent Story Pages",
+  "branchName": "feature/agent-story-pages",
+  "description": "Per-agent selling pages (one template × seven JSON stories): character intro, reserved video slot, example-question → 3-step help journeys, interactive HTML/module demos from the existing library, tips, handoffs, and Ask CTAs. Portal group sibling to story / highlights / Orchestra / Your Hub — not a second chat embed.",
+  "targetSkills": [
+    "greenways-chat-interface-skill.md",
+    "greenways-transition-agents.md",
+    "greenways-agents-roadmap.md"
+  ],
+  "principles": [
+    "One HTML shell + data/greenways-agent-stories/{slug}.json — do not fork seven layouts",
+    "Long scroll is OK; cut later if heavy — prefer clear sections over cramming one viewport",
+    "Reuse content-modules + existing animated HTML (tickers, trajectory, IoT, map, finders) via embed/iframe or module tablets",
+    "Lead with character + video slot; then journeys; then live demos",
+    "Every journey ends in Ask {Name} or a module open — never dead-end marketing",
+    "Open without sign-in for preview (same as Your Hub v1)"
+  ],
+  "pageSections": [
+    "Portal nav",
+    "Hero (portrait, name, role, Ask CTA)",
+    "Video slot (16:9 placeholder until videoUrl)",
+    "First-person story",
+    "Best for you if… chips",
+    "How I help journeys (example question + 3-step line diagram) — 2–4 per agent",
+    "See it in action (interactive HTML / modules)",
+    "Tips & guidance",
+    "Proof strip (grounded stats)",
+    "Handoff strip (team faces → other story pages + chat)",
+    "Sticky / bottom Ask with starter prompts"
+  ],
+  "journeyPattern": {
+    "exampleQuestion": "User-facing question string",
+    "steps": [
+      { "label": "short verb phrase", "detail": "one line what the agent does" },
+      { "label": "short verb phrase", "detail": "one line" },
+      { "label": "short verb phrase", "detail": "one line + optional handoff or module" }
+    ],
+    "askPrompt": "optional ?q= for chat CTA",
+    "moduleId": "optional primary module to open"
+  },
+  "illustrationLibraryByAgent": {
+    "grants-agent": ["schemes-portal-restaurant", "schemes-portal-eu"],
+    "finance-agent": ["energy-prices-ticker", "savings-projection", "finance-finder", "savings-trajectory"],
+    "equipment-agent": ["equipment-deep-dive", "insulation-guide", "savings-projection", "iot_restaurant embed"],
+    "deals-agent": ["deals-ticker", "deals-full-page", "european-energy"],
+    "media-agent": ["sustainability-map", "sustainability-news-edition", "energy-prices-ticker"],
+    "sustainable-products-agent": ["water-saving-finder", "sustainable-product-finder", "water-saving-guide"],
+    "systems-agent": ["sensor-dashboard", "greenways-dashboard", "smart_restaurant_energy_iot_v2.svg"]
+  },
+  "routes": {
+    "shell": "/greenways/agents/:slug/story",
+    "aliasOptional": "/greenways/{name}-story",
+    "html": "HTMLS GWM GWB/greenways-agent-story.html"
+  },
+  "waves": [
+    { "id": "AS1", "name": "Shell + journey UI + Andrieus JSON", "weeks": "1" },
+    { "id": "AS2", "name": "Remaining six story JSON + portal nav + map links", "weeks": "1-2" },
+    { "id": "AS3", "name": "Illustration embeds polish + video URLs when ready", "weeks": "2+" }
+  ],
+  "userStories": [
+    {
+      "id": "AS-001",
+      "wave": "AS1",
+      "title": "Agent story shell + Andrieus pilot",
+      "description": "As a visitor, I want Andrieus’s story page with intro, video slot, 3-step journeys, and live scheme demos so I understand how he helps before opening chat.",
+      "acceptanceCriteria": [
+        "GET /greenways/agents/grants-agent/story (or equivalent) serves greenways-agent-story.html",
+        "Loads data/greenways-agent-stories/grants-agent.json",
+        "Renders ≥2 journeys each with exampleQuestion + exactly 3 steps as a line diagram",
+        "Video slot visible when videoUrl empty (placeholder copy)",
+        "At least one interactive module/HTML demo from illustration library",
+        "Ask Andrieus CTA links to /greenways/grants-agent with optional ?q=",
+        "Portal nav includes link path to story pages (or Agent stories index)"
+      ],
+      "priority": 1,
+      "estimatedEffort": "medium",
+      "passes": false
+    },
+    {
+      "id": "AS-002",
+      "wave": "AS2",
+      "title": "All seven story JSON + navigation",
+      "description": "As a visitor, I can open any specialist’s story from the portal nav or agent map.",
+      "acceptanceCriteria": [
+        "JSON files for all seven slugs",
+        "Agent map / roster links to story pages",
+        "Handoff strip links to peer story pages"
+      ],
+      "priority": 2,
+      "estimatedEffort": "medium",
+      "passes": false
+    },
+    {
+      "id": "AS-003",
+      "wave": "AS3",
+      "title": "Video URLs drop-in",
+      "description": "As ops, I can set videoUrl in JSON and the placeholder becomes the intro video without layout change.",
+      "acceptanceCriteria": [
+        "Non-empty videoUrl renders iframe or video element in the reserved slot",
+        "Empty videoUrl keeps poster + coming soon"
+      ],
+      "priority": 3,
+      "estimatedEffort": "small",
+      "passes": false
+    }
+  ],
+  "keyFiles": [
+    "HTMLS GWM GWB/greenways-agent-story.html",
+    "data/greenways-agent-stories/",
+    "tasks/prd-agent-story-pages.json",
+    "HTMLS GWM GWB/js/greenways-portal-nav.css",
+    "data/greenways-content-modules.json",
+    "server-new.js"
+  ]
+}

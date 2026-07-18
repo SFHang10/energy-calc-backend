@@ -211,6 +211,21 @@ app.get('/greenways/guide-agent', (req, res) => sendLiveMusicHtml(res, 'greenway
 app.get('/greenways/agents-highlights', (req, res) => sendLiveMusicHtml(res, 'greenways-agents-highlights.html'));
 app.get('/greenways/agents-map', (req, res) => sendLiveMusicHtml(res, 'greenways-agents-map.html'));
 app.get('/greenways/agents-story', (req, res) => sendLiveMusicHtml(res, 'greenways-agents-story.html'));
+app.get('/greenways/agents/:slug/story', (req, res) => sendLiveMusicHtml(res, 'greenways-agent-story.html'));
+app.get('/greenways/agent-story', (req, res) => sendLiveMusicHtml(res, 'greenways-agent-story.html'));
+app.get('/data/greenways-agent-stories/:slug.json', (req, res) => {
+  const slug = String(req.params.slug || '').toLowerCase();
+  if (!/^[a-z0-9-]+$/.test(slug)) {
+    return res.status(400).json({ error: 'Invalid agent slug' });
+  }
+  const filePath = path.join(__dirname, 'data', 'greenways-agent-stories', `${slug}.json`);
+  const fsSync = require('fs');
+  if (!fsSync.existsSync(filePath)) {
+    return res.status(404).json({ error: 'Story not found', slug });
+  }
+  res.type('json');
+  return res.sendFile(`${slug}.json`, { root: path.join(__dirname, 'data', 'greenways-agent-stories') });
+});
 app.get('/greenways/restaurant-monitoring', (req, res) => sendLiveMusicHtml(res, 'restaurant_energy_monitoring_interactive.html'));
 app.get('/greenways/interactive-restaurants', (req, res) => sendLiveMusicHtml(res, 'interactive_restaurants_monitoring.html'));
 app.get('/greenways/buildings-dashboard', (req, res) => sendLiveMusicHtml(res, 'Greenways Interface .html'));

@@ -28,11 +28,12 @@ Alias: `/greenways/guide-agent` → same hub HTML. API: `POST /api/guide-agent/a
 
 ```
 https://energy-calc-backend.onrender.com/greenways/customer-hub
+https://energy-calc-backend.onrender.com/greenways/agents/grants-agent/story
 https://energy-calc-backend.onrender.com/greenways/agents-story
 https://energy-calc-backend.onrender.com/greenways/agents-highlights
 ```
 
-**Your Hub** = member home (saved / suggestions / deals / news) — open without sign-in for preview for now; membership gate later. Story = why the agents exist · Highlights = weekly grounded picks per specialist (`npm run build:agent-highlights`). Shared portal nav links Hub ↔ story ↔ highlights ↔ Orchestra ↔ agent map.
+**Your Hub** = member home (saved / suggestions / deals / news) — open without sign-in for preview for now; membership gate later. **Agent story** = per-specialist selling page (`/greenways/agents/{slug}/story`, JSON in `data/greenways-agent-stories/`) — intro, video slot, 3-step journeys, live tool demos. Story = why the agents exist · Highlights = weekly grounded picks per specialist (`npm run build:agent-highlights`). Shared portal nav links Hub ↔ story ↔ highlights ↔ Orchestra ↔ agent map.
 
 ---
 

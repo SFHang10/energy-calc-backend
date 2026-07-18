@@ -134,6 +134,34 @@
     background: rgba(40, 167, 69, 0.14);
     color: #86efac;
   }
+  .agent-map-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 12px;
+    width: 100%;
+  }
+  .agent-map-card-actions a {
+    font-size: 0.62rem;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 999px;
+    text-decoration: none;
+  }
+  .agent-map-story {
+    border: 1px solid rgba(201, 169, 97, 0.45);
+    background: rgba(201, 169, 97, 0.12);
+    color: #fde68a;
+  }
+  .agent-map-chat {
+    border: 1px solid rgba(134, 239, 172, 0.4);
+    background: rgba(40, 167, 69, 0.14);
+    color: #86efac;
+  }
+  .agent-map-card-actions a:hover {
+    filter: brightness(1.12);
+  }
   .map-footer {
     margin-top: 28px;
     text-align: center;
@@ -371,6 +399,7 @@
 
   <p class="map-footer">
     New here? Read <a href="/greenways/agents-story">why this portal exists</a> ·
+    Try <a href="/greenways/agents/grants-agent/story">Andrieus’s story</a> ·
     <a href="/greenways/orchestra-hub-wix-frame">Open Orchestra hub →</a>
   </p>
 </div>
@@ -441,13 +470,17 @@
     if (!mount) return;
     mount.innerHTML = (agents || []).map(function (a) {
       var role = ROLE_LINES[a.id] || a.shortLabel || a.role || "";
-      var href = contentBase() + (a.path || "/greenways/" + a.slug);
+      var chatHref = contentBase() + (a.path || "/greenways/" + a.slug);
+      var storyHref = contentBase() + "/greenways/agents/" + a.slug + "/story";
       return (
-        '<a class="agent-map-card" href="' + href + '" target="_top" rel="noopener">' +
+        '<div class="agent-map-card">' +
         '<img src="' + a.imageUrl + '" alt="" width="72" height="72" decoding="async">' +
         '<span class="name">' + a.name + "</span>" +
         '<span class="lane">' + role + "</span>" +
-        '<span class="open">Open chat</span></a>'
+        '<div class="agent-map-card-actions">' +
+        '<a class="agent-map-story" href="' + storyHref + '" target="_top" rel="noopener">Their story</a>' +
+        '<a class="agent-map-chat" href="' + chatHref + '" target="_top" rel="noopener">Open chat</a>' +
+        "</div></div>"
       );
     }).join("");
   }

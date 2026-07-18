@@ -76,6 +76,7 @@
 | **Agents portal — story** | `HTMLS GWM GWB/greenways-agents-story.html` · `/greenways/agents-story` — why the Transition Agents exist (Wix entry / embed) |
 | **Agents portal — highlights** | `HTMLS GWM GWB/greenways-agents-highlights.html` · `/greenways/agents-highlights` · `npm run build:agent-highlights` — weekly grounded `/ask` snapshot per specialist |
 | **Customer Hub (member home)** | `HTMLS GWM GWB/greenways-customer-hub.html` · `/greenways/customer-hub` · PRD `tasks/prd-customer-hub.json` — saved / suggestions / deals / Cheryce news; not the ops buildings dashboard |
+| **Agent story pages (selling)** | `HTMLS GWM GWB/greenways-agent-story.html` · `/greenways/agents/{slug}/story` · JSON `data/greenways-agent-stories/` · PRD `tasks/prd-agent-story-pages.json` — intro, video slot, 3-step journeys, live HTML demos |
 | **Greenways Orchestra (hub)** | `HTMLS GWM GWB/greenways-orchestra-hub.html` · `/greenways/orchestra-hub` · `/api/guide-agent/ask` |
 | **Wix agents embed (hub + per-page)** | `Skills/greenways-chat-interface-skill.md` § Wix site pattern · quick ref `HTMLS GWM GWB/WIX-GREENWAYS-AGENTS-EMBED.md` — hub may embed Guide conductor; each character page = one `/greenways/{agent}` iframe |
 | **Grants Agent intents** | `data/grants-agent-intents.json` |
