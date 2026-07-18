@@ -347,15 +347,19 @@
   }
 
   function resolveModuleHref(moduleId, modulesById) {
+    // Prefer curated absolute paths for story embeds (avoid registry ./ + double-encoding).
+    if (MODULE_HREF_FALLBACK[moduleId]) {
+      return contentBase() + MODULE_HREF_FALLBACK[moduleId];
+    }
     var mod = modulesById && modulesById[moduleId];
-    var href = (mod && (mod.href || mod.fullPageHref)) || MODULE_HREF_FALLBACK[moduleId] || "";
+    var href = (mod && (mod.href || mod.fullPageHref)) || "";
     if (!href) return "";
     if (/^https?:\/\//i.test(href)) return href;
     if (href.charAt(0) === "/") return contentBase() + href;
-    if (href.indexOf("./") === 0) {
-      return contentBase() + "/HTMLS%20GWM%20GWB/" + encodeURI(href.slice(2));
-    }
-    return contentBase() + "/HTMLS%20GWM%20GWB/" + encodeURI(href);
+    var rel = href.indexOf("./") === 0 ? href.slice(2) : href;
+    // Registry paths are often already percent-encoded — do not encodeURI again (%20 → %2520).
+    if (rel.indexOf("%") === -1) rel = encodeURI(rel);
+    return contentBase() + "/HTMLS%20GWM%20GWB/" + rel;
   }
 
   function embedHref(href) {
