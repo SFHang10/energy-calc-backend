@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Restaurant agent pack · Greenways</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css">
+<style>
+  :root {
+    --text: #e8f0ec;
+    --muted: #8fa89a;
+    --gold: #c9a961;
+    --orange: #f97316;
+    --font: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    min-height: 100%;
+    font-family: var(--font);
+    color: var(--text);
+    background: #0b1220;
+    overflow-x: hidden;
+    line-height: 1.55;
+  }
+  .page-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: url("https://static.wixstatic.com/media/c123de_7a5c1fd6e495484a951ee85db603683a~mv2.jpg");
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+  }
+  .page-backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(160deg, rgba(11, 18, 32, 0.72) 0%, rgba(15, 23, 42, 0.78) 45%, rgba(11, 18, 32, 0.88) 100%),
+      radial-gradient(circle at 20% 80%, rgba(249, 115, 22, 0.18), transparent 42%);
+  }
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 24px 18px 56px;
+  }
+  .hero {
+    margin: 8px 0 8px;
+    padding: 22px 20px;
+    border-radius: 16px;
+    border: 1px solid rgba(249, 115, 22, 0.35);
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.78));
+  }
+  .hero-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .hero-copy { flex: 1 1 240px; min-width: 0; }
+  .agent-face {
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top center;
+    border: 3px solid rgba(249, 115, 22, 0.65);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 0 4px rgba(15, 23, 42, 0.85);
+    background: #0f172a;
+  }
+  .agent-face-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .agent-face-caption {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #fdba74;
+    text-align: center;
+    max-width: 120px;
+  }
+  .eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #fdba74;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  h1 { font-size: 1.55rem; font-weight: 700; margin-bottom: 8px; }
+  .lede { color: var(--muted); font-size: 0.95rem; max-width: 62ch; }
+  .story-intro {
+    margin-top: 14px;
+    font-size: 0.92rem;
+    color: #d7e4dc;
+    max-width: 68ch;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .chip {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #fdba74;
+    border: 1px solid rgba(249, 115, 22, 0.35);
+    background: rgba(249, 115, 22, 0.08);
+    border-radius: 999px;
+    padding: 5px 11px;
+  }
+  .layer-note {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(40, 167, 69, 0.28);
+    background: rgba(40, 167, 69, 0.08);
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .layer-note strong { color: #dde8e2; }
+  .section { margin-top: 26px; }
+  .section h2 {
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 12px;
+  }
+  .section-lede {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin: -4px 0 14px;
+    max-width: 68ch;
+  }
+  .value-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+  }
+  .value-card {
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(15, 23, 42, 0.75);
+  }
+  .value-card h3 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #fdba74;
+    margin-bottom: 6px;
+  }
+  .value-card p { font-size: 0.82rem; color: var(--muted); }
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    position: relative;
+  }
+  @media (max-width: 760px) {
+    .flow { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) {
+    .flow { grid-template-columns: 1fr; }
+  }
+  .flow-step {
+    padding: 14px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(34, 197, 94, 0.28);
+    background: rgba(15, 23, 42, 0.8);
+  }
+  .flow-step .n {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(40, 167, 69, 0.25);
+    color: #86efac;
+    font-size: 0.72rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .flow-step h3 { font-size: 0.88rem; margin-bottom: 6px; }
+  .flow-step p { font-size: 0.78rem; color: var(--muted); }
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+  }
+  .tool-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(15, 23, 42, 0.75);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .tool-card:hover {
+    border-color: rgba(249, 115, 22, 0.55);
+    transform: translateY(-1px);
+  }
+  .tool-card .label { font-weight: 600; font-size: 0.92rem; }
+  .tool-card .kind {
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #fdba74;
+  }
+  .tool-card .how { font-size: 0.8rem; color: var(--muted); flex: 1; }
+  .tool-card .open {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #86efac;
+  }
+  .journey {
+    margin-top: 12px;
+    padding: 16px 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(15, 23, 42, 0.72);
+  }
+  .journey:first-of-type { margin-top: 0; }
+  .journey-q {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #fff;
+  }
+  .journey-q span { color: #fdba74; font-weight: 700; margin-right: 6px; }
+  .journey-steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  @media (max-width: 700px) {
+    .journey-steps { grid-template-columns: 1fr; }
+  }
+  .step-card {
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(249, 115, 22, 0.22);
+    background: rgba(249, 115, 22, 0.06);
+  }
+  .step-card .step-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #fdba74;
+    margin-bottom: 4px;
+  }
+  .step-card p { font-size: 0.78rem; color: var(--muted); }
+  .journey-cta {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .handoff-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+  }
+  .handoff-card {
+    display: block;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(34, 197, 94, 0.28);
+    background: rgba(15, 23, 42, 0.75);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .handoff-card:hover {
+    border-color: rgba(134, 239, 172, 0.65);
+    transform: translateY(-1px);
+  }
+  .handoff-card .name { font-weight: 700; color: #86efac; font-size: 0.92rem; }
+  .handoff-card .when { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+  .handoff-card .ex {
+    margin-top: 8px;
+    font-size: 0.78rem;
+    color: #c5d5cb;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 8px;
+  }
+  .handoff-card .ex em { color: #94a3b8; font-style: normal; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 2px; }
+  .tips { list-style: none; }
+  .tips li {
+    position: relative;
+    padding: 8px 0 8px 16px;
+    font-size: 0.88rem;
+    color: var(--muted);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .tips li:first-child { border-top: none; padding-top: 0; }
+  .tips li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 1.05em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fdba74;
+  }
+  .tenant-agents {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .tenant-agent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 96px;
+    text-decoration: none;
+    color: inherit;
+  }
+  .tenant-agent:hover { transform: translateY(-2px); }
+  .tenant-agent img {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top center;
+    border: 2px solid rgba(249, 115, 22, 0.55);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  }
+  .tenant-agent span {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #fdba74;
+    text-align: center;
+  }
+  .tenant-agent .role { font-size: 0.62rem; color: var(--muted); font-weight: 500; }
+  .status { color: var(--muted); font-size: 0.9rem; padding: 24px 0; }
+  .error { color: #ff8a8a; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px 8px 8px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+  .cta-face {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top center;
+    flex: 0 0 auto;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    background: #0f172a;
+  }
+  .cta-primary .cta-face { border-color: rgba(15, 23, 42, 0.35); }
+  .cta-soft .cta-face { border-color: rgba(134, 239, 172, 0.45); }
+  .cta-primary { background: var(--orange); color: #0f172a; }
+  .cta-ghost {
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: var(--text);
+    background: rgba(15, 23, 42, 0.55);
+    padding-left: 12px;
+  }
+  .cta-soft {
+    border: 1px solid rgba(34, 197, 94, 0.35);
+    color: #86efac;
+    background: rgba(15, 23, 42, 0.55);
+  }
+  .name-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .handoff-card .name-row img,
+  .mini-face {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top center;
+    border: 2px solid rgba(134, 239, 172, 0.4);
+    flex: 0 0 auto;
+    background: #0f172a;
+  }
+  .step-faces {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .step-face {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px 3px 3px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.25);
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #e2e8f0;
+  }
+  .step-face img {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top center;
+  }
+  .step-face.is-assist {
+    border-color: rgba(249, 115, 22, 0.45);
+    color: #fdba74;
+  }
+  .step-face.is-platform {
+    border-color: rgba(34, 197, 94, 0.35);
+    color: #86efac;
+  }
+</style>
+</head>
+<body>
+<div class="page-backdrop" aria-hidden="true"></div>
+<div class="page">
+  <nav class="gw-portal-nav" aria-label="Greenways Transition Agents Portal">
+    <a href="/greenways/customer-hub">Your Hub</a>
+    <a href="/greenways/agents-story">Why this portal</a>
+    <a href="/greenways/agents-highlights">Portal highlights</a>
+    <a href="/greenways/orchestra-hub-wix-frame" class="is-muted">Orchestra hub</a>
+    <a href="/greenways/agents-map" class="is-muted">Agent map</a>
+  </nav>
+
+  <div id="status" class="status">Loading restaurant agent pack…</div>
+  <div id="app" hidden></div>
+</div>
+<script>
+(function () {
+  function contentBase() {
+    var h = location.hostname || '';
+    if (h === 'localhost' || h === '127.0.0.1' || h.indexOf('energy-calc-backend') !== -1) {
+      return location.origin || '';
+    }
+    return 'https://energy-calc-backend.onrender.com';
+  }
+
+  function parseChainId() {
+    var parts = (location.pathname || '').split('/').filter(Boolean);
+    var idx = parts.indexOf('tenants');
+    if (idx !== -1 && parts[idx + 1]) return decodeURIComponent(parts[idx + 1]).toLowerCase();
+    var q = new URLSearchParams(location.search || '');
+    return (q.get('chainId') || q.get('companyId') || 'wok-to-walk').toLowerCase();
+  }
+
+  function escapeHtml(s) {
+    return String(s || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function platformAskHref(slug, prompt, pack) {
+    var q = encodeURIComponent(
+      prompt ||
+        ('Context: ' + (pack.brandName || pack.chainId) + ' restaurant chain. Help with this topic.')
+    );
+    return contentBase() + '/greenways/' + slug + '?q=' + q + '&chainId=' + encodeURIComponent(pack.chainId);
+  }
+
+  function assistAskHref(route, prompt) {
+    if (!route) return '#';
+    if (!prompt) return route;
+    var join = route.indexOf('?') === -1 ? '?' : '&';
+    return route + join + 'q=' + encodeURIComponent(prompt);
+  }
+
+  var ROSTER_BY_SLUG = {};
+  var ROSTER_FALLBACK = {
+    'grants-agent': { name: 'Andrieus', imageUrl: 'https://static.wixstatic.com/media/c123de_46943b6b1f8d41a59960fd8fdde4097b~mv2.png' },
+    'finance-agent': { name: 'Vincent', imageUrl: 'https://static.wixstatic.com/media/c123de_63359ab891354966aa9ff792fe998677~mv2.png' },
+    'equipment-agent': { name: 'Artemis', imageUrl: 'https://static.wixstatic.com/media/c123de_126830b1fc224df880dfa37ec830620e~mv2.png' },
+    'deals-agent': { name: 'Zara', imageUrl: 'https://static.wixstatic.com/media/c123de_c7cdbed4a4ee407289677a4f0079c1e5~mv2.png' },
+    'media-agent': { name: 'Cheryce', imageUrl: 'https://static.wixstatic.com/media/c123de_333c90ab8930465a98b503e1d24316b4~mv2.png' },
+    'sustainable-products-agent': { name: 'Zyanne', imageUrl: 'https://static.wixstatic.com/media/c123de_dc5b2e3e4aef4cc4b75c7b44888281bd~mv2.png' },
+    'systems-agent': { name: 'Edwardo', imageUrl: 'https://static.wixstatic.com/media/c123de_eeb61cbf84bd402eb642e28b2b457c76~mv2.png' }
+  };
+
+  function rosterEntry(slug) {
+    return ROSTER_BY_SLUG[slug] || ROSTER_FALLBACK[slug] || null;
+  }
+
+  function faceImg(url, alt, cls) {
+    if (!url) return '';
+    return (
+      '<img class="' + (cls || 'cta-face') + '" src="' + escapeHtml(url) +
+      '" alt="' + escapeHtml(alt || '') + '" width="28" height="28" decoding="async">'
+    );
+  }
+
+  function stepFacesHtml(step, pack, assistFace) {
+    var bits = [];
+    if (step.showAssistFace && assistFace) {
+      bits.push(
+        '<span class="step-face is-assist">' +
+        faceImg(assistFace, pack.primaryAssist && pack.primaryAssist.label, '') +
+        escapeHtml((pack.primaryAssist && pack.primaryAssist.label) || 'Assist') +
+        '</span>'
+      );
+    }
+    (step.agentSlugs || []).forEach(function (slug) {
+      var a = rosterEntry(slug);
+      if (!a) return;
+      bits.push(
+        '<span class="step-face is-platform">' +
+        faceImg(a.imageUrl, a.name, '') +
+        escapeHtml(a.name) +
+        '</span>'
+      );
+    });
+    return bits.length ? '<div class="step-faces">' + bits.join('') + '</div>' : '';
+  }
+
+  function render(pack) {
+    var status = document.getElementById('status');
+    var app = document.getElementById('app');
+    status.hidden = true;
+    app.hidden = false;
+
+    var assist = pack.primaryAssist || {};
+    var faceUrl =
+      assist.imageUrl ||
+      pack.brandImageUrl ||
+      ((pack.agents && pack.agents[0] && pack.agents[0].imageUrl) || '');
+
+    var faceHtml = faceUrl
+      ? (
+          '<div class="agent-face-wrap">' +
+          '<img class="agent-face" src="' + escapeHtml(faceUrl) + '" alt="' +
+          escapeHtml(assist.label || pack.brandName || 'Restaurant agent') + '" width="112" height="112" decoding="async">' +
+          '<div class="agent-face-caption">' + escapeHtml(assist.label || 'Chain assist') + '</div>' +
+          '</div>'
+        )
+      : '';
+
+    var bestFor = (pack.bestFor || [])
+      .map(function (t) { return '<span class="chip">' + escapeHtml(t) + '</span>'; })
+      .join('');
+
+    var valueHtml = (pack.valuePoints || [])
+      .map(function (v) {
+        return (
+          '<div class="value-card"><h3>' + escapeHtml(v.title) + '</h3><p>' +
+          escapeHtml(v.detail) + '</p></div>'
+        );
+      })
+      .join('');
+
+    var flowHtml = (pack.collaborationFlow || [])
+      .map(function (s) {
+        return (
+          '<div class="flow-step">' +
+          '<div class="n">' + escapeHtml(String(s.step || '')) + '</div>' +
+          '<h3>' + escapeHtml(s.title) + '</h3>' +
+          '<p>' + escapeHtml(s.detail) + '</p></div>'
+        );
+      })
+      .join('');
+
+    var toolsHtml = (pack.surfaces || [])
+      .map(function (s) {
+        return (
+          '<a class="tool-card" href="' + escapeHtml(s.href) + '" target="_top" rel="noopener">' +
+          '<div class="kind">' + escapeHtml(s.kind || 'tool') + '</div>' +
+          '<div class="label">' + escapeHtml(s.label) + '</div>' +
+          '<div class="how">' + escapeHtml(s.howUsed || s.notes || 'Open this chain tool.') + '</div>' +
+          '<div class="open">Try it →</div></a>'
+        );
+      })
+      .join('');
+
+    var journeysHtml = (pack.journeys || [])
+      .map(function (j) {
+        var steps = (j.steps || [])
+          .map(function (st) {
+            return (
+              '<div class="step-card"><div class="step-label">' + escapeHtml(st.label) +
+              '</div><p>' + escapeHtml(st.detail) + '</p>' +
+              stepFacesHtml(st, pack, faceUrl) +
+              '</div>'
+            );
+          })
+          .join('');
+        var ctas = '';
+        if (j.assistPrompt && assist.route) {
+          ctas +=
+            '<a class="cta cta-primary" href="' +
+            escapeHtml(assistAskHref(assist.route, j.assistPrompt)) +
+            '" target="_top" rel="noopener">' +
+            faceImg(faceUrl, assist.label || 'Assist') +
+            'Ask ' +
+            escapeHtml(assist.label || 'Assist') +
+            '</a>';
+        }
+        if (j.toolHref) {
+          ctas +=
+            '<a class="cta cta-ghost" href="' + escapeHtml(j.toolHref) +
+            '" target="_top" rel="noopener">' +
+            escapeHtml(j.toolLabel || 'Open tool') +
+            '</a>';
+        }
+        (j.platformHandoffs || []).forEach(function (h) {
+          var face = rosterEntry(h.to);
+          ctas +=
+            '<a class="cta cta-soft" href="' +
+            escapeHtml(platformAskHref(h.to, j.assistPrompt, pack)) +
+            '" target="_top" rel="noopener">' +
+            faceImg(face && face.imageUrl, h.toName || (face && face.name) || h.to) +
+            escapeHtml(h.toName || (face && face.name) || h.to) +
+            '</a>';
+        });
+        return (
+          '<article class="journey">' +
+          '<div class="journey-q"><span>Example</span>' + escapeHtml(j.exampleQuestion) + '</div>' +
+          '<div class="journey-steps">' + steps + '</div>' +
+          (ctas ? '<div class="journey-cta">' + ctas + '</div>' : '') +
+          '</article>'
+        );
+      })
+      .join('');
+
+    var handoffHtml = (pack.handoffsToPlatform || [])
+      .map(function (h) {
+        var prompt = h.w2wExample || h.when;
+        var face = rosterEntry(h.to);
+        return (
+          '<a class="handoff-card" href="' + escapeHtml(platformAskHref(h.to, prompt, pack)) +
+          '" target="_top" rel="noopener">' +
+          '<div class="name-row">' +
+          faceImg(face && face.imageUrl, h.toName || (face && face.name) || h.to, 'mini-face') +
+          '<div class="name">' + escapeHtml(h.toName || (face && face.name) || h.to) + '</div>' +
+          '</div>' +
+          '<div class="when">' + escapeHtml(h.when || '') + '</div>' +
+          (h.w2wExample
+            ? '<div class="ex"><em>W2W example</em>' + escapeHtml(h.w2wExample) + '</div>'
+            : '') +
+          '</a>'
+        );
+      })
+      .join('');
+
+    var tipsHtml = (pack.tips || [])
+      .map(function (t) { return '<li>' + escapeHtml(t) + '</li>'; })
+      .join('');
+
+    var tenantAgents = (pack.agents || [])
+      .map(function (a) {
+        var img = a.imageUrl || faceUrl;
+        if (!img) return '';
+        return (
+          '<a class="tenant-agent" href="' + escapeHtml(a.path || assist.route || '#') +
+          '" target="_top" rel="noopener" title="' + escapeHtml(a.roleLine || a.name) + '">' +
+          '<img src="' + escapeHtml(img) + '" alt="' + escapeHtml(a.name) + '" width="72" height="72" decoding="async">' +
+          '<span>' + escapeHtml(a.name) + '</span>' +
+          '<span class="role">Chain agent</span></a>'
+        );
+      })
+      .join('');
+
+    app.innerHTML =
+      '<header class="hero">' +
+      '<div class="hero-top">' +
+      faceHtml +
+      '<div class="hero-copy">' +
+      '<div class="eyebrow">Restaurant agent pack · ' + escapeHtml(pack.status || 'draft') + '</div>' +
+      '<h1>' + escapeHtml(pack.brandName || pack.chainId) + '</h1>' +
+      '<p class="lede">' + escapeHtml(pack.tagline || '') + '</p>' +
+      (pack.storyIntro ? '<p class="story-intro">' + escapeHtml(pack.storyIntro) + '</p>' : '') +
+      (bestFor ? '<div class="chips" aria-label="Best for">' + bestFor + '</div>' : '') +
+      '</div></div>' +
+      '<div class="layer-note"><strong>Two layers:</strong> chain agents own sites, equipment, and local tools. ' +
+      '<strong>Transition Agents</strong> own Europe-wide grants, finance, deals, and catalogues — then answers are honed back for this brand.</div>' +
+      '<div class="cta-row">' +
+      '<a class="cta cta-primary" href="' + escapeHtml(assist.route || '#') + '" target="_top" rel="noopener">' +
+      faceImg(faceUrl, assist.label || 'Assist') +
+      'Open ' +
+      escapeHtml(assist.label || 'Assist') + '</a>' +
+      '<a class="cta cta-ghost" href="/greenways/orchestra-hub-wix-frame" target="_top" rel="noopener">Transition Orchestra</a>' +
+      '<a class="cta cta-ghost" href="/greenways/agents-highlights" target="_top" rel="noopener">Portal highlights</a>' +
+      '<a class="cta cta-ghost" href="/greenways/customer-hub" target="_top" rel="noopener">Your Hub</a>' +
+      '</div></header>' +
+
+      (tenantAgents
+        ? '<section class="section"><h2>Your chain agents</h2><div class="tenant-agents">' + tenantAgents + '</div></section>'
+        : '') +
+
+      (valueHtml
+        ? '<section class="section"><h2>How they add value</h2><div class="value-grid">' + valueHtml + '</div></section>'
+        : '') +
+
+      (flowHtml
+        ? '<section class="section"><h2>How chain + Transition Agents work together</h2>' +
+          '<p class="section-lede">Local tools first; Europe-wide specialists when the question needs them; then back to a Wok to Walk next step.</p>' +
+          '<div class="flow" aria-label="Collaboration flow">' + flowHtml + '</div></section>'
+        : '') +
+
+      (toolsHtml
+        ? '<section class="section"><h2>Tools they use — and how</h2>' +
+          '<p class="section-lede">Same idea as portal highlights: each tool is live. Chain agents open them in context instead of sending you hunting menus.</p>' +
+          '<div class="tool-grid">' + toolsHtml + '</div></section>'
+        : '') +
+
+      (journeysHtml
+        ? '<section class="section"><h2>Example journeys</h2>' +
+          '<p class="section-lede">Ask → local tool or Transition Agent → answer honed for this chain.</p>' +
+          journeysHtml +
+          '</section>'
+        : '') +
+
+      (handoffHtml
+        ? '<section class="section"><h2>When they hand over to Transition Agents</h2>' +
+          '<p class="section-lede">Each specialist keeps their lane. Cards include a W2W-flavoured example question so you can try the handoff.</p>' +
+          '<div class="handoff-cards">' + handoffHtml + '</div></section>'
+        : '') +
+
+      (tipsHtml
+        ? '<section class="section"><h2>Tips</h2><ul class="tips">' + tipsHtml + '</ul></section>'
+        : '');
+  }
+
+  var chainId = parseChainId();
+  var base = contentBase();
+  Promise.all([
+    fetch(base + '/api/tenant-packs/' + encodeURIComponent(chainId)).then(function (r) {
+      return r.json().then(function (d) { return { ok: r.ok, d: d }; });
+    }),
+    fetch(base + '/data/greenways-agent-roster.json')
+      .then(function (r) { return r.ok ? r.json() : { agents: [] }; })
+      .catch(function () { return { agents: [] }; })
+  ])
+    .then(function (results) {
+      var res = results[0];
+      var roster = results[1] || {};
+      (roster.agents || []).forEach(function (a) {
+        if (a && a.slug) ROSTER_BY_SLUG[a.slug] = a;
+      });
+      if (!res.ok || !res.d.ok || !res.d.pack) {
+        throw new Error((res.d && res.d.error) || 'Pack not found');
+      }
+      document.title = (res.d.pack.brandName || chainId) + ' · How chain agents work';
+      render(res.d.pack);
+    })
+    .catch(function (err) {
+      var el = document.getElementById('status');
+      el.className = 'status error';
+      el.textContent = err.message || 'Could not load tenant pack.';
+    });
+})();
+</script>
+</body>
+</html>

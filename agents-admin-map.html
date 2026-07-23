@@ -354,21 +354,22 @@
     .form-msg.err { color: #ff8a8a; }
 
   </style>
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-agents-admin-gate.js"></script>
 </head>
 <body>
-  <header class="topbar">
+  <header class="topbar" id="admin-topbar" hidden>
     <div>
       <h1><i class="fas fa-project-diagram"></i> Agents network map</h1>
       <p class="sub">Spider view — portraits, data files, portal tools, handoffs, and live referral welcomes</p>
     </div>
-    <div class="top-actions">
+    <div class="top-actions" id="admin-top-actions">
       <a class="btn btn-primary" href="/agents-admin.html"><i class="fas fa-table"></i> Table admin</a>
       <a class="btn" href="/greenways/orchestra-hub-wix-frame" target="_blank" rel="noopener"><i class="fas fa-sitemap"></i> Orchestrator</a>
       <button type="button" class="btn" id="refresh-btn"><i class="fas fa-rotate"></i> Refresh</button>
     </div>
   </header>
 
-  <div id="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Building network graph…</div>
+  <div id="loading" class="loading" hidden><i class="fas fa-spinner fa-spin"></i> Building network graph…</div>
   <div id="error-mount" class="error-box" hidden></div>
 
   <div class="layout" id="main-layout" hidden>
@@ -1059,9 +1060,13 @@
       };
 
       try {
+        var headers = { 'Content-Type': 'application/json' };
+        if (window.GreenwaysAgentsAdminGate) {
+          headers = GreenwaysAgentsAdminGate.adminHeaders();
+        }
         var res = await fetch(resolveApiUrl('/api/agents-admin/content-modules'), {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: headers,
           body: JSON.stringify(payload)
         });
         var data = await res.json();
@@ -1118,7 +1123,20 @@
   }
 
   document.getElementById('refresh-btn').addEventListener('click', load);
-  load();
+
+  function startAdmin() {
+    document.getElementById('admin-topbar').hidden = false;
+    if (window.GreenwaysAgentsAdminGate) {
+      GreenwaysAgentsAdminGate.mountLockButton(document.getElementById('admin-top-actions'));
+    }
+    load();
+  }
+
+  if (window.GreenwaysAgentsAdminGate) {
+    GreenwaysAgentsAdminGate.require(startAdmin);
+  } else {
+    startAdmin();
+  }
 })();
   </script>
 </body>

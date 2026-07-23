@@ -44,6 +44,8 @@
 | **Non-marketplace sustainable catalog** | `data/sustainable-products-catalog.json` ⭐ (`sust_*` ids; grants: `npm run enrich:sustainable-products`) |
 | **Marketplace intake queue** | `data/marketplace-intake-suggestions.json` (“Suggest for Greenways” workflow) |
 | **Venue equipment (per site)** | `data/restaurant-assets/*.json` (e.g. `wok-to-walk-equipment-list.json`) |
+| **Tenant (restaurant) agent packs** | `data/tenant-agent-packs/{chainId}.json` + registry `data/greenways-tenant-agent-packs.json` ⭐ · skill: `Skills/restaurant-tenant-agent-pack.md` |
+| **Chain hub (tenant pack home)** | `HTMLS GWM GWB/greenways-tenant-hub.html` — `/greenways/tenants/:chainId` (W2W: `/greenways/tenants/wok-to-walk`) |
 | **Deep Dive Content** | `deep-dive-content.json` |
 | **Member Profile Page** | `wix-integration/member-profile.html` |
 | **Member Uploads** | `uploads/members/` |
@@ -57,6 +59,7 @@
 | **Utility detail (Elec / Gas / Water)** | `HTMLS GWM GWB/utility-detail.html` (`?type=electricity|gas|water`) |
 | **Energy prices ticker (embed)** | `content-ops/drafts/energy-ticker/energy-ticker-green-wire.html` |
 | **Wok Assist (embedded)** | `HTMLS GWM GWB/Chef 3 W2W .html` |
+| **Wok Assist route** | `/greenways/wok-assist` — reference **tenant** agent (not a Transition Agent) |
 | **Amsterdam events ticker** | `HTMLS GWM GWB/Events Ticker W2W .html` |
 | **Deals (full page shell)** | `HTMLS GWM GWB/Deals.html` |
 | **Deals hub (ticker + search)** | `HTMLS GWM GWB/deals-ticker-hub.html` |

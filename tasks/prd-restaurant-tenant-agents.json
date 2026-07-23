@@ -1,0 +1,113 @@
+{
+  "featureName": "Restaurant tenant agent packs",
+  "branchName": "feature/tenant-agent-packs",
+  "description": "Repeatable infrastructure for chain-scoped restaurant agents (Wok to Walk first) that hand off to Europe-wide Transition Agents. Platform specialists stay shared; each client gets a tenant pack (assist UI, assets, surfaces, handoff map).",
+  "targetSkills": [
+    "Skills/restaurant-tenant-agent-pack.md",
+    "Skills/greenways-transition-agents.md",
+    "Skills/greenways-chat-interface-skill.md",
+    "Skills/energy-dashboard-skill.md"
+  ],
+  "principles": [
+    "Two layers — Transition Agents (platform) vs tenant packs (one chain)",
+    "Do not clone seven Transition Agents per restaurant",
+    "Wok to Walk is the live reference pack",
+    "Tenant agents own local facts; hand off for Europe-wide topics",
+    "Always carry chainId / companyId / siteId in handoff briefs when known"
+  ],
+  "waves": [
+    { "id": "TP1", "name": "Registry + W2W pack + API + chain hub shell", "weeks": "1" },
+    { "id": "TP2", "name": "Formal tenant→platform handoff welcomes", "weeks": "1-2" },
+    { "id": "TP3", "name": "Staff admin list of packs + clone wizard docs", "weeks": "2" },
+    { "id": "TP4", "name": "Second chain pack (copy-and-fill)", "weeks": "3+" }
+  ],
+  "userStories": [
+    {
+      "id": "TP-001",
+      "wave": "TP1",
+      "title": "Tenant pack registry and W2W manifest",
+      "description": "As staff, I want Wok to Walk described as a tenant pack so the next restaurant chain can clone a checklist instead of reinventing agents.",
+      "acceptanceCriteria": [
+        "data/greenways-tenant-agent-packs.json lists wok-to-walk",
+        "data/tenant-agent-packs/wok-to-walk.json has surfaces, assets, handoffsToPlatform",
+        "Skills/restaurant-tenant-agent-pack.md documents clone steps"
+      ],
+      "priority": 1,
+      "passes": true
+    },
+    {
+      "id": "TP-002",
+      "wave": "TP1",
+      "title": "Tenant packs API",
+      "description": "As the chain hub and future admin, I want GET APIs for pack list and pack detail.",
+      "acceptanceCriteria": [
+        "GET /api/tenant-packs returns packs[]",
+        "GET /api/tenant-packs/wok-to-walk returns full pack JSON",
+        "Unknown chainId returns 404"
+      ],
+      "priority": 1,
+      "passes": true
+    },
+    {
+      "id": "TP-003",
+      "wave": "TP1",
+      "title": "W2W chain hub shell",
+      "description": "As a Wok to Walk operator, I want a pack home that opens Wok Assist and Transition Agent handoffs.",
+      "acceptanceCriteria": [
+        "GET /greenways/tenants/wok-to-walk serves greenways-tenant-hub.html",
+        "Hub loads pack from API and lists surfaces + handoff chips",
+        "Primary CTA opens /greenways/wok-assist"
+      ],
+      "priority": 1,
+      "passes": true
+    },
+    {
+      "id": "TP-004",
+      "wave": "TP2",
+      "title": "Tenant→platform referral welcomes",
+      "description": "As Wok Assist, I want grounded welcome handoffs into Andrieus/Vincent/etc with chain context.",
+      "acceptanceCriteria": [
+        "Handoff payload includes chainId=wok-to-walk",
+        "At least grants + finance + equipment pairs smoke-tested",
+        "Documented in restaurant-tenant-agent-pack.md"
+      ],
+      "priority": 2,
+      "passes": false
+    },
+    {
+      "id": "TP-005",
+      "wave": "TP3",
+      "title": "Agents admin shows tenant packs",
+      "description": "As master admin, I want to see registered restaurant packs beside Transition Agents.",
+      "acceptanceCriteria": [
+        "agents-admin.html section lists packs from /api/tenant-packs",
+        "Link to each chain hub and assist route",
+        "Staff password gate still applies"
+      ],
+      "priority": 2,
+      "passes": false
+    },
+    {
+      "id": "TP-006",
+      "wave": "TP4",
+      "title": "Second chain pack scaffold",
+      "description": "As staff, I want a second pack JSON (even draft) proving the clone checklist works.",
+      "acceptanceCriteria": [
+        "New chainId pack file + registry row",
+        "Hub route resolves for that chainId",
+        "No Europe schemes duplicated into tenant pack"
+      ],
+      "priority": 3,
+      "passes": false
+    }
+  ],
+  "keyFiles": [
+    "Skills/restaurant-tenant-agent-pack.md",
+    "data/greenways-tenant-agent-packs.json",
+    "data/tenant-agent-packs/wok-to-walk.json",
+    "services/tenant-agent-pack-service.js",
+    "routes/tenant-packs.js",
+    "HTMLS GWM GWB/greenways-tenant-hub.html",
+    "HTMLS GWM GWB/Chef 3 W2W .html"
+  ]
+}

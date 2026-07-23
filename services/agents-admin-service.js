@@ -262,11 +262,27 @@ async function buildAgentOverview(agentDef, roster) {
 async function getOverview() {
   const registry = await loadRegistry();
   const roster = await loadRoster();
+  const contentCatalog = await loadContentModules();
   const platformChecks = await runChecks();
+
+  const modulesByAgent = {};
+  for (const mod of contentCatalog.modules || []) {
+    for (const agentId of mod.agents || []) {
+      modulesByAgent[agentId] = (modulesByAgent[agentId] || 0) + 1;
+    }
+  }
 
   const agents = [];
   for (const agentDef of registry.agents || []) {
-    agents.push(await buildAgentOverview(agentDef, roster));
+    const row = await buildAgentOverview(agentDef, roster);
+    row.storyRoute = `/greenways/agents/${agentDef.slug}/story`;
+    row.modulesLinked = modulesByAgent[agentDef.id] || 0;
+    agents.push(row);
+  }
+
+  const platformDataSources = [];
+  for (const ds of registry.platformDataSources || []) {
+    platformDataSources.push(await statDataSource(ds));
   }
 
   const sharedChecks = (platformChecks.results || []).map((r) => ({
@@ -287,6 +303,9 @@ async function getOverview() {
     referralHandoffsLive: listReferralHandoffsLive(),
     globalTasks: registry.globalTasks || [],
     orchestrator: registry.orchestrator || null,
+    contentModulesUpdatedAt: contentCatalog.updatedAt || null,
+    contentModuleCount: (contentCatalog.modules || []).length,
+    platformDataSources,
     platform: {
       overall: platformChecks.overall,
       checkedAt: platformChecks.checkedAt,

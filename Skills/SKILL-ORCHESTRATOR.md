@@ -33,7 +33,10 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 | Use | Route to |
 |-----|----------|
 | Agent by **name** (Andrieus, Zara, …) or `/greenways/{slug}` | **`greenways-transition-agents.md`** → **`greenways-chat-interface-skill.md`** |
+| **Restaurant / chain agents** (Wok Assist, next brands) | **`restaurant-tenant-agent-pack.md`** — tenant packs hand off to Transition Agents |
 | Staff ops, content, store, full diagnostics | Skills below (blog writer, content-ops, Market Manager, **Systems MD**, member-manager, …) |
+| **Refresh agent catalogues / stale data** | **`agents-data-refresh-playbook.md`** → admin cockpit + Edwardo verify |
+| **Grants / schemes / marketplace product grants** | **`grants-refresh-playbook.md`** → `schemes.json` + integrator + bundle |
 | Product hovers (grants/deals tooltips) | **`hover-data-aggregator.md`** — infrastructure, not an agent |
 | “Why this matters for you” hovers | **`personalized-impact-hover.md`** — admin/member; planned hover explainer agent |
 
@@ -85,6 +88,8 @@ Full taxonomy: **`greenways-chat-interface-skill.md`** § **Admin vs consumer sk
 | 🗺️ **Agents roadmap** | `greenways-agents-roadmap.md` | Phases, **launch mode (Jun 2026)**, public/member AI, site knowledge |
 | 🚀 **Agents go-live** | `greenways-agents-go-live.md` | Gradual Wix rollout, per-agent smoke tests, tiers A/B/C |
 | 🔧 **Skills backend automation** | `skills-backend-automation.md` | Optional enhancements (research/parse/email); never replace integrators |
+| 🔄 **Agents data refresh** | `agents-data-refresh-playbook.md` | **Staff** — tier order, cleaning, npm pipeline, Edwardo verify; Orchestrator + admin cockpit |
+| 🏛️ **Grants refresh** | `grants-refresh-playbook.md` | **Staff** — schemes.json + integrator + marketplace bundle; which docs are current |
 | 📎 **SkillBoss (reference)** | `../docs/reference/skillboss-evaluation.md` | Vendor evaluation — not implemented |
 | 💬 **Greenways Chat Interface** | `greenways-chat-interface-skill.md` | **Foundation** for agent chat UIs — turn UI, API shape, Wix embeds |
 | 🎬 **Video Finder** | `sustainability-video-finder.md` | Find sustainability videos |
@@ -271,6 +276,12 @@ Full taxonomy: **`greenways-chat-interface-skill.md`** § **Admin vs consumer sk
 "agent roster"
 "agents roadmap"
 "greenways agents roadmap"
+"agents power roadmap"
+"what's missing from agents"
+"agent voice" "speak to agent"
+"agent email" "email me this"
+"upgrade plan agent"
+"Start Ralph loop for agents power platform"
 "agent go live"
 "launch Andrieus"
 "agents rollout"
@@ -278,7 +289,7 @@ Full taxonomy: **`greenways-chat-interface-skill.md`** § **Admin vs consumer sk
 "Edwardo triage" "document this fix"
 ```
 
-**Routes to:** `greenways-transition-agents.md` (roster + skill homes) · `greenways-agents-roadmap.md` (phases/plan) → `greenways-chat-interface-skill.md` (UI/API) · **`SKILL-ORCHESTRATOR.md` § Greenways Agents operations runbook** (triage + fixes)
+**Routes to:** `greenways-transition-agents.md` (roster + skill homes) · `greenways-agents-roadmap.md` (phases/plan + **§ Platform power roadmap**) · `tasks/prd-agents-power-platform.json` (Ralph stories) → `greenways-chat-interface-skill.md` (UI/API) · **`SKILL-ORCHESTRATOR.md` § Greenways Agents operations runbook** (triage + fixes)
 
 **Performs:**
 - Seven consumer agents on `/greenways/{slug}` — refer by **character name**, not only slug
@@ -1362,6 +1373,27 @@ git commit -m "📚 Update SKILL-ORCHESTRATOR: Add new trigger phrases for styli
 
 ---
 
+## 🔄 Agents data refresh (staff — Orchestrator + Edwardo)
+
+**Purpose:** Keep all seven agents on fresh, clean shared JSON. **Not** a consumer chat topic — staff and builders use this when catalogues, feeds, or schemes change.
+
+**Say to Orchestrator (Guide hub):** *“refresh agent data”*, *“update agent databases”*, *“data cleaning for agents”*, *“rebuild deals feed”*, *“what is stale?”*
+
+**Routes to:** `Skills/agents-data-refresh-playbook.md` · `data/agents-data-pipeline.json` · `/agents-admin.html` · Edwardo `/greenways/systems-agent`
+
+| Step | Command |
+|------|---------|
+| Print checklist | `npm run refresh:agents-data` |
+| Run one pipeline step | `node scripts/refresh-agents-data.js --step integrator` |
+| Post-refresh QA | `npm run validate:agent-data` |
+| Verify on site | Edwardo → Ops verify (read-only) |
+
+**Rule:** Tier 1 canonical files → Tier 2 generators → smokes → git push → Render. Agents never run integrators at runtime.
+
+**Phase 2 backlog:** one-click run from admin UI · `data/pipeline-runs.json` last-success timestamps · CI gate on `validate:agent-data`.
+
+---
+
 ## 🛟 Greenways Agents — operations runbook (Edwardo + Orchestrator)
 
 **Purpose:** Single memory for **all seven consumer agents** — fixes, triage, deploy checks, and processes. Use this when users report chat/embed issues **even if they do not say “Orchestrator”**; agents should **append learnings here** + **`AGENTS.md`** + **`greenways-chat-interface-skill.md`** changelog after every agent fix.
@@ -1445,9 +1477,12 @@ git commit -m "📚 Update SKILL-ORCHESTRATOR: Add new trigger phrases for styli
 "Wix embed agent" "agent troubleshoot" "Edwardo triage"
 "orchestrator" "document this fix"
 "launch mode" "agent rollout" "LLM polish"
+"refresh agent data" "update agent databases" "agents data refresh"
+"data cleaning agents" "rebuild deals feed" "stale agent data" "agents admin"
+"grants refresh" "refresh schemes" "product grants integrator" "marketplace grants"
 ```
 
-**Routes to:** this section · `greenways-chat-interface-skill.md` · `greenways-agents-go-live.md` · `Systems MD.md` (platform health)
+**Routes to:** this section · `agents-data-refresh-playbook.md` (data/catalogue refresh) · **`grants-refresh-playbook.md`** (schemes + product overlay) · `greenways-chat-interface-skill.md` · `greenways-agents-go-live.md` · `Systems MD.md` (platform health)
 
 ---
 

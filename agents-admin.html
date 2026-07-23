@@ -330,14 +330,15 @@
       color: #ffb4b4;
     }
   </style>
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-agents-admin-gate.js"></script>
 </head>
 <body>
-  <header class="topbar">
+  <header class="topbar" id="admin-topbar" hidden>
     <div>
       <h1><i class="fas fa-users-gear"></i> Greenways Agents Admin</h1>
       <p class="sub">Seven specialists · data freshness · skills registry · Phase 1 read-only</p>
     </div>
-    <div class="top-actions">
+    <div class="top-actions" id="admin-top-actions">
       <a class="btn btn-primary" href="/schemes-admin.html" target="_blank" rel="noopener">
         <i class="fas fa-landmark"></i> Grants &amp; Schemes Admin
       </a>
@@ -354,14 +355,18 @@
     </div>
   </header>
 
-  <div class="phase-banner" id="phase-banner">
-  Phase 1 — read-only overview. Task buttons are placeholders; wiring to run scripts on Render comes in Phase 2. Auth can mirror schemes-admin later.
+  <div class="phase-banner" id="phase-banner" hidden>
+  Phase 1 — staff overview (password-gated demo). Task buttons are placeholders; full staff auth can replace this gate later.
   </div>
 
   <div id="error-mount" hidden></div>
-  <div id="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading agent registry…</div>
+  <div id="loading" class="loading" hidden><i class="fas fa-spinner fa-spin"></i> Loading agent registry…</div>
 
   <div id="app" hidden>
+    <div class="platform-section">
+      <h2>Portal surfaces &amp; shared data</h2>
+      <div class="platform-row" id="portal-row"></div>
+    </div>
     <div class="platform-section">
       <h2>Platform health</h2>
       <div class="platform-row" id="platform-row"></div>
@@ -381,8 +386,16 @@
 
 <script>
 (function () {
-  var API_BASE = location.origin;
+  var API_BASE = location.protocol === "file:" ? "http://localhost:4000" : location.origin;
   var state = { overview: null, selectedId: "grants", askMisses: null };
+
+  if (location.protocol === "file:") {
+    var warn = document.getElementById("phase-banner");
+    if (warn) {
+      warn.innerHTML =
+        'Opened from disk — use <a href="http://localhost:4000/agents-admin.html" style="color:#7ec8e8">http://localhost:4000/agents-admin.html</a> with <code>node server-new.js</code> running. API calls below use localhost:4000.';
+    }
+  }
 
   function statusClass(s) {
     return "status-" + (s || "unknown");
@@ -499,7 +512,9 @@
 
   function renderPlatform() {
     var row = document.getElementById("platform-row");
+    var portalRow = document.getElementById("portal-row");
     var p = state.overview.platform || {};
+    var links = state.overview.links || {};
     var chips = (p.checks || []).map(function (c) {
       return platChip(c.label, c.status, c.summary);
     });
@@ -507,6 +522,35 @@
       platChip("Platform", p.overall, "Last checked " + formatWhen(p.checkedAt))
     );
     row.innerHTML = chips.join("");
+
+    var portalChips = [];
+    portalChips.push(
+      platChip(
+        "Portal modules",
+        state.overview.contentModuleCount ? "ok" : "unknown",
+        (state.overview.contentModuleCount || 0) +
+          " tablets · updated " +
+          (state.overview.contentModulesUpdatedAt || "—") +
+          " · add via Network map"
+      )
+    );
+    (state.overview.platformDataSources || []).forEach(function (d) {
+      portalChips.push(platChip(d.label, d.status, shortenSummary(d.summary)));
+    });
+    portalRow.innerHTML =
+      '<a class="btn btn-secondary" href="' +
+      escapeHtml(links.customerHub || "/greenways/customer-hub") +
+      '" target="_blank" rel="noopener" style="margin-right:8px;margin-bottom:8px"><i class="fas fa-house-user"></i> Your Hub</a>' +
+      '<a class="btn btn-secondary" href="' +
+      escapeHtml(links.agentsStory || "/greenways/agents-story") +
+      '" target="_blank" rel="noopener" style="margin-right:8px;margin-bottom:8px"><i class="fas fa-book-open"></i> Why this portal</a>' +
+      '<a class="btn btn-secondary" href="' +
+      escapeHtml(links.agentsHighlights || "/greenways/agents-highlights") +
+      '" target="_blank" rel="noopener" style="margin-right:8px;margin-bottom:8px"><i class="fas fa-star"></i> Highlights</a>' +
+      '<a class="btn btn-primary" href="' +
+      escapeHtml(links.agentsAdminMap || "/agents-admin-map.html") +
+      '" target="_blank" rel="noopener" style="margin-right:8px;margin-bottom:8px"><i class="fas fa-plus"></i> Add portal tools (map)</a>' +
+      portalChips.join("");
   }
 
   function renderSidebar() {
@@ -626,9 +670,21 @@
       '<a class="btn btn-primary" href="' +
       escapeHtml(agent.chatRoute) +
       '" target="_blank" rel="noopener"><i class="fas fa-comments"></i> Open live agent</a> ' +
+      '<a class="btn btn-secondary" href="' +
+      escapeHtml(agent.storyRoute || "/greenways/agents/" + agent.slug + "/story") +
+      '" target="_blank" rel="noopener"><i class="fas fa-book-open"></i> Story page</a> ' +
       '<a class="btn btn-ghost" href="' +
       escapeHtml(agent.chatRoute + "?q=Hello") +
       '" target="_blank" rel="noopener">Test chat</a>' +
+      (agent.modulesLinked
+        ? '<p class="meta-block" style="margin-top:10px">' +
+          agent.modulesLinked +
+          " portal module" +
+          (agent.modulesLinked === 1 ? "" : "s") +
+          ' linked · <a href="' +
+          escapeHtml(state.overview.links.agentsAdminMap || "/agents-admin-map.html") +
+          '" target="_blank" rel="noopener" style="color:#7ec8e8">Edit on network map</a></p>'
+        : "") +
       "</div></div>" +
       '<p class="meta-block">Briefing: ' +
       escapeHtml(agent.briefingPath) +
@@ -700,7 +756,21 @@
   }
 
   document.getElementById("refresh-btn").addEventListener("click", loadOverview);
-  loadOverview();
+
+  function startAdmin() {
+    document.getElementById("admin-topbar").hidden = false;
+    document.getElementById("phase-banner").hidden = false;
+    if (window.GreenwaysAgentsAdminGate) {
+      GreenwaysAgentsAdminGate.mountLockButton(document.getElementById("admin-top-actions"));
+    }
+    loadOverview();
+  }
+
+  if (window.GreenwaysAgentsAdminGate) {
+    GreenwaysAgentsAdminGate.require(startAdmin);
+  } else {
+    startAdmin();
+  }
 })();
 </script>
 </body>

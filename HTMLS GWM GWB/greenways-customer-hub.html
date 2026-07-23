@@ -80,16 +80,22 @@
     }
     .topbar {
       display: flex;
-      flex-wrap: wrap;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 16px;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 14px;
       margin-bottom: 22px;
+    }
+    .hub-intro-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: 14px;
     }
     /* Terminal-style intro panel — matches Greenways Buildings System Status */
     .hub-status-panel {
       flex: 1 1 28rem;
-      max-width: 42rem;
+      min-width: min(100%, 18rem);
+      max-width: none;
       margin: 0;
       padding: 16px 16px 14px;
       border-radius: 12px;
@@ -142,6 +148,36 @@
       gap: 8px;
       margin-bottom: 8px;
     }
+    .hub-status-head-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .hub-status-panel .btn-topbar-theme {
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      border-color: rgba(255, 255, 255, 0.14);
+      background: rgba(0, 0, 0, 0.35);
+      color: #9ec9ff;
+    }
+    .hub-status-panel .btn-topbar-theme:hover {
+      border-color: rgba(158, 201, 255, 0.45);
+      color: #cfe4ff;
+    }
+    .hub-panel-actions .btn-staff-admin {
+      font-size: 0.72rem;
+      padding: 7px 11px;
+      opacity: 0.82;
+      border-color: rgba(120, 150, 190, 0.35);
+      color: #c5d4e8;
+    }
+    .hub-panel-actions .btn-staff-admin:hover {
+      opacity: 1;
+      border-color: rgba(158, 201, 255, 0.5);
+    }
     .brand-mark {
       font-size: 0.7rem;
       letter-spacing: 0.14em;
@@ -185,14 +221,64 @@
       align-items: center;
       justify-content: flex-end;
     }
+    .top-actions--slim {
+      justify-content: flex-start;
+      margin-top: 2px;
+    }
+    .hub-panel-footer {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px 16px;
+      margin: 12px 0 0;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
     .curator-row {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
       gap: 8px;
-      margin: 12px 0 0;
-      padding-top: 10px;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      flex: 1 1 12rem;
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: none;
+    }
+    .hub-panel-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex: 1 1 14rem;
+      min-width: 0;
+    }
+    .hub-panel-actions .btn,
+    .hub-panel-actions .profile-chip {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .hub-panel-actions .btn {
+      padding: 8px 12px;
+      font-size: 0.82rem;
+      border-radius: 999px;
+    }
+    .hub-panel-actions .btn.ghost {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.14);
+      color: #e8f5ee;
+    }
+    .hub-panel-actions .btn:not(.ghost) {
+      background: rgba(0, 245, 130, 0.16);
+      border-color: rgba(0, 245, 130, 0.35);
+      color: #d8ffe8;
+    }
+    .hub-panel-actions .profile-chip {
+      background: rgba(0, 0, 0, 0.35);
+      border-color: rgba(255, 255, 255, 0.12);
+      color: #c5ddd0;
     }
     .curator-label {
       font-size: 9px;
@@ -244,12 +330,158 @@
       object-fit: cover;
       display: block;
     }
+
+    /* Restaurant / chain agents — sibling to Transition Agents intro */
+    .restaurant-agents-panel {
+      flex: 1 1 16rem;
+      min-width: min(100%, 16rem);
+      max-width: 24rem;
+      margin: 0;
+      padding: 16px 16px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(249, 115, 22, 0.4);
+      background: rgba(0, 0, 0, 0.52);
+      backdrop-filter: blur(14px) saturate(1.15);
+      -webkit-backdrop-filter: blur(14px) saturate(1.15);
+      box-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(249, 115, 22, 0.14),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
+    .restaurant-agents-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 42%),
+        radial-gradient(ellipse 95% 70% at 50% -8%, rgba(249, 115, 22, 0.14) 0%, transparent 58%);
+      z-index: 0;
+    }
+    .restaurant-agents-panel > * {
+      position: relative;
+      z-index: 1;
+    }
+    .restaurant-agents-panel .hub-status-pill {
+      border-color: rgba(249, 115, 22, 0.45);
+      color: #fdba74;
+      background: rgba(249, 115, 22, 0.1);
+    }
+    .restaurant-agents-panel h2 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #fdba74;
+      text-shadow: 0 0 14px rgba(249, 115, 22, 0.2);
+    }
+    .restaurant-agents-panel .panel-lede {
+      margin: 8px 0 0;
+      color: #c4b5a0;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+    .tenant-agent-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .tenant-agent-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+      padding: 14px 12px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(249, 115, 22, 0.28);
+      background: rgba(15, 23, 42, 0.55);
+    }
+    .tenant-agent-card img {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: top center;
+      border: 2px solid rgba(249, 115, 22, 0.55);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+      background: #0c1218;
+    }
+    .tenant-agent-card .name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 2px 0 0;
+    }
+    .tenant-agent-card .role {
+      font-size: 0.78rem;
+      color: #a8a29e;
+      line-height: 1.35;
+      max-width: 22ch;
+    }
+    .tenant-agent-card .brand {
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #fdba74;
+      font-weight: 600;
+    }
+    .tenant-agent-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 8px;
+      width: 100%;
+    }
+    .tenant-agent-actions a {
+      flex: 1 1 auto;
+      min-width: 6.5rem;
+      text-align: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .tenant-agent-actions .btn-story {
+      color: #e8d9a8;
+      border: 1px solid rgba(201, 169, 97, 0.45);
+      background: rgba(201, 169, 97, 0.08);
+    }
+    .tenant-agent-actions .btn-chat {
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.45);
+      background: rgba(34, 197, 94, 0.08);
+    }
+    .tenant-agent-actions a:hover {
+      filter: brightness(1.12);
+    }
+    .restaurant-agents-empty {
+      margin-top: 12px;
+      font-size: 0.82rem;
+      color: #a8a29e;
+    }
+
     @media (max-width: 720px) {
-      .hub-status-panel {
+      .hub-status-panel,
+      .restaurant-agents-panel {
         flex: 1 1 100%;
         max-width: none;
       }
-      .top-actions {
+      .hub-panel-footer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .hub-panel-actions {
+        justify-content: flex-start;
+      }
+      .top-actions,
+      .top-actions--slim {
         width: 100%;
         justify-content: flex-start;
       }
@@ -948,23 +1180,41 @@
       <a href="/greenways/agents-map" class="is-muted">Agent map</a>
     </nav>
     <header class="topbar">
-      <section class="hub-status-panel" aria-label="Your hub">
-        <div class="hub-status-head">
-          <p class="brand-mark">Greenways</p>
-          <span class="hub-status-pill">Member hub</span>
-        </div>
-        <h1>Your hub</h1>
-        <p class="lede">Saved picks, specialist suggestions, deals, and news — curated by your Transition Agents from your profile. Not an ops meter dashboard.</p>
-        <div class="curator-row" aria-label="Specialists curating this hub">
-          <span class="curator-label">Curated with the Transition Agents</span>
-          <div class="curator-faces" id="curator-faces"></div>
-        </div>
-      </section>
-      <div class="top-actions">
-        <button type="button" class="btn-topbar-theme" id="btnGreenwaysBackdropTheme" aria-pressed="false" aria-label="Switch to day mode (page look)" title="Switch to day mode (page look)">☀ <span class="backdrop-theme-label backdrop-theme-label--day">Day Mode</span></button>
-        <span class="profile-chip" id="profile-chip">Loading profile…</span>
-        <a class="btn ghost" href="/greenways/orchestra-hub">Orchestra</a>
-        <a class="btn" href="/wix-integration/unified-membership-dashboard.html">Membership</a>
+      <div class="hub-intro-row">
+        <section class="hub-status-panel" aria-label="Your hub">
+          <div class="hub-status-head">
+            <p class="brand-mark">Greenways</p>
+            <div class="hub-status-head-actions">
+              <button type="button" class="btn-topbar-theme" id="btnGreenwaysBackdropTheme" aria-pressed="false" aria-label="Switch to day mode (page look)" title="Switch to day mode (page look)">☀ <span class="backdrop-theme-label backdrop-theme-label--day">Day Mode</span></button>
+              <span class="hub-status-pill">Member hub</span>
+            </div>
+          </div>
+          <h1>Your hub</h1>
+          <p class="lede">Saved picks, specialist suggestions, deals, and news — curated by your Transition Agents from your profile. Not an ops meter dashboard.</p>
+          <div class="hub-panel-footer">
+            <div class="curator-row" aria-label="Specialists curating this hub">
+              <span class="curator-label">Curated with the Transition Agents</span>
+              <div class="curator-faces" id="curator-faces"></div>
+            </div>
+            <div class="hub-panel-actions" aria-label="Hub shortcuts">
+              <span class="profile-chip" id="profile-chip">Loading profile…</span>
+              <a class="btn ghost" href="/greenways/orchestra-hub">Orchestra</a>
+              <a class="btn" href="/wix-integration/unified-membership-dashboard.html">Membership</a>
+              <a class="btn ghost btn-staff-admin" href="/agents-admin.html" title="Staff · Agents admin (password required)">Staff · Agents admin</a>
+            </div>
+          </div>
+        </section>
+        <section class="restaurant-agents-panel" aria-label="Your restaurant agents">
+          <div class="hub-status-head">
+            <p class="brand-mark">Chain desk</p>
+            <span class="hub-status-pill">Restaurant</span>
+          </div>
+          <h2>Your restaurant agents</h2>
+          <p class="panel-lede">Site-scoped assistants for your venues — then hand off to Transition Agents when you need Europe-wide help.</p>
+          <div class="tenant-agent-cards" id="restaurant-agent-cards">
+            <p class="restaurant-agents-empty">Loading restaurant agents…</p>
+          </div>
+        </section>
       </div>
     </header>
 
@@ -1281,6 +1531,78 @@
         emoji: '⭐'
       });
     }).join('');
+  }
+
+  async function renderRestaurantAgents() {
+    var mount = document.getElementById('restaurant-agent-cards');
+    if (!mount) return;
+
+    var FALLBACK = {
+      brandName: 'Wok to Walk',
+      hubRoute: '/greenways/tenants/wok-to-walk',
+      assistRoute: '/greenways/wok-assist',
+      agents: [{
+        name: 'Wok Assist',
+        roleLine: 'Site equipment, local events, catering, and day-to-day ops for Wok to Walk.',
+        imageUrl: 'https://static.wixstatic.com/media/c123de_c39c61a15a1e4a858c8178d3facb305d~mv2.jpg',
+        path: '/greenways/wok-assist'
+      }]
+    };
+
+    try {
+      var list = await loadJson('/api/tenant-packs');
+      var packs = (list && list.packs) || [];
+      if (!packs.length) throw new Error('No tenant packs');
+
+      var cards = [];
+      for (var i = 0; i < packs.length; i++) {
+        var row = packs[i];
+        var detail = await loadJson('/api/tenant-packs/' + encodeURIComponent(row.chainId));
+        var pack = (detail && detail.pack) || null;
+        var brand = (pack && pack.brandName) || row.brandName || row.chainId;
+        var hub = (row.hubRoute) || ('/greenways/tenants/' + row.chainId);
+        var assistRoute = (pack && pack.primaryAssist && pack.primaryAssist.route) || row.assistRoute || hub;
+        var agents = (pack && pack.agents && pack.agents.length)
+          ? pack.agents
+          : [{
+              name: (pack && pack.primaryAssist && pack.primaryAssist.label) || 'Assist',
+              roleLine: 'Chain-scoped restaurant assistant',
+              imageUrl: (pack && (pack.primaryAssist && pack.primaryAssist.imageUrl || pack.brandImageUrl)) || '',
+              path: assistRoute
+            }];
+
+        agents.forEach(function (a) {
+          var chatHref = a.path || assistRoute;
+          var img = a.imageUrl || (pack && pack.brandImageUrl) || '';
+          cards.push(
+            '<article class="tenant-agent-card">' +
+              (img ? '<img src="' + escapeHtml(img) + '" alt="' + escapeHtml(a.name || brand) + '" width="72" height="72" decoding="async">' : '') +
+              '<div class="brand">' + escapeHtml(brand) + '</div>' +
+              '<h3 class="name">' + escapeHtml(a.name || 'Assist') + '</h3>' +
+              '<p class="role">' + escapeHtml(a.roleLine || 'Your restaurant agent') + '</p>' +
+              '<div class="tenant-agent-actions">' +
+                '<a class="btn-story" href="' + escapeHtml(hub) + '">Their story</a>' +
+                '<a class="btn-chat" href="' + escapeHtml(chatHref) + '">Open chat</a>' +
+              '</div>' +
+            '</article>'
+          );
+        });
+      }
+      mount.innerHTML = cards.join('') || '<p class="restaurant-agents-empty">No restaurant agents yet.</p>';
+    } catch (_) {
+      var a = FALLBACK.agents[0];
+      mount.innerHTML =
+        '<article class="tenant-agent-card">' +
+          '<img src="' + escapeHtml(a.imageUrl) + '" alt="' + escapeHtml(a.name) + '" width="72" height="72" decoding="async">' +
+          '<div class="brand">' + escapeHtml(FALLBACK.brandName) + '</div>' +
+          '<h3 class="name">' + escapeHtml(a.name) + '</h3>' +
+          '<p class="role">' + escapeHtml(a.roleLine) + '</p>' +
+          '<div class="tenant-agent-actions">' +
+            '<a class="btn-story" href="' + escapeHtml(FALLBACK.hubRoute) + '">Their story</a>' +
+            '<a class="btn-chat" href="' + escapeHtml(FALLBACK.assistRoute) + '">Open chat</a>' +
+          '</div>' +
+        '</article>';
+    }
   }
 
   function renderTeam(roster) {
@@ -1878,6 +2200,7 @@
     var roster = await loadJson('/data/greenways-agent-roster.json') || { agents: [] };
     renderTeam(roster);
     renderGlance(roster, profile);
+    renderRestaurantAgents();
     await Promise.all([
       renderSuggestions(roster, profile),
       renderDeals(roster, profile),

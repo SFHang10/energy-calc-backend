@@ -1,18 +1,30 @@
 {
-  "updatedAt": "2026-06-15",
+  "updatedAt": "2026-07-20",
   "meta": {
     "title": "Greenways Agents Admin registry",
-    "description": "Staff cockpit — agent roles, data sources, portal tools, skills, and runnable tasks."
+    "description": "Staff cockpit — agent roles, data sources, portal tools, skills, and runnable tasks.",
+    "playbookSkill": "Skills/agents-data-refresh-playbook.md",
+    "pipelineManifest": "data/agents-data-pipeline.json"
   },
   "links": {
     "grantsAdmin": "/schemes-admin.html",
     "agentsAdmin": "/agents-admin.html",
     "agentsAdminMap": "/agents-admin-map.html",
+    "customerHub": "/greenways/customer-hub",
+    "agentsStory": "/greenways/agents-story",
+    "agentsHighlights": "/greenways/agents-highlights",
+    "agentsMap": "/greenways/agents-map",
     "orchestraHub": "/greenways/orchestra-hub-wix-frame",
     "orchestraHubFull": "/greenways/orchestra-hub",
     "contentCatalogAdmin": "/wix-integration/content-catalog-admin.html",
     "schemesAdminGuide": "SCHEMES_ADMIN_GUIDE.md"
   },
+  "platformDataSources": [
+    { "id": "content-modules", "label": "Portal module tablets", "path": "data/greenways-content-modules.json", "warnDays": 14, "staleDays": 45 },
+    { "id": "sidebar-config", "label": "Agent sidebar quick links", "path": "data/greenways-agent-sidebar-config.json", "warnDays": 30, "staleDays": 90 },
+    { "id": "agent-roster", "label": "Team roster (portraits)", "path": "data/greenways-agent-roster.json", "warnDays": 60, "staleDays": 180 },
+    { "id": "agent-highlights", "label": "Portal highlights feed", "path": "data/greenways-agent-highlights.json", "warnDays": 7, "staleDays": 14 }
+  ],
   "referralHandoffsLive": [
     { "from": "Zyanne", "to": "Artemis", "pair": "sustainable-products-agent → equipment-agent" },
     { "from": "Cheryce", "to": "Andrieus", "pair": "media-agent → grants-agent" },
@@ -34,6 +46,22 @@
     { "from": "Cheryce", "to": "Edwardo", "pair": "media-agent → systems-agent" }
   ],
   "globalTasks": [
+    {
+      "id": "refresh-agents-data",
+      "label": "Agents data refresh playbook (dry-run)",
+      "npmScript": "refresh:agents-data",
+      "command": "npm run refresh:agents-data",
+      "description": "Print tier order + pipeline checklist — Skills/agents-data-refresh-playbook.md",
+      "phase": 1
+    },
+    {
+      "id": "validate-agent-data",
+      "label": "Validate agent data (smokes)",
+      "npmScript": "validate:agent-data",
+      "command": "npm run validate:agent-data",
+      "description": "Run smoke:agents-ask + smoke:agent-links after a refresh cycle",
+      "phase": 1
+    },
     {
       "id": "product-grants-integrator",
       "label": "Refresh product grants export",
@@ -89,7 +117,8 @@
       "dataSources": [
         { "id": "schemes", "label": "Schemes catalogue", "path": "schemes.json", "warnDays": 30, "staleDays": 90 },
         { "id": "products-grants", "label": "Product grants export", "path": "products-with-grants-and-collection.json", "fallback": "products-with-grants.json", "warnDays": 7, "staleDays": 30 },
-        { "id": "grants-intents", "label": "Agent intents", "path": "data/grants-agent-intents.json" }
+        { "id": "grants-intents", "label": "Agent intents", "path": "data/grants-agent-intents.json" },
+        { "id": "agent-story", "label": "Selling story page", "path": "data/greenways-agent-stories/grants-agent.json", "warnDays": 30, "staleDays": 90 }
       ],
       "tasks": []
     },
@@ -106,7 +135,8 @@
       "dataSources": [
         { "id": "finance-tools", "label": "Finance tools registry", "path": "data/finance-agent-tools.json" },
         { "id": "finance-refs", "label": "Finance references", "path": "data/finance-agent-references.json" },
-        { "id": "schemes", "label": "Schemes (read-only)", "path": "schemes.json" }
+        { "id": "schemes", "label": "Schemes (read-only)", "path": "schemes.json" },
+        { "id": "agent-story", "label": "Selling story page", "path": "data/greenways-agent-stories/finance-agent.json", "warnDays": 30, "staleDays": 90 }
       ],
       "tasks": []
     },
@@ -124,7 +154,8 @@
         { "id": "equipment-showcase", "label": "Equipment showcase", "path": "data/equipment-agent-showcase.json" },
         { "id": "renovation-guide", "label": "Renovation guide", "path": "data/equipment-agent-renovation-guide.json" },
         { "id": "products-grants", "label": "Product grants overlay", "path": "products-with-grants-and-collection.json", "fallback": "products-with-grants.json" },
-        { "id": "full-db", "label": "Product spec baseline", "path": "FULL-DATABASE-5554.json", "warnDays": 60, "staleDays": 180 }
+        { "id": "full-db", "label": "Product spec baseline", "path": "FULL-DATABASE-5554.json", "warnDays": 60, "staleDays": 180 },
+        { "id": "agent-story", "label": "Selling story page", "path": "data/greenways-agent-stories/equipment-agent.json", "warnDays": 30, "staleDays": 90 }
       ],
       "tasks": []
     },
@@ -141,7 +172,8 @@
       "dataSources": [
         { "id": "sust-catalog", "label": "Sustainable products catalog", "path": "data/sustainable-products-catalog.json", "warnDays": 14, "staleDays": 45 },
         { "id": "products-grants", "label": "Marketplace grants overlay", "path": "products-with-grants-and-collection.json", "fallback": "products-with-grants.json" },
-        { "id": "products-showcase", "label": "Products showcase", "path": "data/sustainable-products-agent-showcase.json" }
+        { "id": "products-showcase", "label": "Products showcase", "path": "data/sustainable-products-agent-showcase.json" },
+        { "id": "agent-story", "label": "Selling story page", "path": "data/greenways-agent-stories/sustainable-products-agent.json", "warnDays": 30, "staleDays": 90 }
       ],
       "tasks": [
         { "id": "enrich-sustainable-products", "label": "Enrich catalog grants", "command": "npm run enrich:sustainable-products", "phase": 2 }
@@ -160,7 +192,8 @@
       "dataSources": [
         { "id": "deals-feed", "label": "Deals feed", "path": "data/deals-feed.json", "warnDays": 7, "staleDays": 14 },
         { "id": "deals-seeds", "label": "Deals feed seeds", "path": "data/deals-feed-seeds.json" },
-        { "id": "deals-weekly", "label": "Weekly deals input", "path": "data/deals-weekly-input.json" }
+        { "id": "deals-weekly", "label": "Weekly deals input", "path": "data/deals-weekly-input.json" },
+        { "id": "agent-story", "label": "Selling story page", "path": "data/greenways-agent-stories/deals-agent.json", "warnDays": 30, "staleDays": 90 }
       ],
       "tasks": [
         { "id": "build-deals-feed", "label": "Build deals feed", "command": "npm run build:deals-feed", "phase": 2 }
@@ -179,7 +212,8 @@
       "dataSources": [
         { "id": "media-daily-brief", "label": "Daily news brief", "path": "data/media-daily-brief.json", "warnDays": 7, "staleDays": 21 },
         { "id": "news-kb", "label": "News category knowledge", "path": "data/news-category-knowledge.json" },
-        { "id": "tech-news-kb", "label": "Tech news knowledge", "path": "data/tech-news-category-knowledge.json" }
+        { "id": "tech-news-kb", "label": "Tech news knowledge", "path": "data/tech-news-category-knowledge.json" },
+        { "id": "agent-story", "label": "Selling story page", "path": "data/greenways-agent-stories/media-agent.json", "warnDays": 30, "staleDays": 90 }
       ],
       "tasks": [
         { "id": "build-media-daily-brief", "label": "Build daily brief", "command": "npm run build:media-daily-brief", "phase": 2 }
@@ -196,7 +230,8 @@
       "chatRoute": "/greenways/systems-agent",
       "skills": ["Skills/greenways-chat-interface-skill.md", "Skills/energy-dashboard-skill.md"],
       "dataSources": [
-        { "id": "systems-checks", "label": "Health check config", "path": "data/systems-agent-checks.json" }
+        { "id": "systems-checks", "label": "Health check config", "path": "data/systems-agent-checks.json" },
+        { "id": "agent-story", "label": "Selling story page", "path": "data/greenways-agent-stories/systems-agent.json", "warnDays": 30, "staleDays": 90 }
       ],
       "tasks": []
     }

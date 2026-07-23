@@ -239,6 +239,8 @@ app.get('/greenways/water-saving-finder', (req, res) => sendLiveMusicHtml(res, '
 app.get('/greenways/water-saving-finder.html', (req, res) => sendLiveMusicHtml(res, 'water-saving-finder.html'));
 app.get('/greenways/wok-assist', (req, res) => sendLiveMusicHtml(res, 'Chef 3 W2W .html'));
 app.get('/greenways/events-ticker', (req, res) => sendLiveMusicHtml(res, 'Events Ticker W2W .html'));
+app.get('/greenways/tenants/:chainId', (req, res) => sendLiveMusicHtml(res, 'greenways-tenant-hub.html'));
+app.get('/greenways/tenant-hub', (req, res) => sendLiveMusicHtml(res, 'greenways-tenant-hub.html'));
 
 // Legacy Wix newsletter path → deployed content-ops edition
 app.get('/HTMLS GWM GWB/January Sustainable News Original .html', (req, res) => {
@@ -423,6 +425,7 @@ let sustainableProductsAgentRouter;
 let systemsAgentRouter;
 let guideAgentRouter;
 let agentsAdminRouter;
+let tenantPacksRouter;
 let greenwaysModuleRouter;
 let musicVenueInquiriesRouter;
 let musicMediaCandidatesRouter;
@@ -441,6 +444,7 @@ try {
   systemsAgentRouter = require('./routes/systems-agent');
   guideAgentRouter = require('./routes/guide-agent');
   agentsAdminRouter = require('./routes/agents-admin');
+  tenantPacksRouter = require('./routes/tenant-packs');
   greenwaysModuleRouter = require('./routes/greenways-module');
   musicVenueInquiriesRouter = require('./routes/music-venue-inquiries');
   musicMediaCandidatesRouter = require('./routes/music-media-candidates');
@@ -461,6 +465,7 @@ try {
   systemsAgentRouter = null;
   guideAgentRouter = null;
   agentsAdminRouter = null;
+  tenantPacksRouter = null;
   greenwaysModuleRouter = null;
   musicVenueInquiriesRouter = null;
   musicMediaCandidatesRouter = null;
@@ -590,6 +595,10 @@ function mountApiRoutes() {
   if (agentsAdminRouter) {
     app.use('/api/agents-admin', agentsAdminRouter);
     console.log('✅ /api/agents-admin route mounted');
+  }
+  if (tenantPacksRouter) {
+    app.use('/api/tenant-packs', tenantPacksRouter);
+    console.log('✅ /api/tenant-packs route mounted');
   }
   if (musicVenueInquiriesRouter) {
     app.use('/api/music-venue-inquiries', musicVenueInquiriesRouter);

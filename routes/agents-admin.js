@@ -4,6 +4,22 @@ const { readRecentAskLogs, aggregateTopMisses } = require('../services/greenways
 
 const router = express.Router();
 
+/** Demo staff gate — replace with real auth later. Override via AGENTS_ADMIN_PASSWORD. */
+function requireAgentsAdminKey(req, res, next) {
+  const expected = process.env.AGENTS_ADMIN_PASSWORD || 'Greenwaysadmin';
+  const key =
+    req.get('x-agents-admin-key') ||
+    (req.body && (req.body.adminKey || req.body.password)) ||
+    '';
+  if (String(key) !== String(expected)) {
+    return res.status(401).json({
+      ok: false,
+      error: 'Agents admin password required. Unlock the admin UI first, then try again.'
+    });
+  }
+  return next();
+}
+
 router.get('/overview', async (req, res) => {
   try {
     const overview = await getOverview();
@@ -39,7 +55,7 @@ router.get('/ask-misses', (req, res) => {
   res.json(aggregateTopMisses({ days, limit }));
 });
 
-router.post('/content-modules', async (req, res) => {
+router.post('/content-modules', requireAgentsAdminKey, async (req, res) => {
   try {
     const moduleRow = await addContentModule(req.body || {});
     res.status(201).json({ ok: true, module: moduleRow });
