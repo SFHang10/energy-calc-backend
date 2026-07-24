@@ -81,6 +81,7 @@
 
   function writeHandoff(brief) {
     if (!brief || !brief.toSlug) return;
+    var profile = brief.profile || null;
     writeJson(HANDOFF_KEY, {
       fromSlug: brief.fromSlug || '',
       fromName: brief.fromName || 'Another agent',
@@ -90,7 +91,10 @@
       topicSummary: String(brief.topicSummary || brief.summary || '').trim(),
       fromIntentId: String(brief.fromIntentId || '').trim(),
       handoffKey: String(brief.handoffKey || '').trim(),
-      profile: brief.profile || null,
+      chainId: String(brief.chainId || (profile && profile.chainId) || '').trim(),
+      siteId: String(brief.siteId || (profile && profile.siteId) || '').trim(),
+      companyId: String(brief.companyId || (profile && profile.companyId) || '').trim(),
+      profile: profile,
       apiConsumed: false,
       createdAt: new Date().toISOString()
     });
@@ -111,7 +115,10 @@
       summary: String(brief.summary || '').trim(),
       topicSummary: String(brief.topicSummary || brief.summary || '').trim(),
       fromIntentId: String(brief.fromIntentId || '').trim(),
-      handoffKey: String(brief.handoffKey || '').trim()
+      handoffKey: String(brief.handoffKey || '').trim(),
+      chainId: String(brief.chainId || '').trim(),
+      siteId: String(brief.siteId || '').trim(),
+      companyId: String(brief.companyId || '').trim()
     };
   }
 
@@ -138,6 +145,9 @@
       out[k] = base[k];
     });
     out.handoff = ho;
+    if (ho.chainId && !out.chainId) out.chainId = ho.chainId;
+    if (ho.siteId && !out.siteId) out.siteId = ho.siteId;
+    if (ho.companyId && !out.companyId) out.companyId = ho.companyId;
     return out;
   }
 
@@ -1121,6 +1131,9 @@
         topicSummary: topicSummary,
         fromIntentId: fromIntentId,
         handoffKey: link.getAttribute('data-handoff-key') || link.dataset.handoffKey || '',
+        chainId: (profile && profile.chainId) || '',
+        siteId: (profile && profile.siteId) || '',
+        companyId: (profile && profile.companyId) || '',
         profile: profile
       });
 

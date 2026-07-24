@@ -17,6 +17,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wok to Walk — Agent Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-team.js"></script>
 <style>
   :root {
     --red: #E8271A;
@@ -575,6 +576,68 @@
   }
   .welcome-tag:hover { border-color: var(--red); color: var(--red); }
 
+  .w2w-handoff-block {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(0,0,0,0.28);
+    text-align: left;
+    max-width: 560px;
+    width: 100%;
+  }
+  .w2w-handoff-block .w2w-handoff-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+    margin-bottom: 8px;
+  }
+  .w2w-handoff-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  a.w2w-handoff-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(232,39,26,0.35);
+    background: rgba(232,39,26,0.08);
+    color: var(--text);
+    font-size: 0.72rem;
+    font-family: var(--font-body);
+    text-decoration: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  a.w2w-handoff-chip:hover {
+    border-color: var(--red);
+    background: rgba(232,39,26,0.18);
+  }
+  a.w2w-handoff-chip img {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .w2w-handoff-hint {
+    margin: 8px 0 0;
+    font-size: 0.68rem;
+    color: var(--text-faint);
+    line-height: 1.4;
+  }
+  .message .w2w-handoff-block {
+    margin: 10px 0 0 48px;
+    max-width: 520px;
+  }
+  .sidebar .w2w-handoff-chips a.w2w-handoff-chip {
+    font-size: 0.68rem;
+    padding: 5px 8px;
+  }
+
   /* Messages */
   .message {
     display: flex;
@@ -928,8 +991,14 @@
 <div class="modal-overlay" id="config-modal" style="display:none">
   <div class="modal">
     <h3>🍜 Agent Setup</h3>
-    <p>Configure your LLM provider to activate the Wok to Walk Agent. Your API key is stored in your browser only.</p>
+    <p>Wok Assist uses the <strong>same Greenways server LLM</strong> as the Transition Agents (Cortecs / OpenRouter via Render <code>ASSISTANT_*</code>). Optional: override with your own browser API key below.</p>
 
+    <div class="config-field">
+      <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:0.78rem;color:var(--text-dim)">
+        <input type="checkbox" id="modal-use-browser-llm" style="width:auto;accent-color:var(--red)">
+        Use my own browser API key (override Greenways LLM)
+      </label>
+    </div>
     <div class="config-field">
       <label>LLM PROVIDER</label>
       <select id="modal-provider">
@@ -957,11 +1026,11 @@
       <input type="text" id="modal-location" placeholder="Amsterdam" value="Amsterdam">
     </div>
     <div class="provider-note" id="provider-note">
-      Anthropic API: Your key is used client-side via the Anthropic messages endpoint. Works with claude-sonnet-4-20250514, claude-opus-4-20250514, etc.
+      Leave the override unchecked to use Greenways LLM on the server. Browser keys stay in this session only.
     </div>
     <div class="modal-actions">
-      <button class="btn-primary" onclick="saveConfig()">ACTIVATE AGENT →</button>
-      <button class="btn-secondary" onclick="dismissModal()">Later</button>
+      <button class="btn-primary" onclick="saveConfig()">SAVE →</button>
+      <button class="btn-secondary" onclick="dismissModal()">Close</button>
     </div>
     <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
       <p style="font-size:0.68rem;color:var(--text-faint);font-family:var(--font-mono);margin-bottom:6px">No API key? Copy the skill prompt to use in ChatGPT, Gemini, or any AI tool:</p>
@@ -1073,6 +1142,12 @@
       </div>
     </div>
 
+    <div class="sidebar-section">
+      <div class="sidebar-label">Transition Agents</div>
+      <div class="w2w-handoff-chips" id="sidebar-handoff-chips" aria-label="Hand off to Greenways specialists"></div>
+      <p class="w2w-handoff-hint" style="margin-top:8px">Europe-wide grants, finance, equipment, deals, news — with W2W context attached.</p>
+    </div>
+
     <!-- Locations -->
     <div class="sidebar-section">
       <div class="sidebar-label">Amsterdam Locations</div>
@@ -1125,7 +1200,12 @@
           <div class="welcome-tag" onclick="sendQuick('King\'s Day catering opportunities Amsterdam')">👑 King\'s Day Prep</div>
           <div class="welcome-tag" onclick="openEventsTicker('catering')">🍱 Catering Leads</div>
         </div>
-        <p style="font-size:0.75rem;color:var(--text-faint);font-family:var(--font-mono)">Configure your LLM in settings → then ask anything.</p>
+        <div class="w2w-handoff-block" id="welcome-handoff-block">
+          <div class="w2w-handoff-label">Need Europe-wide help? Transition Agents</div>
+          <div class="w2w-handoff-chips" id="welcome-handoff-chips"></div>
+          <p class="w2w-handoff-hint">Opens Andrieus, Vincent, Artemis and the team with your Wok to Walk context attached.</p>
+        </div>
+        <p style="font-size:0.75rem;color:var(--text-faint);font-family:var(--font-mono)">Uses the Greenways server LLM by default · Options for browser override</p>
       </div>
     </div>
 
@@ -1135,7 +1215,7 @@
         <textarea id="chat-input" placeholder="Ask for events, catering leads, energy tips, operations alerts..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
         <button id="send-btn" onclick="sendMessage()">➤</button>
       </div>
-      <div class="input-hint">Enter to send · Shift+Enter for new line · Powered by your chosen LLM</div>
+      <div class="input-hint">Enter to send · Shift+Enter for new line · Greenways LLM + Transition Agent handoffs</div>
     </div>
   </main>
 </div>
@@ -1188,7 +1268,11 @@ const STATE = {
   location: 'Amsterdam',
   history: [],
   isThinking: false,
-  activeTab: 'all'
+  activeTab: 'all',
+  /** Default: shared Greenways server LLM (ASSISTANT_*). Browser key is optional override. */
+  useBrowserLlm: false,
+  serverLlmConfigured: false,
+  serverLlmProvider: ''
 };
 
 function readAssistantSiteFromUrl() {
@@ -1200,6 +1284,156 @@ function readAssistantSiteFromUrl() {
   }
 }
 const ASSISTANT_SITE_CTX = readAssistantSiteFromUrl();
+
+/** Pack-aligned Transition Agent handoffs (Wok Assist → platform) */
+const W2W_PLATFORM_HANDOFFS = [
+  {
+    slug: 'grants-agent',
+    name: 'Andrieus',
+    path: '/greenways/grants-agent',
+    prompt: 'Which NL or EU schemes might support a kitchen line upgrade for our Wok to Walk site?',
+    imageUrl: 'https://static.wixstatic.com/media/c123de_46943b6b1f8d41a59960fd8fdde4097b~mv2.png'
+  },
+  {
+    slug: 'finance-agent',
+    name: 'Vincent',
+    path: '/greenways/finance-agent',
+    prompt: 'Illustrate payback if we replace high-gas wok burners on this Wok to Walk site.',
+    imageUrl: 'https://static.wixstatic.com/media/c123de_63359ab891354966aa9ff792fe998677~mv2.png'
+  },
+  {
+    slug: 'equipment-agent',
+    name: 'Artemis',
+    path: '/greenways/equipment-agent',
+    prompt: 'Compare efficient alternatives to our Wok to Walk wok burners and cold line.',
+    imageUrl: 'https://static.wixstatic.com/media/c123de_126830b1fc224df880dfa37ec830620e~mv2.png'
+  },
+  {
+    slug: 'deals-agent',
+    name: 'Zara',
+    path: '/greenways/deals-agent',
+    prompt: 'Any hospitality energy deals that could matter for our Wok to Walk NL sites?',
+    imageUrl: 'https://static.wixstatic.com/media/c123de_c7cdbed4a4ee407289677a4f0079c1e5~mv2.png'
+  },
+  {
+    slug: 'media-agent',
+    name: 'Cheryce',
+    path: '/greenways/media-agent',
+    prompt: 'Show restaurant energy-saving stories we can benchmark against for Wok to Walk.',
+    imageUrl: 'https://static.wixstatic.com/media/c123de_333c90ab8930465a98b503e1d24316b4~mv2.png'
+  },
+  {
+    slug: 'sustainable-products-agent',
+    name: 'Zyanne',
+    path: '/greenways/sustainable-products-agent',
+    prompt: 'Find water-saving and efficient kitchen product ideas that fit a busy wok kitchen.',
+    imageUrl: 'https://static.wixstatic.com/media/c123de_dc5b2e3e4aef4cc4b75c7b44888281bd~mv2.png'
+  },
+  {
+    slug: 'systems-agent',
+    name: 'Edwardo',
+    path: '/greenways/systems-agent',
+    prompt: 'What monitoring path fits a multi-site Wok to Walk portfolio?',
+    imageUrl: 'https://static.wixstatic.com/media/c123de_eeb61cbf84bd402eb642e28b2b457c76~mv2.png'
+  }
+];
+
+function getWokHandoffProfile() {
+  return {
+    sector: 'restaurant',
+    region: 'Netherlands',
+    chainId: 'wok-to-walk',
+    companyId: ASSISTANT_SITE_CTX.companyId || 'wok-to-walk',
+    siteId: ASSISTANT_SITE_CTX.siteId || '',
+    brandHint: 'Wok to Walk hospitality'
+  };
+}
+
+function escapeAttr(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function buildW2wHandoffChipsHtml(opts) {
+  opts = opts || {};
+  const question = String(opts.question || '').trim();
+  return W2W_PLATFORM_HANDOFFS.map(function (h) {
+    const prompt = question || h.prompt;
+    const href = h.path + '?q=' + encodeURIComponent(prompt);
+    const img = h.imageUrl
+      ? '<img src="' + escapeAttr(h.imageUrl) + '" alt="" width="18" height="18">'
+      : '';
+    return (
+      '<a class="w2w-handoff-chip" href="' + escapeAttr(href) + '" target="_top" rel="noopener" ' +
+      'data-to-slug="' + escapeAttr(h.slug) + '" data-prompt="' + escapeAttr(prompt) + '">' +
+      img + escapeAttr(h.name) +
+      '</a>'
+    );
+  }).join('');
+}
+
+function mountW2wHandoffChips() {
+  const welcome = document.getElementById('welcome-handoff-chips');
+  const sidebar = document.getElementById('sidebar-handoff-chips');
+  const html = buildW2wHandoffChipsHtml();
+  if (welcome) welcome.innerHTML = html;
+  if (sidebar) sidebar.innerHTML = html;
+}
+
+function appendHandoffChipsAfterReply(questionHint) {
+  const area = document.getElementById('chat-area');
+  if (!area) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'w2w-handoff-block';
+  wrap.innerHTML =
+    '<div class="w2w-handoff-label">Continue with a Transition Agent</div>' +
+    '<div class="w2w-handoff-chips">' + buildW2wHandoffChipsHtml({ question: questionHint || '' }) + '</div>' +
+    '<p class="w2w-handoff-hint">Hands off with your Wok to Walk chain and site context.</p>';
+  area.appendChild(wrap);
+  scrollBottom();
+}
+
+function bindW2wHandoffChipClicks() {
+  document.addEventListener('click', function (ev) {
+    const link = ev.target.closest('a.w2w-handoff-chip');
+    if (!link) return;
+    const toSlug = link.getAttribute('data-to-slug') || '';
+    if (!toSlug) return;
+    const question = link.getAttribute('data-prompt') || '';
+    const lastUser = [...STATE.history].reverse().find(function (m) { return m.role === 'user'; });
+    const lastAssistant = [...STATE.history].reverse().find(function (m) { return m.role === 'assistant'; });
+    const profile = getWokHandoffProfile();
+    const summary = lastAssistant
+      ? String(lastAssistant.content || '').replace(/\s+/g, ' ').slice(0, 280)
+      : 'Working on-site with Wok Assist';
+    const topicSummary = lastUser
+      ? 'you asked Wok Assist: ' + String(lastUser.content || '').slice(0, 160)
+      : 'you were working on-site ops with Wok to Walk';
+
+    if (window.GreenwaysAgentTeam && typeof GreenwaysAgentTeam.writeHandoff === 'function') {
+      GreenwaysAgentTeam.writeHandoff({
+        fromSlug: 'wok-assist',
+        fromName: 'Wok Assist',
+        toSlug: toSlug,
+        question: question,
+        summary: summary,
+        topicSummary: topicSummary,
+        fromIntentId: 'wok_assist_ops',
+        handoffKey: 'wok-assist→' + toSlug,
+        chainId: profile.chainId,
+        siteId: profile.siteId,
+        companyId: profile.companyId,
+        profile: profile
+      });
+      if (typeof GreenwaysAgentTeam.writeSharedProfile === 'function') {
+        GreenwaysAgentTeam.writeSharedProfile(profile);
+      }
+    }
+  });
+}
 
 const OFFLINE_INTEL = {
   dailyBrief: `## 📍 WOK TO WALK DAILY INTEL — Amsterdam
@@ -1451,6 +1685,10 @@ function resolveAssistantApiBase() {
 
 async function callBackendAssistant(question) {
   const endpoint = `${resolveAssistantApiBase()}/ask`;
+  const history = (STATE.history || [])
+    .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && m.content)
+    .slice(-8)
+    .map((m) => ({ role: m.role, content: String(m.content).slice(0, 1200) }));
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1459,7 +1697,8 @@ async function callBackendAssistant(question) {
       mode: 'live',
       location: STATE.location || 'Amsterdam',
       siteId: ASSISTANT_SITE_CTX.siteId,
-      companyId: ASSISTANT_SITE_CTX.companyId
+      companyId: ASSISTANT_SITE_CTX.companyId || 'wok-to-walk',
+      history
     })
   });
   if (!response.ok) {
@@ -1469,7 +1708,28 @@ async function callBackendAssistant(question) {
   if (!payload || !payload.ok || !payload.answer) {
     throw new Error(payload?.error || 'Assistant API returned no answer');
   }
-  return payload.answer;
+  return payload;
+}
+
+async function refreshAssistantLlmStatus() {
+  try {
+    const res = await fetch(`${resolveAssistantApiBase()}/status`);
+    if (!res.ok) throw new Error('status ' + res.status);
+    const data = await res.json();
+    STATE.serverLlmConfigured = Boolean(data && data.llmConfigured);
+    STATE.serverLlmProvider = (data && data.provider) || '';
+    if (!STATE.useBrowserLlm) {
+      setStatus(
+        STATE.serverLlmConfigured ? 'live' : '',
+        STATE.serverLlmConfigured ? 'GREENWAYS LLM' : 'ASSIST READY'
+      );
+    }
+    return data;
+  } catch (_) {
+    STATE.serverLlmConfigured = false;
+    if (!STATE.useBrowserLlm) setStatus('', 'ASSIST READY');
+    return null;
+  }
 }
 
 const SYSTEM_PROMPT = `You are the Wok to Walk Agent — a sharp, street-smart AI business intelligence assistant built specifically for Wok to Walk restaurant operators in Amsterdam (and beyond). You have deep knowledge of the brand's history, menu, values, and operations.
@@ -1606,15 +1866,16 @@ window.addEventListener('DOMContentLoaded', () => {
   loadFromStorage();
   updateProviderUI();
   initWokEventsTickerToggle();
+  mountW2wHandoffChips();
+  bindW2wHandoffChipClicks();
   resetEmbedScroll();
   requestAnimationFrame(resetEmbedScroll);
-  if (STATE.apiKey || STATE.provider === 'ollama') {
-    document.getElementById('config-modal').style.display = 'none';
-    setStatus('live', 'ASSIST READY');
+  document.getElementById('config-modal').style.display = 'none';
+  if (STATE.useBrowserLlm && (STATE.apiKey || STATE.provider === 'ollama')) {
+    setStatus('live', 'BROWSER LLM');
   } else {
-    // Assistant now supports backend/built-in intelligence without forcing LLM setup.
-    document.getElementById('config-modal').style.display = 'none';
     setStatus('', 'READY');
+    refreshAssistantLlmStatus();
   }
 });
 
@@ -1646,6 +1907,7 @@ function loadFromStorage() {
     if (saved.model) STATE.model = saved.model;
     if (saved.baseUrl) STATE.baseUrl = saved.baseUrl;
     if (saved.location) STATE.location = saved.location;
+    STATE.useBrowserLlm = Boolean(saved.useBrowserLlm);
 
     document.getElementById('sb-provider').value = STATE.provider;
     document.getElementById('sb-model').value = STATE.model;
@@ -1656,13 +1918,16 @@ function loadFromStorage() {
     document.getElementById('modal-apikey').value = STATE.apiKey;
     document.getElementById('modal-baseurl').value = STATE.baseUrl;
     document.getElementById('modal-location').value = STATE.location;
+    const browserToggle = document.getElementById('modal-use-browser-llm');
+    if (browserToggle) browserToggle.checked = STATE.useBrowserLlm;
   } catch(e) {}
 }
 
 function saveToStorage() {
   sessionStorage.setItem('w2w_config', JSON.stringify({
     provider: STATE.provider, apiKey: STATE.apiKey,
-    model: STATE.model, baseUrl: STATE.baseUrl, location: STATE.location
+    model: STATE.model, baseUrl: STATE.baseUrl, location: STATE.location,
+    useBrowserLlm: STATE.useBrowserLlm
   }));
 }
 
@@ -1687,7 +1952,11 @@ function saveFromSidebar() {
   STATE.apiKey = document.getElementById('sb-apikey').value;
   STATE.baseUrl = document.getElementById('sb-baseurl').value;
   saveToStorage();
-  setStatus('live', 'ASSIST READY');
+  if (STATE.useBrowserLlm && (STATE.apiKey || STATE.provider === 'ollama')) {
+    setStatus('live', 'BROWSER LLM');
+  } else {
+    refreshAssistantLlmStatus();
+  }
 }
 
 function saveConfig() {
@@ -1696,6 +1965,8 @@ function saveConfig() {
   STATE.apiKey = document.getElementById('modal-apikey').value;
   STATE.baseUrl = document.getElementById('modal-baseurl').value;
   STATE.location = document.getElementById('modal-location').value || 'Amsterdam';
+  const browserToggle = document.getElementById('modal-use-browser-llm');
+  STATE.useBrowserLlm = Boolean(browserToggle && browserToggle.checked);
 
   document.getElementById('sb-provider').value = STATE.provider;
   document.getElementById('sb-model').value = STATE.model;
@@ -1704,7 +1975,17 @@ function saveConfig() {
   updateProviderUI();
   saveToStorage();
   document.getElementById('config-modal').style.display = 'none';
-  setStatus('live', 'ASSIST READY');
+  if (STATE.useBrowserLlm && (STATE.apiKey || STATE.provider === 'ollama')) {
+    setStatus('live', 'BROWSER LLM');
+    showToast('✓ Using your browser API key');
+  } else {
+    STATE.useBrowserLlm = false;
+    refreshAssistantLlmStatus().then(() => {
+      showToast(STATE.serverLlmConfigured
+        ? '✓ Using Greenways server LLM'
+        : '✓ Assist ready (server LLM not configured yet — heuristic answers)');
+    });
+  }
 }
 
 function dismissModal() {
@@ -1791,7 +2072,7 @@ async function sendMessage() {
   const text = input.value.trim();
   if (!text || STATE.isThinking) return;
 
-  const offlineMode = !STATE.apiKey && STATE.provider !== 'ollama';
+  const useBrowserLlm = STATE.useBrowserLlm && (STATE.apiKey || STATE.provider === 'ollama');
 
   // Hide welcome
   const welcome = document.getElementById('welcome-screen');
@@ -1811,29 +2092,39 @@ async function sendMessage() {
 
   try {
     let reply = '';
-    let usedBackendAssistant = false;
-    if (offlineMode) {
+    if (useBrowserLlm) {
+      reply = await callLLM(STATE.history);
+      removeThinking(thinkId);
+      appendMessage('agent', reply);
+      STATE.history.push({ role: 'assistant', content: reply });
+      appendHandoffChipsAfterReply(text);
+      setStatus('live', 'BROWSER LLM');
+    } else {
       try {
-        reply = await callBackendAssistant(text);
-        usedBackendAssistant = true;
+        const payload = await callBackendAssistant(text);
+        reply = payload.answer;
+        removeThinking(thinkId);
+        appendMessage('agent', reply);
+        STATE.history.push({ role: 'assistant', content: reply });
+        appendHandoffChipsAfterReply(text);
+        STATE.serverLlmConfigured = Boolean(payload.llmConfigured);
+        setStatus(
+          payload.llmUsed ? 'live' : '',
+          payload.llmUsed ? 'GREENWAYS LLM' : 'ASSIST READY'
+        );
       } catch (backendErr) {
         console.warn('Assistant API unavailable, using built-in intelligence:', backendErr.message);
         reply = getOfflineReply(text);
+        removeThinking(thinkId);
+        appendMessage('agent', reply);
+        STATE.history.push({ role: 'assistant', content: reply });
+        appendHandoffChipsAfterReply(text);
+        setStatus('', 'ASSIST READY');
       }
-    } else {
-      reply = await callLLM(STATE.history);
-    }
-    removeThinking(thinkId);
-    appendMessage('agent', reply);
-    STATE.history.push({ role: 'assistant', content: reply });
-    if (offlineMode) {
-      setStatus(usedBackendAssistant ? 'live' : '', usedBackendAssistant ? 'ASSIST READY' : 'ASSIST READY');
-    } else {
-      setStatus('live', 'ASSIST READY');
     }
   } catch(e) {
     removeThinking(thinkId);
-    appendMessage('agent', `⚠️ **Error:** ${e.message}\n\nCheck your API key and provider settings.`);
+    appendMessage('agent', `⚠️ **Error:** ${e.message}\n\nCheck Options — or leave browser override off to use the Greenways server LLM.`);
     setStatus('', 'ERROR');
   }
 

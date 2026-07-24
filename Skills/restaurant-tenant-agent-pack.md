@@ -66,7 +66,7 @@ Register the pack in `data/greenways-tenant-agent-packs.json`.
 4. Transition Agents do **not** invent site equipment lists — they use tenant asset data or stay general.
 5. After a platform answer, optional **return** to tenant assist with “apply to site X”.
 
-Reuse the platform handoff pattern in `services/greenways-agent-handoff.js` for specialist↔specialist; tenant→platform can start as deep links (`/greenways/{slug}?q=…&chainId=…`) then grow into formal referral welcomes.
+Reuse the platform handoff pattern in `services/greenways-agent-handoff.js` for specialist↔specialist; tenant→platform uses the same `gw-team-handoff-v1` brief (`fromSlug: wok-assist`, plus `chainId` / `siteId` / `companyId`). **Wok Assist UI:** chips in `Chef 3 W2W .html` (sidebar + welcome + after replies) write the brief via `GreenwaysAgentTeam.writeHandoff`, then open `/greenways/{slug}?q=…`. Referral welcomes treat `wok-assist` as a live tenant source for all seven Transition Agents.
 
 ---
 

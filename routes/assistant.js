@@ -2,7 +2,8 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const { DashboardLiveService } = require('../services/dashboard-live-service');
 const { buildAssistantSiteContext } = require('../services/assistant-site-context');
-const { maybeCallGreenwaysLlm } = require('../services/greenways-agent-llm');
+const { maybeCallGreenwaysLlm, isLlmConfigured, resolveLlmConfig } = require('../services/greenways-agent-llm');
+const { getWokAssistSystemPrompt } = require('../services/wok-assist-system-prompt');
 
 const router = express.Router();
 const service = new DashboardLiveService();
@@ -209,25 +210,44 @@ ${actions}
 - If you want deeper forecasting, configure server LLM credentials for context-aware long-form answers.${siteContext ? `\n\n${formatSiteRadar(siteContext)}` : ''}${renderTrustBlock(context)}`;
 }
 
-const ASSISTANT_SYSTEM_PROMPT = `You are a practical energy operations advisor for restaurant sites. You receive JSON with: question, location, energyContext (live utility totals vs baselines), restaurantProfile (site label, country, priorityUtilities such as gas-first for wok kitchens, segment, notes), dealsContext (curated internal Greenways deal cards — titles, lines, regions only; not live market quotes), and schemesContext (subset of known scheme titles from the platform catalogue).
+async function maybeCallServerLlm(question, context, location, siteContext, history = []) {
+  const systemPrompt = getWokAssistSystemPrompt({ location });
+  const recentHistory = Array.isArray(history)
+    ? history
+        .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && m.content)
+        .slice(-8)
+        .map((m) => ({ role: m.role, content: String(m.content).slice(0, 1200) }))
+    : [];
 
-Prioritise recommendations that align with restaurantProfile.priorityUtilities (for example gas tariffs and burner efficiency before generic electricity tips when gas is first). When you mention deals or schemes, treat them as starting points and tell the operator to verify on official portals. Use the provided structured data; do not invent meter readings. Be concise; lead with ranked actions.`;
-
-async function maybeCallServerLlm(question, context, location, siteContext) {
   return maybeCallGreenwaysLlm({
     prefix: '',
-    systemPrompt: ASSISTANT_SYSTEM_PROMPT,
+    systemPrompt,
     userPayload: {
       question,
       location,
+      companyId: siteContext?.restaurantProfile?.companyId || null,
+      siteId: siteContext?.restaurantProfile?.siteId || null,
+      recentHistory,
       energyContext: context,
       restaurantProfile: siteContext?.restaurantProfile,
       dealsContext: siteContext?.dealsContext,
       schemesContext: siteContext?.schemesContext
     },
-    maxTokens: 1200
+    maxTokens: 1600
   });
 }
+
+router.get('/status', (req, res) => {
+  const cfg = resolveLlmConfig('');
+  res.json({
+    ok: true,
+    service: 'assistant',
+    llmConfigured: isLlmConfigured(''),
+    provider: cfg?.provider || null,
+    model: cfg?.model || null,
+    mode: cfg ? 'greenways-llm' : 'heuristic'
+  });
+});
 
 router.get('/context', async (req, res) => {
   try {
@@ -253,6 +273,7 @@ router.post('/ask', async (req, res) => {
     const companyId = String(req.body?.companyId || '');
     const siteId = String(req.body?.siteId || '');
     const location = String(req.body?.location || 'Amsterdam');
+    const history = Array.isArray(req.body?.history) ? req.body.history : [];
     if (!question) {
       return res.status(400).json({ ok: false, error: 'Question is required.' });
     }
@@ -260,15 +281,20 @@ router.post('/ask', async (req, res) => {
     const payload = await service.getLiveData({ mode, companyId, siteId, member });
     const context = computeContext(payload);
     const siteContext = buildAssistantSiteContext(siteId, companyId);
-    const llmAnswer = await maybeCallServerLlm(question, context, location, siteContext);
-    const answerBody = llmAnswer || buildHeuristicAnswer(question, context, location, siteContext);
-    const answerRaw = llmAnswer ? `${answerBody}${renderTrustBlock(context)}` : answerBody;
+    const llmConfigured = isLlmConfigured('');
+    const llmAnswer = await maybeCallServerLlm(question, context, location, siteContext, history);
+    const llmUsed = Boolean(llmAnswer && String(llmAnswer).trim());
+    const answerBody = llmUsed ? llmAnswer : buildHeuristicAnswer(question, context, location, siteContext);
+    const answerRaw = llmUsed ? `${answerBody}${renderTrustBlock(context)}` : answerBody;
     const answer = scrubLegacyDataSourceLabels(answerRaw, context.sourceLabel);
     res.json({
       ok: true,
       answer,
       context,
       siteContext,
+      llmConfigured,
+      llmUsed,
+      mode: llmUsed ? 'greenways-llm' : 'heuristic',
       confidence: computeConfidence(context),
       assumptions: buildAssumptions(context),
       roi: estimateRoi(context)

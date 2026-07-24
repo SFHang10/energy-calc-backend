@@ -124,6 +124,19 @@ const SPECIALIST_FROM_SLUGS = new Set([
   'media-agent'
 ]);
 
+/** Tenant / restaurant agents that may hand off into Transition Agents */
+const TENANT_FROM_SLUGS = new Set(['wok-assist']);
+
+const PLATFORM_RECEIVING_SLUGS = new Set([
+  'grants-agent',
+  'finance-agent',
+  'equipment-agent',
+  'sustainable-products-agent',
+  'deals-agent',
+  'media-agent',
+  'systems-agent'
+]);
+
 /**
  * @param {object} handoff — from sessionStorage / profile.handoff
  * @returns {object|null}
@@ -139,7 +152,10 @@ function normalizeHandoffContext(handoff) {
     summary: String(handoff.summary || '').trim(),
     topicSummary: String(handoff.topicSummary || handoff.summary || '').trim(),
     fromIntentId: String(handoff.fromIntentId || '').trim(),
-    handoffKey: String(handoff.handoffKey || '').trim()
+    handoffKey: String(handoff.handoffKey || '').trim(),
+    chainId: String(handoff.chainId || '').trim(),
+    siteId: String(handoff.siteId || '').trim(),
+    companyId: String(handoff.companyId || '').trim()
   };
 }
 
@@ -198,6 +214,13 @@ function buildHandoffTopicSummary(fromSlug, fromIntentId, profile = {}, question
     return `you were reviewing grants and schemes for your ${sector}`;
   }
 
+  if (fromSlug === 'wok-assist' || TENANT_FROM_SLUGS.has(fromSlug)) {
+    const brand = profile.brandHint || profile.chainId || 'your restaurant chain';
+    if (summary) return summary;
+    if (question) return `you asked Wok Assist: ${question}`;
+    return `you were working on-site ops with ${brand}`;
+  }
+
   if (summary) return summary;
   if (question) return `you asked: ${question}`;
   return `you were continuing a topic for your ${sector}`;
@@ -211,6 +234,9 @@ function isReferralWelcomePair(receivingSlug, handoff) {
   const ho = normalizeHandoffContext(handoff);
   if (!ho) return false;
   if (receivingSlug === 'systems-agent' && SPECIALIST_FROM_SLUGS.has(ho.fromSlug)) {
+    return true;
+  }
+  if (TENANT_FROM_SLUGS.has(ho.fromSlug) && PLATFORM_RECEIVING_SLUGS.has(receivingSlug)) {
     return true;
   }
   return REFERRAL_WELCOME_PAIRS.some(([recv, from]) => recv === receivingSlug && from === ho.fromSlug);
@@ -249,6 +275,13 @@ function listReferralHandoffsLive() {
       pair: `${from} → systems-agent`
     });
   }
+  for (const to of PLATFORM_RECEIVING_SLUGS) {
+    rows.push({
+      from: 'Wok Assist',
+      to: nameBySlug[to] || to,
+      pair: `wok-assist → ${to}`
+    });
+  }
   return rows;
 }
 
@@ -264,5 +297,6 @@ module.exports = {
   FINANCE_INTENT_TOPICS,
   EQUIPMENT_INTENT_TOPICS,
   GRANTS_INTENT_TOPICS,
-  REFERRAL_WELCOME_PAIRS
+  REFERRAL_WELCOME_PAIRS,
+  TENANT_FROM_SLUGS
 };
