@@ -8,13 +8,33 @@
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --orch-backdrop-image: url("https://static.wixstatic.com/media/c123de_e177d5a0c4c74f23b099c859e375c7a5~mv2.jpeg");
+  }
   html, body {
     height: 100%;
     background: #080c14;
     overflow: hidden;
     font-family: 'Segoe UI', system-ui, sans-serif;
   }
+  .orch-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-color: #080c14;
+    background-image:
+      linear-gradient(105deg, rgba(8, 12, 20, 0.72) 0%, rgba(8, 12, 20, 0.55) 38%, rgba(8, 12, 20, 0.78) 100%),
+      radial-gradient(ellipse at 20% 15%, rgba(40, 167, 69, 0.16), transparent 50%),
+      var(--orch-backdrop-image);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: brightness(0.95) saturate(1.05);
+  }
   .orch-shell {
+    position: relative;
+    z-index: 1;
     display: grid;
     grid-template-columns: minmax(140px, 34%) 1fr;
     height: 100%;
@@ -24,7 +44,7 @@
   .orch-team {
     position: relative;
     overflow: hidden;
-    background: radial-gradient(ellipse at 30% 15%, rgba(40, 167, 69, 0.14), transparent 55%), #0a1018;
+    background: rgba(10, 16, 24, 0.42);
     border-right: 1px solid rgba(75, 140, 104, 0.25);
     display: flex;
     flex-direction: column;
@@ -32,6 +52,7 @@
     justify-content: flex-end;
     padding: 16px 10px 20px;
     text-align: center;
+    backdrop-filter: blur(2px);
   }
   .orch-team-badge {
     position: absolute;
@@ -75,11 +96,26 @@
     color: #8fa89a;
     max-width: 200px;
   }
+  .orch-team-copy {
+    width: 100%;
+    max-width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .orch-team-copy h2,
+  .orch-team-copy p {
+    text-align: center;
+  }
+  .orch-team-copy .gw-portal-nav--stacked {
+    margin-left: 0;
+    margin-right: 0;
+  }
   .orch-iframe-wrap {
     min-width: 0;
     min-height: 0;
     height: 100%;
-    background: #0a1018;
+    background: rgba(8, 12, 20, 0.28);
   }
   .orch-iframe-wrap iframe {
     width: 100%;
@@ -102,16 +138,18 @@
     }
     .orch-team-badge { top: 8px; }
     .orch-mosaic { max-width: 120px; margin-bottom: 0; }
-    .orch-team h2, .orch-team p { text-align: left; max-width: 180px; }
+    .orch-team-copy { max-width: 180px; }
+    .orch-team-copy h2, .orch-team-copy p { text-align: left; max-width: 180px; }
   }
 </style>
 </head>
 <body>
+<div class="orch-backdrop" aria-hidden="true"></div>
 <div class="orch-shell" id="orch-shell">
   <aside class="orch-team" aria-label="Greenways agent team">
     <span class="orch-team-badge">🎼 Orchestra</span>
     <div class="orch-mosaic" id="orch-mosaic" aria-hidden="true"></div>
-    <div>
+    <div class="orch-team-copy">
       <h2>Ask — we’ll find your specialist</h2>
       <p>Ask on the right — we glow the best agent. Tap their portrait to open their chat.</p>
       <nav class="gw-portal-nav gw-portal-nav--stacked" aria-label="Greenways Transition Agents Portal">

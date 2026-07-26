@@ -12,7 +12,7 @@
 <style>
   :root {
     --bg: #080c14;
-    --panel: #0e1520;
+    --panel: rgba(14, 21, 32, 0.88);
     --border: rgba(75, 140, 104, 0.22);
     --text: #e8f0ec;
     --muted: #8fa89a;
@@ -21,6 +21,7 @@
     --cyan: rgba(34, 212, 255, 0.4);
     --gold: #c9a961;
     --font: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+    --orch-backdrop-image: url("https://static.wixstatic.com/media/c123de_e177d5a0c4c74f23b099c859e375c7a5~mv2.jpeg");
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body {
@@ -30,9 +31,31 @@
     font-family: var(--font);
     overflow-x: hidden;
   }
-  body.embed-mode { overflow: hidden; height: 100%; }
+  .orch-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-color: var(--bg);
+    background-image:
+      linear-gradient(160deg, rgba(8, 12, 20, 0.78) 0%, rgba(8, 12, 20, 0.62) 45%, rgba(8, 12, 20, 0.84) 100%),
+      radial-gradient(ellipse at 30% 10%, rgba(40, 167, 69, 0.14), transparent 50%),
+      var(--orch-backdrop-image);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  body.embed-mode { overflow: hidden; height: 100%; background: transparent; }
+  body.embed-mode .orch-backdrop {
+    background-image:
+      linear-gradient(160deg, rgba(8, 12, 20, 0.55) 0%, rgba(8, 12, 20, 0.42) 45%, rgba(8, 12, 20, 0.68) 100%),
+      radial-gradient(ellipse at 30% 10%, rgba(40, 167, 69, 0.1), transparent 50%),
+      var(--orch-backdrop-image);
+  }
   body.embed-mode .gw-portal-nav { display: none; }
   .orchestra {
+    position: relative;
+    z-index: 1;
     max-width: 1100px;
     margin: 0 auto;
     padding: 20px 16px 28px;
@@ -69,10 +92,14 @@
   .orchestra-intro {
     font-size: 0.88rem;
     line-height: 1.55;
-    color: var(--muted);
+    color: #fde68a;
     text-align: center;
     max-width: 640px;
     margin: 10px auto 0;
+    text-shadow: 0 1px 10px rgba(8, 12, 20, 0.55);
+  }
+  .orchestra-intro strong {
+    color: #c9a961;
   }
   .profile-row {
     display: flex;
@@ -264,6 +291,7 @@
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-team.css">
 </head>
 <body>
+<div class="orch-backdrop" aria-hidden="true"></div>
 <div class="orchestra" id="orchestra-root">
   <nav class="gw-portal-nav" aria-label="Greenways Transition Agents Portal">
     <a href="/greenways/customer-hub">Your Hub</a>
@@ -280,7 +308,7 @@
     <h1>Seven specialists, one hub</h1>
     <p class="orchestra-intro">
       Ask in plain language. We’ll suggest the best agent and glow their profile.
-      Specialists work <strong style="color:var(--text)">in tandem</strong> — they can hand you to another expert when a topic fits their lane.
+      Specialists work <strong>in tandem</strong> — they can hand you to another expert when a topic fits their lane.
       Tap a portrait to open their full chat with your question.
     </p>
   </header>
