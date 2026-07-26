@@ -652,7 +652,7 @@
 
 <nav class="ticker-back-bar" id="tickerBackBar" aria-label="Navigation">
   <a class="ticker-back-link" href="./Greenways%20Interface%20.html">← Back to Dashboard</a>
-  <a class="ticker-back-link ticker-back-optional" id="tickerBackLink" href="./Chef%203%20W2W%20.html">← Back to Wok Assist</a>
+  <a class="ticker-back-link ticker-back-optional" id="tickerBackLink" href="/greenways/wok-assist">← Back to Wok Assist</a>
 </nav>
 
 <div class="header">
@@ -684,7 +684,7 @@
 </div>
 
 <p class="embed-open-strip" id="embedOpenStrip" hidden>
-  <a class="embed-open-link" id="embedOpenFullLink" href="./Events%20Ticker%20W2W%20.html" target="_blank" rel="noopener noreferrer">Open full feed — details &amp; spotlight cards →</a>
+  <a class="embed-open-link" id="embedOpenFullLink" href="/greenways/events-ticker" target="_blank" rel="noopener noreferrer">Open full feed — details &amp; spotlight cards →</a>
 </p>
 
 <p class="ticker-hint">↑ click any ticker item to spotlight it in the cards below</p>
@@ -1027,7 +1027,7 @@ cardConfigs.forEach(cfg => {
   if (isEmbed && strip) {
     strip.hidden = false;
     if (stripLink) {
-      const u = new URL(stripLink.getAttribute('href') || './Events%20Ticker%20W2W%20.html', window.location.href);
+      const u = new URL(stripLink.getAttribute('href') || '/greenways/events-ticker', window.location.origin);
       u.searchParams.delete('embed');
       stripLink.href = u.pathname + u.search + u.hash;
     }
@@ -1037,8 +1037,11 @@ cardConfigs.forEach(cfg => {
   const link = document.getElementById('tickerBackLink');
   if (link && ret) {
     let href = ret.trim();
-    if (!/^https?:\/\//i.test(href)) {
-      href = href.startsWith('./') ? href : './' + href.replace(/^\//, '');
+    // Prefer greenways routes when older callers still pass the HTML filename
+    if (/chef\s*3\s*w2w/i.test(href) || /Chef%203%20W2W/i.test(href)) {
+      href = '/greenways/wok-assist';
+    } else if (!/^https?:\/\//i.test(href) && !href.startsWith('/') && !href.startsWith('./')) {
+      href = './' + href;
     }
     link.href = href;
     link.classList.add('is-visible');
