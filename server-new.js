@@ -228,6 +228,7 @@ app.get('/data/greenways-agent-stories/:slug.json', (req, res) => {
 });
 app.get('/greenways/restaurant-monitoring', (req, res) => sendLiveMusicHtml(res, 'restaurant_energy_monitoring_interactive.html'));
 app.get('/greenways/interactive-restaurants', (req, res) => sendLiveMusicHtml(res, 'interactive_restaurants_monitoring.html'));
+app.get('/greenways/interactive-restaurants-visual', (req, res) => sendLiveMusicHtml(res, 'interactive_restaurants_monitoring-visual.html'));
 app.get('/greenways/buildings-dashboard', (req, res) => sendLiveMusicHtml(res, 'Greenways Interface .html'));
 app.get('/greenways/customer-hub', (req, res) => sendLiveMusicHtml(res, 'greenways-customer-hub.html'));
 app.get('/greenways/customer-dashboard', (req, res) => sendLiveMusicHtml(res, 'greenways-customer-hub.html'));
@@ -241,6 +242,18 @@ app.get('/greenways/wok-assist', (req, res) => sendLiveMusicHtml(res, 'Chef 3 W2
 app.get('/greenways/events-ticker', (req, res) => sendLiveMusicHtml(res, 'Events Ticker W2W .html'));
 app.get('/greenways/tenants/:chainId', (req, res) => sendLiveMusicHtml(res, 'greenways-tenant-hub.html'));
 app.get('/greenways/tenant-hub', (req, res) => sendLiveMusicHtml(res, 'greenways-tenant-hub.html'));
+
+// Dashboard sidebar links use ./file.html — at /greenways/buildings-dashboard those resolve under /greenways/.
+// Serve GWB HTML/assets from /greenways/* after explicit routes above (fallthrough when no file match).
+app.use('/greenways', express.static(LIVE_MUSIC_GWB_DIR, {
+  index: false,
+  fallthrough: true,
+  setHeaders: (res, filePath) => {
+    if (/\.html?$/i.test(filePath)) {
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    }
+  }
+}));
 
 // Legacy Wix newsletter path → deployed content-ops edition
 app.get('/HTMLS GWM GWB/January Sustainable News Original .html', (req, res) => {

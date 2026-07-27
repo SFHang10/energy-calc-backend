@@ -2816,7 +2816,7 @@
   <aside class="sidebar">
     <div class="sidebar-section-label">Quick actions</div>
     <div class="sidebar-nav-scroll">
-    <div class="nav-item" id="sideNavConnectSensors" onclick="openConnectSensors('./Greenways%20Interface%20.html')">
+    <div class="nav-item" id="sideNavConnectSensors" onclick="openConnectSensors()">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M6.5 1.5h3v3h-3v-3zM2.5 6.5h3v3h-3v-3zm8 0h3v3h-3v-3zM6.5 11.5h3v3h-3v-3zM8 4.8v1.4M5.5 8h5M8 9.8v1.4" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>
       Connect Sensors
     </div>
@@ -2824,19 +2824,19 @@
       <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M2 8.5c0-2.6 2.1-4.7 4.7-4.7h2.6C11.9 3.8 14 5.9 14 8.5c0 1.3-.5 2.4-1.4 3.3l-1 1V14H4.4v-1.2l-1-1C2.5 10.9 2 9.8 2 8.5zm4.7-3.1c-1.7 0-3.1 1.4-3.1 3.1 0 .8.3 1.6.9 2.2l1.3 1.3v.4h4.4V12l1.3-1.3c.6-.6.9-1.4.9-2.2 0-1.7-1.4-3.1-3.1-3.1H6.7zM6.2 1.8h3.6v1.1H6.2V1.8z"/></svg>
       Wok to Walk Assistance
     </div>
-    <div class="nav-item nav-item-trajectory" id="sideNavTrajectory" onclick="window.location.href='./energy-savings-trajectory.html'">
+    <div class="nav-item nav-item-trajectory" id="sideNavTrajectory" onclick="window.location.href=gwbHref('./energy-savings-trajectory.html')">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M2 12V4h2v8H2zm4-3V6h2v3H6zm4-2V4h2v5h-2zm4 3V2h2v10h-2z"/></svg>
       Trajectory Page
     </div>
-    <div class="nav-item" id="sideNavEquipmentIntelligence" tabindex="0" onclick="window.location.href='./equipment_intelligence_tool.html'">
+    <div class="nav-item" id="sideNavEquipmentIntelligence" tabindex="0" onclick="window.location.href=gwbHref('./equipment_intelligence_tool.html')">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M2 3h12v2H2V3zm1 4h10v1H3V7zm0 3h7v1H3v-1zm0 3h5v1H3v-1z"/></svg>
       Equipment Intelligence
     </div>
-    <div class="nav-item nav-item-deals" id="sideNavDeals" onclick="window.location.href='./Deals.html'">
+    <div class="nav-item nav-item-deals" id="sideNavDeals" onclick="window.location.href=gwbHref('./Deals.html')">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2h10l-1 4H4L3 2zm2 6h6l1 6H4l1-6z"/></svg>
       Deals
     </div>
-    <div class="nav-item nav-item-savings" id="sideNavSavings" onclick="window.location.href='./savings.html'">
+    <div class="nav-item nav-item-savings" id="sideNavSavings" onclick="window.location.href=gwbHref('./savings.html')">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l1.5 3.1 3.4.5-2.5 2.4.6 3.5L8 8.8 5 10.5l.6-3.5L3.1 4.6 6.5 4.1 8 1z"/></svg>
       Savings
     </div>
@@ -2897,7 +2897,7 @@
       <div class="tabs">
         <button class="tab-btn active" id="topTabOverview" onclick="switchTab('overview', null, this)">Overview</button>
         <button class="tab-btn" id="topTabEquipment" onclick="switchTab('equipment', null, this)">Equipment</button>
-        <button class="tab-btn tab-btn-trajectory" id="topTabTrajectory" onclick="window.location.href='./energy-savings-trajectory.html'">Trajectory</button>
+        <button class="tab-btn tab-btn-trajectory" id="topTabTrajectory" onclick="window.location.href=gwbHref('./energy-savings-trajectory.html')">Trajectory</button>
         <button class="tab-btn" id="topTabGreenTable" onclick="switchTab('green-table', null, this)">Green Table</button>
         <button class="tab-btn" id="topTabIncentives" onclick="switchTab('incentives', null, this)">Incentives</button>
         <button class="tab-btn" id="topTabMembership" onclick="switchTab('membership', null, this)">Membership</button>
@@ -3813,6 +3813,76 @@
 </div><!-- /shell -->
 
 <script>
+// ─── Hosted link resolver (/greenways/* vs /HTMLS GWM GWB/*) ─
+function gwbContentBase() {
+  if (window.location.protocol === 'file:') return '';
+  const h = window.location.hostname || '';
+  if (h === 'localhost' || h === '127.0.0.1' || h.includes('energy-calc-backend')) {
+    return window.location.origin || '';
+  }
+  return 'https://energy-calc-backend.onrender.com';
+}
+
+function isGreenwaysHostedPage() {
+  return /^\/greenways\//i.test(window.location.pathname || '');
+}
+
+const GREENWAYS_CANONICAL_ROUTES = {
+  'Greenways Interface .html': '/greenways/buildings-dashboard',
+  'Greenways%20Interface%20.html': '/greenways/buildings-dashboard',
+  'sensor-dashboard.html': '/greenways/sensor-dashboard',
+  'restaurant-data.html': '/greenways/restaurant-data'
+};
+
+function gwbHref(rel) {
+  const raw = String(rel || '').trim();
+  if (!raw || /^https?:\/\//i.test(raw) || /^mailto:/i.test(raw)) return raw;
+
+  const hashIndex = raw.indexOf('#');
+  const hash = hashIndex >= 0 ? raw.slice(hashIndex) : '';
+  const withoutHash = hashIndex >= 0 ? raw.slice(0, hashIndex) : raw;
+  const qIndex = withoutHash.indexOf('?');
+  const pathPart = (qIndex >= 0 ? withoutHash.slice(0, qIndex) : withoutHash).replace(/^\.\//, '');
+  const query = qIndex >= 0 ? withoutHash.slice(qIndex) : '';
+
+  if (pathPart.charAt(0) === '/') {
+    return gwbContentBase() + pathPart + query + hash;
+  }
+  if (pathPart.indexOf('../content-ops/') === 0) {
+    return gwbContentBase() + '/content-ops/' + pathPart.slice('../content-ops/'.length) + query + hash;
+  }
+  if (pathPart.indexOf('../HTMLs/') === 0) {
+    return gwbContentBase() + '/HTMLs/' + pathPart.slice('../HTMLs/'.length) + query + hash;
+  }
+  if (pathPart.indexOf('../product-placement/') === 0) {
+    return gwbContentBase() + '/product-placement/' + pathPart.slice('../product-placement/'.length) + query + hash;
+  }
+
+  const canonical = GREENWAYS_CANONICAL_ROUTES[pathPart];
+  if (canonical && window.location.protocol !== 'file:') {
+    return gwbContentBase() + canonical + query + hash;
+  }
+
+  if (window.location.protocol === 'file:') {
+    return './' + pathPart + query + hash;
+  }
+  if (isGreenwaysHostedPage()) {
+    return gwbContentBase() + '/greenways/' + pathPart + query + hash;
+  }
+  return './' + pathPart + query + hash;
+}
+
+function initDashboardHostedLinks() {
+  document.querySelectorAll('a[href^="./"], a[href^="../"]').forEach((anchor) => {
+    const href = anchor.getAttribute('href');
+    if (href) anchor.setAttribute('href', gwbHref(href));
+  });
+  document.querySelectorAll('iframe[src^="./"], iframe[src^="../"], img[src^="./"], img[src^="../"]').forEach((node) => {
+    const src = node.getAttribute('src');
+    if (src) node.setAttribute('src', gwbHref(src));
+  });
+}
+
 // ─── Clock ───────────────────────────────────────────────
 function updateClock() {
   const now = new Date();
@@ -3892,8 +3962,7 @@ function openSiteDetail() {
 function openUtilityDetail(type) {
   const utility = String(type || '').toLowerCase();
   if (!['electricity', 'gas', 'water'].includes(utility)) return;
-  const target = `utility-detail.html?type=${encodeURIComponent(utility)}`;
-  window.location.href = target;
+  window.location.href = gwbHref(`utility-detail.html?type=${encodeURIComponent(utility)}`);
 }
 
 
@@ -3907,7 +3976,7 @@ function openRestaurantEquipmentDeepDive() {
 }
 
 function openCompanyMapPage() {
-  window.location.href = 'company-map.html';
+  window.location.href = gwbHref('company-map.html');
 }
 
 function openWokAssistPage() {
@@ -3931,13 +4000,13 @@ function toggleCompanyMapEmbed() {
 }
 
 function siteDetailReturnPath() {
-  return './Greenways%20Interface%20.html?tab=site-detail';
+  return gwbHref('./Greenways%20Interface%20.html?tab=site-detail');
 }
 
 function openConnectSensors(returnPath) {
   const params = new URLSearchParams();
-  params.set('return', returnPath || siteDetailReturnPath());
-  window.location.href = './sensor-dashboard.html?' + params.toString();
+  params.set('return', gwbHref(returnPath || './Greenways%20Interface%20.html?tab=overview'));
+  window.location.href = gwbHref('./sensor-dashboard.html?' + params.toString());
 }
 
 function backFromSiteDetail() {
@@ -3993,6 +4062,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const connectSensorsBtn = document.getElementById('connectSensorsBtn');
   if (connectSensorsBtn) connectSensorsBtn.addEventListener('click', () => openConnectSensors());
   initDashboardTabFromUrl();
+  initDashboardHostedLinks();
 });
 
 
@@ -4800,7 +4870,7 @@ function resolveEquipDeepDiveTarget(source) {
 }
 
 function dashboardEquipmentReturnPath() {
-  return './Greenways%20Interface%20.html?tab=equipment';
+  return gwbHref('./Greenways%20Interface%20.html?tab=equipment');
 }
 
 function buildRestaurantDataHref() {
@@ -4810,7 +4880,7 @@ function buildRestaurantDataHref() {
     params.set('site', selectedMappedSiteId);
     params.set('building', selectedMappedSiteId);
   }
-  return './restaurant-data.html?' + params.toString();
+  return gwbHref('./restaurant-data.html?' + params.toString());
 }
 
 function syncRestaurantDataNavLink() {
@@ -4831,7 +4901,7 @@ function buildRestaurantEquipmentDeepDiveHref(source, returnPath) {
   }
   const ret = returnPath || dashboardEquipmentReturnPath();
   if (ret) params.set('return', ret);
-  return './restaurant-equipment-deep-dive.html?' + params.toString();
+  return gwbHref('./restaurant-equipment-deep-dive.html?' + params.toString());
 }
 
 function navigateToEquipmentDeepDive(source, returnPath) {
@@ -5056,9 +5126,9 @@ function showEquipDetail(group, app) {
   const detailImg = document.getElementById('detailImage');
   detailImg.onerror = function () {
     this.onerror = null;
-    this.src = './Product%20Comparison/Restuarants/Oven/Refrigerator/Stanadard.webp';
+    this.src = gwbHref('./Product%20Comparison/Restuarants/Oven/Refrigerator/Stanadard.webp');
   };
-  detailImg.src = app.photo;
+  detailImg.src = app.photo && /^https?:\/\//i.test(app.photo) ? app.photo : gwbHref(app.photo || './Product%20Comparison/Restuarants/Oven/Refrigerator/Stanadard.webp');
   detailImg.alt = app.name;
   const tintEl = document.getElementById('detailPhotoTint');
   const frameEl = document.getElementById('detailPhotoFrame');
@@ -5088,9 +5158,9 @@ function showEquipDetail(group, app) {
   }
   if (marketplaceLink) {
     if (app.fromVenueList && app.name) {
-      marketplaceLink.href = `./equipment_intelligence_tool.html?name=${encodeURIComponent(app.name)}&brand=${encodeURIComponent('Wok To Walk')}`;
+      marketplaceLink.href = gwbHref(`./equipment_intelligence_tool.html?name=${encodeURIComponent(app.name)}&brand=${encodeURIComponent('Wok To Walk')}`);
     } else {
-      marketplaceLink.href = `./product-page-v2-marketplace-v2-enhanced.html?focus=${encodeURIComponent(app.replacement || app.name)}`;
+      marketplaceLink.href = gwbHref(`./product-page-v2-marketplace-v2-enhanced.html?focus=${encodeURIComponent(app.replacement || app.name)}`);
     }
   }
   updateComparisonCard(app);
@@ -6006,7 +6076,7 @@ function schemeDescriptionText(scheme) {
 function schemeIncentivesHref(scheme) {
   const title = scheme && scheme.title ? String(scheme.title).trim() : '';
   const base = './Incentives%20Pool%20New%20.Html';
-  return title ? `${base}?q=${encodeURIComponent(title)}` : base;
+  return gwbHref(title ? `${base}?q=${encodeURIComponent(title)}` : base);
 }
 
 const GRANT_RADAR_FETCH_LIMIT = 36;
