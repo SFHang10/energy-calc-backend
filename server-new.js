@@ -228,7 +228,7 @@ app.get('/data/greenways-agent-stories/:slug.json', (req, res) => {
 });
 app.get('/greenways/restaurant-monitoring', (req, res) => sendLiveMusicHtml(res, 'restaurant_energy_monitoring_interactive.html'));
 app.get('/greenways/interactive-restaurants', (req, res) => sendLiveMusicHtml(res, 'interactive_restaurants_monitoring.html'));
-app.get('/greenways/interactive-restaurants-visual', (req, res) => sendLiveMusicHtml(res, 'interactive_restaurants_monitoring-visual.html'));
+app.get('/greenways/interactive-restaurants-visual', (req, res) => sendLiveMusicHtml(res, 'interactive_restaurants_monitoring.html'));
 app.get('/greenways/buildings-dashboard', (req, res) => sendLiveMusicHtml(res, 'Greenways Interface .html'));
 app.get('/greenways/customer-hub', (req, res) => sendLiveMusicHtml(res, 'greenways-customer-hub.html'));
 app.get('/greenways/customer-dashboard', (req, res) => sendLiveMusicHtml(res, 'greenways-customer-hub.html'));

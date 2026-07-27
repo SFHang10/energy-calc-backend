@@ -69,6 +69,139 @@
     border-bottom: 1px dashed rgba(143, 168, 154, 0.45);
   }
   .variant-link:hover { color: var(--green-lt); border-bottom-color: rgba(134, 239, 172, 0.5); }
+  .visual-intro {
+    margin: 0 0 20px;
+    border-radius: calc(var(--radius) + 6px);
+    overflow: hidden;
+    border: 1px solid rgba(75, 140, 104, 0.35);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    background: #0a1218;
+  }
+  .visual-intro-grid {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr 1fr;
+    grid-template-rows: 170px 170px;
+    gap: 4px;
+  }
+  .visual-intro-grid .photo {
+    position: relative;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .visual-intro-grid .photo:first-child {
+    grid-row: 1 / span 2;
+  }
+  .visual-intro-grid img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: scale(1.02);
+    transition: transform 0.45s ease, filter 0.45s ease;
+    filter: saturate(1.05) contrast(1.04);
+    image-rendering: -webkit-optimize-contrast;
+  }
+  .visual-intro-grid .photo:hover img {
+    transform: scale(1.06);
+    filter: saturate(1.12) contrast(1.06);
+  }
+  .visual-intro-grid .cap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 28px 10px 8px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #e8f5ee;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.72));
+    pointer-events: none;
+  }
+  .visual-intro-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 14px;
+    padding: 10px 14px;
+    background: linear-gradient(90deg, rgba(14, 33, 23, 0.92), rgba(14, 21, 32, 0.92));
+    border-top: 1px solid rgba(75, 140, 104, 0.25);
+  }
+  .visual-intro-foot strong {
+    font-family: var(--head);
+    font-size: 0.78rem;
+    color: #fde68a;
+  }
+  .visual-intro-foot span {
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .visual-outro {
+    margin: 28px 0 18px;
+    border-radius: calc(var(--radius) + 6px);
+    overflow: hidden;
+    border: 1px solid rgba(201, 169, 97, 0.28);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    background: #0a1218;
+  }
+  .visual-outro-head {
+    padding: 14px 16px 10px;
+    background: linear-gradient(90deg, rgba(14, 21, 32, 0.95), rgba(14, 33, 23, 0.92));
+    border-bottom: 1px solid rgba(201, 169, 97, 0.22);
+  }
+  .visual-outro-head h2 {
+    font-family: var(--head);
+    font-size: clamp(1rem, 2.2vw, 1.2rem);
+    color: #fde68a;
+    margin-bottom: 4px;
+  }
+  .visual-outro-head p {
+    font-size: 0.78rem;
+    color: var(--muted);
+    max-width: 720px;
+  }
+  .visual-outro-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    padding: 4px;
+    background: rgba(0, 0, 0, 0.2);
+  }
+  .visual-outro-grid .photo {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    border-radius: 8px;
+  }
+  .visual-outro-grid img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease, filter 0.4s ease;
+    filter: saturate(1.04) contrast(1.03);
+    image-rendering: -webkit-optimize-contrast;
+  }
+  .visual-outro-grid .photo:hover img {
+    transform: scale(1.05);
+    filter: saturate(1.1) contrast(1.05);
+  }
+  .visual-outro-grid .cap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 22px 8px 6px;
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #e8f5ee;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+    pointer-events: none;
+  }
   .hero {
     text-align: center;
     padding: 28px 20px 24px;
@@ -540,12 +673,50 @@
   @media (max-width: 800px) {
     .grid-2, .grid-3, .steps { grid-template-columns: 1fr; }
     .story-nav { position: static; background: transparent; padding: 0; }
+    .visual-intro-grid {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 140px 120px 120px;
+    }
+    .visual-intro-grid .photo:first-child {
+      grid-column: 1 / span 2;
+      grid-row: auto;
+    }
+    .visual-outro-grid { grid-template-columns: repeat(2, 1fr); }
   }
 </style>
 </head>
 <body>
 <div class="page-backdrop" aria-hidden="true"></div>
 <div class="page">
+  <section class="visual-intro" aria-label="Restaurant energy monitoring in practice">
+    <div class="visual-intro-grid">
+      <figure class="photo">
+        <img src="https://static.wixstatic.com/media/c123de_a9d70b841dc64be4986f5ce78a2c243b~mv2.jpg" alt="Restaurant hospitality site — Greenways monitoring pilot" width="800" height="600" decoding="async">
+        <figcaption class="cap">Amsterdam · hospitality pilot site</figcaption>
+      </figure>
+      <figure class="photo">
+        <img src="/product-placement/Restuarants/agents-map-scenes/restaurant-kitchen-monitor.jpg" alt="Commercial kitchen with live energy monitoring display" width="600" height="400" decoding="async" class="product-placement-img">
+        <figcaption class="cap">Kitchen · live monitoring</figcaption>
+      </figure>
+      <figure class="photo">
+        <img src="/product-placement/Restuarants/Wok%20to%20Walk/Wok%20to%20Walk%20Chef.jpg" alt="Chef preparing food in a busy restaurant kitchen" width="600" height="400" decoding="async" class="product-placement-img">
+        <figcaption class="cap">Service · peak demand</figcaption>
+      </figure>
+      <figure class="photo">
+        <img src="/product-placement/Restuarants/Wok%20to%20Walk/Womenstraat.jpeg" alt="Wok to Walk storefront on Womenstraat" width="600" height="400" decoding="async" class="product-placement-img">
+        <figcaption class="cap">Netherlands · high street</figcaption>
+      </figure>
+      <figure class="photo">
+        <img src="/product-placement/Restuarants/agents-map-scenes/restaurant-iot-sensors-city.jpg" alt="IoT sensors connecting restaurant equipment across a city" width="600" height="400" decoding="async" class="product-placement-img">
+        <figcaption class="cap">Sensors · submetering</figcaption>
+      </figure>
+    </div>
+    <div class="visual-intro-foot">
+      <strong>Real restaurants. Real equipment. Measurable energy.</strong>
+      <span>Greenways hospitality monitoring — UK &amp; EU pilots</span>
+    </div>
+  </section>
+
   <header class="hero">
     <span class="hero-badge">Interactive Restaurants · Europe · UK &amp; Netherlands</span>
     <h1>Why we measure energy — and why restaurants need it most</h1>
@@ -554,8 +725,6 @@
       This interactive brief explains the evidence from the UK and wider EU, why hospitality is a priority sector, how Greenways implements
       submetering, and how the Transition Portal turns data into grants, calculators, and action.
     </p>
-    <a class="variant-link" href="/greenways/interactive-restaurants-visual">Try the version with restaurant photos at the top</a>
-    ·
     <a class="variant-link" href="/greenways/restaurant-monitoring">Prefer the plain background version?</a>
   </header>
 
@@ -579,7 +748,7 @@
     <div class="stat-row">
       <div class="stat"><strong>6–7%</strong><span>UK home monitor review (average)</span></div>
       <div class="stat"><strong>5–15%</strong><span>EU / UK home &amp; SME pilots</span></div>
-      <div class="stat"><strong>~9%</strong><span>When conservation was the main goal</span></div>
+      <div class="stat"><strong>~12–15%</strong><span>Hospitality when acting on circuit data</span></div>
       <div class="stat"><strong>10–20%</strong><span>Real-time monitoring (EU &amp; international summaries)</span></div>
     </div>
 
@@ -588,24 +757,25 @@
     <div class="insight-callout">
       <strong>Greenways experience across Europe:</strong> assisting residents in UK housing pilots and Dutch smart-meter households showed the same pattern —
       once kWh and cost are visible, waste becomes discussable and habits shift. Submetering extends that visibility to
-      each circuit and appliance in restaurant and commercial buildings.
+      each circuit and appliance in restaurant and commercial buildings — where cooking, refrigeration and sanitation often push
+      annual electricity bills into the mid–tens of thousands of euros.
     </div>
 
     <div class="calc-panel">
       <label for="savings-slider">Try it: assumed savings from monitoring &amp; acting on data</label>
-      <input type="range" id="savings-slider" min="5" max="20" value="9" step="1">
+      <input type="range" id="savings-slider" min="8" max="20" value="13" step="1">
       <div style="font-size:0.74rem;color:var(--muted);margin-top:4px">
-        Selected: <strong id="savings-pct" style="color:var(--green-lt)">9%</strong> — within published EU, UK &amp; hospitality feedback ranges
+        Selected: <strong id="savings-pct" style="color:var(--green-lt)">13%</strong> — mid-range for hospitality sites acting on submeter feedback (still within published EU / UK ranges)
       </div>
       <label for="kwh-slider" style="margin-top:12px">Annual restaurant electricity (kWh)</label>
-      <input type="range" id="kwh-slider" min="40000" max="200000" value="95000" step="5000">
+      <input type="range" id="kwh-slider" min="60000" max="250000" value="145000" step="5000">
       <div style="font-size:0.74rem;color:var(--muted);margin-top:4px">
-        <span id="kwh-label">95,000 kWh/yr</span> · illustrative @ €0.28/kWh
+        <span id="kwh-label">145,000 kWh/yr</span> · illustrative busy kitchen @ €0.32/kWh
       </div>
       <div class="calc-output">
-        <div class="calc-box"><strong id="calc-before">€26,600</strong><span>Baseline energy spend</span></div>
-        <div class="calc-box"><strong id="calc-save" style="color:var(--green-lt)">€2,394</strong><span>Estimated annual saving</span></div>
-        <div class="calc-box"><strong id="calc-after">€24,206</strong><span>After monitoring effect</span></div>
+        <div class="calc-box"><strong id="calc-before">€46,400</strong><span>Baseline energy spend</span></div>
+        <div class="calc-box"><strong id="calc-save" style="color:var(--green-lt)">€6,032</strong><span>Estimated annual saving</span></div>
+        <div class="calc-box"><strong id="calc-after">€40,368</strong><span>After monitoring effect</span></div>
       </div>
     </div>
   </section>
@@ -771,6 +941,66 @@
     <p id="anim-hint" style="font-size:0.72rem;color:var(--muted);text-align:center;margin-top:10px">Tap a site card for detail · Toggle views above</p>
   </section>
 
+  <section class="visual-outro" aria-label="Restaurant sites and equipment we monitor">
+    <div class="visual-outro-head">
+      <h2>In the field — sites, kitchens &amp; the equipment behind the bill</h2>
+      <p>
+        Greenways submetering focuses on what actually drives hospitality energy: cooking lines, refrigeration, dishwashing,
+        ventilation, and the sites where staff need clear feedback — not just a monthly total.
+      </p>
+    </div>
+    <div class="visual-outro-grid">
+      <figure class="photo">
+        <img class="product-placement-img" src="/product-placement/Restuarants/Wok%20to%20Walk/Koning%20Straat%20.jpg" alt="Wok to Walk restaurant on Koningstraat" width="480" height="360" decoding="async" loading="lazy">
+        <figcaption class="cap">Koningstraat · Amsterdam</figcaption>
+      </figure>
+      <figure class="photo">
+        <img class="product-placement-img" src="/product-placement/Restuarants/Wok%20to%20Walk/Walk%20To%20Walk.jpg" alt="Wok to Walk brand and restaurant interior" width="480" height="360" decoding="async" loading="lazy">
+        <figcaption class="cap">Hospitality · brand site</figcaption>
+      </figure>
+      <figure class="photo">
+        <img class="product-placement-img" src="/product-placement/Restuarants/Magis_contract_Piccola_Enoteca_Taiwan_03.webp" alt="Restaurant dining room ready for service" width="480" height="360" decoding="async" loading="lazy">
+        <figcaption class="cap">Dining · hospitality site</figcaption>
+      </figure>
+      <figure class="photo">
+        <img class="product-placement-img" src="/product-placement/Restuarants/Wok%20to%20Walk/Wok-to-Walk-Berlin-Noodles-Kitchen-Featured.jpg" alt="Wok to Walk Berlin kitchen preparing noodles" width="480" height="360" decoding="async" loading="lazy">
+        <figcaption class="cap">Berlin · kitchen line</figcaption>
+      </figure>
+      <figure class="photo">
+        <img class="product-placement-img" src="/product-placement/Restuarants/Wok%20to%20Walk/Commercial-2-Burner-Gas-Range.jpg" alt="Commercial two-burner gas wok range" width="480" height="360" decoding="async" loading="lazy">
+        <figcaption class="cap">Cooking · gas wok range</figcaption>
+      </figure>
+      <figure class="photo">
+        <img class="product-placement-img" src="/product-placement/Restuarants/Wok%20to%20Walk/Fryer.jpg" alt="Commercial deep fryer in restaurant kitchen" width="480" height="360" decoding="async" loading="lazy">
+        <figcaption class="cap">Cooking · fryer load</figcaption>
+      </figure>
+      <figure class="photo">
+        <img class="product-placement-img" src="/product-placement/Restuarants/Wok%20to%20Walk/Freezer.jpg" alt="Commercial freezer unit" width="480" height="360" decoding="async" loading="lazy">
+        <figcaption class="cap">Refrigeration · freezer</figcaption>
+      </figure>
+      <figure class="photo">
+        <img class="product-placement-img" src="/product-placement/Restuarants/Wok%20to%20Walk/Dishwasher.jpg" alt="Commercial dishwasher in restaurant back of house" width="480" height="360" decoding="async" loading="lazy">
+        <figcaption class="cap">Sanitation · dishwasher</figcaption>
+      </figure>
+      <figure class="photo">
+        <img class="product-placement-img" src="/product-placement/Restuarants/Azure-Reporting-monitoring-and-alerting-dashboard-1024x683.jpg" alt="Energy monitoring and alerting dashboard" width="480" height="360" decoding="async" loading="lazy">
+        <figcaption class="cap">Monitoring · alerts dashboard</figcaption>
+      </figure>
+      <figure class="photo">
+        <img class="product-placement-img" src="/product-placement/Restuarants/agents-map-scenes/restaurant-sustainability-map.jpg" alt="European sustainability organisations map for benchmarking" width="480" height="360" decoding="async" loading="lazy">
+        <figcaption class="cap">Benchmarking · EU context</figcaption>
+      </figure>
+      <figure class="photo">
+        <img class="product-placement-img" src="/product-placement/Restuarants/Wok%20to%20Walk/chinese-wok-range-energy-water-saving.jpg" alt="Chinese wok range with energy and water saving focus" width="480" height="360" decoding="async" loading="lazy">
+        <figcaption class="cap">Upgrade path · efficient range</figcaption>
+      </figure>
+      <figure class="photo">
+        <img class="product-placement-img" src="/product-placement/Restuarants/agents-map-scenes/restaurant-chef-ai-hologram.jpg" alt="Chef in kitchen with digital assistant for operational decisions" width="480" height="360" decoding="async" loading="lazy">
+        <figcaption class="cap">Action · staff + data</figcaption>
+      </figure>
+    </div>
+  </section>
+
   <footer class="footnote">
     Sources: UK home energy monitor review (BEAMA); EU / UK home &amp; SME monitor trials; Dutch smart-meter household feedback (ACM);
     ACEEE feedback research; U.S. DOE EERE monitoring guidance; ENERGY STAR real-time monitoring summaries; EU SME &amp; EIA commercial /
@@ -782,11 +1012,11 @@
 <script>
 (function () {
   var SOURCES = [
-    { pct: "6–7%", title: "UK review of home energy monitors", url: "https://www.beama.org.uk", note: "UK homes (part of Greenways’ European evidence base). Average savings; some pilots up to 12% or 18%; ~9% when conservation was the primary goal." },
+    { pct: "6–7%", title: "UK review of home energy monitors", url: "https://www.beama.org.uk", note: "UK homes (part of Greenways’ European evidence base). Average savings; some pilots up to 12% or 18%; higher when conservation was the primary goal." },
     { pct: "5–15%", title: "EU &amp; UK home monitor trials", url: "https://www.greenchoices.org", note: "Household behaviour change and lasting reductions in the first year — comparable patterns seen in Dutch smart-meter rollouts." },
     { pct: "4–20%", title: "EU SME monitoring &amp; targeting", url: "https://energy.ec.europa.eu/topics/energy-efficiency/energy-efficiency-targets-directive-and-rules_en", note: "Commercial aM&amp;T and submetering programmes across EU member states — typical operational savings when data is acted on." },
     { pct: "5–15%", title: "ACEEE behaviour research", url: "https://www.aceee.org", note: "Immediate feedback among the most effective forms of energy feedback — applies to homes and hospitality alike." },
-    { pct: "10–20%", title: "Real-time monitoring (ENERGY STAR)", url: "https://www.energystar.gov", note: "When monitoring is used effectively across building systems — cited in EU and international efficiency guidance." },
+    { pct: "10–20%", title: "Real-time monitoring (ENERGY STAR)", url: "https://www.energystar.gov", note: "When monitoring is used effectively across building systems — cited in EU and international efficiency guidance; hospitality sites often land mid-range when circuit faults and idle loads are corrected." },
     { pct: "Baselines", title: "DOE EERE measurement guide", url: "https://www.energy.gov/eere", note: "Track use, compare to baselines, verify savings — foundation for improvement programmes in any market." }
   ];
 
@@ -803,7 +1033,7 @@
 
   var savingsSlider = document.getElementById("savings-slider");
   var kwhSlider = document.getElementById("kwh-slider");
-  var price = 0.28;
+  var price = 0.32;
 
   function updateCalc() {
     var pct = Number(savingsSlider.value);
@@ -844,42 +1074,42 @@
       name: "Wok To Walk",
       type: "Amsterdam · quick-service wok",
       before: { level: "very-high", kwh: 118, note: "Main meter only — wok line preheat fault unseen for 11 weeks." },
-      after: { level: "good", kwh: 89, note: "Cooking circuit submeter flagged +18% draw — schedule tuned in 3 days." }
+      after: { level: "good", kwh: 86, note: "Cooking circuit submeter flagged +18% draw — schedule tuned in 3 days." }
     },
     {
       id: "bistro",
       name: "Le Bistro",
       type: "Edinburgh · independent bistro",
       before: { level: "high", kwh: 104, note: "Walk-in cooler on one branch — cannot split peak demand from HVAC." },
-      after: { level: "good", kwh: 81, note: "Fridge submeter flagged seal loss — maintenance booked same week." }
+      after: { level: "good", kwh: 78, note: "Fridge submeter flagged seal loss — maintenance booked same week." }
     },
     {
       id: "grill",
       name: "Grill House",
       type: "Berlin · fast casual",
       before: { level: "high", kwh: 99, note: "Cooking &amp; extract on one circuit — idle preheat assumed normal." },
-      after: { level: "efficient", kwh: 72, note: "Combi oven + extract metered — after-hours preheat trimmed." }
+      after: { level: "efficient", kwh: 70, note: "Combi oven + extract metered — after-hours preheat trimmed." }
     },
     {
       id: "ramen",
       name: "Ramen Kitchen",
       type: "Paris · high water heat",
       before: { level: "moderate", kwh: 88, note: "DHW loop energy invisible — no per-shift thermal baseline." },
-      after: { level: "good", kwh: 71, note: "Recirculation clamp-on meter — night setback saves 14% thermal." }
+      after: { level: "good", kwh: 68, note: "Recirculation clamp-on meter — night setback saves 14% thermal." }
     },
     {
       id: "trattoria",
       name: "Trattoria",
       type: "Milan · casual dining",
       before: { level: "very-high", kwh: 112, note: "Dishwasher runs long cycles unnoticed — no per-asset view." },
-      after: { level: "moderate", kwh: 86, note: "Dishwasher circuit alert — maintenance cut 22 min/day runtime." }
+      after: { level: "moderate", kwh: 82, note: "Dishwasher circuit alert — maintenance cut 22 min/day runtime." }
     },
     {
       id: "cafe",
       name: "Corner Café",
       type: "Utrecht · refrigeration heavy",
       before: { level: "moderate", kwh: 76, note: "Staff guess at busy days — no kWh per cover data." },
-      after: { level: "efficient", kwh: 58, note: "kWh/cover KPI live — closing checklist tied to meter alerts." }
+      after: { level: "efficient", kwh: 55, note: "kWh/cover KPI live — closing checklist tied to meter alerts." }
     }
   ];
 
@@ -1029,6 +1259,14 @@
   });
 
   setMonitorMode("before");
+})();
+</script>
+<script>
+(function () {
+  if (location.protocol !== 'file:') return;
+  document.querySelectorAll('.product-placement-img[src^="/product-placement/"]').forEach(function (img) {
+    img.src = '..' + img.getAttribute('src');
+  });
 })();
 </script>
 </body>
