@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css">
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.js"></script>
 <style>
   :root {
     --bg: #060a10;
@@ -161,9 +163,19 @@
     width: 72px;
     text-decoration: none;
     color: inherit;
+    cursor: pointer;
     transition: transform 0.15s;
   }
   .agents-hero-mosaic a:hover { transform: translateY(-2px); }
+  .agents-hero-mosaic a:hover img {
+    border-color: rgba(134, 239, 172, 0.85);
+    box-shadow: 0 6px 18px rgba(34, 197, 94, 0.28);
+  }
+  .agents-hero-mosaic a:focus-visible {
+    outline: 2px solid rgba(134, 239, 172, 0.75);
+    outline-offset: 3px;
+    border-radius: 12px;
+  }
   .agents-hero-mosaic img {
     width: 54px;
     height: 54px;
@@ -172,6 +184,7 @@
     object-position: top center;
     border: 2px solid rgba(34, 197, 94, 0.45);
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    transition: border-color 0.15s, box-shadow 0.15s;
   }
   .agents-hero-mosaic span {
     font-size: 0.62rem;
@@ -238,19 +251,46 @@
     gap: 10px;
     margin-top: 14px;
   }
+  .tool-grid-hint {
+    margin-top: 10px;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
   .tool-chip {
+    display: block;
+    width: 100%;
+    text-align: left;
     padding: 12px 14px;
     border-radius: 12px;
     border: 1px solid rgba(34, 212, 255, 0.22);
     background: rgba(34, 212, 255, 0.06);
+    font: inherit;
     font-size: 0.78rem;
     color: #b8e8f0;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  }
+  .tool-chip:hover,
+  .tool-chip:focus-visible {
+    border-color: rgba(34, 212, 255, 0.55);
+    background: rgba(34, 212, 255, 0.14);
+    outline: none;
+    transform: translateY(-1px);
   }
   .tool-chip strong {
     display: block;
     font-size: 0.82rem;
     color: var(--cyan);
     margin-bottom: 4px;
+  }
+  .tool-chip .tool-chip-action {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--gold);
   }
   .agents-strip {
     display: flex;
@@ -473,12 +513,25 @@
         for ongoing ops.
       </li>
     </ul>
-    <div class="tool-grid" aria-hidden="true">
-      <div class="tool-chip"><strong>Calculators</strong> Compare products, tariffs, and ROI scenarios</div>
-      <div class="tool-chip"><strong>Grants overlay</strong> Scheme matches on marketplace equipment</div>
-      <div class="tool-chip"><strong>Energy ticker</strong> Live price context for upgrade timing</div>
-      <div class="tool-chip"><strong>Renovation guides</strong> Insulation, retrofit, and project planning</div>
+    <div class="tool-grid" role="group" aria-label="Preview portal tools">
+      <button type="button" class="tool-chip" data-module-open="etl-calculator">
+        <strong>Calculators</strong> Compare products, tariffs, and ROI scenarios
+        <span class="tool-chip-action">Open preview</span>
+      </button>
+      <button type="button" class="tool-chip" data-module-open="schemes-portal-restaurant">
+        <strong>Grants overlay</strong> Scheme matches on marketplace equipment
+        <span class="tool-chip-action">Open preview</span>
+      </button>
+      <button type="button" class="tool-chip" data-module-open="energy-prices-ticker">
+        <strong>Energy ticker</strong> Live price context for upgrade timing
+        <span class="tool-chip-action">Open preview</span>
+      </button>
+      <button type="button" class="tool-chip" data-module-open="sustainable-renovations">
+        <strong>Renovation guides</strong> Insulation, retrofit, and project planning
+        <span class="tool-chip-action">Open preview</span>
+      </button>
     </div>
+    <p class="tool-grid-hint">Opens the same in-panel module shell the agents use — chat is not required.</p>
   </section>
 
   <section class="story-section">
@@ -553,21 +606,25 @@
     { id: "systems", name: "Edwardo", slug: "systems-agent", path: "/greenways/systems-agent", imageUrl: "https://static.wixstatic.com/media/c123de_eeb61cbf84bd402eb642e28b2b457c76~mv2.png" }
   ];
 
+  function storyHrefFor(slug) {
+    return "/greenways/agents/" + slug + "/story";
+  }
+
   function renderAgentLinks(agents, mount, compact) {
     if (!mount) return;
     mount.innerHTML = (agents || [])
       .map(function (a) {
         var role = ROLE_LINES[a.id] || a.shortLabel || "";
-        var storyHref = contentBase() + "/greenways/agents/" + a.slug + "/story";
+        var storyHref = storyHrefFor(a.slug);
         if (compact) {
           return (
-            '<a class="agent-pill" href="' + storyHref + '" target="_top" rel="noopener" title="Open ' + a.name + ' story">' +
+            '<a class="agent-pill" href="' + storyHref + '" target="_top" rel="noopener" title="Open ' + a.name + '\'s story page" aria-label="Open ' + a.name + '\'s story page">' +
             '<img src="' + a.imageUrl + '" alt="" width="32" height="32" decoding="async">' +
             a.name + ' <span>· ' + role + "</span></a>"
           );
         }
         return (
-          '<a href="' + storyHref + '" target="_top" rel="noopener" title="Open ' + a.name + ' story">' +
+          '<a href="' + storyHref + '" target="_top" rel="noopener" title="Open ' + a.name + '\'s story page" aria-label="Open ' + a.name + '\'s story page">' +
           '<img src="' + a.imageUrl + '" alt="' + a.name + '" width="54" height="54" decoding="async">' +
           "<span>" + a.name + "</span></a>"
         );
@@ -575,17 +632,33 @@
       .join("");
   }
 
-  renderAgentLinks(ROSTER_FALLBACK, document.getElementById("agents-hero-mosaic"), false);
+  function paintAgents(agents) {
+    var roster = (agents && agents.length) ? agents : ROSTER_FALLBACK;
+    renderAgentLinks(roster, document.getElementById("agents-hero-mosaic"), false);
+    renderAgentLinks(roster, document.getElementById("agents-strip"), true);
+  }
+
+  paintAgents(ROSTER_FALLBACK);
 
   fetch(contentBase() + "/data/greenways-agent-roster.json")
     .then(function (r) { return r.json(); })
     .then(function (data) {
-      var agents = (data.agents && data.agents.length) ? data.agents : ROSTER_FALLBACK;
-      renderAgentLinks(agents, document.getElementById("agents-strip"), true);
+      paintAgents(data.agents);
     })
     .catch(function () {
-      renderAgentLinks(ROSTER_FALLBACK, document.getElementById("agents-strip"), true);
+      paintAgents(ROSTER_FALLBACK);
     });
+
+  if (window.GreenwaysAgentContentModule) {
+    GreenwaysAgentContentModule.init({
+      agentName: "Greenways",
+      agentSlug: "agents-story",
+      theme: "default",
+      returnLabel: "← Back to agents story"
+    });
+    GreenwaysAgentContentModule.bindDocumentIntercept();
+    GreenwaysAgentContentModule.bindContainer(document.querySelector(".tool-grid"));
+  }
 })();
 </script>
 </body>
