@@ -242,6 +242,8 @@ Waves map onto existing phases — **do not replace Phase 1–4**; they deepen t
 | Grant scheme row → schemes portal module with scheme id | Medium | `?scheme=` query on portal HTML |
 | **Later:** Wix cart / apply-for-grant workflow | Low | Needs Wix APIs |
 
+**Agent Market (browse → shortlist → buy handoff):** thin PRD `tasks/prd-agent-market.json` — deep-dive-style in-module shop using existing grants overlay; say *“Start Ralph loop for agent market”*. Extends this wave without replacing product-page deep-links.
+
 **Exit criteria:** User shortlists 3 products in Zyanne, opens one with grants visible, never uses browser back.
 
 **PRD stories:** US-011 – US-013

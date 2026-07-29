@@ -1,0 +1,224 @@
+{
+  "featureName": "Greenways Agent Market",
+  "branchName": "feature/agent-market",
+  "description": "In-agent marketplace surface: deep-dive style browse/compare with grants and savings context, opened in GreenwaysAgentContentModule. Advisors stay in chat; shopping completes browse → shortlist → buy handoff without inventing a parallel catalogue or cart.",
+  "status": "draft",
+  "created": "2026-07-28",
+  "targetSkills": [
+    "greenways-chat-interface-skill.md",
+    "greenways-transition-agents.md",
+    "greenways-agents-roadmap.md",
+    "product-addition-workflow.md"
+  ],
+  "relatedModules": [
+    "marketplace-home",
+    "marketplace-about",
+    "marketplace-hvac",
+    "equipment-deep-dive",
+    "etl-finder",
+    "savings-projection",
+    "schemes-portal-restaurant"
+  ],
+  "primaryAgents": [
+    { "name": "Artemis", "slug": "equipment-agent", "role": "Primary shop guide — equipment compare & renovation context" },
+    { "name": "Zyanne", "slug": "sustainable-products-agent", "role": "Sustainable / water-electricity-gas lanes into Market" },
+    { "name": "Vincent", "slug": "finance-agent", "role": "Payback + finance handoff from shortlisted products" },
+    { "name": "Andrieus", "slug": "grants-agent", "role": "Scheme chips & compare from product grants overlay" },
+    { "name": "Zara", "slug": "deals-agent", "role": "Deal spotlights that deep-link into Agent Market rows" }
+  ],
+  "principles": [
+    "One catalogue truth — etl_* / products-with-grants* / sustainable catalog; no forked product JSON for Agent Market",
+    "Deep-dive architecture for browse & compare — not a second full Wix shop UI inside every agent",
+    "Same content-module shell as story chips and agent tablets — chat stays behind",
+    "Agents advise; Market completes the closed loop (browse → decide → shortlist → buy handoff)",
+    "Purchase stays on real marketplace / Wix until phase 4 — Agent Market does not invent checkout",
+    "Grants, projection, and finance tablets stay one click from any product card",
+    "Fail open: works without member login; personalise later via shortlist + profile"
+  ],
+  "waves": [
+    {
+      "id": "AM1",
+      "name": "Shell + registry module",
+      "weeks": "1",
+      "goal": "Openable Agent Market page in the shared module shell from story + Artemis/Zyanne"
+    },
+    {
+      "id": "AM2",
+      "name": "Deep-dive lanes + grants",
+      "weeks": "1-2",
+      "goal": "Category lanes, feature compare cards, grants chips from existing overlay"
+    },
+    {
+      "id": "AM3",
+      "name": "Shortlist + agent CTAs",
+      "weeks": "2-3",
+      "goal": "Save product ids; return to chat with handoff; Customer Hub can read shortlist"
+    },
+    {
+      "id": "AM4",
+      "name": "Buy handoff",
+      "weeks": "3+",
+      "goal": "Buy on Greenways Market → product-page / Wix cart; no parallel payment UI"
+    }
+  ],
+  "wire": {
+    "summary": "First viewport = one composition: Agent Market brand + short line + 3–4 lane CTAs. Below = deep-dive style product rows. Module chrome = existing GreenwaysAgentContentModule cover (Back to agent / story).",
+    "layout": [
+      {
+        "zone": "Module cover (existing shell)",
+        "elements": ["Return label", "Title: Agent Market", "Usage hint", "New tab ↗ to full page"]
+      },
+      {
+        "zone": "Hero (inside iframe)",
+        "elements": [
+          "Title: Agent Market",
+          "One line: Browse efficient equipment with grants and payback — guided by your Transition Agents",
+          "No stats strip; no card collage in hero"
+        ]
+      },
+      {
+        "zone": "Lane strip (one job: pick a path)",
+        "elements": [
+          "Kitchen / refrigeration",
+          "HVAC & ventilation",
+          "Water & sanitation",
+          "Whole premises / renovation"
+        ]
+      },
+      {
+        "zone": "Product rail (deep-dive DNA)",
+        "elements": [
+          "Photo + name + category",
+          "2–3 feature bullets (energy / water / capacity)",
+          "Grants chip count or top scheme region",
+          "Actions: Open detail | Savings projection | Save | Ask Artemis"
+        ]
+      },
+      {
+        "zone": "Footer strip",
+        "elements": [
+          "Your shortlist (n)",
+          "Open full marketplace home",
+          "Ask Vincent about payback"
+        ]
+      }
+    ],
+    "openPaths": [
+      "Agents story tool chip → moduleOpen agent-market",
+      "Artemis / Zyanne sidebar Quick link → moduleOpen",
+      "Chat product sample → Agent Market focused on that product id",
+      "Guide / Orchestra intent shop_or_browse → Artemis + module"
+    ],
+    "dataSources": [
+      "FULL-DATABASE-5554.json + products-with-grants-and-collection.json (by product.id)",
+      "Optional curated showcase: data/agent-market-showcase.json (12–24 etl_* ids per lane)",
+      "Reuse restaurant-equipment-deep-dive patterns for compare UI where possible",
+      "Shortlist: sessionStorage greenways-product-shortlist (align Customer Hub)"
+    ],
+    "outOfScopeV1": [
+      "In-module payment / Wix checkout iframe",
+      "Per-agent separate shop themes beyond accent on cover",
+      "New product ETL pipeline",
+      "Live meter-driven recommendations (Wave later / Edwardo)"
+    ]
+  },
+  "userStories": [
+    {
+      "id": "AM-001",
+      "wave": "AM1",
+      "title": "Agent Market HTML shell + route",
+      "description": "As a visitor, I want an Agent Market page I can open in the same in-panel module as other portal tools.",
+      "acceptanceCriteria": [
+        "HTML at HTMLS GWM GWB/greenways-agent-market.html",
+        "Route GET /greenways/agent-market (and static under HTMLS GWM GWB)",
+        "Wix no-scroll meta; overflow-x hidden; works desktop and mobile",
+        "Hero + lane strip placeholders; no fake products",
+        "Registered in data/greenways-content-modules.json as id agent-market"
+      ],
+      "priority": 1,
+      "estimatedEffort": "medium",
+      "passes": true
+    },
+    {
+      "id": "AM-002",
+      "wave": "AM1",
+      "title": "Open from story + agent sidebars",
+      "description": "As a visitor on the agents story or an agent chat, I want one click to preview Agent Market in the module shell.",
+      "acceptanceCriteria": [
+        "greenways-agents-story.html tool chip or fifth chip opens data-module-open=agent-market",
+        "Artemis and Zyanne quick links include Agent Market (moduleOpen)",
+        "Module cover returnLabel works (Back to story / Back to Artemis)",
+        "Does not change existing marketplace-home module behaviour"
+      ],
+      "priority": 2,
+      "estimatedEffort": "small",
+      "passes": true
+    },
+    {
+      "id": "AM-003",
+      "wave": "AM2",
+      "title": "Curated product rails with grants chips",
+      "description": "As a buyer, I want to browse a short curated set of marketplace products with grant context, not a blank shop.",
+      "acceptanceCriteria": [
+        "data/agent-market-showcase.json lists etl_* ids by lane (min 3 lanes, ≥3 products each)",
+        "Cards load grant counts/names from products-with-grants* by id (same overlay as deep dive)",
+        "Open detail uses root-relative /product-page-v2-marketplace.html?product=…&fromPopup=true",
+        "Broken/missing product ids skip gracefully (no empty broken cards)"
+      ],
+      "priority": 3,
+      "estimatedEffort": "medium",
+      "passes": true
+    },
+    {
+      "id": "AM-004",
+      "wave": "AM2",
+      "title": "Deep-dive style compare affordance",
+      "description": "As a buyer, I want a familiar compare path from Agent Market into equipment deep dive or savings projection.",
+      "acceptanceCriteria": [
+        "Each card can open equipment-deep-dive or savings-projection via ContentModule (moduleOpen) or in-page CTA",
+        "Copy uses equipment not kit",
+        "Lane HVAC can deep-link marketplace-hvac module as story context"
+      ],
+      "priority": 4,
+      "estimatedEffort": "medium",
+      "passes": true
+    },
+    {
+      "id": "AM-005",
+      "wave": "AM3",
+      "title": "Shortlist from Agent Market",
+      "description": "As a visitor, I want to save products and return to an agent without losing my shortlist.",
+      "acceptanceCriteria": [
+        "Save writes greenways-product-shortlist in sessionStorage (same key Customer Hub expects)",
+        "Footer shows shortlist count; empty state explains Save",
+        "Ask Artemis / Ask Vincent CTA opens /greenways/{agent}?q= with product name or id hint",
+        "Works without login"
+      ],
+      "priority": 5,
+      "estimatedEffort": "medium",
+      "passes": false
+    },
+    {
+      "id": "AM-006",
+      "wave": "AM4",
+      "title": "Buy on Greenways Market handoff",
+      "description": "As a buyer ready to purchase, I want a clear path to the real marketplace product page (and later Wix cart), not a fake checkout in the agent.",
+      "acceptanceCriteria": [
+        "Primary buy CTA labels Buy on Greenways Market (or Open product page)",
+        "Opens marketplace product URL in new tab or fullPageHref from module chrome",
+        "No payment forms inside Agent Market v1",
+        "Optional later: Wix cart deep-link documented as AM-007 backlog when APIs ready"
+      ],
+      "priority": 6,
+      "estimatedEffort": "small",
+      "passes": false
+    }
+  ],
+  "successMetrics": [
+    "Story + Artemis/Zyanne can open Agent Market without console errors",
+    "≥9 curated products render with grants chips on Render",
+    "Shortlist survives navigation back to agent chat in same tab",
+    "Buy CTA lands on live product page for a known etl_* id (e.g. Ecostore fridge)"
+  ],
+  "ralphHint": "Start Ralph loop for agent market — implement AM-001 then AM-002 before showcase data."
+}

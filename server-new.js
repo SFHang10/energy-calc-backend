@@ -232,6 +232,9 @@ app.get('/greenways/interactive-restaurants-visual', (req, res) => sendLiveMusic
 app.get('/greenways/buildings-dashboard', (req, res) => sendLiveMusicHtml(res, 'Greenways Interface .html'));
 app.get('/greenways/customer-hub', (req, res) => sendLiveMusicHtml(res, 'greenways-customer-hub.html'));
 app.get('/greenways/customer-dashboard', (req, res) => sendLiveMusicHtml(res, 'greenways-customer-hub.html'));
+app.get('/greenways/agent-market', (req, res) => sendLiveMusicHtml(res, 'greenways-agent-market.html'));
+app.get('/greenways/agent-market.html', (req, res) => sendLiveMusicHtml(res, 'greenways-agent-market.html'));
+
 app.get('/greenways/restaurant-data', (req, res) => sendLiveMusicHtml(res, 'restaurant-data.html'));
 app.get('/greenways/restaurant-energy-snapshot', (req, res) => sendLiveMusicHtml(res, 'restaurant-energy-snapshot.html'));
 app.get('/greenways/sensor-dashboard', (req, res) => sendLiveMusicHtml(res, 'sensor-dashboard.html'));
@@ -596,6 +599,12 @@ function mountApiRoutes() {
   if (sustainableProductsAgentRouter) {
     app.use('/api/sustainable-products-agent', sustainableProductsAgentRouter);
     console.log('✅ /api/sustainable-products-agent route mounted');
+  }
+  try {
+    app.use('/api/agent-market', require('./routes/agent-market'));
+    console.log('✅ /api/agent-market route mounted');
+  } catch (agentMarketErr) {
+    console.error('❌ /api/agent-market failed to mount:', agentMarketErr.message);
   }
   if (systemsAgentRouter) {
     app.use('/api/systems-agent', systemsAgentRouter);

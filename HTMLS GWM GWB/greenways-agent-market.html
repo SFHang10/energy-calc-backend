@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Greenways — Agent Market</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070e12;
+    --panel: rgba(12, 22, 28, 0.92);
+    --line: rgba(34, 212, 255, 0.22);
+    --text: #e8f4f8;
+    --muted: #8eabb4;
+    --cyan: #22d3ee;
+    --green: #28a745;
+    --gold: #c9a961;
+    --font: 'Space Grotesk', system-ui, sans-serif;
+    --font-clean: 'IBM Plex Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    overflow-x: hidden;
+    line-height: 1.5;
+  }
+  .am-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(160deg, rgba(7, 14, 18, 0.92) 0%, rgba(7, 14, 18, 0.78) 50%, rgba(7, 14, 18, 0.94) 100%),
+      radial-gradient(ellipse at 20% 0%, rgba(34, 212, 255, 0.1), transparent 45%),
+      radial-gradient(ellipse at 80% 100%, rgba(40, 167, 69, 0.08), transparent 40%),
+      #0a1520;
+  }
+  .am-page {
+    position: relative;
+    z-index: 1;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 22px 16px 40px;
+  }
+  .am-hero {
+    text-align: center;
+    margin-bottom: 22px;
+  }
+  .am-hero h1 {
+    font-size: clamp(1.65rem, 4vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #fff 0%, var(--cyan) 55%, #86efac 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .am-hero p {
+    margin: 12px auto 0;
+    max-width: 34rem;
+    font-size: 0.98rem;
+    color: #d2e8ee;
+  }
+  .am-badge {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid rgba(201, 169, 97, 0.45);
+    background: rgba(6, 10, 16, 0.5);
+  }
+  .am-lanes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .am-lane {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 14px 14px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: rgba(34, 212, 255, 0.06);
+    color: var(--text);
+    font: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  }
+  .am-lane:hover,
+  .am-lane:focus-visible,
+  .am-lane.is-active {
+    border-color: rgba(34, 212, 255, 0.55);
+    background: rgba(34, 212, 255, 0.12);
+    outline: none;
+    transform: translateY(-1px);
+  }
+  .am-lane strong {
+    display: block;
+    font-size: 0.88rem;
+    color: var(--cyan);
+    margin-bottom: 4px;
+  }
+  .am-lane span {
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .am-rail {
+    border-radius: 16px;
+    border: 1px solid rgba(75, 140, 104, 0.28);
+    background: var(--panel);
+    padding: 18px 16px;
+    margin-bottom: 16px;
+  }
+  .am-rail h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .am-rail .am-rail-note {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .am-cards {
+    display: grid;
+    gap: 12px;
+  }
+  .am-card {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 14px;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .am-card img {
+    width: 96px;
+    height: 76px;
+    object-fit: contain;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.25);
+    image-rendering: -webkit-optimize-contrast;
+  }
+  .am-card-body h3 {
+    font-family: var(--font-clean);
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    line-height: 1.25;
+  }
+  .am-card-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .am-features {
+    list-style: none;
+    margin: 0 0 10px;
+    padding: 0;
+  }
+  .am-features li {
+    position: relative;
+    padding-left: 12px;
+    font-size: 0.78rem;
+    color: #c5dbe2;
+    margin-bottom: 3px;
+  }
+  .am-features li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+  .am-grant-chip {
+    display: inline-block;
+    margin-bottom: 10px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #d4f5de;
+    border: 1px solid rgba(40, 167, 69, 0.45);
+    background: rgba(40, 167, 69, 0.12);
+  }
+  .am-grant-chip.is-empty {
+    color: var(--muted);
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .am-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .am-actions a,
+  .am-actions button {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid rgba(34, 212, 255, 0.35);
+    background: rgba(34, 212, 255, 0.1);
+    color: var(--cyan);
+  }
+  .am-actions a:hover,
+  .am-actions button:hover {
+    background: rgba(34, 212, 255, 0.2);
+  }
+  .am-actions .am-buy {
+    border-color: rgba(201, 169, 97, 0.45);
+    background: rgba(201, 169, 97, 0.12);
+    color: var(--gold);
+  }
+  .am-status {
+    font-size: 0.85rem;
+    color: var(--muted);
+    padding: 12px 4px;
+  }
+  .am-status.is-error { color: #f0a0a0; }
+  .am-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 4px 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  .am-foot a {
+    color: var(--cyan);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .am-foot a:hover { text-decoration: underline; }
+  .am-shortlist {
+    color: var(--gold);
+    font-weight: 600;
+  }
+  .am-inline-mod {
+    display: inline;
+    margin-left: 6px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--cyan);
+    font: inherit;
+    font-size: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  @media (max-width: 560px) {
+    .am-card { grid-template-columns: 72px 1fr; }
+    .am-card img { width: 72px; height: 60px; }
+  }
+</style>
+</head>
+<body>
+<div class="am-backdrop" aria-hidden="true"></div>
+<main class="am-page">
+  <header class="am-hero">
+    <h1>Agent Market</h1>
+    <p>Browse efficient equipment with grants and payback — guided by your Transition Agents.</p>
+    <span class="am-badge">Same catalogue · grants overlay</span>
+  </header>
+
+  <nav class="am-lanes" aria-label="Product lanes">
+    <button type="button" class="am-lane is-active" data-lane="kitchen">
+      <strong>Kitchen</strong>
+      <span>Refrigeration &amp; cooking</span>
+    </button>
+    <button type="button" class="am-lane" data-lane="hvac">
+      <strong>HVAC</strong>
+      <span>Ventilation &amp; climate</span>
+    </button>
+    <button type="button" class="am-lane" data-lane="water">
+      <strong>Water</strong>
+      <span>Sanitation &amp; savings</span>
+    </button>
+    <button type="button" class="am-lane" data-lane="premises">
+      <strong>Premises</strong>
+      <span>Fabric &amp; renovation</span>
+    </button>
+  </nav>
+
+  <section class="am-rail" aria-labelledby="am-rail-title">
+    <h2 id="am-rail-title">Product rail</h2>
+    <p class="am-rail-note" id="am-rail-note">Loading curated marketplace products…</p>
+    <div class="am-cards" id="am-cards" aria-live="polite"></div>
+    <p class="am-status" id="am-status" hidden></p>
+  </section>
+
+  <footer class="am-foot">
+    <span class="am-shortlist" id="am-shortlist">Your shortlist (0)</span>
+    <span>
+      <a href="/HTMLS%20GWM%20GWB/marketplace-home.html" target="_top" rel="noopener">Full marketplace</a>
+      ·
+      <a href="/greenways/equipment-agent" target="_top" rel="noopener">Ask Artemis</a>
+      ·
+      <a href="/greenways/finance-agent" target="_top" rel="noopener">Ask Vincent</a>
+    </span>
+  </footer>
+</main>
+<script>
+(function () {
+  var SHORTLIST_KEY = "greenways-product-shortlist";
+  var activeLane = "kitchen";
+  var noteEl = document.getElementById("am-rail-note");
+  var cardsEl = document.getElementById("am-cards");
+  var statusEl = document.getElementById("am-status");
+  var lanes = document.querySelectorAll(".am-lane");
+
+  function escapeHtml(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function readShortlist() {
+    try {
+      var raw = sessionStorage.getItem(SHORTLIST_KEY);
+      var list = raw ? JSON.parse(raw) : [];
+      return Array.isArray(list) ? list : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function paintShortlist() {
+    var el = document.getElementById("am-shortlist");
+    if (el) el.textContent = "Your shortlist (" + readShortlist().length + ")";
+  }
+
+  function openParentModule(moduleId, overrides) {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage(
+          { type: "gw-module-open", moduleId: moduleId, overrides: overrides || {} },
+          "*"
+        );
+        return true;
+      }
+    } catch (e) { /* ignore */ }
+    return false;
+  }
+
+  function askArtemisHref(product) {
+    var q = "Tell me about " + (product.name || product.id) + " and any grants";
+    return "/greenways/equipment-agent?q=" + encodeURIComponent(q);
+  }
+
+  function renderCards(samples) {
+    if (!cardsEl) return;
+    if (!samples.length) {
+      cardsEl.innerHTML = "";
+      statusEl.hidden = false;
+      statusEl.className = "am-status";
+      statusEl.textContent = "No products available for this lane yet.";
+      return;
+    }
+    statusEl.hidden = true;
+    cardsEl.innerHTML = samples
+      .map(function (p) {
+        var grantChip =
+          p.grantsCount > 0
+            ? '<span class="am-grant-chip">' +
+              escapeHtml(
+                p.grantsCount === 1
+                  ? "1 grant on file"
+                  : p.grantsCount + " grants on file"
+              ) +
+              (p.topGrants && p.topGrants[0]
+                ? " · " + escapeHtml(p.topGrants[0])
+                : "") +
+              "</span>"
+            : '<span class="am-grant-chip is-empty">Check detail for schemes</span>';
+        var features = (p.features || [])
+          .map(function (f) {
+            return "<li>" + escapeHtml(f) + "</li>";
+          })
+          .join("");
+        var img = p.imageUrl
+          ? '<img src="' +
+            escapeHtml(p.imageUrl) +
+            '" alt="" width="96" height="76" loading="lazy" decoding="async">'
+          : '<div class="am-card-img-fallback" style="width:96px;height:76px;border-radius:10px;background:rgba(34,212,255,0.12)"></div>';
+        return (
+          '<article class="am-card" data-product-id="' +
+          escapeHtml(p.id) +
+          '">' +
+          img +
+          '<div class="am-card-body">' +
+          "<h3>" +
+          escapeHtml(p.name) +
+          "</h3>" +
+          (p.label
+            ? '<p class="am-card-label">' + escapeHtml(p.label) + "</p>"
+            : "") +
+          grantChip +
+          (features ? '<ul class="am-features">' + features + "</ul>" : "") +
+          '<div class="am-actions">' +
+          '<a class="am-buy" href="' +
+          escapeHtml(p.marketplaceHref) +
+          '" target="_top" rel="noopener">Open detail</a>' +
+          '<button type="button" data-action="projection" data-id="' +
+          escapeHtml(p.id) +
+          '">Savings projection</button>' +
+          '<button type="button" data-action="deep-dive" data-id="' +
+          escapeHtml(p.id) +
+          '">Deep dive</button>' +
+          '<a href="' +
+          escapeHtml(askArtemisHref(p)) +
+          '" target="_top" rel="noopener">Ask Artemis</a>' +
+          "</div></div></article>"
+        );
+      })
+      .join("");
+  }
+
+  function setLaneActive(lane) {
+    lanes.forEach(function (btn) {
+      btn.classList.toggle("is-active", btn.getAttribute("data-lane") === lane);
+    });
+  }
+
+  function loadLane(lane) {
+    activeLane = lane;
+    setLaneActive(lane);
+    if (noteEl) noteEl.textContent = "Loading " + lane + " products…";
+    if (cardsEl) cardsEl.innerHTML = "";
+    statusEl.hidden = false;
+    statusEl.className = "am-status";
+    statusEl.textContent = "Fetching marketplace rows…";
+
+    fetch("/api/agent-market/samples?lane=" + encodeURIComponent(lane) + "&limit=6")
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (data) {
+        if (!data || !data.ok) {
+          throw new Error((data && data.error) || "Could not load samples");
+        }
+        if (noteEl) {
+          var blurb = data.blurb || ("Showing " + lane + " equipment.");
+          if (lane === "hvac") {
+            blurb +=
+              ' <button type="button" class="am-inline-mod" data-open-module="marketplace-hvac">Open HVAC marketplace story</button>';
+          }
+          noteEl.innerHTML = blurb;
+        }
+        renderCards(data.productSamples || []);
+      })
+      .catch(function (err) {
+        statusEl.hidden = false;
+        statusEl.className = "am-status is-error";
+        statusEl.textContent =
+          "Could not load products (" + (err.message || "network") + "). Try again shortly.";
+      });
+  }
+
+  lanes.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      loadLane(btn.getAttribute("data-lane"));
+    });
+  });
+
+  if (cardsEl) {
+    cardsEl.addEventListener("click", function (e) {
+      var btn = e.target.closest("[data-action]");
+      if (!btn) return;
+      var action = btn.getAttribute("data-action");
+      var id = btn.getAttribute("data-id");
+      if (action === "projection") {
+        if (
+          !openParentModule("savings-projection", {
+            query: "popup=1&embed=1&product=" + encodeURIComponent(id)
+          })
+        ) {
+          window.open(
+            "/HTMLS%20GWM%20GWB/equipment-savings-projection.html?popup=1&embed=1&product=" +
+              encodeURIComponent(id),
+            "_blank"
+          );
+        }
+      }
+      if (action === "deep-dive") {
+        if (
+          !openParentModule("equipment-deep-dive", {
+            query: "equipment=" + encodeURIComponent(id)
+          })
+        ) {
+          window.open(
+            "/HTMLS%20GWM%20GWB/restaurant-equipment-deep-dive.html?equipment=" +
+              encodeURIComponent(id),
+            "_blank"
+          );
+        }
+      }
+    });
+  }
+
+  if (noteEl) {
+    noteEl.addEventListener("click", function (e) {
+      var mod = e.target.closest("[data-open-module]");
+      if (!mod) return;
+      var mid = mod.getAttribute("data-open-module");
+      if (!openParentModule(mid)) {
+        window.open("/HTMLS%20GWM%20GWB/marketplace-hvac.html", "_blank");
+      }
+    });
+  }
+
+  paintShortlist();
+  var params = new URLSearchParams(window.location.search);
+  var laneQ = params.get("lane");
+  loadLane(laneQ && ["kitchen", "hvac", "water", "premises"].indexOf(laneQ) >= 0 ? laneQ : "kitchen");
+})();
+</script>
+</body>
+</html>
