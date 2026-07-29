@@ -45,7 +45,13 @@ router.get('/alternatives', async (req, res) => {
         error: 'lane must be one of: ' + LANE_IDS.join(', ')
       });
     }
-    const payload = await getLaneAlternatives(lane);
+    const payload = await getLaneAlternatives(lane, {
+      productId: req.query.productId,
+      name: req.query.name,
+      brand: req.query.brand,
+      model: req.query.model,
+      type: req.query.type
+    });
     if (!payload.ok) {
       return res.status(payload.error === 'No compare query configured for lane' ? 404 : 502).json(payload);
     }

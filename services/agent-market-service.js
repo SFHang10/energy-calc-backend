@@ -14,6 +14,14 @@ const SHOWCASE_PATH = path.join(__dirname, '..', 'data', 'agent-market-showcase.
 
 const LANE_IDS = ['kitchen', 'hvac', 'water', 'premises'];
 
+const BASELINE_BY_TYPE = {
+  dishwasher: { actualDailyKwh: 14, actualDailyWaterLitres: 220, actualDailyGasKwh: 0 },
+  refrigerator: { actualDailyKwh: 22, actualDailyWaterLitres: 45, actualDailyGasKwh: 0 },
+  oven: { actualDailyKwh: 32, actualDailyWaterLitres: 25, actualDailyGasKwh: 0 },
+  fryer: { actualDailyKwh: 3, actualDailyWaterLitres: 8, actualDailyGasKwh: 22 },
+  other: { actualDailyKwh: 10, actualDailyWaterLitres: 30, actualDailyGasKwh: 0 }
+};
+
 let showcaseCache = null;
 let equipmentIntelligence = null;
 
@@ -33,6 +41,61 @@ async function loadShowcase() {
     showcaseCache = { lanes: {} };
   }
   return showcaseCache;
+}
+
+function inferEquipmentType(text) {
+  const t = String(text || '').toLowerCase();
+  if (t.includes('dish')) return 'dishwasher';
+  if (t.includes('fridge') || t.includes('freezer') || t.includes('refriger') || t.includes('cooler')) {
+    return 'refrigerator';
+  }
+  if (t.includes('oven') || t.includes('combi') || t.includes('steamer')) return 'oven';
+  if (t.includes('fryer') || t.includes('wok')) return 'fryer';
+  if (t.includes('heat pump') || t.includes('hvac') || t.includes('ventil')) return 'other';
+  if (t.includes('water') || t.includes('dishwash')) return 'dishwasher';
+  return 'other';
+}
+
+function mergeCompareQuery(laneFallback, overrides = {}) {
+  const type =
+    String(overrides.type || '').trim() ||
+    inferEquipmentType(
+      [overrides.name, overrides.brand, overrides.model, overrides.subcategory, overrides.category]
+        .filter(Boolean)
+        .join(' ')
+    );
+  const baseline = BASELINE_BY_TYPE[type] || BASELINE_BY_TYPE.other;
+  const laneBase = laneFallback && typeof laneFallback === 'object' ? laneFallback : {};
+
+  return {
+    name: String(overrides.name || laneBase.name || '').trim(),
+    brand: String(overrides.brand || laneBase.brand || '').trim(),
+    model: String(overrides.model || laneBase.model || '').trim(),
+    type,
+    actualDailyKwh: overrides.actualDailyKwh ?? laneBase.actualDailyKwh ?? baseline.actualDailyKwh,
+    actualDailyWaterLitres:
+      overrides.actualDailyWaterLitres ??
+      laneBase.actualDailyWaterLitres ??
+      baseline.actualDailyWaterLitres,
+    actualDailyGasKwh:
+      overrides.actualDailyGasKwh ?? laneBase.actualDailyGasKwh ?? baseline.actualDailyGasKwh,
+    electricityRateEurPerKwh: laneBase.electricityRateEurPerKwh || '0.30',
+    gasRateEurPerKwh: laneBase.gasRateEurPerKwh || '0.11',
+    waterRateEurPerLitre: laneBase.waterRateEurPerLitre || '0.0025',
+    country: laneBase.country || 'NL',
+    productId: overrides.productId || null
+  };
+}
+
+function buildCompareQueryForProduct(product, laneFallback) {
+  return mergeCompareQuery(laneFallback, {
+    productId: product.id,
+    name: product.name || product.id,
+    brand: product.brand || '',
+    model: product.modelNumber || product.model || '',
+    subcategory: product.subcategory || '',
+    category: product.category || ''
+  });
 }
 
 function featureBullets(product, sample) {
@@ -80,6 +143,10 @@ async function getLaneSamples(laneId, limit = 6) {
       sample.imageUrl = '';
     }
     sample.lane = lane;
+    sample.brand = product.brand || '';
+    sample.model = product.modelNumber || product.model || '';
+    sample.category = product.category || '';
+    sample.compareQuery = buildCompareQueryForProduct(product, laneCfg.compareQuery);
     sample.features = featureBullets(product, sample);
     sample.projectionHref =
       '/HTMLS%20GWM%20GWB/equipment-savings-projection.html?popup=1&embed=1&product=' +
@@ -96,7 +163,7 @@ async function getLaneSamples(laneId, limit = 6) {
   };
 }
 
-async function getLaneAlternatives(laneId) {
+async function getLaneAlternatives(laneId, options = {}) {
   const lane = String(laneId || 'kitchen').toLowerCase();
   if (!LANE_IDS.includes(lane)) {
     return { ok: false, error: 'Unknown lane', lane, marketplaceMatches: [], externalAlternatives: [] };
@@ -104,7 +171,36 @@ async function getLaneAlternatives(laneId) {
 
   const showcase = await loadShowcase();
   const laneCfg = (showcase.lanes && showcase.lanes[lane]) || {};
-  const compareQuery = laneCfg.compareQuery || null;
+  const laneFallback = laneCfg.compareQuery || null;
+
+  let compareQuery = null;
+  const productId = String(options.productId || '').trim();
+
+  if (productId) {
+    const { products } = await loadProductsWithGrants();
+    const product = products.find((p) => String(p.id) === productId);
+    if (!product) {
+      return {
+        ok: false,
+        error: 'Unknown product id',
+        lane,
+        marketplaceMatches: [],
+        externalAlternatives: []
+      };
+    }
+    compareQuery = buildCompareQueryForProduct(product, laneFallback);
+  } else if (options.name || options.type) {
+    compareQuery = mergeCompareQuery(laneFallback, {
+      name: options.name,
+      brand: options.brand,
+      model: options.model,
+      type: options.type,
+      productId: options.productId || null
+    });
+  } else if (laneFallback && (laneFallback.name || laneFallback.type)) {
+    compareQuery = mergeCompareQuery(laneFallback, {});
+  }
+
   if (!compareQuery || (!compareQuery.name && !compareQuery.type)) {
     return {
       ok: false,
@@ -141,12 +237,25 @@ async function getLaneAlternatives(laneId) {
     };
   }
 
+  let marketplaceMatches = Array.isArray(payload.marketplaceMatches) ? payload.marketplaceMatches : [];
+  if (productId) {
+    const pinned = marketplaceMatches.find((row) => String(row.id) === productId);
+    if (pinned) {
+      marketplaceMatches = [
+        pinned,
+        ...marketplaceMatches.filter((row) => String(row.id) !== productId)
+      ];
+    }
+  }
+
   return {
     ok: true,
     lane,
     label: laneCfg.label || lane,
     compareQuery,
-    marketplaceMatches: Array.isArray(payload.marketplaceMatches) ? payload.marketplaceMatches : [],
+    compareSource: productId ? 'product' : 'lane',
+    productId: productId || null,
+    marketplaceMatches,
     externalAlternatives: Array.isArray(payload.externalAlternatives) ? payload.externalAlternatives : [],
     assumptions: Array.isArray(payload.assumptions) ? payload.assumptions : [],
     catalogPersisted: payload.catalogPersisted || null
@@ -171,5 +280,7 @@ module.exports = {
   getLaneSamples,
   getLaneAlternatives,
   getAllLaneMeta,
-  SHOWCASE_PATH
+  SHOWCASE_PATH,
+  inferEquipmentType,
+  buildCompareQueryForProduct
 };

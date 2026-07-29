@@ -521,6 +521,36 @@
     padding: 8px 0;
   }
   .am-compare-status.is-error { color: #f0a0a0; }
+  .am-compare-idle {
+    display: grid;
+    gap: 8px;
+    padding: 8px 0 4px;
+  }
+  .am-compare-idle[hidden] { display: none !important; }
+  .am-compare-idle-hint {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  #am-show-compare {
+    justify-self: start;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(40, 167, 69, 0.45);
+    background: rgba(40, 167, 69, 0.12);
+    color: #b8f5c9;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #am-show-compare:hover {
+    background: rgba(40, 167, 69, 0.22);
+  }
+  .am-actions .am-compare-product {
+    border-color: rgba(40, 167, 69, 0.45);
+    background: rgba(40, 167, 69, 0.1);
+    color: #9ae6b0;
+  }
   @media (max-width: 720px) {
     .am-compare-grid { grid-template-columns: 1fr; }
     .am-alt-layout { flex-direction: column; }
@@ -538,7 +568,7 @@
   <header class="am-hero">
     <h1>Agent Market</h1>
     <p>Browse efficient equipment with grants and payback — guided by your Transition Agents.</p>
-    <span class="am-badge">Save here · buy on Greenways Market</span>
+    <span class="am-badge">Marketplace listings + alternatives not yet on Greenways</span>
   </header>
 
   <nav class="am-lanes" aria-label="Product lanes">
@@ -568,14 +598,18 @@
     <p class="am-shortlist-empty" id="am-rail-save-hint">Tap <strong>Save</strong> on a card to add it to your shortlist — then ask Artemis or Vincent with context.</p>
   </section>
 
-  <section class="am-compare" aria-labelledby="am-compare-title">
+  <section class="am-compare" id="am-compare-section" aria-labelledby="am-compare-title">
     <h2 id="am-compare-title">Sustainable alternatives compare</h2>
     <p class="am-compare-sub" id="am-compare-sub">Checks Greenways marketplace first, then suggests high-saving external alternatives not yet listed.</p>
     <div class="am-compare-actions">
       <button type="button" id="am-open-finder">Open full product finder</button>
       <a href="/greenways/sustainable-products-agent" target="_top" rel="noopener">Ask Zyanne about alternatives</a>
     </div>
-    <p class="am-compare-status" id="am-compare-status">Loading compare row…</p>
+    <div class="am-compare-idle" id="am-compare-idle">
+      <button type="button" id="am-show-compare">Show alternatives compare</button>
+      <span class="am-compare-idle-hint">Loads when you scroll here — or tap a product’s <strong>Compare alternatives</strong> above.</span>
+    </div>
+    <p class="am-compare-status" id="am-compare-status" hidden></p>
     <div class="am-compare-grid" id="am-compare-grid" hidden>
       <div class="am-compare-col am-compare-col--market">
         <h3>On Greenways Marketplace</h3>
@@ -631,11 +665,18 @@
   var compareSubEl = document.getElementById("am-compare-sub");
   var altMarketEl = document.getElementById("am-alt-market");
   var altExternalEl = document.getElementById("am-alt-external");
+  var compareIdleEl = document.getElementById("am-compare-idle");
+  var compareSectionEl = document.getElementById("am-compare-section");
+  var showCompareBtn = document.getElementById("am-show-compare");
   var compareRepeaterState = {
     marketplace: { items: [], index: 0 },
     external: { items: [], index: 0 }
   };
   var lastCompareQuery = null;
+  var compareCache = {};
+  var compareLoadKey = "";
+  var compareFetchInFlight = false;
+  var activeCompareProductId = null;
 
   function escapeHtml(s) {
     return String(s || "")
@@ -1137,16 +1178,86 @@
     }
   }
 
-  function loadCompareLane(lane) {
-    if (!compareStatusEl) return;
-    compareStatusEl.hidden = false;
-    compareStatusEl.className = "am-compare-status";
-    compareStatusEl.textContent = "Loading sustainable alternatives compare…";
+  function buildCompareCacheKey(lane, productId) {
+    return lane + ":" + (productId || "lane-default");
+  }
+
+  function resetCompareUi() {
+    activeCompareProductId = null;
+    compareLoadKey = "";
+    if (compareIdleEl) compareIdleEl.hidden = false;
+    if (compareStatusEl) {
+      compareStatusEl.hidden = true;
+      compareStatusEl.className = "am-compare-status";
+      compareStatusEl.textContent = "";
+    }
     if (compareGridEl) compareGridEl.hidden = true;
     if (altMarketEl) altMarketEl.innerHTML = "";
     if (altExternalEl) altExternalEl.innerHTML = "";
+    if (compareSubEl) {
+      compareSubEl.textContent =
+        "Checks Greenways marketplace first, then suggests high-saving external alternatives not yet listed.";
+    }
+  }
 
-    fetch("/api/agent-market/alternatives?lane=" + encodeURIComponent(lane))
+  function applyCompareData(data) {
+    lastCompareQuery = data.compareQuery || null;
+    activeCompareProductId = data.productId || null;
+    if (compareSubEl && data.compareQuery && data.compareQuery.name) {
+      var prefix =
+        data.compareSource === "product"
+          ? "Comparing alternatives for “" + data.compareQuery.name + "” — "
+          : "Checks Greenways marketplace first, then external alternatives for “" +
+            data.compareQuery.name +
+            "”. ";
+      compareSubEl.textContent = prefix + "Marketplace matches on the left; research picks on the right.";
+    }
+    compareRepeaterState.marketplace.items = data.marketplaceMatches || [];
+    compareRepeaterState.external.items = data.externalAlternatives || [];
+    compareRepeaterState.marketplace.index = 0;
+    compareRepeaterState.external.index = 0;
+    renderAltRepeater("marketplace", lastCompareQuery);
+    renderAltRepeater("external", lastCompareQuery);
+    if (compareIdleEl) compareIdleEl.hidden = true;
+    if (compareStatusEl) compareStatusEl.hidden = true;
+    if (compareGridEl) compareGridEl.hidden = false;
+  }
+
+  function ensureCompareLoaded(opts) {
+    opts = opts || {};
+    var lane = activeLane;
+    var productId = opts.productId || null;
+    var force = !!opts.force;
+    var cacheKey = buildCompareCacheKey(lane, productId);
+
+    if (!force && compareCache[cacheKey]) {
+      compareLoadKey = cacheKey;
+      applyCompareData(compareCache[cacheKey]);
+      if (compareSectionEl) {
+        compareSectionEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+      return;
+    }
+
+    if (compareFetchInFlight && compareLoadKey === cacheKey) return;
+
+    compareLoadKey = cacheKey;
+    compareFetchInFlight = true;
+    if (compareIdleEl) compareIdleEl.hidden = true;
+    if (compareStatusEl) {
+      compareStatusEl.hidden = false;
+      compareStatusEl.className = "am-compare-status";
+      compareStatusEl.textContent = productId
+        ? "Loading alternatives for this product…"
+        : "Loading sustainable alternatives compare…";
+    }
+    if (compareGridEl) compareGridEl.hidden = true;
+
+    var url =
+      "/api/agent-market/alternatives?lane=" + encodeURIComponent(lane) +
+      (productId ? "&productId=" + encodeURIComponent(productId) : "");
+
+    fetch(url)
       .then(function (r) {
         return r.json();
       })
@@ -1154,28 +1265,42 @@
         if (!data || !data.ok) {
           throw new Error((data && data.error) || "Could not load alternatives");
         }
-        lastCompareQuery = data.compareQuery || null;
-        if (compareSubEl && data.compareQuery && data.compareQuery.name) {
-          compareSubEl.textContent =
-            "Checks Greenways marketplace first, then external alternatives for “" +
-            data.compareQuery.name +
-            "”.";
+        if (!productId) {
+          compareCache[buildCompareCacheKey(lane, null)] = data;
         }
-        compareRepeaterState.marketplace.items = data.marketplaceMatches || [];
-        compareRepeaterState.external.items = data.externalAlternatives || [];
-        compareRepeaterState.marketplace.index = 0;
-        compareRepeaterState.external.index = 0;
-        renderAltRepeater("marketplace", lastCompareQuery);
-        renderAltRepeater("external", lastCompareQuery);
-        compareStatusEl.hidden = true;
-        if (compareGridEl) compareGridEl.hidden = false;
+        applyCompareData(data);
+        if (compareSectionEl && (force || productId)) {
+          compareSectionEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
       })
       .catch(function (err) {
-        compareStatusEl.hidden = false;
-        compareStatusEl.className = "am-compare-status is-error";
-        compareStatusEl.textContent =
-          "Compare row unavailable (" + (err.message || "network") + "). Curated products above still work.";
+        if (compareIdleEl) compareIdleEl.hidden = false;
+        if (compareStatusEl) {
+          compareStatusEl.hidden = false;
+          compareStatusEl.className = "am-compare-status is-error";
+          compareStatusEl.textContent =
+            "Compare row unavailable (" + (err.message || "network") + "). Curated products above still work.";
+        }
+      })
+      .finally(function () {
+        compareFetchInFlight = false;
       });
+  }
+
+  function setupCompareLazyLoad() {
+    if (!compareSectionEl || typeof IntersectionObserver === "undefined") return;
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          var cacheKey = buildCompareCacheKey(activeLane, null);
+          if (compareCache[cacheKey] || compareFetchInFlight) return;
+          ensureCompareLoaded({ force: false });
+        });
+      },
+      { root: null, rootMargin: "0px 0px -10% 0px", threshold: 0.15 }
+    );
+    observer.observe(compareSectionEl);
   }
 
   function renderCards(samples) {
@@ -1252,6 +1377,11 @@
           '<button type="button" data-action="deep-dive" data-id="' +
           escapeHtml(p.id) +
           '">Deep dive</button>' +
+          '<button type="button" class="am-compare-product" data-action="compare" data-id="' +
+          escapeHtml(p.id) +
+          '" data-title="' +
+          escapeHtml(p.name) +
+          '">Compare alternatives</button>' +
           '<a href="' +
           escapeHtml(askArtemisHref(p)) +
           '" target="_top" rel="noopener">Ask Artemis</a>' +
@@ -1270,6 +1400,7 @@
   function loadLane(lane) {
     activeLane = lane;
     setLaneActive(lane);
+    resetCompareUi();
     if (noteEl) noteEl.textContent = "Loading " + lane + " products…";
     if (cardsEl) cardsEl.innerHTML = "";
     statusEl.hidden = false;
@@ -1300,8 +1431,6 @@
         statusEl.textContent =
           "Could not load products (" + (err.message || "network") + "). Try again shortly.";
       });
-
-    loadCompareLane(lane);
   }
 
   lanes.forEach(function (btn) {
@@ -1352,8 +1481,19 @@
           );
         }
       }
+      if (action === "compare") {
+        e.preventDefault();
+        ensureCompareLoaded({ productId: id, force: true });
+      }
     });
   }
+
+  if (showCompareBtn) {
+    showCompareBtn.addEventListener("click", function () {
+      ensureCompareLoaded({ force: false });
+    });
+  }
+  setupCompareLazyLoad();
 
   if (noteEl) {
     noteEl.addEventListener("click", function (e) {
