@@ -2,8 +2,17 @@
   "featureName": "Greenways Agent Market",
   "branchName": "feature/agent-market",
   "description": "In-agent marketplace surface: deep-dive style browse/compare with grants and savings context, opened in GreenwaysAgentContentModule. Advisors stay in chat; shopping completes browse → shortlist → buy handoff without inventing a parallel catalogue or cart.",
-  "status": "draft",
+  "status": "v1-complete",
   "created": "2026-07-28",
+  "completed": "2026-07-29",
+  "v1Summary": [
+    "Shell + module registry + story/Artemis/Zyanne entry",
+    "Curated etl_* rails with grants chips",
+    "Shortlist + Ask Artemis/Vincent/Andrieus + Buy on Greenways Market",
+    "Dual compare lane (marketplace vs sust_*) with Suggest for Greenways intake",
+    "Compare-from-card + lazy-load compare",
+    "Shared marketplace hero backdrop + frosted glass (Agent Market + home/about/hvac modules)"
+  ],
   "targetSkills": [
     "greenways-chat-interface-skill.md",
     "greenways-transition-agents.md",
@@ -17,7 +26,8 @@
     "equipment-deep-dive",
     "etl-finder",
     "savings-projection",
-    "schemes-portal-restaurant"
+    "schemes-portal-restaurant",
+    "sustainable-product-finder"
   ],
   "primaryAgents": [
     { "name": "Artemis", "slug": "equipment-agent", "role": "Primary shop guide — equipment compare & renovation context" },
@@ -40,31 +50,43 @@
       "id": "AM1",
       "name": "Shell + registry module",
       "weeks": "1",
-      "goal": "Openable Agent Market page in the shared module shell from story + Artemis/Zyanne"
+      "goal": "Openable Agent Market page in the shared module shell from story + Artemis/Zyanne",
+      "status": "done"
     },
     {
       "id": "AM2",
       "name": "Deep-dive lanes + grants",
       "weeks": "1-2",
-      "goal": "Category lanes, feature compare cards, grants chips from existing overlay"
+      "goal": "Category lanes, feature compare cards, grants chips from existing overlay",
+      "status": "done"
     },
     {
       "id": "AM3",
       "name": "Shortlist + agent CTAs",
       "weeks": "2-3",
-      "goal": "Save product ids; return to chat with handoff; Customer Hub can read shortlist"
+      "goal": "Save product ids; return to chat with handoff; Customer Hub can read shortlist",
+      "status": "done"
     },
     {
       "id": "AM4",
       "name": "Buy handoff",
       "weeks": "3+",
-      "goal": "Buy on Greenways Market → product-page / Wix cart; no parallel payment UI"
+      "goal": "Buy on Greenways Market → product-page / Wix cart; no parallel payment UI",
+      "status": "done"
     },
     {
       "id": "AM5",
       "name": "Dual compare lane",
       "weeks": "3+",
-      "goal": "Per-lane marketplace vs external alternatives (etl_* vs sust_*) with intake suggestions"
+      "goal": "Per-lane marketplace vs external alternatives (etl_* vs sust_*) with intake suggestions",
+      "status": "done"
+    },
+    {
+      "id": "AM6",
+      "name": "Enhancements (post-v1)",
+      "weeks": "backlog",
+      "goal": "Images, lane tuning, chat tablets, research shortlist, staff intake UX, shared compare component",
+      "status": "backlog"
     }
   ],
   "wire": {
@@ -119,7 +141,8 @@
       "FULL-DATABASE-5554.json + products-with-grants-and-collection.json (by product.id)",
       "Optional curated showcase: data/agent-market-showcase.json (12–24 etl_* ids per lane)",
       "Reuse restaurant-equipment-deep-dive patterns for compare UI where possible",
-      "Shortlist: sessionStorage greenways-product-shortlist (align Customer Hub)"
+      "Shortlist: sessionStorage greenways-product-shortlist (align Customer Hub)",
+      "Alternatives: /api/agent-market/alternatives + sustainable-products-catalog.json + marketplace-intake-suggestions.json"
     ],
     "outOfScopeV1": [
       "In-module payment / Wix checkout iframe",
@@ -213,7 +236,7 @@
         "Primary buy CTA labels Buy on Greenways Market (or Open product page)",
         "Opens marketplace product URL in new tab or fullPageHref from module chrome",
         "No payment forms inside Agent Market v1",
-        "Optional later: Wix cart deep-link documented as AM-007 backlog when APIs ready"
+        "Optional later: Wix cart deep-link documented as AM-015 backlog when APIs ready"
       ],
       "priority": 6,
       "estimatedEffort": "small",
@@ -234,13 +257,136 @@
       "priority": 7,
       "estimatedEffort": "medium",
       "passes": true
+    },
+    {
+      "id": "AM-008",
+      "wave": "AM6",
+      "title": "External catalog images",
+      "description": "As a buyer, I want Not Yet on Greenways cards to show real product photos, not empty placeholders.",
+      "acceptanceCriteria": [
+        "sust_* rows in sustainable-products-catalog.json gain Wix static imageUrl where missing",
+        "Agent Market external carousel uses those images with a single shared fallback"
+      ],
+      "priority": 8,
+      "estimatedEffort": "medium",
+      "passes": false,
+      "backlog": true
+    },
+    {
+      "id": "AM-009",
+      "wave": "AM6",
+      "title": "Tune lane compare queries",
+      "description": "As a buyer switching HVAC / water / premises lanes, I want both compare columns to show useful matches.",
+      "acceptanceCriteria": [
+        "Review each lane compareQuery on Render",
+        "Adjust showcase compareQuery until marketplace + external columns are non-empty for typical queries"
+      ],
+      "priority": 9,
+      "estimatedEffort": "small",
+      "passes": false,
+      "backlog": true
+    },
+    {
+      "id": "AM-010",
+      "wave": "AM6",
+      "title": "Agent chat tablets → Agent Market compare",
+      "description": "As a visitor talking to Artemis or Zyanne, I want a tablet that opens Agent Market on the right lane or product compare.",
+      "acceptanceCriteria": [
+        "Module tablet or link opens agent-market with ?lane= or productId compare context",
+        "Artemis and Zyanne knowledge/sidebar can surface the tablet"
+      ],
+      "priority": 10,
+      "estimatedEffort": "medium",
+      "passes": false,
+      "backlog": true
+    },
+    {
+      "id": "AM-011",
+      "wave": "AM6",
+      "title": "Research shortlist for external picks",
+      "description": "As a visitor, I want to bookmark Not Yet on Greenways options without implying I can buy them yet.",
+      "acceptanceCriteria": [
+        "Separate sessionStorage list from buy shortlist (or clearly typed items)",
+        "UI does not show Buy CTA on research-only rows"
+      ],
+      "priority": 11,
+      "estimatedEffort": "medium",
+      "passes": false,
+      "backlog": true
+    },
+    {
+      "id": "AM-012",
+      "wave": "AM6",
+      "title": "Staff intake visibility",
+      "description": "As staff, after Suggest for Greenways I want a clear path to review intake.",
+      "acceptanceCriteria": [
+        "Agent Market shows brief confirmation + link/note to deep-dive intake shortlist or queue file",
+        "source agent-market remains distinguishable in marketplace-intake-suggestions.json"
+      ],
+      "priority": 12,
+      "estimatedEffort": "small",
+      "passes": false,
+      "backlog": true
+    },
+    {
+      "id": "AM-013",
+      "wave": "AM6",
+      "title": "Strong candidate badge + efficiency pulse",
+      "description": "As a buyer, I want high-saving external options flagged and energy sketch bars like deep dive.",
+      "acceptanceCriteria": [
+        "Surface intakeCandidates / high savings as Strong candidate for listing (staff or public copy TBD)",
+        "Optional: reuse deep-dive efficiency pulse SVG on compare cards"
+      ],
+      "priority": 13,
+      "estimatedEffort": "medium",
+      "passes": false,
+      "backlog": true
+    },
+    {
+      "id": "AM-014",
+      "wave": "AM6",
+      "title": "Shared alternatives compare component",
+      "description": "As maintainers, we want deep dive, finder, and Agent Market to share one compare card/repeater module.",
+      "acceptanceCriteria": [
+        "Extract greenways-alternatives-compare.js (+ CSS) from deep-dive patterns",
+        "Agent Market and at least one other surface consume it"
+      ],
+      "priority": 14,
+      "estimatedEffort": "large",
+      "passes": false,
+      "backlog": true
+    },
+    {
+      "id": "AM-015",
+      "wave": "AM6",
+      "title": "Wix cart deep-link (optional)",
+      "description": "As a buyer ready to purchase, I want Buy to land in Wix cart when APIs are ready.",
+      "acceptanceCriteria": [
+        "Document or implement Wix cart URL when available",
+        "No parallel payment UI inside Agent Market"
+      ],
+      "priority": 15,
+      "estimatedEffort": "medium",
+      "passes": false,
+      "backlog": true
     }
+  ],
+  "enhancementsBacklog": [
+    "AM-008 External catalog images (sust_*)",
+    "AM-009 Tune HVAC / water / premises compareQuery",
+    "AM-010 Artemis/Zyanne tablets → Agent Market compare",
+    "AM-011 Research shortlist for external picks",
+    "AM-012 Staff intake visibility after Suggest for Greenways",
+    "AM-013 Strong candidate badge + efficiency pulse bars",
+    "AM-014 Shared alternatives compare JS component",
+    "AM-015 Wix cart deep-link when APIs ready"
   ],
   "successMetrics": [
     "Story + Artemis/Zyanne can open Agent Market without console errors",
     "≥9 curated products render with grants chips on Render",
     "Shortlist survives navigation back to agent chat in same tab",
-    "Buy CTA lands on live product page for a known etl_* id (e.g. Ecostore fridge)"
+    "Buy CTA lands on live product page for a known etl_* id (e.g. Ecostore fridge)",
+    "Dual compare columns load for kitchen lane; Suggest for Greenways writes intake"
   ],
-  "ralphHint": "Start Ralph loop for agent market — implement AM-001 then AM-002 before showcase data."
+  "ralphHint": "v1 complete. For enhancements say Start Ralph loop for agent market enhancements — pick AM-008+ from enhancementsBacklog."
 }
