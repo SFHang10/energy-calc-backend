@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-product-shortlist.css">
 <style>
   :root {
     --bg: #070e12;
@@ -230,9 +231,13 @@
     background: rgba(34, 212, 255, 0.2);
   }
   .am-actions .am-buy {
-    border-color: rgba(201, 169, 97, 0.45);
-    background: rgba(201, 169, 97, 0.12);
-    color: var(--gold);
+    border-color: rgba(201, 169, 97, 0.55);
+    background: rgba(201, 169, 97, 0.18);
+    color: #f0d78a;
+  }
+  .am-actions .am-buy:hover {
+    background: rgba(201, 169, 97, 0.32);
+    border-color: rgba(201, 169, 97, 0.75);
   }
   .am-status {
     font-size: 0.85rem;
@@ -256,6 +261,74 @@
     font-weight: 600;
   }
   .am-foot a:hover { text-decoration: underline; }
+  .am-shortlist-toggle {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--gold);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .am-shortlist-toggle:hover { color: #f0d78a; }
+  .am-shortlist-panel {
+    border-radius: 16px;
+    border: 1px solid rgba(201, 169, 97, 0.35);
+    background: rgba(12, 22, 28, 0.95);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .am-shortlist-panel[hidden] { display: none !important; }
+  .am-shortlist-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .am-shortlist-head h2 {
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .am-shortlist-close {
+    font: inherit;
+    font-size: 0.72rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .am-shortlist-empty {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .am-shortlist-empty[hidden] { display: none; }
+  #am-shortlist-list .gw-shortlist-list { max-height: 200px; }
+  .am-save {
+    width: auto;
+    margin: 0;
+    padding: 6px 10px;
+    font-size: 0.72rem;
+  }
+  .am-actions .am-save.is-saved {
+    border-color: rgba(201, 169, 97, 0.55);
+    color: #fde68a;
+  }
+  .am-hub-link {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.78rem;
+    color: var(--cyan);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .am-hub-link:hover { text-decoration: underline; }
   .am-shortlist {
     color: var(--gold);
     font-weight: 600;
@@ -285,7 +358,7 @@
   <header class="am-hero">
     <h1>Agent Market</h1>
     <p>Browse efficient equipment with grants and payback — guided by your Transition Agents.</p>
-    <span class="am-badge">Same catalogue · grants overlay</span>
+    <span class="am-badge">Save here · buy on Greenways Market</span>
   </header>
 
   <nav class="am-lanes" aria-label="Product lanes">
@@ -312,27 +385,47 @@
     <p class="am-rail-note" id="am-rail-note">Loading curated marketplace products…</p>
     <div class="am-cards" id="am-cards" aria-live="polite"></div>
     <p class="am-status" id="am-status" hidden></p>
+    <p class="am-shortlist-empty" id="am-rail-save-hint">Tap <strong>Save</strong> on a card to add it to your shortlist — then ask Artemis or Vincent with context.</p>
+  </section>
+
+  <section class="am-shortlist-panel" id="am-shortlist-panel" hidden aria-labelledby="am-shortlist-title">
+    <div class="am-shortlist-head">
+      <h2 id="am-shortlist-title">Your shortlist</h2>
+      <button type="button" class="am-shortlist-close" id="am-shortlist-close">Close</button>
+    </div>
+    <p class="am-shortlist-empty" id="am-shortlist-empty">Nothing saved yet. Use <strong>Save</strong> on product cards above.</p>
+    <div id="am-shortlist-list"></div>
+    <div id="am-shortlist-actions"></div>
+    <a class="am-hub-link" href="/greenways/customer-hub" target="_top" rel="noopener">Open Customer Hub → saved lane</a>
   </section>
 
   <footer class="am-foot">
-    <span class="am-shortlist" id="am-shortlist">Your shortlist (0)</span>
+    <button type="button" class="am-shortlist-toggle" id="am-shortlist-toggle" aria-expanded="false">Your shortlist (0)</button>
     <span>
       <a href="/HTMLS%20GWM%20GWB/marketplace-home.html" target="_top" rel="noopener">Full marketplace</a>
       ·
-      <a href="/greenways/equipment-agent" target="_top" rel="noopener">Ask Artemis</a>
+      <a id="am-ask-artemis" href="/greenways/equipment-agent" target="_top" rel="noopener">Ask Artemis</a>
       ·
-      <a href="/greenways/finance-agent" target="_top" rel="noopener">Ask Vincent</a>
+      <a id="am-ask-vincent" href="/greenways/finance-agent" target="_top" rel="noopener">Ask Vincent</a>
     </span>
   </footer>
 </main>
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-product-shortlist.js"></script>
 <script>
 (function () {
-  var SHORTLIST_KEY = "greenways-product-shortlist";
+  var SL = window.GreenwaysAgentProductShortlist;
+  var SHORTLIST_KEY = SL ? SL.STORAGE_KEY : "greenways-product-shortlist";
   var activeLane = "kitchen";
+  var lastSamples = [];
   var noteEl = document.getElementById("am-rail-note");
   var cardsEl = document.getElementById("am-cards");
   var statusEl = document.getElementById("am-status");
   var lanes = document.querySelectorAll(".am-lane");
+  var panelEl = document.getElementById("am-shortlist-panel");
+  var listMount = document.getElementById("am-shortlist-list");
+  var actionsMount = document.getElementById("am-shortlist-actions");
+  var emptyEl = document.getElementById("am-shortlist-empty");
+  var toggleBtn = document.getElementById("am-shortlist-toggle");
 
   function escapeHtml(s) {
     return String(s || "")
@@ -343,6 +436,7 @@
   }
 
   function readShortlist() {
+    if (SL && SL.readShortlist) return SL.readShortlist();
     try {
       var raw = sessionStorage.getItem(SHORTLIST_KEY);
       var list = raw ? JSON.parse(raw) : [];
@@ -352,9 +446,194 @@
     }
   }
 
-  function paintShortlist() {
-    var el = document.getElementById("am-shortlist");
-    if (el) el.textContent = "Your shortlist (" + readShortlist().length + ")";
+  function isSaved(id) {
+    if (SL && SL.isSaved) return SL.isSaved(id);
+    return readShortlist().some(function (row) {
+      return String(row.id) === String(id);
+    });
+  }
+
+  function toggleSave(product) {
+    var item = {
+      id: product.id,
+      title: product.name || product.id,
+      marketplaceHref: product.marketplaceHref
+    };
+    var saved;
+    if (SL && SL.toggleItem) {
+      saved = SL.toggleItem(item);
+      if (SL.showToast) {
+        SL.showToast(saved ? "Added to your shortlist" : "Removed from shortlist");
+      }
+    } else {
+      var wasSaved = isSaved(item.id);
+      var list = readShortlist().filter(function (row) {
+        return String(row.id) !== String(item.id);
+      });
+      if (wasSaved) {
+        saved = false;
+      } else {
+        list.unshift({
+          id: item.id,
+          title: item.title,
+          addedAt: new Date().toISOString(),
+          marketplaceHref: item.marketplaceHref
+        });
+        saved = true;
+      }
+      sessionStorage.setItem(SHORTLIST_KEY, JSON.stringify(list.slice(0, 12)));
+      try {
+        window.dispatchEvent(new CustomEvent("gw-shortlist-change"));
+      } catch (e) { /* ignore */ }
+    }
+    onShortlistChange();
+    return saved;
+  }
+
+  function removeSave(id) {
+    if (SL && SL.removeItem) SL.removeItem(id);
+    else {
+      var list = readShortlist().filter(function (row) {
+        return String(row.id) !== String(id);
+      });
+      sessionStorage.setItem(SHORTLIST_KEY, JSON.stringify(list));
+    }
+    if (SL && SL.showToast) SL.showToast("Removed from shortlist");
+    onShortlistChange();
+  }
+
+  function clearShortlist() {
+    if (SL && SL.clearAll) SL.clearAll();
+    else sessionStorage.setItem(SHORTLIST_KEY, "[]");
+    if (SL && SL.showToast) SL.showToast("Shortlist cleared");
+    onShortlistChange();
+  }
+
+  function shortlistNames(limit) {
+    return readShortlist()
+      .map(function (row) {
+        return row.title || row.id;
+      })
+      .slice(0, limit || 4)
+      .join(", ");
+  }
+
+  function askArtemisHref(product) {
+    var q = product
+      ? "Tell me about " + (product.name || product.id) + " and any grants"
+      : readShortlist().length
+        ? "My shortlisted products: " + shortlistNames(5) + " — which grants and upgrades apply?"
+        : "Help me browse equipment in Agent Market with grants";
+    return "/greenways/equipment-agent?q=" + encodeURIComponent(q);
+  }
+
+  function askVincentHref() {
+    var q = readShortlist().length
+      ? "My shortlisted products: " + shortlistNames(5) + " — what payback and finance options apply?"
+      : "Help me model payback for an equipment upgrade";
+    return "/greenways/finance-agent?q=" + encodeURIComponent(q);
+  }
+
+  function askGrantsHref() {
+    var items = readShortlist();
+    if (!items.length) return "/greenways/grants-agent";
+    var q = "Which grants apply to my shortlisted products: " + shortlistNames(5) + "?";
+    return "/greenways/grants-agent?q=" + encodeURIComponent(q);
+  }
+
+  function updateFooterLinks() {
+    var artemis = document.getElementById("am-ask-artemis");
+    var vincent = document.getElementById("am-ask-vincent");
+    if (artemis) artemis.href = askArtemisHref();
+    if (vincent) vincent.href = askVincentHref();
+    var n = readShortlist().length;
+    if (toggleBtn) {
+      toggleBtn.textContent = "Your shortlist (" + n + ")";
+      toggleBtn.setAttribute("aria-expanded", panelEl && !panelEl.hidden ? "true" : "false");
+    }
+  }
+
+  function renderShortlistPanel() {
+    var items = readShortlist();
+    if (emptyEl) emptyEl.hidden = items.length > 0;
+    if (!listMount) return;
+
+    if (!items.length) {
+      listMount.innerHTML = "";
+      if (actionsMount) actionsMount.innerHTML = "";
+      return;
+    }
+
+    listMount.innerHTML =
+      '<div class="gw-shortlist-list">' +
+      items
+        .map(function (row) {
+          var href =
+            row.marketplaceHref ||
+            "/product-page-v2-marketplace.html?product=" +
+              encodeURIComponent(row.id) +
+              "&fromPopup=true";
+          return (
+            '<div class="gw-shortlist-row">' +
+            '<span class="gw-shortlist-row-title">' +
+            escapeHtml(row.title || row.id) +
+            "</span>" +
+            '<div class="gw-shortlist-row-actions">' +
+            '<a class="gw-shortlist-open" href="' +
+            escapeHtml(href) +
+            '" target="_top" rel="noopener" title="Opens the Greenways Market product page">Buy on Market ↗</a>' +
+            '<button type="button" class="gw-shortlist-remove" data-remove-id="' +
+            escapeHtml(row.id) +
+            '">Remove</button>' +
+            "</div></div>"
+          );
+        })
+        .join("") +
+      "</div>";
+
+    if (actionsMount) {
+      actionsMount.innerHTML =
+        '<div class="gw-shortlist-actions">' +
+        '<button type="button" class="gw-shortlist-grants" id="am-shortlist-grants">Check grants with Andrieus</button>' +
+        '<button type="button" class="gw-shortlist-clear" id="am-shortlist-clear">Clear shortlist</button>' +
+        "</div>";
+      var grantsBtn = document.getElementById("am-shortlist-grants");
+      var clearBtn = document.getElementById("am-shortlist-clear");
+      if (grantsBtn) {
+        grantsBtn.addEventListener("click", function () {
+          window.open(askGrantsHref(), "_top");
+        });
+      }
+      if (clearBtn) {
+        clearBtn.addEventListener("click", clearShortlist);
+      }
+    }
+
+    listMount.querySelectorAll("[data-remove-id]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        removeSave(btn.getAttribute("data-remove-id"));
+      });
+    });
+  }
+
+  function onShortlistChange() {
+    updateFooterLinks();
+    renderShortlistPanel();
+    if (lastSamples.length) renderCards(lastSamples);
+  }
+
+  function openShortlistPanel() {
+    if (!panelEl) return;
+    panelEl.hidden = false;
+    renderShortlistPanel();
+    updateFooterLinks();
+    panelEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function closeShortlistPanel() {
+    if (!panelEl) return;
+    panelEl.hidden = true;
+    updateFooterLinks();
   }
 
   function openParentModule(moduleId, overrides) {
@@ -370,12 +649,8 @@
     return false;
   }
 
-  function askArtemisHref(product) {
-    var q = "Tell me about " + (product.name || product.id) + " and any grants";
-    return "/greenways/equipment-agent?q=" + encodeURIComponent(q);
-  }
-
   function renderCards(samples) {
+    lastSamples = samples || [];
     if (!cardsEl) return;
     if (!samples.length) {
       cardsEl.innerHTML = "";
@@ -410,6 +685,7 @@
             escapeHtml(p.imageUrl) +
             '" alt="" width="96" height="76" loading="lazy" decoding="async">'
           : '<div class="am-card-img-fallback" style="width:96px;height:76px;border-radius:10px;background:rgba(34,212,255,0.12)"></div>';
+        var saved = isSaved(p.id);
         return (
           '<article class="am-card" data-product-id="' +
           escapeHtml(p.id) +
@@ -425,9 +701,22 @@
           grantChip +
           (features ? '<ul class="am-features">' + features + "</ul>" : "") +
           '<div class="am-actions">' +
+          '<button type="button" class="am-save product-shortlist-btn' +
+          (saved ? " is-saved" : "") +
+          '" data-action="save" data-id="' +
+          escapeHtml(p.id) +
+          '" data-title="' +
+          escapeHtml(p.name) +
+          '" data-href="' +
+          escapeHtml(p.marketplaceHref) +
+          '" aria-pressed="' +
+          (saved ? "true" : "false") +
+          '">' +
+          (saved ? "Saved · tap to remove" : "Save to shortlist") +
+          "</button>" +
           '<a class="am-buy" href="' +
           escapeHtml(p.marketplaceHref) +
-          '" target="_top" rel="noopener">Open detail</a>' +
+          '" target="_top" rel="noopener" title="Opens the Greenways Market product page with grants">Buy on Greenways Market ↗</a>' +
           '<button type="button" data-action="projection" data-id="' +
           escapeHtml(p.id) +
           '">Savings projection</button>' +
@@ -496,6 +785,16 @@
       if (!btn) return;
       var action = btn.getAttribute("data-action");
       var id = btn.getAttribute("data-id");
+      if (action === "save") {
+        e.preventDefault();
+        toggleSave({
+          id: id,
+          name: btn.getAttribute("data-title") || id,
+          marketplaceHref: btn.getAttribute("data-href") || ""
+        });
+        if (readShortlist().length) openShortlistPanel();
+        return;
+      }
       if (action === "projection") {
         if (
           !openParentModule("savings-projection", {
@@ -536,7 +835,21 @@
     });
   }
 
-  paintShortlist();
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", function () {
+      if (panelEl && panelEl.hidden) openShortlistPanel();
+      else closeShortlistPanel();
+    });
+  }
+  var closeBtn = document.getElementById("am-shortlist-close");
+  if (closeBtn) closeBtn.addEventListener("click", closeShortlistPanel);
+
+  window.addEventListener("gw-shortlist-change", onShortlistChange);
+  window.addEventListener("storage", function (e) {
+    if (e.key === SHORTLIST_KEY) onShortlistChange();
+  });
+
+  onShortlistChange();
   var params = new URLSearchParams(window.location.search);
   var laneQ = params.get("lane");
   loadLane(laneQ && ["kitchen", "hvac", "water", "premises"].indexOf(laneQ) >= 0 ? laneQ : "kitchen");
