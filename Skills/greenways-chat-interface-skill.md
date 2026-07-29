@@ -338,6 +338,15 @@ Knowledge services return structured right-column content; HTML builds tablets v
 
 **Event:** `gw-team-ready` — `{ handoffBrief, suggestedPrompt }` for boot question after handoff.
 
+**Soft topic bridge (Jul 2026):** Prefer this for **Ask Artemis / Vincent / Andrieus** product CTAs (Agent Market and similar). Module: `HTMLS GWM GWB/js/greenways-agent-topic-bridge.js`.
+
+| Mode | URL / storage | Behaviour |
+|------|----------------|-----------|
+| Soft preseed | `?bridge=1&topic=…&product=…&from=…` + `sessionStorage` `gw-topic-bridge-v1` | **No auto-ask.** Welcome: “You’d like to know more about **X**” + suggestion pills; input placeholder updated. First `/ask` still gets `profile.handoff` (`handoffKey: topic_bridge`) for grounded referral copy. |
+| Hard handoff | `?q=` or handoff chip with `question` | Existing: banner + auto-`sendQuestion` |
+
+**Build links:** `GreenwaysAgentTopicBridge.buildHref({ path, toSlug, fromSlug, fromLabel, topic, productId, productName })`. **Consume:** in `gw-team-ready`, call `handleTeamReady` and **return early** so `suggestedPrompt` is skipped. Wired on equipment / finance / grants agent shells + Agent Market Ask CTAs. Copy this pattern for other surfaces (deals, deep dive, etc.).
+
 **Referral welcome (May 2026):** `greenways-agent-team.js` enriches handoff with `topicSummary`, `fromIntentId`; first `/ask` uses `GreenwaysAgentTeam.profileForAsk(getProfile, slug)` → `profile.handoff`. Pairs live today: **Zyanne → Artemis** (`equipment-agent-knowledge.js`) and **Cheryce → Andrieus** (`grants-agent-knowledge.js`) via `services/greenways-agent-handoff.js`. Extend `isReferralWelcomePair` for more agents.
 
 ---

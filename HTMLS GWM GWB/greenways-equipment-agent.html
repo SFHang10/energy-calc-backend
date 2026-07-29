@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-sidebar.css">
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-product-shortlist.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-team.js"></script>
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-topic-bridge.js"></script>
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-sidebar.js"></script>
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-product-shortlist.js"></script>
 <script>
@@ -1926,6 +1927,18 @@
   }
 
   document.addEventListener("gw-team-ready", function (ev) {
+    var Bridge = window.GreenwaysAgentTopicBridge;
+    if (
+      Bridge &&
+      Bridge.handleTeamReady(ev, {
+        currentSlug: "equipment-agent",
+        agentName: (AGENT_PROFILE && AGENT_PROFILE.name) || "Artemis",
+        onPrompt: function (prompt) { sendQuestion(prompt); },
+        inputEl: document.getElementById("chat-input")
+      })
+    ) {
+      return;
+    }
     var boot = ev.detail && ev.detail.suggestedPrompt;
     if (boot && typeof sendQuestion === "function") {
       setTimeout(function () { sendQuestion(boot); }, ev.detail.handoffBrief ? 650 : 400);

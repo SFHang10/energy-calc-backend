@@ -297,6 +297,10 @@
 
   function renderHandoffBanner(brief) {
     if (!brief) return null;
+    // Soft topic bridge (Ask Artemis / product CTAs): welcome + pills handle UI; skip banner noise
+    if (brief.handoffKey === 'topic_bridge' && !String(brief.question || '').trim()) {
+      return null;
+    }
     var thread = document.getElementById('chat-thread');
     if (!thread) return null;
 
@@ -1187,8 +1191,13 @@
     }
 
     var params = new URLSearchParams(global.location.search);
+    // ?q= / ?prompt= auto-ask; ?topic= is soft preseed only (GreenwaysAgentTopicBridge)
     var urlPrompt = params.get('q') || params.get('prompt') || '';
-    var suggestedPrompt = urlPrompt || (brief && brief.question) || '';
+    var softTopic =
+      params.get('bridge') === '1' ||
+      !!String(params.get('topic') || '').trim() ||
+      (brief && brief.handoffKey === 'topic_bridge' && !String(brief.question || '').trim());
+    var suggestedPrompt = softTopic ? '' : urlPrompt || (brief && brief.question) || '';
 
     var detail = {
       currentSlug: currentSlug,

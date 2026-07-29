@@ -14,6 +14,7 @@
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-team.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-team.js"></script>
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-topic-bridge.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-sidebar.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-sidebar.js"></script>
 <script>
@@ -1840,6 +1841,18 @@
   }
 
   document.addEventListener("gw-team-ready", function (ev) {
+    var Bridge = window.GreenwaysAgentTopicBridge;
+    if (
+      Bridge &&
+      Bridge.handleTeamReady(ev, {
+        currentSlug: "finance-agent",
+        agentName: (AGENT_PROFILE && AGENT_PROFILE.name) || "Vincent",
+        onPrompt: function (prompt) { sendQuestion(prompt); },
+        inputEl: document.getElementById("chat-input")
+      })
+    ) {
+      return;
+    }
     var boot = ev.detail && ev.detail.suggestedPrompt;
     if (boot && typeof sendQuestion === "function") {
       setTimeout(function () { sendQuestion(boot); }, ev.detail.handoffBrief ? 650 : 400);

@@ -649,6 +649,7 @@
   </footer>
 </main>
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-product-shortlist.js"></script>
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-topic-bridge.js"></script>
 <script>
 (function () {
   var SL = window.GreenwaysAgentProductShortlist;
@@ -774,6 +775,31 @@
   }
 
   function askArtemisHref(product) {
+    var Bridge = window.GreenwaysAgentTopicBridge;
+    if (Bridge && Bridge.buildHref) {
+      if (product && product.id) {
+        return Bridge.buildHref({
+          path: "/greenways/equipment-agent",
+          toSlug: "equipment-agent",
+          fromSlug: "agent-market",
+          fromLabel: "Agent Market",
+          topic: product.name || product.id,
+          productId: product.id,
+          productName: product.name || product.id,
+          marketplaceHref: product.marketplaceHref || ""
+        });
+      }
+      if (readShortlist().length) {
+        return Bridge.buildHref({
+          path: "/greenways/equipment-agent",
+          toSlug: "equipment-agent",
+          fromSlug: "agent-market",
+          fromLabel: "Agent Market",
+          topic: "your shortlist: " + shortlistNames(4),
+          productName: shortlistNames(4)
+        });
+      }
+    }
     var q = product
       ? "Tell me about " + (product.name || product.id) + " and any grants"
       : readShortlist().length
@@ -782,14 +808,64 @@
     return "/greenways/equipment-agent?q=" + encodeURIComponent(q);
   }
 
-  function askVincentHref() {
+  function askVincentHref(product) {
+    var Bridge = window.GreenwaysAgentTopicBridge;
+    if (Bridge && Bridge.buildHref) {
+      if (product && product.id) {
+        return Bridge.buildHref({
+          path: "/greenways/finance-agent",
+          toSlug: "finance-agent",
+          fromSlug: "agent-market",
+          fromLabel: "Agent Market",
+          topic: product.name || product.id,
+          productId: product.id,
+          productName: product.name || product.id,
+          marketplaceHref: product.marketplaceHref || ""
+        });
+      }
+      if (readShortlist().length) {
+        return Bridge.buildHref({
+          path: "/greenways/finance-agent",
+          toSlug: "finance-agent",
+          fromSlug: "agent-market",
+          fromLabel: "Agent Market",
+          topic: "your shortlist: " + shortlistNames(4),
+          productName: shortlistNames(4)
+        });
+      }
+    }
     var q = readShortlist().length
       ? "My shortlisted products: " + shortlistNames(5) + " — what payback and finance options apply?"
       : "Help me model payback for an equipment upgrade";
     return "/greenways/finance-agent?q=" + encodeURIComponent(q);
   }
 
-  function askGrantsHref() {
+  function askGrantsHref(product) {
+    var Bridge = window.GreenwaysAgentTopicBridge;
+    if (Bridge && Bridge.buildHref) {
+      if (product && product.id) {
+        return Bridge.buildHref({
+          path: "/greenways/grants-agent",
+          toSlug: "grants-agent",
+          fromSlug: "agent-market",
+          fromLabel: "Agent Market",
+          topic: product.name || product.id,
+          productId: product.id,
+          productName: product.name || product.id,
+          marketplaceHref: product.marketplaceHref || ""
+        });
+      }
+      if (readShortlist().length) {
+        return Bridge.buildHref({
+          path: "/greenways/grants-agent",
+          toSlug: "grants-agent",
+          fromSlug: "agent-market",
+          fromLabel: "Agent Market",
+          topic: "your shortlist: " + shortlistNames(4),
+          productName: shortlistNames(4)
+        });
+      }
+    }
     var items = readShortlist();
     if (!items.length) return "/greenways/grants-agent";
     var q = "Which grants apply to my shortlisted products: " + shortlistNames(5) + "?";
