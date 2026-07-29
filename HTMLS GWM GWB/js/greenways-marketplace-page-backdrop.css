@@ -1,0 +1,143 @@
+/**
+ * Shared Greenways marketplace page backdrop + glass.
+ * Used by Agent Market and marketplace-home / about / hvac story modules.
+ */
+:root {
+  --gw-mp-backdrop-image: url("/HTMLS%20GWM%20GWB/marketplace-home-backdrop.png");
+}
+
+/* Fixed photo layer (Agent Market uses .gw-mp-backdrop; story pages use body.gw-mp-story) */
+.gw-mp-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background-color: #070e12;
+}
+.gw-mp-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: -24px;
+  background-image: var(--gw-mp-backdrop-image);
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  filter: blur(1.2px) saturate(1.08) brightness(0.92);
+  transform: scale(1.05);
+  opacity: 0.62;
+}
+.gw-mp-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(7, 14, 18, 0.55) 0%, rgba(7, 14, 18, 0.28) 28%, rgba(7, 14, 18, 0.55) 55%, rgba(7, 14, 18, 0.9) 100%),
+    linear-gradient(160deg, rgba(7, 14, 18, 0.72) 0%, rgba(7, 14, 18, 0.58) 42%, rgba(7, 14, 18, 0.86) 100%),
+    radial-gradient(ellipse at 18% 0%, rgba(34, 212, 255, 0.08), transparent 46%),
+    radial-gradient(ellipse at 82% 100%, rgba(40, 167, 69, 0.1), transparent 42%);
+}
+
+/* Marketplace story pages (home / about / hvac) — body pseudo layers */
+body.gw-mp-story {
+  background: #070e12 !important;
+}
+body.gw-mp-story::before {
+  content: "";
+  position: fixed;
+  inset: -24px;
+  z-index: -2;
+  background-image: var(--gw-mp-backdrop-image);
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  filter: blur(1.2px) saturate(1.08) brightness(0.92);
+  transform: scale(1.05);
+  opacity: 0.62;
+  pointer-events: none;
+}
+body.gw-mp-story::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(180deg, rgba(7, 14, 18, 0.5) 0%, rgba(7, 14, 18, 0.32) 30%, rgba(7, 14, 18, 0.58) 58%, rgba(7, 14, 18, 0.88) 100%),
+    linear-gradient(160deg, rgba(14, 33, 23, 0.45) 0%, rgba(8, 16, 28, 0.5) 50%, rgba(14, 33, 23, 0.72) 100%),
+    radial-gradient(circle at 78% 18%, rgba(40, 167, 69, 0.14), transparent 52%);
+  pointer-events: none;
+}
+
+/* Frosted hero / banner glass */
+.gw-mp-top-glass,
+body.gw-mp-story .banner {
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+}
+
+.gw-mp-top-glass {
+  margin-bottom: 18px;
+  padding: 18px 16px 14px;
+  border-radius: 18px;
+  background: rgba(8, 16, 22, 0.55);
+}
+
+/* Story page banners: keep brand gradient but let glass breathe */
+body.gw-mp-story .banner {
+  background-image: linear-gradient(
+    135deg,
+    rgba(14, 33, 23, 0.78) 0%,
+    rgba(22, 51, 34, 0.72) 100%
+  ) !important;
+}
+body.gw-mp-story.gw-mp-about .banner {
+  background-image: linear-gradient(
+    135deg,
+    rgba(40, 167, 69, 0.82) 0%,
+    rgba(30, 126, 52, 0.78) 100%
+  ) !important;
+}
+body.gw-mp-story.gw-mp-hvac .banner {
+  background-image: linear-gradient(
+    135deg,
+    rgba(13, 61, 74, 0.84) 0%,
+    rgba(29, 138, 110, 0.78) 55%,
+    rgba(40, 167, 69, 0.74) 100%
+  ) !important;
+}
+
+body.gw-mp-story .section-title {
+  color: #d8f5e2 !important;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55);
+}
+
+body.gw-mp-story .card,
+body.gw-mp-story .fact,
+body.gw-mp-story .notice,
+body.gw-mp-story .chip:not(.primary),
+body.gw-mp-story .foot {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(12px) saturate(1.08);
+  -webkit-backdrop-filter: blur(12px) saturate(1.08);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+}
+
+body.gw-mp-story .card.featured {
+  background: linear-gradient(
+    180deg,
+    rgba(248, 255, 252, 0.96) 0%,
+    rgba(255, 255, 255, 0.94) 100%
+  ) !important;
+}
+
+body.gw-mp-story .greenways {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(14, 33, 23, 0.78) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.3);
+}

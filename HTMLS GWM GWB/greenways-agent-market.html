@@ -9,10 +9,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-product-shortlist.css">
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-marketplace-page-backdrop.css">
 <style>
   :root {
     --bg: #070e12;
-    --panel: rgba(12, 22, 28, 0.92);
+    --panel: rgba(12, 22, 28, 0.94);
     --line: rgba(34, 212, 255, 0.22);
     --text: #e8f4f8;
     --muted: #8eabb4;
@@ -31,17 +32,6 @@
     overflow-x: hidden;
     line-height: 1.5;
   }
-  .am-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background:
-      linear-gradient(160deg, rgba(7, 14, 18, 0.92) 0%, rgba(7, 14, 18, 0.78) 50%, rgba(7, 14, 18, 0.94) 100%),
-      radial-gradient(ellipse at 20% 0%, rgba(34, 212, 255, 0.1), transparent 45%),
-      radial-gradient(ellipse at 80% 100%, rgba(40, 167, 69, 0.08), transparent 40%),
-      #0a1520;
-  }
   .am-page {
     position: relative;
     z-index: 1;
@@ -49,9 +39,12 @@
     margin: 0 auto;
     padding: 22px 16px 40px;
   }
+  .am-top-glass {
+    /* shared .gw-mp-top-glass provides glass chrome */
+  }
   .am-hero {
     text-align: center;
-    margin-bottom: 22px;
+    margin-bottom: 16px;
   }
   .am-hero h1 {
     font-size: clamp(1.65rem, 4vw, 2.25rem);
@@ -61,31 +54,35 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
   }
   .am-hero p {
     margin: 12px auto 0;
     max-width: 34rem;
     font-size: 0.98rem;
-    color: #d2e8ee;
+    color: #e8f6fa;
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
   }
   .am-badge {
     display: inline-block;
     margin-top: 12px;
-    padding: 4px 12px;
+    padding: 5px 12px;
     border-radius: 999px;
     font-size: 0.62rem;
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--gold);
-    border: 1px solid rgba(201, 169, 97, 0.45);
-    background: rgba(6, 10, 16, 0.5);
+    color: #f0d78a;
+    border: 1px solid rgba(201, 169, 97, 0.5);
+    background: rgba(6, 10, 16, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
   .am-lanes {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 10px;
-    margin-bottom: 22px;
+    margin-bottom: 0;
   }
   .am-lane {
     display: block;
@@ -93,30 +90,33 @@
     text-align: left;
     padding: 14px 14px 12px;
     border-radius: 14px;
-    border: 1px solid var(--line);
-    background: rgba(34, 212, 255, 0.06);
+    border: 1px solid rgba(34, 212, 255, 0.28);
+    background: rgba(10, 20, 28, 0.72);
     color: var(--text);
     font: inherit;
     cursor: pointer;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(10px) saturate(1.1);
+    -webkit-backdrop-filter: blur(10px) saturate(1.1);
     transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
   }
   .am-lane:hover,
   .am-lane:focus-visible,
   .am-lane.is-active {
-    border-color: rgba(34, 212, 255, 0.55);
-    background: rgba(34, 212, 255, 0.12);
+    border-color: rgba(34, 212, 255, 0.65);
+    background: rgba(14, 36, 48, 0.88);
     outline: none;
     transform: translateY(-1px);
   }
   .am-lane strong {
     display: block;
     font-size: 0.88rem;
-    color: var(--cyan);
+    color: #7ee7f5;
     margin-bottom: 4px;
   }
   .am-lane span {
     font-size: 0.72rem;
-    color: var(--muted);
+    color: #c5dbe2;
   }
   .am-rail {
     border-radius: 16px;
@@ -124,6 +124,7 @@
     background: var(--panel);
     padding: 18px 16px;
     margin-bottom: 16px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
   }
   .am-rail h2 {
     font-size: 1rem;
@@ -352,6 +353,7 @@
     background: var(--panel);
     padding: 18px 16px;
     margin-bottom: 16px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
   }
   .am-compare h2 {
     font-size: 1rem;
@@ -563,8 +565,9 @@
 </style>
 </head>
 <body>
-<div class="am-backdrop" aria-hidden="true"></div>
+<div class="am-backdrop gw-mp-backdrop" aria-hidden="true"></div>
 <main class="am-page">
+  <div class="am-top-glass gw-mp-top-glass">
   <header class="am-hero">
     <h1>Agent Market</h1>
     <p>Browse efficient equipment with grants and payback — guided by your Transition Agents.</p>
@@ -589,6 +592,7 @@
       <span>Fabric &amp; renovation</span>
     </button>
   </nav>
+  </div>
 
   <section class="am-rail" aria-labelledby="am-rail-title">
     <h2 id="am-rail-title">Product rail</h2>
