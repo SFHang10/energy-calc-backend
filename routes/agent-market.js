@@ -1,5 +1,10 @@
 const express = require('express');
-const { getLaneSamples, getAllLaneMeta, LANE_IDS } = require('../services/agent-market-service');
+const {
+  getLaneSamples,
+  getLaneAlternatives,
+  getAllLaneMeta,
+  LANE_IDS
+} = require('../services/agent-market-service');
 
 const router = express.Router();
 
@@ -28,6 +33,26 @@ router.get('/samples', async (req, res) => {
   } catch (error) {
     console.error('Agent Market samples error:', error.message);
     res.status(500).json({ ok: false, error: 'Failed to load Agent Market samples.' });
+  }
+});
+
+router.get('/alternatives', async (req, res) => {
+  try {
+    const lane = String(req.query.lane || 'kitchen').trim().toLowerCase();
+    if (!LANE_IDS.includes(lane)) {
+      return res.status(400).json({
+        ok: false,
+        error: 'lane must be one of: ' + LANE_IDS.join(', ')
+      });
+    }
+    const payload = await getLaneAlternatives(lane);
+    if (!payload.ok) {
+      return res.status(payload.error === 'No compare query configured for lane' ? 404 : 502).json(payload);
+    }
+    res.json(payload);
+  } catch (error) {
+    console.error('Agent Market alternatives error:', error.message);
+    res.status(500).json({ ok: false, error: 'Failed to load Agent Market alternatives.' });
   }
 });
 

@@ -8,12 +8,21 @@ const {
   toProductSample,
   isUsableBannerImageUrl
 } = require('./greenways-agent-shared');
+const { EquipmentIntelligenceService } = require('./equipment-intelligence-service');
 
 const SHOWCASE_PATH = path.join(__dirname, '..', 'data', 'agent-market-showcase.json');
 
 const LANE_IDS = ['kitchen', 'hvac', 'water', 'premises'];
 
 let showcaseCache = null;
+let equipmentIntelligence = null;
+
+function getEquipmentIntelligence() {
+  if (!equipmentIntelligence) {
+    equipmentIntelligence = new EquipmentIntelligenceService();
+  }
+  return equipmentIntelligence;
+}
 
 async function loadShowcase() {
   if (showcaseCache) return showcaseCache;
@@ -87,6 +96,63 @@ async function getLaneSamples(laneId, limit = 6) {
   };
 }
 
+async function getLaneAlternatives(laneId) {
+  const lane = String(laneId || 'kitchen').toLowerCase();
+  if (!LANE_IDS.includes(lane)) {
+    return { ok: false, error: 'Unknown lane', lane, marketplaceMatches: [], externalAlternatives: [] };
+  }
+
+  const showcase = await loadShowcase();
+  const laneCfg = (showcase.lanes && showcase.lanes[lane]) || {};
+  const compareQuery = laneCfg.compareQuery || null;
+  if (!compareQuery || (!compareQuery.name && !compareQuery.type)) {
+    return {
+      ok: false,
+      error: 'No compare query configured for lane',
+      lane,
+      marketplaceMatches: [],
+      externalAlternatives: []
+    };
+  }
+
+  const payload = getEquipmentIntelligence().getAlternatives({
+    name: compareQuery.name || '',
+    brand: compareQuery.brand || '',
+    model: compareQuery.model || '',
+    type: compareQuery.type || '',
+    actualDailyKwh: compareQuery.actualDailyKwh,
+    actualDailyWaterLitres: compareQuery.actualDailyWaterLitres,
+    actualDailyGasKwh: compareQuery.actualDailyGasKwh,
+    electricityRateEurPerKwh: compareQuery.electricityRateEurPerKwh || '0.30',
+    gasRateEurPerKwh: compareQuery.gasRateEurPerKwh || '0.11',
+    waterRateEurPerLitre: compareQuery.waterRateEurPerLitre || '0.0025',
+    persistCatalog: '1',
+    finderSource: 'agent-market',
+    country: compareQuery.country || 'NL'
+  });
+
+  if (!payload.success) {
+    return {
+      ok: false,
+      error: payload.message || 'Failed to load alternatives',
+      lane,
+      marketplaceMatches: [],
+      externalAlternatives: []
+    };
+  }
+
+  return {
+    ok: true,
+    lane,
+    label: laneCfg.label || lane,
+    compareQuery,
+    marketplaceMatches: Array.isArray(payload.marketplaceMatches) ? payload.marketplaceMatches : [],
+    externalAlternatives: Array.isArray(payload.externalAlternatives) ? payload.externalAlternatives : [],
+    assumptions: Array.isArray(payload.assumptions) ? payload.assumptions : [],
+    catalogPersisted: payload.catalogPersisted || null
+  };
+}
+
 async function getAllLaneMeta() {
   const showcase = await loadShowcase();
   return LANE_IDS.map((id) => {
@@ -103,6 +169,7 @@ async function getAllLaneMeta() {
 module.exports = {
   LANE_IDS,
   getLaneSamples,
+  getLaneAlternatives,
   getAllLaneMeta,
   SHOWCASE_PATH
 };
