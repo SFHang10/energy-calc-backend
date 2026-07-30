@@ -20,8 +20,22 @@
     ["site-energy-reading", "site-energy-reading"],
     ["marketplace-about", "marketplace-about"],
     ["marketplace-home", "marketplace-home"],
-    ["marketplace-hvac", "marketplace-hvac"]
+    ["marketplace-hvac", "marketplace-hvac"],
+    ["Full Schemes Portal Restaurant", "schemes-portal-restaurant"],
+    ["Recycling Benefits", "recycling-benefits"]
   ];
+
+  var MODULE_FALLBACK_HREF = {
+    "marketplace-about": "./marketplace-about.html?embed=1&popup=1",
+    "marketplace-home": "./marketplace-home.html?embed=1&popup=1",
+    "marketplace-hvac": "./marketplace-hvac.html?embed=1&popup=1",
+    "sustainable-product-finder": "./sustainable_product_deal_finder_portal.html?embed=1&popup=1",
+    "equipment-deep-dive": "./restaurant-equipment-deep-dive.html?embed=1&popup=1",
+    "deals-ticker": "./deals-ticker-hub.html?embed=1&popup=1",
+    "european-energy": "./european_energy_deals_portal.html?embed=1&popup=1",
+    "schemes-portal-restaurant": "./Full%20Schemes%20Portal%20Restaurant.html?embed=1&popup=1",
+    "recycling-benefits": "./Recycling%20Benefits.html?embed=1&popup=1"
+  };
 
   function isEmbedMode() {
     try {
@@ -40,7 +54,7 @@
     }
     var low = raw.toLowerCase();
     for (i = 0; i < PATH_TO_MODULE.length; i++) {
-      if (low.indexOf(PATH_TO_MODULE[i][0]) >= 0) return PATH_TO_MODULE[i][1];
+      if (low.indexOf(PATH_TO_MODULE[i][0].toLowerCase()) >= 0) return PATH_TO_MODULE[i][1];
     }
     return "";
   }
@@ -65,7 +79,13 @@
     if (!moduleId) return;
     e.preventDefault();
     e.stopPropagation();
-    if (!askParentOpen(moduleId) && /^\.\//.test(href)) {
+    if (askParentOpen(moduleId)) return;
+    var fallback = MODULE_FALLBACK_HREF[moduleId];
+    if (fallback) {
+      window.location.href = fallback;
+      return;
+    }
+    if (/^\.\//.test(href) || href.charAt(0) === "/") {
       window.location.href = href;
     }
   }
