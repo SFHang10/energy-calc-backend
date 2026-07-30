@@ -39,6 +39,50 @@
     margin: 0 auto;
     padding: 22px 16px 40px;
   }
+  .am-return {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: -6px 0 14px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(201, 169, 97, 0.35);
+    background: rgba(8, 16, 22, 0.92);
+    backdrop-filter: blur(12px) saturate(1.1);
+    -webkit-backdrop-filter: blur(12px) saturate(1.1);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
+  }
+  .am-return[hidden] { display: none !important; }
+  .am-return-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(201, 169, 97, 0.55);
+    background: rgba(201, 169, 97, 0.12);
+    color: #f0d78a;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .am-return-btn:hover {
+    background: rgba(201, 169, 97, 0.22);
+    border-color: rgba(201, 169, 97, 0.75);
+  }
+  .am-return-hint {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.35;
+  }
   .am-top-glass {
     /* shared .gw-mp-top-glass provides glass chrome */
   }
@@ -573,6 +617,10 @@
 <body>
 <div class="am-backdrop gw-mp-backdrop" aria-hidden="true"></div>
 <main class="am-page">
+  <nav class="am-return" id="am-return" aria-label="Return navigation" hidden>
+    <button type="button" class="am-return-btn" id="am-return-btn">← Back to chat</button>
+    <span class="am-return-hint" id="am-return-hint">Chat stays open behind this panel</span>
+  </nav>
   <div class="am-top-glass gw-mp-top-glass">
   <header class="am-hero">
     <h1>Agent Market</h1>
@@ -987,6 +1035,136 @@
       }
     } catch (e) { /* ignore */ }
     return false;
+  }
+
+  function closeParentModule() {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: "gw-module-close", moduleId: "agent-market" }, "*");
+        return true;
+      }
+    } catch (e) { /* ignore */ }
+    return false;
+  }
+
+  var FROM_LABELS = {
+    "equipment-agent": "Artemis",
+    "finance-agent": "Vincent",
+    "grants-agent": "Andrieus",
+    "sustainable-products-agent": "Zyanne",
+    "deals-agent": "Zara",
+    "media-agent": "Cheryce",
+    "systems-agent": "Edwardo",
+    "guide-agent": "Orchestra",
+    "orchestra-hub": "Orchestra",
+    "customer-hub": "Customer Hub",
+    "agents-story": "Agents story",
+    "agents-highlights": "Agent highlights"
+  };
+
+  function normalizeReturnHref(raw) {
+    var href = String(raw || "").trim();
+    if (!href) return "";
+    if (/^https?:\/\//i.test(href)) return href;
+    if (href.charAt(0) === "/") return href;
+    if (href.indexOf("greenways/") === 0) return "/" + href;
+    return href;
+  }
+
+  function resolveFromSlug(fromRaw) {
+    var from = String(fromRaw || "").trim().toLowerCase();
+    if (!from) return "";
+    if (from.indexOf("equipment") === 0 || from === "artemis") return "equipment-agent";
+    if (from.indexOf("finance") === 0 || from === "vincent") return "finance-agent";
+    if (from.indexOf("grants") === 0 || from === "andrieus") return "grants-agent";
+    if (from.indexOf("sustainable") === 0 || from === "products" || from === "zyanne") {
+      return "sustainable-products-agent";
+    }
+    if (from.indexOf("deals") === 0 || from === "zara") return "deals-agent";
+    if (from.indexOf("media") === 0 || from === "cheryce") return "media-agent";
+    if (from.indexOf("systems") === 0 || from === "edwardo") return "systems-agent";
+    if (from.indexOf("orchestra") === 0 || from === "guide" || from === "guide-agent") {
+      return "orchestra-hub";
+    }
+    if (from.indexOf("customer") === 0) return "customer-hub";
+    if (from.indexOf("agents-story") === 0 || from === "story") return "agents-story";
+    if (FROM_LABELS[from]) return from;
+    if (from.indexOf("-agent") > 0) return from;
+    return from;
+  }
+
+  function labelForFrom(slug, fromLabelParam) {
+    var custom = String(fromLabelParam || "").trim();
+    if (custom) return custom;
+    var name = FROM_LABELS[slug];
+    if (name) return "← Back to " + name;
+    return "← Back to chat";
+  }
+
+  function initReturnNav() {
+    var bar = document.getElementById("am-return");
+    var btn = document.getElementById("am-return-btn");
+    var hint = document.getElementById("am-return-hint");
+    if (!bar || !btn) return;
+
+    var params = new URLSearchParams(window.location.search);
+    var embed = params.get("embed") === "1" || params.get("popup") === "1";
+    var inFrame = false;
+    try {
+      inFrame = window.parent && window.parent !== window;
+    } catch (_) {
+      inFrame = true;
+    }
+    var fromSlug = resolveFromSlug(params.get("from"));
+    var returnHref = normalizeReturnHref(params.get("return"));
+    if (!returnHref && fromSlug) {
+      if (fromSlug === "orchestra-hub") returnHref = "/greenways/orchestra-hub";
+      else if (fromSlug === "customer-hub") returnHref = "/greenways/customer-hub";
+      else if (fromSlug === "agents-story") returnHref = "/greenways/agents-story";
+      else if (fromSlug.indexOf("-agent") > 0) returnHref = "/greenways/" + fromSlug;
+    }
+    if (!returnHref && !embed && !inFrame) {
+      returnHref = "/greenways/orchestra-hub";
+      fromSlug = fromSlug || "orchestra-hub";
+    }
+
+    var label = labelForFrom(fromSlug, params.get("fromLabel"));
+    btn.textContent = label;
+    bar.hidden = false;
+
+    if (embed || inFrame) {
+      if (hint) {
+        hint.textContent = fromSlug && FROM_LABELS[fromSlug]
+          ? FROM_LABELS[fromSlug] + " stays open behind this panel"
+          : "Chat stays open behind this panel";
+      }
+      btn.addEventListener("click", function () {
+        if (!closeParentModule()) {
+          if (returnHref) {
+            try {
+              window.top.location.href = returnHref;
+            } catch (_) {
+              window.location.href = returnHref;
+            }
+          } else if (window.history.length > 1) {
+            window.history.back();
+          }
+        }
+      });
+      return;
+    }
+
+    if (hint) {
+      hint.textContent = returnHref ? "Opens your previous Greenways page" : "Return to agents hub";
+    }
+    btn.addEventListener("click", function () {
+      var href = returnHref || "/greenways/orchestra-hub";
+      try {
+        window.top.location.href = href;
+      } catch (_) {
+        window.location.href = href;
+      }
+    });
   }
 
   function formatConsumerInsightHtml(consumer) {
@@ -1614,6 +1792,13 @@
   window.addEventListener("storage", function (e) {
     if (e.key === SHORTLIST_KEY) onShortlistChange();
   });
+
+  initReturnNav();
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: "gw-module-embed-ready", moduleId: "agent-market" }, "*");
+    }
+  } catch (_) {}
 
   onShortlistChange();
   var params = new URLSearchParams(window.location.search);

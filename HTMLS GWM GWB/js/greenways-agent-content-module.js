@@ -417,6 +417,9 @@
       if (data.type === "gw-module-open" && data.moduleId) {
         openById(String(data.moduleId), data.overrides || {});
       }
+      if (data.type === "gw-module-close" || data.type === "gw-module-back") {
+        close();
+      }
       if (data.type === "gw-open-marketplace") {
         var productId = String(data.productId || data.id || "").trim();
         var href =
@@ -559,7 +562,7 @@
     var params = new URLSearchParams(parts[1]);
     params.delete("embed");
     params.delete("popup");
-    params.delete("return");
+    /* keep return / from / fromLabel so New tab still has a way back */
     var q = params.toString();
     return resolveModuleWebHref(q ? parts[0] + "?" + q + hash : parts[0] + hash);
   }
@@ -619,6 +622,12 @@
     if (!params.has("embed")) params.set("embed", "1");
     if (!params.has("popup")) params.set("popup", "1");
     if (!params.has("return")) params.set("return", agentReturnUrl());
+    if (pageContext.agentSlug && !params.has("from")) {
+      params.set("from", pageContext.agentSlug);
+    }
+    if (pageContext.returnLabel && !params.has("fromLabel")) {
+      params.set("fromLabel", pageContext.returnLabel);
+    }
     var moduleId = item && (item.moduleId || "");
     var profile = readEmbedProfile();
     var region = String(profile.region || "").trim();
@@ -1013,6 +1022,8 @@
     var theme = ctx.theme.replace(/[^a-z0-9_-]/gi, "") || "default";
     modalEl.className = "gw-content-module-modal theme-" + theme;
     if (backBtnEl) backBtnEl.textContent = ctx.returnLabel;
+    var coverBackEl = modalEl.querySelector("#gw-content-module-cover-back");
+    if (coverBackEl) coverBackEl.textContent = ctx.returnLabel;
     if (coverAgentEl) coverAgentEl.textContent = ctx.agentName;
     if (badgeAgentEl) badgeAgentEl.textContent = ctx.agentName;
     if (returnHintEl) {
