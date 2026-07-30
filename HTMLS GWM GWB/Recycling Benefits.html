@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Greenways — Recycling Benefits</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green-deep:   #0f2b1b;
+      --green-mid:    #1a4a2e;
+      --green-bright: #2e7d4f;
+      --green-light:  #5cad78;
+      --cream:        #f5f0e8;
+      --cream-dark:   #e8e0d0;
+      --amber:        #d4883a;
+      --copper:       #b87040;
+      --white:        #ffffff;
+      --text-dark:    #0f2b1b;
+      --text-mid:     #3a5a46;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      overflow-x: hidden;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 3rem;
+      background: rgba(15, 43, 27, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .nav-logo {
+      font-family: 'Fraunces', serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--cream);
+      letter-spacing: -0.02em;
+    }
+    .nav-logo span { color: var(--green-light); }
+    nav a {
+      color: rgba(245,240,232,0.75);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: var(--green-light); }
+    .nav-links { display: flex; gap: 2.5rem; }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      background: var(--green-deep);
+      position: relative;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      padding: 8rem 2rem 5rem;
+    }
+
+    /* organic background shapes */
+    .hero-bg {
+      position: absolute; inset: 0; pointer-events: none;
+    }
+    .hero-bg circle, .hero-bg ellipse {
+      fill: none; stroke: rgba(94,173,120,0.08);
+    }
+
+    /* animated leaf dots */
+    .dot {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(94,173,120,0.18), transparent 70%);
+      animation: pulse 8s ease-in-out infinite;
+    }
+    .dot:nth-child(1) { width: 500px; height: 500px; top: -100px; left: -100px; animation-delay: 0s; }
+    .dot:nth-child(2) { width: 350px; height: 350px; bottom: 0; right: -50px; animation-delay: 3s; }
+    .dot:nth-child(3) { width: 200px; height: 200px; top: 40%; left: 55%; animation-delay: 5s; }
+    @keyframes pulse {
+      0%,100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.15); opacity: 1; }
+    }
+
+    /* grid pattern overlay */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(94,173,120,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(94,173,120,0.05) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .hero-content {
+      position: relative; z-index: 2;
+      text-align: center;
+      max-width: 900px;
+    }
+
+    .hero-eyebrow {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--green-light);
+      background: rgba(94,173,120,0.12);
+      border: 1px solid rgba(94,173,120,0.3);
+      padding: 0.45rem 1.2rem;
+      border-radius: 999px;
+      margin-bottom: 2rem;
+      animation: fadeUp 0.8s ease-out both;
+    }
+
+    h1.hero-title {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(3rem, 8vw, 6.5rem);
+      font-weight: 900;
+      line-height: 1.0;
+      letter-spacing: -0.03em;
+      color: var(--cream);
+      margin-bottom: 1.75rem;
+      animation: fadeUp 0.8s ease-out 0.15s both;
+    }
+    h1.hero-title em {
+      font-style: italic;
+      color: var(--green-light);
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      font-weight: 300;
+      color: rgba(245,240,232,0.7);
+      max-width: 600px;
+      margin: 0 auto 3rem;
+      line-height: 1.75;
+      animation: fadeUp 0.8s ease-out 0.3s both;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--green-light);
+      color: var(--green-deep);
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      padding: 1rem 2.25rem;
+      border-radius: 999px;
+      transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+      box-shadow: 0 0 0 0 rgba(92,173,120,0.4);
+      animation: fadeUp 0.8s ease-out 0.45s both;
+    }
+    .hero-cta:hover {
+      transform: translateY(-3px);
+      background: #72c98c;
+      box-shadow: 0 8px 30px rgba(92,173,120,0.35);
+    }
+    .hero-cta svg { width: 18px; height: 18px; }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 4rem;
+      margin-top: 5rem;
+      padding-top: 3rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      animation: fadeUp 0.8s ease-out 0.6s both;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-family: 'Fraunces', serif;
+      font-size: 2.75rem;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1;
+      display: block;
+    }
+    .stat-num span { color: var(--green-light); }
+    .stat-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.5);
+      margin-top: 0.4rem;
+      display: block;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── SECTION BASE ─── */
+    section { padding: 7rem 2rem; }
+
+    .container { max-width: 1160px; margin: 0 auto; }
+
+    .section-label {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--green-bright);
+      margin-bottom: 1rem;
+    }
+
+    h2.section-title {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--green-deep);
+      margin-bottom: 1.25rem;
+    }
+
+    .section-intro {
+      font-size: 1.05rem;
+      color: var(--text-mid);
+      line-height: 1.8;
+      max-width: 600px;
+    }
+
+    /* ─── WHAT IS RECYCLING ─── */
+    .intro-section { background: var(--cream); }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+      margin-top: 4rem;
+    }
+
+    .intro-visual {
+      position: relative;
+    }
+
+    .cycle-diagram {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .intro-points { display: flex; flex-direction: column; gap: 1.75rem; }
+
+    .point {
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+    }
+    .point-icon {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      background: var(--green-deep);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      font-size: 1.25rem;
+    }
+    .point-body h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--green-deep);
+      margin-bottom: 0.3rem;
+    }
+    .point-body p {
+      font-size: 0.9rem;
+      color: var(--text-mid);
+      line-height: 1.7;
+    }
+
+    /* ─── BENEFITS ─── */
+    .benefits-section { background: var(--green-deep); }
+    .benefits-section .section-label { color: var(--green-light); }
+    .benefits-section h2.section-title { color: var(--cream); }
+    .benefits-section .section-intro { color: rgba(245,240,232,0.65); }
+
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5px;
+      margin-top: 4rem;
+      background: rgba(255,255,255,0.07);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .benefit-card {
+      background: rgba(255,255,255,0.03);
+      padding: 2.5rem 2rem;
+      transition: background 0.25s;
+      position: relative;
+    }
+    .benefit-card:hover { background: rgba(94,173,120,0.08); }
+
+    .benefit-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--green-light);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.35s ease;
+    }
+    .benefit-card:hover::before { transform: scaleX(1); }
+
+    .benefit-icon {
+      font-size: 2rem;
+      margin-bottom: 1.25rem;
+    }
+    .benefit-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--cream);
+      margin-bottom: 0.75rem;
+    }
+    .benefit-card p {
+      font-size: 0.875rem;
+      color: rgba(245,240,232,0.6);
+      line-height: 1.75;
+    }
+
+    /* ─── MATERIAL VALUE ─── */
+    .value-section { background: var(--cream-dark); }
+
+    .appliances-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      margin-top: 4rem;
+    }
+
+    .appliance-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 2rem 2.25rem;
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .appliance-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.09);
+    }
+
+    .appliance-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--cream-dark);
+    }
+    .appliance-icon { font-size: 2rem; }
+    .appliance-header h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--green-deep);
+    }
+    .appliance-header small {
+      font-size: 0.78rem;
+      color: var(--text-mid);
+      display: block;
+      margin-top: 2px;
+    }
+
+    .material-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.85rem;
+    }
+    .material-label {
+      width: 90px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-mid);
+      flex-shrink: 0;
+    }
+    .bar-track {
+      flex: 1;
+      height: 10px;
+      background: var(--cream-dark);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 1s ease;
+    }
+    .bar-fill.copper  { background: linear-gradient(90deg, #b87040, #d4883a); }
+    .bar-fill.aluminium { background: linear-gradient(90deg, #5cad78, #2e7d4f); }
+    .bar-fill.steel   { background: linear-gradient(90deg, #8aa4b0, #5a7a88); }
+
+    .material-value {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--green-deep);
+      white-space: nowrap;
+    }
+
+    .appliance-total {
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--cream-dark);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .appliance-total span {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+    }
+    .appliance-total strong {
+      font-family: 'Fraunces', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--green-bright);
+    }
+
+    /* wide card */
+    .appliance-card.wide {
+      grid-column: span 2;
+      background: var(--green-deep);
+    }
+    .appliance-card.wide .appliance-header h3 { color: var(--cream); }
+    .appliance-card.wide .appliance-header small { color: rgba(245,240,232,0.55); }
+    .appliance-card.wide .appliance-header { border-color: rgba(255,255,255,0.1); }
+    .appliance-card.wide .material-label { color: rgba(245,240,232,0.65); }
+    .appliance-card.wide .bar-track { background: rgba(255,255,255,0.08); }
+    .appliance-card.wide .material-value { color: var(--cream); }
+    .appliance-card.wide .appliance-total { border-color: rgba(255,255,255,0.1); }
+    .appliance-card.wide .appliance-total span { color: rgba(245,240,232,0.55); }
+    .appliance-card.wide .appliance-total strong { color: var(--green-light); }
+
+    /* community batch layout */
+    .community-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      align-items: center;
+    }
+    .community-desc h4 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--cream);
+      margin-bottom: 0.75rem;
+    }
+    .community-desc p {
+      font-size: 0.875rem;
+      color: rgba(245,240,232,0.65);
+      line-height: 1.75;
+      margin-bottom: 1.25rem;
+    }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.35rem 0.9rem;
+      border-radius: 99px;
+      background: rgba(92,173,120,0.15);
+      color: var(--green-light);
+      border: 1px solid rgba(92,173,120,0.25);
+    }
+
+    .region-values { display: flex; flex-direction: column; gap: 0.75rem; }
+    .region-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.9rem 1.25rem;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+    }
+    .region-row .flag { font-size: 1.25rem; margin-right: 0.6rem; }
+    .region-row .rname { font-size: 0.875rem; font-weight: 500; color: rgba(245,240,232,0.8); }
+    .region-row .rval { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 700; color: var(--green-light); }
+
+    /* ─── RECYCLING ROUTES ─── */
+    .routes-section { background: var(--cream); }
+
+    .routes-timeline {
+      position: relative;
+      margin-top: 4rem;
+      padding-left: 3rem;
+    }
+    .routes-timeline::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--green-light), var(--green-bright), var(--green-mid));
+      border-radius: 99px;
+    }
+
+    .route-item {
+      position: relative;
+      padding: 0 0 3.5rem 2.5rem;
+    }
+    .route-item:last-child { padding-bottom: 0; }
+
+    .route-bullet {
+      position: absolute;
+      left: -2.1rem;
+      top: 0.15rem;
+      width: 1.5rem; height: 1.5rem;
+      border-radius: 50%;
+      background: var(--green-bright);
+      border: 3px solid var(--cream);
+      box-shadow: 0 0 0 2px var(--green-bright);
+      display: grid;
+      place-items: center;
+    }
+    .route-bullet span { font-size: 0.7rem; font-weight: 700; color: #fff; }
+
+    .route-label {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--green-bright);
+      margin-bottom: 0.4rem;
+    }
+
+    .route-item h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--green-deep);
+      margin-bottom: 0.6rem;
+    }
+
+    .route-item p {
+      font-size: 0.9rem;
+      color: var(--text-mid);
+      line-height: 1.75;
+      max-width: 680px;
+      margin-bottom: 0.85rem;
+    }
+
+    .route-value {
+      display: inline-flex;
+      gap: 1rem;
+    }
+    .rv-chip {
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.35rem 1rem;
+      border-radius: 99px;
+      background: var(--green-deep);
+      color: var(--cream);
+    }
+
+    /* ─── LOCATIONS ─── */
+    .locations-section { background: var(--green-mid); }
+    .locations-section .section-label { color: var(--green-light); }
+    .locations-section h2.section-title { color: var(--cream); }
+    .locations-section .section-intro { color: rgba(245,240,232,0.65); }
+
+    .regions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 4rem;
+    }
+
+    .region-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 1.75rem 1.5rem;
+      transition: background 0.25s, transform 0.25s;
+    }
+    .region-card:hover {
+      background: rgba(255,255,255,0.1);
+      transform: translateY(-4px);
+    }
+
+    .region-flag { font-size: 2rem; margin-bottom: 0.75rem; }
+    .region-card h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--cream);
+      margin-bottom: 1.1rem;
+    }
+
+    .recycler-list { list-style: none; display: flex; flex-direction: column; gap: 0.55rem; }
+    .recycler-list li {
+      font-size: 0.82rem;
+      color: rgba(245,240,232,0.72);
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      line-height: 1.5;
+    }
+    .recycler-list li::before {
+      content: '→';
+      color: var(--green-light);
+      flex-shrink: 0;
+      margin-top: 0.05rem;
+    }
+
+    /* ─── POLICY ─── */
+    .policy-section { background: var(--cream-dark); }
+
+    .policy-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.75rem;
+      margin-top: 4rem;
+    }
+
+    .policy-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 2rem;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .policy-card .pc-flag { font-size: 2.5rem; margin-bottom: 1rem; }
+    .policy-card h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--green-deep);
+      margin-bottom: 0.6rem;
+    }
+    .policy-card p {
+      font-size: 0.85rem;
+      color: var(--text-mid);
+      line-height: 1.75;
+    }
+
+    /* ─── CTA ─── */
+    .cta-section {
+      background: var(--green-bright);
+      text-align: center;
+      padding: 6rem 2rem;
+    }
+
+    .cta-section .section-label { color: rgba(255,255,255,0.7); }
+    .cta-section h2 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      letter-spacing: -0.025em;
+      color: var(--white);
+      margin-bottom: 1rem;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .cta-section p {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.8);
+      max-width: 560px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.8;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--white);
+      color: var(--green-bright);
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-decoration: none;
+      padding: 0.9rem 2rem;
+      border-radius: 999px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
+      color: var(--white);
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      padding: 0.9rem 2rem;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,0.5);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-outline:hover {
+      border-color: var(--white);
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--green-deep);
+      padding: 3rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .footer-brand {
+      font-family: 'Fraunces', serif;
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--cream);
+    }
+    .footer-brand span { color: var(--green-light); }
+
+    footer p {
+      font-size: 0.8rem;
+      color: rgba(245,240,232,0.4);
+    }
+
+    .footer-links { display: flex; gap: 1.75rem; flex-wrap: wrap; }
+    .footer-links a {
+      font-size: 0.8rem;
+      color: rgba(245,240,232,0.55);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--green-light); }
+
+    /* ─── REVEAL ANIMATION ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .intro-grid { grid-template-columns: 1fr; }
+      .benefits-grid { grid-template-columns: 1fr 1fr; }
+      .appliances-grid { grid-template-columns: 1fr; }
+      .appliance-card.wide { grid-column: span 1; }
+      .community-inner { grid-template-columns: 1fr; }
+      .regions-grid { grid-template-columns: 1fr 1fr; }
+      .policy-cards { grid-template-columns: 1fr; }
+      .hero-stats { gap: 2rem; flex-wrap: wrap; }
+      footer { flex-direction: column; text-align: center; }
+    }
+    @media (max-width: 600px) {
+      .benefits-grid { grid-template-columns: 1fr; }
+      .regions-grid { grid-template-columns: 1fr; }
+      .appliances-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── NAV ─── -->
+  <nav>
+    <div class="nav-logo">Green<span>ways</span></div>
+    <div class="nav-links">
+      <a href="#benefits">Benefits</a>
+      <a href="#value">Value</a>
+      <a href="#routes">How To</a>
+      <a href="#locations">Locations</a>
+      <a href="#cta">Get Started</a>
+    </div>
+  </nav>
+
+  <!-- ─── HERO ─── -->
+  <section class="hero">
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+
+    <svg class="hero-bg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;">
+      <circle cx="200" cy="350" r="300" stroke-width="1"/>
+      <circle cx="1000" cy="200" r="250" stroke-width="1"/>
+      <ellipse cx="600" cy="600" rx="400" ry="200" stroke-width="1"/>
+    </svg>
+
+    <div class="hero-content">
+      <div class="hero-eyebrow">🌿 Greenways Recycling Benefits</div>
+      <h1 class="hero-title">
+        Old appliances<br>are <em>not</em> waste.
+      </h1>
+      <p class="hero-sub">
+        Hidden inside every discarded fridge, freezer, or washing machine
+        is copper, aluminium, and steel worth recovering. Learn how
+        responsible recycling protects the planet — and puts money back in your pocket.
+      </p>
+      <a href="https://www.recyclenow.com" target="_blank" class="hero-cta">
+        Find out more about Recycling in your area
+        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M7 17L17 7M7 7h10v10"/></svg>
+      </a>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-num">70<span>–90%</span></span>
+          <span class="stat-label">Energy saved vs mining</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">£<span>65</span></span>
+          <span class="stat-label">Max value per fridge</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">5<span>kg</span></span>
+          <span class="stat-label">Avg copper per fridge</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">30<span>×</span></span>
+          <span class="stat-label">Copper beats steel per kg</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── INTRO ─── -->
+  <section class="intro-section" id="intro">
+    <div class="container">
+      <div class="reveal">
+        <span class="section-label">The Circular Economy</span>
+        <h2 class="section-title">Materials have a life<br>beyond the skip.</h2>
+        <p class="section-intro">
+          The circular economy keeps materials in use for as long as possible — extracting maximum value, then recovering and regenerating products and materials at the end of each service life.
+        </p>
+      </div>
+      <div class="intro-grid reveal">
+        <div class="intro-visual">
+          <!-- SVG circular economy diagram -->
+          <svg class="cycle-diagram" viewBox="0 0 420 380" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <circle cx="210" cy="190" r="130" stroke="#d4e8dc" stroke-width="1.5" stroke-dasharray="6 5"/>
+            <circle cx="210" cy="190" r="80" stroke="#b0d5bc" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+            <!-- Center -->
+            <circle cx="210" cy="190" r="42" fill="#1a4a2e"/>
+            <text x="210" y="185" text-anchor="middle" font-family="Fraunces,serif" font-size="11" fill="#f5f0e8" font-weight="700">CIRCULAR</text>
+            <text x="210" y="200" text-anchor="middle" font-family="Fraunces,serif" font-size="11" fill="#5cad78" font-weight="700">ECONOMY</text>
+
+            <!-- Nodes -->
+            <g transform="translate(210,55)">
+              <circle cx="0" cy="0" r="30" fill="#2e7d4f"/>
+              <text x="0" y="-42" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="11" fill="#0f2b1b" font-weight="600">Design &amp;</text>
+              <text x="0" y="-29" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="11" fill="#0f2b1b" font-weight="600">Manufacture</text>
+              <text x="0" y="5" text-anchor="middle" font-size="18">🏭</text>
+            </g>
+            <g transform="translate(340,130)">
+              <circle cx="0" cy="0" r="30" fill="#2e7d4f"/>
+              <text x="52" y="-8" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="11" fill="#0f2b1b" font-weight="600">Use &amp;</text>
+              <text x="52" y="5" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="11" fill="#0f2b1b" font-weight="600">Maintain</text>
+              <text x="0" y="5" text-anchor="middle" font-size="18">🏠</text>
+            </g>
+            <g transform="translate(310,280)">
+              <circle cx="0" cy="0" r="30" fill="#2e7d4f"/>
+              <text x="50" y="-5" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="11" fill="#0f2b1b" font-weight="600">Collect &amp;</text>
+              <text x="50" y="8" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="11" fill="#0f2b1b" font-weight="600">Sort</text>
+              <text x="0" y="5" text-anchor="middle" font-size="18">♻️</text>
+            </g>
+            <g transform="translate(110,280)">
+              <circle cx="0" cy="0" r="30" fill="#2e7d4f"/>
+              <text x="-50" y="-5" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="11" fill="#0f2b1b" font-weight="600">Recover</text>
+              <text x="-50" y="8" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="11" fill="#0f2b1b" font-weight="600">Materials</text>
+              <text x="0" y="5" text-anchor="middle" font-size="18">⚙️</text>
+            </g>
+            <g transform="translate(80,130)">
+              <circle cx="0" cy="0" r="30" fill="#2e7d4f"/>
+              <text x="-55" y="-8" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="11" fill="#0f2b1b" font-weight="600">Repair &amp;</text>
+              <text x="-55" y="5" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="11" fill="#0f2b1b" font-weight="600">Reuse</text>
+              <text x="0" y="5" text-anchor="middle" font-size="18">🔧</text>
+            </g>
+
+            <!-- Arrows around the circle -->
+            <path d="M230 78 A140 140 0 0 1 328 143" stroke="#5cad78" stroke-width="2" marker-end="url(#arr)"/>
+            <path d="M340 165 A140 140 0 0 1 318 263" stroke="#5cad78" stroke-width="2" marker-end="url(#arr)"/>
+            <path d="M282 298 A140 140 0 0 1 138 298" stroke="#5cad78" stroke-width="2" marker-end="url(#arr)"/>
+            <path d="M102 263 A140 140 0 0 1 80 165" stroke="#5cad78" stroke-width="2" marker-end="url(#arr)"/>
+            <path d="M92 143 A140 140 0 0 1 190 78" stroke="#5cad78" stroke-width="2" marker-end="url(#arr)"/>
+
+            <defs>
+              <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+                <path d="M0,0 L6,3 L0,6 Z" fill="#5cad78"/>
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="intro-points">
+          <div class="point">
+            <div class="point-icon">🔩</div>
+            <div class="point-body">
+              <h3>Materials retain value</h3>
+              <p>Copper, aluminium, and steel inside old appliances can be recovered and resold — generating real income rather than landfill cost.</p>
+            </div>
+          </div>
+          <div class="point">
+            <div class="point-icon">⚡</div>
+            <div class="point-body">
+              <h3>Recycling saves massive energy</h3>
+              <p>Producing aluminium from recycled scrap uses 95% less energy than smelting bauxite ore. Copper recycling saves up to 85%.</p>
+            </div>
+          </div>
+          <div class="point">
+            <div class="point-icon">🌍</div>
+            <div class="point-body">
+              <h3>A global responsibility</h3>
+              <p>The EU's WEEE Directive and UK Resources & Waste Strategy both recognise appliance recycling as essential to meeting climate targets.</p>
+            </div>
+          </div>
+          <div class="point">
+            <div class="point-icon">💷</div>
+            <div class="point-body">
+              <h3>Real financial reward</h3>
+              <p>A single 2010-era fridge can yield £30–£65 in scrap value when metals are properly sorted. A community batch of 10 appliances can exceed £400.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── BENEFITS ─── -->
+  <section class="benefits-section" id="benefits">
+    <div class="container">
+      <div class="reveal">
+        <span class="section-label">Why It Matters</span>
+        <h2 class="section-title">Six reasons recycling<br>makes a difference.</h2>
+        <p class="section-intro">Every appliance properly recycled is a vote for a cleaner, more resource-efficient future.</p>
+      </div>
+      <div class="benefits-grid reveal">
+        <div class="benefit-card">
+          <div class="benefit-icon">🌱</div>
+          <div class="benefit-title">Environmental Impact</div>
+          <p>Recycled metals require 70–90% less energy than virgin production. Every tonne of copper recycled prevents 4 tonnes of CO₂ emissions.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">💼</div>
+          <div class="benefit-title">Local Jobs</div>
+          <p>Recycling creates skilled employment in collection, dismantling, sorting, and remanufacturing — keeping economic value in communities.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">⛏️</div>
+          <div class="benefit-title">Reduced Mining</div>
+          <p>Every kg of recycled copper reduces demand for environmentally damaging mining operations, protecting fragile ecosystems worldwide.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">🔄</div>
+          <div class="benefit-title">Resource Security</div>
+          <p>Recycling reduces dependency on imported raw materials, strengthening supply chain resilience and national economic independence.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">🏘️</div>
+          <div class="benefit-title">Community Value</div>
+          <p>Community collection initiatives build social connections while generating shared financial returns for local groups and councils.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">♾️</div>
+          <div class="benefit-title">Extended Lifecycles</div>
+          <p>Appliances can be repaired, parts resold, or fully recycled. Nothing needs to be wasted. Every route extends material value.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── MATERIAL VALUE ─── -->
+  <section class="value-section" id="value">
+    <div class="container">
+      <div class="reveal">
+        <span class="section-label">2010-Era Appliance Examples</span>
+        <h2 class="section-title">The hidden value<br>inside your appliances.</h2>
+        <p class="section-intro">Based on current UK and EU scrap metal market rates — copper at £6.5/kg · aluminium at £1.2/kg · steel at £0.14/kg.</p>
+      </div>
+
+      <div class="appliances-grid reveal">
+
+        <!-- Fridge -->
+        <div class="appliance-card">
+          <div class="appliance-header">
+            <div class="appliance-icon">🧊</div>
+            <div>
+              <h3>Fridge (2010, ~100 kg)</h3>
+              <small>Typical family fridge-freezer</small>
+            </div>
+          </div>
+          <div class="material-row">
+            <span class="material-label">🟠 Copper</span>
+            <div class="bar-track"><div class="bar-fill copper" style="width:82%"></div></div>
+            <span class="material-value">£20–25 / €22–28</span>
+          </div>
+          <div class="material-row">
+            <span class="material-label">🟢 Aluminium</span>
+            <div class="bar-track"><div class="bar-fill aluminium" style="width:20%"></div></div>
+            <span class="material-value">£3–5 / €4–6</span>
+          </div>
+          <div class="material-row">
+            <span class="material-label">🔵 Steel</span>
+            <div class="bar-track"><div class="bar-fill steel" style="width:45%"></div></div>
+            <span class="material-value">£10–15 / €12–18</span>
+          </div>
+          <div class="appliance-total">
+            <span>Estimated total</span>
+            <strong>£33–45</strong>
+          </div>
+        </div>
+
+        <!-- Freezer -->
+        <div class="appliance-card">
+          <div class="appliance-header">
+            <div class="appliance-icon">❄️</div>
+            <div>
+              <h3>Freezer (2010, ~120 kg)</h3>
+              <small>Chest or upright freezer</small>
+            </div>
+          </div>
+          <div class="material-row">
+            <span class="material-label">🟠 Copper</span>
+            <div class="bar-track"><div class="bar-fill copper" style="width:75%"></div></div>
+            <span class="material-value">£18–22 / €20–26</span>
+          </div>
+          <div class="material-row">
+            <span class="material-label">🟢 Aluminium</span>
+            <div class="bar-track"><div class="bar-fill aluminium" style="width:25%"></div></div>
+            <span class="material-value">£4–6 / €5–7</span>
+          </div>
+          <div class="material-row">
+            <span class="material-label">🔵 Steel</span>
+            <div class="bar-track"><div class="bar-fill steel" style="width:55%"></div></div>
+            <span class="material-value">£12–16 / €14–20</span>
+          </div>
+          <div class="appliance-total">
+            <span>Estimated total</span>
+            <strong>£34–44</strong>
+          </div>
+        </div>
+
+        <!-- Washing Machine -->
+        <div class="appliance-card">
+          <div class="appliance-header">
+            <div class="appliance-icon">🧺</div>
+            <div>
+              <h3>Washing Machine (2010, ~75 kg)</h3>
+              <small>Standard front-loading washer</small>
+            </div>
+          </div>
+          <div class="material-row">
+            <span class="material-label">🟠 Copper</span>
+            <div class="bar-track"><div class="bar-fill copper" style="width:58%"></div></div>
+            <span class="material-value">£12–16 / €14–18</span>
+          </div>
+          <div class="material-row">
+            <span class="material-label">🔵 Steel drum</span>
+            <div class="bar-track"><div class="bar-fill steel" style="width:50%"></div></div>
+            <span class="material-value">£10–14 / €12–16</span>
+          </div>
+          <div class="material-row">
+            <span class="material-label">🟢 Aluminium</span>
+            <div class="bar-track"><div class="bar-fill aluminium" style="width:12%"></div></div>
+            <span class="material-value">£2–3 / €3–4</span>
+          </div>
+          <div class="appliance-total">
+            <span>Estimated total</span>
+            <strong>£24–33</strong>
+          </div>
+        </div>
+
+        <!-- Dishwasher -->
+        <div class="appliance-card">
+          <div class="appliance-header">
+            <div class="appliance-icon">🍽️</div>
+            <div>
+              <h3>Dishwasher (2010, ~65 kg)</h3>
+              <small>Freestanding dishwasher unit</small>
+            </div>
+          </div>
+          <div class="material-row">
+            <span class="material-label">🟠 Copper</span>
+            <div class="bar-track"><div class="bar-fill copper" style="width:35%"></div></div>
+            <span class="material-value">£6–9 / €7–11</span>
+          </div>
+          <div class="material-row">
+            <span class="material-label">🔵 Steel</span>
+            <div class="bar-track"><div class="bar-fill steel" style="width:52%"></div></div>
+            <span class="material-value">£9–13 / €11–15</span>
+          </div>
+          <div class="material-row">
+            <span class="material-label">🟢 Aluminium</span>
+            <div class="bar-track"><div class="bar-fill aluminium" style="width:12%"></div></div>
+            <span class="material-value">£2–3 / €3–4</span>
+          </div>
+          <div class="appliance-total">
+            <span>Estimated total</span>
+            <strong>£17–25</strong>
+          </div>
+        </div>
+
+        <!-- Community Batch – wide card -->
+        <div class="appliance-card wide">
+          <div class="community-inner">
+            <div class="community-desc">
+              <div class="appliance-header" style="border-color:rgba(255,255,255,0.1)">
+                <div class="appliance-icon">🏘️</div>
+                <div>
+                  <h3>Mixed Appliance Batch</h3>
+                  <small>Community collection · 10 households</small>
+                </div>
+              </div>
+              <h4>Collective action multiplies value.</h4>
+              <p>When 10 households pool their old appliances — 3 fridges, 2 freezers, 3 washing machines, 2 dishwashers — shared transport cuts emissions and bulk sorting unlocks premium pricing from recyclers.</p>
+              <div class="tag-list">
+                <span class="tag">3 × Fridge</span>
+                <span class="tag">2 × Freezer</span>
+                <span class="tag">3 × Washer</span>
+                <span class="tag">2 × Dishwasher</span>
+              </div>
+            </div>
+            <div>
+              <div class="region-values">
+                <div class="region-row">
+                  <span><span class="flag">🇬🇧</span><span class="rname">United Kingdom (batch total)</span></span>
+                  <span class="rval">£320–£420</span>
+                </div>
+                <div class="region-row">
+                  <span><span class="flag">🇳🇱</span><span class="rname">Netherlands / EU (batch total)</span></span>
+                  <span class="rval">€380–€520</span>
+                </div>
+                <div class="region-row">
+                  <span><span class="flag">📦</span><span class="rname">Average per appliance (UK)</span></span>
+                  <span class="rval">£32–£42</span>
+                </div>
+                <div class="region-row">
+                  <span><span class="flag">📦</span><span class="rname">Average per appliance (EU)</span></span>
+                  <span class="rval">€38–€52</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── RECYCLING ROUTES ─── -->
+  <section class="routes-section" id="routes">
+    <div class="container">
+      <div class="reveal">
+        <span class="section-label">Your Options</span>
+        <h2 class="section-title">How to recycle —<br>from easy to advanced.</h2>
+        <p class="section-intro">You don't have to strip metals yourself for appliances to be recycled. But how much you do determines how much value you capture.</p>
+      </div>
+
+      <div class="routes-timeline reveal">
+
+        <div class="route-item">
+          <div class="route-bullet"><span>A</span></div>
+          <span class="route-label">No Effort Required</span>
+          <h3>Whole-Appliance WEEE Recycling</h3>
+          <p>Drop the appliance intact at a local authority WEEE point or retailer take-back scheme. Refrigerants are removed safely by law, then the unit is shredded and metals separated centrally. This is how ~90% of EU appliances are recycled. Safest and fully compliant.</p>
+          <div class="route-value">
+            <span class="rv-chip">🇬🇧 £0–£15</span>
+            <span class="rv-chip">🇪🇺 €0–€20</span>
+          </div>
+        </div>
+
+        <div class="route-item">
+          <div class="route-bullet"><span>B</span></div>
+          <span class="route-label">Minimal Effort</span>
+          <h3>Scrap Yard — Whole Appliance</h3>
+          <p>Take the fridge intact to a licensed scrap yard. They'll pay a flat rate for the mixed shreddable metal. Easy and legal, though you give up the premium value of separated copper and aluminium.</p>
+          <div class="route-value">
+            <span class="rv-chip">🇬🇧 £5–£20</span>
+            <span class="rv-chip">🇪🇺 €10–€25</span>
+          </div>
+        </div>
+
+        <div class="route-item">
+          <div class="route-bullet"><span>C</span></div>
+          <span class="route-label">Best for Individuals</span>
+          <h3>Partial Dismantling (Safe DIY)</h3>
+          <p>Remove external copper wiring, aluminium panels, shelves, doors — and the compressor as a sealed unit. Never open refrigerant lines yourself. Sell sorted metals at higher per-kg rates, then take the carcass to WEEE recycling. This is the sweet spot for most people.</p>
+          <div class="route-value">
+            <span class="rv-chip">🇬🇧 £25–£45</span>
+            <span class="rv-chip">🇪🇺 €30–€55</span>
+          </div>
+        </div>
+
+        <div class="route-item">
+          <div class="route-bullet"><span>D</span></div>
+          <span class="route-label">Professional Level</span>
+          <h3>Full Manual Dismantling</h3>
+          <p>Certified refrigerant removal, full copper coil extraction, complete aluminium and steel separation, sorted plastics. This is what licensed repair shops and scrap traders do. Requires WEEE registration for regular operations, but delivers maximum yield.</p>
+          <div class="route-value">
+            <span class="rv-chip">🇬🇧 £50–£80</span>
+            <span class="rv-chip">🇪🇺 €80–€120</span>
+          </div>
+        </div>
+
+        <div class="route-item">
+          <div class="route-bullet"><span>E</span></div>
+          <span class="route-label">Highest Value</span>
+          <h3>Re-use Before Recycling</h3>
+          <p>Working compressors, door seals, shelves, electronics, and entire refurbished units can all be resold — often commanding more than raw scrap value. Repair, test, and list on eBay, Facebook Marketplace, or local classifieds. This is the circular economy at its finest.</p>
+          <div class="route-value">
+            <span class="rv-chip">🇬🇧 £40–£150+</span>
+            <span class="rv-chip">🇪🇺 €50–€180+</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── LOCATIONS ─── -->
+  <section class="locations-section" id="locations">
+    <div class="container">
+      <div class="reveal">
+        <span class="section-label">Regional Recyclers</span>
+        <h2 class="section-title">Where to take your<br>old appliances.</h2>
+        <p class="section-intro">Five regions, five lists of recyclers that accept and pay for old appliances and scrap metals.</p>
+      </div>
+
+      <div class="regions-grid reveal">
+
+        <div class="region-card">
+          <div class="region-flag">🇳🇱</div>
+          <h3>Amsterdam · Netherlands</h3>
+          <ul class="recycler-list">
+            <li>EMR Amsterdam – major scrap drop-off & recycling centre</li>
+            <li>HKS Metals Amsterdam – accepts appliance and metal scrap</li>
+            <li>Kapteijnstraat Metal Recycling BV – pays for metals, offers container collection</li>
+            <li>Pel Recycling – highly rated local recycler</li>
+            <li>Recyclingcentrum Henk Sneevlietweg – public recycling point for bulky appliances</li>
+          </ul>
+        </div>
+
+        <div class="region-card">
+          <div class="region-flag">🇬🇧</div>
+          <h3>London · United Kingdom</h3>
+          <ul class="recycler-list">
+            <li>London Scrap Metal Recycling Ltd – pays for scrap metal</li>
+            <li>METALCOM Scrap Metal Recycling & Collectors – well reviewed</li>
+            <li>Scrap Metal Collection Rubbish Removals – collection service</li>
+            <li>Daniel P Scrap Metal Collector London – accepts various metals</li>
+            <li>Connolley Metals Limited – trusted metal scrap buyer</li>
+          </ul>
+        </div>
+
+        <div class="region-card">
+          <div class="region-flag">🇪🇸</div>
+          <h3>Barcelona · Spain</h3>
+          <ul class="recycler-list">
+            <li>Chatarrerias Barcelona – general scrap and appliance recycling</li>
+            <li>Ferralles Joan Sanchez, S.A. – large popular Spanish scrap yard</li>
+            <li>Chatarras Gil – local metal recycling</li>
+            <li>Metal Day S.A. – salvage and scrap</li>
+            <li>Municipal reciclaje centres – accept household metal waste city-wide</li>
+          </ul>
+        </div>
+
+        <div class="region-card">
+          <div class="region-flag">🇩🇪</div>
+          <h3>Berlin · Germany</h3>
+          <ul class="recycler-list">
+            <li>Peglow Schrotthandel Berlin – highly rated scrap metal dealer</li>
+            <li>Kmab Schrott & Service Berlin GmbH – recycling centre with strong reviews</li>
+            <li>Papierfritze Berlin Biesdorf – scrap and copper buying</li>
+            <li>BRH Berliner Rohstoffhandel GmbH – residential metal buyer</li>
+            <li>AMR Metalle & Rohstoffe GmbH – accepts and buys from Berliners</li>
+          </ul>
+        </div>
+
+        <div class="region-card">
+          <div class="region-flag">🇵🇹</div>
+          <h3>Lisbon · Portugal</h3>
+          <ul class="recycler-list">
+            <li>Recolha de Sucata Electrónica e Informática – specialist in electronic scrap</li>
+            <li>Reciclagem Sucata Lisboa – search locally for current operators</li>
+            <li>Municipal bulky waste services – can offer collection or reimbursements</li>
+            <li>Ecocentros de Lisboa – network of civic amenity sites across the city</li>
+            <li>Valorfito / Amb3E schemes – producer-funded WEEE take-back programmes</li>
+          </ul>
+        </div>
+
+        <!-- Note card -->
+        <div class="region-card" style="background:rgba(92,173,120,0.1); border-color:rgba(92,173,120,0.25);">
+          <div class="region-flag">💡</div>
+          <h3>Before you go</h3>
+          <ul class="recycler-list">
+            <li>Scrap metal prices change daily — always call ahead for current rates</li>
+            <li>Separate metals before you arrive to unlock higher per-kg payouts</li>
+            <li>Compressors must stay sealed — refrigerant removal requires certification</li>
+            <li>One-off household dismantling is fine; regular selling may need WEEE registration</li>
+            <li>Compare at least two yards — prices vary significantly between buyers</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── POLICY ─── -->
+  <section class="policy-section" id="policy">
+    <div class="container">
+      <div class="reveal">
+        <span class="section-label">Policy Alignment</span>
+        <h2 class="section-title">Backed by law,<br>driven by purpose.</h2>
+        <p class="section-intro">Appliance recycling sits at the heart of the major environmental frameworks shaping Europe's future.</p>
+      </div>
+      <div class="policy-cards reveal">
+        <div class="policy-card">
+          <div class="pc-flag">🇪🇺</div>
+          <h3>EU WEEE Directive (2012/19/EU)</h3>
+          <p>Mandates the waste hierarchy — prevention, then reuse, then recycling. Sets legally binding material recovery targets and extends producer responsibility across the appliance lifecycle.</p>
+        </div>
+        <div class="policy-card">
+          <div class="pc-flag">🇬🇧</div>
+          <h3>UK Resources & Waste Strategy</h3>
+          <p>Focuses on resource efficiency and value retention, moving towards zero avoidable waste through circular economy principles and stronger producer obligations.</p>
+        </div>
+        <div class="policy-card">
+          <div class="pc-flag">🎯</div>
+          <h3>EU Circular Economy Action Plan</h3>
+          <p>The EU's roadmap for sustainable product design, empowering consumers, and creating functioning markets for secondary raw materials — keeping metals in circulation indefinitely.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CTA ─── -->
+  <section class="cta-section" id="cta">
+    <div class="container reveal">
+      <span class="section-label">Take Action Today</span>
+      <h2>Ready to unlock the value<br>in your old appliances?</h2>
+      <p>Whether you're a household, business, community group, or local authority — every appliance properly recycled is a step towards a more sustainable, prosperous future.</p>
+      <div class="cta-buttons">
+        <a href="https://www.recyclenow.com" target="_blank" class="btn-primary">
+          Find Recycling in Your Area
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M7 17L17 7M7 7h10v10"/></svg>
+        </a>
+        <a href="https://www.scrapmetalpricer.co.uk/" target="_blank" class="btn-outline">
+          Check Scrap Metal Prices
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ─── -->
+  <footer>
+    <div class="footer-brand">Green<span>ways</span></div>
+    <p>Supporting the circular economy, one appliance at a time. · UK &amp; European market prices.</p>
+    <div class="footer-links">
+      <a href="https://www.recyclenow.com" target="_blank">Recycle Now</a>
+      <a href="https://www.scrapmetalpricer.co.uk/" target="_blank">UK Scrap Prices</a>
+      <a href="https://www.eurecycleinfo.com/scrap-metal-prices/netherlands" target="_blank">EU Recycling Info</a>
+    </div>
+  </footer>
+
+  <script>
+    // Intersection Observer for reveal animations
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
