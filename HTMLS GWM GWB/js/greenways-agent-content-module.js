@@ -869,8 +869,12 @@
     if (item.agentNote && typeof item.agentNote === "string") {
       return { label: "From " + String(item.agentName || pageContext.agentName || "Agent"), body: item.agentNote };
     }
-    if (!isEnergyTickerModule(item)) return null;
-    var reg = moduleRegistryById["energy-ticker"] || moduleRegistryById["energy-prices-ticker"];
+    var moduleId = String((item && item.moduleId) || "").trim();
+    var reg =
+      (moduleId && moduleRegistryById[moduleId]) ||
+      (isEnergyTickerModule(item)
+        ? moduleRegistryById["energy-ticker"] || moduleRegistryById["energy-prices-ticker"]
+        : null);
     var notes = reg && reg.agentNotes;
     if (!notes || typeof notes !== "object") return null;
     var key = agentThemeKey(item);

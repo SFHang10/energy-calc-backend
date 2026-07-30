@@ -267,7 +267,8 @@ function toModuleItem(opts = {}) {
     kind: 'html',
     openSize: opts.openSize || '',
     theme: opts.theme || 'default',
-    agentName: opts.agentName || 'Agent'
+    agentName: opts.agentName || 'Agent',
+    agentNote: opts.agentNote || null
   };
 }
 

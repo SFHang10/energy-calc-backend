@@ -23,6 +23,7 @@ const {
   agentIntroParagraph
 } = require('./greenways-agent-persona');
 const { mergeModuleRow, loadRegistrySync, getModuleById, enrichKnowledgeAnswer } = require('./greenways-content-modules');
+const { agentMarketDemo } = require('./greenways-module-demo');
 const { resolveGlossaryFromIntent, tryBuildGlossaryAnswer } = require('./greenways-sustainability-glossary');
 const { EquipmentIntelligenceService } = require('./equipment-intelligence-service');
 const {
@@ -148,14 +149,25 @@ function portalLinkItems(portal = 'all') {
 }
 
 function laneModuleIds(lane) {
-  if (lane === 'water') return ['water-saving-guide', 'water-saving-finder', 'sustainable-product-finder'];
-  if (lane === 'gas') return ['sustainable-product-finder', 'equipment-deep-dive'];
-  return ['sustainable-product-finder', 'equipment-deep-dive', 'etl-finder'];
+  if (lane === 'water') return ['water-saving-guide', 'water-saving-finder', 'agent-market', 'sustainable-product-finder'];
+  if (lane === 'gas') return ['agent-market', 'sustainable-product-finder', 'equipment-deep-dive'];
+  return ['agent-market', 'sustainable-product-finder', 'equipment-deep-dive', 'etl-finder'];
 }
 
-function attachModules(result, moduleIds = [], extraLinkItems = []) {
+function attachModules(result, moduleIds = [], extraLinkItems = [], laneHint) {
   if (!result) return result;
-  const rows = moduleIds.map((id) => ({ moduleId: id, openSize: 'near-full' }));
+  const marketLane =
+    laneHint === 'water' ? 'water' : laneHint === 'gas' ? 'hvac' : 'kitchen';
+  const rows = moduleIds.map((id) => {
+    if (id === 'agent-market') {
+      return agentMarketDemo({
+        lane: marketLane,
+        label: 'Zyanne — Agent Market',
+        note: 'Browse curated marketplace rows with grants — save a shortlist, then ask Artemis or Vincent.'
+      });
+    }
+    return { moduleId: id, openSize: 'near-full' };
+  });
   for (const item of extraLinkItems) {
     const moduleId = portalPathToModuleId(item.url);
     if (moduleId) {
@@ -865,13 +877,23 @@ function buildLaneAnswer(lane, catalog, showcase, tip) {
       `${waterLead}` +
       `${bullets || '_Browse the full finder for your appliance type._'}\n\n` +
       (lane === 'water'
-        ? `Open the **Water Saving Guide** and **Water Saving Finder** modules on the right.\n\n`
-        : `→ **Open finder:** ${finder}\n\n`) +
+        ? `Open the **Water Saving Guide**, **Water Saving Finder**, and primed **Agent Market** modules on the right.\n\n`
+        : `I also opened **Agent Market** on a matching lane — save a shortlist, then ask Artemis or Vincent.\n\n`) +
       `_${tip}_`,
     suggestions: [],
-    blocks: linkOrModuleBlocks(
-      lane === 'water' ? portalLinkItems('water') : portalLinkItems('products')
-    )
+    blocks: (() => {
+      const base = linkOrModuleBlocks(
+        lane === 'water' ? portalLinkItems('water') : portalLinkItems('products')
+      );
+      const market = productsModuleBlock([
+        agentMarketDemo({
+          lane: lane === 'water' ? 'water' : lane === 'gas' ? 'hvac' : 'kitchen',
+          label: 'Zyanne — Agent Market',
+          note: 'Lane primed from your question — browse, save, then hand off for grants or payback.'
+        })
+      ]);
+      return [market].concat(base);
+    })()
   };
 }
 

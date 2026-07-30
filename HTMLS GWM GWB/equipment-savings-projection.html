@@ -9,6 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <script src="./js/site-energy-model.js"></script>
   <script src="./js/savings-projection-model.js"></script>
+  <script src="./js/greenways-module-demo.js"></script>
   <style>
     :root {
       --bg: #050e09;
@@ -488,6 +489,53 @@
       if (p.get('image')) state.image = decodeURIComponent(p.get('image'));
     }
 
+    async function applyProductFromApi(productId) {
+      const id = String(productId || '').trim();
+      if (!id) return false;
+      try {
+        const res = await fetch('/api/product-widget/' + encodeURIComponent(id), { cache: 'no-store' });
+        if (!res.ok) return false;
+        const data = await res.json();
+        const product = data.product || data;
+        if (!product || !product.name) return false;
+        state.title = product.name;
+        const price = Number(product.price || product.listPrice || product.capex || 0);
+        if (price > 0) {
+          state.capexEur = price;
+          const capexSlider = document.getElementById('capexSlider');
+          if (capexSlider) capexSlider.value = String(Math.round(price));
+        }
+        const img = product.imageUrl || product.image || product.photo || '';
+        if (img) state.image = img;
+        const grants = Array.isArray(product.grants) ? product.grants : [];
+        const grantSum = grants.reduce((a, g) => a + (Number(g.amountEur || g.amount || 0) || 0), 0);
+        if (grantSum > 0) {
+          state.grantAmountEur = grantSum;
+          state.grantSuggestedEur = grantSum;
+          const gs = document.getElementById('grantSlider');
+          if (gs) gs.value = String(Math.round(grantSum));
+          if (grants[0] && grants[0].name) state.grantLabel = grants[0].name;
+        }
+        const monthly = Number(
+          (product.runningCost && product.runningCost.monthlyEur) ||
+            product.monthlyRunningCost ||
+            0
+        );
+        if (monthly > 0) {
+          state.proposedMonthlyEur = monthly;
+          state.lockProposedFromUrl = true;
+          if (!state.baselineMonthlyEur || state.baselineMonthlyEur <= monthly) {
+            state.baselineMonthlyEur = Math.round(monthly * 1.25);
+          }
+        }
+        const scenarioPanel = document.getElementById('scenarioPanel');
+        if (scenarioPanel) scenarioPanel.style.display = 'none';
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
     function applyScenario(s) {
       if (!s) return;
       state.title = s.title;
@@ -742,7 +790,13 @@
 
     async function boot() {
       const bootParams = new URLSearchParams(location.search);
+      if (window.GreenwaysModuleDemo && window.GreenwaysModuleDemo.isDemo(bootParams)) {
+        window.GreenwaysModuleDemo.mountBanner({
+          before: document.querySelector('main') || document.body.firstElementChild
+        });
+      }
       const isPopup = bootParams.get('popup') === '1';
+      const productId = String(bootParams.get('product') || bootParams.get('productId') || '').trim();
       const paramId = isPopup && bootParams.get('title') ? null : readParams();
       if (isPopup && state.isBuildingScope) {
         document.getElementById('pageSub').textContent =
@@ -775,7 +829,10 @@
       }
 
       const sel = document.getElementById('scenarioSelect');
-      if (isPopup && bootParams.get('title')) {
+      const loadedProduct = productId ? await applyProductFromApi(productId) : false;
+      if (loadedProduct) {
+        applyUrlParamOverrides();
+      } else if (isPopup && bootParams.get('title')) {
         document.getElementById('scenarioPanel').style.display = 'none';
         applyUrlParamOverrides();
       } else if (scenarios.length) {

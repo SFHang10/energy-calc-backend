@@ -900,13 +900,22 @@
 </main>
 
 <script src="./js/greenways-module-llm-client.js"></script>
+<script src="./js/greenways-module-demo.js"></script>
 <script>
 // ── TAB SWITCHING ─────────────────────────────────────────────────
 function switchTab(tab, el) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('tab-' + tab).classList.add('active');
+  if (el) el.classList.add('active');
+  else {
+    const btn = document.querySelector('.tab-btn[onclick*="' + tab + '"]') ||
+      Array.from(document.querySelectorAll('.tab-btn')).find((b) =>
+        String(b.getAttribute('onclick') || '').indexOf("'" + tab + "'") >= 0
+      );
+    if (btn) btn.classList.add('active');
+  }
+  const pane = document.getElementById('tab-' + tab);
+  if (pane) pane.classList.add('active');
   window.scrollTo(0, 0);
 }
 
@@ -1269,6 +1278,65 @@ async function followUp(question, targetId) {
     if (e.key === 'Enter') window[map[id]]();
   });
 });
+
+// ── AGENT DEMO PREFILL (from Vincent / Andrieus module tablets) ───
+(function applyAgentDemoPrefill() {
+  var Demo = window.GreenwaysModuleDemo;
+  if (!Demo) return;
+  var p = Demo.params();
+  var tab = String(p.get('tab') || '').toLowerCase();
+  var q = String(p.get('q') || '').trim();
+  var countryRaw = p.get('country') || p.get('region') || '';
+  var country = Demo.countryFromParam(countryRaw) || String(countryRaw || '').trim();
+  var auto = p.get('auto') === '1';
+  if (!Demo.isDemo(p) && !tab && !q && !country) return;
+
+  Demo.mountBanner({ before: document.querySelector('main .tab-bar') || document.querySelector('.tab-bar') || document.querySelector('main') });
+
+  var allowed = { grants: 1, bnpl: 1, equipment: 1, loans: 1, compare: 1 };
+  if (!allowed[tab]) tab = 'grants';
+  switchTab(tab, null);
+
+  var inputByTab = {
+    grants: 'grantsInput',
+    bnpl: 'bnplInput',
+    equipment: 'equipInput',
+    loans: 'loansInput',
+    compare: 'compareInput'
+  };
+  var countryByTab = {
+    grants: 'grantsCountry',
+    bnpl: 'bnplCountry',
+    equipment: 'equipCountry',
+    loans: 'loansCountry',
+    compare: 'compareCountry'
+  };
+  if (q && inputByTab[tab]) {
+    var input = document.getElementById(inputByTab[tab]);
+    if (input) input.value = q;
+  }
+  if (country && countryByTab[tab]) {
+    var sel = document.getElementById(countryByTab[tab]);
+    if (sel) {
+      var match = Array.from(sel.options).find(function (o) {
+        return o.value === country || o.value.toLowerCase() === country.toLowerCase();
+      });
+      if (match) sel.value = match.value;
+    }
+  }
+  if (auto && q) {
+    setTimeout(function () {
+      var runners = {
+        grants: searchGrants,
+        bnpl: searchBnpl,
+        equipment: searchEquipment,
+        loans: searchLoans,
+        compare: searchCompare
+      };
+      if (typeof runners[tab] === 'function') runners[tab]();
+    }, 450);
+  }
+})();
 </script>
 </div>
 </body>

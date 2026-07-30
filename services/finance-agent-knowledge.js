@@ -19,6 +19,11 @@ const {
   agentProfileBlock
 } = require('./greenways-agent-shared');
 const { mergeModuleRow, enrichKnowledgeAnswer } = require('./greenways-content-modules');
+const {
+  financeFinderDemo,
+  savingsProjectionDemo,
+  countryLabelFromProfile
+} = require('./greenways-module-demo');
 const { resolveGlossaryFromIntent, tryBuildGlossaryAnswer } = require('./greenways-sustainability-glossary');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'finance-agent-intents.json');
@@ -255,10 +260,20 @@ function energyToolkitModules(profile, extras = []) {
   return financeModuleBlock(base.concat(extras));
 }
 
-function financeStackModules() {
+function financeStackModules(profile) {
+  const country = countryLabelFromProfile(profile && profile.region);
   return financeModuleBlock([
-    { moduleId: 'finance-finder', openSize: 'near-full' },
-    { moduleId: 'savings-projection', openSize: 'near-full' },
+    financeFinderDemo({
+      tab: 'grants',
+      q: 'kitchen equipment',
+      country: country || undefined,
+      label: 'Vincent — Finance Finder'
+    }),
+    savingsProjectionDemo({
+      scenario: 'fridge',
+      label: 'Vincent — payback demo',
+      note: 'Fridge example payback — adjust capex and grants to match the equipment you shortlisted.'
+    }),
     { moduleId: 'etl-finder', openSize: 'near-full' }
   ]);
 }
@@ -367,14 +382,40 @@ async function buildOverviewAnswer(schemes, profile, tip) {
   };
 }
 
-function buildTabAnswer(tabLabel, body, schemes, tip) {
+function buildTabAnswer(tabLabel, body, schemes, tip, profile) {
   const related = rankSchemes(financeSchemes(schemes), tabLabel, {}, 6);
+  const tabMap = {
+    bnpl: 'bnpl',
+    'buy now': 'bnpl',
+    equipment: 'equipment',
+    lease: 'equipment',
+    loan: 'loans',
+    green: 'loans',
+    europe: 'compare',
+    horizon: 'compare',
+    grant: 'grants'
+  };
+  const hay = String(tabLabel || '').toLowerCase();
+  let tab = 'grants';
+  Object.keys(tabMap).forEach((k) => {
+    if (hay.includes(k)) tab = tabMap[k];
+  });
+  const country = countryLabelFromProfile(profile && profile.region);
   return {
     answer: withTip(
-      `${String(body || '').trim()}\n\nI found **${related.length}** related scheme${related.length === 1 ? '' : 's'} in our catalogue — see the cards on the right.`,
+      `${String(body || '').trim()}\n\nI found **${related.length}** related scheme${related.length === 1 ? '' : 's'} in our catalogue — see the cards on the right. I also primed **Finance Finder** so you can run a live search in that tab.`,
       tip
     ),
-    blocks: [financeModuleBlock([{ moduleId: 'finance-finder', openSize: 'near-full' }])],
+    blocks: [
+      financeModuleBlock([
+        financeFinderDemo({
+          tab,
+          q: String(tabLabel || 'restaurant equipment').slice(0, 80),
+          country: country || undefined,
+          label: 'Vincent — Finance Finder'
+        })
+      ])
+    ],
     suggestions: related.map(toSuggestion)
   };
 }
@@ -482,7 +523,7 @@ async function buildEtlProductsAnswer(question, profile, tip) {
       `**ETL products — Europe's verified efficient-equipment path on Greenways**\n\n` +
       `${etl.summary || 'ETL-listed products are independently verified for energy performance — the benchmark to use when building an upgrade finance case.'}\n\n` +
       `Vincent leads here because verified savings beat generic “eco” claims, grant overlays attach to each \`etl_*\` row, and you can stack BNPL, equipment finance, or green loans after payback math. Banner cards above show examples; open the modules for browse paths.\n\n_${tip}_`,
-    blocks: [financeStackModules()],
+    blocks: [financeStackModules(profile)],
     suggestions: [],
     productSamples: samples
   };
@@ -582,8 +623,17 @@ async function buildPriceUpgradeCaseAnswer(schemes, profile, tip) {
       `Typical stack: pick an \`etl_*\` product → savings projection → BNPL, equipment finance, or green loans.\n\n_${tip}_`,
     blocks: [
       energyToolkitModules(profile, [
-        { moduleId: 'savings-projection', openSize: 'near-full' },
-        { moduleId: 'finance-finder', openSize: 'near-full' }
+        savingsProjectionDemo({
+          scenario: 'fridge',
+          label: 'Vincent — why upgrade now',
+          note: 'Example payback under rising unit costs — swap in your equipment figures next.'
+        }),
+        financeFinderDemo({
+          tab: 'bnpl',
+          q: 'commercial kitchen equipment',
+          country: countryLabelFromProfile(profile && profile.region) || undefined,
+          label: 'Vincent — fund the upgrade'
+        })
       ])
     ],
     suggestions: related.map(toSuggestion)
@@ -592,12 +642,26 @@ async function buildPriceUpgradeCaseAnswer(schemes, profile, tip) {
 
 function buildBnplAnswer(schemes, profile, tip) {
   const related = rankSchemes(financeSchemes(schemes), 'bnpl equipment restaurant', profile, 6);
+  const country = countryLabelFromProfile(profile && profile.region);
   return {
     answer:
       `**BNPL for restaurant equipment** — pay-later or split-payment paths can spread capex when a verified upgrade makes sense. Confirm merchant fees, credit checks, and who holds title before you sign.\n\n` +
-      `Pair BNPL with **ETL-listed products** so verified savings and grant overlays support the business case. Open the finance finder **BNPL** tab for provider tiles, or stack with **equipment finance** for larger kitchen refits.\n\n_${tip}_`,
+      `Pair BNPL with **ETL-listed products** so verified savings and grant overlays support the business case. I opened **Finance Finder → BNPL** on the right with a starter search — run it or change the topic.\n\n_${tip}_`,
     blocks: [
-      financeStackModules(),
+      financeModuleBlock([
+        financeFinderDemo({
+          tab: 'bnpl',
+          q: 'commercial dishwasher oven refrigeration',
+          country: country || undefined,
+          label: 'Vincent — BNPL demo'
+        }),
+        savingsProjectionDemo({
+          scenario: 'dishwasher',
+          label: 'Vincent — payback first',
+          note: 'Quick payback check before you commit to a BNPL term.'
+        }),
+        { moduleId: 'etl-finder', openSize: 'near-full' }
+      ]),
       financeAgentLinkBlock('Grants Agent (Andrieus)', PORTAL_LINKS.grantsAgent, 'Scheme detail on product grants')
     ],
     suggestions: related.map(toSuggestion)
@@ -606,14 +670,23 @@ function buildBnplAnswer(schemes, profile, tip) {
 
 function buildGreenLoansAnswer(schemes, profile, tip) {
   const related = rankSchemes(financeSchemes(schemes), 'green loan bmkb warmtefonds', profile, 6);
+  const country = countryLabelFromProfile(profile && profile.region);
   return {
     answer:
       `**Green loans** — bank products tagged for sustainability (e.g. BMKB-Groen, national warmtefonds routes). They often stack with grants on the same upgrade, so model payback before you borrow.\n\n` +
-      `Start in the finance finder **Green loans** tab with your region set, then confirm eligibility and rates with the lender.\n\n_${tip}_`,
+      `I opened **Finance Finder → Green loans** and a payback demo on the right — set your region, then confirm eligibility with the lender.\n\n_${tip}_`,
     blocks: [
       financeModuleBlock([
-        { moduleId: 'finance-finder', openSize: 'near-full' },
-        { moduleId: 'savings-projection', openSize: 'near-full' }
+        financeFinderDemo({
+          tab: 'loans',
+          q: 'green loan restaurant energy efficiency',
+          country: country || undefined,
+          label: 'Vincent — green loans'
+        }),
+        savingsProjectionDemo({
+          scenario: 'fridge',
+          label: 'Vincent — payback before borrowing'
+        })
       ]),
       financeAgentLinkBlock('Grants Agent (Andrieus)', PORTAL_LINKS.grantsAgent, 'Non-repayable support to stack with loans')
     ],
@@ -764,7 +837,8 @@ async function answerFromKnowledge(question, profile = {}) {
         'grants subsidies restaurant',
         '**Grants tab** — non-repayable support stacked with product-specific overlays. Pair with the Grants Agent for full scheme detail.',
         schemes,
-        tip
+        tip,
+        profile
       );
       break;
     case 'bnpl':
@@ -775,7 +849,8 @@ async function answerFromKnowledge(question, profile = {}) {
         'equipment finance lease kitchen etl',
         '**Equipment finance tab** — commercial leases and hire purchase for ovens, refrigeration, and HVAC. **Lead toward ETL-listed products** (`etl_*` IDs) so verified savings and grant overlays support the business case before you sign.',
         schemes,
-        tip
+        tip,
+        profile
       );
       break;
     case 'green_loans':
@@ -786,7 +861,8 @@ async function answerFromKnowledge(question, profile = {}) {
         'horizon europe finance',
         '**Europe tab** — EU-wide programmes and cross-border lenders. Set profile region to EU for best matches.',
         schemes,
-        tip
+        tip,
+        profile
       );
       break;
     case 'category':

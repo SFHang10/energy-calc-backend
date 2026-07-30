@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-product-shortlist.css">
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-marketplace-page-backdrop.css?v=glass2">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-module-demo.js"></script>
 <style>
   :root {
     --bg: #070e12;
@@ -602,6 +603,10 @@
     border-color: rgba(40, 167, 69, 0.45);
     background: rgba(40, 167, 69, 0.1);
     color: #9ae6b0;
+  }
+  .am-card--demo-focus {
+    outline: 2px solid rgba(201, 169, 97, 0.85);
+    box-shadow: 0 0 0 4px rgba(201, 169, 97, 0.18), 0 12px 28px rgba(0, 0, 0, 0.35);
   }
   @media (max-width: 720px) {
     .am-compare-grid { grid-template-columns: 1fr; }
@@ -1803,7 +1808,28 @@
   onShortlistChange();
   var params = new URLSearchParams(window.location.search);
   var laneQ = params.get("lane");
-  loadLane(laneQ && ["kitchen", "hvac", "water", "premises"].indexOf(laneQ) >= 0 ? laneQ : "kitchen");
+  var productQ = String(params.get("product") || params.get("productId") || "").trim();
+  var startLane =
+    laneQ && ["kitchen", "hvac", "water", "premises"].indexOf(laneQ) >= 0 ? laneQ : "kitchen";
+
+  if (window.GreenwaysModuleDemo && window.GreenwaysModuleDemo.isDemo(params)) {
+    window.GreenwaysModuleDemo.mountBanner({
+      before: document.querySelector(".am-top-glass") || document.querySelector(".am-hero")
+    });
+  }
+
+  loadLane(startLane);
+  if (productQ) {
+    setTimeout(function () {
+      ensureCompareLoaded({ productId: productQ, force: true });
+      var card = cardsEl && cardsEl.querySelector('[data-id="' + productQ + '"]');
+      if (card) {
+        var wrap = card.closest(".am-card") || card;
+        wrap.classList.add("am-card--demo-focus");
+        wrap.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 700);
+  }
 })();
 </script>
 </body>

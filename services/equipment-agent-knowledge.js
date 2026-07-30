@@ -23,6 +23,7 @@ const {
   isReferralWelcomePair
 } = require('./greenways-agent-handoff');
 const { buildUpgradePlan } = require('./greenways-upgrade-plan');
+const { agentMarketDemo, savingsProjectionDemo } = require('./greenways-module-demo');
 const {
   applyPersona,
   loadAgentVoice,
@@ -143,7 +144,8 @@ function linkOrModuleBlocks(items) {
     const moduleId = externalUrlToModuleId(url) || portalPathToModuleId(url);
     if (moduleId) {
       const row = { moduleId, title: item.title, openSize: 'near-full' };
-      if (url.includes('/products')) row.query = 'focus=products';
+      if (url.includes('?')) row.query = url.split('?').slice(1).join('?');
+      else if (url.includes('/products')) row.query = 'focus=products';
       modules.push(row);
       continue;
     }
@@ -619,12 +621,23 @@ function buildDeepDiveAnswer(tip) {
     answer:
       `**Equipment deep dive** compares what you run today with efficient alternatives — grant chips, decision-matrix rows, and an optional savings projection when you are ready to build the business case.\n\n` +
       `Open the **Equipment deep dive** module on the right for marketplace links, \`sust_*\` external options where we have them, and side-by-side specs. ` +
-      `If you name a specific appliance (combi steamer, wok line, freezer), I can surface matching picks in the banner while you browse.\n\n_${tip}_`,
+      `I also primed a **fridge payback demo** and **Agent Market (kitchen)** so you can see the tools live.\n\n_${tip}_`,
     suggestions: [],
-    blocks: linkOrModuleBlocks([
-      toLinkItem('Open deep dive', PORTAL_LINKS.deepDive, 'Restaurant equipment profiles'),
-      toLinkItem('Savings projection demo', `${PORTAL_LINKS.savingsProjection}?scenario=fridge`, 'Example payback chart')
-    ])
+    blocks: [
+      equipmentModuleBlock([
+        { moduleId: 'equipment-deep-dive', openSize: 'near-full' },
+        savingsProjectionDemo({
+          scenario: 'fridge',
+          label: 'Artemis — payback demo',
+          note: 'Fridge example — open from a deep-dive card later for product-specific numbers.'
+        }),
+        agentMarketDemo({
+          lane: 'kitchen',
+          label: 'Artemis — Agent Market',
+          note: 'Kitchen lane primed — save a product, then ask Vincent about payback or Andrieus about grants.'
+        })
+      ])
+    ]
   };
 }
 
@@ -632,16 +645,28 @@ function buildSavingsProjectionAnswer(tip) {
   return {
     answer:
       `**Savings projection** — chart **do nothing vs upgrade** with grant chips and illustrative tax bands.\n\n` +
-      `- Open the **Savings projection** module on the right for the full payback chart\n` +
-      `- From **equipment deep dive**: use **Savings projection** on each alternative card\n` +
-      `- Try the fridge demo scenario from the module when you want a worked example\n\n` +
+      `I opened a **fridge payback demo** on the right — adjust sliders to match your site. From **equipment deep dive**, use **Savings projection** on each alternative card for product-specific numbers.\n\n` +
       `Use projection to build the case — then **Vincent** for BNPL, equipment finance, or green loans.\n\n_${tip}_`,
     suggestions: [],
     agentHandoffs: buildHandoffs({}, '', 'savings_projection'),
-    blocks: linkOrModuleBlocks([
-      toLinkItem('Equipment savings projection', PORTAL_LINKS.savingsProjection, 'Payback chart UI'),
-      toLinkItem('Finance Agent', '/greenways/finance-agent', 'Stack funding after payback')
-    ])
+    blocks: [
+      equipmentModuleBlock([
+        savingsProjectionDemo({
+          scenario: 'fridge',
+          label: 'Artemis — savings projection',
+          note: 'Worked fridge example — change scenario or sliders to match your upgrade.'
+        }),
+        agentMarketDemo({
+          lane: 'kitchen',
+          label: 'Artemis — browse next',
+          note: 'Shortlist equipment here after you like the payback shape.'
+        })
+      ]),
+      {
+        type: 'link',
+        items: [toLinkItem('Finance Agent', '/greenways/finance-agent', 'Stack funding after payback')]
+      }
+    ]
   };
 }
 
