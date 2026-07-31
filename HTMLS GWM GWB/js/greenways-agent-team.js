@@ -17,7 +17,7 @@
       { slug: 'deals-agent', id: 'deals', name: 'Zara', shortLabel: 'Deals', imageUrl: 'https://static.wixstatic.com/media/c123de_c7cdbed4a4ee407289677a4f0079c1e5~mv2.png', path: '/greenways/deals-agent' },
       { slug: 'media-agent', id: 'media', name: 'Cheryce', shortLabel: 'Media', imageUrl: 'https://static.wixstatic.com/media/c123de_333c90ab8930465a98b503e1d24316b4~mv2.png', path: '/greenways/media-agent' },
       { slug: 'sustainable-products-agent', id: 'products', name: 'Zyanne', shortLabel: 'Products', imageUrl: 'https://static.wixstatic.com/media/c123de_dc5b2e3e4aef4cc4b75c7b44888281bd~mv2.png', path: '/greenways/sustainable-products-agent' },
-      { slug: 'systems-agent', id: 'systems', name: 'Edwardo', shortLabel: 'Systems', role: 'Systems & equipment', imageUrl: 'https://static.wixstatic.com/media/c123de_eeb61cbf84bd402eb642e28b2b457c76~mv2.png', path: '/greenways/systems-agent' }
+      { slug: 'systems-agent', id: 'systems', name: 'Edwardo', shortLabel: 'Systems', role: 'Systems & equipment', imageUrl: 'https://static.wixstatic.com/media/c123de_eeb61cbf84bd402eb642e28b2b457c76~mv2.png', imageObjectPosition: 'center 28%', path: '/greenways/systems-agent' }
     ]
   };
 

@@ -287,42 +287,97 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: flex-start;
-      align-items: center;
-      gap: 0;
-      padding: 4px 0 2px;
+      align-items: flex-start;
+      gap: 10px 8px;
+      padding: 2px 0 0;
       width: 100%;
     }
     .curator-face {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      border: 2px solid rgba(0, 0, 0, 0.9);
+      flex: 0 0 auto;
+      width: 72px;
+      margin: 0;
       padding: 0;
-      margin-left: -6px;
-      background: #0c1218;
+      border: none;
+      background: transparent;
       cursor: pointer;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
-      transition: transform 0.15s, border-color 0.15s, z-index 0s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      box-shadow: none;
+      transition: transform 0.15s;
       position: relative;
       z-index: 1;
     }
-    .curator-face:first-child { margin-left: 0; }
     .curator-face:hover {
-      transform: translateY(-2px) scale(1.08);
-      border-color: #00f582;
+      transform: translateY(-2px);
       z-index: 3;
     }
-    .curator-face.is-active {
+    .curator-face.is-active .curator-face-img {
       border-color: #00f582;
-      z-index: 2;
       box-shadow: 0 0 0 2px rgba(0, 245, 130, 0.35);
+    }
+    .curator-face-img {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 2px solid rgba(0, 0, 0, 0.9);
+      overflow: hidden;
+      background: #0c1218;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .curator-face:hover .curator-face-img {
+      border-color: #00f582;
     }
     .curator-face img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
+    }
+    .curator-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      width: 100%;
+      min-width: 0;
+    }
+    .curator-name {
+      display: block;
+      width: 100%;
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: 0.01em;
+      color: #c8e0d2;
+      font-family: var(--font-clean);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .curator-role {
+      display: block;
+      width: 100%;
+      font-size: 0.58rem;
+      font-weight: 500;
+      line-height: 1.2;
+      color: #8aab98;
+      font-family: var(--font-clean);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .curator-face:hover .curator-name,
+    .curator-face.is-active .curator-name {
+      color: #e8fff2;
+    }
+    .curator-face:hover .curator-role,
+    .curator-face.is-active .curator-role {
+      color: #b7dcc8;
     }
 
     /* Restaurant / chain agents — sibling to Transition Agents intro */
@@ -1476,11 +1531,30 @@
     return (roster.agents || []).find(function (a) { return a.id === id || a.slug === id; }) || null;
   }
 
+  function portraitPositionStyle(agent) {
+    var pos = agent && String(agent.imageObjectPosition || '').trim();
+    return pos ? 'object-position:' + pos + ';' : '';
+  }
+
+  function portraitImgTag(agent, extraClass) {
+    if (!agent || !agent.imageUrl) return '';
+    var cls = extraClass ? ' class="' + escapeHtml(extraClass) + '"' : '';
+    var style = portraitPositionStyle(agent);
+    return (
+      '<img' + cls +
+      ' src="' + escapeHtml(agent.imageUrl) + '"' +
+      ' alt=""' +
+      (style ? ' style="' + escapeHtml(style) + '"' : '') +
+      '>'
+    );
+  }
+
   function setFace(elId, agent) {
     var el = document.getElementById(elId);
     if (!el || !agent || !agent.imageUrl) return;
     el.src = agent.imageUrl;
     el.alt = agent.name || '';
+    if (agent.imageObjectPosition) el.style.objectPosition = agent.imageObjectPosition;
     el.hidden = false;
   }
 
@@ -1607,9 +1681,17 @@
 
     if (curators) {
       curators.innerHTML = agents.map(function (a) {
+        var role = a.shortLabel || a.role || '';
+        var title = a.name + (role ? ' — ' + role : '') + ' · open in agent desk';
         return (
-          '<button type="button" class="curator-face" data-desk-path="' + escapeHtml(a.path) + '" data-desk-label="' + escapeHtml(a.name) + '" title="' + escapeHtml(a.name) + ' helps curate this hub — open in agent desk">' +
-            (a.imageUrl ? '<img src="' + escapeHtml(a.imageUrl) + '" alt="' + escapeHtml(a.name) + '">' : '') +
+          '<button type="button" class="curator-face" data-desk-path="' + escapeHtml(a.path) + '" data-desk-label="' + escapeHtml(a.name) + '" title="' + escapeHtml(title) + '">' +
+            '<span class="curator-face-img">' +
+              portraitImgTag(a) +
+            '</span>' +
+            '<span class="curator-meta">' +
+              '<span class="curator-name">' + escapeHtml(a.name) + '</span>' +
+              (role ? '<span class="curator-role">' + escapeHtml(role) + '</span>' : '') +
+            '</span>' +
           '</button>'
         );
       }).join('');
@@ -1618,7 +1700,7 @@
     strip.innerHTML = agents.map(function (a) {
       return (
         '<button type="button" class="team-pill" data-desk-path="' + escapeHtml(a.path) + '" data-desk-label="' + escapeHtml(a.name) + '" title="Open ' + escapeHtml(a.name) + ' in agent desk">' +
-          '<img src="' + escapeHtml(a.imageUrl) + '" alt="">' +
+          portraitImgTag(a) +
           escapeHtml(a.name) +
         '</button>'
       );
@@ -1631,7 +1713,7 @@
     picker.innerHTML = guidePill + agents.map(function (a) {
       return (
         '<button type="button" class="desk-pill" data-desk-path="' + escapeHtml(a.path) + '" data-desk-label="' + escapeHtml(a.name) + '">' +
-          (a.imageUrl ? '<img src="' + escapeHtml(a.imageUrl) + '" alt="">' : '') +
+          portraitImgTag(a) +
           escapeHtml(a.name) +
         '</button>'
       );

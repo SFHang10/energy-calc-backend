@@ -103,22 +103,46 @@
            HERO
         ═══════════════════════════════════════ */
         .hero {
-            background: linear-gradient(135deg, #0e6655 0%, #16a085 45%, #1a6b8a 100%);
-            color: white;
-            padding: 70px 20px 80px;
-            text-align: center;
             position: relative;
+            min-height: clamp(260px, 36vw, 380px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            color: white;
+            padding: clamp(3rem, 7vw, 4.5rem) 20px clamp(2.5rem, 6vw, 4rem);
+            text-align: center;
             overflow: hidden;
+            background-image: url('https://static.wixstatic.com/media/c123de_db98d66a233848ab8c3118a3341f4cb5~mv2.jpg');
+            background-size: cover;
+            background-position: center 42%;
+            filter: saturate(1.1) contrast(1.04);
         }
 
-        /* animated water ripples */
+        /* dark teal glass so title stays readable over the photo */
+        .hero-photo-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                180deg,
+                rgba(6, 32, 40, 0.35) 0%,
+                rgba(8, 48, 52, 0.58) 42%,
+                rgba(6, 36, 42, 0.82) 100%
+            );
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* soft water ripples over the photo */
         .hero::before,
         .hero::after {
             content: '';
             position: absolute;
             border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.08);
+            border: 2px solid rgba(255,255,255,0.07);
             animation: ripple 6s ease-out infinite;
+            z-index: 1;
+            pointer-events: none;
         }
         .hero::before {
             width: 600px; height: 600px;
@@ -141,7 +165,8 @@
             position: absolute;
             inset: 0;
             pointer-events: none;
-            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.09) 50%, transparent 100%);
+            z-index: 1;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.07) 50%, transparent 100%);
             animation: shimmer 4s infinite;
         }
         @keyframes shimmer {
@@ -161,28 +186,30 @@
             text-transform: uppercase;
             margin-bottom: 18px;
             position: relative;
-            z-index: 1;
+            z-index: 2;
+            backdrop-filter: blur(6px);
         }
 
         .hero h1 {
             font-family: 'DM Serif Display', serif;
             font-size: clamp(2em, 6vw, 3.6em);
             line-height: 1.2;
-            text-shadow: 0 3px 10px rgba(0,0,0,0.25);
+            text-shadow: 0 2px 20px rgba(0,0,0,0.45);
             position: relative;
-            z-index: 1;
+            z-index: 2;
             max-width: 780px;
             margin: 0 auto 18px;
         }
 
         .hero p {
             font-size: clamp(1em, 2.5vw, 1.2em);
-            opacity: 0.92;
+            opacity: 0.95;
             max-width: 600px;
             margin: 0 auto 35px;
             font-weight: 300;
             position: relative;
-            z-index: 1;
+            z-index: 2;
+            text-shadow: 0 1px 12px rgba(0,0,0,0.4);
         }
 
         .hero-pills {
@@ -191,7 +218,7 @@
             justify-content: center;
             flex-wrap: wrap;
             position: relative;
-            z-index: 1;
+            z-index: 2;
         }
 
         .hero-pill {
@@ -202,6 +229,7 @@
             font-size: 0.9em;
             font-weight: 500;
             transition: background 0.2s;
+            backdrop-filter: blur(6px);
         }
         .hero-pill:hover { background: rgba(255,255,255,0.28); }
 
@@ -1032,6 +1060,7 @@
      HERO
 ═══════════════════════════════════════════ -->
 <div class="hero">
+    <div class="hero-photo-overlay" aria-hidden="true"></div>
     <div class="shimmer"></div>
     <div class="hero-eyebrow">💧 Water Efficiency Guide</div>
     <h1>Save Water, Save Money,<br><em>Save the Planet</em></h1>

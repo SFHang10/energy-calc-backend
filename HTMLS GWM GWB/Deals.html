@@ -201,6 +201,12 @@
       color: inherit;
     }
     a.quick-btn { color: var(--text-dim); }
+    button.quick-btn {
+      width: 100%;
+      font: inherit;
+      appearance: none;
+      color: var(--text-dim);
+    }
     .quick-btn:hover {
       border-color: var(--accent);
       color: var(--text);
@@ -265,9 +271,9 @@
         </div>
       </div>
       <div class="header-actions">
-        <button type="button" class="btn-header" onclick="window.location.href='./Greenways%20Interface%20.html'">← Dashboard</button>
+        <button type="button" class="btn-header" id="dealsBackBtn" onclick="window.location.href='./Greenways%20Interface%20.html'">← Dashboard</button>
         <button type="button" class="btn-header primary" onclick="document.getElementById('dealsFrame').contentWindow.location.reload()">Refresh hub</button>
-        <a class="btn-header primary" href="./deals-ticker-hub.html" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-flex;align-items:center;">Open tab</a>
+        <a class="btn-header primary" id="dealsOpenTab" href="./deals-ticker-hub.html" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-flex;align-items:center;">Open tab</a>
       </div>
     </header>
 
@@ -276,9 +282,10 @@
         <div class="sidebar-section">
           <div class="sidebar-label">Full finders</div>
           <div class="quick-actions">
-            <a class="quick-btn" href="./european_energy_deals_portal.html" target="_blank" rel="noopener noreferrer"><span>⚡</span> Energy deals portal</a>
-            <a class="quick-btn" href="./water-saving-finder.html" target="_blank" rel="noopener noreferrer"><span>💧</span> Water saving finder</a>
-            <a class="quick-btn" href="./sustainable_product_deal_finder_portal.html" target="_blank" rel="noopener noreferrer"><span>🌿</span> Sustainable products</a>
+            <a class="quick-btn" href="./european_energy_deals_portal.html" data-module-id="european-energy" data-finder-src="./european_energy_deals_portal.html"><span>⚡</span> Energy deals portal</a>
+            <a class="quick-btn" href="./water-saving-finder.html" data-module-id="water-saving-finder" data-finder-src="./water-saving-finder.html"><span>💧</span> Water saving finder</a>
+            <a class="quick-btn" href="./sustainable_product_deal_finder_portal.html" data-module-id="sustainable-product-finder" data-finder-src="./sustainable_product_deal_finder_portal.html"><span>🌿</span> Sustainable products</a>
+            <button type="button" class="quick-btn" id="dealsShowHubBtn" hidden><span>🏷️</span> Back to deals lanes</button>
           </div>
         </div>
         <div class="sidebar-section" hidden>
@@ -289,7 +296,7 @@
 
       <main>
         <div class="main-toolbar">
-          <span>Deals hub · scroll lanes + search</span>
+          <span id="dealsToolbarLabel">Deals hub · scroll lanes + search</span>
         </div>
         <div class="frame-wrap">
           <iframe
@@ -301,5 +308,92 @@
       </main>
     </div>
   </div>
+  <script>
+  (function () {
+    var params = new URLSearchParams(location.search);
+    var inFrame = false;
+    try { inFrame = window.parent && window.parent !== window; } catch (_) { inFrame = true; }
+    var isEmbed = params.get("embed") === "1" || params.get("popup") === "1" || inFrame;
+    var hubSrc = "./deals-ticker-hub.html?embed=1";
+    var frame = document.getElementById("dealsFrame");
+    var hubBtn = document.getElementById("dealsShowHubBtn");
+    var toolbar = document.getElementById("dealsToolbarLabel");
+    var backBtn = document.getElementById("dealsBackBtn");
+    var openTab = document.getElementById("dealsOpenTab");
+
+    if (frame) frame.src = hubSrc;
+
+    if (isEmbed) {
+      document.body.classList.add("deals-shell--embed");
+      if (openTab) openTab.hidden = true;
+      if (backBtn) {
+        backBtn.textContent = "← Back to chat";
+        backBtn.onclick = function () {
+          try {
+            window.parent.postMessage({ type: "gw-module-close", moduleId: "deals-full-page" }, "*");
+          } catch (_) {}
+        };
+      }
+    }
+
+    function postToAgent(payload) {
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage(payload, "*");
+          return true;
+        }
+      } catch (_) {}
+      return false;
+    }
+
+    function openFinder(moduleId, src, label) {
+      if (isEmbed && moduleId && postToAgent({
+        type: "gw-module-open",
+        moduleId: moduleId,
+        overrides: {
+          query: "embed=1&popup=1",
+          title: label || undefined
+        }
+      })) {
+        return;
+      }
+      if (frame && src) {
+        frame.src = src + (src.indexOf("?") >= 0 ? "&" : "?") + "embed=1";
+        if (hubBtn) hubBtn.hidden = false;
+        if (toolbar) toolbar.textContent = (label || "Finder") + " · inside deals shell";
+        return;
+      }
+      if (src) window.open(src, "_blank", "noopener,noreferrer");
+    }
+
+    document.querySelectorAll(".quick-btn[data-module-id]").forEach(function (a) {
+      a.addEventListener("click", function (e) {
+        e.preventDefault();
+        openFinder(
+          a.getAttribute("data-module-id"),
+          a.getAttribute("data-finder-src") || a.getAttribute("href"),
+          (a.textContent || "").replace(/\s+/g, " ").trim()
+        );
+      });
+    });
+
+    if (hubBtn) {
+      hubBtn.addEventListener("click", function () {
+        if (frame) frame.src = hubSrc;
+        hubBtn.hidden = true;
+        if (toolbar) toolbar.textContent = "Deals hub · scroll lanes + search";
+      });
+    }
+
+    /* Relay nested hub → agent content module */
+    window.addEventListener("message", function (event) {
+      var data = event && event.data;
+      if (!data || typeof data !== "object") return;
+      if (data.type === "gw-module-open" || data.type === "gw-module-close" || data.type === "gw-module-back") {
+        postToAgent(data);
+      }
+    });
+  })();
+  </script>
 </body>
 </html>

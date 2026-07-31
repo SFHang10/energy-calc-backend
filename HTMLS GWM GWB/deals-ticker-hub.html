@@ -461,26 +461,74 @@
   </div>
 
   <script>
-    const isEmbed = /[?&]embed=1/.test(location.search);
-    if (isEmbed) document.body.classList.add('embed-mode');
+    const isEmbed = /[?&](embed|popup)=1/.test(location.search);
+    let inFrame = false;
+    try { inFrame = window.parent && window.parent !== window; } catch (_) { inFrame = true; }
+    if (isEmbed || inFrame) document.body.classList.add('embed-mode');
 
     const FEED_URLS = ['../data/deals-feed.json', '/data/deals-feed.json'];
     let FEED = { meta: {}, deals: [], highlights: [] };
     let activeCat = 'all';
     let tickerAnim = [];
 
+    const HREF_TO_MODULE = [
+      { match: /european_energy_deals_portal/i, moduleId: 'european-energy', label: 'Energy deals portal' },
+      { match: /water-saving-finder/i, moduleId: 'water-saving-finder', label: 'Water Saving Finder' },
+      { match: /sustainable_product_deal_finder/i, moduleId: 'sustainable-product-finder', label: 'Sustainable products' },
+      { match: /deals-ticker-hub|Deals\.html/i, moduleId: 'deals-ticker', label: 'Deals hub' }
+    ];
+
     function pickFeedUrl() {
       return FEED_URLS[0];
     }
 
+    function moduleForHref(href) {
+      const h = String(href || '');
+      for (let i = 0; i < HREF_TO_MODULE.length; i++) {
+        if (HREF_TO_MODULE[i].match.test(h)) return HREF_TO_MODULE[i];
+      }
+      return null;
+    }
+
+    function postModuleOpen(moduleId, overrides) {
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({
+            type: 'gw-module-open',
+            moduleId: moduleId,
+            overrides: overrides || {}
+          }, '*');
+          return true;
+        }
+      } catch (_) {}
+      return false;
+    }
+
     function openDealHref(href) {
       if (!href) return;
-      try {
-        if (isEmbed && window.top && window.top !== window) {
-          window.top.location.href = href;
+      const mapped = moduleForHref(href);
+      const isExternal = /^https?:\/\//i.test(href) && href.indexOf(location.hostname) < 0;
+
+      if (isExternal) {
+        window.open(href, '_blank', 'noopener,noreferrer');
+        return;
+      }
+
+      if ((isEmbed || inFrame) && mapped && postModuleOpen(mapped.moduleId, {
+        query: 'embed=1&popup=1',
+        title: mapped.label
+      })) {
+        return;
+      }
+
+      /* Same-frame navigation keeps finders inside the agent module iframe */
+      if (isEmbed || inFrame) {
+        try {
+          window.location.href = href;
           return;
-        }
-      } catch (_) { /* cross-origin top — fall through */ }
+        } catch (_) {}
+      }
+
       window.location.href = href;
     }
 
@@ -617,7 +665,7 @@
           (d.region ? '<span>' + escapeHtml(d.region) + '</span>' : '') +
           '</div>';
         div.addEventListener('click', () => {
-          if (d.href) window.location.href = d.href;
+          if (d.href) openDealHref(d.href);
         });
         grid.appendChild(div);
       });
