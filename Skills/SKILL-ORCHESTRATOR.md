@@ -87,6 +87,7 @@ Full taxonomy: **`greenways-chat-interface-skill.md`** § **Admin vs consumer sk
 | 🤖 **Greenways Transition Agents** | `greenways-transition-agents.md` | **Roster** — Andrieus, Vincent, Artemis, Zara, Cheryce, Zyanne, Edwardo; agents vs skills map |
 | 🗺️ **Agents roadmap** | `greenways-agents-roadmap.md` | Phases, **launch mode (Jun 2026)**, public/member AI, site knowledge |
 | 🚀 **Agents go-live** | `greenways-agents-go-live.md` | Gradual Wix rollout, per-agent smoke tests, tiers A/B/C |
+| 🛡️ **Agents build gate** | `greenways-agents-build-gate.md` | Grow without break — lanes, demo contract, `smoke:agents-gate` |
 | 🔧 **Skills backend automation** | `skills-backend-automation.md` | Optional enhancements (research/parse/email); never replace integrators |
 | 🔄 **Agents data refresh** | `agents-data-refresh-playbook.md` | **Staff** — tier order, cleaning, npm pipeline, Edwardo verify; Orchestrator + admin cockpit |
 | 🏛️ **Grants refresh** | `grants-refresh-playbook.md` | **Staff** — schemes.json + integrator + marketplace bundle; which docs are current |
@@ -1482,7 +1483,7 @@ git commit -m "📚 Update SKILL-ORCHESTRATOR: Add new trigger phrases for styli
 "grants refresh" "refresh schemes" "product grants integrator" "marketplace grants"
 ```
 
-**Routes to:** this section · `agents-data-refresh-playbook.md` (data/catalogue refresh) · **`grants-refresh-playbook.md`** (schemes + product overlay) · `greenways-chat-interface-skill.md` · `greenways-agents-go-live.md` · `Systems MD.md` (platform health)
+**Routes to:** this section · `agents-data-refresh-playbook.md` (data/catalogue refresh) · **`grants-refresh-playbook.md`** (schemes + product overlay) · `greenways-chat-interface-skill.md` · `greenways-agents-go-live.md` · **`greenways-agents-build-gate.md`** (pre-push smokes / grow without break) · `Systems MD.md` (platform health)
 
 ---
 

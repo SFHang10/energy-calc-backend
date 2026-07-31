@@ -40,6 +40,7 @@ function withModuleDemo(row = {}, demo = {}) {
   if (demo.product) parts.product = demo.product;
   if (demo.productId) parts.product = demo.productId;
   if (demo.scenario) parts.scenario = demo.scenario;
+  if (demo.ids) parts.ids = demo.ids;
   if (demo.auto) parts.auto = '1';
   if (note) parts.demoNote = note;
   if (label) parts.demoLabel = label;
@@ -163,6 +164,46 @@ function agentMarketDemo(overrides = {}) {
   );
 }
 
+function shortlistCompareDemo(overrides = {}) {
+  const {
+    label,
+    note,
+    ids,
+    products,
+    moduleId,
+    openSize,
+    title,
+    query,
+    description,
+    usageHint
+  } = overrides;
+  const idList = Array.isArray(ids)
+    ? ids
+    : Array.isArray(products)
+      ? products
+      : String(ids || products || '')
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
+  return withModuleDemo(
+    {
+      moduleId: moduleId || 'shortlist-compare',
+      openSize: openSize || 'near-full',
+      title,
+      query,
+      description,
+      usageHint
+    },
+    {
+      label: label || 'Shortlist Compare',
+      note:
+        note ||
+        'Side-by-side board for products you saved — pick two or three, then ask Vincent or Andrieus.',
+      ids: idList.length ? idList.join(',') : undefined
+    }
+  );
+}
+
 /** Map profile.region-ish values to Finance Finder country option strings. */
 function countryLabelFromProfile(regionOrCountry) {
   const r = String(regionOrCountry || '')
@@ -186,5 +227,6 @@ module.exports = {
   financeFinderDemo,
   savingsProjectionDemo,
   agentMarketDemo,
+  shortlistCompareDemo,
   countryLabelFromProfile
 };

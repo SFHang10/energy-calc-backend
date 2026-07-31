@@ -23,7 +23,7 @@ const {
   agentIntroParagraph
 } = require('./greenways-agent-persona');
 const { mergeModuleRow, loadRegistrySync, getModuleById, enrichKnowledgeAnswer } = require('./greenways-content-modules');
-const { agentMarketDemo } = require('./greenways-module-demo');
+const { agentMarketDemo, shortlistCompareDemo } = require('./greenways-module-demo');
 const { resolveGlossaryFromIntent, tryBuildGlossaryAnswer } = require('./greenways-sustainability-glossary');
 const { EquipmentIntelligenceService } = require('./equipment-intelligence-service');
 const {
@@ -890,6 +890,10 @@ function buildLaneAnswer(lane, catalog, showcase, tip) {
           lane: lane === 'water' ? 'water' : lane === 'gas' ? 'hvac' : 'kitchen',
           label: 'Zyanne — Agent Market',
           note: 'Lane primed from your question — browse, save, then hand off for grants or payback.'
+        }),
+        shortlistCompareDemo({
+          label: 'Zyanne — Shortlist Compare',
+          note: 'After you save products, compare them here side by side before you buy.'
         })
       ]);
       return [market].concat(base);

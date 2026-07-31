@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Greenways — Shortlist Compare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-marketplace-page-backdrop.css?v=glass2">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-module-demo.js"></script>
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-product-shortlist.js"></script>
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-topic-bridge.js"></script>
+<style>
+  :root {
+    --bg: #070e12;
+    --panel: rgba(12, 22, 28, 0.94);
+    --line: rgba(34, 212, 255, 0.22);
+    --text: #e8f4f8;
+    --muted: #8eabb4;
+    --cyan: #22d3ee;
+    --green: #28a745;
+    --gold: #c9a961;
+    --font: 'Space Grotesk', system-ui, sans-serif;
+    --font-clean: 'IBM Plex Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    overflow-x: hidden;
+    line-height: 1.5;
+  }
+  .sc-page {
+    position: relative;
+    z-index: 1;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 18px 16px 40px;
+  }
+  .sc-return {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0 0 14px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(201, 169, 97, 0.35);
+    background: rgba(8, 16, 22, 0.92);
+    backdrop-filter: blur(12px);
+  }
+  .sc-return[hidden] { display: none !important; }
+  .sc-return-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(201, 169, 97, 0.55);
+    background: rgba(201, 169, 97, 0.12);
+    color: #f0d78a;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .sc-return-hint { font-size: 0.72rem; color: var(--muted); text-align: right; }
+  .sc-hero {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .sc-hero h1 {
+    font-size: clamp(1.55rem, 3.8vw, 2.1rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #fff 0%, var(--cyan) 55%, #86efac 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .sc-hero p {
+    margin: 10px auto 0;
+    max-width: 36rem;
+    color: #e8f6fa;
+    font-size: 0.95rem;
+  }
+  .sc-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: rgba(10, 20, 28, 0.72);
+  }
+  .sc-toolbar strong { font-size: 0.9rem; }
+  .sc-toolbar span { color: var(--muted); font-size: 0.78rem; }
+  .sc-toolbar-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sc-btn {
+    appearance: none;
+    border-radius: 999px;
+    border: 1px solid rgba(34, 212, 255, 0.35);
+    background: rgba(34, 212, 255, 0.08);
+    color: var(--cyan);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 7px 12px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .sc-btn:hover { background: rgba(34, 212, 255, 0.16); }
+  .sc-btn--gold {
+    border-color: rgba(201, 169, 97, 0.5);
+    background: rgba(201, 169, 97, 0.14);
+    color: #f0d78a;
+  }
+  .sc-btn--green {
+    border-color: rgba(40, 167, 69, 0.45);
+    background: rgba(40, 167, 69, 0.12);
+    color: #9ae6b0;
+  }
+  .sc-empty {
+    padding: 28px 18px;
+    border-radius: 16px;
+    border: 1px dashed rgba(34, 212, 255, 0.28);
+    background: rgba(10, 20, 28, 0.55);
+    text-align: center;
+  }
+  .sc-empty h2 { font-size: 1.1rem; margin-bottom: 8px; }
+  .sc-empty p { color: var(--muted); font-size: 0.9rem; margin-bottom: 14px; }
+  .sc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+  }
+  .sc-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(34, 212, 255, 0.22);
+    background: rgba(12, 22, 28, 0.88);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+  }
+  .sc-card.is-selected {
+    border-color: rgba(201, 169, 97, 0.7);
+    box-shadow: 0 0 0 1px rgba(201, 169, 97, 0.35), 0 12px 28px rgba(0, 0, 0, 0.32);
+  }
+  .sc-card-top {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .sc-card img {
+    width: 72px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.25);
+    flex-shrink: 0;
+  }
+  .sc-card h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.3;
+    font-family: var(--font-clean);
+  }
+  .sc-meta {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .sc-select {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    color: var(--gold);
+    margin-bottom: 2px;
+  }
+  .sc-grants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-height: 1.5rem;
+  }
+  .sc-chip {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(40, 167, 69, 0.4);
+    background: rgba(40, 167, 69, 0.12);
+    color: #9ae6b0;
+  }
+  .sc-chip--muted {
+    border-color: rgba(142, 171, 180, 0.35);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--muted);
+  }
+  .sc-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    font-size: 0.75rem;
+  }
+  .sc-stat {
+    padding: 8px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .sc-stat strong {
+    display: block;
+    font-family: var(--font-clean);
+    font-size: 0.88rem;
+    color: #fff;
+  }
+  .sc-stat span { color: var(--muted); font-size: 0.68rem; }
+  .sc-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: auto;
+  }
+  .sc-actions button,
+  .sc-actions a {
+    appearance: none;
+    text-decoration: none;
+    border-radius: 8px;
+    border: 1px solid rgba(34, 212, 255, 0.3);
+    background: rgba(34, 212, 255, 0.08);
+    color: var(--cyan);
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 6px 9px;
+    cursor: pointer;
+  }
+  .sc-actions .sc-buy {
+    border-color: rgba(201, 169, 97, 0.5);
+    background: rgba(201, 169, 97, 0.18);
+    color: #f0d78a;
+  }
+  .sc-board-note {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(201, 169, 97, 0.28);
+    background: rgba(201, 169, 97, 0.08);
+    font-size: 0.82rem;
+    color: #e8f0f4;
+  }
+  .sc-status {
+    margin: 10px 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  .sc-status.is-error { color: #f0a8a8; }
+  @media (max-width: 560px) {
+    .sc-card-top { flex-direction: column; }
+    .sc-card img { width: 100%; height: 120px; }
+  }
+</style>
+</head>
+<body>
+<div class="gw-mp-backdrop" aria-hidden="true"></div>
+<main class="sc-page">
+  <nav class="sc-return" id="sc-return" aria-label="Return navigation" hidden>
+    <button type="button" class="sc-return-btn" id="sc-return-btn">← Back to chat</button>
+    <span class="sc-return-hint" id="sc-return-hint">Chat stays open behind this panel</span>
+  </nav>
+
+  <header class="sc-hero">
+    <h1>Shortlist Compare</h1>
+    <p>Side-by-side view of products you saved — grants, payback, and specialist handoffs in one board.</p>
+  </header>
+
+  <div class="sc-toolbar">
+    <div>
+      <strong id="sc-count">0 on shortlist</strong>
+      <span id="sc-select-hint"> · Select up to 3 to compare</span>
+    </div>
+    <div class="sc-toolbar-actions">
+      <button type="button" class="sc-btn" id="sc-open-market">Browse Agent Market</button>
+      <button type="button" class="sc-btn sc-btn--gold" id="sc-ask-grants" hidden>Ask Andrieus about all</button>
+      <button type="button" class="sc-btn sc-btn--green" id="sc-seed-demo" hidden>Load demo shortlist</button>
+    </div>
+  </div>
+
+  <p class="sc-status" id="sc-status" hidden></p>
+  <div class="sc-empty" id="sc-empty" hidden>
+    <h2>No products saved yet</h2>
+    <p>Save 2–3 options in Agent Market or from an agent banner, then reopen this board to compare them.</p>
+    <button type="button" class="sc-btn sc-btn--gold" id="sc-empty-market">Open Agent Market</button>
+    <button type="button" class="sc-btn" id="sc-empty-demo" style="margin-left:8px">Try a demo shortlist</button>
+  </div>
+  <div class="sc-grid" id="sc-grid" aria-live="polite"></div>
+  <p class="sc-board-note" id="sc-board-note" hidden>
+    Tip: pick two or three cards, then use <strong>Ask Vincent</strong> for payback or <strong>Ask Andrieus</strong> for scheme fit — chat stays behind this module.
+  </p>
+</main>
+<script>
+(function () {
+  var STORAGE_KEY = "greenways-product-shortlist";
+  var DEMO_IDS = ["etl_14_86293", "etl_22_86212", "etl_22_86070"];
+  var MAX_COMPARE = 3;
+  var selected = {};
+  var enrichedCache = {};
+
+  var gridEl = document.getElementById("sc-grid");
+  var emptyEl = document.getElementById("sc-empty");
+  var statusEl = document.getElementById("sc-status");
+  var countEl = document.getElementById("sc-count");
+  var noteEl = document.getElementById("sc-board-note");
+  var askGrantsBtn = document.getElementById("sc-ask-grants");
+  var seedDemoBtn = document.getElementById("sc-seed-demo");
+
+  function escapeHtml(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function readShortlist() {
+    if (window.GreenwaysAgentProductShortlist && typeof window.GreenwaysAgentProductShortlist.readShortlist === "function") {
+      return window.GreenwaysAgentProductShortlist.readShortlist() || [];
+    }
+    try {
+      var raw = sessionStorage.getItem(STORAGE_KEY);
+      var parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function writeShortlist(items) {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(items.slice(0, 12)));
+      window.dispatchEvent(new CustomEvent("gw-shortlist-change", { detail: { items: items } }));
+    } catch (_) {}
+    if (window.GreenwaysAgentProductShortlist && typeof window.GreenwaysAgentProductShortlist.renderSidebar === "function") {
+      try { window.GreenwaysAgentProductShortlist.renderSidebar(); } catch (_) {}
+    }
+  }
+
+  function marketplaceHref(id, existing) {
+    if (existing && String(existing).trim()) {
+      var href = String(existing).trim();
+      if (href.charAt(0) === "/") return href;
+      if (/^https?:\/\//i.test(href)) return href;
+      return "/" + href.replace(/^\.\//, "");
+    }
+    return "/product-page-v2-marketplace.html?product=" + encodeURIComponent(id) + "&fromPopup=true";
+  }
+
+  function closeParentModule() {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: "gw-module-close", moduleId: "shortlist-compare" }, "*");
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  function openParentModule(moduleId, overrides) {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage(
+          { type: "gw-module-open", moduleId: moduleId, overrides: overrides || {} },
+          "*"
+        );
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  function initReturnNav() {
+    var bar = document.getElementById("sc-return");
+    var btn = document.getElementById("sc-return-btn");
+    var hint = document.getElementById("sc-return-hint");
+    if (!bar || !btn) return;
+    var params = new URLSearchParams(location.search);
+    var fromLabel = params.get("fromLabel") || "";
+    var from = params.get("from") || "";
+    var returnHref = params.get("return") || "";
+    var embed = params.get("embed") === "1" || params.get("popup") === "1";
+    var inFrame = false;
+    try { inFrame = window.parent && window.parent !== window; } catch (_) { inFrame = true; }
+
+    var label = fromLabel || (from ? "← Back to chat" : "← Back to Orchestra");
+    if (!fromLabel && from.indexOf("equipment") >= 0) label = "← Back to Artemis";
+    if (!fromLabel && from.indexOf("finance") >= 0) label = "← Back to Vincent";
+    if (!fromLabel && from.indexOf("grants") >= 0) label = "← Back to Andrieus";
+    if (!fromLabel && from.indexOf("sustainable") >= 0) label = "← Back to Zyanne";
+    if (!fromLabel && !from && !embed && !inFrame) {
+      label = "← Back to Orchestra";
+      returnHref = returnHref || "/greenways/orchestra-hub";
+    }
+    btn.textContent = label;
+    bar.hidden = false;
+    if (hint) {
+      hint.textContent = embed || inFrame ? "Chat stays open behind this panel" : "Return to your Greenways page";
+    }
+    btn.addEventListener("click", function () {
+      if (embed || inFrame) {
+        if (!closeParentModule()) {
+          location.href = returnHref || "/greenways/orchestra-hub";
+        }
+        return;
+      }
+      location.href = returnHref || "/greenways/orchestra-hub";
+    });
+  }
+
+  function openMarket() {
+    if (!openParentModule("agent-market", { query: "lane=kitchen" })) {
+      window.open("/greenways/agent-market?lane=kitchen", "_blank");
+    }
+  }
+
+  function bridgeAsk(slug, product, topic) {
+    var Bridge = window.GreenwaysAgentTopicBridge;
+    var productId = product && product.id;
+    var productName = (product && (product.title || product.name)) || productId || "";
+    var href;
+    if (Bridge && typeof Bridge.buildHref === "function") {
+      href = Bridge.buildHref({
+        path: "/greenways/" + slug,
+        toSlug: slug,
+        fromSlug: "shortlist-compare",
+        fromLabel: "Shortlist Compare",
+        topic: topic || productName,
+        productId: productId,
+        productName: productName
+      });
+    } else {
+      href =
+        "/greenways/" +
+        slug +
+        "?bridge=1&topic=" +
+        encodeURIComponent(topic || productName) +
+        (productId ? "&product=" + encodeURIComponent(productId) : "") +
+        "&from=Shortlist%20Compare";
+    }
+    try {
+      window.top.location.href = href;
+    } catch (_) {
+      window.location.href = href;
+    }
+  }
+
+  function openProjection(product) {
+    var id = product && product.id;
+    var q = "popup=1&embed=1&demo=1" + (id ? "&product=" + encodeURIComponent(id) : "&scenario=fridge");
+    if (!openParentModule("savings-projection", { query: q })) {
+      window.open("/HTMLS%20GWM%20GWB/equipment-savings-projection.html?" + q, "_blank");
+    }
+  }
+
+  async function enrichProduct(row) {
+    var id = String(row.id || "").trim();
+    if (!id) return row;
+    if (enrichedCache[id]) return Object.assign({}, row, enrichedCache[id]);
+    var out = {
+      id: id,
+      title: row.title || id,
+      marketplaceHref: marketplaceHref(id, row.marketplaceHref),
+      imageUrl: "",
+      grants: [],
+      priceLabel: "—",
+      brand: "",
+      category: ""
+    };
+    if (/^etl_/i.test(id)) {
+      try {
+        var res = await fetch("/api/product-widget/" + encodeURIComponent(id), { cache: "no-store" });
+        if (res.ok) {
+          var data = await res.json();
+          var p = data.product || data;
+          out.title = p.name || out.title;
+          out.imageUrl = p.imageUrl || p.image || "";
+          out.brand = p.manufacturer || p.brand || "";
+          out.category = p.category || p.subcategory || "";
+          var price = Number(p.price || p.listPrice || 0);
+          if (price > 0) out.priceLabel = "€" + Math.round(price).toLocaleString("en-GB");
+          var grants = Array.isArray(p.grants) ? p.grants : [];
+          out.grants = grants.slice(0, 3).map(function (g) {
+            return g.name || g.title || g.schemeName || "Grant";
+          });
+        }
+      } catch (_) {}
+    } else if (/^sust_/i.test(id)) {
+      out.category = "External alternative";
+      out.priceLabel = "Research";
+    }
+    enrichedCache[id] = out;
+    return Object.assign({}, row, out);
+  }
+
+  function selectedIds() {
+    return Object.keys(selected).filter(function (id) { return selected[id]; });
+  }
+
+  function setStatus(msg, isError) {
+    if (!statusEl) return;
+    if (!msg) {
+      statusEl.hidden = true;
+      statusEl.textContent = "";
+      return;
+    }
+    statusEl.hidden = false;
+    statusEl.className = "sc-status" + (isError ? " is-error" : "");
+    statusEl.textContent = msg;
+  }
+
+  function renderCards(products) {
+    gridEl.innerHTML = "";
+    products.forEach(function (product) {
+      var id = product.id;
+      var isOn = !!selected[id];
+      var card = document.createElement("article");
+      card.className = "sc-card" + (isOn ? " is-selected" : "");
+      card.setAttribute("data-id", id);
+
+      var grantsHtml =
+        product.grants && product.grants.length
+          ? product.grants
+              .map(function (g) {
+                return '<span class="sc-chip">' + escapeHtml(g) + "</span>";
+              })
+              .join("")
+          : '<span class="sc-chip sc-chip--muted">No grant chip yet</span>';
+
+      card.innerHTML =
+        '<label class="sc-select"><input type="checkbox" data-select="' +
+        escapeHtml(id) +
+        '"' +
+        (isOn ? " checked" : "") +
+        "> Compare</label>" +
+        '<div class="sc-card-top">' +
+        (product.imageUrl
+          ? '<img src="' + escapeHtml(product.imageUrl) + '" alt="">'
+          : '<img src="data:image/svg+xml,' +
+            encodeURIComponent(
+              '<svg xmlns="http://www.w3.org/2000/svg" width="72" height="60"><rect fill="%230c161c" width="72" height="60"/><text x="36" y="34" text-anchor="middle" fill="%238eabb4" font-size="10">No image</text></svg>'
+            ) +
+            '" alt="">') +
+        "<div><h3>" +
+        escapeHtml(product.title || id) +
+        '</h3><div class="sc-meta">' +
+        escapeHtml([product.brand, product.category, id].filter(Boolean).join(" · ")) +
+        "</div></div></div>" +
+        '<div class="sc-grants">' +
+        grantsHtml +
+        "</div>" +
+        '<div class="sc-stats">' +
+        '<div class="sc-stat"><strong>' +
+        escapeHtml(product.priceLabel || "—") +
+        '</strong><span>List / guide price</span></div>' +
+        '<div class="sc-stat"><strong>' +
+        escapeHtml(String((product.grants && product.grants.length) || 0)) +
+        '</strong><span>Grant chips</span></div></div>' +
+        '<div class="sc-actions">' +
+        '<a class="sc-buy" href="' +
+        escapeHtml(product.marketplaceHref) +
+        '" target="_top" rel="noopener">Buy on Market ↗</a>' +
+        '<button type="button" data-act="projection" data-id="' +
+        escapeHtml(id) +
+        '">Savings projection</button>' +
+        '<button type="button" data-act="artemis" data-id="' +
+        escapeHtml(id) +
+        '">Ask Artemis</button>' +
+        '<button type="button" data-act="vincent" data-id="' +
+        escapeHtml(id) +
+        '">Ask Vincent</button>' +
+        '<button type="button" data-act="andrieus" data-id="' +
+        escapeHtml(id) +
+        '">Ask Andrieus</button>' +
+        '<button type="button" data-act="remove" data-id="' +
+        escapeHtml(id) +
+        '">Remove</button>' +
+        "</div>";
+
+      gridEl.appendChild(card);
+    });
+  }
+
+  async function refresh() {
+    var items = readShortlist();
+    countEl.textContent = items.length + " on shortlist";
+    askGrantsBtn.hidden = items.length < 1;
+    noteEl.hidden = items.length < 1;
+    emptyEl.hidden = items.length > 0;
+    gridEl.hidden = items.length < 1;
+
+    if (!items.length) {
+      setStatus("");
+      return;
+    }
+
+    setStatus("Loading product detail…");
+    var enriched = [];
+    for (var i = 0; i < items.length; i++) {
+      enriched.push(await enrichProduct(items[i]));
+    }
+
+    var ids = enriched.map(function (p) { return p.id; });
+    Object.keys(selected).forEach(function (id) {
+      if (ids.indexOf(id) < 0) delete selected[id];
+    });
+    if (selectedIds().length === 0) {
+      enriched.slice(0, Math.min(MAX_COMPARE, enriched.length)).forEach(function (p) {
+        selected[p.id] = true;
+      });
+    }
+
+    renderCards(enriched);
+    setStatus(selectedIds().length + " selected for focus (max " + MAX_COMPARE + ")");
+  }
+
+  function seedDemoShortlist() {
+    var existing = readShortlist();
+    var byId = {};
+    existing.forEach(function (row) { byId[row.id] = row; });
+    DEMO_IDS.forEach(function (id) {
+      if (!byId[id]) {
+        existing.unshift({
+          id: id,
+          title: id,
+          addedAt: new Date().toISOString(),
+          marketplaceHref: marketplaceHref(id)
+        });
+      }
+    });
+    writeShortlist(existing);
+    selected = {};
+    DEMO_IDS.forEach(function (id) { selected[id] = true; });
+    refresh();
+  }
+
+  function removeFromShortlist(id) {
+    if (window.GreenwaysAgentProductShortlist && typeof window.GreenwaysAgentProductShortlist.removeItem === "function") {
+      window.GreenwaysAgentProductShortlist.removeItem(id);
+    } else {
+      writeShortlist(readShortlist().filter(function (row) { return String(row.id) !== String(id); }));
+    }
+    delete selected[id];
+    refresh();
+  }
+
+  function askAboutSelected(slug) {
+    var ids = selectedIds();
+    var items = readShortlist().filter(function (row) { return ids.indexOf(row.id) >= 0; });
+    if (!items.length) items = readShortlist().slice(0, 3);
+    if (!items.length) return;
+    var names = items.map(function (r) { return r.title || r.id; }).join(", ");
+    var topics = {
+      "equipment-agent": "Compare my shortlisted equipment: " + names,
+      "finance-agent": "Payback and finance for: " + names,
+      "grants-agent": "Which grants apply to: " + names + "?"
+    };
+    bridgeAsk(slug, items[0], topics[slug] || names);
+  }
+
+  gridEl.addEventListener("change", function (e) {
+    var input = e.target.closest("[data-select]");
+    if (!input) return;
+    var id = input.getAttribute("data-select");
+    if (input.checked) {
+      if (selectedIds().length >= MAX_COMPARE && !selected[id]) {
+        input.checked = false;
+        setStatus("Select up to " + MAX_COMPARE + " products", true);
+        return;
+      }
+      selected[id] = true;
+    } else {
+      delete selected[id];
+    }
+    var card = gridEl.querySelector('.sc-card[data-id="' + id + '"]');
+    if (card) card.classList.toggle("is-selected", !!selected[id]);
+    setStatus(selectedIds().length + " selected for focus (max " + MAX_COMPARE + ")");
+  });
+
+  gridEl.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-act]");
+    if (!btn) return;
+    var act = btn.getAttribute("data-act");
+    var id = btn.getAttribute("data-id");
+    var product = enrichedCache[id] || { id: id, title: id, marketplaceHref: marketplaceHref(id) };
+    if (act === "remove") {
+      removeFromShortlist(id);
+      return;
+    }
+    if (act === "projection") {
+      openProjection(product);
+      return;
+    }
+    if (act === "artemis") {
+      bridgeAsk("equipment-agent", product, "Help me choose: " + (product.title || id));
+      return;
+    }
+    if (act === "vincent") {
+      bridgeAsk("finance-agent", product, "Payback and finance for " + (product.title || id));
+      return;
+    }
+    if (act === "andrieus") {
+      bridgeAsk("grants-agent", product, "Which grants apply to " + (product.title || id) + "?");
+    }
+  });
+
+  document.getElementById("sc-open-market").addEventListener("click", openMarket);
+  document.getElementById("sc-empty-market").addEventListener("click", openMarket);
+  document.getElementById("sc-empty-demo").addEventListener("click", seedDemoShortlist);
+  if (seedDemoBtn) seedDemoBtn.addEventListener("click", seedDemoShortlist);
+  askGrantsBtn.addEventListener("click", function () {
+    askAboutSelected("grants-agent");
+  });
+
+  window.addEventListener("gw-shortlist-change", refresh);
+
+  initReturnNav();
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: "gw-module-embed-ready", moduleId: "shortlist-compare" }, "*");
+    }
+  } catch (_) {}
+
+  var params = new URLSearchParams(location.search);
+  if (window.GreenwaysModuleDemo && window.GreenwaysModuleDemo.isDemo(params)) {
+    window.GreenwaysModuleDemo.mountBanner({ before: document.querySelector(".sc-hero") });
+    if (seedDemoBtn) seedDemoBtn.hidden = false;
+  }
+
+  var idsParam = String(params.get("ids") || params.get("products") || "").trim();
+  if (idsParam) {
+    var incoming = idsParam.split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+    var list = readShortlist();
+    var have = {};
+    list.forEach(function (r) { have[r.id] = true; });
+    incoming.forEach(function (id) {
+      if (!have[id] && /^(etl_|sust_)/i.test(id)) {
+        list.unshift({
+          id: id,
+          title: id,
+          addedAt: new Date().toISOString(),
+          marketplaceHref: marketplaceHref(id)
+        });
+      }
+    });
+    writeShortlist(list);
+    selected = {};
+    incoming.slice(0, MAX_COMPARE).forEach(function (id) { selected[id] = true; });
+  } else if (params.get("demo") === "1" && !readShortlist().length) {
+    seedDemoShortlist();
+  }
+
+  refresh();
+})();
+</script>
+</body>
+</html>

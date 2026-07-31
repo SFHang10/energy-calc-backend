@@ -234,6 +234,8 @@ app.get('/greenways/customer-hub', (req, res) => sendLiveMusicHtml(res, 'greenwa
 app.get('/greenways/customer-dashboard', (req, res) => sendLiveMusicHtml(res, 'greenways-customer-hub.html'));
 app.get('/greenways/agent-market', (req, res) => sendLiveMusicHtml(res, 'greenways-agent-market.html'));
 app.get('/greenways/agent-market.html', (req, res) => sendLiveMusicHtml(res, 'greenways-agent-market.html'));
+app.get('/greenways/shortlist-compare', (req, res) => sendLiveMusicHtml(res, 'greenways-shortlist-compare.html'));
+app.get('/greenways/shortlist-compare.html', (req, res) => sendLiveMusicHtml(res, 'greenways-shortlist-compare.html'));
 
 app.get('/greenways/restaurant-data', (req, res) => sendLiveMusicHtml(res, 'restaurant-data.html'));
 app.get('/greenways/restaurant-energy-snapshot', (req, res) => sendLiveMusicHtml(res, 'restaurant-energy-snapshot.html'));

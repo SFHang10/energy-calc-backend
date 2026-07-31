@@ -23,7 +23,7 @@ const {
   isReferralWelcomePair
 } = require('./greenways-agent-handoff');
 const { buildUpgradePlan } = require('./greenways-upgrade-plan');
-const { agentMarketDemo, savingsProjectionDemo } = require('./greenways-module-demo');
+const { agentMarketDemo, savingsProjectionDemo, shortlistCompareDemo } = require('./greenways-module-demo');
 const {
   applyPersona,
   loadAgentVoice,
@@ -635,6 +635,10 @@ function buildDeepDiveAnswer(tip) {
           lane: 'kitchen',
           label: 'Artemis — Agent Market',
           note: 'Kitchen lane primed — save a product, then ask Vincent about payback or Andrieus about grants.'
+        }),
+        shortlistCompareDemo({
+          label: 'Artemis — compare shortlist',
+          note: 'After you save options in Agent Market, open this board for a side-by-side view.'
         })
       ])
     ]
@@ -674,12 +678,19 @@ function buildProductComparisonAnswer(tip) {
   return {
     answer:
       `**Restaurant appliance comparison** — visual **standard vs efficient equipment** for ovens, refrigeration, dishwash, and HVAC, with savings stories you can share with stakeholders.\n\n` +
-      `Open the comparison module on the right for illustrated marketplace examples. For grants, decision matrix, and payback charts, follow with **equipment deep dive**.\n\n_${tip}_`,
+      `I also opened **Shortlist Compare** — if you have saved products, compare them side by side; if not, load the demo shortlist inside the board.\n\n_${tip}_`,
     suggestions: [],
-    blocks: linkOrModuleBlocks([
-      toLinkItem('Appliance comparison', PORTAL_LINKS.applianceComparison, 'Marketplace savings visuals'),
-      toLinkItem('Equipment deep dive', PORTAL_LINKS.deepDive, 'Grants + projection detail')
-    ])
+    blocks: [
+      equipmentModuleBlock([
+        shortlistCompareDemo({
+          demo: true,
+          label: 'Artemis — Shortlist Compare',
+          note: 'Compare saved products side by side — or load the kitchen demo shortlist to try the board.'
+        }),
+        { moduleId: 'appliance-comparison', openSize: 'near-full' },
+        { moduleId: 'equipment-deep-dive', openSize: 'near-full' }
+      ])
+    ]
   };
 }
 

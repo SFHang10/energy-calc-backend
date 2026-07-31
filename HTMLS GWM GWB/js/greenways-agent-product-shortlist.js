@@ -326,6 +326,30 @@
           handoffToGrants(items);
         });
 
+        var compareBtn = document.createElement("button");
+        compareBtn.type = "button";
+        compareBtn.className = "gw-shortlist-compare";
+        compareBtn.textContent = "Open compare board";
+        compareBtn.addEventListener("click", function () {
+          try {
+            if (global.parent && global.parent !== global && global.parent.GreenwaysAgentContentModule) {
+              global.parent.postMessage({ type: "gw-module-open", moduleId: "shortlist-compare" }, "*");
+              return;
+            }
+          } catch (_) {}
+          try {
+            if (global.GreenwaysAgentContentModule && typeof global.GreenwaysAgentContentModule.openById === "function") {
+              global.GreenwaysAgentContentModule.openById("shortlist-compare");
+              return;
+            }
+          } catch (_) {}
+          try {
+            global.top.location.href = "/greenways/shortlist-compare";
+          } catch (_) {
+            global.location.href = "/greenways/shortlist-compare";
+          }
+        });
+
         var clearBtn = document.createElement("button");
         clearBtn.type = "button";
         clearBtn.className = "gw-shortlist-clear";
@@ -337,6 +361,7 @@
           decorateAll();
         });
 
+        footer.appendChild(compareBtn);
         footer.appendChild(grantsBtn);
         footer.appendChild(clearBtn);
       }

@@ -984,11 +984,20 @@
     if (actionsMount) {
       actionsMount.innerHTML =
         '<div class="gw-shortlist-actions">' +
+        '<button type="button" class="gw-shortlist-compare" id="am-shortlist-compare">Open compare board</button>' +
         '<button type="button" class="gw-shortlist-grants" id="am-shortlist-grants">Check grants with Andrieus</button>' +
         '<button type="button" class="gw-shortlist-clear" id="am-shortlist-clear">Clear shortlist</button>' +
         "</div>";
+      var compareBtn = document.getElementById("am-shortlist-compare");
       var grantsBtn = document.getElementById("am-shortlist-grants");
       var clearBtn = document.getElementById("am-shortlist-clear");
+      if (compareBtn) {
+        compareBtn.addEventListener("click", function () {
+          if (!openParentModule("shortlist-compare")) {
+            window.open("/greenways/shortlist-compare", "_blank");
+          }
+        });
+      }
       if (grantsBtn) {
         grantsBtn.addEventListener("click", function () {
           window.open(askGrantsHref(), "_top");
