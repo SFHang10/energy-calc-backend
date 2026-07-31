@@ -8,6 +8,7 @@
 
 - [x] **Agent Market demos:** agents prime Finance Finder / projection / Market — 2026-07-30
 - [x] **Shortlist Compare board:** agent-first HTML `greenways-shortlist-compare.html` + module `shortlist-compare` — 2026-07-31
+- [x] **Upgrade Plan Studio:** agent-first HTML `greenways-upgrade-plan-studio.html` + module `upgrade-plan-studio` + `/api/upgrade-plan` — 2026-07-31
 - [x] **Build gate:** `Skills/greenways-agents-build-gate.md` + `npm run smoke:agent-modules` / `smoke:agents-gate` — 2026-07-31
 
 ---

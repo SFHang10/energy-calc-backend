@@ -2,16 +2,19 @@ const path = require('path');
 const fs = require('fs/promises');
 const { loadSchemes, rankSchemes, toModuleItem } = require('./greenways-agent-shared');
 const { mergeModuleRow } = require('./greenways-content-modules');
+const { upgradePlanStudioDemo } = require('./greenways-module-demo');
 
 const scenariosPath = path.join(__dirname, '..', 'data', 'savings-projection-scenarios.json');
 
 const VERTICAL_ALIASES = {
   fridge: ['fridge', 'refrigerat', 'counter fridge', 'undercounter', 'cold room'],
+  dishwasher: ['dishwasher', 'warewash', 'hood dishwasher', 'pass-through'],
   'wok-burner': ['wok', 'burner', 'cookline', 'wok line', 'gas line']
 };
 
 const VERTICAL_MODULE_QUERY = {
   fridge: { scenario: 'fridge', category: 'refrigeration' },
+  dishwasher: { scenario: 'dishwasher', category: 'kitchen' },
   'wok-burner': { scenario: 'wok-burner', category: 'kitchen' }
 };
 
@@ -191,10 +194,23 @@ function buildModuleBlocks(vertical) {
           title: 'Restaurant schemes portal',
           usageHint: 'Confirm eligibility before you quote grant amounts.',
           openSize: 'near-full'
+        }),
+        toThemedModuleItem({
+          theme: 'equipment',
+          agentName: 'Artemis',
+          ...upgradePlanStudioDemo({
+            vertical: resolvedScenarioId(vertical),
+            label: 'Artemis — Upgrade Plan Studio',
+            note: 'Tick through the six-step path — open tools from each step, then hand off for grants or finance.'
+          })
         })
       ]
     }
   ];
+}
+
+function resolvedScenarioId(vertical) {
+  return (VERTICAL_MODULE_QUERY[vertical] || VERTICAL_MODULE_QUERY.fridge).scenario;
 }
 
 async function buildUpgradePlan({ vertical, profile = {}, question = '' } = {}) {
@@ -219,14 +235,16 @@ async function buildUpgradePlan({ vertical, profile = {}, question = '' } = {}) 
     meta: bundle.meta
   });
 
-  const regionLabel = profile.region ? String(profile.region).replace(/^eu\./, '').toUpperCase() : 'your region';
+  const regionLabel = profile.region
+    ? String(profile.region).replace(/^eu\./, '').toUpperCase()
+    : 'your region';
 
   return {
     answer:
       `Here is a **step-by-step upgrade plan** for **${scenario.title || 'your equipment'}** (${regionLabel}).\n\n` +
       `I keep the chat short — **follow the numbered plan on the right**, then open the linked tools for specs, grants, and payback. ` +
       `All € figures are from the **illustrative savings-projection scenario**, not live meter data.\n\n` +
-      `Want a different appliance? Ask for a **wok line** or **fridge** upgrade plan and I will swap the scenario.`,
+      `Open **Upgrade Plan Studio** for a checklist you can tick through. Want a different appliance? Ask for a **wok line**, **dishwasher**, or **fridge** plan.\n\n`,
     intentId: 'equipment_upgrade_plan',
     blocks: [planBlock, ...buildModuleBlocks(resolvedVertical)],
     suggestions: [
@@ -250,8 +268,37 @@ async function buildUpgradePlan({ vertical, profile = {}, question = '' } = {}) 
   };
 }
 
+/**
+ * Studio / API payload — same steps as chat upgrade_plan block.
+ */
+async function getUpgradePlanStudioPayload({ vertical, profile = {}, question = '' } = {}) {
+  const plan = await buildUpgradePlan({ vertical, profile, question });
+  if (!plan) return null;
+  const planBlock = (plan.blocks || []).find((b) => b && b.type === 'upgrade_plan');
+  if (!planBlock) return null;
+  const bundle = await loadScenarios();
+  const resolvedVertical = planBlock.vertical || detectVertical(question);
+  const scenario =
+    (bundle.scenarios || []).find((row) => row.id === resolvedVertical) ||
+    (bundle.scenarios || [])[0] ||
+    null;
+  return {
+    ok: true,
+    vertical: resolvedVertical,
+    scenario,
+    plan: planBlock,
+    handoffs: plan.agentHandoffs || [],
+    suggestions: plan.suggestions || [],
+    availableVerticals: (bundle.scenarios || []).map((s) => ({
+      id: s.id,
+      title: s.title
+    }))
+  };
+}
+
 module.exports = {
   buildUpgradePlan,
+  getUpgradePlanStudioPayload,
   detectVertical,
   loadScenarios,
   paybackMonthsFromScenario,

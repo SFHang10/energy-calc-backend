@@ -40,6 +40,7 @@ function withModuleDemo(row = {}, demo = {}) {
   if (demo.product) parts.product = demo.product;
   if (demo.productId) parts.product = demo.productId;
   if (demo.scenario) parts.scenario = demo.scenario;
+  if (demo.vertical) parts.vertical = demo.vertical;
   if (demo.ids) parts.ids = demo.ids;
   if (demo.auto) parts.auto = '1';
   if (note) parts.demoNote = note;
@@ -204,6 +205,40 @@ function shortlistCompareDemo(overrides = {}) {
   );
 }
 
+function upgradePlanStudioDemo(overrides = {}) {
+  const {
+    label,
+    note,
+    vertical,
+    scenario,
+    region,
+    moduleId,
+    openSize,
+    title,
+    query,
+    description,
+    usageHint
+  } = overrides;
+  return withModuleDemo(
+    {
+      moduleId: moduleId || 'upgrade-plan-studio',
+      openSize: openSize || 'near-full',
+      title,
+      query,
+      description,
+      usageHint
+    },
+    {
+      label: label || 'Artemis — Upgrade Plan Studio',
+      note:
+        note ||
+        'Tick through the six-step upgrade path — open tools from each step, then hand off for grants or finance.',
+      vertical: vertical || scenario || 'fridge',
+      region
+    }
+  );
+}
+
 /** Map profile.region-ish values to Finance Finder country option strings. */
 function countryLabelFromProfile(regionOrCountry) {
   const r = String(regionOrCountry || '')
@@ -228,5 +263,6 @@ module.exports = {
   savingsProjectionDemo,
   agentMarketDemo,
   shortlistCompareDemo,
+  upgradePlanStudioDemo,
   countryLabelFromProfile
 };

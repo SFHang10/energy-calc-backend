@@ -18,6 +18,7 @@ const GWB = path.join(ROOT, 'HTMLS GWM GWB');
 const REQUIRED_MODULE_IDS = [
   'agent-market',
   'shortlist-compare',
+  'upgrade-plan-studio',
   'finance-finder',
   'savings-projection',
   'equipment-deep-dive',
@@ -27,6 +28,7 @@ const REQUIRED_MODULE_IDS = [
 const REQUIRED_HTML = {
   'agent-market': 'greenways-agent-market.html',
   'shortlist-compare': 'greenways-shortlist-compare.html',
+  'upgrade-plan-studio': 'greenways-upgrade-plan-studio.html',
   'finance-finder': 'finance-finder-restaurant.html',
   'savings-projection': 'equipment-savings-projection.html'
 };
@@ -136,7 +138,8 @@ function main() {
       ['financeFinderDemo', demo.financeFinderDemo({ tab: 'bnpl', q: 'dishwasher' })],
       ['savingsProjectionDemo', demo.savingsProjectionDemo({ scenario: 'fridge' })],
       ['agentMarketDemo', demo.agentMarketDemo({ lane: 'kitchen' })],
-      ['shortlistCompareDemo', demo.shortlistCompareDemo({ ids: ['etl_14_86293'] })]
+      ['shortlistCompareDemo', demo.shortlistCompareDemo({ ids: ['etl_14_86293'] })],
+      ['upgradePlanStudioDemo', demo.upgradePlanStudioDemo({ vertical: 'fridge' })]
     ];
     for (const [name, row] of checks) {
       if (!row || !row.moduleId) {

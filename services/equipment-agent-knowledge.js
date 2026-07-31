@@ -23,7 +23,7 @@ const {
   isReferralWelcomePair
 } = require('./greenways-agent-handoff');
 const { buildUpgradePlan } = require('./greenways-upgrade-plan');
-const { agentMarketDemo, savingsProjectionDemo, shortlistCompareDemo } = require('./greenways-module-demo');
+const { agentMarketDemo, savingsProjectionDemo, shortlistCompareDemo, upgradePlanStudioDemo } = require('./greenways-module-demo');
 const {
   applyPersona,
   loadAgentVoice,
@@ -639,6 +639,11 @@ function buildDeepDiveAnswer(tip) {
         shortlistCompareDemo({
           label: 'Artemis — compare shortlist',
           note: 'After you save options in Agent Market, open this board for a side-by-side view.'
+        }),
+        upgradePlanStudioDemo({
+          vertical: 'fridge',
+          label: 'Artemis — Upgrade Plan Studio',
+          note: 'Six-step fridge path — tick steps and open tools from each card.'
         })
       ])
     ]

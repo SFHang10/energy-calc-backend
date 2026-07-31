@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Greenways — Upgrade Plan Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-marketplace-page-backdrop.css?v=glass2">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-module-demo.js"></script>
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-topic-bridge.js"></script>
+<style>
+  :root {
+    --bg: #070e12;
+    --text: #e8f4f8;
+    --muted: #8eabb4;
+    --cyan: #22d3ee;
+    --green: #28a745;
+    --gold: #c9a961;
+    --font: 'Space Grotesk', system-ui, sans-serif;
+    --font-clean: 'IBM Plex Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    overflow-x: hidden;
+    line-height: 1.5;
+  }
+  .up-page {
+    position: relative;
+    z-index: 1;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 18px 16px 40px;
+  }
+  .up-return {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin: 0 0 14px; padding: 8px 10px; border-radius: 12px;
+    border: 1px solid rgba(201, 169, 97, 0.35);
+    background: rgba(8, 16, 22, 0.92); backdrop-filter: blur(12px);
+  }
+  .up-return[hidden] { display: none !important; }
+  .up-return-btn {
+    border-radius: 999px; border: 1px solid rgba(201, 169, 97, 0.55);
+    background: rgba(201, 169, 97, 0.12); color: #f0d78a;
+    font: inherit; font-size: 0.82rem; font-weight: 600; padding: 7px 12px; cursor: pointer;
+  }
+  .up-return-hint { font-size: 0.72rem; color: var(--muted); }
+  .up-hero { text-align: center; margin-bottom: 14px; }
+  .up-hero h1 {
+    font-size: clamp(1.5rem, 3.6vw, 2rem); font-weight: 700; letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #fff 0%, var(--cyan) 55%, #86efac 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .up-hero p { margin-top: 10px; color: #e8f6fa; font-size: 0.95rem; max-width: 34rem; margin-left: auto; margin-right: auto; }
+  .up-lanes {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-bottom: 14px;
+  }
+  .up-lane {
+    text-align: left; padding: 12px; border-radius: 12px; cursor: pointer; font: inherit; color: var(--text);
+    border: 1px solid rgba(34, 212, 255, 0.28); background: rgba(10, 20, 28, 0.72);
+  }
+  .up-lane.is-active { border-color: rgba(34, 212, 255, 0.7); background: rgba(14, 36, 48, 0.9); }
+  .up-lane strong { display: block; font-size: 0.88rem; }
+  .up-lane span { font-size: 0.72rem; color: var(--muted); }
+  .up-summary {
+    padding: 14px; border-radius: 16px; margin-bottom: 14px;
+    border: 1px solid rgba(34, 212, 255, 0.22); background: rgba(12, 22, 28, 0.88);
+  }
+  .up-summary h2 { font-size: 1.1rem; margin-bottom: 6px; font-family: var(--font-clean); }
+  .up-summary p { color: #d7e8ee; font-size: 0.9rem; }
+  .up-hints { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .up-hint {
+    flex: 1; min-width: 180px; padding: 10px 12px; border-radius: 10px;
+    background: rgba(40, 167, 69, 0.1); border: 1px solid rgba(40, 167, 69, 0.28);
+    font-size: 0.78rem;
+  }
+  .up-hint--gold {
+    background: rgba(201, 169, 97, 0.1); border-color: rgba(201, 169, 97, 0.35);
+  }
+  .up-hint strong { display: block; color: #9ae6b0; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
+  .up-hint--gold strong { color: #f0d78a; }
+  .up-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .up-btn {
+    appearance: none; border-radius: 999px; border: 1px solid rgba(34, 212, 255, 0.35);
+    background: rgba(34, 212, 255, 0.08); color: var(--cyan);
+    font: inherit; font-size: 0.78rem; font-weight: 600; padding: 7px 12px; cursor: pointer; text-decoration: none;
+  }
+  .up-btn--gold { border-color: rgba(201, 169, 97, 0.5); background: rgba(201, 169, 97, 0.14); color: #f0d78a; }
+  .up-btn--green { border-color: rgba(40, 167, 69, 0.45); background: rgba(40, 167, 69, 0.12); color: #9ae6b0; }
+  .up-progress {
+    font-size: 0.8rem; color: var(--muted); margin-bottom: 10px;
+  }
+  .up-steps { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .up-step {
+    display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start;
+    padding: 14px; border-radius: 14px;
+    border: 1px solid rgba(34, 212, 255, 0.2); background: rgba(12, 22, 28, 0.86);
+  }
+  .up-step.is-done { border-color: rgba(40, 167, 69, 0.45); opacity: 0.92; }
+  .up-step-check { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--green); }
+  .up-step-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 999px; margin-right: 8px;
+    background: rgba(34, 212, 255, 0.15); color: var(--cyan); font-size: 0.8rem; font-weight: 700;
+  }
+  .up-step h3 { font-size: 0.98rem; display: inline; font-family: var(--font-clean); }
+  .up-step p { margin-top: 6px; font-size: 0.86rem; color: #c9dbe3; }
+  .up-step-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .up-step-actions button, .up-step-actions a {
+    appearance: none; text-decoration: none; cursor: pointer;
+    border-radius: 8px; border: 1px solid rgba(34, 212, 255, 0.3);
+    background: rgba(34, 212, 255, 0.08); color: var(--cyan);
+    font: inherit; font-size: 0.72rem; font-weight: 600; padding: 6px 9px;
+  }
+  .up-status { font-size: 0.82rem; color: var(--muted); margin: 8px 0; }
+  .up-status.is-error { color: #f0a8a8; }
+  .up-note {
+    margin-top: 16px; padding: 12px 14px; border-radius: 12px;
+    border: 1px solid rgba(201, 169, 97, 0.28); background: rgba(201, 169, 97, 0.08);
+    font-size: 0.82rem;
+  }
+</style>
+</head>
+<body>
+<div class="gw-mp-backdrop" aria-hidden="true"></div>
+<main class="up-page">
+  <nav class="up-return" id="up-return" aria-label="Return navigation" hidden>
+    <button type="button" class="up-return-btn" id="up-return-btn">← Back to Artemis</button>
+    <span class="up-return-hint" id="up-return-hint">Chat stays open behind this panel</span>
+  </nav>
+
+  <header class="up-hero">
+    <h1>Upgrade Plan Studio</h1>
+    <p>Tick through the same six-step path Artemis shows in chat — open tools, copy the plan, hand off to Vincent or Andrieus.</p>
+  </header>
+
+  <div class="up-lanes" id="up-lanes" aria-label="Upgrade scenarios"></div>
+  <p class="up-status" id="up-status">Loading plan…</p>
+
+  <section class="up-summary" id="up-summary" hidden>
+    <h2 id="up-title">Upgrade plan</h2>
+    <p id="up-summary-text"></p>
+    <div class="up-hints">
+      <div class="up-hint"><strong>Grants</strong><span id="up-grant-hint"></span></div>
+      <div class="up-hint up-hint--gold"><strong>Payback</strong><span id="up-payback-hint"></span></div>
+    </div>
+  </section>
+
+  <div class="up-toolbar" id="up-toolbar" hidden>
+    <button type="button" class="up-btn up-btn--gold" id="up-copy">Copy plan</button>
+    <button type="button" class="up-btn" id="up-open-projection">Savings projection</button>
+    <button type="button" class="up-btn" id="up-open-compare">Shortlist Compare</button>
+    <button type="button" class="up-btn up-btn--green" id="up-ask-vincent">Ask Vincent</button>
+    <button type="button" class="up-btn up-btn--green" id="up-ask-andrieus">Ask Andrieus</button>
+  </div>
+  <p class="up-progress" id="up-progress" hidden></p>
+  <ol class="up-steps" id="up-steps"></ol>
+  <p class="up-note">€ figures are illustrative scenario numbers until live meter data is connected. Tick steps as you complete them — progress stays in this browser session.</p>
+</main>
+<script>
+(function () {
+  var PROGRESS_KEY = "gw-upgrade-plan-progress-v1";
+  var state = { vertical: "fridge", payload: null };
+
+  var lanesEl = document.getElementById("up-lanes");
+  var statusEl = document.getElementById("up-status");
+  var summaryEl = document.getElementById("up-summary");
+  var titleEl = document.getElementById("up-title");
+  var summaryTextEl = document.getElementById("up-summary-text");
+  var grantEl = document.getElementById("up-grant-hint");
+  var paybackEl = document.getElementById("up-payback-hint");
+  var stepsEl = document.getElementById("up-steps");
+  var toolbarEl = document.getElementById("up-toolbar");
+  var progressEl = document.getElementById("up-progress");
+
+  function escapeHtml(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function stripMd(s) {
+    return String(s || "").replace(/\*\*/g, "");
+  }
+
+  function readProgress(vertical) {
+    try {
+      var raw = sessionStorage.getItem(PROGRESS_KEY);
+      var all = raw ? JSON.parse(raw) : {};
+      var row = all[vertical] || {};
+      return row.done && typeof row.done === "object" ? row.done : {};
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function writeProgress(vertical, doneMap) {
+    try {
+      var raw = sessionStorage.getItem(PROGRESS_KEY);
+      var all = raw ? JSON.parse(raw) : {};
+      all[vertical] = { done: doneMap, updatedAt: new Date().toISOString() };
+      sessionStorage.setItem(PROGRESS_KEY, JSON.stringify(all));
+    } catch (_) {}
+  }
+
+  function closeParentModule() {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: "gw-module-close", moduleId: "upgrade-plan-studio" }, "*");
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  function openParentModule(moduleId, overrides) {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage(
+          { type: "gw-module-open", moduleId: moduleId, overrides: overrides || {} },
+          "*"
+        );
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  function initReturnNav() {
+    var bar = document.getElementById("up-return");
+    var btn = document.getElementById("up-return-btn");
+    var hint = document.getElementById("up-return-hint");
+    if (!bar || !btn) return;
+    var params = new URLSearchParams(location.search);
+    var fromLabel = params.get("fromLabel") || "";
+    var from = params.get("from") || "";
+    var returnHref = params.get("return") || "";
+    var embed = params.get("embed") === "1" || params.get("popup") === "1";
+    var inFrame = false;
+    try { inFrame = window.parent && window.parent !== window; } catch (_) { inFrame = true; }
+    var label = fromLabel || "← Back to Artemis";
+    if (!fromLabel && from.indexOf("finance") >= 0) label = "← Back to Vincent";
+    if (!fromLabel && from.indexOf("grants") >= 0) label = "← Back to Andrieus";
+    if (!fromLabel && !from && !embed && !inFrame) {
+      label = "← Back to Orchestra";
+      returnHref = returnHref || "/greenways/orchestra-hub";
+    }
+    btn.textContent = label;
+    bar.hidden = false;
+    if (hint) hint.textContent = embed || inFrame ? "Chat stays open behind this panel" : "Return to Greenways";
+    btn.addEventListener("click", function () {
+      if (embed || inFrame) {
+        if (!closeParentModule()) location.href = returnHref || "/greenways/equipment-agent";
+        return;
+      }
+      location.href = returnHref || "/greenways/equipment-agent";
+    });
+  }
+
+  function bridgeAsk(slug, topic) {
+    var Bridge = window.GreenwaysAgentTopicBridge;
+    var href;
+    if (Bridge && typeof Bridge.buildHref === "function") {
+      href = Bridge.buildHref({
+        path: "/greenways/" + slug,
+        toSlug: slug,
+        fromSlug: "upgrade-plan-studio",
+        fromLabel: "Upgrade Plan Studio",
+        topic: topic
+      });
+    } else {
+      href = "/greenways/" + slug + "?bridge=1&topic=" + encodeURIComponent(topic) + "&from=Upgrade%20Plan%20Studio";
+    }
+    try { window.top.location.href = href; } catch (_) { window.location.href = href; }
+  }
+
+  function openStepTool(step) {
+    if (step.handoffAgent === "finance" || step.handoffLabel) {
+      bridgeAsk("finance-agent", "How should I finance the net capex after grants on this upgrade plan?");
+      return;
+    }
+    var moduleId = step.moduleId;
+    if (!moduleId) return;
+    var query = step.query || "";
+    if (moduleId === "savings-projection" && query && query.indexOf("demo=") < 0) {
+      query = query + (query ? "&" : "") + "demo=1";
+    }
+    if (!openParentModule(moduleId, query ? { query: query } : {})) {
+      var map = {
+        "savings-projection": "/HTMLS%20GWM%20GWB/equipment-savings-projection.html?" + (query || "scenario=fridge"),
+        "equipment-deep-dive": "/HTMLS%20GWM%20GWB/restaurant-equipment-deep-dive.html",
+        "schemes-portal-restaurant": "/HTMLS%20GWM%20GWB/Full%20Schemes%20Portal%20Restaurant.html",
+        "restaurant-energy-snapshot": "/HTMLS%20GWM%20GWB/restaurant-energy-snapshot.html",
+        "renovation-plans": "/HTMLs/Renovation%20project%20plans.html",
+        "shortlist-compare": "/greenways/shortlist-compare",
+        "agent-market": "/greenways/agent-market"
+      };
+      window.open(map[moduleId] || "/greenways/equipment-agent", "_blank");
+    }
+  }
+
+  function planPlainText(plan) {
+    if (!plan) return "";
+    var lines = [];
+    lines.push(plan.title || "Upgrade plan");
+    lines.push("");
+    if (plan.summary) lines.push(stripMd(plan.summary));
+    if (plan.totalGrantHint) lines.push("Grants: " + stripMd(plan.totalGrantHint));
+    if (plan.paybackHint) lines.push("Payback: " + stripMd(plan.paybackHint));
+    lines.push("");
+    (plan.steps || []).forEach(function (step) {
+      lines.push((step.order || "") + ". " + (step.title || "Step"));
+      if (step.body) lines.push("   " + stripMd(step.body));
+    });
+    return lines.join("\n");
+  }
+
+  function renderLanes(verticals, active) {
+    if (!verticals || !verticals.length) {
+      verticals = [
+        { id: "fridge", title: "Fridge" },
+        { id: "dishwasher", title: "Dishwasher" },
+        { id: "wok-burner", title: "Wok line" }
+      ];
+    }
+    lanesEl.innerHTML = verticals
+      .map(function (v) {
+        return (
+          '<button type="button" class="up-lane' +
+          (v.id === active ? " is-active" : "") +
+          '" data-vertical="' +
+          escapeHtml(v.id) +
+          '"><strong>' +
+          escapeHtml(v.title || v.id) +
+          '</strong><span>' +
+          escapeHtml(v.id) +
+          "</span></button>"
+        );
+      })
+      .join("");
+  }
+
+  function renderPlan(payload) {
+    var plan = payload.plan;
+    var done = readProgress(payload.vertical);
+    state.payload = payload;
+    state.vertical = payload.vertical;
+
+    summaryEl.hidden = false;
+    toolbarEl.hidden = false;
+    progressEl.hidden = false;
+    titleEl.textContent = plan.title || "Upgrade plan";
+    summaryTextEl.textContent = stripMd(plan.summary || "");
+    grantEl.textContent = stripMd(plan.totalGrantHint || "—");
+    paybackEl.textContent = stripMd(plan.paybackHint || "—");
+
+    var steps = plan.steps || [];
+    var doneCount = 0;
+    stepsEl.innerHTML = steps
+      .map(function (step) {
+        var key = String(step.order || step.title || "");
+        var isDone = !!done[key];
+        if (isDone) doneCount += 1;
+        var openLabel = step.moduleId
+          ? "Open " + String(step.moduleId).replace(/-/g, " ")
+          : step.handoffLabel
+            ? "Ask Vincent"
+            : "";
+        return (
+          '<li class="up-step' +
+          (isDone ? " is-done" : "") +
+          '" data-order="' +
+          escapeHtml(key) +
+          '">' +
+          '<input class="up-step-check" type="checkbox" data-check="' +
+          escapeHtml(key) +
+          '"' +
+          (isDone ? " checked" : "") +
+          ' aria-label="Mark step done">' +
+          "<div><div><span class=\"up-step-num\">" +
+          escapeHtml(String(step.order || "")) +
+          "</span><h3>" +
+          escapeHtml(step.title || "Step") +
+          "</h3></div>" +
+          "<p>" +
+          escapeHtml(stripMd(step.body || "")) +
+          "</p>" +
+          (openLabel
+            ? '<div class="up-step-actions"><button type="button" data-open-step="' +
+              escapeHtml(key) +
+              '">' +
+              escapeHtml(openLabel) +
+              "</button></div>"
+            : "") +
+          "</div></li>"
+        );
+      })
+      .join("");
+
+    progressEl.textContent = doneCount + " of " + steps.length + " steps complete";
+    statusEl.textContent = "";
+    statusEl.className = "up-status";
+  }
+
+  async function loadPlan(vertical) {
+    statusEl.textContent = "Loading plan…";
+    statusEl.className = "up-status";
+    try {
+      var params = new URLSearchParams(location.search);
+      var region = params.get("region") || params.get("country") || "";
+      var q = params.get("q") || params.get("question") || "";
+      var url =
+        "/api/upgrade-plan?vertical=" +
+        encodeURIComponent(vertical) +
+        (region ? "&region=" + encodeURIComponent(region) : "") +
+        (q ? "&q=" + encodeURIComponent(q) : "");
+      var res = await fetch(url, { cache: "no-store" });
+      var data = await res.json();
+      if (!res.ok || !data || !data.ok) throw new Error((data && data.error) || "Could not load plan");
+      renderLanes(data.availableVerticals, data.vertical);
+      renderPlan(data);
+    } catch (err) {
+      statusEl.textContent = err.message || "Could not load upgrade plan";
+      statusEl.className = "up-status is-error";
+      summaryEl.hidden = true;
+      toolbarEl.hidden = true;
+    }
+  }
+
+  lanesEl.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-vertical]");
+    if (!btn) return;
+    loadPlan(btn.getAttribute("data-vertical"));
+  });
+
+  stepsEl.addEventListener("change", function (e) {
+    var input = e.target.closest("[data-check]");
+    if (!input || !state.payload) return;
+    var key = input.getAttribute("data-check");
+    var done = readProgress(state.vertical);
+    if (input.checked) done[key] = true;
+    else delete done[key];
+    writeProgress(state.vertical, done);
+    renderPlan(state.payload);
+  });
+
+  stepsEl.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-open-step]");
+    if (!btn || !state.payload) return;
+    var key = btn.getAttribute("data-open-step");
+    var step = (state.payload.plan.steps || []).find(function (s) {
+      return String(s.order || s.title || "") === key;
+    });
+    if (step) openStepTool(step);
+  });
+
+  document.getElementById("up-copy").addEventListener("click", function () {
+    var text = planPlainText(state.payload && state.payload.plan);
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        statusEl.textContent = "Plan copied";
+      });
+    } else {
+      statusEl.textContent = "Copy not available in this browser";
+    }
+  });
+
+  document.getElementById("up-open-projection").addEventListener("click", function () {
+    var v = state.vertical || "fridge";
+    openStepTool({ moduleId: "savings-projection", query: "scenario=" + v + "&demo=1" });
+  });
+
+  document.getElementById("up-open-compare").addEventListener("click", function () {
+    if (!openParentModule("shortlist-compare", { query: "demo=1" })) {
+      window.open("/greenways/shortlist-compare?demo=1", "_blank");
+    }
+  });
+
+  document.getElementById("up-ask-vincent").addEventListener("click", function () {
+    var title = (state.payload && state.payload.plan && state.payload.plan.title) || "this upgrade";
+    bridgeAsk("finance-agent", "How should I finance the net capex for " + title + "?");
+  });
+
+  document.getElementById("up-ask-andrieus").addEventListener("click", function () {
+    var title = (state.payload && state.payload.plan && state.payload.plan.title) || "this upgrade";
+    bridgeAsk("grants-agent", "What grants apply to " + title + "?");
+  });
+
+  initReturnNav();
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: "gw-module-embed-ready", moduleId: "upgrade-plan-studio" }, "*");
+    }
+  } catch (_) {}
+
+  var bootParams = new URLSearchParams(location.search);
+  if (window.GreenwaysModuleDemo && window.GreenwaysModuleDemo.isDemo(bootParams)) {
+    window.GreenwaysModuleDemo.mountBanner({ before: document.querySelector(".up-hero") });
+  }
+  var startVertical = bootParams.get("vertical") || bootParams.get("scenario") || "fridge";
+  loadPlan(startVertical);
+})();
+</script>
+</body>
+</html>

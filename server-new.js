@@ -236,6 +236,8 @@ app.get('/greenways/agent-market', (req, res) => sendLiveMusicHtml(res, 'greenwa
 app.get('/greenways/agent-market.html', (req, res) => sendLiveMusicHtml(res, 'greenways-agent-market.html'));
 app.get('/greenways/shortlist-compare', (req, res) => sendLiveMusicHtml(res, 'greenways-shortlist-compare.html'));
 app.get('/greenways/shortlist-compare.html', (req, res) => sendLiveMusicHtml(res, 'greenways-shortlist-compare.html'));
+app.get('/greenways/upgrade-plan-studio', (req, res) => sendLiveMusicHtml(res, 'greenways-upgrade-plan-studio.html'));
+app.get('/greenways/upgrade-plan-studio.html', (req, res) => sendLiveMusicHtml(res, 'greenways-upgrade-plan-studio.html'));
 
 app.get('/greenways/restaurant-data', (req, res) => sendLiveMusicHtml(res, 'restaurant-data.html'));
 app.get('/greenways/restaurant-energy-snapshot', (req, res) => sendLiveMusicHtml(res, 'restaurant-energy-snapshot.html'));
@@ -607,6 +609,12 @@ function mountApiRoutes() {
     console.log('✅ /api/agent-market route mounted');
   } catch (agentMarketErr) {
     console.error('❌ /api/agent-market failed to mount:', agentMarketErr.message);
+  }
+  try {
+    app.use('/api/upgrade-plan', require('./routes/upgrade-plan'));
+    console.log('✅ /api/upgrade-plan route mounted');
+  } catch (upgradePlanErr) {
+    console.error('❌ /api/upgrade-plan failed to mount:', upgradePlanErr.message);
   }
   if (systemsAgentRouter) {
     app.use('/api/systems-agent', systemsAgentRouter);
