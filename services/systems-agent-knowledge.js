@@ -21,6 +21,7 @@ const {
   buildRoleResourcesAnswer
 } = require('./systems-agent-dashboard');
 const { systemsModuleBlock } = require('./systems-agent-module-blocks');
+const { siteBriefDemo } = require('./greenways-module-demo');
 const {
   applyPersona,
   loadAgentVoice,
@@ -202,26 +203,27 @@ async function buildReferralWelcomeAnswer(question, profile, tip) {
 
 function buildRestaurantSnapshotAnswer(profile, tip) {
   const region = String(profile.region || '').trim().toLowerCase();
-  const regionParam = region.startsWith('uk.') ? 'uk' : 'nl';
-  const siteId = String(profile.siteId || '').trim();
-
-  const query = new URLSearchParams();
-  if (siteId) query.set('site', siteId);
-  if (regionParam) query.set('region', regionParam);
+  const regionParam = region.startsWith('uk.') ? 'uk' : region.startsWith('nl') || !region ? 'nl' : region.slice(0, 2);
+  const siteId = String(profile.siteId || '').trim() || 'w2w-amsterdam-02';
 
   return {
     answer:
-      `I can open a **Restaurant Energy Snapshot** — a quick “site brief” that helps you spot where the bill is likely coming from before you buy sensors or upgrades.\n\n` +
-      `Open the module on the right. If your membership has a saved site, it will pre-fill.\n\n_${tip}_`,
+      `I opened a **Site Brief** — a shareable overview that helps you spot where the bill is likely coming from **before** you buy sensors or upgrades.\n\n` +
+      `Review the utility split and top electricity shares, then decide what to measure first. Pair with the monitoring guide when you are ready for the “why baseline” story.\n\n_${tip}_`,
     suggestions: [],
     blocks: [
       systemsModuleBlock([
+        siteBriefDemo({
+          site: siteId,
+          region: regionParam,
+          label: 'Edwardo — Site Brief',
+          note: 'Modelled cost drivers primed — measure the top lines before capex.'
+        }),
         {
-          moduleId: 'restaurant-energy-snapshot',
-          title: 'Restaurant energy snapshot',
-          usageHint: 'A quick shareable site brief before upgrades',
-          openSize: 'near-full',
-          query: query.toString() || undefined
+          moduleId: 'restaurant-energy-monitoring-guide',
+          title: 'Restaurant monitoring guide',
+          usageHint: 'Why baseline before upgrades',
+          openSize: 'near-full'
         }
       ])
     ]

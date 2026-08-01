@@ -22,6 +22,7 @@ const { mergeModuleRow, enrichKnowledgeAnswer } = require('./greenways-content-m
 const {
   financeFinderDemo,
   savingsProjectionDemo,
+  siteBriefDemo,
   countryLabelFromProfile
 } = require('./greenways-module-demo');
 const { resolveGlossaryFromIntent, tryBuildGlossaryAnswer } = require('./greenways-sustainability-glossary');
@@ -554,25 +555,28 @@ function buildPortalsAnswer(tip) {
 
 function buildRestaurantSnapshotAnswer(profile, tip) {
   const region = String(profile.region || '').trim().toLowerCase();
-  const regionParam = region.startsWith('uk.') ? 'uk' : 'nl';
-  const siteId = String(profile.siteId || '').trim();
-
-  const query = new URLSearchParams();
-  if (siteId) query.set('site', siteId);
-  if (regionParam) query.set('region', regionParam);
+  const regionParam = region.startsWith('uk.') ? 'uk' : region.startsWith('nl') || !region ? 'nl' : region.slice(0, 2);
+  const siteId = String(profile.siteId || '').trim() || 'w2w-amsterdam-02';
 
   return {
     answer: withTip(
-      'I can generate a **Restaurant Energy Snapshot** — a quick, shareable “site brief” style view you can use before choosing finance or grants. Open the module on the right; if you have a saved site, it will pre-fill automatically.',
+      'I opened a **Site Brief** — a shareable overview of modelled utility costs, upgrade signals, and scheme hints for your site.\n\n' +
+        '**Copy brief** for a GM or landlord, then Ask about payback or open Finance Finder when net capex is clearer. Figures are illustrative until live meters are connected.',
       tip
     ),
     blocks: [
       financeModuleBlock([
-        {
-          moduleId: 'restaurant-energy-snapshot',
-          openSize: 'near-full',
-          query: query.toString() || undefined
-        }
+        siteBriefDemo({
+          site: siteId,
+          region: regionParam,
+          label: 'Vincent — Site Brief',
+          note: 'Site primed from your profile — switch locations inside the tool, then copy or ask about payback.'
+        }),
+        savingsProjectionDemo({
+          scenario: 'fridge',
+          label: 'Vincent — payback next',
+          note: 'After the brief, model do-nothing vs upgrade on a priority line.'
+        })
       ])
     ],
     suggestions: []

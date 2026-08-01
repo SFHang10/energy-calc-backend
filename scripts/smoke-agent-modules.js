@@ -20,6 +20,7 @@ const REQUIRED_MODULE_IDS = [
   'shortlist-compare',
   'upgrade-plan-studio',
   'restaurant-energy-sketch',
+  'restaurant-energy-snapshot',
   'finance-finder',
   'savings-projection',
   'equipment-deep-dive',
@@ -31,6 +32,7 @@ const REQUIRED_HTML = {
   'shortlist-compare': 'greenways-shortlist-compare.html',
   'upgrade-plan-studio': 'greenways-upgrade-plan-studio.html',
   'restaurant-energy-sketch': 'greenways-restaurant-energy-sketch.html',
+  'restaurant-energy-snapshot': 'greenways-site-brief.html',
   'finance-finder': 'finance-finder-restaurant.html',
   'savings-projection': 'equipment-savings-projection.html'
 };
@@ -142,7 +144,8 @@ function main() {
       ['agentMarketDemo', demo.agentMarketDemo({ lane: 'kitchen' })],
       ['shortlistCompareDemo', demo.shortlistCompareDemo({ ids: ['etl_14_86293'] })],
       ['upgradePlanStudioDemo', demo.upgradePlanStudioDemo({ vertical: 'fridge' })],
-      ['restaurantEnergySketchDemo', demo.restaurantEnergySketchDemo({ profile: 'busy-kitchen' })]
+      ['restaurantEnergySketchDemo', demo.restaurantEnergySketchDemo({ profile: 'busy-kitchen' })],
+      ['siteBriefDemo', demo.siteBriefDemo({ site: 'w2w-amsterdam-02' })]
     ];
     for (const [name, row] of checks) {
       if (!row || !row.moduleId) {

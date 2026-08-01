@@ -145,10 +145,17 @@ async function buildRestaurantSnapshot(options = {}) {
 
   const narrative = buildNarrative(site, costs, scenarios, grantRows);
 
+  const availableSites = buildings.map((b) => ({
+    id: b.id,
+    name: b.name,
+    address: b.address || ''
+  }));
+
   return {
     meta: {
       reportType: 'restaurant-energy-snapshot',
-      version: 'pilot-1',
+      version: 'pilot-2',
+      label: 'Site Brief',
       generatedAt: new Date().toISOString(),
       disclaimer:
         'Illustrative brief only. Not an audit, legal advice, or guaranteed savings. Tariffs and grants change — verify before investment.',
@@ -164,6 +171,7 @@ async function buildRestaurantSnapshot(options = {}) {
       region,
       sensors: site.sensors || []
     },
+    availableSites,
     consumption: {
       electricityKwhMonth: elecKwh,
       gasM3Month: gasM3,
@@ -199,7 +207,8 @@ async function buildRestaurantSnapshot(options = {}) {
     agentLinks: [
       { name: 'Vincent (Finance)', href: '/greenways/finance-agent?embed=1', prompt: 'Explain energy price risk for my restaurant' },
       { name: 'Andrieus (Grants)', href: '/greenways/grants-agent?embed=1', prompt: 'Which grants apply to restaurant energy upgrades in the Netherlands?' },
-      { name: 'Artemis (Equipment)', href: '/greenways/equipment-agent?embed=1', prompt: 'Find sustainable alternatives for my kitchen equipment' }
+      { name: 'Artemis (Equipment)', href: '/greenways/equipment-agent?embed=1', prompt: 'Find sustainable alternatives for my kitchen equipment' },
+      { name: 'Edwardo (Systems)', href: '/greenways/systems-agent?embed=1', prompt: 'What should I measure first before upgrading kitchen equipment?' }
     ]
   };
 }

@@ -42,6 +42,8 @@ function withModuleDemo(row = {}, demo = {}) {
   if (demo.scenario) parts.scenario = demo.scenario;
   if (demo.vertical) parts.vertical = demo.vertical;
   if (demo.profile) parts.profile = demo.profile;
+  if (demo.site) parts.site = demo.site;
+  if (demo.siteId) parts.site = demo.siteId;
   if (demo.ids) parts.ids = demo.ids;
   if (demo.auto) parts.auto = '1';
   if (note) parts.demoNote = note;
@@ -271,6 +273,40 @@ function restaurantEnergySketchDemo(overrides = {}) {
   );
 }
 
+function siteBriefDemo(overrides = {}) {
+  const {
+    label,
+    note,
+    site,
+    siteId,
+    region,
+    moduleId,
+    openSize,
+    title,
+    query,
+    description,
+    usageHint
+  } = overrides;
+  return withModuleDemo(
+    {
+      moduleId: moduleId || 'restaurant-energy-snapshot',
+      openSize: openSize || 'near-full',
+      title: title || 'Site Brief',
+      query,
+      description,
+      usageHint
+    },
+    {
+      label: label || 'Vincent — Site Brief',
+      note:
+        note ||
+        'Shareable site overview — modelled costs, upgrade signals, and scheme hints. Copy for a GM, then ask about payback.',
+      site: site || siteId || 'w2w-amsterdam-02',
+      region: region || 'nl'
+    }
+  );
+}
+
 /** Map profile.region-ish values to Finance Finder country option strings. */
 function countryLabelFromProfile(regionOrCountry) {
   const r = String(regionOrCountry || '')
@@ -297,5 +333,6 @@ module.exports = {
   shortlistCompareDemo,
   upgradePlanStudioDemo,
   restaurantEnergySketchDemo,
+  siteBriefDemo,
   countryLabelFromProfile
 };

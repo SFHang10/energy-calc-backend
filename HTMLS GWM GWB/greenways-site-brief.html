@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Greenways — Site Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-marketplace-page-backdrop.css?v=glass2">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-module-demo.js"></script>
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-topic-bridge.js"></script>
+<style>
+  :root {
+    --bg: #070e12;
+    --text: #e8f4f8;
+    --muted: #8eabb4;
+    --cyan: #22d3ee;
+    --green: #28a745;
+    --gold: #c9a961;
+    --amber: #f59e0b;
+    --font: 'Space Grotesk', system-ui, sans-serif;
+    --font-clean: 'IBM Plex Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    overflow-x: hidden;
+    line-height: 1.5;
+  }
+  .sb-page {
+    position: relative;
+    z-index: 1;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 18px 16px 40px;
+  }
+  .sb-return {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin: 0 0 14px; padding: 8px 10px; border-radius: 12px;
+    border: 1px solid rgba(201, 169, 97, 0.35);
+    background: rgba(8, 16, 22, 0.92); backdrop-filter: blur(12px);
+  }
+  .sb-return[hidden] { display: none !important; }
+  .sb-return-btn {
+    border-radius: 999px; border: 1px solid rgba(201, 169, 97, 0.55);
+    background: rgba(201, 169, 97, 0.12); color: #f0d78a;
+    font: inherit; font-size: 0.82rem; font-weight: 600; padding: 7px 12px; cursor: pointer;
+  }
+  .sb-return-hint { font-size: 0.72rem; color: var(--muted); }
+  .sb-hero { text-align: center; margin-bottom: 14px; }
+  .sb-hero h1 {
+    font-size: clamp(1.5rem, 3.6vw, 2rem); font-weight: 700; letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #fff 0%, var(--cyan) 55%, #86efac 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .sb-hero p { margin-top: 10px; color: #e8f6fa; font-size: 0.95rem; max-width: 36rem; margin-left: auto; margin-right: auto; }
+  .sb-trust {
+    margin: 0 auto 14px; max-width: 36rem; padding: 10px 12px; border-radius: 10px;
+    border: 1px solid rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.08);
+    font-size: 0.78rem; color: #fde68a; text-align: center;
+  }
+  .sb-status { font-size: 0.82rem; color: var(--muted); margin-bottom: 10px; min-height: 1.2em; }
+  .sb-status.is-error { color: #fca5a5; }
+  .sb-lanes {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-bottom: 14px;
+  }
+  .sb-lane {
+    text-align: left; padding: 12px; border-radius: 12px; cursor: pointer; font: inherit; color: var(--text);
+    border: 1px solid rgba(34, 212, 255, 0.28); background: rgba(10, 20, 28, 0.72);
+  }
+  .sb-lane.is-active { border-color: rgba(34, 212, 255, 0.7); background: rgba(14, 36, 48, 0.9); }
+  .sb-lane strong { display: block; font-size: 0.88rem; }
+  .sb-lane span { font-size: 0.72rem; color: var(--muted); }
+  .sb-summary {
+    padding: 14px; border-radius: 16px; margin-bottom: 14px;
+    border: 1px solid rgba(34, 212, 255, 0.22); background: rgba(12, 22, 28, 0.88);
+  }
+  .sb-summary h2 { font-size: 1.1rem; margin-bottom: 6px; font-family: var(--font-clean); }
+  .sb-summary p { color: #d7e8ee; font-size: 0.9rem; }
+  .sb-address { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+  .sb-totals {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 12px;
+  }
+  .sb-total {
+    padding: 10px 12px; border-radius: 10px;
+    background: rgba(40, 167, 69, 0.1); border: 1px solid rgba(40, 167, 69, 0.28);
+  }
+  .sb-total strong {
+    display: block; color: #9ae6b0; font-size: 0.68rem; letter-spacing: 0.06em;
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .sb-total span { font-family: var(--font-clean); font-size: 1.15rem; font-weight: 600; }
+  .sb-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .sb-btn {
+    appearance: none; border-radius: 999px; border: 1px solid rgba(34, 212, 255, 0.35);
+    background: rgba(34, 212, 255, 0.08); color: var(--cyan);
+    font: inherit; font-size: 0.78rem; font-weight: 600; padding: 7px 12px; cursor: pointer; text-decoration: none;
+  }
+  .sb-btn--gold { border-color: rgba(201, 169, 97, 0.5); background: rgba(201, 169, 97, 0.14); color: #f0d78a; }
+  .sb-btn--green { border-color: rgba(40, 167, 69, 0.45); background: rgba(40, 167, 69, 0.12); color: #9ae6b0; }
+  .sb-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin-bottom: 12px;
+  }
+  .sb-card {
+    padding: 14px; border-radius: 14px;
+    border: 1px solid rgba(34, 212, 255, 0.2); background: rgba(12, 22, 28, 0.86);
+  }
+  .sb-card h3 {
+    font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--cyan); margin-bottom: 10px; font-weight: 600;
+  }
+  .sb-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .sb-list li {
+    display: flex; justify-content: space-between; gap: 10px; align-items: baseline;
+    font-size: 0.86rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 6px;
+  }
+  .sb-list li:last-child { border-bottom: none; padding-bottom: 0; }
+  .sb-list .amt { font-family: var(--font-clean); color: #9ae6b0; white-space: nowrap; }
+  .sb-list .muted { color: var(--muted); font-size: 0.78rem; }
+  .sb-grant a { color: var(--cyan); text-decoration: none; font-weight: 600; }
+  .sb-grant a:hover { text-decoration: underline; }
+  .sb-note { margin-top: 14px; font-size: 0.78rem; color: var(--muted); text-align: center; }
+  .sb-opportunity {
+    margin-top: 10px; padding: 10px 12px; border-radius: 10px;
+    background: rgba(34, 212, 255, 0.08); border: 1px solid rgba(34, 212, 255, 0.22);
+    font-size: 0.86rem; color: #d7e8ee;
+  }
+</style>
+</head>
+<body>
+<main class="sb-page">
+  <div class="sb-return" id="sb-return" hidden>
+    <button type="button" class="sb-return-btn" id="sb-return-btn">← Back</button>
+    <span class="sb-return-hint" id="sb-return-hint"></span>
+  </div>
+  <header class="sb-hero">
+    <h1>Site Brief</h1>
+    <p>A shareable kitchen energy overview — cost drivers, upgrade signals, and next steps for landlords, GMs, or finance chats.</p>
+  </header>
+  <p class="sb-trust" id="sb-trust">Illustrative brief — modelled tariffs and scenarios, not a live meter audit.</p>
+  <p class="sb-status" id="sb-status" aria-live="polite"></p>
+  <div class="sb-lanes" id="sb-lanes" role="tablist" aria-label="Sites"></div>
+  <section class="sb-summary" id="sb-summary" hidden>
+    <h2 id="sb-title">Site</h2>
+    <p class="sb-address" id="sb-address"></p>
+    <p id="sb-situation"></p>
+    <div class="sb-opportunity" id="sb-opportunity" hidden></div>
+    <div class="sb-totals" id="sb-totals"></div>
+  </section>
+  <div class="sb-toolbar" id="sb-toolbar" hidden>
+    <button type="button" class="sb-btn sb-btn--gold" id="sb-copy">Copy brief</button>
+    <button type="button" class="sb-btn" id="sb-open-sketch">Energy Sketch</button>
+    <button type="button" class="sb-btn" id="sb-open-studio">Upgrade Plan</button>
+    <button type="button" class="sb-btn" id="sb-open-full">Full report view</button>
+    <button type="button" class="sb-btn sb-btn--green" id="sb-ask-vincent">Ask Vincent</button>
+    <button type="button" class="sb-btn sb-btn--green" id="sb-ask-artemis">Ask Artemis</button>
+    <button type="button" class="sb-btn sb-btn--green" id="sb-ask-andrieus">Ask Andrieus</button>
+  </div>
+  <div class="sb-grid" id="sb-grid" hidden>
+    <section class="sb-card">
+      <h3>Utility split</h3>
+      <ul class="sb-list" id="sb-utilities"></ul>
+    </section>
+    <section class="sb-card">
+      <h3>Top electricity shares</h3>
+      <ul class="sb-list" id="sb-equipment"></ul>
+    </section>
+    <section class="sb-card">
+      <h3>Upgrade signals</h3>
+      <ul class="sb-list" id="sb-scenarios"></ul>
+    </section>
+    <section class="sb-card">
+      <h3>Scheme hints</h3>
+      <ul class="sb-list" id="sb-grants"></ul>
+    </section>
+  </div>
+  <p class="sb-note" id="sb-disclaimer">Verify tariffs and grants before investment decisions.</p>
+</main>
+<script>
+(function () {
+  var MODULE_ID = "restaurant-energy-snapshot";
+  var state = { siteId: "w2w-amsterdam-02", region: "nl", snapshot: null };
+
+  var lanesEl = document.getElementById("sb-lanes");
+  var statusEl = document.getElementById("sb-status");
+  var summaryEl = document.getElementById("sb-summary");
+  var gridEl = document.getElementById("sb-grid");
+  var toolbarEl = document.getElementById("sb-toolbar");
+  var trustEl = document.getElementById("sb-trust");
+  var disclaimerEl = document.getElementById("sb-disclaimer");
+
+  function escapeHtml(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function stripMd(s) {
+    return String(s || "").replace(/\*\*/g, "");
+  }
+
+  function fmtEur(n) {
+    return "€" + Math.round(Number(n) || 0).toLocaleString("en-GB");
+  }
+
+  function closeParentModule() {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: "gw-module-close", moduleId: MODULE_ID }, "*");
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  function openParentModule(moduleId, overrides) {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage(
+          { type: "gw-module-open", moduleId: moduleId, overrides: overrides || {} },
+          "*"
+        );
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  function initReturnNav() {
+    var bar = document.getElementById("sb-return");
+    var btn = document.getElementById("sb-return-btn");
+    var hint = document.getElementById("sb-return-hint");
+    if (!bar || !btn) return;
+    var params = new URLSearchParams(location.search);
+    var fromLabel = params.get("fromLabel") || "";
+    var from = params.get("from") || "";
+    var returnHref = params.get("return") || "";
+    var embed = params.get("embed") === "1" || params.get("popup") === "1";
+    var inFrame = false;
+    try { inFrame = window.parent && window.parent !== window; } catch (_) { inFrame = true; }
+    var label = fromLabel || "← Back to Vincent";
+    if (!fromLabel && from.indexOf("systems") >= 0) label = "← Back to Edwardo";
+    if (!fromLabel && from.indexOf("equipment") >= 0) label = "← Back to Artemis";
+    if (!fromLabel && from.indexOf("grants") >= 0) label = "← Back to Andrieus";
+    if (!fromLabel && !from && !embed && !inFrame) {
+      label = "← Back to Orchestra";
+      returnHref = returnHref || "/greenways/orchestra-hub";
+    }
+    btn.textContent = label;
+    bar.hidden = false;
+    if (hint) hint.textContent = embed || inFrame ? "Chat stays open behind this panel" : "Return to Greenways";
+    btn.addEventListener("click", function () {
+      if (embed || inFrame) {
+        if (!closeParentModule()) location.href = returnHref || "/greenways/finance-agent";
+        return;
+      }
+      location.href = returnHref || "/greenways/finance-agent";
+    });
+  }
+
+  function bridgeAsk(slug, topic) {
+    var Bridge = window.GreenwaysAgentTopicBridge;
+    var href;
+    if (Bridge && typeof Bridge.buildHref === "function") {
+      href = Bridge.buildHref({
+        path: "/greenways/" + slug,
+        toSlug: slug,
+        fromSlug: "site-brief",
+        fromLabel: "Site Brief",
+        topic: topic
+      });
+    } else {
+      href = "/greenways/" + slug + "?bridge=1&topic=" + encodeURIComponent(topic) + "&from=Site%20Brief";
+    }
+    try { window.top.location.href = href; } catch (_) { window.location.href = href; }
+  }
+
+  function renderLanes(sites, active) {
+    if (!sites || !sites.length) {
+      sites = [{ id: "w2w-amsterdam-02", name: "Pilot site" }];
+    }
+    lanesEl.innerHTML = sites
+      .map(function (s) {
+        var shortName = String(s.name || s.id).replace(/^Wok To Walk —\s*/i, "");
+        return (
+          '<button type="button" class="sb-lane' +
+          (s.id === active ? " is-active" : "") +
+          '" data-site="' +
+          escapeHtml(s.id) +
+          '" role="tab" aria-selected="' +
+          (s.id === active ? "true" : "false") +
+          '"><strong>' +
+          escapeHtml(shortName) +
+          "</strong><span>" +
+          escapeHtml(s.address || s.id) +
+          "</span></button>"
+        );
+      })
+      .join("");
+  }
+
+  function renderBrief(snapshot) {
+    state.snapshot = snapshot;
+    state.siteId = snapshot.site && snapshot.site.id;
+
+    var site = snapshot.site || {};
+    var costs = snapshot.costs || {};
+    var narrative = snapshot.narrative || {};
+    var meta = snapshot.meta || {};
+
+    summaryEl.hidden = false;
+    toolbarEl.hidden = false;
+    gridEl.hidden = false;
+
+    document.getElementById("sb-title").textContent = site.name || "Site brief";
+    document.getElementById("sb-address").textContent = site.address || "";
+    document.getElementById("sb-situation").textContent = stripMd(narrative.situationSummary || "");
+    var opp = document.getElementById("sb-opportunity");
+    if (narrative.opportunitySummary) {
+      opp.hidden = false;
+      opp.textContent = stripMd(narrative.opportunitySummary);
+    } else {
+      opp.hidden = true;
+    }
+
+    if (meta.disclaimer) trustEl.textContent = meta.disclaimer;
+    if (meta.tariffNote || meta.modellingLine) {
+      disclaimerEl.textContent = [meta.tariffNote, meta.modellingLine, meta.disclaimer]
+        .filter(Boolean)
+        .join(" · ");
+    }
+
+    document.getElementById("sb-totals").innerHTML =
+      '<div class="sb-total"><strong>Monthly</strong><span>' +
+      escapeHtml(fmtEur(costs.total)) +
+      '</span></div><div class="sb-total"><strong>Annual</strong><span>' +
+      escapeHtml(fmtEur(costs.annualTotal)) +
+      '</span></div><div class="sb-total"><strong>Electricity</strong><span>' +
+      escapeHtml(fmtEur(costs.electricity)) +
+      '/mo</span></div><div class="sb-total"><strong>Gas</strong><span>' +
+      escapeHtml(fmtEur(costs.gas)) +
+      "/mo</span></div>";
+
+    document.getElementById("sb-utilities").innerHTML = (snapshot.utilitySplit || [])
+      .map(function (u) {
+        return (
+          "<li><span>" +
+          escapeHtml(u.label) +
+          '</span><span class="amt">' +
+          escapeHtml(fmtEur(u.eurMonth)) +
+          "/mo</span></li>"
+        );
+      })
+      .join("");
+
+    document.getElementById("sb-equipment").innerHTML = (snapshot.equipment || [])
+      .slice(0, 5)
+      .map(function (e) {
+        return (
+          "<li><span>" +
+          escapeHtml((e.icon ? e.icon + " " : "") + e.name) +
+          ' <span class="muted">' +
+          escapeHtml(String(e.sharePct || 0)) +
+          '%</span></span><span class="amt">' +
+          escapeHtml(fmtEur(e.eurMonth)) +
+          "</span></li>"
+        );
+      })
+      .join("");
+
+    document.getElementById("sb-scenarios").innerHTML = (snapshot.scenarios || [])
+      .slice()
+      .sort(function (a, b) {
+        return (b.annualSavingEur || 0) - (a.annualSavingEur || 0);
+      })
+      .slice(0, 4)
+      .map(function (r) {
+        return (
+          "<li><span>" +
+          escapeHtml(r.title) +
+          '</span><span class="amt">~' +
+          escapeHtml(fmtEur(r.annualSavingEur)) +
+          "/yr</span></li>"
+        );
+      })
+      .join("");
+
+    document.getElementById("sb-grants").innerHTML = (snapshot.grants || [])
+      .slice(0, 4)
+      .map(function (g) {
+        var title = escapeHtml(g.title || "Scheme");
+        var link = g.url
+          ? '<a href="' + escapeHtml(g.url) + '" target="_blank" rel="noopener">' + title + "</a>"
+          : title;
+        return (
+          '<li class="sb-grant"><span>' +
+          link +
+          '</span><span class="muted">' +
+          escapeHtml(g.region || g.type || "") +
+          "</span></li>"
+        );
+      })
+      .join("") ||
+      '<li><span class="muted">No scheme hints for this region yet</span></li>';
+
+    statusEl.textContent = "";
+    statusEl.className = "sb-status";
+  }
+
+  function briefPlainText(snapshot) {
+    if (!snapshot) return "";
+    var lines = [];
+    var site = snapshot.site || {};
+    var costs = snapshot.costs || {};
+    var narrative = snapshot.narrative || {};
+    lines.push("Greenways Site Brief — " + (site.name || "Site"));
+    if (site.address) lines.push(site.address);
+    lines.push("");
+    lines.push(stripMd(narrative.situationSummary || ""));
+    if (narrative.opportunitySummary) lines.push(stripMd(narrative.opportunitySummary));
+    lines.push("");
+    lines.push("Monthly total: " + fmtEur(costs.total));
+    lines.push("Annual total: " + fmtEur(costs.annualTotal));
+    lines.push("");
+    lines.push("Top upgrade signals:");
+    (snapshot.scenarios || [])
+      .slice()
+      .sort(function (a, b) {
+        return (b.annualSavingEur || 0) - (a.annualSavingEur || 0);
+      })
+      .slice(0, 4)
+      .forEach(function (r) {
+        lines.push("- " + r.title + ": ~" + fmtEur(r.annualSavingEur) + "/yr");
+      });
+    lines.push("");
+    lines.push(stripMd((snapshot.meta && snapshot.meta.disclaimer) || ""));
+    return lines.join("\n");
+  }
+
+  async function loadBrief(siteId) {
+    statusEl.textContent = "Loading site brief…";
+    statusEl.className = "sb-status";
+    try {
+      var url =
+        "/api/restaurant-snapshot/pilot?site=" +
+        encodeURIComponent(siteId || state.siteId) +
+        "&region=" +
+        encodeURIComponent(state.region);
+      var res = await fetch(url, { cache: "no-store" });
+      var data = await res.json();
+      if (!res.ok || !data || !data.ok || !data.snapshot) {
+        throw new Error((data && data.error) || "Could not load site brief");
+      }
+      renderLanes(data.snapshot.availableSites, data.snapshot.site && data.snapshot.site.id);
+      renderBrief(data.snapshot);
+    } catch (err) {
+      statusEl.textContent = err.message || "Could not load site brief";
+      statusEl.className = "sb-status is-error";
+      summaryEl.hidden = true;
+      toolbarEl.hidden = true;
+      gridEl.hidden = true;
+    }
+  }
+
+  lanesEl.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-site]");
+    if (!btn) return;
+    loadBrief(btn.getAttribute("data-site"));
+  });
+
+  document.getElementById("sb-copy").addEventListener("click", function () {
+    var text = briefPlainText(state.snapshot);
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        statusEl.textContent = "Brief copied — ready to paste for a GM or landlord";
+      });
+    } else {
+      statusEl.textContent = "Copy not available in this browser";
+    }
+  });
+
+  document.getElementById("sb-open-sketch").addEventListener("click", function () {
+    if (!openParentModule("restaurant-energy-sketch", { query: "profile=wok-line&demo=1" })) {
+      window.open("/greenways/restaurant-energy-sketch?profile=wok-line&demo=1", "_blank");
+    }
+  });
+
+  document.getElementById("sb-open-studio").addEventListener("click", function () {
+    if (!openParentModule("upgrade-plan-studio", { query: "vertical=fridge&demo=1" })) {
+      window.open("/greenways/upgrade-plan-studio?vertical=fridge&demo=1", "_blank");
+    }
+  });
+
+  document.getElementById("sb-open-full").addEventListener("click", function () {
+    var q =
+      "site=" +
+      encodeURIComponent(state.siteId || "w2w-amsterdam-02") +
+      "&region=" +
+      encodeURIComponent(state.region || "nl");
+    window.open("/HTMLS%20GWM%20GWB/restaurant-energy-snapshot.html?" + q, "_blank");
+  });
+
+  document.getElementById("sb-ask-vincent").addEventListener("click", function () {
+    var name = (state.snapshot && state.snapshot.site && state.snapshot.site.name) || "this site";
+    var total = state.snapshot && state.snapshot.costs && state.snapshot.costs.total;
+    bridgeAsk(
+      "finance-agent",
+      "Using the Site Brief for " +
+        name +
+        " (~€" +
+        Math.round(total || 0) +
+        "/mo modelled), how should I think about payback and financing upgrades?"
+    );
+  });
+
+  document.getElementById("sb-ask-artemis").addEventListener("click", function () {
+    var name = (state.snapshot && state.snapshot.site && state.snapshot.site.name) || "this site";
+    bridgeAsk(
+      "equipment-agent",
+      "From the Site Brief for " + name + ", which equipment lines should I upgrade first?"
+    );
+  });
+
+  document.getElementById("sb-ask-andrieus").addEventListener("click", function () {
+    var name = (state.snapshot && state.snapshot.site && state.snapshot.site.name) || "this restaurant";
+    bridgeAsk(
+      "grants-agent",
+      "Which grants fit kitchen energy upgrades for " + name + " based on the Site Brief?"
+    );
+  });
+
+  initReturnNav();
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: "gw-module-embed-ready", moduleId: MODULE_ID }, "*");
+    }
+  } catch (_) {}
+
+  var bootParams = new URLSearchParams(location.search);
+  state.region = (bootParams.get("region") || "nl").toLowerCase();
+  if (window.GreenwaysModuleDemo && window.GreenwaysModuleDemo.isDemo(bootParams)) {
+    window.GreenwaysModuleDemo.mountBanner({ before: document.querySelector(".sb-hero") });
+  }
+  var startSite = bootParams.get("site") || bootParams.get("siteId") || "w2w-amsterdam-02";
+  loadBrief(startSite);
+})();
+</script>
+</body>
+</html>

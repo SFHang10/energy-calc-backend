@@ -240,9 +240,12 @@ app.get('/greenways/upgrade-plan-studio', (req, res) => sendLiveMusicHtml(res, '
 app.get('/greenways/upgrade-plan-studio.html', (req, res) => sendLiveMusicHtml(res, 'greenways-upgrade-plan-studio.html'));
 app.get('/greenways/restaurant-energy-sketch', (req, res) => sendLiveMusicHtml(res, 'greenways-restaurant-energy-sketch.html'));
 app.get('/greenways/restaurant-energy-sketch.html', (req, res) => sendLiveMusicHtml(res, 'greenways-restaurant-energy-sketch.html'));
+app.get('/greenways/site-brief', (req, res) => sendLiveMusicHtml(res, 'greenways-site-brief.html'));
+app.get('/greenways/site-brief.html', (req, res) => sendLiveMusicHtml(res, 'greenways-site-brief.html'));
 
 app.get('/greenways/restaurant-data', (req, res) => sendLiveMusicHtml(res, 'restaurant-data.html'));
-app.get('/greenways/restaurant-energy-snapshot', (req, res) => sendLiveMusicHtml(res, 'restaurant-energy-snapshot.html'));
+app.get('/greenways/restaurant-energy-snapshot', (req, res) => sendLiveMusicHtml(res, 'greenways-site-brief.html'));
+app.get('/greenways/restaurant-energy-snapshot.html', (req, res) => sendLiveMusicHtml(res, 'greenways-site-brief.html'));
 app.get('/greenways/sensor-dashboard', (req, res) => sendLiveMusicHtml(res, 'sensor-dashboard.html'));
 app.get('/greenways/deals-hub', (req, res) => sendLiveMusicHtml(res, 'deals-ticker-hub.html'));
 app.get('/greenways/water-saving-finder', (req, res) => sendLiveMusicHtml(res, 'water-saving-finder.html'));
