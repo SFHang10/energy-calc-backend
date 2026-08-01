@@ -1632,51 +1632,44 @@
     }
 
     /*
-     * Horizontal swipe: grid/flex min-width:auto lets main/section grow with cards
-     * (~2500px on phone), so lane.clientWidth === scrollWidth and overflow never
-     * scrolls. Contain the chain with minmax(0,1fr) + clip, lock card widths.
+     * Mobile-only horizontal swipe. Do NOT apply on desktop — Site glance stays a
+     * 4-col grid and Worth knowing stays a stacked rail.
      */
-    .lane,
-    .glance,
-    .glance-panel,
-    #news-list,
-    #video-drops-list,
-    .team-strip,
-    .desk-picker,
-    .curator-faces,
-    .tenant-agent-cards,
-    .hub-panel-actions,
-    .glance-toolbar,
-    .glance-actions {
-      box-sizing: border-box;
-      min-width: 0 !important;
-      max-width: 100% !important;
-      width: 100% !important;
-      overflow-x: auto !important;
-      overflow-y: hidden;
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior-x: contain;
-      touch-action: pan-x pan-y;
-    }
-    .card {
-      flex: 0 0 240px !important;
-      width: 240px !important;
-      min-width: 240px !important;
-      max-width: 240px !important;
-    }
-    .lane > .empty {
-      flex: 0 0 min(100%, 320px) !important;
-      width: min(100%, 320px) !important;
-      min-width: min(100%, 280px) !important;
-      max-width: 320px !important;
-      box-sizing: border-box;
-    }
     @media (max-width: 720px) {
+      .lane,
+      .glance,
+      .glance-panel,
+      #news-list,
+      #video-drops-list,
+      .team-strip,
+      .desk-picker,
+      .curator-faces,
+      .tenant-agent-cards,
+      .hub-panel-actions,
+      .glance-toolbar,
+      .glance-actions {
+        box-sizing: border-box;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        touch-action: pan-x pan-y;
+      }
       .card {
         flex: 0 0 min(78vw, 260px) !important;
         width: min(78vw, 260px) !important;
         min-width: min(78vw, 260px) !important;
         max-width: min(78vw, 260px) !important;
+      }
+      .lane > .empty {
+        flex: 0 0 min(100%, 320px) !important;
+        width: min(100%, 320px) !important;
+        min-width: min(100%, 280px) !important;
+        max-width: 320px !important;
+        box-sizing: border-box;
       }
       .glance,
       .glance-panel,
@@ -1725,9 +1718,9 @@
       .desk-pill {
         flex: 0 0 auto !important;
       }
-    }
-    .is-hub-scrollable {
-      box-shadow: inset -18px 0 16px -16px rgba(61, 207, 122, 0.35);
+      .is-hub-scrollable {
+        box-shadow: inset -18px 0 16px -16px rgba(61, 207, 122, 0.35);
+      }
     }
   </style>
 </head>
@@ -2827,24 +2820,7 @@
   }
 
   function markHubScrollers() {
-    var wrap = document.querySelector('.wrap');
-    var budget = Math.max(
-      240,
-      Math.min(
-        window.innerWidth,
-        (wrap && wrap.clientWidth) || window.innerWidth
-      ) - 8
-    );
-
-    // Keep main/aside/section from expanding past the viewport (grid minmax alone
-    // is not enough in some WebKit / Wix iframe cases).
-    ['.layout', '.layout > main', '.layout > aside', '.section', '.news-rail', '.wrap'].forEach(function (sel) {
-      document.querySelectorAll(sel).forEach(function (node) {
-        node.style.minWidth = '0';
-        node.style.maxWidth = '100%';
-      });
-    });
-
+    var mobile = window.matchMedia('(max-width: 720px)').matches;
     var selectors = [
       '.lane',
       '.glance',
@@ -2857,6 +2833,48 @@
       '.tenant-agent-cards',
       '.hub-panel-actions'
     ];
+    var chain = ['.layout', '.layout > main', '.layout > aside', '.section', '.news-rail', '.wrap'];
+
+    if (!mobile) {
+      // Restore desktop layout — clear mobile inline overrides from resize / prior loads.
+      chain.forEach(function (sel) {
+        document.querySelectorAll(sel).forEach(function (node) {
+          node.style.minWidth = '';
+          node.style.maxWidth = '';
+        });
+      });
+      document.querySelectorAll(selectors.join(',')).forEach(function (el) {
+        if (!el) return;
+        el.style.minWidth = '';
+        el.style.maxWidth = '';
+        el.style.width = '';
+        el.style.overflowX = '';
+        el.style.display = '';
+        el.style.flexWrap = '';
+        el.classList.remove('is-hub-scrollable');
+        el.removeAttribute('data-hub-swipe');
+      });
+      return;
+    }
+
+    var wrap = document.querySelector('.wrap');
+    var budget = Math.max(
+      240,
+      Math.min(
+        window.innerWidth,
+        (wrap && wrap.clientWidth) || window.innerWidth
+      ) - 8
+    );
+
+    // Keep main/aside/section from expanding past the viewport (grid minmax alone
+    // is not enough in some WebKit / Wix iframe cases).
+    chain.forEach(function (sel) {
+      document.querySelectorAll(sel).forEach(function (node) {
+        node.style.minWidth = '0';
+        node.style.maxWidth = '100%';
+      });
+    });
+
     document.querySelectorAll(selectors.join(',')).forEach(function (el) {
       if (!el) return;
       el.style.minWidth = '0';
