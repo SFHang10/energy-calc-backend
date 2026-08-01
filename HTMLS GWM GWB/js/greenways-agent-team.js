@@ -365,6 +365,8 @@
     'importance of energy monitoring': 'energy-monitoring',
     'restaurant energy monitoring guide': 'restaurant-energy-monitoring-guide',
     'restaurant monitoring guide': 'restaurant-energy-monitoring-guide',
+    'restaurant energy sketch': 'restaurant-energy-sketch',
+    'energy sketch': 'restaurant-energy-sketch',
     'site energy reading': 'site-energy-reading',
     'grid carbon postcode': 'site-energy-reading',
     'postcode grid carbon': 'site-energy-reading',

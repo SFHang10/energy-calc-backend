@@ -41,6 +41,7 @@ function withModuleDemo(row = {}, demo = {}) {
   if (demo.productId) parts.product = demo.productId;
   if (demo.scenario) parts.scenario = demo.scenario;
   if (demo.vertical) parts.vertical = demo.vertical;
+  if (demo.profile) parts.profile = demo.profile;
   if (demo.ids) parts.ids = demo.ids;
   if (demo.auto) parts.auto = '1';
   if (note) parts.demoNote = note;
@@ -239,6 +240,37 @@ function upgradePlanStudioDemo(overrides = {}) {
   );
 }
 
+function restaurantEnergySketchDemo(overrides = {}) {
+  const {
+    label,
+    note,
+    profile,
+    moduleId,
+    openSize,
+    title,
+    query,
+    description,
+    usageHint
+  } = overrides;
+  return withModuleDemo(
+    {
+      moduleId: moduleId || 'restaurant-energy-sketch',
+      openSize: openSize || 'near-full',
+      title,
+      query,
+      description,
+      usageHint
+    },
+    {
+      label: label || 'Artemis — Restaurant Energy Sketch',
+      note:
+        note ||
+        'Illustrative kitchen energy by equipment line — scenario averages, not your live bill. Ask Vincent for payback next.',
+      profile: profile || 'busy-kitchen'
+    }
+  );
+}
+
 /** Map profile.region-ish values to Finance Finder country option strings. */
 function countryLabelFromProfile(regionOrCountry) {
   const r = String(regionOrCountry || '')
@@ -264,5 +296,6 @@ module.exports = {
   agentMarketDemo,
   shortlistCompareDemo,
   upgradePlanStudioDemo,
+  restaurantEnergySketchDemo,
   countryLabelFromProfile
 };

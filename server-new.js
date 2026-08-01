@@ -238,6 +238,8 @@ app.get('/greenways/shortlist-compare', (req, res) => sendLiveMusicHtml(res, 'gr
 app.get('/greenways/shortlist-compare.html', (req, res) => sendLiveMusicHtml(res, 'greenways-shortlist-compare.html'));
 app.get('/greenways/upgrade-plan-studio', (req, res) => sendLiveMusicHtml(res, 'greenways-upgrade-plan-studio.html'));
 app.get('/greenways/upgrade-plan-studio.html', (req, res) => sendLiveMusicHtml(res, 'greenways-upgrade-plan-studio.html'));
+app.get('/greenways/restaurant-energy-sketch', (req, res) => sendLiveMusicHtml(res, 'greenways-restaurant-energy-sketch.html'));
+app.get('/greenways/restaurant-energy-sketch.html', (req, res) => sendLiveMusicHtml(res, 'greenways-restaurant-energy-sketch.html'));
 
 app.get('/greenways/restaurant-data', (req, res) => sendLiveMusicHtml(res, 'restaurant-data.html'));
 app.get('/greenways/restaurant-energy-snapshot', (req, res) => sendLiveMusicHtml(res, 'restaurant-energy-snapshot.html'));
@@ -615,6 +617,12 @@ function mountApiRoutes() {
     console.log('✅ /api/upgrade-plan route mounted');
   } catch (upgradePlanErr) {
     console.error('❌ /api/upgrade-plan failed to mount:', upgradePlanErr.message);
+  }
+  try {
+    app.use('/api/restaurant-energy-sketch', require('./routes/restaurant-energy-sketch'));
+    console.log('✅ /api/restaurant-energy-sketch route mounted');
+  } catch (energySketchErr) {
+    console.error('❌ /api/restaurant-energy-sketch failed to mount:', energySketchErr.message);
   }
   if (systemsAgentRouter) {
     app.use('/api/systems-agent', systemsAgentRouter);

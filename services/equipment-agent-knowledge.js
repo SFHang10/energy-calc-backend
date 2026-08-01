@@ -23,7 +23,7 @@ const {
   isReferralWelcomePair
 } = require('./greenways-agent-handoff');
 const { buildUpgradePlan } = require('./greenways-upgrade-plan');
-const { agentMarketDemo, savingsProjectionDemo, shortlistCompareDemo, upgradePlanStudioDemo } = require('./greenways-module-demo');
+const { agentMarketDemo, savingsProjectionDemo, shortlistCompareDemo, upgradePlanStudioDemo, restaurantEnergySketchDemo } = require('./greenways-module-demo');
 const {
   applyPersona,
   loadAgentVoice,
@@ -266,7 +266,7 @@ function buildHandoffs(briefing, question, intentId = '') {
   if (['grants_link', 'renovation_grants'].includes(intentId)) {
     push('grantsToAndrieus', 'What grants fit kitchen equipment and building renovation for my profile?');
   }
-  if (['renovation', 'insulation', 'renovation_plan', 'savings_projection'].includes(intentId)) {
+  if (['renovation', 'insulation', 'renovation_plan', 'savings_projection', 'energy_sketch', 'restaurant_energy_sketch'].includes(intentId)) {
     push('financeToVincent', 'How do I finance renovation and ETL equipment upgrades after payback looks good?');
   }
   if (['overview', 'renovation_plan', 'monitoring_handoff', 'why_equipment'].includes(intentId)) {
@@ -544,17 +544,58 @@ async function buildBaselineEquipmentAnswer(tip) {
   return {
     answer:
       `**Equipment baseline** — what your current equipment should be consuming before you specify an upgrade.\n\n` +
+      `- **Restaurant Energy Sketch** — illustrative €/mo by kitchen profile (scenario averages, trust-labelled)\n` +
       `- **Greenways buildings dashboard** — equipment baseline when site energy data is connected\n` +
       `- **Trajectory example** — see how savings build over time with a connected baseline\n` +
       `- **Equipment intelligence module** — practical baseline check and ETL alternatives search\n\n` +
       `Open the modules on the right to explore each path. Without baseline, lifecycle payback is guesswork — **Edwardo** helps monitoring and dashboard maths when live data is thin.\n\n_${tip}_`,
     suggestions: [],
     agentHandoffs: buildHandoffs(briefing, '', 'baseline_equipment'),
-    blocks: linkOrModuleBlocks([
-      toLinkItem('Equipment intelligence tool', PORTAL_LINKS.equipmentTool, 'Check expected baseline use'),
-      toLinkItem('Trajectory baseline example', paths.trajectoryBaseline || PORTAL_LINKS.energySavingsTrajectory, 'Dashboard-linked demo'),
-      toLinkItem('Edwardo (Systems)', '/greenways/systems-agent', 'Monitoring & dashboard maths')
-    ]),
+    blocks: [
+      equipmentModuleBlock([
+        restaurantEnergySketchDemo({
+          profile: 'busy-kitchen',
+          label: 'Artemis — Energy Sketch',
+          note: 'Busy-kitchen profile primed — switch to café or wok line inside the tool.'
+        })
+      ]),
+      ...linkOrModuleBlocks([
+        toLinkItem('Equipment intelligence tool', PORTAL_LINKS.equipmentTool, 'Check expected baseline use'),
+        toLinkItem('Trajectory baseline example', paths.trajectoryBaseline || PORTAL_LINKS.energySavingsTrajectory, 'Dashboard-linked demo'),
+        toLinkItem('Edwardo (Systems)', '/greenways/systems-agent', 'Monitoring & dashboard maths')
+      ])
+    ]
+  };
+}
+
+async function buildEnergySketchAnswer(tip) {
+  const briefing = await loadBriefing();
+  return {
+    answer:
+      `**Restaurant Energy Sketch** — pick a kitchen profile (small café, busy kitchen, or wok line) and see **illustrative monthly energy by equipment line**.\n\n` +
+      `Figures come from Greenways **savings-projection scenarios** — they are **not your live bill**. Use the sketch to spot which lines dominate cost, then open **payback demo** or **Upgrade Plan Studio**, or ask **Vincent** about financing.\n\n` +
+      `I primed a **busy kitchen** sketch on the right — switch profiles inside the tool.\n\n_${tip}_`,
+    suggestions: [],
+    blocks: [
+      equipmentModuleBlock([
+        restaurantEnergySketchDemo({
+          profile: 'busy-kitchen',
+          label: 'Artemis — Restaurant Energy Sketch',
+          note: 'Busy-kitchen profile — switch café / wok line, then Ask Vincent with the monthly total.'
+        }),
+        upgradePlanStudioDemo({
+          vertical: 'fridge',
+          label: 'Artemis — next: Upgrade Plan',
+          note: 'After you know which lines dominate, tick the six-step path.'
+        }),
+        savingsProjectionDemo({
+          scenario: 'fridge',
+          label: 'Artemis — payback demo',
+          note: 'Model do-nothing vs upgrade once a line is chosen.'
+        })
+      ])
+    ],
+    agentHandoffs: buildHandoffs(briefing, '', 'energy_sketch')
   };
 }
 
@@ -1151,6 +1192,9 @@ async function answerFromKnowledge(question, profile = {}) {
       break;
     case 'upgrade_plan':
       result = await buildUpgradePlanAnswer(question, profile, tip);
+      break;
+    case 'energy_sketch':
+      result = await buildEnergySketchAnswer(tip);
       break;
     case 'role_resources':
       result = await buildRoleResourcesAnswer(question, profile, tip);

@@ -19,6 +19,7 @@ const REQUIRED_MODULE_IDS = [
   'agent-market',
   'shortlist-compare',
   'upgrade-plan-studio',
+  'restaurant-energy-sketch',
   'finance-finder',
   'savings-projection',
   'equipment-deep-dive',
@@ -29,6 +30,7 @@ const REQUIRED_HTML = {
   'agent-market': 'greenways-agent-market.html',
   'shortlist-compare': 'greenways-shortlist-compare.html',
   'upgrade-plan-studio': 'greenways-upgrade-plan-studio.html',
+  'restaurant-energy-sketch': 'greenways-restaurant-energy-sketch.html',
   'finance-finder': 'finance-finder-restaurant.html',
   'savings-projection': 'equipment-savings-projection.html'
 };
@@ -139,7 +141,8 @@ function main() {
       ['savingsProjectionDemo', demo.savingsProjectionDemo({ scenario: 'fridge' })],
       ['agentMarketDemo', demo.agentMarketDemo({ lane: 'kitchen' })],
       ['shortlistCompareDemo', demo.shortlistCompareDemo({ ids: ['etl_14_86293'] })],
-      ['upgradePlanStudioDemo', demo.upgradePlanStudioDemo({ vertical: 'fridge' })]
+      ['upgradePlanStudioDemo', demo.upgradePlanStudioDemo({ vertical: 'fridge' })],
+      ['restaurantEnergySketchDemo', demo.restaurantEnergySketchDemo({ profile: 'busy-kitchen' })]
     ];
     for (const [name, row] of checks) {
       if (!row || !row.moduleId) {
