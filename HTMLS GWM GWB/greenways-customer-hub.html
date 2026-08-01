@@ -520,15 +520,23 @@
       .wrap {
         padding: 14px 12px 48px;
         max-width: 100%;
+        overflow-x: hidden;
       }
       .hub-status-panel,
       .restaurant-agents-panel {
         flex: 1 1 100%;
         max-width: none;
+        min-width: 0;
+        overflow: hidden;
       }
       .hub-panel-footer {
         flex-direction: column;
         align-items: stretch;
+        min-width: 0;
+      }
+      .curator-row {
+        min-width: 0;
+        width: 100%;
       }
       .hub-panel-actions {
         justify-content: flex-start;
@@ -560,6 +568,7 @@
       .hub-status-head {
         flex-wrap: nowrap;
         gap: 8px;
+        min-width: 0;
       }
       .hub-status-head-actions {
         flex-wrap: nowrap;
@@ -574,9 +583,57 @@
       .curator-faces {
         flex-wrap: nowrap;
         overflow-x: auto;
+        overflow-y: hidden;
         -webkit-overflow-scrolling: touch;
-        padding-bottom: 8px;
-        scrollbar-width: thin;
+        overscroll-behavior-x: contain;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        padding-bottom: 10px;
+        scrollbar-width: auto;
+        scrollbar-color: rgba(61, 207, 122, 0.7) rgba(61, 207, 122, 0.1);
+      }
+      .curator-faces::-webkit-scrollbar {
+        height: 8px;
+      }
+      .curator-faces::-webkit-scrollbar-thumb {
+        background: linear-gradient(90deg, #3dcf7a, rgba(61, 207, 122, 0.55));
+        border-radius: 999px;
+        box-shadow: 0 0 8px rgba(61, 207, 122, 0.35);
+      }
+      .curator-face {
+        width: 64px;
+      }
+      .tenant-agent-cards {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        gap: 12px;
+        padding-bottom: 10px;
+        scrollbar-width: auto;
+        scrollbar-color: rgba(249, 115, 22, 0.7) rgba(249, 115, 22, 0.12);
+      }
+      .tenant-agent-cards::-webkit-scrollbar {
+        height: 8px;
+      }
+      .tenant-agent-cards::-webkit-scrollbar-thumb {
+        background: linear-gradient(90deg, #fb923c, rgba(249, 115, 22, 0.55));
+        border-radius: 999px;
+      }
+      .tenant-agent-card {
+        flex: 0 0 min(78vw, 260px);
+        width: min(78vw, 260px);
+        scroll-snap-align: start;
+      }
+      .tenant-agent-actions {
+        flex-wrap: nowrap;
+      }
+      .tenant-agent-actions a {
+        flex: 1 1 auto;
+        min-width: 0;
       }
       .top-actions,
       .top-actions--slim {
@@ -591,9 +648,29 @@
       .top-actions--slim > * {
         flex-shrink: 0;
       }
+      .section {
+        overflow: hidden;
+        min-width: 0;
+      }
+      .section-head {
+        flex-wrap: nowrap;
+        gap: 8px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+      }
+      .section-head h2,
+      .section-head .hint {
+        flex-shrink: 0;
+      }
       .team-strip,
       .lane,
-      .desk-picker {
+      .desk-picker,
+      .glance,
+      .glance-panel,
+      .glance-toolbar,
+      #news-list,
+      #video-drops-list {
         -webkit-overflow-scrolling: touch;
         overscroll-behavior-x: contain;
         scrollbar-width: auto;
@@ -602,15 +679,105 @@
       }
       .team-strip::-webkit-scrollbar,
       .lane::-webkit-scrollbar,
-      .desk-picker::-webkit-scrollbar {
+      .desk-picker::-webkit-scrollbar,
+      .glance::-webkit-scrollbar,
+      .glance-panel::-webkit-scrollbar,
+      #news-list::-webkit-scrollbar,
+      #video-drops-list::-webkit-scrollbar {
         height: 8px;
       }
       .team-strip::-webkit-scrollbar-thumb,
       .lane::-webkit-scrollbar-thumb,
-      .desk-picker::-webkit-scrollbar-thumb {
+      .desk-picker::-webkit-scrollbar-thumb,
+      .glance::-webkit-scrollbar-thumb,
+      .glance-panel::-webkit-scrollbar-thumb,
+      #news-list::-webkit-scrollbar-thumb,
+      #video-drops-list::-webkit-scrollbar-thumb {
         background: linear-gradient(90deg, #3dcf7a, rgba(61, 207, 122, 0.55));
         border-radius: 999px;
         box-shadow: 0 0 8px rgba(61, 207, 122, 0.35);
+      }
+      .lane {
+        scroll-padding-inline: 4px;
+      }
+      .card {
+        width: min(78vw, 260px);
+        max-width: 260px;
+      }
+      .glance {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        grid-template-columns: none;
+      }
+      .glance .kpi {
+        flex: 0 0 min(72vw, 200px);
+        width: min(72vw, 200px);
+        scroll-snap-align: start;
+      }
+      .glance-toolbar {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 8px;
+        overflow-x: auto;
+        align-items: center;
+      }
+      .glance-toolbar > * {
+        flex-shrink: 0;
+      }
+      .glance-panel {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 12px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        grid-template-columns: none;
+      }
+      .glance-panel .glance-card {
+        flex: 0 0 min(85vw, 300px);
+        width: min(85vw, 300px);
+        scroll-snap-align: start;
+      }
+      .glance-actions {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 8px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 6px;
+      }
+      .glance-actions > * {
+        flex-shrink: 0;
+      }
+      .news-rail #news-list {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+      }
+      .news-rail .news-item {
+        flex: 0 0 min(82vw, 280px);
+        width: min(82vw, 280px);
+        margin: 0;
+        scroll-snap-align: start;
+      }
+      #video-drops-list {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+      #video-drops-list .video-drop {
+        flex: 0 0 min(85vw, 300px);
+        width: min(85vw, 300px);
+        scroll-snap-align: start;
       }
     }
     .btn {
@@ -760,12 +927,23 @@
       display: flex;
       gap: 12px;
       overflow-x: auto;
+      overflow-y: hidden;
       padding-bottom: 6px;
       scroll-snap-type: x mandatory;
       scrollbar-width: thin;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      -webkit-overflow-scrolling: touch;
+    }
+    .lane > .empty {
+      flex: 0 0 100%;
+      min-width: min(100%, 280px);
     }
     .card {
-      flex: 0 0 min(240px, 78vw);
+      flex: 0 0 auto;
+      width: min(240px, 78vw);
+      max-width: 280px;
       scroll-snap-align: start;
       position: relative;
       border-radius: 14px;
@@ -929,6 +1107,42 @@
       font-family: var(--font-clean);
       line-height: 1.4;
     }
+    @media (max-width: 720px) {
+      .news-rail #news-list {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        padding-bottom: 10px;
+        scrollbar-width: auto;
+        scrollbar-color: rgba(61, 207, 122, 0.7) rgba(61, 207, 122, 0.1);
+      }
+      .news-rail .news-item {
+        flex: 0 0 min(82vw, 280px);
+        width: min(82vw, 280px);
+        margin-bottom: 0;
+        scroll-snap-align: start;
+      }
+      #video-drops-list {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 10px;
+      }
+      #video-drops-list .video-drop {
+        flex: 0 0 min(85vw, 300px);
+        width: min(85vw, 300px);
+        scroll-snap-align: start;
+      }
+    }
     .news-item .tag {
       font-size: 0.68rem;
       color: var(--cyan);
@@ -1076,10 +1290,23 @@
       gap: 10px;
     }
     @media (max-width: 720px) {
-      .glance { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width: 420px) {
-      .glance { grid-template-columns: 1fr; }
+      .glance {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        grid-template-columns: none;
+        padding-bottom: 10px;
+        scrollbar-width: auto;
+        scrollbar-color: rgba(61, 207, 122, 0.7) rgba(61, 207, 122, 0.1);
+      }
+      .glance .kpi {
+        flex: 0 0 min(72vw, 200px);
+        width: min(72vw, 200px);
+        scroll-snap-align: start;
+      }
     }
     .kpi {
       padding: 12px;
@@ -1125,8 +1352,24 @@
       gap: 12px;
       align-items: stretch;
     }
-    @media (max-width: 640px) {
-      .glance-panel { grid-template-columns: 1fr; }
+    @media (max-width: 720px) {
+      .glance-panel {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        grid-template-columns: none;
+        padding-bottom: 10px;
+        scrollbar-width: auto;
+        scrollbar-color: rgba(61, 207, 122, 0.7) rgba(61, 207, 122, 0.1);
+      }
+      .glance-panel .glance-card {
+        flex: 0 0 min(85vw, 300px);
+        width: min(85vw, 300px);
+        scroll-snap-align: start;
+      }
     }
     .glance-card {
       padding: 12px 14px;
@@ -1712,9 +1955,9 @@
     el.hidden = false;
   }
 
-  function cardHtml(opts) {
+    function cardHtml(opts) {
     var badge = opts.agent && opts.agent.imageUrl
-      ? '<img class="agent-badge" src="' + escapeHtml(opts.agent.imageUrl) + '" alt="' + escapeHtml(opts.agent.name || '') + '" title="' + escapeHtml(opts.agent.name || '') + '">'
+      ? '<span class="agent-badge-wrap"><img class="agent-badge" src="' + escapeHtml(opts.agent.imageUrl) + '" alt="' + escapeHtml(opts.agent.name || '') + '" title="' + escapeHtml(opts.agent.name || '') + '"><span class="agent-badge-name">' + escapeHtml(opts.agent.name || '') + '</span></span>'
       : '';
     var media = opts.image
       ? '<div class="card-media"><img src="' + escapeHtml(opts.image) + '" alt=""></div>'
