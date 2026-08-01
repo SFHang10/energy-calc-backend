@@ -185,18 +185,44 @@ body:has(#gw-composer-tools) #gw-sidebar-links-hint {
   overflow-y: auto;
   overflow-x: hidden;
   margin-top: 4px;
-  padding-right: 4px;
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--accent) 35%, transparent) transparent;
+  padding-right: 8px;
+  scrollbar-gutter: stable;
+  scrollbar-width: auto;
+  scrollbar-color: color-mix(in srgb, var(--accent) 78%, #fff 12%)
+    color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .guide-sidebar .gw-sidebar-ql-list::-webkit-scrollbar {
-  width: 5px;
+  width: 9px;
+}
+
+.guide-sidebar .gw-sidebar-ql-list::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border-radius: 999px;
+  margin: 2px 0;
+  box-shadow: inset 0 0 6px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
 .guide-sidebar .gw-sidebar-ql-list::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--accent) 35%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent-lt, var(--accent)) 92%, #fff),
+    color-mix(in srgb, var(--accent) 75%, transparent)
+  );
   border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  box-shadow:
+    0 0 6px color-mix(in srgb, var(--accent) 55%, transparent),
+    0 0 14px color-mix(in srgb, var(--accent) 40%, transparent);
+  animation: gw-sidebar-scroll-pulse 2.4s ease-in-out infinite;
+}
+
+.guide-sidebar .gw-sidebar-ql-list::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--accent-lt, var(--accent)) 95%, #fff);
+  box-shadow:
+    0 0 8px color-mix(in srgb, var(--accent) 70%, transparent),
+    0 0 18px color-mix(in srgb, var(--accent) 50%, transparent);
 }
 
 .guide-sidebar .gw-sidebar-ql-card {
@@ -298,21 +324,71 @@ body:has(#gw-composer-tools) #gw-sidebar-links-hint {
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0;
+  padding: 0 8px 0 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--accent) 35%, transparent) transparent;
+  scrollbar-gutter: stable;
+  scrollbar-width: auto;
+  scrollbar-color: color-mix(in srgb, var(--accent) 78%, #fff 12%)
+    color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .guide-sidebar .helper-list::-webkit-scrollbar {
-  width: 5px;
+  width: 9px;
+}
+
+.guide-sidebar .helper-list::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border-radius: 999px;
+  margin: 2px 0;
+  box-shadow: inset 0 0 6px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
 .guide-sidebar .helper-list::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--accent) 35%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent-lt, var(--accent)) 92%, #fff),
+    color-mix(in srgb, var(--accent) 75%, transparent)
+  );
   border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  box-shadow:
+    0 0 6px color-mix(in srgb, var(--accent) 55%, transparent),
+    0 0 14px color-mix(in srgb, var(--accent) 40%, transparent);
+  animation: gw-sidebar-scroll-pulse 2.4s ease-in-out infinite;
+}
+
+.guide-sidebar .helper-list::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--accent-lt, var(--accent)) 95%, #fff);
+  box-shadow:
+    0 0 8px color-mix(in srgb, var(--accent) 70%, transparent),
+    0 0 18px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+@keyframes gw-sidebar-scroll-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 5px color-mix(in srgb, var(--accent) 45%, transparent),
+      0 0 10px color-mix(in srgb, var(--accent) 28%, transparent);
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow:
+      0 0 10px color-mix(in srgb, var(--accent) 80%, transparent),
+      0 0 22px color-mix(in srgb, var(--accent) 55%, transparent),
+      0 0 32px color-mix(in srgb, var(--accent-lt, var(--accent)) 35%, transparent);
+    filter: brightness(1.18);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guide-sidebar .gw-sidebar-ql-list::-webkit-scrollbar-thumb,
+  .guide-sidebar .helper-list::-webkit-scrollbar-thumb {
+    animation: none;
+  }
 }
 
 .guide-sidebar .helper-card {
