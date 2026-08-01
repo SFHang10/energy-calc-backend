@@ -379,6 +379,7 @@
       <main>
         <div class="main-toolbar">
           <span id="dealsToolbarLabel">Deals hub · scroll lanes + search</span>
+          <button type="button" class="btn-header primary" id="dealsOpenFocusedFinder" hidden>Open full finder</button>
         </div>
         <div class="frame-wrap">
           <iframe
@@ -429,6 +430,8 @@
     }
 
     var finderActions = document.getElementById("dealsFinderActions");
+    var openFocusedBtn = document.getElementById("dealsOpenFocusedFinder");
+    var focusedFinder = null;
 
     function setActiveFinder(btn) {
       if (!finderActions) return;
@@ -442,10 +445,47 @@
 
     function clearActiveFinder() {
       setActiveFinder(null);
+      focusedFinder = null;
+      if (openFocusedBtn) openFocusedBtn.hidden = true;
     }
 
-    function openFinder(moduleId, src, label, btn) {
-      if (btn) setActiveFinder(btn);
+    function laneKeyForFinder(finder) {
+      if (finder === "products") return "sustain";
+      return finder || "";
+    }
+
+    function postLaneFocus(lane) {
+      if (!frame || !frame.contentWindow) return;
+      try {
+        frame.contentWindow.postMessage({ type: "gw-deals-focus-lane", lane: lane || null }, "*");
+      } catch (_) {}
+    }
+
+    function ensureHubThenFocus(lane, done) {
+      if (!frame) {
+        if (done) done();
+        return;
+      }
+      var onHub = /deals-ticker-hub/i.test(frame.src || "");
+      if (onHub) {
+        postLaneFocus(lane);
+        if (done) done();
+        return;
+      }
+      var target = hubSrc + (hubSrc.indexOf("?") >= 0 ? "&" : "?") + "focusLane=" + encodeURIComponent(lane || "");
+      var settled = false;
+      function finish() {
+        if (settled) return;
+        settled = true;
+        postLaneFocus(lane);
+        if (done) done();
+      }
+      frame.addEventListener("load", finish, { once: true });
+      frame.src = target;
+      setTimeout(finish, 1200);
+    }
+
+    function openFinderPage(moduleId, src, label) {
       if (isEmbed && moduleId && postToAgent({
         type: "gw-module-open",
         moduleId: moduleId,
@@ -465,22 +505,58 @@
       if (src) window.open(src, "_blank", "noopener,noreferrer");
     }
 
+    /** Left Full Finders: spotlight matching lane subject + ticker; full page via toolbar. */
+    function selectFinderLane(btn) {
+      var finder = btn.getAttribute("data-finder") || "";
+      var moduleId = btn.getAttribute("data-module-id");
+      var src = btn.getAttribute("data-finder-src") || btn.getAttribute("href");
+      var labelEl = btn.querySelector(".quick-btn-label");
+      var label = (labelEl ? labelEl.textContent : btn.textContent || "").replace(/\s+/g, " ").trim();
+      var lane = laneKeyForFinder(finder);
+
+      setActiveFinder(btn);
+      focusedFinder = { moduleId: moduleId, src: src, label: label, lane: lane };
+
+      ensureHubThenFocus(lane, function () {
+        if (hubBtn) {
+          hubBtn.hidden = false;
+          var hubLabel = hubBtn.querySelector(".quick-btn-label");
+          if (hubLabel) hubLabel.textContent = "Clear lane focus";
+        }
+        if (toolbar) {
+          toolbar.textContent = (label || "Lane") + " · subject highlighted in hub";
+        }
+        if (openFocusedBtn) {
+          openFocusedBtn.hidden = false;
+          openFocusedBtn.textContent = "Open full " + (label || "finder");
+        }
+      });
+    }
+
     document.querySelectorAll(".quick-btn[data-module-id]").forEach(function (a) {
       a.addEventListener("click", function (e) {
         e.preventDefault();
-        var labelEl = a.querySelector(".quick-btn-label");
-        openFinder(
-          a.getAttribute("data-module-id"),
-          a.getAttribute("data-finder-src") || a.getAttribute("href"),
-          (labelEl ? labelEl.textContent : a.textContent || "").replace(/\s+/g, " ").trim(),
-          a
-        );
+        selectFinderLane(a);
       });
     });
 
+    if (openFocusedBtn) {
+      openFocusedBtn.addEventListener("click", function () {
+        if (!focusedFinder) return;
+        openFinderPage(focusedFinder.moduleId, focusedFinder.src, focusedFinder.label);
+      });
+    }
+
     if (hubBtn) {
       hubBtn.addEventListener("click", function () {
-        if (frame) frame.src = hubSrc;
+        var hubLabel = hubBtn.querySelector(".quick-btn-label");
+        if (hubLabel) hubLabel.textContent = "Back to deals lanes";
+        ensureHubThenFocus(null, function () {
+          if (frame && !/deals-ticker-hub/i.test(frame.src || "")) {
+            frame.src = hubSrc;
+          }
+          postLaneFocus(null);
+        });
         hubBtn.hidden = true;
         clearActiveFinder();
         if (toolbar) toolbar.textContent = "Deals hub · scroll lanes + search";
