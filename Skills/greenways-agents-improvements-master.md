@@ -13,6 +13,7 @@
 - [x] **Site Brief:** agent-first HTML `greenways-site-brief.html` + module `restaurant-energy-snapshot` (href updated) + existing `/api/restaurant-snapshot/pilot` — 2026-08-01
 - [x] **Scheme Fit:** agent-first HTML `greenways-scheme-fit.html` + module `scheme-fit` + `/api/scheme-fit` — 2026-08-01
 - [x] **Water Line Sketch:** agent-first HTML `greenways-water-line-sketch.html` + module `water-line-sketch` + `/api/water-line-sketch` — 2026-08-01
+- [x] **Service-hour cost board:** agent-first HTML `greenways-service-hour-cost-board.html` + module `service-hour-cost-board` + `/api/service-hour-cost-board` — 2026-08-01
 - [x] **Build gate:** `Skills/greenways-agents-build-gate.md` + `npm run smoke:agent-modules` / `smoke:agents-gate` — 2026-07-31
 
 ---

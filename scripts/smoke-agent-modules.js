@@ -23,6 +23,7 @@ const REQUIRED_MODULE_IDS = [
   'restaurant-energy-snapshot',
   'scheme-fit',
   'water-line-sketch',
+  'service-hour-cost-board',
   'finance-finder',
   'savings-projection',
   'equipment-deep-dive',
@@ -37,6 +38,7 @@ const REQUIRED_HTML = {
   'restaurant-energy-snapshot': 'greenways-site-brief.html',
   'scheme-fit': 'greenways-scheme-fit.html',
   'water-line-sketch': 'greenways-water-line-sketch.html',
+  'service-hour-cost-board': 'greenways-service-hour-cost-board.html',
   'finance-finder': 'finance-finder-restaurant.html',
   'savings-projection': 'equipment-savings-projection.html'
 };
@@ -151,7 +153,8 @@ function main() {
       ['restaurantEnergySketchDemo', demo.restaurantEnergySketchDemo({ profile: 'busy-kitchen' })],
       ['siteBriefDemo', demo.siteBriefDemo({ site: 'w2w-amsterdam-02' })],
       ['schemeFitDemo', demo.schemeFitDemo({ region: 'nl', lane: 'fridge' })],
-      ['waterLineSketchDemo', demo.waterLineSketchDemo({ profile: 'busy-kitchen' })]
+      ['waterLineSketchDemo', demo.waterLineSketchDemo({ profile: 'busy-kitchen' })],
+      ['serviceHourCostBoardDemo', demo.serviceHourCostBoardDemo({ profile: 'busy-kitchen' })]
     ];
     for (const [name, row] of checks) {
       if (!row || !row.moduleId) {

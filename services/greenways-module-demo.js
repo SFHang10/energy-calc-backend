@@ -373,6 +373,37 @@ function waterLineSketchDemo(overrides = {}) {
   );
 }
 
+function serviceHourCostBoardDemo(overrides = {}) {
+  const {
+    label,
+    note,
+    profile,
+    moduleId,
+    openSize,
+    title,
+    query,
+    description,
+    usageHint
+  } = overrides;
+  return withModuleDemo(
+    {
+      moduleId: moduleId || 'service-hour-cost-board',
+      openSize: openSize || 'near-full',
+      title: title || 'Service-hour cost board',
+      query,
+      description,
+      usageHint
+    },
+    {
+      label: label || 'Vincent — Service-hour cost board',
+      note:
+        note ||
+        'Peak vs off-peak on kitchen sketch totals — see what shifting warewash could save. Illustrative rates, not your live tariff.',
+      profile: profile || 'busy-kitchen'
+    }
+  );
+}
+
 /** Map profile.region-ish values to Finance Finder country option strings. */
 function countryLabelFromProfile(regionOrCountry) {
   const r = String(regionOrCountry || '')
@@ -402,5 +433,6 @@ module.exports = {
   siteBriefDemo,
   schemeFitDemo,
   waterLineSketchDemo,
+  serviceHourCostBoardDemo,
   countryLabelFromProfile
 };

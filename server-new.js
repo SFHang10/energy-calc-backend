@@ -246,6 +246,8 @@ app.get('/greenways/scheme-fit', (req, res) => sendLiveMusicHtml(res, 'greenways
 app.get('/greenways/scheme-fit.html', (req, res) => sendLiveMusicHtml(res, 'greenways-scheme-fit.html'));
 app.get('/greenways/water-line-sketch', (req, res) => sendLiveMusicHtml(res, 'greenways-water-line-sketch.html'));
 app.get('/greenways/water-line-sketch.html', (req, res) => sendLiveMusicHtml(res, 'greenways-water-line-sketch.html'));
+app.get('/greenways/service-hour-cost-board', (req, res) => sendLiveMusicHtml(res, 'greenways-service-hour-cost-board.html'));
+app.get('/greenways/service-hour-cost-board.html', (req, res) => sendLiveMusicHtml(res, 'greenways-service-hour-cost-board.html'));
 
 app.get('/greenways/restaurant-data', (req, res) => sendLiveMusicHtml(res, 'restaurant-data.html'));
 app.get('/greenways/restaurant-energy-snapshot', (req, res) => sendLiveMusicHtml(res, 'greenways-site-brief.html'));
@@ -642,6 +644,12 @@ function mountApiRoutes() {
     console.log('✅ /api/water-line-sketch route mounted');
   } catch (waterSketchErr) {
     console.error('❌ /api/water-line-sketch failed to mount:', waterSketchErr.message);
+  }
+  try {
+    app.use('/api/service-hour-cost-board', require('./routes/service-hour-cost-board'));
+    console.log('✅ /api/service-hour-cost-board route mounted');
+  } catch (serviceHourErr) {
+    console.error('❌ /api/service-hour-cost-board failed to mount:', serviceHourErr.message);
   }
   if (systemsAgentRouter) {
     app.use('/api/systems-agent', systemsAgentRouter);

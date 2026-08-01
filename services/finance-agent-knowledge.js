@@ -23,6 +23,7 @@ const {
   financeFinderDemo,
   savingsProjectionDemo,
   siteBriefDemo,
+  serviceHourCostBoardDemo,
   countryLabelFromProfile
 } = require('./greenways-module-demo');
 const { resolveGlossaryFromIntent, tryBuildGlossaryAnswer } = require('./greenways-sustainability-glossary');
@@ -583,6 +584,38 @@ function buildRestaurantSnapshotAnswer(profile, tip) {
   };
 }
 
+function buildServiceHourCostBoardAnswer(tip) {
+  return {
+    answer: withTip(
+      '**Service-hour cost board** — same kitchen profiles as Energy Sketch, split into **peak service hours** vs **off-peak**, with an **after shift** column for warewash and pre-cool.\n\n' +
+        'Rates are **illustrative** (flat €0.30 · peak €0.38 · off-peak €0.22/kWh) — not your live tariff. Use it to see whether timing changes the bill story before you compare suppliers or model payback.\n\n' +
+        'I primed a **busy kitchen** board on the right.',
+      tip
+    ),
+    blocks: [
+      financeModuleBlock([
+        serviceHourCostBoardDemo({
+          profile: 'busy-kitchen',
+          label: 'Vincent — Service-hour cost board',
+          note: 'Busy-kitchen TOU board — switch café / wok line, then tariff compare or payback.'
+        }),
+        {
+          moduleId: 'european-energy',
+          title: 'Tariff compare',
+          usageHint: 'Shop time-of-use / business rates after you see the shift story',
+          openSize: 'near-full'
+        },
+        savingsProjectionDemo({
+          scenario: 'dishwasher',
+          label: 'Vincent — warewash payback',
+          note: 'If shift savings matter, model dishwasher upgrade payback next.'
+        })
+      ])
+    ],
+    suggestions: []
+  };
+}
+
 async function buildEnergyPricesAnswer(profile, tip) {
   const snapshot = await loadEnergySnapshot();
   const bullets = formatWholesaleBullets(snapshot, profile, 4);
@@ -877,6 +910,9 @@ async function answerFromKnowledge(question, profile = {}) {
       break;
     case 'restaurant_energy_snapshot':
       result = buildRestaurantSnapshotAnswer(profile, tip);
+      break;
+    case 'service_hour_cost_board':
+      result = buildServiceHourCostBoardAnswer(tip);
       break;
     case 'energy_prices':
       result = await buildEnergyPricesAnswer(profile, tip);
