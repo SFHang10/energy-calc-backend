@@ -22,6 +22,7 @@ const REQUIRED_MODULE_IDS = [
   'restaurant-energy-sketch',
   'restaurant-energy-snapshot',
   'scheme-fit',
+  'water-line-sketch',
   'finance-finder',
   'savings-projection',
   'equipment-deep-dive',
@@ -35,6 +36,7 @@ const REQUIRED_HTML = {
   'restaurant-energy-sketch': 'greenways-restaurant-energy-sketch.html',
   'restaurant-energy-snapshot': 'greenways-site-brief.html',
   'scheme-fit': 'greenways-scheme-fit.html',
+  'water-line-sketch': 'greenways-water-line-sketch.html',
   'finance-finder': 'finance-finder-restaurant.html',
   'savings-projection': 'equipment-savings-projection.html'
 };
@@ -148,7 +150,8 @@ function main() {
       ['upgradePlanStudioDemo', demo.upgradePlanStudioDemo({ vertical: 'fridge' })],
       ['restaurantEnergySketchDemo', demo.restaurantEnergySketchDemo({ profile: 'busy-kitchen' })],
       ['siteBriefDemo', demo.siteBriefDemo({ site: 'w2w-amsterdam-02' })],
-      ['schemeFitDemo', demo.schemeFitDemo({ region: 'nl', lane: 'fridge' })]
+      ['schemeFitDemo', demo.schemeFitDemo({ region: 'nl', lane: 'fridge' })],
+      ['waterLineSketchDemo', demo.waterLineSketchDemo({ profile: 'busy-kitchen' })]
     ];
     for (const [name, row] of checks) {
       if (!row || !row.moduleId) {

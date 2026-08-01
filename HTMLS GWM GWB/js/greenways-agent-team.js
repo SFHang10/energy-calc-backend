@@ -370,6 +370,8 @@
     'site brief': 'restaurant-energy-snapshot',
     'restaurant energy snapshot': 'restaurant-energy-snapshot',
     'scheme fit': 'scheme-fit',
+    'water line sketch': 'water-line-sketch',
+    'water sketch': 'water-line-sketch',
     'site energy reading': 'site-energy-reading',
     'grid carbon postcode': 'site-energy-reading',
     'postcode grid carbon': 'site-energy-reading',

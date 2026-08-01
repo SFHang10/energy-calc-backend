@@ -23,7 +23,7 @@ const {
   agentIntroParagraph
 } = require('./greenways-agent-persona');
 const { mergeModuleRow, loadRegistrySync, getModuleById, enrichKnowledgeAnswer } = require('./greenways-content-modules');
-const { agentMarketDemo, shortlistCompareDemo } = require('./greenways-module-demo');
+const { agentMarketDemo, shortlistCompareDemo, waterLineSketchDemo } = require('./greenways-module-demo');
 const { resolveGlossaryFromIntent, tryBuildGlossaryAnswer } = require('./greenways-sustainability-glossary');
 const { EquipmentIntelligenceService } = require('./equipment-intelligence-service');
 const {
@@ -769,6 +769,33 @@ async function buildLowEnergyExamplesAnswer(tip) {
   return guideLinkBlock('Low-energy equipment examples', href, narrative, tip);
 }
 
+async function buildWaterLineSketchAnswer(tip) {
+  const briefing = await loadBriefing();
+  return {
+    answer:
+      `**Water Line Sketch** — pick a hospitality profile and see **illustrative monthly water € and m³** by dishwash, pre-rinse, taps, ice, and washrooms.\n\n` +
+      `Figures are **not your live water bill**. Use the sketch to spot which lines dominate, then open **Water Saving Finder** for products or **Scheme Fit** for dishwasher-lane grants.\n\n` +
+      `I primed a **busy kitchen** water sketch on the right.\n\n_${tip}_`,
+    suggestions: [],
+    blocks: [
+      productsModuleBlock([
+        waterLineSketchDemo({
+          profile: 'busy-kitchen',
+          label: 'Zyanne — Water Line Sketch',
+          note: 'Busy-kitchen water profile — switch café / bar, then open the finder.'
+        }),
+        {
+          moduleId: 'water-saving-finder',
+          title: 'Water Saving Finder',
+          usageHint: 'Compare water-saving products',
+          openSize: 'near-full'
+        }
+      ])
+    ],
+    agentHandoffs: buildHandoffs(briefing, '', 'water_line_sketch')
+  };
+}
+
 async function buildWaterSavingGuideAnswer(tip) {
   const briefing = await loadBriefing();
   const paths = briefing.guidePaths || {};
@@ -781,15 +808,24 @@ async function buildWaterSavingGuideAnswer(tip) {
       `**Water Saving Guide**\n\n` +
       `${narrative}\n\n` +
       `**Practical path:**\n` +
-      `1. Read the guide sections (fixtures, leaks, dishwashers, greywater)\n` +
-      `2. Note priorities for your site type — home, office, or restaurant\n` +
+      `1. Skim the **Water Line Sketch** to see which lines dominate cost\n` +
+      `2. Read the guide sections (fixtures, leaks, dishwashers, greywater)\n` +
       `3. Open **Water Saving Finder** to compare products and stack grants via **Andrieus**\n\n` +
-      `Open the guide module on the right.\n\n_${tip}_`,
+      `Open the modules on the right.\n\n_${tip}_`,
     suggestions: [],
-    blocks: linkOrModuleBlocks([
-      toLinkItem('Water Saving Guide', href, narrative),
-      toLinkItem('Water Saving Finder', FINDER_LINKS.water, 'Full water-lane product search and compare')
-    ]),
+    blocks: [
+      productsModuleBlock([
+        waterLineSketchDemo({
+          profile: 'busy-kitchen',
+          label: 'Zyanne — Water Line Sketch',
+          note: 'See which water lines dominate before you shortlist products.'
+        })
+      ]),
+      ...linkOrModuleBlocks([
+        toLinkItem('Water Saving Guide', href, narrative),
+        toLinkItem('Water Saving Finder', FINDER_LINKS.water, 'Full water-lane product search and compare')
+      ])
+    ],
     agentHandoffs: buildHandoffs(briefing, '', 'water_saving_guide')
   };
 }
@@ -1283,6 +1319,9 @@ async function answerFromKnowledge(question, profile = {}) {
         break;
       case 'water_saving_guide':
         result = await buildWaterSavingGuideAnswer(tip);
+        break;
+      case 'water_line_sketch':
+        result = await buildWaterLineSketchAnswer(tip);
         break;
       case 'european_buildings':
         result = await buildEuropeanBuildingsAnswer(tip);

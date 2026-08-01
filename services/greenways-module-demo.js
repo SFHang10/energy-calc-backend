@@ -342,6 +342,37 @@ function schemeFitDemo(overrides = {}) {
   );
 }
 
+function waterLineSketchDemo(overrides = {}) {
+  const {
+    label,
+    note,
+    profile,
+    moduleId,
+    openSize,
+    title,
+    query,
+    description,
+    usageHint
+  } = overrides;
+  return withModuleDemo(
+    {
+      moduleId: moduleId || 'water-line-sketch',
+      openSize: openSize || 'near-full',
+      title: title || 'Water Line Sketch',
+      query,
+      description,
+      usageHint
+    },
+    {
+      label: label || 'Zyanne — Water Line Sketch',
+      note:
+        note ||
+        'Illustrative water €/mo by dishwash, taps, ice, and washrooms — not your live bill. Open the finder next.',
+      profile: profile || 'busy-kitchen'
+    }
+  );
+}
+
 /** Map profile.region-ish values to Finance Finder country option strings. */
 function countryLabelFromProfile(regionOrCountry) {
   const r = String(regionOrCountry || '')
@@ -370,5 +401,6 @@ module.exports = {
   restaurantEnergySketchDemo,
   siteBriefDemo,
   schemeFitDemo,
+  waterLineSketchDemo,
   countryLabelFromProfile
 };
