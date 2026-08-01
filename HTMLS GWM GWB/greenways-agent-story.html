@@ -337,7 +337,14 @@
     "sustainable-product-finder": "/HTMLS%20GWM%20GWB/sustainable_product_deal_finder_portal.html",
     "sensor-dashboard": "/greenways/sensor-dashboard",
     "greenways-dashboard": "/greenways/buildings-dashboard",
-    "restaurant-iot": "/HTMLS%20GWM%20GWB/smart_restaurant_energy_iot_v2.svg"
+    "restaurant-iot": "/HTMLS%20GWM%20GWB/smart_restaurant_energy_iot_v2.svg",
+    "restaurant-energy-sketch": "/greenways/restaurant-energy-sketch",
+    "service-hour-cost-board": "/greenways/service-hour-cost-board",
+    "restaurant-energy-snapshot": "/greenways/site-brief",
+    "scheme-fit": "/greenways/scheme-fit",
+    "water-line-sketch": "/greenways/water-line-sketch",
+    "upgrade-plan-studio": "/greenways/upgrade-plan-studio",
+    "shortlist-compare": "/greenways/shortlist-compare"
   };
 
   var ROSTER_FALLBACK = [
@@ -450,7 +457,7 @@
     );
   }
 
-  function renderJourneys(story) {
+  function renderJourneys(story, modulesById) {
     var journeys = story.journeys || [];
     if (!journeys.length) return "";
     return journeys.map(function (j) {
@@ -469,11 +476,17 @@
       if (j.askPrompt) {
         ctas += '<a class="btn" href="' + escapeHtml(askHref(story, j.askPrompt)) + '">Ask ' + escapeHtml(story.name) + "</a>";
       }
-      if (j.moduleId && MODULE_HREF_FALLBACK[j.moduleId]) {
-        ctas +=
-          '<a class="btn ghost" href="' +
-          escapeHtml(resolveModuleHref(j.moduleId)) +
-          '" target="_blank" rel="noopener">Open related tool</a>';
+      if (j.moduleId) {
+        var toolHref = resolveModuleHref(j.moduleId, modulesById);
+        var toolLabel = j.moduleLabel || "Open related tool";
+        if (toolHref) {
+          ctas +=
+            '<a class="btn ghost" href="' +
+            escapeHtml(toolHref) +
+            '" target="_blank" rel="noopener">' +
+            escapeHtml(toolLabel) +
+            "</a>";
+        }
       }
       return (
         '<article class="journey">' +
@@ -495,8 +508,13 @@
       '<div class="demo-grid">' +
       items.map(function (item) {
         var href = resolveModuleHref(item.moduleId, modulesById);
-        var src = embedHref(href);
-        var title = (modulesById[item.moduleId] && modulesById[item.moduleId].title) || item.moduleId;
+        var showEmbed = item.embed !== false;
+        var src = showEmbed ? embedHref(href) : "";
+        var title =
+          item.title ||
+          (modulesById[item.moduleId] && modulesById[item.moduleId].title) ||
+          item.moduleId;
+        var openLabel = item.openLabel || (showEmbed ? "Open full page" : "Open tool");
         return (
           '<div class="demo-card glass">' +
           '<p class="demo-caption"><strong>' + escapeHtml(title) + "</strong> — " + escapeHtml(item.caption || "") + "</p>" +
@@ -505,7 +523,7 @@
             : "") +
           '<div class="demo-actions">' +
           (href
-            ? '<a class="btn ghost" href="' + escapeHtml(href) + '" target="_blank" rel="noopener">Open full page</a>'
+            ? '<a class="btn ghost" href="' + escapeHtml(href) + '" target="_blank" rel="noopener">' + escapeHtml(openLabel) + "</a>"
             : "") +
           "</div></div>"
         );
@@ -571,6 +589,17 @@
       '<p class="story-lede">' + escapeHtml(story.story || "") + "</p>" +
       '<div class="hero-actions">' +
       '<a class="btn" href="' + escapeHtml(askHref(story)) + '">Ask ' + escapeHtml(story.name) + "</a>" +
+      ((story.heroTools || []).map(function (t) {
+        var href = resolveModuleHref(t.moduleId, modulesById);
+        if (!href) return "";
+        return (
+          '<a class="btn ghost" href="' +
+          escapeHtml(href) +
+          '" target="_blank" rel="noopener">' +
+          escapeHtml(t.label || "Open tool") +
+          "</a>"
+        );
+      }).join("")) +
       '<a class="btn ghost" href="' + contentBase() + '/greenways/agents-map">All agents</a>' +
       "</div></div>" +
       renderVideo(story) +
@@ -583,7 +612,7 @@
       '<section class="glass section">' +
       '<p class="section-label">How I can help</p>' +
       "<h2>Example questions → three steps</h2>" +
-      renderJourneys(story) +
+      renderJourneys(story, modulesById) +
       "</section>" +
 
       renderDemos(story, modulesById) +
