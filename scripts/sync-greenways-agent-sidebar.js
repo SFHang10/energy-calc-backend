@@ -140,6 +140,23 @@ function removeInitSidebarGwbLinks(html) {
     .replace(/\n\s*initSidebarGwbLinks\(\);\n/, '\n');
 }
 
+const COMPOSER_TOOLS_MOUNT =
+  '        <div class="gw-composer-tools" id="gw-composer-tools" hidden></div>';
+
+function ensureComposerToolsMount(html) {
+  if (html.includes('id="gw-composer-tools"')) return html;
+  if (html.includes('class="compose-hint"')) {
+    return html.replace(
+      /(<div class="compose-hint">[\s\S]*?<\/div>)/,
+      `$1\n${COMPOSER_TOOLS_MOUNT}`
+    );
+  }
+  return html.replace(
+    /(<\/div>\s*<\/div>\s*<\/main>)/,
+    `${COMPOSER_TOOLS_MOUNT}\n$1`
+  );
+}
+
 function patchSidebarInit(html, slug) {
   const cfg = CONFIG.agents[slug];
   if (!cfg) return html;
@@ -155,11 +172,16 @@ function patchSidebarInit(html, slug) {
       }`
       : '';
 
+  const toolsLine =
+    Array.isArray(cfg.composerTools) && cfg.composerTools.length
+      ? `\n      composerTools: ${JSON.stringify(cfg.composerTools)},`
+      : '';
+
   const initBlock = `  if (window.GreenwaysAgentSidebar) {
     GreenwaysAgentSidebar.init({
       quickLinks: ${JSON.stringify(cfg.quickLinks)},
       linksHint: ${JSON.stringify(cfg.linksHint)},
-      helpersHint: ${JSON.stringify(cfg.helpersHint)},
+      helpersHint: ${JSON.stringify(cfg.helpersHint)},${toolsLine}
       helpers: HELPERS,
       onAsk: function (prompt) { sendQuestion(prompt); }${mediaExtra},
       compactNameLen: 16
@@ -215,6 +237,10 @@ function run() {
     if (slug === 'finance-agent') html = removeFinanceQuickLinksBlock(html);
     if (slug === 'media-agent') html = removeInitSidebarGwbLinks(html);
     html = stripDuplicateSidebarCss(html);
+    const cfg = CONFIG.agents[slug];
+    if (cfg && Array.isArray(cfg.composerTools) && cfg.composerTools.length) {
+      html = ensureComposerToolsMount(html);
+    }
     html = patchSidebarInit(html, slug);
     fs.writeFileSync(filePath, html, 'utf8');
     console.log('OK', file);

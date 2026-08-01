@@ -278,6 +278,8 @@ Stacks to one column below **560px** (`.turn-split` → `.turn-split--stack`).
 
 **Exception — Edwardo (`greenways-systems-agent.html`):** keep **Ops · verify selected** → **Quick links** → **Ask about**. System-ops layout; his compact sidebar and sync checklist stay as-is — **do not** apply ask-first reorder when cloning or syncing shells.
 
+**Composer Tools tray (Edwardo only, Jul 2026):** Overflow modules (not Ask chips) live under the chat composer in a collapsed **Tools ▾** dock (`#gw-composer-tools`). Config: `composerTools[]` in `data/greenways-agent-sidebar-config.json` (systems-agent only). Shared render in `greenways-agent-sidebar.js` / `.css`; cue colour `--gw-tools-cue` (light blue) matches `#gw-sidebar-links-hint` + **Tools ▾**. Do not put the tray in the extendable status banner above chat. **Other agents stay as-is** — their Quick links lists are fine without a composer Tools tray; do not add `composerTools` unless a specialist later overflows badly.
+
 **CSS:** `greenways-agent-sidebar.css` — `.sidebar-block--helpers:first-child { margin-top: 10px; }` (only when Ask is first; Edwardo’s first child is the ops block).
 
 **When forking a new agent:** copy Vincent/Andrieus sidebar HTML order; wire `GreenwaysAgentSidebar.init()` unchanged.

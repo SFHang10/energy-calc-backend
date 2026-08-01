@@ -481,6 +481,122 @@
     global.addEventListener("gw-profile-changed", refresh);
   }
 
+  function ensureComposerToolsShell(mount) {
+    if (!mount) return null;
+    mount.classList.add("gw-composer-tools");
+    mount.hidden = false;
+    mount.replaceChildren();
+
+    var toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "gw-composer-tools-toggle";
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-controls", "gw-composer-tools-panel");
+    toggle.innerHTML =
+      'Tools <span class="gw-composer-tools-chevron" aria-hidden="true">▾</span>';
+
+    var panel = document.createElement("div");
+    panel.className = "gw-composer-tools-panel";
+    panel.id = "gw-composer-tools-panel";
+    panel.hidden = true;
+
+    var scroller = document.createElement("div");
+    scroller.className = "gw-composer-tools-scroller";
+    scroller.id = "gw-composer-tools-list";
+    scroller.setAttribute("role", "navigation");
+    scroller.setAttribute("aria-label", "More tools");
+
+    panel.appendChild(scroller);
+    mount.appendChild(toggle);
+    mount.appendChild(panel);
+
+    toggle.addEventListener("click", function () {
+      var open = mount.classList.toggle("is-open");
+      panel.hidden = !open;
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+
+    return scroller;
+  }
+
+  function renderComposerTools(mount, links, opts) {
+    opts = opts || {};
+    if (!mount) return null;
+    var list = links || [];
+    if (!list.length) {
+      mount.hidden = true;
+      mount.replaceChildren();
+      return null;
+    }
+
+    var scroller = ensureComposerToolsShell(mount);
+    if (!scroller) return null;
+
+    list.forEach(function (link) {
+      var isAgent = Boolean(link.agent);
+      var el;
+
+      if (link.mapOpen || link.moduleOpen) {
+        el = document.createElement("button");
+        el.type = "button";
+        if (link.mapOpen) el.setAttribute("data-map-open", "1");
+        if (link.moduleOpen) {
+          el.setAttribute("data-module-open", link.moduleId || link.id || "");
+          if (link.href) el.setAttribute("data-module-href", resolveHref(link));
+          if (link.moduleQuery) el.setAttribute("data-module-query", link.moduleQuery);
+        }
+      } else {
+        el = document.createElement("a");
+        el.href = resolveHref(link);
+        el.target = "_top";
+        el.rel = "noopener";
+      }
+
+      el.className = "gw-composer-tools-chip" + (isAgent ? " is-agent" : "");
+      el.title = [link.name, link.desc].filter(Boolean).join(" · ");
+
+      var icon = document.createElement("span");
+      icon.className = "gw-composer-tools-chip-icon";
+      icon.setAttribute("aria-hidden", "true");
+      icon.textContent = link.icon || "🔗";
+
+      var label = document.createElement("span");
+      label.className = "gw-composer-tools-chip-label";
+      label.textContent = link.name || "Open";
+
+      el.appendChild(icon);
+      el.appendChild(label);
+
+      el.addEventListener("click", function (e) {
+        if (link.mapOpen && typeof opts.onQuickLinkClick === "function") {
+          e.preventDefault();
+          opts.onQuickLinkClick(link, el, e);
+          return;
+        }
+        if (link.moduleOpen && global.GreenwaysAgentContentModule) {
+          e.preventDefault();
+          if (typeof opts.onQuickLinkClick === "function") {
+            opts.onQuickLinkClick(link, el, e);
+          } else {
+            GreenwaysAgentContentModule.openFromTrigger(el);
+          }
+          return;
+        }
+        if (typeof opts.onQuickLinkClick === "function") {
+          opts.onQuickLinkClick(link, el, e);
+        }
+      });
+
+      scroller.appendChild(el);
+    });
+
+    if (global.GreenwaysAgentContentModule && typeof GreenwaysAgentContentModule.bindContainer === "function") {
+      GreenwaysAgentContentModule.bindContainer(scroller);
+    }
+
+    return scroller;
+  }
+
   function init(opts) {
     opts = opts || {};
     var linksMount =
@@ -488,6 +604,9 @@
       document.getElementById(opts.quickLinksMountId || "gw-agent-quick-links");
     var helpersMount =
       opts.helpersMount || document.getElementById(opts.helpersMountId || "helper-list");
+    var toolsMount =
+      opts.composerToolsMount ||
+      document.getElementById(opts.composerToolsMountId || "gw-composer-tools");
 
     var linksHint = document.getElementById("gw-sidebar-links-hint");
     if (linksHint && opts.linksHint) linksHint.textContent = opts.linksHint;
@@ -501,6 +620,11 @@
       renderHelpers(helpersMount, opts.helpers, opts);
     }
 
+    var toolsScroller = null;
+    if (toolsMount) {
+      toolsScroller = renderComposerTools(toolsMount, opts.composerTools, opts);
+    }
+
     var slug = detectAgentSlug(opts);
     if (slug) {
       renderWeeklyHighlight(slug, opts);
@@ -508,13 +632,19 @@
       bindProfileRefresh(slug, opts);
     }
 
-    return { linksMount: linksMount, helpersMount: helpersMount };
+    return {
+      linksMount: linksMount,
+      helpersMount: helpersMount,
+      toolsMount: toolsMount,
+      toolsScroller: toolsScroller
+    };
   }
 
   global.GreenwaysAgentSidebar = {
     init: init,
     renderQuickLinks: renderQuickLinks,
     renderHelpers: renderHelpers,
+    renderComposerTools: renderComposerTools,
     renderWeeklyHighlight: renderWeeklyHighlight,
     renderGrantDeadlineChip: renderGrantDeadlineChip,
     refreshProactiveNudges: refreshProactiveNudges,

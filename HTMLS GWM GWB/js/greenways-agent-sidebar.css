@@ -52,6 +52,16 @@
   flex-shrink: 0;
 }
 
+/* Matched cue: Quick links hint + composer Tools ▾ (light blue) — only when Tools tray is present */
+:root {
+  --gw-tools-cue: #7dd3fc;
+}
+
+body:has(#gw-composer-tools) #gw-sidebar-links-hint {
+  color: var(--gw-tools-cue);
+  font-weight: 500;
+}
+
 .guide-sidebar .sidebar-section--helpers > .sidebar-label,
 .guide-sidebar .sidebar-section--links > .sidebar-label {
   flex-shrink: 0;
@@ -380,6 +390,125 @@
   color: #fff;
   white-space: nowrap;
   line-height: 1.2;
+}
+
+/* Under-composer Tools tray — overflow modules; collapsed by default */
+.gw-composer-tools {
+  margin-top: 8px;
+}
+
+.gw-composer-tools[hidden] {
+  display: none !important;
+}
+
+.gw-composer-tools-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 4px 2px;
+  border: none;
+  background: transparent;
+  color: var(--gw-tools-cue, #7dd3fc);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.gw-composer-tools-toggle:hover {
+  color: #bae6fd;
+}
+
+.gw-composer-tools-toggle:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent, #f59e0b) 55%, transparent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.gw-composer-tools-chevron {
+  font-size: 0.62rem;
+  opacity: 0.85;
+  transition: transform 0.15s ease;
+}
+
+.gw-composer-tools.is-open .gw-composer-tools-chevron {
+  transform: rotate(180deg);
+}
+
+.gw-composer-tools-panel {
+  margin-top: 6px;
+}
+
+.gw-composer-tools-panel[hidden] {
+  display: none !important;
+}
+
+.gw-composer-tools-scroller {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 2px 6px;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent, #f59e0b) 35%, transparent) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.gw-composer-tools-scroller::-webkit-scrollbar {
+  height: 5px;
+}
+
+.gw-composer-tools-scroller::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--accent, #f59e0b) 35%, transparent);
+  border-radius: 999px;
+}
+
+.gw-composer-tools-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  max-width: 220px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent, #f59e0b) 28%, transparent);
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--text, #e2e8f0);
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.gw-composer-tools-chip:hover {
+  border-color: color-mix(in srgb, var(--accent, #f59e0b) 50%, transparent);
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.gw-composer-tools-chip:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent, #f59e0b) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.gw-composer-tools-chip.is-agent {
+  border-color: rgba(148, 163, 184, 0.35);
+  color: #e2e8f0;
+}
+
+.gw-composer-tools-chip-icon {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.gw-composer-tools-chip-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @media (max-width: 900px) {
