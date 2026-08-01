@@ -180,8 +180,14 @@
       line-height: 1.5;
       color: var(--text-dim);
     }
-    .quick-actions { display: flex; flex-direction: column; gap: 6px; }
+    .quick-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+    }
     .quick-btn {
+      position: relative;
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 6px;
@@ -193,12 +199,12 @@
       padding: 8px 10px;
       text-align: left;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: border-color 0.18s, color 0.18s, background 0.18s, box-shadow 0.18s, opacity 0.18s, filter 0.18s;
       display: flex;
       align-items: center;
       gap: 8px;
       text-decoration: none;
-      color: inherit;
+      z-index: 0;
     }
     a.quick-btn { color: var(--text-dim); }
     button.quick-btn {
@@ -212,7 +218,83 @@
       color: var(--text);
       background: rgba(0, 245, 130, 0.06);
     }
-    .quick-btn span { font-size: 1rem; flex-shrink: 0; }
+    .quick-btn-icon { font-size: 1rem; flex-shrink: 0; line-height: 1; }
+    .quick-btn-label {
+      flex: 1;
+      min-width: 0;
+      line-height: 1.25;
+    }
+    /* Dim siblings so the pressed finder’s subject stands out */
+    .quick-actions.has-active .quick-btn:not(.is-active) {
+      opacity: 0.42;
+      filter: brightness(0.55);
+      color: var(--text-faint);
+      border-color: #1a1a1a;
+      background: #101010;
+      pointer-events: auto;
+    }
+    .quick-actions.has-active .quick-btn:not(.is-active)::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: rgba(0, 0, 0, 0.62);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .quick-actions.has-active .quick-btn:not(.is-active):hover {
+      opacity: 0.72;
+      filter: brightness(0.85);
+      color: var(--text-dim);
+    }
+    .quick-btn.is-active {
+      z-index: 2;
+      opacity: 1;
+      filter: none;
+      color: #fff;
+      font-weight: 700;
+      border-color: var(--accent);
+      background: linear-gradient(180deg, rgba(0, 245, 130, 0.16), rgba(0, 0, 0, 0.35));
+      box-shadow:
+        0 0 0 1px rgba(0, 245, 130, 0.35),
+        0 8px 22px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+    .quick-btn.is-active .quick-btn-label {
+      color: #f7fff9;
+      letter-spacing: 0.03em;
+      text-shadow: 0 0 14px rgba(0, 245, 130, 0.45);
+    }
+    .quick-btn.is-active[data-finder="energy"] {
+      border-color: #f5b942;
+      background: linear-gradient(180deg, rgba(245, 185, 66, 0.2), rgba(0, 0, 0, 0.4));
+      box-shadow:
+        0 0 0 1px rgba(245, 185, 66, 0.4),
+        0 8px 22px rgba(0, 0, 0, 0.45);
+    }
+    .quick-btn.is-active[data-finder="energy"] .quick-btn-label {
+      text-shadow: 0 0 14px rgba(245, 185, 66, 0.5);
+    }
+    .quick-btn.is-active[data-finder="water"] {
+      border-color: #4ec8e8;
+      background: linear-gradient(180deg, rgba(78, 200, 232, 0.22), rgba(0, 0, 0, 0.4));
+      box-shadow:
+        0 0 0 1px rgba(78, 200, 232, 0.45),
+        0 8px 22px rgba(0, 0, 0, 0.45);
+    }
+    .quick-btn.is-active[data-finder="water"] .quick-btn-label {
+      text-shadow: 0 0 14px rgba(78, 200, 232, 0.55);
+    }
+    .quick-btn.is-active[data-finder="products"] {
+      border-color: #3dcf7a;
+      background: linear-gradient(180deg, rgba(61, 207, 122, 0.22), rgba(0, 0, 0, 0.4));
+      box-shadow:
+        0 0 0 1px rgba(61, 207, 122, 0.45),
+        0 8px 22px rgba(0, 0, 0, 0.45);
+    }
+    .quick-btn.is-active[data-finder="products"] .quick-btn-label {
+      text-shadow: 0 0 14px rgba(61, 207, 122, 0.55);
+    }
     main {
       display: flex;
       flex-direction: column;
@@ -281,11 +363,11 @@
       <aside>
         <div class="sidebar-section">
           <div class="sidebar-label">Full finders</div>
-          <div class="quick-actions">
-            <a class="quick-btn" href="./european_energy_deals_portal.html" data-module-id="european-energy" data-finder-src="./european_energy_deals_portal.html"><span>⚡</span> Energy deals portal</a>
-            <a class="quick-btn" href="./water-saving-finder.html" data-module-id="water-saving-finder" data-finder-src="./water-saving-finder.html"><span>💧</span> Water saving finder</a>
-            <a class="quick-btn" href="./sustainable_product_deal_finder_portal.html" data-module-id="sustainable-product-finder" data-finder-src="./sustainable_product_deal_finder_portal.html"><span>🌿</span> Sustainable products</a>
-            <button type="button" class="quick-btn" id="dealsShowHubBtn" hidden><span>🏷️</span> Back to deals lanes</button>
+          <div class="quick-actions" id="dealsFinderActions">
+            <a class="quick-btn" href="./european_energy_deals_portal.html" data-finder="energy" data-module-id="european-energy" data-finder-src="./european_energy_deals_portal.html"><span class="quick-btn-icon" aria-hidden="true">⚡</span><span class="quick-btn-label">Energy deals portal</span></a>
+            <a class="quick-btn" href="./water-saving-finder.html" data-finder="water" data-module-id="water-saving-finder" data-finder-src="./water-saving-finder.html"><span class="quick-btn-icon" aria-hidden="true">💧</span><span class="quick-btn-label">Water saving finder</span></a>
+            <a class="quick-btn" href="./sustainable_product_deal_finder_portal.html" data-finder="products" data-module-id="sustainable-product-finder" data-finder-src="./sustainable_product_deal_finder_portal.html"><span class="quick-btn-icon" aria-hidden="true">🌿</span><span class="quick-btn-label">Sustainable products</span></a>
+            <button type="button" class="quick-btn" id="dealsShowHubBtn" hidden><span class="quick-btn-icon" aria-hidden="true">🏷️</span><span class="quick-btn-label">Back to deals lanes</span></button>
           </div>
         </div>
         <div class="sidebar-section" hidden>
@@ -346,7 +428,24 @@
       return false;
     }
 
-    function openFinder(moduleId, src, label) {
+    var finderActions = document.getElementById("dealsFinderActions");
+
+    function setActiveFinder(btn) {
+      if (!finderActions) return;
+      finderActions.querySelectorAll(".quick-btn").forEach(function (el) {
+        el.classList.toggle("is-active", el === btn);
+        if (el === btn) el.setAttribute("aria-current", "true");
+        else el.removeAttribute("aria-current");
+      });
+      finderActions.classList.toggle("has-active", !!btn);
+    }
+
+    function clearActiveFinder() {
+      setActiveFinder(null);
+    }
+
+    function openFinder(moduleId, src, label, btn) {
+      if (btn) setActiveFinder(btn);
       if (isEmbed && moduleId && postToAgent({
         type: "gw-module-open",
         moduleId: moduleId,
@@ -369,10 +468,12 @@
     document.querySelectorAll(".quick-btn[data-module-id]").forEach(function (a) {
       a.addEventListener("click", function (e) {
         e.preventDefault();
+        var labelEl = a.querySelector(".quick-btn-label");
         openFinder(
           a.getAttribute("data-module-id"),
           a.getAttribute("data-finder-src") || a.getAttribute("href"),
-          (a.textContent || "").replace(/\s+/g, " ").trim()
+          (labelEl ? labelEl.textContent : a.textContent || "").replace(/\s+/g, " ").trim(),
+          a
         );
       });
     });
@@ -381,6 +482,7 @@
       hubBtn.addEventListener("click", function () {
         if (frame) frame.src = hubSrc;
         hubBtn.hidden = true;
+        clearActiveFinder();
         if (toolbar) toolbar.textContent = "Deals hub · scroll lanes + search";
       });
     }
