@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Greenways — Scheme Fit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-marketplace-page-backdrop.css?v=glass2">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-module-demo.js"></script>
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-topic-bridge.js"></script>
+<style>
+  :root {
+    --bg: #070e12;
+    --text: #e8f4f8;
+    --muted: #8eabb4;
+    --cyan: #22d3ee;
+    --green: #28a745;
+    --gold: #c9a961;
+    --blue: #5b9fd4;
+    --font: 'Space Grotesk', system-ui, sans-serif;
+    --font-clean: 'IBM Plex Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    overflow-x: hidden;
+    line-height: 1.5;
+  }
+  .sf-page {
+    position: relative;
+    z-index: 1;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 18px 16px 40px;
+  }
+  .sf-return {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin: 0 0 14px; padding: 8px 10px; border-radius: 12px;
+    border: 1px solid rgba(201, 169, 97, 0.35);
+    background: rgba(8, 16, 22, 0.92); backdrop-filter: blur(12px);
+  }
+  .sf-return[hidden] { display: none !important; }
+  .sf-return-btn {
+    border-radius: 999px; border: 1px solid rgba(201, 169, 97, 0.55);
+    background: rgba(201, 169, 97, 0.12); color: #f0d78a;
+    font: inherit; font-size: 0.82rem; font-weight: 600; padding: 7px 12px; cursor: pointer;
+  }
+  .sf-return-hint { font-size: 0.72rem; color: var(--muted); }
+  .sf-hero { text-align: center; margin-bottom: 14px; }
+  .sf-hero h1 {
+    font-size: clamp(1.5rem, 3.6vw, 2rem); font-weight: 700; letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #fff 0%, var(--blue) 45%, var(--gold) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .sf-hero p { margin-top: 10px; color: #e8f6fa; font-size: 0.95rem; max-width: 36rem; margin-left: auto; margin-right: auto; }
+  .sf-trust {
+    margin: 0 auto 14px; max-width: 38rem; padding: 10px 12px; border-radius: 10px;
+    border: 1px solid rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.08);
+    font-size: 0.78rem; color: #fde68a; text-align: center;
+  }
+  .sf-status { font-size: 0.82rem; color: var(--muted); margin-bottom: 10px; min-height: 1.2em; }
+  .sf-status.is-error { color: #fca5a5; }
+  .sf-section-label {
+    font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 8px;
+  }
+  .sf-lanes {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 12px;
+  }
+  .sf-lane {
+    text-align: left; padding: 11px; border-radius: 12px; cursor: pointer; font: inherit; color: var(--text);
+    border: 1px solid rgba(91, 159, 212, 0.35); background: rgba(10, 20, 28, 0.72);
+  }
+  .sf-lane.is-active { border-color: rgba(201, 169, 97, 0.75); background: rgba(28, 24, 14, 0.9); }
+  .sf-lane strong { display: block; font-size: 0.84rem; }
+  .sf-lane span { font-size: 0.7rem; color: var(--muted); }
+  .sf-summary {
+    padding: 14px; border-radius: 16px; margin-bottom: 14px;
+    border: 1px solid rgba(91, 159, 212, 0.28); background: rgba(12, 22, 28, 0.88);
+  }
+  .sf-summary h2 { font-size: 1.05rem; margin-bottom: 6px; font-family: var(--font-clean); }
+  .sf-summary p { color: #d7e8ee; font-size: 0.88rem; }
+  .sf-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .sf-btn {
+    appearance: none; border-radius: 999px; border: 1px solid rgba(91, 159, 212, 0.4);
+    background: rgba(91, 159, 212, 0.1); color: #9ec9eb;
+    font: inherit; font-size: 0.78rem; font-weight: 600; padding: 7px 12px; cursor: pointer; text-decoration: none;
+  }
+  .sf-btn--gold { border-color: rgba(201, 169, 97, 0.5); background: rgba(201, 169, 97, 0.14); color: #f0d78a; }
+  .sf-btn--green { border-color: rgba(40, 167, 69, 0.45); background: rgba(40, 167, 69, 0.12); color: #9ae6b0; }
+  .sf-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .sf-row {
+    padding: 14px; border-radius: 14px;
+    border: 1px solid rgba(91, 159, 212, 0.22); background: rgba(12, 22, 28, 0.86);
+  }
+  .sf-row-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: flex-start; }
+  .sf-row h3 { font-size: 0.98rem; font-family: var(--font-clean); }
+  .sf-row p { margin-top: 6px; font-size: 0.84rem; color: #c9dbe3; }
+  .sf-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .sf-chip {
+    font-size: 0.68rem; font-weight: 600; padding: 3px 8px; border-radius: 999px;
+    border: 1px solid rgba(91, 159, 212, 0.35); color: #9ec9eb; background: rgba(91, 159, 212, 0.1);
+  }
+  .sf-chip--gold { border-color: rgba(201, 169, 97, 0.45); color: #f0d78a; background: rgba(201, 169, 97, 0.1); }
+  .sf-why { margin-top: 8px; font-size: 0.78rem; color: var(--gold); }
+  .sf-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .sf-actions a, .sf-actions button {
+    appearance: none; text-decoration: none; cursor: pointer;
+    border-radius: 8px; border: 1px solid rgba(91, 159, 212, 0.35);
+    background: rgba(91, 159, 212, 0.1); color: #9ec9eb;
+    font: inherit; font-size: 0.72rem; font-weight: 600; padding: 6px 9px;
+  }
+  .sf-note { margin-top: 16px; font-size: 0.78rem; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body>
+<main class="sf-page">
+  <div class="sf-return" id="sf-return" hidden>
+    <button type="button" class="sf-return-btn" id="sf-return-btn">← Back</button>
+    <span class="sf-return-hint" id="sf-return-hint"></span>
+  </div>
+  <header class="sf-hero">
+    <h1>Scheme Fit</h1>
+    <p>Pick a region and equipment lane to shortlist realistic grants from the Greenways catalogue — then confirm on the official page.</p>
+  </header>
+  <p class="sf-trust" id="sf-trust">Heuristic catalogue match — not a formal eligibility check.</p>
+  <p class="sf-status" id="sf-status" aria-live="polite"></p>
+  <p class="sf-section-label">Region</p>
+  <div class="sf-lanes" id="sf-regions" role="tablist" aria-label="Regions"></div>
+  <p class="sf-section-label">Equipment lane</p>
+  <div class="sf-lanes" id="sf-lanes" role="tablist" aria-label="Equipment lanes"></div>
+  <section class="sf-summary" id="sf-summary" hidden>
+    <h2 id="sf-title">Shortlist</h2>
+    <p id="sf-blurb"></p>
+  </section>
+  <div class="sf-toolbar" id="sf-toolbar" hidden>
+    <button type="button" class="sf-btn sf-btn--gold" id="sf-copy">Copy shortlist</button>
+    <button type="button" class="sf-btn" id="sf-open-portal">Restaurant schemes portal</button>
+    <button type="button" class="sf-btn" id="sf-open-brief">Site Brief</button>
+    <button type="button" class="sf-btn sf-btn--green" id="sf-ask-andrieus">Ask Andrieus</button>
+    <button type="button" class="sf-btn sf-btn--green" id="sf-ask-vincent">Ask Vincent</button>
+  </div>
+  <ul class="sf-list" id="sf-list"></ul>
+  <p class="sf-note">Always verify eligibility and deadlines on the linked official programme before you apply.</p>
+</main>
+<script>
+(function () {
+  var MODULE_ID = "scheme-fit";
+  var state = { region: "nl", lane: "fridge", payload: null };
+
+  var regionsEl = document.getElementById("sf-regions");
+  var lanesEl = document.getElementById("sf-lanes");
+  var statusEl = document.getElementById("sf-status");
+  var summaryEl = document.getElementById("sf-summary");
+  var toolbarEl = document.getElementById("sf-toolbar");
+  var listEl = document.getElementById("sf-list");
+  var trustEl = document.getElementById("sf-trust");
+
+  function escapeHtml(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function closeParentModule() {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: "gw-module-close", moduleId: MODULE_ID }, "*");
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  function openParentModule(moduleId, overrides) {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage(
+          { type: "gw-module-open", moduleId: moduleId, overrides: overrides || {} },
+          "*"
+        );
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  function initReturnNav() {
+    var bar = document.getElementById("sf-return");
+    var btn = document.getElementById("sf-return-btn");
+    var hint = document.getElementById("sf-return-hint");
+    if (!bar || !btn) return;
+    var params = new URLSearchParams(location.search);
+    var fromLabel = params.get("fromLabel") || "";
+    var from = params.get("from") || "";
+    var returnHref = params.get("return") || "";
+    var embed = params.get("embed") === "1" || params.get("popup") === "1";
+    var inFrame = false;
+    try { inFrame = window.parent && window.parent !== window; } catch (_) { inFrame = true; }
+    var label = fromLabel || "← Back to Andrieus";
+    if (!fromLabel && from.indexOf("finance") >= 0) label = "← Back to Vincent";
+    if (!fromLabel && from.indexOf("equipment") >= 0) label = "← Back to Artemis";
+    if (!fromLabel && !from && !embed && !inFrame) {
+      label = "← Back to Orchestra";
+      returnHref = returnHref || "/greenways/orchestra-hub";
+    }
+    btn.textContent = label;
+    bar.hidden = false;
+    if (hint) hint.textContent = embed || inFrame ? "Chat stays open behind this panel" : "Return to Greenways";
+    btn.addEventListener("click", function () {
+      if (embed || inFrame) {
+        if (!closeParentModule()) location.href = returnHref || "/greenways/grants-agent";
+        return;
+      }
+      location.href = returnHref || "/greenways/grants-agent";
+    });
+  }
+
+  function bridgeAsk(slug, topic) {
+    var Bridge = window.GreenwaysAgentTopicBridge;
+    var href;
+    if (Bridge && typeof Bridge.buildHref === "function") {
+      href = Bridge.buildHref({
+        path: "/greenways/" + slug,
+        toSlug: slug,
+        fromSlug: "scheme-fit",
+        fromLabel: "Scheme Fit",
+        topic: topic
+      });
+    } else {
+      href = "/greenways/" + slug + "?bridge=1&topic=" + encodeURIComponent(topic) + "&from=Scheme%20Fit";
+    }
+    try { window.top.location.href = href; } catch (_) { window.location.href = href; }
+  }
+
+  function renderPicker(el, rows, active, dataAttr) {
+    el.innerHTML = (rows || [])
+      .map(function (r) {
+        return (
+          '<button type="button" class="sf-lane' +
+          (r.id === active ? " is-active" : "") +
+          '" data-' +
+          dataAttr +
+          '="' +
+          escapeHtml(r.id) +
+          '"><strong>' +
+          escapeHtml(r.title || r.id) +
+          "</strong><span>" +
+          escapeHtml(r.blurb || "") +
+          "</span></button>"
+        );
+      })
+      .join("");
+  }
+
+  function renderFit(payload) {
+    state.payload = payload;
+    state.region = payload.region && payload.region.id;
+    state.lane = payload.lane && payload.lane.id;
+
+    summaryEl.hidden = false;
+    toolbarEl.hidden = false;
+    document.getElementById("sf-title").textContent =
+      (payload.lane && payload.lane.title) + " · " + (payload.region && payload.region.title);
+    document.getElementById("sf-blurb").textContent =
+      (payload.totals && payload.totals.matched ? payload.totals.matched : 0) +
+      " catalogue matches from " +
+      (payload.totals && payload.totals.catalogueScanned ? payload.totals.catalogueScanned : 0) +
+      " regional / EU rows — restaurant sector boosted.";
+
+    if (payload.trustNote || (payload.meta && payload.meta.trustNote)) {
+      trustEl.textContent = payload.trustNote || payload.meta.trustNote;
+    }
+
+    var schemes = payload.schemes || [];
+    listEl.innerHTML = schemes
+      .map(function (s) {
+        return (
+          '<li class="sf-row"><div class="sf-row-top"><div><h3>' +
+          escapeHtml(s.title) +
+          "</h3><p>" +
+          escapeHtml(s.description) +
+          '</p><div class="sf-meta"><span class="sf-chip">' +
+          escapeHtml(String(s.region || "").toUpperCase()) +
+          "</span>" +
+          (s.type ? '<span class="sf-chip">' + escapeHtml(s.type) + "</span>" : "") +
+          (s.priority ? '<span class="sf-chip sf-chip--gold">priority</span>' : "") +
+          (s.deadline ? '<span class="sf-chip">deadline · ' + escapeHtml(s.deadline) + "</span>" : "") +
+          '</div><p class="sf-why">' +
+          escapeHtml(s.whyFit || "") +
+          '</p></div></div><div class="sf-actions">' +
+          (s.url
+            ? '<a href="' + escapeHtml(s.url) + '" target="_blank" rel="noopener">Official page</a>'
+            : "") +
+          '<button type="button" data-ask-scheme="' +
+          escapeHtml(s.id) +
+          '">Ask Andrieus</button></div></li>'
+        );
+      })
+      .join("") ||
+      '<li class="sf-row"><p>No matches for this lane and region — try EU-wide or another equipment lane.</p></li>';
+
+    statusEl.textContent = "";
+    statusEl.className = "sf-status";
+  }
+
+  function shortlistPlainText(payload) {
+    if (!payload) return "";
+    var lines = [];
+    lines.push(
+      "Greenways Scheme Fit — " +
+        ((payload.lane && payload.lane.title) || "") +
+        " / " +
+        ((payload.region && payload.region.title) || "")
+    );
+    lines.push("");
+    (payload.schemes || []).forEach(function (s, i) {
+      lines.push(i + 1 + ". " + s.title + " (" + String(s.region || "").toUpperCase() + ")");
+      if (s.whyFit) lines.push("   " + s.whyFit);
+      if (s.url) lines.push("   " + s.url);
+    });
+    lines.push("");
+    lines.push(payload.trustNote || (payload.meta && payload.meta.trustNote) || "");
+    return lines.join("\n");
+  }
+
+  async function loadFit() {
+    statusEl.textContent = "Matching schemes…";
+    statusEl.className = "sf-status";
+    try {
+      var url =
+        "/api/scheme-fit?region=" +
+        encodeURIComponent(state.region) +
+        "&lane=" +
+        encodeURIComponent(state.lane);
+      var res = await fetch(url, { cache: "no-store" });
+      var data = await res.json();
+      if (!res.ok || !data || !data.ok) throw new Error((data && data.error) || "Could not load scheme fit");
+      renderPicker(regionsEl, data.availableRegions, data.region && data.region.id, "region");
+      renderPicker(lanesEl, data.availableLanes, data.lane && data.lane.id, "lane");
+      renderFit(data);
+    } catch (err) {
+      statusEl.textContent = err.message || "Could not load scheme fit";
+      statusEl.className = "sf-status is-error";
+      summaryEl.hidden = true;
+      toolbarEl.hidden = true;
+    }
+  }
+
+  regionsEl.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-region]");
+    if (!btn) return;
+    state.region = btn.getAttribute("data-region");
+    loadFit();
+  });
+
+  lanesEl.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-lane]");
+    if (!btn) return;
+    state.lane = btn.getAttribute("data-lane");
+    loadFit();
+  });
+
+  listEl.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-ask-scheme]");
+    if (!btn || !state.payload) return;
+    var id = btn.getAttribute("data-ask-scheme");
+    var row = (state.payload.schemes || []).find(function (s) {
+      return s.id === id;
+    });
+    if (!row) return;
+    bridgeAsk(
+      "grants-agent",
+      "Tell me more about " + row.title + " for a restaurant " + (state.payload.lane && state.payload.lane.title) + " upgrade in " + (state.payload.region && state.payload.region.title) + "."
+    );
+  });
+
+  document.getElementById("sf-copy").addEventListener("click", function () {
+    var text = shortlistPlainText(state.payload);
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        statusEl.textContent = "Shortlist copied";
+      });
+    } else {
+      statusEl.textContent = "Copy not available in this browser";
+    }
+  });
+
+  document.getElementById("sf-open-portal").addEventListener("click", function () {
+    if (!openParentModule("schemes-portal-restaurant", {})) {
+      window.open("/HTMLS%20GWM%20GWB/Full%20Schemes%20Portal%20Restaurant.html", "_blank");
+    }
+  });
+
+  document.getElementById("sf-open-brief").addEventListener("click", function () {
+    if (!openParentModule("restaurant-energy-snapshot", { query: "demo=1&region=" + encodeURIComponent(state.region) })) {
+      window.open("/greenways/site-brief?demo=1&region=" + encodeURIComponent(state.region), "_blank");
+    }
+  });
+
+  document.getElementById("sf-ask-andrieus").addEventListener("click", function () {
+    var lane = (state.payload && state.payload.lane && state.payload.lane.title) || "kitchen equipment";
+    var region = (state.payload && state.payload.region && state.payload.region.title) || "my region";
+    bridgeAsk("grants-agent", "Which of these Scheme Fit matches for " + lane + " in " + region + " should I prioritise?");
+  });
+
+  document.getElementById("sf-ask-vincent").addEventListener("click", function () {
+    var lane = (state.payload && state.payload.lane && state.payload.lane.title) || "this upgrade";
+    bridgeAsk("finance-agent", "After Scheme Fit for " + lane + ", how should I finance the gap if grants do not cover full capex?");
+  });
+
+  initReturnNav();
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: "gw-module-embed-ready", moduleId: MODULE_ID }, "*");
+    }
+  } catch (_) {}
+
+  var bootParams = new URLSearchParams(location.search);
+  if (window.GreenwaysModuleDemo && window.GreenwaysModuleDemo.isDemo(bootParams)) {
+    window.GreenwaysModuleDemo.mountBanner({ before: document.querySelector(".sf-hero") });
+  }
+  state.region = (bootParams.get("region") || "nl").toLowerCase();
+  state.lane = (bootParams.get("lane") || bootParams.get("focus") || "fridge").toLowerCase();
+  loadFit();
+})();
+</script>
+</body>
+</html>

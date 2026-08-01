@@ -44,6 +44,7 @@ function withModuleDemo(row = {}, demo = {}) {
   if (demo.profile) parts.profile = demo.profile;
   if (demo.site) parts.site = demo.site;
   if (demo.siteId) parts.site = demo.siteId;
+  if (demo.lane) parts.lane = demo.lane;
   if (demo.ids) parts.ids = demo.ids;
   if (demo.auto) parts.auto = '1';
   if (note) parts.demoNote = note;
@@ -307,6 +308,40 @@ function siteBriefDemo(overrides = {}) {
   );
 }
 
+function schemeFitDemo(overrides = {}) {
+  const {
+    label,
+    note,
+    region,
+    lane,
+    focus,
+    moduleId,
+    openSize,
+    title,
+    query,
+    description,
+    usageHint
+  } = overrides;
+  return withModuleDemo(
+    {
+      moduleId: moduleId || 'scheme-fit',
+      openSize: openSize || 'near-full',
+      title: title || 'Scheme Fit',
+      query,
+      description,
+      usageHint
+    },
+    {
+      label: label || 'Andrieus — Scheme Fit',
+      note:
+        note ||
+        'Region + equipment lane primed — shortlist is a heuristic match, confirm on the official page.',
+      region: region || 'nl',
+      lane: lane || focus || 'fridge'
+    }
+  );
+}
+
 /** Map profile.region-ish values to Finance Finder country option strings. */
 function countryLabelFromProfile(regionOrCountry) {
   const r = String(regionOrCountry || '')
@@ -334,5 +369,6 @@ module.exports = {
   upgradePlanStudioDemo,
   restaurantEnergySketchDemo,
   siteBriefDemo,
+  schemeFitDemo,
   countryLabelFromProfile
 };

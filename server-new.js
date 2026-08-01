@@ -242,6 +242,8 @@ app.get('/greenways/restaurant-energy-sketch', (req, res) => sendLiveMusicHtml(r
 app.get('/greenways/restaurant-energy-sketch.html', (req, res) => sendLiveMusicHtml(res, 'greenways-restaurant-energy-sketch.html'));
 app.get('/greenways/site-brief', (req, res) => sendLiveMusicHtml(res, 'greenways-site-brief.html'));
 app.get('/greenways/site-brief.html', (req, res) => sendLiveMusicHtml(res, 'greenways-site-brief.html'));
+app.get('/greenways/scheme-fit', (req, res) => sendLiveMusicHtml(res, 'greenways-scheme-fit.html'));
+app.get('/greenways/scheme-fit.html', (req, res) => sendLiveMusicHtml(res, 'greenways-scheme-fit.html'));
 
 app.get('/greenways/restaurant-data', (req, res) => sendLiveMusicHtml(res, 'restaurant-data.html'));
 app.get('/greenways/restaurant-energy-snapshot', (req, res) => sendLiveMusicHtml(res, 'greenways-site-brief.html'));
@@ -626,6 +628,12 @@ function mountApiRoutes() {
     console.log('✅ /api/restaurant-energy-sketch route mounted');
   } catch (energySketchErr) {
     console.error('❌ /api/restaurant-energy-sketch failed to mount:', energySketchErr.message);
+  }
+  try {
+    app.use('/api/scheme-fit', require('./routes/scheme-fit'));
+    console.log('✅ /api/scheme-fit route mounted');
+  } catch (schemeFitErr) {
+    console.error('❌ /api/scheme-fit failed to mount:', schemeFitErr.message);
   }
   if (systemsAgentRouter) {
     app.use('/api/systems-agent', systemsAgentRouter);

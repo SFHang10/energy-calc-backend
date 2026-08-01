@@ -10,6 +10,7 @@ const {
 const { toModuleItem } = require('./greenways-agent-shared');
 const { mergeModuleRow, enrichKnowledgeAnswer } = require('./greenways-content-modules');
 const { resolveGlossaryFromIntent, tryBuildGlossaryAnswer } = require('./greenways-sustainability-glossary');
+const { schemeFitDemo } = require('./greenways-module-demo');
 const {
   buildHandoffTopicSummary,
   isReferralWelcomePair,
@@ -455,19 +456,79 @@ function buildSectorAnswer(schemes, sector, question, profile, tip) {
   };
 }
 
+function detectSchemeFitLane(question) {
+  const q = String(question || '').toLowerCase();
+  if (/dishwash|warewash/.test(q)) return 'dishwasher';
+  if (/wok|fryer|cookline/.test(q)) return 'wok';
+  if (/hvac|ventilat|extract|heat recovery|air.?con/.test(q)) return 'hvac';
+  if (/insulat|fabric|envelope|loft|glazing|retrofit/.test(q)) return 'insulation';
+  if (/fridge|freezer|refrigerat|cold/.test(q)) return 'fridge';
+  return 'fridge';
+}
+
+function buildSchemeFitAnswer(profile, question, tip) {
+  const region = String(profile.region || 'nl')
+    .toLowerCase()
+    .replace(/^uk\..*/, 'uk')
+    .replace(/^eu\..*/, 'eu')
+    .slice(0, 2) || 'nl';
+  const regionParam = ['nl', 'uk', 'eu', 'de', 'be', 'fr', 'ie', 'es', 'pt'].includes(region)
+    ? region
+    : 'nl';
+  const lane = detectSchemeFitLane(question);
+
+  return {
+    answer: withTip(
+      `**Scheme Fit** shortlists grants from our catalogue by **region** and **equipment lane** — a heuristic match, not a formal eligibility decision.\n\n` +
+        `I primed **${lane}** in **${REGION_LABELS[regionParam] || regionParam}** on the right. Switch lanes or region inside the tool, copy the shortlist, then open each official page before you apply.`,
+      tip
+    ),
+    blocks: [
+      grantsModuleBlock([
+        schemeFitDemo({
+          region: regionParam,
+          lane,
+          label: 'Andrieus — Scheme Fit',
+          note: `${lane} · ${regionParam} primed — confirm eligibility on each official programme page.`
+        }),
+        {
+          moduleId: 'schemes-portal-restaurant',
+          title: 'Restaurant schemes portal',
+          usageHint: 'Full hospitality catalogue',
+          openSize: 'near-full'
+        }
+      ])
+    ],
+    suggestions: []
+  };
+}
+
 function buildEquipmentAnswer(schemes, question, profile, tip) {
   const tokens = ['equipment', 'appliance', 'machinery', 'etl', 'efficiency', 'refrigerat', 'oven', 'hvac', 'upgrade'];
   const matches = schemes.filter((s) => tokens.some((t) => schemeHaystack(s).includes(t)));
   const ranked = rankSchemes(matches, question, { ...profile, focus: 'equipment' }, 8);
   const picked = ranked.length ? ranked : matches.slice(0, 8);
+  const region = String(profile.region || 'nl')
+    .toLowerCase()
+    .replace(/^uk\..*/, 'uk')
+    .slice(0, 2) || 'nl';
+  const lane = detectSchemeFitLane(question);
   return {
     answer: withTip(
       `Upgrading **kitchen equipment or appliances**? These **${picked.length}** schemes from our catalogue often relate to equipment, efficiency, or green investment.\n\n` +
-        'When you browse a specific product on the marketplace or equipment deep dive, we also attach matched grants to that item — handy once you know what you are buying.',
+        'I also opened **Scheme Fit** for a tighter shortlist by region and lane. When you browse a specific product, we attach matched grants to that item once you know what you are buying.',
       tip
     ),
     blocks: [
-      grantsModuleBlock([{ moduleId: 'etl-finder', openSize: 'near-full' }])
+      grantsModuleBlock([
+        schemeFitDemo({
+          region: ['nl', 'uk', 'eu', 'de', 'be', 'fr'].includes(region) ? region : 'nl',
+          lane,
+          label: 'Andrieus — Scheme Fit',
+          note: 'Equipment lane primed — switch region inside the tool if needed.'
+        }),
+        { moduleId: 'etl-finder', openSize: 'near-full' }
+      ])
     ],
     suggestions: picked.map(toSuggestion)
   };
@@ -858,6 +919,9 @@ async function answerFromKnowledge(question, profile = {}) {
       break;
     case 'equipment':
       result = buildEquipmentAnswer(schemes, question, profile, defaultTip);
+      break;
+    case 'scheme_fit':
+      result = buildSchemeFitAnswer(profile, question, defaultTip);
       break;
     case 'deadlines':
       result = buildDeadlinesAnswer(schemes, defaultTip);

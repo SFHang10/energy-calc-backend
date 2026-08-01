@@ -369,6 +369,7 @@
     'energy sketch': 'restaurant-energy-sketch',
     'site brief': 'restaurant-energy-snapshot',
     'restaurant energy snapshot': 'restaurant-energy-snapshot',
+    'scheme fit': 'scheme-fit',
     'site energy reading': 'site-energy-reading',
     'grid carbon postcode': 'site-energy-reading',
     'postcode grid carbon': 'site-energy-reading',
