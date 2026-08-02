@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css">
+  <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.css">
   <style>
     :root {
       --bg: #060a10;
@@ -316,6 +317,7 @@
     <div id="story-root" class="loading">Loading agent story…</div>
   </div>
 
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.js"></script>
   <script>
 (function () {
   var MODULE_HREF_FALLBACK = {
@@ -475,18 +477,23 @@
       }).join("");
       var ctas = "";
       if (j.askPrompt) {
-        ctas += '<a class="btn" href="' + escapeHtml(askHref(story, j.askPrompt)) + '">Ask ' + escapeHtml(story.name) + "</a>";
+        ctas +=
+          '<button type="button" class="btn" data-story-ask="1" data-ask-prompt="' +
+          escapeHtml(j.askPrompt) +
+          '">Ask ' +
+          escapeHtml(story.name) +
+          "</button>";
       }
       if (j.moduleId) {
         var toolHref = resolveModuleHref(j.moduleId, modulesById);
         var toolLabel = j.moduleLabel || "Open related tool";
-        if (toolHref) {
+        if (toolHref || j.moduleId) {
           ctas +=
-            '<a class="btn ghost" href="' +
-            escapeHtml(toolHref) +
-            '" target="_blank" rel="noopener">' +
+            '<button type="button" class="btn ghost" data-module-open="' +
+            escapeHtml(j.moduleId) +
+            '">' +
             escapeHtml(toolLabel) +
-            "</a>";
+            "</button>";
         }
       }
       return (
@@ -523,8 +530,12 @@
             ? '<div class="demo-frame-wrap"><iframe src="' + escapeHtml(src) + '" title="' + escapeHtml(title) + '" loading="lazy"></iframe></div>'
             : "") +
           '<div class="demo-actions">' +
-          (href
-            ? '<a class="btn ghost" href="' + escapeHtml(href) + '" target="_blank" rel="noopener">' + escapeHtml(openLabel) + "</a>"
+          (item.moduleId
+            ? '<button type="button" class="btn ghost" data-module-open="' +
+              escapeHtml(item.moduleId) +
+              '">' +
+              escapeHtml(openLabel) +
+              "</button>"
             : "") +
           "</div></div>"
         );
@@ -591,14 +602,13 @@
       '<div class="hero-actions">' +
       '<a class="btn" href="' + escapeHtml(askHref(story)) + '">Ask ' + escapeHtml(story.name) + "</a>" +
       ((story.heroTools || []).map(function (t) {
-        var href = resolveModuleHref(t.moduleId, modulesById);
-        if (!href) return "";
+        if (!t.moduleId) return "";
         return (
-          '<a class="btn ghost" href="' +
-          escapeHtml(href) +
-          '" target="_blank" rel="noopener">' +
+          '<button type="button" class="btn ghost" data-module-open="' +
+          escapeHtml(t.moduleId) +
+          '">' +
           escapeHtml(t.label || "Open tool") +
-          "</a>"
+          "</button>"
         );
       }).join("")) +
       '<a class="btn ghost" href="' + contentBase() + '/greenways/agents-map">All agents</a>' +
@@ -664,6 +674,47 @@
       .then(function (data) { return data.agents || ROSTER_FALLBACK; });
   }
 
+  function openStoryAsk(story, prompt) {
+    var Mod = window.GreenwaysAgentContentModule;
+    if (!Mod || typeof Mod.open !== "function") {
+      location.href = askHref(story, prompt);
+      return;
+    }
+    var href = askHref(story, prompt);
+    Mod.open({
+      moduleId: String(story.slug || "agent-chat"),
+      title: "Ask " + (story.name || "agent"),
+      description: "Chat stays here — use Back to return to " + (story.name || "this") + "’s story.",
+      usageHint: "Ask your question, then close the module to pick up the story again.",
+      href: href,
+      openSize: "near-full",
+      kind: "html",
+      theme: story.theme || story.id || "default",
+      returnLabel: "← Back to " + (story.name || "agent") + " story"
+    });
+  }
+
+  function wireStoryModules(story, root) {
+    var Mod = window.GreenwaysAgentContentModule;
+    if (!Mod) return;
+    if (typeof Mod.init === "function") {
+      Mod.init({
+        agentSlug: story.slug || "",
+        theme: story.theme || story.id || "default",
+        returnLabel: "← Back to " + (story.name || "agent") + " story"
+      });
+    }
+    if (typeof Mod.bindContainer === "function") {
+      Mod.bindContainer(root);
+    }
+    root.addEventListener("click", function (e) {
+      var askBtn = e.target.closest("[data-story-ask]");
+      if (!askBtn) return;
+      e.preventDefault();
+      openStoryAsk(story, askBtn.getAttribute("data-ask-prompt") || "");
+    });
+  }
+
   function boot() {
     var root = document.getElementById("story-root");
     var slug = parseSlug();
@@ -676,8 +727,10 @@
       loadModules()
     ])
       .then(function (parts) {
+        var story = parts[0];
         root.className = "";
-        root.innerHTML = renderStory(parts[0], parts[1], parts[2]);
+        root.innerHTML = renderStory(story, parts[1], parts[2]);
+        wireStoryModules(story, root);
       })
       .catch(function (err) {
         root.className = "glass error-box";
