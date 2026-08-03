@@ -984,12 +984,19 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.8rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: rgba(232, 240, 234, 0.55);
+      overflow: hidden;
     }
     .card-media img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center;
+      image-rendering: -webkit-optimize-contrast;
     }
     .card-body {
       padding: 10px 12px 12px;
@@ -2068,9 +2075,10 @@
     var badge = opts.agent && opts.agent.imageUrl
       ? '<span class="agent-badge-wrap"><img class="agent-badge" src="' + escapeHtml(opts.agent.imageUrl) + '" alt="' + escapeHtml(opts.agent.name || '') + '" title="' + escapeHtml(opts.agent.name || '') + '"><span class="agent-badge-name">' + escapeHtml(opts.agent.name || '') + '</span></span>'
       : '';
-    var media = opts.image
-      ? '<div class="card-media"><img src="' + escapeHtml(opts.image) + '" alt=""></div>'
-      : '<div class="card-media">' + (opts.emoji || '📦') + '</div>';
+    var image = String(opts.image || '').trim();
+    var media = image
+      ? '<div class="card-media"><img src="' + escapeHtml(image) + '" alt="" loading="lazy" decoding="async"></div>'
+      : '<div class="card-media" aria-hidden="true">' + escapeHtml(opts.mediaLabel || 'Greenways') + '</div>';
     return (
       '<a class="card" href="' + escapeHtml(opts.href) + '">' +
         badge + media +
@@ -2084,37 +2092,73 @@
     return '<div class="empty">' + msg + '</div>';
   }
 
+  /** Shared Wix / ETL thumbs — prefer these over emoji for hub cards. */
+  var HUB_CARD_IMAGES = {
+    fridge: 'https://static.wixstatic.com/media/c123de_988c141478e044d5ba8d137d2a451713~mv2.png',
+    heatPump: 'https://static.wixstatic.com/media/c123de_c7c229f8655f400aa5688cf081764316~mv2.png',
+    cooking: 'https://static.wixstatic.com/media/c123de_281b24bf85fc4b2d8cf13e3a6cefcf92~mv2.jpeg',
+    combi: 'https://img.etl.energysecurity.gov.uk/200x/e3CKuL_tdueMJZdv',
+    water: 'https://static.wixstatic.com/media/c123de_82c7779bdacd41fd8b9e26891e32baa2~mv2.jpg',
+    lighting: 'https://static.wixstatic.com/media/c123de_09bbec32f07f49ceabe93fa6543bc706~mv2.png',
+    energy: 'https://static.wixstatic.com/media/c123de_3e2c2ae921094adb867970a6ec792f35~mv2.png',
+    sustainability: 'https://static.wixstatic.com/media/c123de_c450180485d74e43a974b35ee0e652d5~mv2.png',
+    equipment: 'https://static.wixstatic.com/media/c123de_281b24bf85fc4b2d8cf13e3a6cefcf92~mv2.jpeg'
+  };
+
   /** Starter cards so Saved / Suggested always have a swipeable row on first visit. */
   var HUB_STARTER_PRODUCTS = [
     {
       id: 'etl_14_59333',
       name: 'Ecostore fridge',
       line: 'Cold room · Artemis pick',
-      emoji: '❄️',
+      image: HUB_CARD_IMAGES.fridge,
       href: '/product-page-v2-marketplace.html?product=etl_14_59333'
     },
     {
-      id: 'etl_21_29475',
+      id: 'etl_22_86212',
       name: 'Combi steamer',
       line: 'Kitchen · efficiency upgrade',
-      emoji: '🔥',
-      href: '/product-page-v2-marketplace.html?product=etl_21_29475'
+      image: HUB_CARD_IMAGES.combi,
+      href: '/product-page-v2-marketplace.html?product=etl_22_86212'
     },
     {
       id: 'water-saving',
       name: 'Water Saving Finder',
       line: 'Tap / washroom · Zyanne',
-      emoji: '💧',
+      image: HUB_CARD_IMAGES.water,
       href: '/greenways/sustainable-products-agent?q=water%20saving'
     },
     {
       id: 'led-bundle',
       name: 'LED & controls',
       line: 'Dining + back-of-house',
-      emoji: '💡',
+      image: HUB_CARD_IMAGES.lighting,
       href: '/greenways/equipment-agent?q=LED%20controls'
     }
   ];
+
+  function dealCardImage(deal) {
+    var cat = String((deal && deal.category) || '').toLowerCase();
+    if (deal && deal.imageUrl) return deal.imageUrl;
+    if (cat === 'water') return HUB_CARD_IMAGES.water;
+    if (cat === 'sustainability' || cat === 'sustain') return HUB_CARD_IMAGES.sustainability;
+    if (cat === 'energy') return HUB_CARD_IMAGES.energy;
+    return HUB_CARD_IMAGES.equipment;
+  }
+
+  function productCardImage(product) {
+    var img = (product && (product.imageUrl || product.image || product.thumbnail)) || '';
+    if (img && !/^Product Placement\//i.test(img) && img.indexOf(' ') < 0) return img;
+    var blob = String(
+      (product && (product.name || product.title || product.category || product.subcategory || product.id)) || ''
+    ).toLowerCase();
+    if (/water|dishwasher|tap|aerator|faucet/.test(blob)) return HUB_CARD_IMAGES.water;
+    if (/led|light|lumin/.test(blob)) return HUB_CARD_IMAGES.lighting;
+    if (/fridge|freezer|cold|refriger/.test(blob)) return HUB_CARD_IMAGES.fridge;
+    if (/combi|oven|steam|cook|fry|hob/.test(blob)) return HUB_CARD_IMAGES.cooking;
+    if (/heat.?pump|hvac/.test(blob)) return HUB_CARD_IMAGES.heatPump;
+    return HUB_CARD_IMAGES.equipment;
+  }
 
   function starterCardsHtml(agent) {
     return HUB_STARTER_PRODUCTS.map(function (p) {
@@ -2122,7 +2166,7 @@
         title: p.name,
         line: p.line,
         href: p.href,
-        emoji: p.emoji,
+        image: p.image,
         agent: agent || null
       });
     }).join('');
@@ -2147,9 +2191,9 @@
       return cardHtml({
         title: item.name || item.title || item.id || 'Saved product',
         line: item.id || '',
-        image: item.imageUrl || item.image || '',
+        image: productCardImage(item),
         href: item.href || ('/product-page-v2-marketplace.html?product=' + encodeURIComponent(item.id || '')),
-        emoji: '⭐'
+        mediaLabel: 'Saved'
       });
     }).join('');
   }
@@ -2430,12 +2474,12 @@
       return cardHtml({
         title: p.name || p.title || id,
         line: (p.category || p.subcategory || sectorHint || 'Equipment') + (agent ? ' · ' + agent.name : ''),
-        image: p.imageUrl || p.image || p.thumbnail || '',
+        image: productCardImage(p),
         href: id
           ? '/product-page-v2-marketplace.html?product=' + encodeURIComponent(id)
           : (agent ? agent.path : '/greenways/equipment-agent'),
         agent: agent,
-        emoji: '🔧'
+        mediaLabel: 'Equipment'
       });
     }).join('');
   }
@@ -2467,7 +2511,8 @@
         line: d.line || d.category || '',
         href: href,
         agent: zara,
-        emoji: d.category === 'water' ? '💧' : '⚡'
+        image: dealCardImage(d),
+        mediaLabel: d.category || 'Deal'
       });
     }).join('');
   }
