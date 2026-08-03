@@ -2137,9 +2137,18 @@
     }
   ];
 
+  var DEAL_CARD_IMAGES_BY_ID = {
+    'sustain-product-finder': 'https://static.wixstatic.com/media/c123de_03323db419af45849ae7bab74cf3319c~mv2.jpeg',
+    'water-submetering': 'https://static.wixstatic.com/media/c123de_5d1e7c189d9d4a41bf3bb507fd11eebb~mv2.jpeg',
+    'water-aerators': 'https://static.wixstatic.com/media/c123de_6636e625d6e24fbfad80468144c585f9~mv2.jpeg',
+    'sustain-hvac-upgrade': 'https://static.wixstatic.com/media/c123de_80e2839a39614e2e848ddc2a3793bceb~mv2.avif'
+  };
+
   function dealCardImage(deal) {
     var cat = String((deal && deal.category) || '').toLowerCase();
+    var id = String((deal && deal.id) || '');
     if (deal && deal.imageUrl) return deal.imageUrl;
+    if (DEAL_CARD_IMAGES_BY_ID[id]) return DEAL_CARD_IMAGES_BY_ID[id];
     if (cat === 'water') return HUB_CARD_IMAGES.water;
     if (cat === 'sustainability' || cat === 'sustain') return HUB_CARD_IMAGES.sustainability;
     if (cat === 'energy') return HUB_CARD_IMAGES.energy;
