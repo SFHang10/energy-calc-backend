@@ -117,8 +117,15 @@ body{
 .sbar-label{font-size:10px;color:rgba(255,255,255,.48);margin-top:3px;line-height:1.4}
 
 /* ── Restaurant cards grid (no overlap) ── */
+.city-map{
+  position:relative;max-width:1200px;margin:0 auto 1rem;padding:0 1rem;
+}
+.connector-layer{
+  position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;z-index:2;overflow:visible;
+}
 .cards-section{
-  max-width:1200px;margin:0 auto 1rem;padding:0 1rem;
+  position:relative;z-index:3;margin:0 0 .35rem;padding:0;
 }
 .cards-heading{
   font-family:var(--font-d);font-size:12px;font-weight:700;
@@ -131,12 +138,22 @@ body{
   gap:10px;
 }
 .info-block{
+  position:relative;
   background:rgba(8,16,14,.94);
   border:1px solid rgba(29,158,117,.32);
-  border-radius:10px;padding:10px 12px;
+  border-radius:10px;padding:10px 12px 14px;
   min-width:0;
   transition:border-color .3s,box-shadow .3s;
   box-shadow:0 8px 24px rgba(0,0,0,.28);
+}
+.info-block::after{
+  content:'';position:absolute;bottom:-6px;left:50%;
+  transform:translateX(-50%);
+  width:9px;height:9px;border-radius:50%;
+  background:var(--conn-color,#E24B4A);
+  border:2px solid rgba(255,255,255,.35);
+  box-shadow:0 0 8px var(--conn-color,#E24B4A);
+  z-index:4;
 }
 .info-block.red-block{border-color:rgba(226,75,74,.42)}
 .info-block:hover{
@@ -162,10 +179,11 @@ body{
 
 /* ── City scene ── */
 .scene-wrap{
-  position:relative;width:100%;max-width:1200px;margin:0 auto;
+  position:relative;width:100%;margin:0 auto;
   border-radius:14px;overflow:hidden;
   border:1px solid rgba(255,255,255,.08);
   box-shadow:0 20px 50px rgba(0,0,0,.45);
+  z-index:1;
 }
 .scene-inner{
   position:relative;
@@ -301,8 +319,10 @@ body{
 
 @media(max-width:1024px){
   .restaurant-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .connector-layer{opacity:.55}
 }
 @media(max-width:680px){
+  .connector-layer{display:none}
   .summary-grid{grid-template-columns:1fr}
   .savings-strip{grid-template-columns:1fr;gap:.5rem}
   .ss-arrow{display:none}
@@ -354,12 +374,13 @@ body{
   </div>
 </div>
 
-<!-- Restaurant cards — grid, no overlap -->
+<!-- Restaurant cards + connectors + city -->
+<div class="city-map" id="cityMap">
 <section class="cards-section" aria-label="Restaurant energy profiles">
   <div class="cards-heading">Eight sites · one city block</div>
   <div class="restaurant-cards">
 
-    <div class="info-block red-block" id="ib1">
+    <div class="info-block red-block" id="ib1" data-rid="1">
       <div class="ib-title red-t" id="ib1t">The Anchor — pub kitchen</div>
       <div class="ib-row"><span>Monthly bill</span><span class="ib-val red" id="r1bill">£2,800</span></div>
       <div class="ib-row"><span>Est. waste</span><span class="ib-val red" id="r1waste">£1,120</span></div>
@@ -369,7 +390,7 @@ body{
       <div class="ib-row"><span>CO₂/year</span><span class="ib-val" id="r1co2">18.4 t</span></div>
     </div>
 
-    <div class="info-block red-block" id="ib2">
+    <div class="info-block red-block" id="ib2" data-rid="2">
       <div class="ib-title red-t" id="ib2t">Bella Roma — Italian</div>
       <div class="ib-row"><span>Monthly bill</span><span class="ib-val red" id="r2bill">£1,900</span></div>
       <div class="ib-row"><span>Est. waste</span><span class="ib-val red" id="r2waste">£760</span></div>
@@ -378,7 +399,7 @@ body{
       <div class="ib-row"><span>Annual saving</span><span class="ib-val" id="r2save">—</span></div>
     </div>
 
-    <div class="info-block red-block" id="ib3">
+    <div class="info-block red-block" id="ib3" data-rid="3">
       <div class="ib-title red-t" id="ib3t">Noodle House — Asian</div>
       <div class="ib-row"><span>Monthly bill</span><span class="ib-val amber" id="r3bill">£3,100</span></div>
       <div class="ib-row"><span>Est. waste</span><span class="ib-val amber" id="r3waste">£930</span></div>
@@ -387,7 +408,7 @@ body{
       <div class="ib-row"><span>Annual saving</span><span class="ib-val" id="r3save">—</span></div>
     </div>
 
-    <div class="info-block red-block" id="ib4">
+    <div class="info-block red-block" id="ib4" data-rid="4">
       <div class="ib-title red-t" id="ib4t">Spice Garden — Indian</div>
       <div class="ib-row"><span>Monthly bill</span><span class="ib-val red" id="r4bill">£2,500</span></div>
       <div class="ib-row"><span>Est. waste</span><span class="ib-val red" id="r4waste">£1,000</span></div>
@@ -396,7 +417,7 @@ body{
       <div class="ib-row"><span>Annual saving</span><span class="ib-val" id="r4save">—</span></div>
     </div>
 
-    <div class="info-block red-block" id="ib5">
+    <div class="info-block red-block" id="ib5" data-rid="5">
       <div class="ib-title red-t" id="ib5t">Le Petit Bistro — French</div>
       <div class="ib-row"><span>Monthly bill</span><span class="ib-val amber" id="r5bill">£1,600</span></div>
       <div class="ib-row"><span>Est. waste</span><span class="ib-val amber" id="r5waste">£480</span></div>
@@ -405,7 +426,7 @@ body{
       <div class="ib-row"><span>Annual saving</span><span class="ib-val" id="r5save">—</span></div>
     </div>
 
-    <div class="info-block red-block" id="ib6">
+    <div class="info-block red-block" id="ib6" data-rid="6">
       <div class="ib-title red-t" id="ib6t">The Grill House — steakhouse</div>
       <div class="ib-row"><span>Monthly bill</span><span class="ib-val red" id="r6bill">£4,200</span></div>
       <div class="ib-row"><span>Est. waste</span><span class="ib-val red" id="r6waste">£1,680</span></div>
@@ -414,7 +435,7 @@ body{
       <div class="ib-row"><span>Annual saving</span><span class="ib-val" id="r6save">—</span></div>
     </div>
 
-    <div class="info-block" id="ib7">
+    <div class="info-block" id="ib7" data-rid="7">
       <div class="ib-title" id="ib7t">Café Verde — coffee bar</div>
       <div class="ib-row"><span>Monthly bill</span><span class="ib-val green" id="r7bill">£820</span></div>
       <div class="ib-row"><span>Est. waste</span><span class="ib-val green" id="r7waste">£115</span></div>
@@ -423,7 +444,7 @@ body{
       <div class="ib-row"><span>Saving/year</span><span class="ib-val green" id="r7save">£2,940</span></div>
     </div>
 
-    <div class="info-block red-block" id="ib8">
+    <div class="info-block red-block" id="ib8" data-rid="8">
       <div class="ib-title red-t" id="ib8t">Burgerco — QSR</div>
       <div class="ib-row"><span>Monthly bill</span><span class="ib-val amber" id="r8bill">£3,400</span></div>
       <div class="ib-row"><span>Est. waste</span><span class="ib-val amber" id="r8waste">£850</span></div>
@@ -435,6 +456,8 @@ body{
   </div>
 </section>
 
+<svg class="connector-layer" id="connectorSvg" aria-hidden="true"></svg>
+
 <!-- City illustration -->
 <div class="scene-wrap" id="sceneWrap">
   <div class="scene-inner">
@@ -444,6 +467,18 @@ body{
           <stop offset="0%" stop-color="#0d1e26" stop-opacity="0.35"/>
           <stop offset="100%" stop-color="#131e1c" stop-opacity="0.92"/>
         </linearGradient>
+        <filter id="bldShadow" x="-8%" y="-4%" width="116%" height="108%">
+          <feDropShadow dx="1" dy="5" stdDeviation="5" flood-color="#000" flood-opacity="0.38"/>
+        </filter>
+        <linearGradient id="facade-r1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#142820"/><stop offset="55%" stop-color="#234a3a"/><stop offset="100%" stop-color="#162e26"/></linearGradient>
+        <linearGradient id="facade-r2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#162018"/><stop offset="55%" stop-color="#284028"/><stop offset="100%" stop-color="#1a281c"/></linearGradient>
+        <linearGradient id="facade-r3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#161c28"/><stop offset="55%" stop-color="#283040"/><stop offset="100%" stop-color="#1a2030"/></linearGradient>
+        <linearGradient id="facade-r4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#221612"/><stop offset="55%" stop-color="#3a2820"/><stop offset="100%" stop-color="#261c18"/></linearGradient>
+        <linearGradient id="facade-r5" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#181820"/><stop offset="55%" stop-color="#2a2a38"/><stop offset="100%" stop-color="#1c1c28"/></linearGradient>
+        <linearGradient id="facade-r6" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#221a16"/><stop offset="55%" stop-color="#3a2e28"/><stop offset="100%" stop-color="#261e1a"/></linearGradient>
+        <linearGradient id="facade-r7" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#142018"/><stop offset="55%" stop-color="#243828"/><stop offset="100%" stop-color="#182820"/></linearGradient>
+        <linearGradient id="facade-r8" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#182018"/><stop offset="55%" stop-color="#283828"/><stop offset="100%" stop-color="#1c241c"/></linearGradient>
+        <clipPath id="clip-r6"><rect x="780" y="180" width="150" height="305" rx="4"/></clipPath>
       </defs>
       <rect x="0" y="0" width="1200" height="480" fill="url(#skyGrad)"/>
       <circle id="skyOrb" cx="1100" cy="70" r="28" fill="#1a3050" opacity="0.5"/>
@@ -459,103 +494,137 @@ body{
       <rect x="300" y="270" width="90" height="210" fill="#142829" opacity="0.85"/>
 
       <!-- R1 The Anchor -->
-      <rect x="30" y="200" width="140" height="285" rx="3" fill="#1a3028"/>
-      <rect x="30" y="200" width="140" height="12" fill="#1f3a30"/>
-      <rect x="45" y="225" width="28" height="22" rx="2" fill="#0a1510" id="r1w1"/>
-      <rect x="85" y="225" width="28" height="22" rx="2" fill="#0a1510" id="r1w2"/>
-      <rect x="125" y="225" width="28" height="22" rx="2" fill="#0a1510" id="r1w3"/>
-      <rect x="45" y="260" width="28" height="22" rx="2" fill="#0a1510" id="r1w4"/>
-      <rect x="85" y="260" width="28" height="22" rx="2" fill="#0a1510" id="r1w5"/>
-      <rect x="125" y="260" width="28" height="22" rx="2" fill="#0a1510" id="r1w6"/>
-      <rect x="45" y="295" width="28" height="22" rx="2" fill="#0a1510" id="r1w7"/>
-      <rect x="85" y="295" width="28" height="22" rx="2" fill="#0a1510" id="r1w8"/>
-      <rect x="125" y="295" width="28" height="22" rx="2" fill="#0a1510" id="r1w9"/>
-      <rect x="30" y="395" width="140" height="90" fill="#152e25"/>
-      <rect x="80" y="440" width="40" height="45" rx="2" fill="#0d1f18"/>
-      <rect x="38" y="402" width="124" height="20" rx="2" id="r1sign" fill="#1a4a35"/>
-      <text x="100" y="416" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" fill="rgba(255,255,255,0.75)">THE ANCHOR</text>
-      <rect x="35" y="428" width="38" height="32" rx="2" fill="#0a1510" id="r1gw1"/>
-      <rect x="97" y="428" width="38" height="32" rx="2" fill="#0a1510" id="r1gw2"/>
+      <g filter="url(#bldShadow)">
+        <rect x="30" y="200" width="140" height="285" rx="4" fill="url(#facade-r1)" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+        <rect x="30" y="200" width="140" height="14" rx="4" fill="#1f3a30"/>
+        <line x1="30" y1="392" x2="170" y2="392" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+        <rect x="45" y="225" width="28" height="22" rx="2" fill="#0a1510" stroke="rgba(255,255,255,.12)" stroke-width=".8" id="r1w1"/>
+        <rect x="85" y="225" width="28" height="22" rx="2" fill="#0a1510" stroke="rgba(255,255,255,.12)" stroke-width=".8" id="r1w2"/>
+        <rect x="125" y="225" width="28" height="22" rx="2" fill="#0a1510" stroke="rgba(255,255,255,.12)" stroke-width=".8" id="r1w3"/>
+        <rect x="45" y="260" width="28" height="22" rx="2" fill="#0a1510" stroke="rgba(255,255,255,.12)" stroke-width=".8" id="r1w4"/>
+        <rect x="85" y="260" width="28" height="22" rx="2" fill="#0a1510" stroke="rgba(255,255,255,.12)" stroke-width=".8" id="r1w5"/>
+        <rect x="125" y="260" width="28" height="22" rx="2" fill="#0a1510" stroke="rgba(255,255,255,.12)" stroke-width=".8" id="r1w6"/>
+        <rect x="45" y="295" width="28" height="22" rx="2" fill="#0a1510" stroke="rgba(255,255,255,.12)" stroke-width=".8" id="r1w7"/>
+        <rect x="85" y="295" width="28" height="22" rx="2" fill="#0a1510" stroke="rgba(255,255,255,.12)" stroke-width=".8" id="r1w8"/>
+        <rect x="125" y="295" width="28" height="22" rx="2" fill="#0a1510" stroke="rgba(255,255,255,.12)" stroke-width=".8" id="r1w9"/>
+        <rect x="30" y="395" width="140" height="90" fill="#152e25"/>
+        <rect x="38" y="402" width="124" height="22" rx="3" id="r1sign" fill="#1a4a35"/>
+        <text x="100" y="417" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" fill="rgba(255,255,255,0.82)">THE ANCHOR</text>
+        <rect x="35" y="428" width="38" height="32" rx="2" fill="#0a1510" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r1gw1"/>
+        <rect x="97" y="428" width="38" height="32" rx="2" fill="#0a1510" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r1gw2"/>
+        <rect x="80" y="440" width="40" height="45" rx="2" fill="#0d1f18"/>
+        <circle id="anchor-r1" cx="100" cy="198" r="2" fill="transparent"/>
+      </g>
 
       <!-- R2 Bella Roma -->
-      <rect x="195" y="240" width="110" height="245" rx="3" fill="#1c2a1e"/>
-      <rect x="208" y="260" width="24" height="20" rx="2" fill="#0a1208" id="r2w1"/>
-      <rect x="242" y="260" width="24" height="20" rx="2" fill="#0a1208" id="r2w2"/>
-      <rect x="276" y="260" width="24" height="20" rx="2" fill="#0a1208" id="r2w3"/>
-      <rect x="208" y="292" width="24" height="20" rx="2" fill="#0a1208" id="r2w4"/>
-      <rect x="242" y="292" width="24" height="20" rx="2" fill="#0a1208" id="r2w5"/>
-      <rect x="276" y="292" width="24" height="20" rx="2" fill="#0a1208" id="r2w6"/>
-      <rect x="195" y="390" width="110" height="95" fill="#182818"/>
-      <rect x="202" y="400" width="96" height="18" rx="2" id="r2sign" fill="#20402a"/>
-      <text x="250" y="413" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" font-weight="600" fill="rgba(255,255,255,0.75)">BELLA ROMA</text>
+      <g filter="url(#bldShadow)">
+        <rect x="195" y="240" width="110" height="245" rx="4" fill="url(#facade-r2)" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+        <rect x="195" y="240" width="110" height="12" rx="4" fill="#243828"/>
+        <rect x="202" y="378" width="96" height="8" rx="2" fill="rgba(255,255,255,.06)"/>
+        <rect x="208" y="260" width="24" height="20" rx="2" fill="#0a1208" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r2w1"/>
+        <rect x="242" y="260" width="24" height="20" rx="2" fill="#0a1208" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r2w2"/>
+        <rect x="276" y="260" width="24" height="20" rx="2" fill="#0a1208" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r2w3"/>
+        <rect x="208" y="292" width="24" height="20" rx="2" fill="#0a1208" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r2w4"/>
+        <rect x="242" y="292" width="24" height="20" rx="2" fill="#0a1208" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r2w5"/>
+        <rect x="276" y="292" width="24" height="20" rx="2" fill="#0a1208" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r2w6"/>
+        <rect x="195" y="390" width="110" height="95" fill="#182818"/>
+        <rect x="202" y="400" width="96" height="18" rx="3" id="r2sign" fill="#20402a"/>
+        <text x="250" y="413" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" font-weight="600" fill="rgba(255,255,255,0.82)">BELLA ROMA</text>
+        <circle id="anchor-r2" cx="250" cy="238" r="2" fill="transparent"/>
+      </g>
 
       <!-- R3 Noodle House -->
-      <rect x="330" y="160" width="130" height="325" rx="3" fill="#1e2430"/>
-      <rect x="345" y="186" width="26" height="20" rx="2" fill="#0c1018" id="r3w1"/>
-      <rect x="381" y="186" width="26" height="20" rx="2" fill="#0c1018" id="r3w2"/>
-      <rect x="417" y="186" width="26" height="20" rx="2" fill="#0c1018" id="r3w3"/>
-      <rect x="345" y="218" width="26" height="20" rx="2" fill="#0c1018" id="r3w4"/>
-      <rect x="381" y="218" width="26" height="20" rx="2" fill="#0c1018" id="r3w5"/>
-      <rect x="417" y="218" width="26" height="20" rx="2" fill="#0c1018" id="r3w6"/>
-      <rect x="345" y="250" width="26" height="20" rx="2" fill="#0c1018" id="r3w7"/>
-      <rect x="381" y="250" width="26" height="20" rx="2" fill="#0c1018" id="r3w8"/>
-      <rect x="417" y="250" width="26" height="20" rx="2" fill="#0c1018" id="r3w9"/>
-      <rect x="330" y="390" width="130" height="95" fill="#1a2030"/>
-      <rect x="338" y="397" width="114" height="18" rx="2" id="r3sign" fill="#232a40"/>
-      <text x="395" y="410" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" font-weight="600" fill="rgba(255,255,255,0.75)">NOODLE HOUSE</text>
+      <g filter="url(#bldShadow)">
+        <rect x="330" y="160" width="130" height="325" rx="4" fill="url(#facade-r3)" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+        <rect x="330" y="160" width="130" height="14" rx="4" fill="#222838"/>
+        <line x1="330" y1="388" x2="460" y2="388" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+        <rect x="345" y="186" width="26" height="20" rx="2" fill="#0c1018" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r3w1"/>
+        <rect x="381" y="186" width="26" height="20" rx="2" fill="#0c1018" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r3w2"/>
+        <rect x="417" y="186" width="26" height="20" rx="2" fill="#0c1018" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r3w3"/>
+        <rect x="345" y="218" width="26" height="20" rx="2" fill="#0c1018" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r3w4"/>
+        <rect x="381" y="218" width="26" height="20" rx="2" fill="#0c1018" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r3w5"/>
+        <rect x="417" y="218" width="26" height="20" rx="2" fill="#0c1018" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r3w6"/>
+        <rect x="345" y="250" width="26" height="20" rx="2" fill="#0c1018" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r3w7"/>
+        <rect x="381" y="250" width="26" height="20" rx="2" fill="#0c1018" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r3w8"/>
+        <rect x="417" y="250" width="26" height="20" rx="2" fill="#0c1018" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r3w9"/>
+        <rect x="330" y="390" width="130" height="95" fill="#1a2030"/>
+        <rect x="338" y="397" width="114" height="18" rx="3" id="r3sign" fill="#232a40"/>
+        <text x="395" y="410" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" font-weight="600" fill="rgba(255,255,255,0.82)">NOODLE HOUSE</text>
+        <circle id="anchor-r3" cx="395" cy="158" r="2" fill="transparent"/>
+      </g>
 
       <!-- R4 Spice Garden -->
-      <rect x="490" y="210" width="120" height="275" rx="3" fill="#2a1e1a"/>
-      <ellipse cx="550" cy="210" rx="30" ry="12" fill="#2a1e1a"/>
-      <rect x="503" y="232" width="26" height="22" rx="2" fill="#120c0a" id="r4w1"/>
-      <rect x="542" y="232" width="26" height="22" rx="2" fill="#120c0a" id="r4w2"/>
-      <rect x="576" y="232" width="28" height="22" rx="2" fill="#120c0a" id="r4w3"/>
-      <rect x="503" y="267" width="26" height="22" rx="2" fill="#120c0a" id="r4w4"/>
-      <rect x="542" y="267" width="26" height="22" rx="2" fill="#120c0a" id="r4w5"/>
-      <rect x="490" y="390" width="120" height="95" fill="#251a17"/>
-      <rect x="498" y="398" width="104" height="18" rx="2" id="r4sign" fill="#3d2820"/>
-      <text x="550" y="411" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" font-weight="600" fill="rgba(255,255,255,0.75)">SPICE GARDEN</text>
+      <g filter="url(#bldShadow)">
+        <rect x="490" y="210" width="120" height="275" rx="4" fill="url(#facade-r4)" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+        <ellipse cx="550" cy="210" rx="32" ry="14" fill="#322420"/>
+        <rect x="503" y="232" width="24" height="22" rx="2" fill="#120c0a" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r4w1"/>
+        <rect x="538" y="232" width="24" height="22" rx="2" fill="#120c0a" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r4w2"/>
+        <rect x="573" y="232" width="24" height="22" rx="2" fill="#120c0a" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r4w3"/>
+        <rect x="503" y="267" width="24" height="22" rx="2" fill="#120c0a" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r4w4"/>
+        <rect x="538" y="267" width="24" height="22" rx="2" fill="#120c0a" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r4w5"/>
+        <rect x="490" y="390" width="120" height="95" fill="#251a17"/>
+        <rect x="498" y="398" width="104" height="18" rx="3" id="r4sign" fill="#3d2820"/>
+        <text x="550" y="411" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" font-weight="600" fill="rgba(255,255,255,0.82)">SPICE GARDEN</text>
+        <circle id="anchor-r4" cx="550" cy="208" r="2" fill="transparent"/>
+      </g>
 
       <!-- R5 Le Petit Bistro -->
-      <rect x="640" y="230" width="100" height="255" rx="3" fill="#1e1e28"/>
-      <polygon points="640,230 690,200 740,230" fill="#1a1a22"/>
-      <rect x="654" y="250" width="24" height="20" rx="2" fill="#0c0c14" id="r5w1"/>
-      <rect x="690" y="250" width="24" height="20" rx="2" fill="#0c0c14" id="r5w2"/>
-      <rect x="654" y="282" width="24" height="20" rx="2" fill="#0c0c14" id="r5w3"/>
-      <rect x="690" y="282" width="24" height="20" rx="2" fill="#0c0c14" id="r5w4"/>
-      <rect x="640" y="390" width="100" height="95" fill="#191924"/>
-      <rect x="647" y="398" width="86" height="16" rx="2" id="r5sign" fill="#24243a"/>
-      <text x="690" y="410" text-anchor="middle" font-family="Inter,sans-serif" font-size="7.5" font-weight="600" fill="rgba(255,255,255,0.75)">LE PETIT BISTRO</text>
+      <g filter="url(#bldShadow)">
+        <polygon points="640,230 690,198 740,230" fill="#222230"/>
+        <rect x="640" y="230" width="100" height="255" rx="4" fill="url(#facade-r5)" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+        <rect x="654" y="250" width="24" height="20" rx="2" fill="#0c0c14" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r5w1"/>
+        <rect x="690" y="250" width="24" height="20" rx="2" fill="#0c0c14" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r5w2"/>
+        <rect x="654" y="282" width="24" height="20" rx="2" fill="#0c0c14" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r5w3"/>
+        <rect x="690" y="282" width="24" height="20" rx="2" fill="#0c0c14" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r5w4"/>
+        <rect x="640" y="390" width="100" height="95" fill="#191924"/>
+        <rect x="647" y="398" width="86" height="16" rx="3" id="r5sign" fill="#24243a"/>
+        <text x="690" y="410" text-anchor="middle" font-family="Inter,sans-serif" font-size="7.5" font-weight="600" fill="rgba(255,255,255,0.82)">LE PETIT BISTRO</text>
+        <circle id="anchor-r5" cx="690" cy="196" r="2" fill="transparent"/>
+      </g>
 
-      <!-- R6 The Grill -->
-      <rect x="780" y="180" width="150" height="305" rx="3" fill="#28201c"/>
-      <rect x="796" y="206" width="28" height="22" rx="2" fill="#110e0a" id="r6w1"/>
-      <rect x="838" y="206" width="28" height="22" rx="2" fill="#110e0a" id="r6w2"/>
-      <rect x="880" y="206" width="28" height="22" rx="2" fill="#110e0a" id="r6w3"/>
-      <rect x="916" y="206" width="28" height="22" rx="2" fill="#110e0a" id="r6w4"/>
-      <rect x="796" y="241" width="28" height="22" rx="2" fill="#110e0a" id="r6w5"/>
-      <rect x="838" y="241" width="28" height="22" rx="2" fill="#110e0a" id="r6w6"/>
-      <rect x="880" y="241" width="28" height="22" rx="2" fill="#110e0a" id="r6w7"/>
-      <rect x="780" y="390" width="150" height="95" fill="#221c18"/>
-      <rect x="788" y="398" width="134" height="18" rx="2" id="r6sign" fill="#352819"/>
-      <text x="855" y="411" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" fill="rgba(255,255,255,0.75)">THE GRILL HOUSE</text>
+      <!-- R6 The Grill House -->
+      <g filter="url(#bldShadow)" clip-path="url(#clip-r6)">
+        <rect x="780" y="180" width="150" height="305" rx="4" fill="url(#facade-r6)" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+        <rect x="780" y="180" width="150" height="14" rx="4" fill="#322820"/>
+        <line x1="780" y1="388" x2="930" y2="388" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+        <rect x="792" y="206" width="24" height="22" rx="2" fill="#110e0a" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r6w1"/>
+        <rect x="826" y="206" width="24" height="22" rx="2" fill="#110e0a" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r6w2"/>
+        <rect x="860" y="206" width="24" height="22" rx="2" fill="#110e0a" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r6w3"/>
+        <rect x="894" y="206" width="24" height="22" rx="2" fill="#110e0a" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r6w4"/>
+        <rect x="792" y="241" width="24" height="22" rx="2" fill="#110e0a" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r6w5"/>
+        <rect x="826" y="241" width="24" height="22" rx="2" fill="#110e0a" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r6w6"/>
+        <rect x="860" y="241" width="24" height="22" rx="2" fill="#110e0a" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r6w7"/>
+        <rect x="894" y="241" width="24" height="22" rx="2" fill="#110e0a" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r6w8"/>
+        <rect x="780" y="390" width="150" height="95" fill="#221c18"/>
+        <rect x="788" y="398" width="134" height="18" rx="3" id="r6sign" fill="#352819"/>
+        <text x="855" y="411" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" fill="rgba(255,255,255,0.82)">THE GRILL HOUSE</text>
+      </g>
+      <circle id="anchor-r6" cx="855" cy="178" r="2" fill="transparent"/>
 
       <!-- R7 Café Verde -->
-      <rect x="960" y="300" width="90" height="185" rx="3" fill="#1a2820"/>
-      <rect x="972" y="320" width="22" height="18" rx="2" fill="#0a1410" id="r7w1"/>
-      <rect x="1004" y="320" width="22" height="18" rx="2" fill="#0a1410" id="r7w2"/>
-      <rect x="960" y="393" width="90" height="92" fill="#152218"/>
-      <rect x="967" y="400" width="76" height="15" rx="2" id="r7sign" fill="#1e3522"/>
-      <text x="1005" y="411" text-anchor="middle" font-family="Inter,sans-serif" font-size="7.5" font-weight="600" fill="rgba(255,255,255,0.75)">CAFÉ VERDE</text>
+      <g filter="url(#bldShadow)">
+        <rect x="960" y="300" width="90" height="185" rx="4" fill="url(#facade-r7)" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+        <rect x="960" y="300" width="90" height="12" rx="4" fill="#1e3828"/>
+        <rect x="972" y="320" width="22" height="18" rx="2" fill="#0a1410" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r7w1"/>
+        <rect x="1004" y="320" width="22" height="18" rx="2" fill="#0a1410" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r7w2"/>
+        <rect x="960" y="393" width="90" height="92" fill="#152218"/>
+        <rect x="967" y="400" width="76" height="15" rx="3" id="r7sign" fill="#1e3522"/>
+        <text x="1005" y="411" text-anchor="middle" font-family="Inter,sans-serif" font-size="7.5" font-weight="600" fill="rgba(255,255,255,0.82)">CAFÉ VERDE</text>
+        <circle id="anchor-r7" cx="1005" cy="298" r="2" fill="transparent"/>
+      </g>
 
       <!-- R8 Burgerco -->
-      <rect x="1078" y="280" width="110" height="205" rx="3" fill="#20281e"/>
-      <rect x="1092" y="302" width="24" height="20" rx="2" fill="#0c1208" id="r8w1"/>
-      <rect x="1126" y="302" width="24" height="20" rx="2" fill="#0c1208" id="r8w2"/>
-      <rect x="1160" y="302" width="24" height="20" rx="2" fill="#0c1208" id="r8w3"/>
-      <rect x="1078" y="393" width="110" height="92" fill="#1c2419"/>
-      <rect x="1085" y="400" width="96" height="16" rx="2" id="r8sign" fill="#26321e"/>
-      <text x="1133" y="412" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" font-weight="600" fill="rgba(255,255,255,0.75)">BURGERCO</text>
+      <g filter="url(#bldShadow)">
+        <rect x="1078" y="280" width="110" height="205" rx="4" fill="url(#facade-r8)" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+        <rect x="1078" y="280" width="110" height="12" rx="4" fill="#243020"/>
+        <rect x="1092" y="302" width="24" height="20" rx="2" fill="#0c1208" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r8w1"/>
+        <rect x="1126" y="302" width="24" height="20" rx="2" fill="#0c1208" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r8w2"/>
+        <rect x="1160" y="302" width="24" height="20" rx="2" fill="#0c1208" stroke="rgba(255,255,255,.1)" stroke-width=".8" id="r8w3"/>
+        <rect x="1078" y="393" width="110" height="92" fill="#1c2419"/>
+        <rect x="1085" y="400" width="96" height="16" rx="3" id="r8sign" fill="#26321e"/>
+        <text x="1133" y="412" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" font-weight="600" fill="rgba(255,255,255,0.82)">BURGERCO</text>
+        <circle id="anchor-r8" cx="1133" cy="278" r="2" fill="transparent"/>
+      </g>
 
       <!-- Street lamps -->
       <line x1="285" y1="390" x2="285" y2="490" stroke="#2a3a35" stroke-width="3"/>
@@ -572,8 +641,9 @@ body{
     <span><span class="legend-dot" style="background:#EF9F27"></span>Moderate</span>
     <span><span class="legend-dot" style="background:#1D9E75"></span>Monitored / efficient</span>
   </div>
-  <p class="scene-caption">Illustrated high street overlaid on a European city backdrop · building labels match the cards above</p>
+  <p class="scene-caption">Illustrated high street on a European city backdrop · curved lines link each card to its restaurant below</p>
 </div>
+</div><!-- /.city-map -->
 
 <!-- Summary -->
 <div class="summary-section">
@@ -690,7 +760,7 @@ const restaurants = [
   { id: 5, name: 'Le Petit Bistro', type: 'French', windows: ['r5w1','r5w2','r5w3','r5w4'], signId: 'r5sign',
     before: { bill:'£1,600', waste:'£480', extra1:['Lighting','Mixed — 60% LED','amber'], extra2:['HVAC','Manual controls','amber'], save:'—', winColor:'#1a140a', signColor:'#2a2010' },
     after:  { bill:'£1,120', waste:'£80', extra1:['Lighting','100% LED ✓','green'], extra2:['HVAC','Smart zones ✓','green'], save:'£5,760/yr', winColor:'#0a1e14', signColor:'#183020', saving:'£5,760/yr' }},
-  { id: 6, name: 'The Grill House', type: 'steakhouse', windows: ['r6w1','r6w2','r6w3','r6w4','r6w5','r6w6','r6w7'], signId: 'r6sign',
+  { id: 6, name: 'The Grill House', type: 'steakhouse', windows: ['r6w1','r6w2','r6w3','r6w4','r6w5','r6w6','r6w7','r6w8'], signId: 'r6sign',
     before: { bill:'£4,200', waste:'£1,680', extra1:['Grill standby','3.5 kW idle ⚠','red'], extra2:['Extraction','Full speed 24/7 ⚠','red'], save:'—', winColor:'#280a0a', signColor:'#401510' },
     after:  { bill:'£2,730', waste:'£150', extra1:['Grill standby','Auto-off ✓','green'], extra2:['Extraction','Demand-controlled ✓','green'], save:'£17,640/yr', winColor:'#0a2010', signColor:'#183018', saving:'£17,640/yr' }},
   { id: 7, name: 'Café Verde', type: 'coffee bar', windows: ['r7w1','r7w2'], signId: 'r7sign',
@@ -700,6 +770,69 @@ const restaurants = [
     before: { bill:'£3,400', waste:'£850', extra1:['Fryers','Idle scheduling','amber'], extra2:['Drive-through','HVAC unzoned','amber'], save:'—', winColor:'#201a0a', signColor:'#302210' },
     after:  { bill:'£2,210', waste:'£180', extra1:['Fryers','Auto-timed ✓','green'], extra2:['Drive-through','Zoned HVAC ✓','green'], save:'£14,280/yr', winColor:'#0a2218', signColor:'#183025', saving:'£14,280/yr' }}
 ];
+
+const CONNECTOR_CURVES = {
+  1: { c1: -28, c2: 18 }, 2: { c1: 22, c2: -14 }, 3: { c1: -18, c2: 24 },
+  4: { c1: 30, c2: -8 },  5: { c1: -22, c2: 16 }, 6: { c1: 14, c2: -20 },
+  7: { c1: -12, c2: 10 }, 8: { c1: 26, c2: -18 }
+};
+
+function getConnectorColor(r, mode) {
+  if (mode === 'after') return '#1D9E75';
+  if (r.id === 7) return '#1D9E75';
+  const waste = parseInt((r.before.waste || '').replace(/[^0-9]/g, ''), 10);
+  if (waste >= 1000) return '#E24B4A';
+  if (waste >= 500) return '#EF9F27';
+  return '#EF9F27';
+}
+
+function drawConnectors() {
+  const svg = document.getElementById('connectorSvg');
+  const citySvg = document.getElementById('citySvg');
+  const map = document.getElementById('cityMap');
+  if (!svg || !citySvg || !map) return;
+  if (window.matchMedia('(max-width:680px)').matches) {
+    svg.innerHTML = '';
+    return;
+  }
+
+  const mapRect = map.getBoundingClientRect();
+  const w = mapRect.width;
+  const h = mapRect.height;
+  svg.setAttribute('width', w);
+  svg.setAttribute('height', h);
+  svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+
+  let html = '';
+  restaurants.forEach(function (r) {
+    const card = document.getElementById('ib' + r.id);
+    const anchor = document.getElementById('anchor-r' + r.id);
+    if (!card || !anchor) return;
+
+    const cardRect = card.getBoundingClientRect();
+    const x1 = cardRect.left + cardRect.width / 2 - mapRect.left;
+    const y1 = cardRect.bottom - mapRect.top + 2;
+
+    const pt = citySvg.createSVGPoint();
+    pt.x = parseFloat(anchor.getAttribute('cx'));
+    pt.y = parseFloat(anchor.getAttribute('cy'));
+    const ctm = citySvg.getScreenCTM();
+    if (!ctm) return;
+    const sp = pt.matrixTransform(ctm);
+    const x2 = sp.x - mapRect.left;
+    const y2 = sp.y - mapRect.top;
+
+    const midY = (y1 + y2) / 2;
+    const curve = CONNECTOR_CURVES[r.id] || { c1: 0, c2: 0 };
+    const color = getConnectorColor(r, MODE.current);
+
+    html += '<path d="M ' + x1 + ' ' + y1 +
+      ' C ' + (x1 + curve.c1) + ' ' + midY + ', ' + (x2 + curve.c2) + ' ' + midY + ', ' + x2 + ' ' + y2 + '" ' +
+      'fill="none" stroke="' + color + '" stroke-width="1.6" stroke-dasharray="7 5" opacity="0.78" stroke-linecap="round"/>';
+    html += '<circle cx="' + x2 + '" cy="' + y2 + '" r="3.5" fill="' + color + '" opacity="0.9"/>';
+  });
+  svg.innerHTML = html;
+}
 
 function updateBlock(r, mode) {
   const data = mode === 'before' ? r.before : r.after;
@@ -712,6 +845,7 @@ function updateBlock(r, mode) {
     t.textContent = r.name + ' — ' + r.type;
   }
   ib.className = 'info-block' + (mode === 'before' && r.id !== 7 ? ' red-block' : '');
+  ib.style.setProperty('--conn-color', getConnectorColor(r, mode));
   const billEl = document.getElementById(prefix + 'bill');
   if (billEl) {
     billEl.textContent = data.bill;
@@ -791,9 +925,17 @@ function setMode(mode) {
     document.getElementById('cityAnnual').textContent = '£84,936 possible';
     document.getElementById('cityCO2').textContent = '127 t possible';
   }
+  drawConnectors();
 }
 
 setMode('before');
+
+var resizeTimer;
+window.addEventListener('resize', function () {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(drawConnectors, 120);
+});
+window.addEventListener('load', drawConnectors);
 
 setInterval(function () {
   if (MODE.current !== 'before') return;
