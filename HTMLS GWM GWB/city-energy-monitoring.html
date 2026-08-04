@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Greenways — Restaurant Energy Monitoring · City Infographic</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sky-a: #0f2027;
+  --sky-b: #1a3a4a;
+  --green-900: #04342C;
+  --green-800: #085041;
+  --green-700: #0F6E56;
+  --green-600: #1D9E75;
+  --green-400: #5DCAA5;
+  --green-200: #9FE1CB;
+  --green-100: #E1F5EE;
+  --amber-600: #EF9F27;
+  --amber-400: #FAC775;
+  --red-700: #A32D2D;
+  --red-600: #E24B4A;
+  --blue-600: #185FA5;
+  --font-d: 'Space Grotesk', sans-serif;
+  --font-b: 'Inter', sans-serif;
+  /* Amsterdam canal — same asset as Live Music Hub / Events Ticker */
+  --city-backdrop: url("https://static.wixstatic.com/media/c123de_538ebcd0cb8744009c22d5676cb8a5da~mv2.jpg");
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-b);
+  background:#0a1214;
+  color:#fff;
+  overflow-x:hidden;
+  min-height:100vh;
+}
+
+/* ── City photo backdrop ── */
+.page-backdrop{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(8,14,18,.92) 0%,rgba(8,14,18,.78) 38%,rgba(8,14,18,.88) 72%,rgba(6,10,12,.96) 100%),
+    linear-gradient(90deg,rgba(8,14,18,.55) 0%,rgba(8,14,18,.25) 50%,rgba(8,14,18,.55) 100%),
+    var(--city-backdrop);
+  background-size:cover;
+  background-position:center 35%;
+  filter:saturate(1.05) contrast(1.04);
+}
+.page-shell{position:relative;z-index:1}
+
+/* ── Toggle ── */
+.mode-toggle{
+  position:fixed;top:16px;right:16px;z-index:200;
+  display:flex;background:rgba(0,0,0,.62);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:40px;padding:4px;gap:4px;
+  backdrop-filter:blur(10px);
+}
+.mode-btn{
+  padding:8px 18px;border-radius:36px;border:none;
+  font-family:var(--font-b);font-size:13px;font-weight:500;
+  cursor:pointer;transition:all .25s;color:rgba(255,255,255,.5);
+  background:transparent;
+}
+.mode-btn.active{background:var(--green-700);color:#fff}
+.mode-btn.active-red{background:var(--red-700);color:#fff}
+
+/* ── Header ── */
+.page-header{
+  text-align:center;padding:3.5rem 1rem 1.25rem;
+  max-width:760px;margin:0 auto;
+}
+.investor-badge{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--green-200);border:1px solid rgba(29,158,117,.35);
+  border-radius:999px;padding:.35rem .9rem;margin-bottom:.85rem;
+  background:rgba(4,52,44,.45);
+}
+.eyebrow{
+  font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--green-400);margin-bottom:.65rem;
+}
+.page-title{
+  font-family:var(--font-d);
+  font-size:clamp(2rem,5vw,3.4rem);font-weight:700;
+  line-height:1.05;letter-spacing:-.03em;margin-bottom:1rem;
+}
+.page-title em{font-style:normal;color:var(--green-400)}
+.page-sub{
+  font-size:15px;color:rgba(255,255,255,.62);
+  line-height:1.7;max-width:560px;margin:0 auto 1rem;
+}
+
+/* ── Stat bar ── */
+.stat-bar{
+  display:flex;gap:2px;justify-content:center;
+  margin:0 auto 1.5rem;max-width:960px;flex-wrap:wrap;padding:0 1rem;
+}
+.sbar-item{
+  flex:1;min-width:120px;max-width:190px;
+  padding:12px 14px;
+  background:rgba(8,18,16,.72);
+  border:1px solid rgba(255,255,255,.1);
+  backdrop-filter:blur(6px);
+}
+.sbar-item:first-child{border-radius:10px 0 0 10px}
+.sbar-item:last-child{border-radius:0 10px 10px 0}
+.sbar-val{
+  font-family:var(--font-d);font-size:1.55rem;font-weight:700;
+  color:#fff;line-height:1;
+}
+.sbar-val.red{color:var(--red-600)}
+.sbar-val.green{color:var(--green-400)}
+.sbar-label{font-size:10px;color:rgba(255,255,255,.48);margin-top:3px;line-height:1.4}
+
+/* ── Restaurant cards grid (no overlap) ── */
+.cards-section{
+  max-width:1200px;margin:0 auto 1rem;padding:0 1rem;
+}
+.cards-heading{
+  font-family:var(--font-d);font-size:12px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(255,255,255,.45);margin-bottom:10px;text-align:center;
+}
+.restaurant-cards{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.info-block{
+  background:rgba(8,16,14,.94);
+  border:1px solid rgba(29,158,117,.32);
+  border-radius:10px;padding:10px 12px;
+  min-width:0;
+  transition:border-color .3s,box-shadow .3s;
+  box-shadow:0 8px 24px rgba(0,0,0,.28);
+}
+.info-block.red-block{border-color:rgba(226,75,74,.42)}
+.info-block:hover{
+  border-color:rgba(93,202,165,.45);
+  box-shadow:0 10px 28px rgba(0,0,0,.35);
+}
+.ib-title{
+  font-family:var(--font-d);font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;
+  color:var(--green-400);margin-bottom:6px;line-height:1.35;
+}
+.ib-title.red-t{color:var(--red-600)}
+.ib-row{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:10.5px;margin-bottom:3px;color:rgba(255,255,255,.58);
+  gap:8px;
+}
+.ib-row span:first-child{flex:1;min-width:0}
+.ib-val{font-weight:600;color:#fff;white-space:nowrap}
+.ib-val.green{color:var(--green-400)}
+.ib-val.red{color:var(--red-600)}
+.ib-val.amber{color:var(--amber-400)}
+
+/* ── City scene ── */
+.scene-wrap{
+  position:relative;width:100%;max-width:1200px;margin:0 auto;
+  border-radius:14px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 20px 50px rgba(0,0,0,.45);
+}
+.scene-inner{
+  position:relative;
+  background:linear-gradient(180deg,rgba(13,30,38,.55) 0%,rgba(13,30,38,.82) 55%,rgba(19,30,28,.95) 100%);
+}
+.scene-caption{
+  text-align:center;font-size:11px;color:rgba(255,255,255,.42);
+  padding:8px 12px 10px;
+  background:rgba(0,0,0,.35);
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.scene-svg{width:100%;display:block;vertical-align:middle}
+
+.scene-legend{
+  display:flex;flex-wrap:wrap;gap:10px 14px;justify-content:center;
+  padding:8px 14px 12px;
+  background:rgba(0,0,0,.4);
+}
+.scene-legend span{
+  display:flex;align-items:center;gap:5px;
+  font-size:10px;color:rgba(255,255,255,.5);
+}
+.legend-dot{
+  width:8px;height:8px;border-radius:2px;display:inline-block;
+}
+
+/* ── Summary ── */
+.summary-section{
+  max-width:1000px;margin:0 auto;padding:2rem 1.5rem 3rem;
+}
+.investor-strip{
+  text-align:center;
+  background:linear-gradient(135deg,rgba(4,52,44,.85),rgba(6,40,32,.75));
+  border:1px solid rgba(29,158,117,.35);
+  border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;
+}
+.investor-strip p{
+  font-size:14px;line-height:1.65;color:rgba(255,255,255,.72);
+  max-width:680px;margin:0 auto;
+}
+.investor-strip strong{color:var(--green-200)}
+.summary-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;
+  margin-bottom:2rem;
+}
+.summary-card{border-radius:14px;padding:1.5rem}
+.summary-card.before{
+  background:rgba(226,75,74,.1);
+  border:1px solid rgba(226,75,74,.28);
+}
+.summary-card.after{
+  background:rgba(29,158,117,.1);
+  border:1px solid rgba(29,158,117,.32);
+}
+.sc-header{
+  font-family:var(--font-d);font-size:13px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;
+}
+.sc-header.red{color:var(--red-600)}
+.sc-header.green{color:var(--green-400)}
+.sc-stat{margin-bottom:12px}
+.sc-num{
+  font-family:var(--font-d);font-size:2rem;font-weight:700;line-height:1;
+}
+.sc-num.red{color:var(--red-600)}
+.sc-num.green{color:var(--green-400)}
+.sc-label{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
+.sc-row{
+  display:flex;justify-content:space-between;
+  padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);
+  font-size:12px;
+}
+.sc-row:last-child{border-bottom:none}
+.sc-row-label{color:rgba(255,255,255,.5)}
+.sc-row-val{font-weight:500}
+
+.savings-strip{
+  background:linear-gradient(135deg,var(--green-900),#062820);
+  border:1px solid rgba(29,158,117,.35);
+  border-radius:14px;padding:1.75rem;
+  margin-bottom:2rem;
+  display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;
+  align-items:center;gap:1rem;text-align:center;
+}
+.ss-num{
+  font-family:var(--font-d);font-size:2rem;font-weight:700;
+  color:var(--green-400);line-height:1;
+}
+.ss-label{font-size:11px;color:var(--green-200);margin-top:4px}
+.ss-arrow{font-size:1.4rem;color:rgba(255,255,255,.18)}
+
+.bar-compare{
+  background:rgba(8,16,14,.72);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;padding:1.5rem;margin-bottom:1.5rem;
+  backdrop-filter:blur(4px);
+}
+.bc-title{
+  font-family:var(--font-d);font-size:13px;font-weight:700;
+  color:rgba(255,255,255,.7);margin-bottom:16px;
+  text-transform:uppercase;letter-spacing:.08em;
+}
+.bc-row{margin-bottom:14px}
+.bc-row-label{
+  font-size:12px;color:rgba(255,255,255,.55);
+  margin-bottom:5px;display:flex;justify-content:space-between;gap:8px;
+}
+.bc-tracks{display:flex;flex-direction:column;gap:4px}
+.bc-track{height:14px;border-radius:4px;overflow:hidden}
+.bc-track-bg{background:rgba(255,255,255,.07);height:100%;border-radius:4px}
+.bc-fill{
+  height:100%;border-radius:4px;
+  transition:width .8s cubic-bezier(.4,0,.2,1);
+}
+.bc-fill.before{background:var(--red-600)}
+.bc-fill.after{background:var(--green-600)}
+.bc-legend{
+  display:flex;gap:16px;margin-top:12px;font-size:11px;
+  color:rgba(255,255,255,.45);flex-wrap:wrap;
+}
+.bc-leg-dot{
+  display:inline-block;width:10px;height:10px;
+  border-radius:2px;margin-right:5px;vertical-align:middle;
+}
+
+.sources{
+  font-size:10px;color:rgba(255,255,255,.32);
+  line-height:1.8;max-width:900px;margin:0 auto;
+  padding:1rem 1.5rem 2.5rem;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.sources strong{color:rgba(255,255,255,.45)}
+
+@media(max-width:1024px){
+  .restaurant-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:680px){
+  .summary-grid{grid-template-columns:1fr}
+  .savings-strip{grid-template-columns:1fr;gap:.5rem}
+  .ss-arrow{display:none}
+  .mode-toggle{top:8px;right:8px;flex-direction:column;border-radius:12px}
+  .stat-bar{flex-direction:column;align-items:center}
+  .sbar-item{border-radius:8px!important;width:100%;max-width:300px}
+  .restaurant-cards{grid-template-columns:1fr}
+  .page-header{padding-top:5.5rem}
+}
+</style>
+</head>
+<body>
+
+<div class="page-backdrop" aria-hidden="true"></div>
+<div class="page-shell">
+
+<div class="mode-toggle">
+  <button class="mode-btn active-red" id="btnBefore" type="button" onclick="setMode('before')">Without monitoring</button>
+  <button class="mode-btn" id="btnAfter" type="button" onclick="setMode('after')">With monitoring</button>
+</div>
+
+<div class="page-header">
+  <div class="investor-badge">Greenways Market · Investor illustration</div>
+  <div class="eyebrow">Restaurant energy intelligence</div>
+  <h1 class="page-title">A European city block of restaurants,<br><em>most still wasting energy invisibly</em></h1>
+  <p class="page-sub">Toggle the city between unmonitored and monitored operation. Each card is a real restaurant archetype — bills, waste, and savings potential — on a typical hospitality high street.</p>
+</div>
+
+<div class="stat-bar">
+  <div class="sbar-item">
+    <div class="sbar-val red" id="sb1">Up to 80%</div>
+    <div class="sbar-label">energy wasted without monitoring (PG&amp;E)</div>
+  </div>
+  <div class="sbar-item">
+    <div class="sbar-val" id="sb2">£1,000–£3,200</div>
+    <div class="sbar-label">monthly utility bill, UK restaurant (2026)</div>
+  </div>
+  <div class="sbar-item">
+    <div class="sbar-val green" id="sb3">25–40%</div>
+    <div class="sbar-label">reduction with active monitoring (Envigilance)</div>
+  </div>
+  <div class="sbar-item">
+    <div class="sbar-val" id="sb4">3×</div>
+    <div class="sbar-label">more energy per sq ft than retail (EIA)</div>
+  </div>
+  <div class="sbar-item">
+    <div class="sbar-val green" id="sb5">&lt;6 months</div>
+    <div class="sbar-label">typical payback period for monitoring</div>
+  </div>
+</div>
+
+<!-- Restaurant cards — grid, no overlap -->
+<section class="cards-section" aria-label="Restaurant energy profiles">
+  <div class="cards-heading">Eight sites · one city block</div>
+  <div class="restaurant-cards">
+
+    <div class="info-block red-block" id="ib1">
+      <div class="ib-title red-t" id="ib1t">The Anchor — pub kitchen</div>
+      <div class="ib-row"><span>Monthly bill</span><span class="ib-val red" id="r1bill">£2,800</span></div>
+      <div class="ib-row"><span>Est. waste</span><span class="ib-val red" id="r1waste">£1,120</span></div>
+      <div class="ib-row"><span>Extraction</span><span class="ib-val red" id="r1ext">On 24/7 ⚠</span></div>
+      <div class="ib-row"><span>Refrigeration</span><span class="ib-val amber" id="r1ref">Cycling 19 min</span></div>
+      <div class="ib-row"><span>HVAC overnight</span><span class="ib-val red" id="r1hvac">Running ⚠</span></div>
+      <div class="ib-row"><span>CO₂/year</span><span class="ib-val" id="r1co2">18.4 t</span></div>
+    </div>
+
+    <div class="info-block red-block" id="ib2">
+      <div class="ib-title red-t" id="ib2t">Bella Roma — Italian</div>
+      <div class="ib-row"><span>Monthly bill</span><span class="ib-val red" id="r2bill">£1,900</span></div>
+      <div class="ib-row"><span>Est. waste</span><span class="ib-val red" id="r2waste">£760</span></div>
+      <div class="ib-row"><span>Pizza oven idle</span><span class="ib-val red" id="r2oven">3 hrs/day ⚠</span></div>
+      <div class="ib-row"><span>Lighting</span><span class="ib-val amber" id="r2light">Non-LED</span></div>
+      <div class="ib-row"><span>Annual saving</span><span class="ib-val" id="r2save">—</span></div>
+    </div>
+
+    <div class="info-block red-block" id="ib3">
+      <div class="ib-title red-t" id="ib3t">Noodle House — Asian</div>
+      <div class="ib-row"><span>Monthly bill</span><span class="ib-val amber" id="r3bill">£3,100</span></div>
+      <div class="ib-row"><span>Est. waste</span><span class="ib-val amber" id="r3waste">£930</span></div>
+      <div class="ib-row"><span>Wok burners</span><span class="ib-val amber" id="r3wok">High load</span></div>
+      <div class="ib-row"><span>Dishwasher</span><span class="ib-val amber" id="r3dish">Peak tariff</span></div>
+      <div class="ib-row"><span>Annual saving</span><span class="ib-val" id="r3save">—</span></div>
+    </div>
+
+    <div class="info-block red-block" id="ib4">
+      <div class="ib-title red-t" id="ib4t">Spice Garden — Indian</div>
+      <div class="ib-row"><span>Monthly bill</span><span class="ib-val red" id="r4bill">£2,500</span></div>
+      <div class="ib-row"><span>Est. waste</span><span class="ib-val red" id="r4waste">£1,000</span></div>
+      <div class="ib-row"><span>Tandoor temp</span><span class="ib-val red" id="r4tan">Unmonitored ⚠</span></div>
+      <div class="ib-row"><span>Cold room</span><span class="ib-val red" id="r4cold">4.9°C — high ⚠</span></div>
+      <div class="ib-row"><span>Annual saving</span><span class="ib-val" id="r4save">—</span></div>
+    </div>
+
+    <div class="info-block red-block" id="ib5">
+      <div class="ib-title red-t" id="ib5t">Le Petit Bistro — French</div>
+      <div class="ib-row"><span>Monthly bill</span><span class="ib-val amber" id="r5bill">£1,600</span></div>
+      <div class="ib-row"><span>Est. waste</span><span class="ib-val amber" id="r5waste">£480</span></div>
+      <div class="ib-row"><span>Lighting</span><span class="ib-val amber" id="r5light">Mixed — 60% LED</span></div>
+      <div class="ib-row"><span>HVAC</span><span class="ib-val amber" id="r5hvac">Manual controls</span></div>
+      <div class="ib-row"><span>Annual saving</span><span class="ib-val" id="r5save">—</span></div>
+    </div>
+
+    <div class="info-block red-block" id="ib6">
+      <div class="ib-title red-t" id="ib6t">The Grill House — steakhouse</div>
+      <div class="ib-row"><span>Monthly bill</span><span class="ib-val red" id="r6bill">£4,200</span></div>
+      <div class="ib-row"><span>Est. waste</span><span class="ib-val red" id="r6waste">£1,680</span></div>
+      <div class="ib-row"><span>Grill standby</span><span class="ib-val red" id="r6grill">3.5 kW idle ⚠</span></div>
+      <div class="ib-row"><span>Extraction</span><span class="ib-val red" id="r6ext">Full speed 24/7 ⚠</span></div>
+      <div class="ib-row"><span>Annual saving</span><span class="ib-val" id="r6save">—</span></div>
+    </div>
+
+    <div class="info-block" id="ib7">
+      <div class="ib-title" id="ib7t">Café Verde — coffee bar</div>
+      <div class="ib-row"><span>Monthly bill</span><span class="ib-val green" id="r7bill">£820</span></div>
+      <div class="ib-row"><span>Est. waste</span><span class="ib-val green" id="r7waste">£115</span></div>
+      <div class="ib-row"><span>Smart meters</span><span class="ib-val green" id="r7smart">Active ✓</span></div>
+      <div class="ib-row"><span>LED lighting</span><span class="ib-val green" id="r7led">100% ✓</span></div>
+      <div class="ib-row"><span>Saving/year</span><span class="ib-val green" id="r7save">£2,940</span></div>
+    </div>
+
+    <div class="info-block red-block" id="ib8">
+      <div class="ib-title red-t" id="ib8t">Burgerco — QSR</div>
+      <div class="ib-row"><span>Monthly bill</span><span class="ib-val amber" id="r8bill">£3,400</span></div>
+      <div class="ib-row"><span>Est. waste</span><span class="ib-val amber" id="r8waste">£850</span></div>
+      <div class="ib-row"><span>Fryers</span><span class="ib-val amber" id="r8fry">Idle scheduling</span></div>
+      <div class="ib-row"><span>Drive-through</span><span class="ib-val amber" id="r8dt">HVAC unzoned</span></div>
+      <div class="ib-row"><span>Annual saving</span><span class="ib-val" id="r8save">—</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- City illustration -->
+<div class="scene-wrap" id="sceneWrap">
+  <div class="scene-inner">
+    <svg class="scene-svg" id="citySvg" viewBox="0 0 1200 620" xmlns="http://www.w3.org/2000/svg" aria-label="Illustrated restaurant high street">
+      <defs>
+        <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0d1e26" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#131e1c" stop-opacity="0.92"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="1200" height="480" fill="url(#skyGrad)"/>
+      <circle id="skyOrb" cx="1100" cy="70" r="28" fill="#1a3050" opacity="0.5"/>
+      <rect x="0" y="480" width="1200" height="140" fill="#131e1c"/>
+      <rect x="0" y="490" width="1200" height="28" fill="#1a2620"/>
+      <rect x="0" y="518" width="1200" height="10" fill="#1e2d2a"/>
+
+      <!-- Background blocks -->
+      <rect x="0" y="280" width="80" height="200" fill="#14282a" opacity="0.85"/>
+      <rect x="90" y="310" width="60" height="170" fill="#122425" opacity="0.85"/>
+      <rect x="160" y="260" width="70" height="220" fill="#152b2e" opacity="0.85"/>
+      <rect x="240" y="300" width="50" height="180" fill="#132627" opacity="0.85"/>
+      <rect x="300" y="270" width="90" height="210" fill="#142829" opacity="0.85"/>
+
+      <!-- R1 The Anchor -->
+      <rect x="30" y="200" width="140" height="285" rx="3" fill="#1a3028"/>
+      <rect x="30" y="200" width="140" height="12" fill="#1f3a30"/>
+      <rect x="45" y="225" width="28" height="22" rx="2" fill="#0a1510" id="r1w1"/>
+      <rect x="85" y="225" width="28" height="22" rx="2" fill="#0a1510" id="r1w2"/>
+      <rect x="125" y="225" width="28" height="22" rx="2" fill="#0a1510" id="r1w3"/>
+      <rect x="45" y="260" width="28" height="22" rx="2" fill="#0a1510" id="r1w4"/>
+      <rect x="85" y="260" width="28" height="22" rx="2" fill="#0a1510" id="r1w5"/>
+      <rect x="125" y="260" width="28" height="22" rx="2" fill="#0a1510" id="r1w6"/>
+      <rect x="45" y="295" width="28" height="22" rx="2" fill="#0a1510" id="r1w7"/>
+      <rect x="85" y="295" width="28" height="22" rx="2" fill="#0a1510" id="r1w8"/>
+      <rect x="125" y="295" width="28" height="22" rx="2" fill="#0a1510" id="r1w9"/>
+      <rect x="30" y="395" width="140" height="90" fill="#152e25"/>
+      <rect x="80" y="440" width="40" height="45" rx="2" fill="#0d1f18"/>
+      <rect x="38" y="402" width="124" height="20" rx="2" id="r1sign" fill="#1a4a35"/>
+      <text x="100" y="416" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" fill="rgba(255,255,255,0.75)">THE ANCHOR</text>
+      <rect x="35" y="428" width="38" height="32" rx="2" fill="#0a1510" id="r1gw1"/>
+      <rect x="97" y="428" width="38" height="32" rx="2" fill="#0a1510" id="r1gw2"/>
+
+      <!-- R2 Bella Roma -->
+      <rect x="195" y="240" width="110" height="245" rx="3" fill="#1c2a1e"/>
+      <rect x="208" y="260" width="24" height="20" rx="2" fill="#0a1208" id="r2w1"/>
+      <rect x="242" y="260" width="24" height="20" rx="2" fill="#0a1208" id="r2w2"/>
+      <rect x="276" y="260" width="24" height="20" rx="2" fill="#0a1208" id="r2w3"/>
+      <rect x="208" y="292" width="24" height="20" rx="2" fill="#0a1208" id="r2w4"/>
+      <rect x="242" y="292" width="24" height="20" rx="2" fill="#0a1208" id="r2w5"/>
+      <rect x="276" y="292" width="24" height="20" rx="2" fill="#0a1208" id="r2w6"/>
+      <rect x="195" y="390" width="110" height="95" fill="#182818"/>
+      <rect x="202" y="400" width="96" height="18" rx="2" id="r2sign" fill="#20402a"/>
+      <text x="250" y="413" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" font-weight="600" fill="rgba(255,255,255,0.75)">BELLA ROMA</text>
+
+      <!-- R3 Noodle House -->
+      <rect x="330" y="160" width="130" height="325" rx="3" fill="#1e2430"/>
+      <rect x="345" y="186" width="26" height="20" rx="2" fill="#0c1018" id="r3w1"/>
+      <rect x="381" y="186" width="26" height="20" rx="2" fill="#0c1018" id="r3w2"/>
+      <rect x="417" y="186" width="26" height="20" rx="2" fill="#0c1018" id="r3w3"/>
+      <rect x="345" y="218" width="26" height="20" rx="2" fill="#0c1018" id="r3w4"/>
+      <rect x="381" y="218" width="26" height="20" rx="2" fill="#0c1018" id="r3w5"/>
+      <rect x="417" y="218" width="26" height="20" rx="2" fill="#0c1018" id="r3w6"/>
+      <rect x="345" y="250" width="26" height="20" rx="2" fill="#0c1018" id="r3w7"/>
+      <rect x="381" y="250" width="26" height="20" rx="2" fill="#0c1018" id="r3w8"/>
+      <rect x="417" y="250" width="26" height="20" rx="2" fill="#0c1018" id="r3w9"/>
+      <rect x="330" y="390" width="130" height="95" fill="#1a2030"/>
+      <rect x="338" y="397" width="114" height="18" rx="2" id="r3sign" fill="#232a40"/>
+      <text x="395" y="410" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" font-weight="600" fill="rgba(255,255,255,0.75)">NOODLE HOUSE</text>
+
+      <!-- R4 Spice Garden -->
+      <rect x="490" y="210" width="120" height="275" rx="3" fill="#2a1e1a"/>
+      <ellipse cx="550" cy="210" rx="30" ry="12" fill="#2a1e1a"/>
+      <rect x="503" y="232" width="26" height="22" rx="2" fill="#120c0a" id="r4w1"/>
+      <rect x="542" y="232" width="26" height="22" rx="2" fill="#120c0a" id="r4w2"/>
+      <rect x="576" y="232" width="28" height="22" rx="2" fill="#120c0a" id="r4w3"/>
+      <rect x="503" y="267" width="26" height="22" rx="2" fill="#120c0a" id="r4w4"/>
+      <rect x="542" y="267" width="26" height="22" rx="2" fill="#120c0a" id="r4w5"/>
+      <rect x="490" y="390" width="120" height="95" fill="#251a17"/>
+      <rect x="498" y="398" width="104" height="18" rx="2" id="r4sign" fill="#3d2820"/>
+      <text x="550" y="411" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" font-weight="600" fill="rgba(255,255,255,0.75)">SPICE GARDEN</text>
+
+      <!-- R5 Le Petit Bistro -->
+      <rect x="640" y="230" width="100" height="255" rx="3" fill="#1e1e28"/>
+      <polygon points="640,230 690,200 740,230" fill="#1a1a22"/>
+      <rect x="654" y="250" width="24" height="20" rx="2" fill="#0c0c14" id="r5w1"/>
+      <rect x="690" y="250" width="24" height="20" rx="2" fill="#0c0c14" id="r5w2"/>
+      <rect x="654" y="282" width="24" height="20" rx="2" fill="#0c0c14" id="r5w3"/>
+      <rect x="690" y="282" width="24" height="20" rx="2" fill="#0c0c14" id="r5w4"/>
+      <rect x="640" y="390" width="100" height="95" fill="#191924"/>
+      <rect x="647" y="398" width="86" height="16" rx="2" id="r5sign" fill="#24243a"/>
+      <text x="690" y="410" text-anchor="middle" font-family="Inter,sans-serif" font-size="7.5" font-weight="600" fill="rgba(255,255,255,0.75)">LE PETIT BISTRO</text>
+
+      <!-- R6 The Grill -->
+      <rect x="780" y="180" width="150" height="305" rx="3" fill="#28201c"/>
+      <rect x="796" y="206" width="28" height="22" rx="2" fill="#110e0a" id="r6w1"/>
+      <rect x="838" y="206" width="28" height="22" rx="2" fill="#110e0a" id="r6w2"/>
+      <rect x="880" y="206" width="28" height="22" rx="2" fill="#110e0a" id="r6w3"/>
+      <rect x="916" y="206" width="28" height="22" rx="2" fill="#110e0a" id="r6w4"/>
+      <rect x="796" y="241" width="28" height="22" rx="2" fill="#110e0a" id="r6w5"/>
+      <rect x="838" y="241" width="28" height="22" rx="2" fill="#110e0a" id="r6w6"/>
+      <rect x="880" y="241" width="28" height="22" rx="2" fill="#110e0a" id="r6w7"/>
+      <rect x="780" y="390" width="150" height="95" fill="#221c18"/>
+      <rect x="788" y="398" width="134" height="18" rx="2" id="r6sign" fill="#352819"/>
+      <text x="855" y="411" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" fill="rgba(255,255,255,0.75)">THE GRILL HOUSE</text>
+
+      <!-- R7 Café Verde -->
+      <rect x="960" y="300" width="90" height="185" rx="3" fill="#1a2820"/>
+      <rect x="972" y="320" width="22" height="18" rx="2" fill="#0a1410" id="r7w1"/>
+      <rect x="1004" y="320" width="22" height="18" rx="2" fill="#0a1410" id="r7w2"/>
+      <rect x="960" y="393" width="90" height="92" fill="#152218"/>
+      <rect x="967" y="400" width="76" height="15" rx="2" id="r7sign" fill="#1e3522"/>
+      <text x="1005" y="411" text-anchor="middle" font-family="Inter,sans-serif" font-size="7.5" font-weight="600" fill="rgba(255,255,255,0.75)">CAFÉ VERDE</text>
+
+      <!-- R8 Burgerco -->
+      <rect x="1078" y="280" width="110" height="205" rx="3" fill="#20281e"/>
+      <rect x="1092" y="302" width="24" height="20" rx="2" fill="#0c1208" id="r8w1"/>
+      <rect x="1126" y="302" width="24" height="20" rx="2" fill="#0c1208" id="r8w2"/>
+      <rect x="1160" y="302" width="24" height="20" rx="2" fill="#0c1208" id="r8w3"/>
+      <rect x="1078" y="393" width="110" height="92" fill="#1c2419"/>
+      <rect x="1085" y="400" width="96" height="16" rx="2" id="r8sign" fill="#26321e"/>
+      <text x="1133" y="412" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" font-weight="600" fill="rgba(255,255,255,0.75)">BURGERCO</text>
+
+      <!-- Street lamps -->
+      <line x1="285" y1="390" x2="285" y2="490" stroke="#2a3a35" stroke-width="3"/>
+      <circle id="lamp1" cx="285" cy="386" r="4" fill="#3a4a40" opacity="0.5"/>
+      <line x1="620" y1="390" x2="620" y2="490" stroke="#2a3a35" stroke-width="3"/>
+      <circle id="lamp2" cx="620" cy="386" r="4" fill="#3a4a40" opacity="0.5"/>
+      <line x1="950" y1="390" x2="950" y2="490" stroke="#2a3a35" stroke-width="3"/>
+      <circle id="lamp3" cx="950" cy="386" r="4" fill="#3a4a40" opacity="0.5"/>
+    </svg>
+  </div>
+  <div class="scene-legend">
+    <span>Energy status:</span>
+    <span><span class="legend-dot" style="background:#E24B4A"></span>High waste</span>
+    <span><span class="legend-dot" style="background:#EF9F27"></span>Moderate</span>
+    <span><span class="legend-dot" style="background:#1D9E75"></span>Monitored / efficient</span>
+  </div>
+  <p class="scene-caption">Illustrated high street overlaid on a European city backdrop · building labels match the cards above</p>
+</div>
+
+<!-- Summary -->
+<div class="summary-section">
+  <div class="investor-strip">
+    <p><strong>Greenways</strong> connects monitoring, efficient equipment, grants, and finance — so hospitality operators see waste, act on alerts, and fund upgrades with defensible payback. This page is an investor-facing snapshot of the opportunity on one city block.</p>
+  </div>
+
+  <div class="savings-strip">
+    <div class="ss-item">
+      <div class="ss-num" id="cityBill">£20,220</div>
+      <div class="ss-label">city block monthly spend</div>
+    </div>
+    <div class="ss-arrow">→</div>
+    <div class="ss-item">
+      <div class="ss-num" id="citySave">£7,078</div>
+      <div class="ss-label">monthly saving with monitoring</div>
+    </div>
+    <div class="ss-arrow">→</div>
+    <div class="ss-item">
+      <div class="ss-num" id="cityAnnual">£84,936</div>
+      <div class="ss-label">annual saving across 8 restaurants</div>
+    </div>
+    <div class="ss-arrow">+</div>
+    <div class="ss-item">
+      <div class="ss-num" id="cityCO2">127 t</div>
+      <div class="ss-label">CO₂ reduction per year</div>
+    </div>
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card before">
+      <div class="sc-header red">Without monitoring</div>
+      <div class="sc-stat">
+        <div class="sc-num red">£20,220</div>
+        <div class="sc-label">total monthly bills across 8 restaurants</div>
+      </div>
+      <div class="sc-row"><span class="sc-row-label">Average monthly waste per site</span><span class="sc-row-val" style="color:#F09595">£855</span></div>
+      <div class="sc-row"><span class="sc-row-label">Extraction running off-hours</span><span class="sc-row-val" style="color:#F09595">6 of 8 sites</span></div>
+      <div class="sc-row"><span class="sc-row-label">Refrigeration anomalies undetected</span><span class="sc-row-val" style="color:#F09595">4 of 8 sites</span></div>
+      <div class="sc-row"><span class="sc-row-label">ESG / SECR data available</span><span class="sc-row-val" style="color:#F09595">Estimated only</span></div>
+    </div>
+    <div class="summary-card after">
+      <div class="sc-header green">With monitoring + efficient equipment</div>
+      <div class="sc-stat">
+        <div class="sc-num green">£13,142</div>
+        <div class="sc-label">monthly bills after monitoring interventions</div>
+      </div>
+      <div class="sc-row"><span class="sc-row-label">Average monthly saving per site</span><span class="sc-row-val" style="color:#9FE1CB">£885</span></div>
+      <div class="sc-row"><span class="sc-row-label">Extraction scheduled correctly</span><span class="sc-row-val" style="color:#9FE1CB">8 of 8 sites ✓</span></div>
+      <div class="sc-row"><span class="sc-row-label">Refrigeration anomalies alerted</span><span class="sc-row-val" style="color:#9FE1CB">Within 5 min ✓</span></div>
+      <div class="sc-row"><span class="sc-row-label">ESG / SECR data available</span><span class="sc-row-val" style="color:#9FE1CB">Automated audit trail ✓</span></div>
+    </div>
+  </div>
+
+  <div class="bar-compare">
+    <div class="bc-title">Energy saving potential by category</div>
+    <div class="bc-row">
+      <div class="bc-row-label"><span>Refrigeration</span><span>100% → 66%</span></div>
+      <div class="bc-tracks">
+        <div class="bc-track"><div class="bc-track-bg"><div class="bc-fill before" style="width:100%"></div></div></div>
+        <div class="bc-track"><div class="bc-track-bg"><div class="bc-fill after" style="width:66%"></div></div></div>
+      </div>
+    </div>
+    <div class="bc-row">
+      <div class="bc-row-label"><span>HVAC &amp; extraction</span><span>100% → 62%</span></div>
+      <div class="bc-tracks">
+        <div class="bc-track"><div class="bc-track-bg"><div class="bc-fill before" style="width:100%"></div></div></div>
+        <div class="bc-track"><div class="bc-track-bg"><div class="bc-fill after" style="width:62%"></div></div></div>
+      </div>
+    </div>
+    <div class="bc-row">
+      <div class="bc-row-label"><span>Cooking idle &amp; standby</span><span>100% → 70%</span></div>
+      <div class="bc-tracks">
+        <div class="bc-track"><div class="bc-track-bg"><div class="bc-fill before" style="width:100%"></div></div></div>
+        <div class="bc-track"><div class="bc-track-bg"><div class="bc-fill after" style="width:70%"></div></div></div>
+      </div>
+    </div>
+    <div class="bc-row">
+      <div class="bc-row-label"><span>Lighting (LED + sensors)</span><span>100% → 25%</span></div>
+      <div class="bc-tracks">
+        <div class="bc-track"><div class="bc-track-bg"><div class="bc-fill before" style="width:100%"></div></div></div>
+        <div class="bc-track"><div class="bc-track-bg"><div class="bc-fill after" style="width:25%"></div></div></div>
+      </div>
+    </div>
+    <div class="bc-legend">
+      <span><span class="bc-leg-dot" style="background:#E24B4A"></span>Without monitoring</span>
+      <span><span class="bc-leg-dot" style="background:#1D9E75"></span>With monitoring</span>
+    </div>
+  </div>
+</div>
+
+<div class="sources">
+  <strong>Sources</strong> — Carbon Trust UK; Envigilance (2026); Budderfly (2025); Best.Energy; EIA; Utility Bidder UK (2026). Illustrative figures for investor storytelling — not site-specific forecasts.
+</div>
+
+</div><!-- /.page-shell -->
+
+<script>
+const MODE = { current: 'before' };
+
+const restaurants = [
+  { id: 1, name: 'The Anchor', type: 'pub kitchen', windows: ['r1w1','r1w2','r1w3','r1w4','r1w5','r1w6','r1w7','r1w8','r1w9','r1gw1','r1gw2'], signId: 'r1sign',
+    before: { bill:'£2,800', waste:'£1,120', extra1:['Extraction','On 24/7 ⚠','red'], extra2:['Refrigeration','Cycling 19 min','amber'], extra3:['HVAC overnight','Running ⚠','red'], co2:'18.4 t', winColor:'#2a0a0a', signColor:'#4a1a1a' },
+    after:  { bill:'£1,820', waste:'£130', extra1:['Extraction','Scheduled ✓','green'], extra2:['Refrigeration','Cycle normal ✓','green'], extra3:['HVAC overnight','Off-scheduled ✓','green'], co2:'11.9 t', winColor:'#0a2a18', signColor:'#1a4a35', saving:'£11,760/yr' }},
+  { id: 2, name: 'Bella Roma', type: 'Italian', windows: ['r2w1','r2w2','r2w3','r2w4','r2w5','r2w6'], signId: 'r2sign',
+    before: { bill:'£1,900', waste:'£760', extra1:['Pizza oven idle','3 hrs/day ⚠','red'], extra2:['Lighting','Non-LED','amber'], save:'—', winColor:'#280a0a', signColor:'#40181a' },
+    after:  { bill:'£1,254', waste:'£80', extra1:['Pizza oven','Scheduled off ✓','green'], extra2:['Lighting','Full LED ✓','green'], save:'£7,752/yr', winColor:'#0a2a14', signColor:'#1a4028', saving:'£7,752/yr' }},
+  { id: 3, name: 'Noodle House', type: 'Asian', windows: ['r3w1','r3w2','r3w3','r3w4','r3w5','r3w6','r3w7','r3w8','r3w9'], signId: 'r3sign',
+    before: { bill:'£3,100', waste:'£930', extra1:['Wok burners','High load','amber'], extra2:['Dishwasher','Peak tariff','amber'], save:'—', winColor:'#20180a', signColor:'#302210' },
+    after:  { bill:'£2,108', waste:'£200', extra1:['Wok burners','Demand-matched ✓','green'], extra2:['Dishwasher','Off-peak ✓','green'], save:'£11,904/yr', winColor:'#0a2214', signColor:'#183022', saving:'£11,904/yr' }},
+  { id: 4, name: 'Spice Garden', type: 'Indian', windows: ['r4w1','r4w2','r4w3','r4w4','r4w5'], signId: 'r4sign',
+    before: { bill:'£2,500', waste:'£1,000', extra1:['Tandoor temp','Unmonitored ⚠','red'], extra2:['Cold room','4.9°C — high ⚠','red'], save:'—', winColor:'#280a08', signColor:'#401818' },
+    after:  { bill:'£1,625', waste:'£100', extra1:['Tandoor','Sensor-managed ✓','green'], extra2:['Cold room','4.0°C optimal ✓','green'], save:'£10,500/yr', winColor:'#0a2010', signColor:'#1a3820', saving:'£10,500/yr' }},
+  { id: 5, name: 'Le Petit Bistro', type: 'French', windows: ['r5w1','r5w2','r5w3','r5w4'], signId: 'r5sign',
+    before: { bill:'£1,600', waste:'£480', extra1:['Lighting','Mixed — 60% LED','amber'], extra2:['HVAC','Manual controls','amber'], save:'—', winColor:'#1a140a', signColor:'#2a2010' },
+    after:  { bill:'£1,120', waste:'£80', extra1:['Lighting','100% LED ✓','green'], extra2:['HVAC','Smart zones ✓','green'], save:'£5,760/yr', winColor:'#0a1e14', signColor:'#183020', saving:'£5,760/yr' }},
+  { id: 6, name: 'The Grill House', type: 'steakhouse', windows: ['r6w1','r6w2','r6w3','r6w4','r6w5','r6w6','r6w7'], signId: 'r6sign',
+    before: { bill:'£4,200', waste:'£1,680', extra1:['Grill standby','3.5 kW idle ⚠','red'], extra2:['Extraction','Full speed 24/7 ⚠','red'], save:'—', winColor:'#280a0a', signColor:'#401510' },
+    after:  { bill:'£2,730', waste:'£150', extra1:['Grill standby','Auto-off ✓','green'], extra2:['Extraction','Demand-controlled ✓','green'], save:'£17,640/yr', winColor:'#0a2010', signColor:'#183018', saving:'£17,640/yr' }},
+  { id: 7, name: 'Café Verde', type: 'coffee bar', windows: ['r7w1','r7w2'], signId: 'r7sign',
+    before: { bill:'£820', waste:'£115', extra1:['Smart meters','Active ✓','green'], extra2:['LED lighting','100% ✓','green'], save:'£2,940/yr', winColor:'#0a2010', signColor:'#183020' },
+    after:  { bill:'£820', waste:'£82', extra1:['Smart meters','Active ✓','green'], extra2:['LED lighting','100% ✓','green'], save:'£2,940/yr', winColor:'#0a2a18', signColor:'#1e4030', saving:'£2,940/yr' }},
+  { id: 8, name: 'Burgerco', type: 'QSR', windows: ['r8w1','r8w2','r8w3'], signId: 'r8sign',
+    before: { bill:'£3,400', waste:'£850', extra1:['Fryers','Idle scheduling','amber'], extra2:['Drive-through','HVAC unzoned','amber'], save:'—', winColor:'#201a0a', signColor:'#302210' },
+    after:  { bill:'£2,210', waste:'£180', extra1:['Fryers','Auto-timed ✓','green'], extra2:['Drive-through','Zoned HVAC ✓','green'], save:'£14,280/yr', winColor:'#0a2218', signColor:'#183025', saving:'£14,280/yr' }}
+];
+
+function updateBlock(r, mode) {
+  const data = mode === 'before' ? r.before : r.after;
+  const prefix = 'r' + r.id;
+  const ib = document.getElementById('ib' + r.id);
+  if (!ib) return;
+  const t = ib.querySelector('.ib-title');
+  if (t) {
+    t.className = 'ib-title' + (mode === 'before' && r.id !== 7 ? ' red-t' : '');
+    t.textContent = r.name + ' — ' + r.type;
+  }
+  ib.className = 'info-block' + (mode === 'before' && r.id !== 7 ? ' red-block' : '');
+  const billEl = document.getElementById(prefix + 'bill');
+  if (billEl) {
+    billEl.textContent = data.bill;
+    billEl.className = 'ib-val ' + (mode === 'after' ? 'green' : (parseInt((data.waste || '').replace(/[^0-9]/g, '')) > 700 ? 'red' : 'amber'));
+  }
+  const wasteEl = document.getElementById(prefix + 'waste');
+  if (wasteEl) {
+    wasteEl.textContent = data.waste;
+    wasteEl.className = 'ib-val ' + (mode === 'before' ? 'red' : 'green');
+  }
+  const rows = ib.querySelectorAll('.ib-row');
+  if (data.extra1 && rows[2]) {
+    rows[2].querySelector('span:first-child').textContent = data.extra1[0];
+    const val = rows[2].querySelector('.ib-val');
+    val.textContent = data.extra1[1];
+    val.className = 'ib-val ' + data.extra1[2];
+  }
+  if (data.extra2 && rows[3]) {
+    rows[3].querySelector('span:first-child').textContent = data.extra2[0];
+    const val = rows[3].querySelector('.ib-val');
+    val.textContent = data.extra2[1];
+    val.className = 'ib-val ' + data.extra2[2];
+  }
+  if (data.extra3 && rows[4]) {
+    rows[4].querySelector('span:first-child').textContent = data.extra3[0];
+    const val = rows[4].querySelector('.ib-val');
+    val.textContent = data.extra3[1];
+    val.className = 'ib-val ' + data.extra3[2];
+  }
+  const lastRow = rows[rows.length - 1];
+  if (lastRow && r.id === 1) {
+    lastRow.querySelector('span:first-child').textContent = 'CO₂/year';
+    const val = lastRow.querySelector('.ib-val');
+    val.textContent = data.co2 || '';
+    val.className = 'ib-val';
+  } else if (lastRow) {
+    lastRow.querySelector('span:first-child').textContent = 'Annual saving';
+    const val = lastRow.querySelector('.ib-val');
+    val.textContent = mode === 'after' ? (data.saving || data.save || '—') : '—';
+    val.className = 'ib-val ' + (mode === 'after' ? 'green' : '');
+  }
+}
+
+function updateWindows(r, mode) {
+  const d = mode === 'before' ? r.before : r.after;
+  const col = d.winColor || (mode === 'after' ? '#062a14' : '#3a0808');
+  r.windows.forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('fill', col);
+  });
+  const sign = document.getElementById(r.signId);
+  if (sign) sign.setAttribute('fill', d.signColor || (mode === 'before' ? '#2a1818' : '#1a3828'));
+}
+
+function setMode(mode) {
+  MODE.current = mode;
+  document.getElementById('btnBefore').className = 'mode-btn' + (mode === 'before' ? ' active-red' : '');
+  document.getElementById('btnAfter').className = 'mode-btn' + (mode === 'after' ? ' active' : '');
+  const orb = document.getElementById('skyOrb');
+  if (orb) orb.setAttribute('fill', mode === 'after' ? '#1a3a52' : '#1a3050');
+  ['lamp1', 'lamp2', 'lamp3'].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('fill', mode === 'after' ? '#5DCAA5' : '#3a4a40');
+  });
+  restaurants.forEach(function (r) {
+    updateWindows(r, mode);
+    updateBlock(r, mode);
+  });
+  if (mode === 'after') {
+    document.getElementById('cityBill').textContent = '£13,142';
+    document.getElementById('citySave').textContent = '£7,078';
+    document.getElementById('cityAnnual').textContent = '£84,936';
+    document.getElementById('cityCO2').textContent = '127 t';
+  } else {
+    document.getElementById('cityBill').textContent = '£20,220';
+    document.getElementById('citySave').textContent = '£7,078 possible';
+    document.getElementById('cityAnnual').textContent = '£84,936 possible';
+    document.getElementById('cityCO2').textContent = '127 t possible';
+  }
+}
+
+setMode('before');
+
+setInterval(function () {
+  if (MODE.current !== 'before') return;
+  var candidates = ['r1w2', 'r3w5', 'r4w2', 'r6w5', 'r8w2'];
+  var id = candidates[Math.floor(Math.random() * candidates.length)];
+  var el = document.getElementById(id);
+  if (el) {
+    var orig = el.getAttribute('fill');
+    el.setAttribute('fill', '#4a1008');
+    setTimeout(function () { el.setAttribute('fill', orig); }, 180);
+  }
+}, 2200);
+</script>
+</body>
+</html>
