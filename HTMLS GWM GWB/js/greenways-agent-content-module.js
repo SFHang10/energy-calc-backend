@@ -74,6 +74,7 @@
     ["sustainable%20references", "sustainable-references"],
     ["european%20company%20-%20case%20study", "sustainability-map"],
     ["discover%20energy%20savings", "discover-savings"],
+    ["greenways%20green%20table", "green-table"],
     ["europes%20energy%20saving", "europe-savings"],
     ["sustaniability%20quick%20benefits", "sustainability-quick-benefits"],
     ["prices%20and%20deals", "prices-and-deals"],

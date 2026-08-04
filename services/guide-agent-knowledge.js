@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs/promises');
-const { loadIntentsFrom, matchIntent } = require('./greenways-agent-shared');
+const { loadIntentsFrom, matchIntent, toModuleItem } = require('./greenways-agent-shared');
+const { mergeModuleRow } = require('./greenways-content-modules');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'guide-agent-intents.json');
 const rosterPath = path.join(__dirname, '..', 'data', 'guide-agent-roster.json');
@@ -180,6 +181,73 @@ function buildHandoffOnlyAnswer(entry, question, tip) {
   };
 }
 
+function buildBusinessCaseAnswer(roster, tip) {
+  const finance = findRosterEntry(roster, 'finance');
+  const systems = findRosterEntry(roster, 'systems');
+  const products = findRosterEntry(roster, 'products');
+  const equipment = findRosterEntry(roster, 'equipment');
+
+  const handoffs = [
+    finance && {
+      id: 'finance',
+      name: finance.name || 'Vincent',
+      href: finance.path || '/greenways/finance-agent',
+      prompt: 'Model payback for a restaurant energy upgrade with savings projection'
+    },
+    systems && {
+      id: 'systems',
+      name: systems.name || 'Edwardo',
+      href: systems.path || '/greenways/systems-agent',
+      prompt: 'How do I set a monitoring baseline before upgrades?'
+    },
+    products && {
+      id: 'products',
+      name: products.name || 'Zyanne',
+      href: products.path || '/greenways/sustainable-products-agent',
+      prompt: 'Find efficient water and kitchen upgrades for my restaurant'
+    },
+    equipment && {
+      id: 'equipment',
+      name: equipment.name || 'Artemis',
+      href: equipment.path || '/greenways/equipment-agent',
+      prompt: 'Show equipment and renovation options after the business case'
+    }
+  ]
+    .filter(Boolean)
+    .slice(0, 3);
+
+  const moduleItem = toModuleItem({
+    ...mergeModuleRow({
+      moduleId: 'green-table',
+      title: 'Restaurant energy business case',
+      openSize: 'near-full'
+    }),
+    theme: 'default',
+    agentName: 'Guide'
+  });
+
+  return {
+    answer:
+      `**Greenways Guide** — restaurant **business case** overview\n\n` +
+      `European kitchens often spend far more energy per m² than typical commercial space. The **Green Table** page is the member pitch layer: why it matters (costs, compliance, guests), illustrative €/payback ranges, and hospitality case studies.\n\n` +
+      `Open the tablet for the story — then hand off for **site-specific** numbers:\n` +
+      `- **Vincent** — savings projection / finance\n` +
+      `- **Edwardo** — monitoring baseline\n` +
+      `- **Zyanne or Artemis** — product and equipment finders\n\n` +
+      `_${tip}_`,
+    suggestions: [
+      'Open the restaurant energy business case',
+      'Model payback after an upgrade',
+      'How do I start with energy monitoring?'
+    ],
+    blocks: [{ type: 'module', items: [moduleItem] }],
+    agentHandoffs: handoffs,
+    routedTo: handoffs.map((h) => h.id),
+    primaryAgent: null,
+    responseMode: 'business_case'
+  };
+}
+
 async function delegateToSpecialist(agentId, question, profile, roster, ranked) {
   const loader = SPECIALIST_LOADERS[agentId];
   if (!loader) return null;
@@ -242,6 +310,13 @@ async function answerFromKnowledge(question, profile = {}) {
   if (intent?.answerType === 'handoff_only') {
     const entry = findRosterEntry(roster, intent.agent) || roster.staffOnly?.[0];
     const result = buildHandoffOnlyAnswer(entry, question, tip);
+    result.source = 'orchestrator';
+    result.intentId = intent.id;
+    return result;
+  }
+
+  if (intent?.answerType === 'business_case') {
+    const result = buildBusinessCaseAnswer(roster, tip);
     result.source = 'orchestrator';
     result.intentId = intent.id;
     return result;

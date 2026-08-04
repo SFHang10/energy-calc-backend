@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css">
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.js"></script>
 <style>
   :root {
     --bg: #080c14;
@@ -255,6 +257,29 @@
   .answer-box.is-thinking { color: var(--muted); font-style: italic; }
   .answer-box strong { color: #fff; }
   .answer-box em { color: var(--muted); }
+  .orch-extras { margin-top: 12px; display: grid; gap: 10px; }
+  .orch-module-tablet {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 12px 14px; border-radius: 12px;
+    background: linear-gradient(135deg, rgba(40,167,69,0.12), rgba(201,169,97,0.08));
+    border: 1px solid rgba(40,167,69,0.28);
+  }
+  .orch-module-tablet strong { display: block; color: #fff; font-size: 0.86rem; }
+  .orch-module-tablet span { display: block; color: var(--muted); font-size: 0.72rem; margin-top: 2px; max-width: 42ch; }
+  .orch-module-tablet button {
+    border: 0; border-radius: 999px; padding: 0.55rem 1rem;
+    background: linear-gradient(135deg, #28a745, #c9a961);
+    color: #08110c; font-weight: 700; font-size: 0.75rem; font-family: inherit; cursor: pointer;
+  }
+  .orch-handoffs { display: flex; flex-wrap: wrap; gap: 8px; }
+  .orch-handoff {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 0.45rem 0.85rem; border-radius: 999px;
+    border: 1px solid rgba(201,169,97,0.35);
+    background: rgba(12,18,28,0.85);
+    color: var(--text); text-decoration: none; font-size: 0.72rem; font-weight: 600;
+  }
+  .orch-handoff:hover { border-color: var(--gold); color: #fff; }
   .route-hint {
     margin-top: 10px;
     font-size: 0.72rem;
@@ -382,6 +407,7 @@
   };
 
   var QUICK = [
+    "Restaurant energy business case overview",
     "Evaluate upgrading wok line + insulation — NL restaurant",
     "What grants fit kitchen equipment in my region?",
     "Find efficient refrigeration for my restaurant",
@@ -511,6 +537,52 @@
     roster = FALLBACK_ROSTER.agents;
   }
 
+  function firstModuleItem(data) {
+    var blocks = (data && data.blocks) || [];
+    for (var i = 0; i < blocks.length; i++) {
+      var block = blocks[i];
+      if (block && block.type === "module" && block.items && block.items[0]) return block.items[0];
+    }
+    return null;
+  }
+
+  function renderExtras(data) {
+    var parts = [];
+    var moduleItem = firstModuleItem(data);
+    if (moduleItem) {
+      var mid = escapeHtml(moduleItem.moduleId || "green-table");
+      var title = escapeHtml(moduleItem.title || "Open business case");
+      var hint = escapeHtml(moduleItem.usageHint || moduleItem.description || "Open the tablet, then continue with a specialist.");
+      parts.push(
+        '<div class="orch-module-tablet">' +
+          '<div><strong>' + title + '</strong><span>' + hint + '</span></div>' +
+          '<button type="button" data-module-open="' + mid + '">Open tablet</button>' +
+        '</div>'
+      );
+    }
+    var handoffs = (data && data.agentHandoffs) || [];
+    if (handoffs.length) {
+      parts.push(
+        '<div class="orch-handoffs">' +
+          handoffs
+            .map(function (h) {
+              var agent = roster.find(function (a) { return a.id === h.id; }) || {};
+              var href = agentHref(agent.slug ? agent : { slug: (h.id || "") + "-agent", path: h.href }, h.prompt || lastQuestion);
+              return (
+                '<a class="orch-handoff" href="' +
+                escapeHtml(href) +
+                '">Continue with ' +
+                escapeHtml(h.name || h.id) +
+                '</a>'
+              );
+            })
+            .join("") +
+        '</div>'
+      );
+    }
+    return parts.length ? '<div class="orch-extras">' + parts.join("") + '</div>' : "";
+  }
+
   async function askOrchestra(question) {
     var q = String(question || "").trim();
     if (!q || thinking) return;
@@ -535,6 +607,7 @@
       if (!res.ok || !data.ok) throw new Error(data.error || "Request failed");
 
       var isTeam = data.responseMode === "team" && data.lanes && data.lanes.length;
+      var isBusinessCase = data.responseMode === "business_case" || data.intentId === "business_case";
 
       if (isTeam) {
         answerBox.className = "answer-box is-visible is-team";
@@ -556,11 +629,12 @@
         }
       } else {
         answerBox.className = "answer-box is-visible";
-        answerBox.innerHTML = simpleMarkdown(data.answer || "No answer returned.");
+        answerBox.innerHTML = simpleMarkdown(data.answer || "No answer returned.") + renderExtras(data);
         highlightAgents(data.primaryAgent || null, data.routedTo || []);
-        routeHint.hidden = !data.primaryAgent;
-        statusBar.textContent =
-          data.primaryAgent
+        routeHint.hidden = !(data.primaryAgent || isBusinessCase || (data.agentHandoffs && data.agentHandoffs.length));
+        statusBar.textContent = isBusinessCase
+          ? "Business case — open tablet, then hand off"
+          : data.primaryAgent
             ? "Routed to " + (roster.find(function (a) { return a.id === data.primaryAgent; }) || {}).name || data.primaryAgent
             : "Answered";
 
@@ -573,11 +647,11 @@
             : "orchestra-hub";
           GreenwaysAgentTeam.recordTurn({
             slug: routedSlug,
-            agentName: "Orchestra → " + routedName,
+            agentName: isBusinessCase ? "Orchestra → Business case" : "Orchestra → " + routedName,
             question: q,
             answer: data.answer || "",
             intentId: data.intentId || "",
-            blocks: [],
+            blocks: data.blocks || [],
             spokenSummary: ""
           });
           refreshJourneyOrchestraPanel();
@@ -591,7 +665,8 @@
         highlightAgents(guess.primary, guess.routed);
         answerBox.innerHTML =
           "<strong>Offline preview</strong> — deploy <code>/api/guide-agent</code> on Render for live routing.<br><br>" +
-          simpleMarkdown(guess.message);
+          simpleMarkdown(guess.message) +
+          (guess.extrasHtml || "");
         statusBar.textContent = "Offline routing preview";
       } else {
         answerBox.innerHTML = escapeHtml("Could not reach the Orchestra API. Try again after deploy.");
@@ -605,6 +680,22 @@
 
   function guessLocalRoute(q) {
     var hay = q.toLowerCase();
+    if (/business case|green table|why (save )?energy|energy waste|hospitality case/.test(hay)) {
+      return {
+        primary: null,
+        routed: ["finance", "systems", "products"],
+        message:
+          "**Restaurant energy business case** — open the Green Table tablet for the pitch story, then continue with Vincent (payback), Edwardo (monitoring), or Zyanne (finders).",
+        extrasHtml: renderExtras({
+          blocks: [{ type: "module", items: [{ moduleId: "green-table", title: "Restaurant energy business case", usageHint: "Illustrative overview from the member dashboard Green Table tab." }] }],
+          agentHandoffs: [
+            { id: "finance", name: "Vincent", prompt: "Model payback for a restaurant energy upgrade" },
+            { id: "systems", name: "Edwardo", prompt: "How do I set a monitoring baseline?" },
+            { id: "products", name: "Zyanne", prompt: "Find efficient kitchen upgrades" }
+          ]
+        })
+      };
+    }
     var scores = {
       grants: 0, finance: 0, equipment: 0, products: 0, deals: 0, media: 0, systems: 0
     };
@@ -642,6 +733,27 @@
   input.addEventListener("keydown", function (e) {
     if (e.key === "Enter") { e.preventDefault(); askOrchestra(input.value); }
   });
+
+  answerBox.addEventListener("click", function (e) {
+    var btn = e.target && e.target.closest ? e.target.closest("[data-module-open]") : null;
+    if (!btn) return;
+    e.preventDefault();
+    var moduleId = btn.getAttribute("data-module-open");
+    if (window.GreenwaysAgentContentModule && typeof window.GreenwaysAgentContentModule.openById === "function") {
+      window.GreenwaysAgentContentModule.openById(moduleId, {
+        theme: "default",
+        agentName: "Guide"
+      });
+    }
+  });
+
+  if (window.GreenwaysAgentContentModule && typeof window.GreenwaysAgentContentModule.init === "function") {
+    window.GreenwaysAgentContentModule.init({
+      theme: "default",
+      agentName: "Guide",
+      agentKey: "guide"
+    });
+  }
 
   function refreshJourneyOrchestraPanel() {
     if (window.GreenwaysAgentTeam && typeof GreenwaysAgentTeam.renderInlinePanel === "function") {

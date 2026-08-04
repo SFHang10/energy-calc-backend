@@ -39,6 +39,7 @@ router.post('/ask', async (req, res) => {
         agentHandoffs: knowledge.agentHandoffs || [],
         routedTo: knowledge.routedTo || [],
         primaryAgent: knowledge.primaryAgent || null,
+        blocks: knowledge.blocks || [],
         source: knowledge.source || 'orchestrator',
         intentId: knowledge.intentId || null
       };
