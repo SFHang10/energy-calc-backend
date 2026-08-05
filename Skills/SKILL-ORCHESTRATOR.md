@@ -39,6 +39,7 @@ This is the **Master Skill** that coordinates all other skills. When you ask a q
 | **Grants / schemes / marketplace product grants** | **`grants-refresh-playbook.md`** → `schemes.json` + integrator + bundle |
 | Product hovers (grants/deals tooltips) | **`hover-data-aggregator.md`** — infrastructure, not an agent |
 | “Why this matters for you” hovers | **`personalized-impact-hover.md`** — admin/member; planned hover explainer agent |
+| **Restaurant CSR / GRI KPI map** | **`restaurant-csr-scorecard.md`** → `data/restaurant-csr-kpi-map.json` (Cheryce primary; specialists by KPI) |
 
 Full taxonomy: **`greenways-chat-interface-skill.md`** § **Admin vs consumer skills**.
 

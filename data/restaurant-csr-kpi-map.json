@@ -1,0 +1,432 @@
+{
+  "updatedAt": "2026-08-05",
+  "meta": {
+    "title": "Restaurant CSR KPI map",
+    "description": "22 hospitality CSR KPIs mapped to GRI disclosures and Greenways Transition Agent homes. Distilled from the Restaurant CSR Scorecard methodology — not a live Excel engine.",
+    "version": "1",
+    "sourceWorkbook": "Restaurant_CSR_Scorecard_Dashboard.xlsx (operator tool; do not embed in chat)",
+    "methodology": "Skills/restaurant-csr-scorecard.md",
+    "maturityScale": {
+      "0": "None — not measured",
+      "1": "Ad hoc — informal",
+      "2": "Initial — early tracking",
+      "3": "Established — systematic, partial data",
+      "4": "Mature — actively managed with data",
+      "5": "Best-in-class — verified / benchmarked"
+    },
+    "rag": {
+      "green": "≥90% of target",
+      "amber": "70–89% of target",
+      "red": "<70% of target",
+      "note": "For lowerIsBetter KPIs, compare target÷actual instead of actual÷target."
+    },
+    "defaultPillarWeights": {
+      "environmental": 40,
+      "ethical": 25,
+      "philanthropic": 15,
+      "economic": 20
+    },
+    "agentSlugs": {
+      "andrieus": "grants-agent",
+      "vincent": "finance-agent",
+      "artemis": "equipment-agent",
+      "zara": "deals-agent",
+      "cheryce": "media-agent",
+      "zyanne": "sustainable-products-agent",
+      "edwardo": "systems-agent",
+      "guide": "guide-agent"
+    }
+  },
+  "pillars": [
+    {
+      "id": "environmental",
+      "name": "Environmental",
+      "defaultWeightPct": 40,
+      "why": "Highest operational footprint and strongest regulatory pressure (energy, waste, water, CSRD-ready evidence).",
+      "primaryAgent": "cheryce",
+      "alsoAgents": ["edwardo", "vincent", "artemis", "zyanne", "andrieus", "guide"]
+    },
+    {
+      "id": "ethical",
+      "name": "Ethical",
+      "defaultWeightPct": 25,
+      "why": "Labour is the largest cost centre; acknowledge and hand off — Greenways does not own HR compliance.",
+      "primaryAgent": "cheryce",
+      "alsoAgents": ["guide"],
+      "handoffNote": "Acknowledge living wage, safety, diversity; do not invent HR advice — suggest operator HR / legal."
+    },
+    {
+      "id": "philanthropic",
+      "name": "Philanthropic",
+      "defaultWeightPct": 15,
+      "why": "Community brand and food-donation hierarchy; secondary to regulatory pillars.",
+      "primaryAgent": "cheryce",
+      "alsoAgents": ["guide"],
+      "handoffNote": "Local partnerships and volunteering — brand/community, not core product."
+    },
+    {
+      "id": "economic",
+      "name": "Economic",
+      "defaultWeightPct": 20,
+      "why": "Local / certified sourcing and supplier due diligence (CSDDD direction).",
+      "primaryAgent": "zyanne",
+      "alsoAgents": ["cheryce", "andrieus", "vincent", "guide"]
+    }
+  ],
+  "kpis": [
+    {
+      "id": "food-waste-tracking",
+      "pillar": "environmental",
+      "name": "Food waste tracking",
+      "description": "kg of food waste per cover",
+      "unit": "kg/cover",
+      "sampleTarget": 0.05,
+      "lowerIsBetter": true,
+      "gri": ["GRI 306-3"],
+      "primaryAgent": "cheryce",
+      "agents": ["cheryce", "edwardo", "guide"],
+      "greenwaysHooks": ["monitoring-kpi", "waste"],
+      "keywords": ["food waste", "waste per cover", "kitchen waste"]
+    },
+    {
+      "id": "food-waste-diversion",
+      "pillar": "environmental",
+      "name": "Food waste diversion rate",
+      "description": "% diverted from landfill (donation, composting, AD)",
+      "unit": "%",
+      "sampleTarget": 90,
+      "lowerIsBetter": false,
+      "gri": ["GRI 306-4"],
+      "primaryAgent": "cheryce",
+      "agents": ["cheryce", "zyanne", "guide"],
+      "greenwaysHooks": ["circular-economy", "waste"],
+      "keywords": ["diversion", "compost", "food donation landfill"]
+    },
+    {
+      "id": "sustainable-packaging",
+      "pillar": "environmental",
+      "name": "Sustainable packaging",
+      "description": "% reusable, recyclable, or compostable",
+      "unit": "%",
+      "sampleTarget": 95,
+      "lowerIsBetter": false,
+      "gri": ["GRI 301-2"],
+      "primaryAgent": "zyanne",
+      "agents": ["zyanne", "cheryce", "guide"],
+      "greenwaysHooks": ["sustainable-products"],
+      "keywords": ["packaging", "compostable", "recyclable cups"]
+    },
+    {
+      "id": "single-use-plastic",
+      "pillar": "environmental",
+      "name": "Single-use plastic reduction",
+      "description": "% reduction vs baseline year",
+      "unit": "% reduction",
+      "sampleTarget": 90,
+      "lowerIsBetter": false,
+      "gri": ["GRI 301-2"],
+      "primaryAgent": "zyanne",
+      "agents": ["zyanne", "cheryce", "guide"],
+      "greenwaysHooks": ["sustainable-products"],
+      "keywords": ["plastic", "single-use", "SUP"]
+    },
+    {
+      "id": "energy-intensity",
+      "pillar": "environmental",
+      "name": "Energy intensity",
+      "description": "kWh per cover",
+      "unit": "kWh/cover",
+      "sampleTarget": 2.5,
+      "lowerIsBetter": true,
+      "gri": ["GRI 302-3"],
+      "primaryAgent": "edwardo",
+      "agents": ["edwardo", "vincent", "artemis", "cheryce", "guide"],
+      "greenwaysHooks": ["submetering", "dashboard", "savings-projection"],
+      "keywords": ["energy intensity", "kwh per cover", "kwh/seat"]
+    },
+    {
+      "id": "renewable-energy-share",
+      "pillar": "environmental",
+      "name": "Renewable energy share",
+      "description": "% of energy from renewable sources",
+      "unit": "%",
+      "sampleTarget": 50,
+      "lowerIsBetter": false,
+      "gri": ["GRI 302-1"],
+      "primaryAgent": "zara",
+      "agents": ["zara", "vincent", "cheryce", "guide"],
+      "greenwaysHooks": ["green-tariff", "energy-deals"],
+      "keywords": ["renewable", "green tariff", "green electricity"]
+    },
+    {
+      "id": "carbon-footprint-scope-1-2",
+      "pillar": "environmental",
+      "name": "Carbon footprint (Scope 1+2)",
+      "description": "kg CO2e per cover from on-site fuel and purchased energy",
+      "unit": "kg CO2e/cover",
+      "sampleTarget": 1.5,
+      "lowerIsBetter": true,
+      "gri": ["GRI 305-1", "GRI 305-2"],
+      "primaryAgent": "vincent",
+      "agents": ["vincent", "edwardo", "cheryce", "guide"],
+      "greenwaysHooks": ["monitoring-kpi", "esg-audit-trail"],
+      "keywords": ["carbon", "co2e", "scope 1", "scope 2", "emissions"]
+    },
+    {
+      "id": "water-intensity",
+      "pillar": "environmental",
+      "name": "Water intensity",
+      "description": "Litres per cover",
+      "unit": "L/cover",
+      "sampleTarget": 15,
+      "lowerIsBetter": true,
+      "gri": ["GRI 303-3"],
+      "primaryAgent": "zyanne",
+      "agents": ["zyanne", "edwardo", "artemis", "cheryce", "guide"],
+      "greenwaysHooks": ["water-saving-finder", "submetering"],
+      "keywords": ["water intensity", "litres per cover", "water use"]
+    },
+    {
+      "id": "living-wage-compliance",
+      "pillar": "ethical",
+      "name": "Living wage compliance",
+      "description": "% of staff paid at or above local living wage",
+      "unit": "%",
+      "sampleTarget": 100,
+      "lowerIsBetter": false,
+      "gri": ["GRI 401-1"],
+      "primaryAgent": "cheryce",
+      "agents": ["cheryce", "guide"],
+      "greenwaysHooks": ["acknowledge-handoff"],
+      "keywords": ["living wage", "fair pay", "wages"]
+    },
+    {
+      "id": "gender-pay-gap",
+      "pillar": "ethical",
+      "name": "Gender pay gap",
+      "description": "Median hourly gender pay gap",
+      "unit": "%",
+      "sampleTarget": 3,
+      "lowerIsBetter": true,
+      "gri": ["GRI 405-1"],
+      "primaryAgent": "cheryce",
+      "agents": ["cheryce", "guide"],
+      "greenwaysHooks": ["acknowledge-handoff"],
+      "keywords": ["gender pay", "pay gap", "pay transparency"]
+    },
+    {
+      "id": "staff-turnover",
+      "pillar": "ethical",
+      "name": "Staff turnover rate",
+      "description": "Annual voluntary turnover",
+      "unit": "%",
+      "sampleTarget": 35,
+      "lowerIsBetter": true,
+      "gri": ["GRI 401-1"],
+      "primaryAgent": "cheryce",
+      "agents": ["cheryce", "guide"],
+      "greenwaysHooks": ["acknowledge-handoff"],
+      "keywords": ["turnover", "retention", "staff leaving"]
+    },
+    {
+      "id": "health-safety-incidents",
+      "pillar": "ethical",
+      "name": "Health & safety incidents",
+      "description": "Recordable incidents per 100 FTE",
+      "unit": "per 100 FTE",
+      "sampleTarget": 2,
+      "lowerIsBetter": true,
+      "gri": ["GRI 403-9"],
+      "primaryAgent": "cheryce",
+      "agents": ["cheryce", "guide"],
+      "greenwaysHooks": ["acknowledge-handoff"],
+      "keywords": ["health and safety", "incidents", "OHS", "kitchen safety"]
+    },
+    {
+      "id": "management-diversity",
+      "pillar": "ethical",
+      "name": "Management diversity",
+      "description": "% of management from underrepresented groups",
+      "unit": "%",
+      "sampleTarget": 30,
+      "lowerIsBetter": false,
+      "gri": ["GRI 405-1"],
+      "primaryAgent": "cheryce",
+      "agents": ["cheryce", "guide"],
+      "greenwaysHooks": ["acknowledge-handoff"],
+      "keywords": ["diversity", "management diversity", "inclusion"]
+    },
+    {
+      "id": "training-investment",
+      "pillar": "ethical",
+      "name": "Training investment",
+      "description": "Average training hours per FTE",
+      "unit": "hrs/FTE/year",
+      "sampleTarget": 20,
+      "lowerIsBetter": false,
+      "gri": ["GRI 404-1"],
+      "primaryAgent": "cheryce",
+      "agents": ["cheryce", "guide"],
+      "greenwaysHooks": ["acknowledge-handoff"],
+      "keywords": ["training", "staff development", "learning hours"]
+    },
+    {
+      "id": "food-donation-volume",
+      "pillar": "philanthropic",
+      "name": "Food donation volume",
+      "description": "Meals donated to community programmes",
+      "unit": "meals/year",
+      "sampleTarget": 5000,
+      "lowerIsBetter": false,
+      "gri": ["GRI 413-1"],
+      "primaryAgent": "cheryce",
+      "agents": ["cheryce", "guide"],
+      "greenwaysHooks": ["acknowledge-handoff", "waste"],
+      "keywords": ["food donation", "surplus food", "community meals"]
+    },
+    {
+      "id": "community-investment",
+      "pillar": "philanthropic",
+      "name": "Community investment",
+      "description": "% of pre-tax profit donated",
+      "unit": "%",
+      "sampleTarget": 2,
+      "lowerIsBetter": false,
+      "gri": ["GRI 203-1"],
+      "primaryAgent": "cheryce",
+      "agents": ["cheryce", "vincent", "guide"],
+      "greenwaysHooks": ["acknowledge-handoff"],
+      "keywords": ["community investment", "donations", "giving"]
+    },
+    {
+      "id": "staff-volunteering",
+      "pillar": "philanthropic",
+      "name": "Staff volunteering",
+      "description": "Volunteer hours per FTE",
+      "unit": "hrs/FTE/year",
+      "sampleTarget": 8,
+      "lowerIsBetter": false,
+      "gri": ["GRI 413-1"],
+      "primaryAgent": "cheryce",
+      "agents": ["cheryce", "guide"],
+      "greenwaysHooks": ["acknowledge-handoff"],
+      "keywords": ["volunteering", "volunteer hours"]
+    },
+    {
+      "id": "community-partnerships",
+      "pillar": "philanthropic",
+      "name": "Community partnerships",
+      "description": "Active local partnerships",
+      "unit": "count",
+      "sampleTarget": 5,
+      "lowerIsBetter": false,
+      "gri": ["GRI 413-1"],
+      "primaryAgent": "cheryce",
+      "agents": ["cheryce", "guide"],
+      "greenwaysHooks": ["acknowledge-handoff"],
+      "keywords": ["community partnerships", "local partners"]
+    },
+    {
+      "id": "local-sourcing-rate",
+      "pillar": "economic",
+      "name": "Local sourcing rate",
+      "description": "% of food spend within ~250 km",
+      "unit": "%",
+      "sampleTarget": 40,
+      "lowerIsBetter": false,
+      "gri": ["GRI 204-1"],
+      "primaryAgent": "zyanne",
+      "agents": ["zyanne", "cheryce", "guide"],
+      "greenwaysHooks": ["sustainable-products", "supply"],
+      "keywords": ["local sourcing", "local food", "250km", "regional suppliers"]
+    },
+    {
+      "id": "supplier-code-of-conduct",
+      "pillar": "economic",
+      "name": "Supplier code of conduct",
+      "description": "% of suppliers signed to code",
+      "unit": "%",
+      "sampleTarget": 90,
+      "lowerIsBetter": false,
+      "gri": ["GRI 414-1"],
+      "primaryAgent": "cheryce",
+      "agents": ["cheryce", "zyanne", "guide"],
+      "greenwaysHooks": ["acknowledge-handoff", "due-diligence"],
+      "keywords": ["supplier code", "supplier ethics", "CSDDD"]
+    },
+    {
+      "id": "certified-sourcing",
+      "pillar": "economic",
+      "name": "Certified sourcing",
+      "description": "% with sustainability certification (MSC, Fairtrade, Organic, etc.)",
+      "unit": "%",
+      "sampleTarget": 50,
+      "lowerIsBetter": false,
+      "gri": ["GRI 308-1"],
+      "primaryAgent": "zyanne",
+      "agents": ["zyanne", "cheryce", "guide"],
+      "greenwaysHooks": ["sustainable-products"],
+      "keywords": ["fairtrade", "MSC", "organic", "certified sourcing"]
+    },
+    {
+      "id": "regional-economic-impact",
+      "pillar": "economic",
+      "name": "Regional economic impact",
+      "description": "% of total spend in local economy",
+      "unit": "%",
+      "sampleTarget": 60,
+      "lowerIsBetter": false,
+      "gri": ["GRI 204-1"],
+      "primaryAgent": "vincent",
+      "agents": ["vincent", "cheryce", "zyanne", "guide"],
+      "greenwaysHooks": ["finance-narrative"],
+      "keywords": ["local economy", "regional spend", "local suppliers"]
+    }
+  ],
+  "agentRouting": {
+    "csr_overview": {
+      "primary": "cheryce",
+      "also": ["guide"],
+      "summary": "Explain four pillars, maturity 0–5, GRI/CSRD context; point Environmental KPIs to Edwardo/Vincent/Zyanne."
+    },
+    "energy_water_carbon_kpis": {
+      "primary": "edwardo",
+      "also": ["vincent", "artemis", "zyanne"],
+      "summary": "Metering, intensity KPIs, savings proof for grants and ESG audit trail."
+    },
+    "packaging_sourcing_products": {
+      "primary": "zyanne",
+      "also": ["cheryce"],
+      "summary": "Packaging, plastic, local/certified sourcing product lanes."
+    },
+    "renewable_tariffs": {
+      "primary": "zara",
+      "also": ["vincent"],
+      "summary": "Green tariffs and renewable share."
+    },
+    "grants_for_efficiency": {
+      "primary": "andrieus",
+      "also": ["vincent", "edwardo"],
+      "summary": "When Environmental KPIs drive upgrade funding."
+    },
+    "ethical_philanthropic": {
+      "primary": "cheryce",
+      "also": ["guide"],
+      "summary": "Acknowledge only; hand off to operator HR / community — not Greenways product depth."
+    }
+  },
+  "initiativePrioritization": {
+    "weights": {
+      "impact": 35,
+      "stakeholderRelevance": 25,
+      "financialValue": 20,
+      "feasibility": 20
+    },
+    "bands": {
+      "high": "≥4.0 — implement now",
+      "medium": "3.0–3.9 — next quarter",
+      "low": "<3.0 — backlog"
+    },
+    "agentNote": "Vincent scores financial value / payback; Edwardo/Artemis feasibility for metering & equipment; Cheryce stakeholder/regulatory relevance."
+  }
+}

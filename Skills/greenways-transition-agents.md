@@ -143,6 +143,7 @@ Skills **power** agents; they are not interchangeable with agent names. **Shared
 | `product-addition-workflow.md` | **All product-aware agents** | — | **Administrator** | Mandatory enrichment pipeline |
 | `content-operations.md` | Cheryce (+ site HTML) | — | **Administrator** | Publish pipeline |
 | **Portal tools registry** | **All seven** (module tablets) | — | **`agents-admin-map.html`** + edit `greenways-content-modules.json` | `description` + `usageHint` per page; sidebar via `npm run sync:agent-sidebar` |
+| `restaurant-csr-scorecard.md` | **Cheryce**, Guide (+ Edwardo, Vincent, Zyanne, Zara, Andrieus, Artemis by KPI) | Cheryce | Excel operator tool (offline) | `data/restaurant-csr-kpi-map.json` — GRI map; no Excel in chat |
 
 **When adding a new skill:** add a row with **all** consumer homes (or **Infrastructure**), optional **Primary**, and **Admin** if staff-only. Shared is the default — exclusive one-to-one mapping is the exception.
 

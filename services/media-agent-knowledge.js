@@ -3,6 +3,7 @@ const fs = require('fs/promises');
 const { loadIntentsFrom, matchIntent, PORTAL_LINKS, toLinkItem, toModuleItem, agentProfileBlock } = require('./greenways-agent-shared');
 const { mergeModuleRow, enrichKnowledgeAnswer } = require('./greenways-content-modules');
 const { buildGlossaryAnswer, tryBuildGlossaryAnswer } = require('./greenways-sustainability-glossary');
+const { buildCsrOverviewAnswer } = require('./restaurant-csr-knowledge');
 const { applyPersona, loadAgentVoice, pickTip, agentIntroParagraph } = require('./greenways-agent-persona');
 const {
   loadEnergySnapshot,
@@ -452,6 +453,12 @@ function buildHandoffs(briefing, question, intentId = '') {
   if (['sustainability_map', 'sustainability_map_explained', 'energy_examples', 'restaurant_videos'].includes(intentId)) {
     push('equipmentToArtemis', 'What ETL equipment matches this map case study?');
     push('productsToZyanne', 'Find efficient products like those in the map examples');
+  }
+  if (['csr_overview'].includes(intentId)) {
+    push('systemsToEdwardo', 'How do we meter energy and water intensity for CSR reporting?');
+    push('financeToVincent', 'How do energy savings support our CSR and payback story?');
+    push('grantsToAndrieus', 'What grants support metering and efficiency for CSR?');
+    push('productsToZyanne', 'Find packaging and water-saving products for CSR KPIs');
   }
   if (!out.length) {
     push('productsToZyanne', 'What efficient products relate to this sustainability topic?');
@@ -1799,6 +1806,12 @@ async function answerFromKnowledge(question, profile = {}) {
           tip,
           preferId: 'scope-3'
         });
+        break;
+      case 'csr_overview':
+        result = buildCsrOverviewAnswer(question, profile, tip);
+        result.agentHandoffs = result.agentHandoffs?.length
+          ? result.agentHandoffs
+          : buildHandoffs(briefing, question, 'csr_overview');
         break;
       case 'sustainability_glossary':
         result = buildGlossaryAnswer(question, profile, {

@@ -21,7 +21,7 @@ const ROUTE_TOKENS = {
   equipment: ['equipment', 'deep dive', 'renovation', 'insulation', 'marketplace', 'combi', 'steamer', 'hvac', 'retrofit', 'upgrade plan', 'step by step upgrade'],
   products: ['find', 'water saving', 'aerator', 'dishwasher', 'refrigerat', 'catalog', 'sust_', 'gas saving', 'efficient'],
   deals: ['deal', 'tariff', 'ticker', 'spotlight', 'switch supplier', 'weekly offer', 'deals feed'],
-  media: ['news', 'video', 'policy', 'edition', 'sustainability news', 'tech news'],
+  media: ['news', 'video', 'policy', 'edition', 'sustainability news', 'tech news', 'csr', 'gri', 'esg reporting', 'sustainability scorecard'],
   systems: ['systems agent', 'health check', 'verify selected', 'stale feed', 'server status', 'deploy', 'refresh agent data', 'agents admin', 'data pipeline']
 };
 
@@ -57,6 +57,7 @@ function scoreAgent(question, profile, agentId) {
   if (/\bgrants?\b|\bschemes?\b|\bsubsid/.test(q) && agentId === 'grants') score += 8;
   if (/\bdeals?\b|\btariffs?\b|\bspotlight/.test(q) && agentId === 'deals') score += 8;
   if (/\bnews\b|\bbriefing\b|\bvideo/.test(q) && agentId === 'media') score += 8;
+  if (/\bcsr\b|\bgri\b|\besg\b|\bcsrd\b|sustainability scorecard|corporate social/.test(q) && agentId === 'media') score += 10;
   if (/\bfinance\b|\bbnpl\b|\bloans?\b|\bpayback/.test(q) && agentId === 'finance') score += 8;
   if (/\bfind\b|\bcatalog\b|\bwater saving/.test(q) && agentId === 'products') score += 6;
   if (profile.focus === 'energy' && (agentId === 'finance' || agentId === 'deals')) score += 2;
