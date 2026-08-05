@@ -35,6 +35,58 @@ https://energy-calc-backend.onrender.com/greenways/agents-highlights
 
 **Your Hub** = member home (saved / suggestions / deals / news) — open without sign-in for preview for now; membership gate later. **Agent story** = per-specialist selling page (`/greenways/agents/{slug}/story`, JSON in `data/greenways-agent-stories/`) — intro, video slot, 3-step journeys, live tool demos. Story = why the agents exist · Highlights = weekly grounded picks per specialist (`npm run build:agent-highlights`). Shared portal nav links Hub ↔ story ↔ highlights ↔ Orchestra ↔ agent map.
 
+### Website embeds vs demo (full menu) — Aug 2026
+
+Use **`-embed` URLs** (or `?embed=1`) on the **new Wix website** so portal family menus stay hidden. Keep **full menu** URLs for demos / internal portal tours.
+
+| Wix page purpose | Embed URL (website iframe) | Full menu (demos / dedicated portal page) |
+|------------------|----------------------------|-------------------------------------------|
+| Why this portal | `/greenways/agents-story-embed` | `/greenways/agents-story` |
+| Portal highlights | `/greenways/agents-highlights-embed` | `/greenways/agents-highlights` |
+| Orchestra / operate portal | `/greenways/orchestra-hub-wix-frame` or `/greenways/orchestra-hub?embed=1` | `/greenways/orchestra-hub` |
+| Your Hub | `/greenways/customer-hub?embed=1` | `/greenways/customer-hub` |
+| Agent story (per character) | `/greenways/agents/{slug}/story-embed` | `/greenways/agents/{slug}/story` |
+| Agent chat | `/greenways/{slug}?embed=1` | `/greenways/{slug}` |
+
+**Base:** `https://energy-calc-backend.onrender.com`
+
+#### Why the portal — website iframe (no menus)
+
+```
+https://energy-calc-backend.onrender.com/greenways/agents-story-embed
+```
+
+#### One page to operate the portal (menus OK — dedicated Wix page)
+
+```
+https://energy-calc-backend.onrender.com/greenways/orchestra-hub
+```
+
+or framed:
+
+```
+https://energy-calc-backend.onrender.com/greenways/orchestra-hub-wix-frame
+```
+
+#### Individual agent story pages (separate Wix pages)
+
+| Agent | Story (embed) | Story (full menu) | Chat embed |
+|-------|---------------|-------------------|------------|
+| Andrieus | `/greenways/agents/grants-agent/story-embed` | `…/grants-agent/story` | `/greenways/grants-agent?embed=1` |
+| Vincent | `/greenways/agents/finance-agent/story-embed` | `…/finance-agent/story` | `/greenways/finance-agent?embed=1` |
+| Artemis | `/greenways/agents/equipment-agent/story-embed` | `…/equipment-agent/story` | `/greenways/equipment-agent?embed=1` |
+| Zyanne | `/greenways/agents/sustainable-products-agent/story-embed` | `…/sustainable-products-agent/story` | `/greenways/sustainable-products-agent?embed=1` |
+| Zara | `/greenways/agents/deals-agent/story-embed` | `…/deals-agent/story` | `/greenways/deals-agent?embed=1` |
+| Cheryce | `/greenways/agents/media-agent/story-embed` | `…/media-agent/story` | `/greenways/media-agent?embed=1` |
+| Edwardo | `/greenways/agents/systems-agent/story-embed` | `…/systems-agent/story` | `/greenways/systems-agent?embed=1` |
+
+#### Related snapshots (no portal family menu)
+
+```
+https://energy-calc-backend.onrender.com/greenways/interactive-restaurants
+https://energy-calc-backend.onrender.com/greenways/city-energy-monitoring
+```
+
 ---
 
 ## Embed a site (preferred)
