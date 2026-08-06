@@ -379,7 +379,9 @@
 
   function parseSlug() {
     var path = location.pathname || "";
-    var m = path.match(/\/greenways\/agents\/([a-z0-9-]+)\/story\/?$/i);
+    // Full: /greenways/agents/{slug}/story
+    // Embed: /greenways/agents/{slug}/story-embed  (Wix website iframes)
+    var m = path.match(/\/greenways\/agents\/([a-z0-9-]+)\/story(?:-embed)?\/?$/i);
     if (m) return m[1].toLowerCase();
     var q = new URLSearchParams(location.search || "");
     var fromQ = (q.get("agent") || q.get("slug") || "").toLowerCase();
@@ -422,7 +424,9 @@
   }
 
   function storyPath(slug) {
-    return contentBase() + "/greenways/agents/" + slug + "/story";
+    var embed = /\/story-embed\/?$/i.test(location.pathname || "") || /[?&]embed=1(?:&|$)/.test(location.search || "");
+    var suffix = embed ? "/story-embed" : "/story";
+    return contentBase() + "/greenways/agents/" + slug + suffix;
   }
 
   function renderVideo(story) {
