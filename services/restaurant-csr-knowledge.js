@@ -94,16 +94,27 @@ function buildCsrOverviewAnswer(question, profile = {}, tip = '') {
       hint: 'Default materiality for restaurants'
     },
     {
-      type: 'link',
-      title: 'Interactive restaurants — monitoring brief',
-      url: '/greenways/interactive-restaurants',
-      description: 'Evidence and live with/without submetering demo'
-    },
-    {
-      type: 'link',
-      title: 'City energy overview',
-      url: '/greenways/city-energy-monitoring',
-      description: 'City-block snapshot plus NL smart-meter & funding chapter'
+      type: 'module',
+      items: [
+        {
+          moduleId: 'energy-monitoring',
+          title: 'Importance of energy monitoring',
+          description: 'Why measure first — consumer guide before upgrades',
+          href: './Importance%20of%20Energy%20Monitoring.html',
+          theme: 'media',
+          agentName: 'Cheryce',
+          openSize: 'near-full'
+        },
+        {
+          moduleId: 'restaurant-energy-monitoring-guide',
+          title: 'Restaurant energy monitoring guide',
+          description: 'UK & EU hospitality walkthrough with calculator and case studies',
+          href: './restaurant-energy-monitoring-guide.html',
+          theme: 'media',
+          agentName: 'Cheryce',
+          openSize: 'near-full'
+        }
+      ]
     }
   ];
 

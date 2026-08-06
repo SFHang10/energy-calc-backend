@@ -8,6 +8,8 @@ const {
   buildMonitoringWhyAnswer,
   buildSensorsSiteAnswer,
   buildMonitoringProductsAnswer,
+  buildInteractiveRestaurantsAnswer,
+  buildCityEnergyMonitoringAnswer,
   buildDashboardDemoAnswer,
   pickConsumerSamples,
   buildHandoffs
@@ -276,6 +278,12 @@ async function answerFromKnowledge(question, profile = {}) {
         break;
       case 'monitoring_why':
         result = await buildMonitoringWhyAnswer(question, profile, tip);
+        break;
+      case 'interactive_restaurants':
+        result = await buildInteractiveRestaurantsAnswer(question, profile, tip);
+        break;
+      case 'city_energy_monitoring':
+        result = await buildCityEnergyMonitoringAnswer(question, profile, tip);
         break;
       case 'sensors_restaurant':
         result = await buildSensorsSiteAnswer('restaurant', question, profile, tip);

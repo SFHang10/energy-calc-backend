@@ -86,8 +86,8 @@ Priority = 35% Impact + 25% Stakeholder/regulatory + 20% Financial value + 20% F
 |-------|------|
 | `data/restaurant-csr-kpi-map.json` | Canonical KPI → agent → GRI map |
 | `data/greenways-sustainability-glossary.json` | Term definitions (CSRD, Scope 1–3, etc.) |
-| `HTMLS GWM GWB/city-energy-monitoring.html` | Investor/ops snapshot — energy & funding chapter |
-| `HTMLS GWM GWB/interactive_restaurants_monitoring.html` | Monitoring evidence & demo |
+| `HTMLS GWM GWB/city-energy-monitoring.html` | Investor snapshot — energy & funding chapter (knowledge source; not an agent chat module) |
+| `HTMLS GWM GWB/interactive_restaurants_monitoring.html` | Investor monitoring evidence & demo (knowledge source; not an agent chat module) |
 | Excel workbook (Downloads / staff) | Full scorecard + dashboard for operator entry |
 
 ---

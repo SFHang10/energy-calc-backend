@@ -164,10 +164,11 @@ function sectorMonitoringAdvice(profile = {}) {
   return `For **${profile.sector || 'your site'}**, start with one incomer or circuit meter, then add gas and water where bills hurt most.`;
 }
 
-function buildHandoffs(briefing, question) {
+function buildHandoffs(briefing, question, { includeGrants = false } = {}) {
   const out = [];
   const eq = briefing?.handoffs?.equipmentToArtemis;
   const fin = briefing?.handoffs?.financeToVincent;
+  const grants = briefing?.handoffs?.grantsToAndrieus;
   if (eq) {
     out.push({
       id: eq.agentId,
@@ -184,7 +185,37 @@ function buildHandoffs(briefing, question) {
       prompt: 'How do I finance monitoring hardware and efficient upgrades after baseline measurement?'
     });
   }
+  if (includeGrants && grants) {
+    out.push({
+      id: grants.agentId,
+      name: grants.agentName,
+      href: grants.agentPath,
+      prompt: 'What grants or subsidies support smart metering and energy monitoring for my restaurant?'
+    });
+  }
   return out;
+}
+
+function consumerMonitoringTools(guide) {
+  const ids = new Set([
+    'restaurant-energy-monitoring-guide',
+    'energy-monitoring-guide',
+    'smart-sensor-monitoring',
+    'sensor-dashboard'
+  ]);
+  return (guide.greenwaysTools || []).filter((t) => ids.has(t.id));
+}
+
+function fundingKnowledgeParagraph(guide) {
+  const fund = guide.monitoringFundingKnowledge || {};
+  const schemes = (fund.schemesIllustrative || []).map((s) => `- ${s}`).join('\n');
+  return (
+    `**Funding & support around metering**\n` +
+    `${fund.summary || ''}\n\n` +
+    (fund.policyNl ? `**Netherlands policy note:** ${fund.policyNl}\n\n` : '') +
+    (schemes ? `**Illustrative scheme routes:**\n${schemes}\n\n` : '') +
+    `I hand you to **Andrieus** for live eligibility — scheme windows and caps change.\n\n`
+  );
 }
 
 async function buildConsumerOverviewAnswer(profile, tip) {
@@ -214,18 +245,24 @@ async function buildConsumerOverviewAnswer(profile, tip) {
 async function buildMonitoringWhyAnswer(question, profile, tip) {
   const guide = await loadMonitoringGuide();
   const why = guide.whyMonitoring || {};
-  const tools = rankByQuestion(guide.greenwaysTools || [], question || 'monitoring audit').slice(0, 3);
-  if (!tools.length) tools.push(...(guide.greenwaysTools || []).slice(0, 3));
+  const tools = rankByQuestion(consumerMonitoringTools(guide), question || 'monitoring audit').slice(0, 3);
+  if (!tools.length) tools.push(...consumerMonitoringTools(guide).slice(0, 3));
 
   return {
     answer:
       `**${why.headline || 'Why monitoring matters'}**\n\n` +
       `${(why.points || []).map((p) => `- ${p}`).join('\n')}\n\n` +
       `${sectorMonitoringAdvice(profile)}\n\n` +
+      fundingKnowledgeParagraph(guide) +
       greenwaysToolsClosingParagraph(tools) +
       `_${tip}_`,
     blocks: toolsToBlocksWithHints(tools, 4),
-    suggestions: []
+    suggestions: [
+      'What grants support smart metering?',
+      'What sensors should a restaurant install?',
+      'How do energy prices affect payback?'
+    ],
+    agentHandoffs: buildHandoffs(await loadBriefing(), question, { includeGrants: true })
   };
 }
 
@@ -315,6 +352,52 @@ async function buildDashboardDemoAnswer(tip) {
   };
 }
 
+async function buildInteractiveRestaurantsAnswer(question, profile, tip) {
+  const guide = await loadMonitoringGuide();
+  const tools = consumerMonitoringTools(guide).slice(0, 3);
+
+  return {
+    answer:
+      `**Why hospitality needs monitoring**\n\n` +
+      `Monitoring works when people **see and act** on the data — roughly **6–7%** in UK home monitor reviews, **5–15%** in EU/UK pilots, and often **~12–15%** in hospitality when teams act on circuit-level feedback (real-time summaries cite **10–20%**).\n\n` +
+      `Restaurants use **far more energy per m²** than typical retail. Whole-building bills hide cookline, refrigeration, dishwash, and overnight HVAC — faults and idle loads stay invisible until circuits are measured.\n\n` +
+      `**Practical path:** see use → prioritise circuits → act (schedules, alerts, upgrades) → prove savings for grants and ESG.\n\n` +
+      fundingKnowledgeParagraph(guide) +
+      greenwaysToolsClosingParagraph(tools) +
+      `_${tip}_`,
+    blocks: toolsToBlocksWithHints(tools, 4),
+    suggestions: [
+      'What grants support smart metering?',
+      'What sensors should a restaurant install?',
+      'Why measure before buying equipment?'
+    ],
+    agentHandoffs: buildHandoffs(await loadBriefing(), question, { includeGrants: true }),
+    intentId: 'interactive_restaurants'
+  };
+}
+
+async function buildCityEnergyMonitoringAnswer(question, profile, tip) {
+  const guide = await loadMonitoringGuide();
+  const tools = consumerMonitoringTools(guide).slice(0, 3);
+
+  return {
+    answer:
+      `**Monitoring across a hospitality street — why it matters**\n\n` +
+      `On a typical high street, each restaurant archetype wastes energy in different places — cookline peaks, cold rooms, dishwash, overnight HVAC. Without submetering, those loads hide inside one monthly bill. With circuit-level visibility, operators can cut waste site by site and prove savings.\n\n` +
+      fundingKnowledgeParagraph(guide) +
+      greenwaysToolsClosingParagraph(tools) +
+      `_${tip}_`,
+    blocks: toolsToBlocksWithHints(tools, 4),
+    suggestions: [
+      'What grants support smart metering?',
+      'Why measure before buying equipment?',
+      'How do energy prices affect payback?'
+    ],
+    agentHandoffs: buildHandoffs(await loadBriefing(), question, { includeGrants: true }),
+    intentId: 'city_energy_monitoring'
+  };
+}
+
 async function pickConsumerSamples(question, profile, limit = 3) {
   try {
     const samples = await pickProductSamples(showcasePath, `${question} meter monitoring sensor`, profile, limit);
@@ -331,6 +414,8 @@ module.exports = {
   buildSensorsSiteAnswer,
   buildMonitoringProductsAnswer,
   buildDashboardDemoAnswer,
+  buildInteractiveRestaurantsAnswer,
+  buildCityEnergyMonitoringAnswer,
   pickConsumerSamples,
   buildHandoffs
 };

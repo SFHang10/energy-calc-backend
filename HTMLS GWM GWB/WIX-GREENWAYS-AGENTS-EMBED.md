@@ -80,7 +80,9 @@ https://energy-calc-backend.onrender.com/greenways/orchestra-hub-wix-frame
 | Cheryce | `/greenways/agents/media-agent/story-embed` | `…/media-agent/story` | `/greenways/media-agent?embed=1` |
 | Edwardo | `/greenways/agents/systems-agent/story-embed` | `…/systems-agent/story` | `/greenways/systems-agent?embed=1` |
 
-#### Related snapshots (no portal family menu)
+#### Investor / knowledge snapshots (site embeds only — not agent chat modules)
+
+These pages stay available for investor or marketing embeds. Agents use the **facts** (monitoring importance, NL smart-meter policy, metering subsidies) in answers; they do **not** open these docs as chat tablets.
 
 ```
 https://energy-calc-backend.onrender.com/greenways/interactive-restaurants
