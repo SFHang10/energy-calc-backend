@@ -54,7 +54,12 @@
       radial-gradient(ellipse at 30% 10%, rgba(40, 167, 69, 0.04), transparent 50%),
       var(--orch-backdrop-image);
   }
-  body.embed-mode .gw-portal-nav { display: none; }
+  body.embed-mode .gw-portal-nav,
+  html.embed-mode .gw-portal-nav,
+  body.embed-mode .gw-staff-admin-link,
+  html.embed-mode .gw-staff-admin-link { display: none !important; }
+  body.embed-mode .orchestra > p:has(.gw-staff-admin-link),
+  html.embed-mode .orchestra > p:has(.gw-staff-admin-link) { display: none !important; }
   .orchestra {
     position: relative;
     z-index: 1;
@@ -314,6 +319,7 @@
   }
 </style>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-team.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
 </head>
 <body>
 <div class="orch-backdrop" aria-hidden="true"></div>
@@ -380,8 +386,13 @@
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-team.js"></script>
 <script>
 (function () {
-  var isEmbed = /[?&]embed=1/.test(location.search);
-  if (isEmbed) document.body.classList.add("embed-mode");
+  var isEmbed =
+    /[?&]embed=1(?:&|$)/.test(location.search || "") ||
+    /\/orchestra-hub-embed\/?$/i.test(location.pathname || "");
+  if (isEmbed) {
+    document.documentElement.classList.add("embed-mode");
+    document.body.classList.add("embed-mode");
+  }
 
   var ROSTER_URL = "/data/greenways-agent-roster.json";
   var FALLBACK_ROSTER = {

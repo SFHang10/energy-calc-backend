@@ -43,7 +43,7 @@ Use **`-embed` URLs** (or `?embed=1`) on the **new Wix website** so portal famil
 |------------------|----------------------------|-------------------------------------------|
 | Why this portal | `/greenways/agents-story-embed` | `/greenways/agents-story` |
 | Portal highlights | `/greenways/agents-highlights-embed` | `/greenways/agents-highlights` |
-| Orchestra / operate portal | `/greenways/orchestra-hub-wix-frame` or `/greenways/orchestra-hub?embed=1` | `/greenways/orchestra-hub` |
+| Orchestra / operate portal | `/greenways/orchestra-hub-embed` (or `?embed=1` / wix-frame) | `/greenways/orchestra-hub` |
 | Your Hub | `/greenways/customer-hub?embed=1` | `/greenways/customer-hub` |
 | Agent story (per character) | `/greenways/agents/{slug}/story-embed` | `/greenways/agents/{slug}/story` |
 | Agent chat | `/greenways/{slug}?embed=1` | `/greenways/{slug}` |
@@ -56,13 +56,21 @@ Use **`-embed` URLs** (or `?embed=1`) on the **new Wix website** so portal famil
 https://energy-calc-backend.onrender.com/greenways/agents-story-embed
 ```
 
+#### Orchestra — website iframe (no menus)
+
+```
+https://energy-calc-backend.onrender.com/greenways/orchestra-hub-embed
+```
+
+Also works: `/greenways/orchestra-hub?embed=1`
+
 #### One page to operate the portal (menus OK — dedicated Wix page)
 
 ```
 https://energy-calc-backend.onrender.com/greenways/orchestra-hub
 ```
 
-or framed:
+or framed (character mosaic + inner hub):
 
 ```
 https://energy-calc-backend.onrender.com/greenways/orchestra-hub-wix-frame
@@ -114,7 +122,7 @@ https://energy-calc-backend.onrender.com/greenways/{agent}?embed=1
 | **Zara** | Deals & spotlights | `deals-agent` |
 | **Cheryce** | News & media | `media-agent` |
 | **Edwardo** | Systems health | `systems-agent` |
-| **Orchestra** | Hub conductor | `orchestra-hub` or `orchestra-hub-wix-frame` |
+| **Orchestra** | Hub conductor | `orchestra-hub-embed` (no menus) · `orchestra-hub` (full) · `orchestra-hub-wix-frame` |
 
 Full roster + skills map: `Skills/greenways-transition-agents.md`
 
