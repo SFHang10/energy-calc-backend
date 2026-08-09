@@ -271,8 +271,9 @@
         <p class="desk-kicker">Media Agent · video desk</p>
         <h1 class="desk-title">Watch with context</h1>
         <p class="desk-lead">
-          Cheryce’s curated Wix library — cinema briefing with takeaways, series picks, and a clear path back into chat.
-          Not a raw media gallery: each clip opens as a professional briefing.
+          Restaurant-focused energy briefings from Cheryce’s curated library — hospitality kitchens,
+          savings tips, and site storytelling. Each clip opens as a cinema briefing with takeaways
+          and a path back into chat.
         </p>
         <div class="desk-actions">
           <a class="desk-btn" href="/greenways/media-agent?embed=1" target="_top">Open Cheryce chat</a>
@@ -288,7 +289,7 @@
     </section>
 
     <section>
-      <h2 class="desk-section-title">Library picks</h2>
+      <h2 class="desk-section-title">Restaurant energy picks</h2>
       <div class="desk-grid" id="desk-grid"></div>
     </section>
   </main>
@@ -389,6 +390,31 @@
     });
   }
 
+  function isRestaurantTopicVideo(v) {
+    if (!v) return false;
+    var kind = String(v.videoKind || "").toLowerCase();
+    var source = String(v.source || "").toLowerCase();
+    if (kind === "product" || source === "catalog") return false;
+    var cat = String(v.category || "").toLowerCase();
+    var channel = String(v.channelName || "").toLowerCase();
+    var hay = (String(v.title || "") + " " + String(v.description || "")).toLowerCase();
+    if (cat === "restaurant" || cat === "kitchen") return true;
+    if (channel.indexOf("restaurant") >= 0) return true;
+    if (/\brestaurant|hospitality|commercial kitchen|horeca|hotel, restaurant/.test(hay)) return true;
+    return false;
+  }
+
+  function rankRestaurantVideos(list) {
+    return list.slice().sort(function (a, b) {
+      var aPlay = a.videoUrl || a.videoId ? 1 : 0;
+      var bPlay = b.videoUrl || b.videoId ? 1 : 0;
+      if (bPlay !== aPlay) return bPlay - aPlay;
+      var aCh = /restaurant energy/i.test(String(a.channelName || "")) ? 1 : 0;
+      var bCh = /restaurant energy/i.test(String(b.channelName || "")) ? 1 : 0;
+      return bCh - aCh;
+    });
+  }
+
   if (window.GreenwaysAgentVideo) {
     GreenwaysAgentVideo.configure({
       apiBase: apiBase,
@@ -401,20 +427,38 @@
     });
   }
 
-  fetch(apiBase() + "/api/media-agent/videos")
+  fetch(apiBase() + "/api/media-agent/videos?category=restaurant&kind=topic")
     .then(function (r) { return r.json(); })
     .then(function (data) {
       var videos = (data && (data.videos || data.items || data.productSamples)) || [];
       if (!Array.isArray(videos)) videos = [];
       videos = videos.filter(function (v) { return v && (v.title || v.name); });
+      if (!videos.length) {
+        return fetch(apiBase() + "/api/media-agent/videos").then(function (r) { return r.json(); });
+      }
+      return { ok: true, videos: videos, filtered: true };
+    })
+    .then(function (data) {
+      var videos = (data && data.videos) || [];
+      if (!Array.isArray(videos)) videos = [];
+      if (!data.filtered) {
+        videos = videos.filter(isRestaurantTopicVideo);
+      } else {
+        videos = videos.filter(function (v) {
+          var kind = String(v.videoKind || "").toLowerCase();
+          var source = String(v.source || "").toLowerCase();
+          return kind !== "product" && source !== "catalog";
+        });
+      }
+      videos = rankRestaurantVideos(videos);
       var status = document.getElementById("desk-status");
       if (!videos.length) {
-        status.textContent = "No videos available yet — check Wix media sync on Render.";
+        status.textContent = "No restaurant topic videos available yet — check the Restaurant Energy Savings channel sync.";
         return;
       }
-      status.textContent = videos.length + " clips in Cheryce’s desk · tap any card for the cinema briefing";
-      var playable = videos.filter(function (v) { return v.videoUrl || v.videoId; });
-      var featured = playable[0] || videos[0];
+      status.textContent =
+        videos.length + " restaurant energy briefings · product demos hidden from this desk";
+      var featured = videos[0];
       renderFeatured(featured);
       renderGrid(videos.slice(0, 12));
     })

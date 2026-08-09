@@ -1026,8 +1026,19 @@ async function buildDefaultBannerMix({
 
   const sector = profile.sector;
   const videoPick =
-    videos.find((v) => sector === 'restaurant' && v.category === 'restaurant' && (v.videoUrl || v.videoId)) ||
-    videos.find((v) => v.category === 'restaurant' && (v.videoUrl || v.videoId)) ||
+    videos.find(
+      (v) =>
+        v.category === 'restaurant' &&
+        resolveVideoKind(v) === 'topic' &&
+        (v.videoUrl || v.videoId)
+    ) ||
+    videos.find(
+      (v) =>
+        (sector === 'restaurant' || !sector) &&
+        v.category === 'restaurant' &&
+        (v.videoUrl || v.videoId)
+    ) ||
+    videos.find((v) => resolveVideoKind(v) === 'topic' && (v.videoUrl || v.videoId)) ||
     videos.find((v) => v.videoUrl || v.videoId) ||
     videos[0];
   if (videoPick) samples.push(videoToSample(videoPick, videoSource));

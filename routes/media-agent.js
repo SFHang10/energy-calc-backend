@@ -79,13 +79,17 @@ router.get('/news', async (req, res) => {
 router.get('/videos', async (req, res) => {
   try {
     const category = String(req.query.category || '').trim().toLowerCase();
+    const kind = String(req.query.kind || '').trim().toLowerCase();
     const { videos, source, channels, youtubeCount } = await getVideosForAgent();
     let list = videos;
     if (category) {
-      list = videos.filter((v) => v.category === category);
+      list = list.filter((v) => v.category === category);
       if (!list.length && category === 'energy') {
         list = videos.filter((v) => v.category === 'general');
       }
+    }
+    if (kind === 'topic' || kind === 'product') {
+      list = list.filter((v) => String(v.videoKind || '').toLowerCase() === kind);
     }
     res.json({ ok: true, videos: list, total: list.length, source, channels: channels || [], youtubeCount: youtubeCount || 0 });
   } catch (error) {
