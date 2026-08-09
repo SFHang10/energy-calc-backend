@@ -1085,14 +1085,14 @@
       <div class="chat-thread" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
         <div class="welcome-card" id="welcome-card">
           <h2>Ask Cheryce</h2>
-          <p>I explain <strong>how sustainability news helps you</strong> — monthly editions, <strong>514+ map case studies</strong>, <strong>391 directory organisations</strong>, <strong>Wix videos</strong>, and <strong>energy price ticker</strong> context.</p>
+          <p>I explain <strong>how sustainability news helps you</strong> — monthly editions, <strong>514+ map case studies</strong>, <strong>391 directory organisations</strong>, <strong>video library</strong>, and <strong>energy price ticker</strong> context.</p>
           <div class="welcome-tags">
             <button type="button" class="welcome-tag" data-prompt="Give me a sustainability news roundup with energy prices">News + energy prices</button>
             <button type="button" class="welcome-tag" data-map-open="1" title="Open sustainability map in module">Sustainability map</button>
             <button type="button" class="welcome-tag" data-prompt="Explain the sustainability map and how it helps me find inspiration from companies worldwide">Sustainability map explained</button>
             <button type="button" class="welcome-tag" data-prompt="How does CBAM policy news help my restaurant?">How this helps</button>
             <button type="button" class="welcome-tag" data-prompt="What is happening with energy prices right now?">Energy ticker</button>
-            <button type="button" class="welcome-tag" data-prompt="Show restaurant and kitchen energy saving videos">Wix videos</button>
+            <button type="button" class="welcome-tag" data-prompt="Show restaurant and kitchen energy saving videos">Video library</button>
           </div>
         </div>
       </div>
@@ -1127,7 +1127,7 @@
       <p class="sidebar-hint" id="gw-sidebar-links-hint"></p>
       <div class="gw-sidebar-ql-list" id="gw-agent-quick-links" role="navigation" aria-label="Quick links"></div>
     </div>
-<div class="status-bar" id="status-bar">Ready · media knowledge (news + Wix videos)</div>
+<div class="status-bar" id="status-bar">Ready · media knowledge (news + video library)</div>
   </aside>
 </div>
 
@@ -1182,7 +1182,7 @@
   const HELPERS = [
     { id: "policy", icon: "📜", name: "Policy news", desc: "EU & UK rules", prompt: "What EU policy news should restaurants know about?" },
     { id: "funding", icon: "💶", name: "Funding news", desc: "Horizon & grants", prompt: "What funding and Horizon Europe news is on file?" },
-    { id: "video", icon: "🎬", name: "Wix videos", desc: "By topic", prompt: "What videos are in the Greenways Wix library?" },
+    { id: "video", icon: "🎬", name: "Video library", desc: "By topic", prompt: "What videos are in the Greenways library?" },
     { id: "rest", icon: "🍳", name: "Restaurant media", desc: "Kitchen savings", prompt: "Show restaurant and kitchen energy saving videos" },
     { id: "news", icon: "📰", name: "News pages", desc: "Full roundups", prompt: "Where are the sustainability news pages on Greenways?" },
     { id: "map", icon: "🗺️", name: "Sustainability map", desc: "What it is & examples", prompt: MAP_EXPLAIN_PROMPT }
@@ -1393,7 +1393,7 @@
       pool.push({ label: "More restaurant videos", prompt: "Show restaurant and kitchen energy saving videos" });
       pool.push({ label: "News roundup", prompt: "Give me a sustainability news roundup" });
     }
-    pool.push({ label: "Wix video library", prompt: "What videos are in the Greenways Wix library?" });
+    pool.push({ label: "Video library", prompt: "What videos are in the Greenways library?" });
     pool.push({ label: "Photos & visuals", prompt: "What photos and visual guides are on Greenways?" });
     pool.push({ label: "News pages", prompt: "Where are the Greenways news pages and monthly editions?" });
     const seen = new Set();
@@ -1416,7 +1416,7 @@
     const items = [
       { label: "Policy news", prompt: "What EU policy news should restaurants know about?" },
       { label: "Monthly roundup", prompt: "Give me a sustainability news roundup" },
-      { label: "Wix videos", prompt: "What videos are in the Greenways Wix library?" },
+      { label: "Video library", prompt: "What videos are in the Greenways library?" },
       { label: "Tech news", prompt: "What is in the latest New in Tech edition?" }
     ];
     if (intentId === "funding_news") {
@@ -1856,7 +1856,7 @@
     const meta = escapeHtml(p.label || p.subcategory || "Media");
     const grantLabel = (p.topGrants && p.topGrants[0])
       ? escapeHtml(p.topGrants[0])
-      : (p.type === "video" || p.subcategory === "VIDEO" ? "Wix video" : "Open");
+      : (p.type === "video" || p.subcategory === "VIDEO" ? "Video" : "Open");
 
     if (isVideoSample(p)) {
       const durationHtml = p.duration
@@ -1865,7 +1865,7 @@
       const playable = isPlayableVideoSample(p);
       const badge = '<span class="gw-video-play-badge" aria-hidden="true">▶</span>';
       const triggerTitle = playable ? "Watch in Cheryce’s video desk" : "Browse in Cheryce’s video desk";
-      const grant = playable ? "Watch briefing" : "Wix channel";
+      const grant = playable ? "Watch briefing" : "Library channel";
       const impact =
         (window.GreenwaysAgentVideo && typeof GreenwaysAgentVideo.impactLine === "function"
           ? GreenwaysAgentVideo.impactLine(p)
@@ -2304,14 +2304,14 @@
     card.id = "welcome-card";
     card.innerHTML =
       '<h2>Ask Cheryce</h2>' +
-      '<p>I explain <strong>how sustainability news helps you</strong> — monthly editions, <strong>map case studies</strong>, <strong>directory organisations</strong>, <strong>Wix videos</strong>, and <strong>energy price ticker</strong> context.</p>' +
+      '<p>I explain <strong>how sustainability news helps you</strong> — monthly editions, <strong>map case studies</strong>, <strong>directory organisations</strong>, <strong>video library</strong>, and <strong>energy price ticker</strong> context.</p>' +
       '<div class="welcome-tags">' +
       '<button type="button" class="welcome-tag" data-prompt="Give me a sustainability news roundup with energy prices">News + energy prices</button>' +
       '<button type="button" class="welcome-tag" data-map-open="1" title="Open sustainability map in module">Sustainability map</button>' +
       '<button type="button" class="welcome-tag" data-prompt="' + escapeHtml(MAP_EXPLAIN_PROMPT) + '">Sustainability map explained</button>' +
       '<button type="button" class="welcome-tag" data-prompt="How does sustainability policy news help my business?">How this helps</button>' +
       '<button type="button" class="welcome-tag" data-prompt="What is happening with energy prices right now?">Energy ticker</button>' +
-      '<button type="button" class="welcome-tag" data-prompt="Show restaurant and kitchen energy saving videos">Wix videos</button>' +
+      '<button type="button" class="welcome-tag" data-prompt="Show restaurant and kitchen energy saving videos">Video library</button>' +
       "</div>";
     thread.appendChild(card);
     bindWelcomeTags();

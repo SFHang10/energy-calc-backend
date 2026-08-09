@@ -1,5 +1,5 @@
 /**
- * Shared in-agent video cinema — Wix MP4/HLS or YouTube embed.
+ * Shared in-agent video cinema — MP4/HLS or YouTube embed.
  * Cinema briefing layout: player + context panel (Watch / Learn).
  * Used by Cheryce (media agent) and the media video desk showcase.
  */
@@ -163,7 +163,7 @@
       '<p class="gw-video-modal-related-story" id="gw-video-modal-related-story"></p>' +
       '<div class="gw-video-modal-related-list" id="gw-video-modal-related-list"></div>' +
       "</div>" +
-      '<div class="gw-video-modal-foot" id="gw-video-modal-foot">Greenways Wix video library</div>' +
+      '<div class="gw-video-modal-foot" id="gw-video-modal-foot">Greenways video library</div>' +
       "</div>";
     document.body.appendChild(modalEl);
 
@@ -256,12 +256,12 @@
     var src = video && video.source;
     footEl.textContent =
       src === "wix"
-        ? "Streaming from the Greenways media library"
+        ? "Streaming from the Greenways video library"
         : src === "catalog"
-          ? "Greenways video catalog (MP4)"
+          ? "Greenways video library (product walkthrough)"
           : src === "wix-youtube"
-            ? "Greenways video channel (YouTube feed)"
-            : "Greenways sustainable video library";
+            ? "Greenways video library (topic channel)"
+            : "Greenways video library";
   }
 
   function renderChips(video) {
@@ -341,7 +341,7 @@
       } else {
         player.src = url;
         player.onerror = function () {
-          showEmpty("Video unavailable right now. Try again after Wix credentials sync on Render.");
+          showEmpty("Video unavailable right now. Please try again shortly.");
         };
       }
     } else if (videoId) {
@@ -357,7 +357,7 @@
         stageEl.innerHTML =
           '<div class="gw-video-modal-site-preview">' +
           '<img src="' + escapeHtml(thumb) + '" alt="">' +
-          "<p>This clip lives on the Greenways Wix Video channel. Pick a related video below or open the full library.</p>" +
+          "<p>This clip lives in the Greenways video library. Pick a related video below or open the full library.</p>" +
           "</div>";
       } else {
         showEmpty("This clip plays on the Greenways site — pick a related video below or open the library.");
