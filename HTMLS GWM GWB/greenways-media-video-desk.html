@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Cheryce · Video desk — Greenways</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-video.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
+<style>
+  :root {
+    --desk-bg: #0a0712;
+    --desk-violet: #8b5cf6;
+    --desk-lilac: #c4b5fd;
+    --desk-ink: #f5f3ff;
+    --desk-muted: #9ca8bf;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--desk-bg);
+    color: var(--desk-ink);
+    font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+    overflow-x: hidden;
+  }
+  body {
+    background:
+      radial-gradient(ellipse at 18% -10%, rgba(124, 58, 237, 0.28), transparent 45%),
+      radial-gradient(ellipse at 90% 20%, rgba(40, 167, 69, 0.08), transparent 40%),
+      linear-gradient(180deg, #120a1c 0%, #0a0712 55%, #07050d 100%);
+  }
+  .desk {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 20px 48px;
+  }
+  .desk-hero {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 18px;
+    align-items: center;
+    margin-bottom: 28px;
+  }
+  .desk-portrait {
+    width: 88px;
+    height: 88px;
+    border-radius: 22px;
+    object-fit: cover;
+    border: 2px solid rgba(196, 181, 253, 0.45);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  }
+  .desk-kicker {
+    margin: 0 0 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--desk-lilac);
+  }
+  .desk-title {
+    margin: 0 0 8px;
+    font-family: Fraunces, Georgia, serif;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  .desk-lead {
+    margin: 0;
+    max-width: 38em;
+    color: var(--desk-muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  .desk-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .desk-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 999px;
+    padding: 10px 16px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    color: var(--desk-ink);
+    background: rgba(124, 58, 237, 0.22);
+  }
+  .desk-btn.secondary {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.16);
+    color: var(--desk-muted);
+  }
+  .desk-status {
+    margin: 0 0 18px;
+    font-size: 0.78rem;
+    color: var(--desk-muted);
+  }
+  .desk-featured {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(240px, 0.8fr);
+    gap: 0;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    background: rgba(16, 10, 28, 0.88);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    margin-bottom: 28px;
+  }
+  .desk-featured-media {
+    position: relative;
+    min-height: 240px;
+    background: #000;
+    cursor: pointer;
+  }
+  .desk-featured-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    min-height: 240px;
+    max-height: 360px;
+  }
+  .desk-featured-play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.55));
+  }
+  .desk-featured-play span {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(124, 58, 237, 0.92);
+    border: 2px solid rgba(255,255,255,0.9);
+    font-size: 1rem;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.45);
+  }
+  .desk-featured-copy {
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .desk-featured-copy h2 {
+    margin: 0;
+    font-family: Fraunces, Georgia, serif;
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+  .desk-featured-copy p {
+    margin: 0;
+    color: var(--desk-muted);
+    font-size: 0.86rem;
+    line-height: 1.45;
+  }
+  .desk-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .desk-chip {
+    font-size: 0.58rem;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    color: #e9d5ff;
+    background: rgba(124, 58, 237, 0.18);
+  }
+  .desk-watch-btn {
+    margin-top: auto;
+    align-self: flex-start;
+    border: 0;
+    border-radius: 10px;
+    padding: 11px 16px;
+    font-weight: 650;
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: #fff;
+    background: linear-gradient(180deg, #8b5cf6, #6d28d9);
+  }
+  .desk-section-title {
+    margin: 0 0 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--desk-lilac);
+  }
+  .desk-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .desk-card {
+    border: 1px solid rgba(168, 85, 247, 0.28);
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(18, 12, 30, 0.9);
+    padding: 0;
+    text-align: left;
+    color: inherit;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+  .desk-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(196, 181, 253, 0.55);
+  }
+  .desk-card-thumb {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #111;
+  }
+  .desk-card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .desk-card-body {
+    padding: 11px 12px 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .desk-card-title {
+    font-size: 0.82rem;
+    font-weight: 650;
+    line-height: 1.3;
+  }
+  .desk-card-impact {
+    font-size: 0.68rem;
+    color: #c4b5fd;
+    line-height: 1.35;
+  }
+  .desk-card-meta {
+    font-size: 0.62rem;
+    color: var(--desk-muted);
+  }
+  body.embed-mode .desk { padding-top: 18px; }
+  @media (max-width: 820px) {
+    .desk-featured { grid-template-columns: 1fr; }
+    .desk-hero { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <main class="desk">
+    <header class="desk-hero">
+      <img class="desk-portrait" src="https://static.wixstatic.com/media/c123de_333c90ab8930465a98b503e1d24316b4~mv2.png" alt="Cheryce">
+      <div>
+        <p class="desk-kicker">Media Agent · video desk</p>
+        <h1 class="desk-title">Watch with context</h1>
+        <p class="desk-lead">
+          Cheryce’s curated Wix library — cinema briefing with takeaways, series picks, and a clear path back into chat.
+          Not a raw media gallery: each clip opens as a professional briefing.
+        </p>
+        <div class="desk-actions">
+          <a class="desk-btn" href="/greenways/media-agent?embed=1" target="_top">Open Cheryce chat</a>
+          <a class="desk-btn secondary" href="/greenways/media-agent" target="_top">Full agent page</a>
+        </div>
+      </div>
+    </header>
+
+    <p class="desk-status" id="desk-status">Loading Greenways videos…</p>
+
+    <section id="desk-featured-wrap" hidden>
+      <div class="desk-featured" id="desk-featured"></div>
+    </section>
+
+    <section>
+      <h2 class="desk-section-title">Library picks</h2>
+      <div class="desk-grid" id="desk-grid"></div>
+    </section>
+  </main>
+
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-video.js"></script>
+  <script>
+(function () {
+  function escapeHtml(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function apiBase() {
+    return location.origin || "";
+  }
+
+  function toPayload(v) {
+    return {
+      id: v.id || "",
+      title: v.title || v.name || "",
+      description: v.description || "",
+      videoUrl: v.videoUrl || "",
+      videoId: v.videoId || "",
+      source: v.source || "wix",
+      duration: v.duration || "",
+      category: v.category || "",
+      channelId: v.channelId || "",
+      channelName: v.channelName || "",
+      pageHref: v.pageHref || "https://www.greenwaysbuildings.com/greenways",
+      thumbnail: v.thumbnail || v.imageUrl || "",
+      impact: v.impact || ""
+    };
+  }
+
+  function openVideo(v) {
+    if (!window.GreenwaysAgentVideo) return;
+    GreenwaysAgentVideo.open(toPayload(v));
+  }
+
+  function impactFor(v) {
+    if (window.GreenwaysAgentVideo && typeof GreenwaysAgentVideo.impactLine === "function") {
+      return GreenwaysAgentVideo.impactLine(v);
+    }
+    return v.category || v.channelName || "Sustainability briefing";
+  }
+
+  function renderFeatured(v) {
+    var wrap = document.getElementById("desk-featured-wrap");
+    var host = document.getElementById("desk-featured");
+    if (!v || !host) return;
+    wrap.hidden = false;
+    var thumb = v.thumbnail
+      ? '<img src="' + escapeHtml(v.thumbnail) + '" alt="">'
+      : '<div style="min-height:240px;background:#111"></div>';
+    var chips = "";
+    if (v.duration) chips += '<span class="desk-chip">' + escapeHtml(v.duration) + "</span>";
+    if (v.category) chips += '<span class="desk-chip">' + escapeHtml(v.category) + "</span>";
+    chips += '<span class="desk-chip">Featured</span>';
+    host.innerHTML =
+      '<button type="button" class="desk-featured-media" id="desk-featured-media" aria-label="Play featured video">' +
+      thumb +
+      '<div class="desk-featured-play"><span>▶</span></div></button>' +
+      '<div class="desk-featured-copy">' +
+      '<div class="desk-chip-row">' + chips + "</div>" +
+      "<h2>" + escapeHtml(v.title || "Featured video") + "</h2>" +
+      "<p>" + escapeHtml(impactFor(v)) + "</p>" +
+      "<p>" + escapeHtml(String(v.description || "").slice(0, 220)) + (String(v.description || "").length > 220 ? "…" : "") + "</p>" +
+      '<button type="button" class="desk-watch-btn" id="desk-featured-watch">Watch briefing</button>' +
+      "</div>";
+    document.getElementById("desk-featured-media").addEventListener("click", function () { openVideo(v); });
+    document.getElementById("desk-featured-watch").addEventListener("click", function () { openVideo(v); });
+  }
+
+  function renderGrid(list) {
+    var grid = document.getElementById("desk-grid");
+    grid.innerHTML = list.map(function (v) {
+      var thumb = v.thumbnail
+        ? '<img src="' + escapeHtml(v.thumbnail) + '" alt="" loading="lazy">'
+        : "";
+      var dur = v.duration ? '<span class="gw-video-duration">' + escapeHtml(v.duration) + "</span>" : "";
+      return (
+        '<button type="button" class="desk-card" data-video-id="' + escapeHtml(v.id || "") + '">' +
+        '<div class="desk-card-thumb">' + thumb +
+        '<span class="gw-video-play-badge" aria-hidden="true">▶</span>' + dur + "</div>" +
+        '<div class="desk-card-body">' +
+        '<div class="desk-card-title">' + escapeHtml(v.title || "Video") + "</div>" +
+        '<div class="desk-card-impact">' + escapeHtml(impactFor(v)) + "</div>" +
+        '<div class="desk-card-meta">' + escapeHtml(v.channelName || v.category || "Greenways library") + "</div>" +
+        "</div></button>"
+      );
+    }).join("");
+
+    grid.querySelectorAll(".desk-card").forEach(function (btn, i) {
+      btn.addEventListener("click", function () { openVideo(list[i]); });
+    });
+  }
+
+  if (window.GreenwaysAgentVideo) {
+    GreenwaysAgentVideo.configure({
+      apiBase: apiBase,
+      relatedTitle: "Next in this series",
+      deskLabel: "Cheryce · Video desk",
+      onAsk: function (video) {
+        var title = encodeURIComponent(String((video && video.title) || "this video"));
+        window.location.href = "/greenways/media-agent?embed=1&q=" + title;
+      }
+    });
+  }
+
+  fetch(apiBase() + "/api/media-agent/videos")
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var videos = (data && (data.videos || data.items || data.productSamples)) || [];
+      if (!Array.isArray(videos)) videos = [];
+      videos = videos.filter(function (v) { return v && (v.title || v.name); });
+      var status = document.getElementById("desk-status");
+      if (!videos.length) {
+        status.textContent = "No videos available yet — check Wix media sync on Render.";
+        return;
+      }
+      status.textContent = videos.length + " clips in Cheryce’s desk · tap any card for the cinema briefing";
+      var playable = videos.filter(function (v) { return v.videoUrl || v.videoId; });
+      var featured = playable[0] || videos[0];
+      renderFeatured(featured);
+      renderGrid(videos.slice(0, 12));
+    })
+    .catch(function () {
+      document.getElementById("desk-status").textContent = "Could not load videos. Try again after deploy.";
+    });
+})();
+  </script>
+</body>
+</html>
