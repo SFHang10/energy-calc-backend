@@ -120,7 +120,7 @@
     "energy-cost-guide": {
       id: "energy-cost-guide",
       title: "Energy cost guide",
-      href: "./greenways-finance-desk.html?tab=cost-guide",
+      href: "/greenways/finance-desk?tab=cost-guide",
       defaultOpenSize: "near-full"
     },
     "finance-desk": {
@@ -128,7 +128,7 @@
       title: "Finance desk",
       description: "Vincent's numbers-first tour — bills, live prices, payback, and funding paths.",
       usageHint: "Pick a topic on the left rail; preview tools inside the tablet frame.",
-      href: "./greenways-finance-desk.html",
+      href: "/greenways/finance-desk",
       defaultOpenSize: "near-full"
     },
     "savings-projection": {
