@@ -78,6 +78,8 @@ https://energy-calc-backend.onrender.com/greenways/finance-desk-embed
 
 Full page (same UI): `/greenways/finance-desk` · Cost guide tab: `?tab=cost-guide`
 
+Tool short routes (used inside the desk): `/greenways/energy-cost-guide` · `/greenways/energy-ticker` · `/greenways/finance-finder` · `/greenways/service-hour-cost-board`
+
 #### Orchestra — website iframe (no menus)
 
 ```

@@ -1280,7 +1280,7 @@
       activeIframe.setAttribute("scrolling", "yes");
       activeIframe.setAttribute(
         "sandbox",
-        "allow-scripts allow-same-origin allow-forms allow-popups allow-downloads allow-modals"
+        "allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads allow-modals allow-top-navigation-by-user-activation"
       );
       activeIframe.addEventListener("load", finishLoadingStage, { once: true });
       activeIframe.addEventListener("error", finishLoadingStage, { once: true });

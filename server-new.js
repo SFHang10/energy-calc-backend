@@ -200,6 +200,14 @@ app.get('/greenways/grants-agent', (req, res) => sendLiveMusicHtml(res, 'greenwa
 app.get('/greenways/finance-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-agent.html'));
 app.get('/greenways/finance-desk', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-desk.html'));
 app.get('/greenways/finance-desk-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-desk.html'));
+app.get('/greenways/energy-cost-guide', (req, res) => sendLiveMusicHtml(res, 'energy-cost-guide (1).html'));
+app.get('/greenways/energy-cost-guide-embed', (req, res) => sendLiveMusicHtml(res, 'energy-cost-guide (1).html'));
+app.get('/greenways/finance-finder', (req, res) => sendLiveMusicHtml(res, 'finance-finder-restaurant.html'));
+app.get('/greenways/equipment-savings-projection', (req, res) => sendLiveMusicHtml(res, 'equipment-savings-projection.html'));
+app.get('/greenways/energy-ticker', (req, res) => {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.sendFile(path.join(__dirname, 'content-ops/drafts/energy-ticker/energy-ticker-colour-swap.html'));
+});
 app.get('/greenways/equipment-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-equipment-agent.html'));
 app.get('/greenways/deals-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-deals-agent.html'));
 app.get('/greenways/deals-agent-wix-frame', (req, res) => sendLiveMusicHtml(res, 'greenways-deals-agent-wix-frame.html'));

@@ -611,12 +611,12 @@
                   <li>Best before renewal conversations — show assessors a forward path, not a reactive spike.</li>
                 </ul>
                 <div class="actions">
-                  <a class="btn" href="/HTMLS%20GWM%20GWB/energy-cost-guide%20(1).html" target="_blank" rel="noopener">Open cost guide (full page)</a>
+                  <a class="btn fd-tool-link" data-fd-path="/greenways/energy-cost-guide" target="_blank" rel="noopener">Open cost guide (full page)</a>
                   <button type="button" class="btn btn--gold" data-toggle-iframe="cost" data-open-label="Preview inside tablet">Preview inside tablet</button>
                 </div>
               </div>
               <div class="iframe-wrap" id="iframe-cost" hidden>
-                <iframe title="Energy cost guide preview" loading="lazy" src="/HTMLS%20GWM%20GWB/energy-cost-guide%20(1).html"></iframe>
+                <iframe title="Energy cost guide preview" loading="lazy" data-fd-iframe="/greenways/energy-cost-guide"></iframe>
                 <div class="iframe-hint">Long page — scroll inside the frame or open full tab.</div>
               </div>
             </div>
@@ -653,12 +653,12 @@
                   <li>Stack with the cost guide when the bill feels high but tariffs look stable.</li>
                 </ul>
                 <div class="actions">
-                  <a class="btn" href="/content-ops/drafts/energy-ticker/energy-ticker-colour-swap.html" target="_blank" rel="noopener">Open ticker (full page)</a>
+                  <a class="btn fd-tool-link" data-fd-path="/greenways/energy-ticker" target="_blank" rel="noopener">Open ticker (full page)</a>
                   <button type="button" class="btn btn--gold" data-toggle-iframe="prices" data-open-label="Preview inside tablet">Preview inside tablet</button>
                 </div>
               </div>
               <div class="iframe-wrap" id="iframe-prices" hidden>
-                <iframe title="Energy prices ticker" loading="lazy" src="/content-ops/drafts/energy-ticker/energy-ticker-colour-swap.html"></iframe>
+                <iframe title="Energy prices ticker" loading="lazy" data-fd-iframe="/greenways/energy-ticker"></iframe>
                 <div class="iframe-hint">Live ticker — best in full width when presenting.</div>
               </div>
             </div>
@@ -732,12 +732,12 @@
                   <li><strong>BNPL / equipment / loans:</strong> when net capex still needs monthly framing.</li>
                 </ul>
                 <div class="actions">
-                  <a class="btn" href="/HTMLS%20GWM%20GWB/finance-finder-restaurant.html" target="_blank" rel="noopener">Open finance finder</a>
+                  <a class="btn fd-tool-link" data-fd-path="/greenways/finance-finder" target="_blank" rel="noopener">Open finance finder</a>
                   <button type="button" class="btn btn--gold" data-toggle-iframe="funding" data-open-label="Preview inside tablet">Preview inside tablet</button>
                 </div>
               </div>
               <div class="iframe-wrap" id="iframe-funding" hidden>
-                <iframe title="Finance finder preview" loading="lazy" src="/HTMLS%20GWM%20GWB/finance-finder-restaurant.html"></iframe>
+                <iframe title="Finance finder preview" loading="lazy" data-fd-iframe="/greenways/finance-finder"></iframe>
                 <div class="iframe-hint">Five tabs — grants, BNPL, equipment finance, loans, Europe.</div>
               </div>
             </div>
@@ -773,12 +773,12 @@
                   <li>Pair with utility detail when you need load breakdown by type.</li>
                 </ul>
                 <div class="actions">
-                  <a class="btn" href="/HTMLS%20GWM%20GWB/greenways-service-hour-cost-board.html" target="_blank" rel="noopener">Open service-hour board</a>
+                  <a class="btn fd-tool-link" data-fd-path="/greenways/service-hour-cost-board" target="_blank" rel="noopener">Open service-hour board</a>
                   <button type="button" class="btn btn--gold" data-toggle-iframe="site" data-open-label="Preview inside tablet">Preview inside tablet</button>
                 </div>
               </div>
               <div class="iframe-wrap" id="iframe-site" hidden>
-                <iframe title="Service-hour cost board" loading="lazy" src="/HTMLS%20GWM%20GWB/greenways-service-hour-cost-board.html"></iframe>
+                <iframe title="Service-hour cost board" loading="lazy" data-fd-iframe="/greenways/service-hour-cost-board"></iframe>
                 <div class="iframe-hint">Interactive board — pick a kitchen profile.</div>
               </div>
             </div>
@@ -807,6 +807,43 @@
   <script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
   <script>
     (function () {
+      function gwOrigin() {
+        const h = location.hostname || '';
+        if (h === 'localhost' || h === '127.0.0.1' || h.indexOf('energy-calc-backend') !== -1) {
+          return location.origin || 'https://energy-calc-backend.onrender.com';
+        }
+        return 'https://energy-calc-backend.onrender.com';
+      }
+
+      function gwAbs(path) {
+        const p = String(path || '').trim();
+        if (!p) return p;
+        if (/^https?:\/\//i.test(p)) return p;
+        return gwOrigin() + (p.charAt(0) === '/' ? p : `/${p}`);
+      }
+
+      const isEmbed =
+        document.body.classList.contains('embed-mode') ||
+        /[?&]embed=1(?:&|$)/.test(location.search);
+
+      document.querySelectorAll('.fd-tool-link[data-fd-path]').forEach((a) => {
+        a.href = gwAbs(a.getAttribute('data-fd-path'));
+        if (isEmbed) a.target = '_top';
+      });
+
+      document.querySelectorAll('a[href^="/greenways/"]').forEach((a) => {
+        if (a.classList.contains('fd-tool-link')) return;
+        a.href = gwAbs(a.getAttribute('href'));
+        if (isEmbed) a.target = '_top';
+      });
+
+      function ensureIframeSrc(wrap) {
+        if (!wrap) return;
+        const iframe = wrap.querySelector('iframe[data-fd-iframe]');
+        if (!iframe || iframe.getAttribute('src')) return;
+        iframe.src = gwAbs(iframe.getAttribute('data-fd-iframe'));
+      }
+
       const ARC_LEN = Math.PI * 60;
       const VALID_TABS = ['cost-guide', 'prices', 'payback', 'funding', 'site-numbers'];
 
@@ -884,6 +921,7 @@
         btn.addEventListener('click', () => {
           if (wrap.hasAttribute('hidden')) {
             wrap.removeAttribute('hidden');
+            ensureIframeSrc(wrap);
             btn.textContent = 'Hide preview';
           } else {
             wrap.setAttribute('hidden', '');
@@ -894,13 +932,14 @@
 
       function goBack() {
         if (window.history.length > 1) window.history.back();
-        else window.location.href = '/greenways/finance-agent';
+        else window.location.href = gwAbs('/greenways/finance-agent');
       }
       document.getElementById('financeBackBtn')?.addEventListener('click', goBack);
       document.getElementById('financeRailBackBtn')?.addEventListener('click', goBack);
 
-      const DEMO_PROJECTION_URL =
-        '/HTMLS%20GWM%20GWB/equipment-savings-projection.html?popup=1&embed=1&from=finance-desk&scenario=fridge';
+      const DEMO_PROJECTION_URL = gwAbs(
+        '/greenways/equipment-savings-projection?popup=1&embed=1&from=finance-desk&scenario=fridge'
+      );
 
       function openProjectionDemo() {
         const modal = document.getElementById('savingsProjectionModal');
