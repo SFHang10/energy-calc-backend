@@ -63,6 +63,7 @@ const TOOL_MODULE_IDS = {
   'savings-projection': 'savings-projection',
   'energy-savings-trajectory': 'savings-trajectory',
   'savings-hub': 'savings-tour',
+  'finance-desk': 'finance-desk',
   'energy-cost-guide': 'energy-cost-guide',
   'etl-marketplace': 'etl-finder',
   'energy-calculator': 'etl-calculator',

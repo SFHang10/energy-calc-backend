@@ -198,6 +198,8 @@ app.get('/live-music/live-music-finder.html', (req, res) => {
 });
 app.get('/greenways/grants-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-grants-agent.html'));
 app.get('/greenways/finance-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-agent.html'));
+app.get('/greenways/finance-desk', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-desk.html'));
+app.get('/greenways/finance-desk-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-desk.html'));
 app.get('/greenways/equipment-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-equipment-agent.html'));
 app.get('/greenways/deals-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-deals-agent.html'));
 app.get('/greenways/deals-agent-wix-frame', (req, res) => sendLiveMusicHtml(res, 'greenways-deals-agent-wix-frame.html'));

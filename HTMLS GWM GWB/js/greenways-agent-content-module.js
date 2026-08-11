@@ -43,6 +43,8 @@
     ["energy-savings-trajectory", "savings-trajectory"],
     ["energy-cost-guide%20(1)", "energy-cost-guide"],
     ["energy-cost-guide", "energy-cost-guide"],
+    ["greenways-finance-desk", "finance-desk"],
+    ["finance-desk", "finance-desk"],
     ["equipment_intelligence_tool", "etl-finder"],
     ["etl-official-site", "etl-official-site"],
     ["etl.energysecurity.gov.uk", "etl-official-site"],
@@ -118,7 +120,15 @@
     "energy-cost-guide": {
       id: "energy-cost-guide",
       title: "Energy cost guide",
-      href: "./energy-cost-guide%20(1).html",
+      href: "./greenways-finance-desk.html?tab=cost-guide",
+      defaultOpenSize: "near-full"
+    },
+    "finance-desk": {
+      id: "finance-desk",
+      title: "Finance desk",
+      description: "Vincent's numbers-first tour — bills, live prices, payback, and funding paths.",
+      usageHint: "Pick a topic on the left rail; preview tools inside the tablet frame.",
+      href: "./greenways-finance-desk.html",
       defaultOpenSize: "near-full"
     },
     "savings-projection": {

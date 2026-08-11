@@ -185,6 +185,8 @@ const PORTAL_PATH_MODULE_IDS = [
   ['energy-savings-trajectory', 'savings-trajectory'],
   ['energy-cost-guide%20(1)', 'energy-cost-guide'],
   ['energy-cost-guide', 'energy-cost-guide'],
+  ['greenways-finance-desk', 'finance-desk'],
+  ['finance-desk', 'finance-desk'],
   ['equipment_intelligence_tool', 'etl-finder'],
   ['energy-calculator-enhanced', 'etl-calculator'],
   ['energy-audit-widget', 'energy-audit'],

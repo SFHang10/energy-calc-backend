@@ -44,6 +44,7 @@ Use **`-embed` URLs** (or `?embed=1`) on the **new Wix website** so portal famil
 | Why this portal | `/greenways/agents-story-embed` | `/greenways/agents-story` |
 | Portal highlights | `/greenways/agents-highlights-embed` | `/greenways/agents-highlights` |
 | Cheryce video desk | `/greenways/media-video-desk-embed` | `/greenways/media-video-desk` |
+| Vincent finance desk | `/greenways/finance-desk-embed` | `/greenways/finance-desk` |
 | Orchestra / operate portal | `/greenways/orchestra-hub-embed` (or `?embed=1` / wix-frame) | `/greenways/orchestra-hub` |
 | Your Hub | `/greenways/customer-hub?embed=1` | `/greenways/customer-hub` |
 | Agent story (per character) | `/greenways/agents/{slug}/story-embed` | `/greenways/agents/{slug}/story` |
@@ -59,13 +60,23 @@ https://energy-calc-backend.onrender.com/greenways/agents-story-embed
 
 #### Cheryce · Video desk (website showcase, no menus)
 
-Cinema briefing for Wix videos — featured clip + library grid. Opens the same professional player used in Cheryce chat.
+Cinema briefing for Greenways library videos — featured clip + library grid. Opens the same professional player used in Cheryce chat.
 
 ```
 https://energy-calc-backend.onrender.com/greenways/media-video-desk-embed
 ```
 
 Full page (same UI): `/greenways/media-video-desk`
+
+#### Vincent · Finance desk (website showcase, no menus)
+
+Blue finance tour — animated gauges, tablet previews, energy cost guide as first tab.
+
+```
+https://energy-calc-backend.onrender.com/greenways/finance-desk-embed
+```
+
+Full page (same UI): `/greenways/finance-desk` · Cost guide tab: `?tab=cost-guide`
 
 #### Orchestra — website iframe (no menus)
 
