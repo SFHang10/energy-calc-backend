@@ -50,6 +50,13 @@ const {
   agentIntroParagraph
 } = require('./greenways-agent-persona');
 const {
+  profileContextLine,
+  profileContextPrompt,
+  fundingStackGuide,
+  paybackSensitivityLine,
+  buildGroundedUpgradeCase
+} = require('./finance-agent-context');
+const {
   buildSustainabilityFinanceNewsAnswer,
   buildFundingNewsAnswer
 } = require('./finance-agent-news');
@@ -256,6 +263,7 @@ function utilityTypeForProfile(profile) {
 function energyToolkitModules(profile, extras = []) {
   const utilType = utilityTypeForProfile(profile);
   const base = [
+    { moduleId: 'finance-prices-board', openSize: 'expanded' },
     { moduleId: 'energy-ticker', openSize: 'expanded' },
     {
       moduleId: 'utility-detail',
@@ -361,25 +369,32 @@ async function buildOverviewAnswer(schemes, profile, tip) {
   const workflow = (briefing?.workflowSteps || [])
     .map((s, i) => `${i + 1}. ${s}`)
     .join('\n');
+  const ctx = profileContextLine(profile);
+  const stack = fundingStackGuide();
+  const ctxPrompt = profileContextPrompt(profile);
   return {
     answer:
       agentIntroParagraph('finance', briefing) +
+      `${ctx}\n\n` +
       `**Focus:** ${briefing?.roleGoal || 'funding and the energy-price story for upgrades'}\n\n` +
+      `${stack}\n\n` +
       `- **Grants & subsidies** — non-repayable support (scheme detail → **Andrieus**)\n` +
       `- **BNPL** — split equipment payments where providers allow\n` +
       `- **Equipment finance** — leases & hire purchase for kitchen equipment\n` +
       `- **Green loans** — BMKB-Groen, warmtefonds-style bank products\n` +
       `- **Europe** — EU-wide programmes & cross-border lenders\n` +
-      `- **Energy prices** — wholesale ticker + tariff tools\n` +
+      `- **Energy prices** — prices board + wholesale ticker + tariff tools\n` +
       `- **Product Calculator** — Greenways compare tool (efficient products incl. ETL-listed); plus audit, projection, trajectory, cost guide\n` +
       `- **ETL products** — verified European efficient-equipment benchmark (\`etl_*\` marketplace rows)\n` +
       `- **Sustainability news** — shared catalogue with Cheryce; Vincent maps headlines to grants, loans, BNPL, and ETL finance paths\n\n` +
       (workflow ? `**Typical workflow:**\n${workflow}\n\n` : '') +
       (market ? `**Market snapshot (wholesale guide):**\n${market}\n\n` : '') +
-      `Open the modules on the right for finance finder, ticker, audit, and calculators.\n\n_${tip}_`,
+      (ctxPrompt ? `${ctxPrompt}\n\n` : '') +
+      `Open the modules on the right for finance finder, prices board, audit, and calculators.\n\n_${tip}_`,
     blocks: [
       financeModuleBlock([
         { moduleId: 'finance-finder', openSize: 'near-full' },
+        { moduleId: 'finance-prices-board', openSize: 'expanded' },
         { moduleId: 'energy-ticker', openSize: 'expanded' },
         { moduleId: 'energy-audit', openSize: 'near-full' },
         { moduleId: 'etl-calculator', openSize: 'near-full' }
@@ -628,14 +643,21 @@ async function buildEnergyPricesAnswer(profile, tip) {
   const regionLabel = REGION_LABELS[profile.region] || 'your market';
   const headline = bullets.length
     ? bullets[0].replace(/^-\s*/, '')
-    : 'Open the ticker for the latest wholesale snapshot.';
+    : 'Open the prices board for the latest wholesale snapshot.';
+  const ctx = profileContextLine(profile);
+  const sensitivity = paybackSensitivityLine(snapshot, profile);
+  const ctxPrompt = profileContextPrompt(profile);
 
   return {
     answer:
-      `**Energy prices (${regionLabel})** — wholesale €/MWh helps you time upgrades and tariff reviews. Your bill also depends on supplier, pass-through clauses, and time-of-use, so retail contracts can move differently from the ticker.\n\n` +
+      `${ctx}\n\n` +
+      `**Energy prices (${regionLabel})** — wholesale €/MWh helps you time upgrades and tariff reviews. Your bill also depends on supplier, pass-through clauses, and time-of-use, so retail contracts can move differently from the board.\n\n` +
       `${headline}\n\n` +
       (modelling ? `${modelling}\n\n` : '') +
-      `When unit costs rise, **ETL-listed equipment** lowers the kWh you still buy — open the modules on the right for the ticker, site utility view, and tariff compare. From there, the **Product Calculator** lets you compare the energy use of **efficient equipment** vs what you run today.\n\n_${tip}_`,
+      (sensitivity ? `${sensitivity}\n\n` : '') +
+      `When unit costs rise, **ETL-listed equipment** lowers the kWh you still buy — open **Prices board** first, then tariff compare and Product Calculator.\n\n` +
+      (ctxPrompt ? `${ctxPrompt}\n\n` : '') +
+      `_${tip}_`,
     blocks: [
       energyToolkitModules(profile),
       financeAgentLinkBlock('Deals Agent', PORTAL_LINKS.dealsAgent, 'Tariff lanes and supply deals')
@@ -653,16 +675,24 @@ async function buildPriceUpgradeCaseAnswer(schemes, profile, tip) {
     profile,
     5
   );
+  const showcase = await loadFinanceShowcase();
+  const product = (showcase.products || []).find((p) => p.id === 'etl_14_86293') || showcase.products[0] || {};
+  const grounded = buildGroundedUpgradeCase(profile, snapshot, product);
+  const ctx = profileContextLine(profile);
+  const stack = fundingStackGuide();
 
   return {
     answer:
+      `${ctx}\n\n` +
       `**Why finance efficient equipment when energy prices move**\n\n` +
       `Unit cost × usage drives your bill — when €/kWh or gas rates rise, every inefficient hour on ovens, refrigeration, or HVAC costs more. **ETL-listed products** cut verified demand; grants and green loans can reduce upfront capex.\n\n` +
+      `${grounded}\n\n` +
       `${hint}\n\n` +
+      `${stack}\n\n` +
       (related.length
         ? `I found **${related.length}** scheme${related.length === 1 ? '' : 's'} that may help fund the upgrade — see the cards on the right.\n\n`
         : '') +
-      `Typical stack: pick an \`etl_*\` product → savings projection → BNPL, equipment finance, or green loans.\n\n_${tip}_`,
+      `_${tip}_`,
     blocks: [
       energyToolkitModules(profile, [
         savingsProjectionDemo({
@@ -677,6 +707,35 @@ async function buildPriceUpgradeCaseAnswer(schemes, profile, tip) {
           label: 'Vincent — fund the upgrade'
         })
       ])
+    ],
+    suggestions: related.map(toSuggestion)
+  };
+}
+
+function buildFundingStackAnswer(schemes, profile, tip) {
+  const country = countryLabelFromProfile(profile && profile.region);
+  const ctx = profileContextLine(profile);
+  const related = rankSchemes(financeSchemes(schemes), 'grant equipment restaurant', profile, 4);
+  return {
+    answer:
+      `${ctx}\n\n` +
+      `${fundingStackGuide()}\n\n` +
+      `I opened **Finance Finder** on the right — start on **Grants**, then move to the tab that matches what's left after scheme support.\n\n_${tip}_`,
+    blocks: [
+      financeModuleBlock([
+        financeFinderDemo({
+          tab: 'grants',
+          q: 'restaurant equipment energy',
+          country: country || undefined,
+          label: 'Vincent — start with grants'
+        }),
+        savingsProjectionDemo({
+          scenario: 'fridge',
+          label: 'Vincent — payback before borrowing'
+        }),
+        { moduleId: 'finance-desk', openSize: 'near-full' }
+      ]),
+      financeAgentLinkBlock('Grants Agent (Andrieus)', PORTAL_LINKS.grantsAgent, 'Scheme detail and eligibility')
     ],
     suggestions: related.map(toSuggestion)
   };
@@ -924,6 +983,9 @@ async function answerFromKnowledge(question, profile = {}) {
       break;
     case 'price_upgrade_case':
       result = await buildPriceUpgradeCaseAnswer(schemes, profile, tip);
+      break;
+    case 'funding_stack':
+      result = buildFundingStackAnswer(schemes, profile, tip);
       break;
     case 'compare_tariffs':
       result = buildCompareTariffsAnswer(tip);

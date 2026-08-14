@@ -45,6 +45,8 @@
     ["energy-cost-guide", "energy-cost-guide"],
     ["greenways-finance-desk", "finance-desk"],
     ["finance-desk", "finance-desk"],
+    ["greenways-finance-prices-board", "finance-prices-board"],
+    ["finance-prices-board", "finance-prices-board"],
     ["equipment_intelligence_tool", "etl-finder"],
     ["etl-official-site", "etl-official-site"],
     ["etl.energysecurity.gov.uk", "etl-official-site"],
@@ -130,6 +132,14 @@
       usageHint: "Pick a topic on the left rail; preview tools inside the tablet frame.",
       href: "/greenways/finance-desk",
       defaultOpenSize: "near-full"
+    },
+    "finance-prices-board": {
+      id: "finance-prices-board",
+      title: "Energy prices board",
+      description: "Wholesale hub KPIs, sparklines, and compact market table — honest wholesale ≠ retail bill framing.",
+      usageHint: "Check your hub first, then open Finance Finder or tariff compare for retail contracts and peak/off-peak timing.",
+      href: "/greenways/finance-prices-board",
+      defaultOpenSize: "expanded"
     },
     "savings-projection": {
       id: "savings-projection",

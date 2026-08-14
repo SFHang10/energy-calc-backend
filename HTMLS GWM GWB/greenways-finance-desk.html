@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css" />
+  <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-finance-prices-board.css" />
   <style>
     :root {
       --bg: #0a1018;
@@ -47,7 +48,7 @@
         linear-gradient(165deg, rgba(5, 10, 18, 0.92) 0%, rgba(10, 18, 32, 0.84) 45%, rgba(5, 10, 18, 0.94) 100%),
         radial-gradient(ellipse 90% 70% at 50% -15%, rgba(56, 189, 248, 0.16), transparent 55%),
         radial-gradient(circle at 100% 85%, rgba(201, 169, 97, 0.1), transparent 42%),
-        url("https://static.wixstatic.com/media/c123de_16c0316351cb43ffa2b465483e13e2a4~mv2.jpg");
+        url("https://static.wixstatic.com/media/c123de_1fe1c58ec83544f0b0eaf57cf9ac4e02~mv2.avif");
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -646,15 +647,17 @@
                 </div>
                 <p class="lead">
                   Wholesale and retail prices move faster than most kitchen teams refresh their mental model.
-                  The ticker keeps €/kWh in view so upgrade payback conversations stay grounded in today’s market.
+                  The board below pulls live ticker data — your supplier contract still sets the bill.
                 </p>
+                <div id="fd-prices-board-root" style="margin-bottom:14px"></div>
                 <ul>
                   <li>Rising wholesale <em>plus</em> rising usage is the signal to finance upgrades early.</li>
                   <li>Stack with the cost guide when the bill feels high but tariffs look stable.</li>
                 </ul>
                 <div class="actions">
-                  <a class="btn fd-tool-link" data-fd-path="/greenways/energy-ticker" target="_blank" rel="noopener">Open ticker (full page)</a>
-                  <button type="button" class="btn btn--gold" data-toggle-iframe="prices" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                  <a class="btn fd-tool-link" data-fd-path="/greenways/finance-prices-board" target="_blank" rel="noopener">Open prices board (full)</a>
+                  <a class="btn fd-tool-link" data-fd-path="/greenways/energy-ticker" target="_blank" rel="noopener">Open ticker</a>
+                  <button type="button" class="btn btn--gold" data-toggle-iframe="prices" data-open-label="Preview ticker in tablet">Preview ticker in tablet</button>
                 </div>
               </div>
               <div class="iframe-wrap" id="iframe-prices" hidden>
@@ -805,6 +808,7 @@
   </div>
 
   <script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-finance-prices-board.js"></script>
   <script>
     (function () {
       function gwOrigin() {
@@ -903,6 +907,10 @@
       });
 
       document.querySelectorAll('.fd-gauge').forEach(syncGauge);
+
+      if (window.GreenwaysFinancePricesBoard) {
+        window.GreenwaysFinancePricesBoard.mount('#fd-prices-board-root');
+      }
 
       const tabParam = new URLSearchParams(location.search).get('tab');
       if (tabParam && VALID_TABS.includes(tabParam)) showPanel(tabParam);
