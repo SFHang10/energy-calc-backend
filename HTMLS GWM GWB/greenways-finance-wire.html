@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="wix-html-scroll" content="no-scroll" />
+  <title>Vincent — Finance wire</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css" />
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
+  <style>
+    :root {
+      --accent: #38bdf8;
+      --accent-dim: rgba(56, 189, 248, 0.12);
+      --accent-hot: rgba(56, 189, 248, 0.28);
+      --gold: #c9a961;
+      --gold-dim: rgba(201, 169, 97, 0.14);
+      --black: #070b12;
+      --dark: #0e1520;
+      --panel: #121a28;
+      --border: rgba(56, 189, 248, 0.2);
+      --text: #e8f0ff;
+      --text-dim: #8ba3c4;
+      --text-faint: #5a6f8a;
+      --font: 'Space Grotesk', sans-serif;
+      --font-clean: 'IBM Plex Sans', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      --wire-backdrop-image: url("https://static.wixstatic.com/media/c123de_1fe1c58ec83544f0b0eaf57cf9ac4e02~mv2.avif");
+      --scan-panel-h: min(62vh, 820px);
+      --desk-panel-h: min(58vh, 760px);
+      --embed-min-h: 1280px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; min-height: var(--embed-min-h); }
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: var(--font);
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    body.embed-mode .finance-page-nav,
+    body.embed-mode .back-row { display: none !important; }
+    .wire-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-color: #070b12;
+      background-image:
+        linear-gradient(165deg, rgba(5, 10, 18, 0.88) 0%, rgba(8, 14, 24, 0.78) 45%, rgba(5, 10, 18, 0.9) 100%),
+        radial-gradient(ellipse 80% 55% at 50% -10%, rgba(56, 189, 248, 0.14), transparent 55%),
+        var(--wire-backdrop-image);
+      background-size: cover;
+      background-position: center;
+      filter: saturate(1.05) contrast(1.03) brightness(0.88);
+    }
+    .shell {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      min-height: var(--embed-min-h);
+    }
+    .page-pad {
+      max-width: 1280px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 12px 14px 0;
+    }
+    .finance-page-nav { margin-bottom: 8px; }
+    .back-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .back-row a {
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    header {
+      flex-shrink: 0;
+      background: rgba(14, 21, 32, 0.72);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 58px;
+      margin-bottom: 10px;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 55%, #c9a961 100%);
+    }
+    .logo-text {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    .logo-text span { color: var(--gold); }
+    .logo-sub {
+      font-size: 0.58rem;
+      color: var(--accent);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-family: var(--mono);
+      margin-top: 2px;
+    }
+    .header-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .btn-header {
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: rgba(18, 26, 40, 0.85);
+      color: var(--text-dim);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+    .btn-header:hover { border-color: var(--accent-hot); color: var(--text); }
+    .btn-header.primary {
+      background: var(--accent-dim);
+      border-color: var(--accent-hot);
+      color: var(--accent);
+    }
+    .hub-scan-block {
+      flex-shrink: 0;
+      height: var(--scan-panel-h);
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(8, 12, 20, 0.55);
+      backdrop-filter: blur(8px);
+      margin: 0 14px;
+      max-width: 1280px;
+      width: calc(100% - 28px);
+      align-self: center;
+    }
+    .mobile-tabs {
+      display: none;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(14, 21, 32, 0.9);
+      flex-shrink: 0;
+    }
+    .mobile-tabs button {
+      flex: 1;
+      min-width: 88px;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text-dim);
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      cursor: pointer;
+    }
+    .mobile-tabs button.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+    .app {
+      display: grid;
+      grid-template-columns: 248px 1fr;
+      flex: 1;
+      min-height: 0;
+    }
+    aside {
+      background: rgba(14, 21, 32, 0.82);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-section { padding: 0.85rem 0.9rem 0.75rem; }
+    .sidebar-label {
+      font-size: 0.625rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-family: var(--mono);
+      margin-bottom: 0.55rem;
+    }
+    .sidebar-note {
+      font-family: var(--font-clean);
+      font-size: 0.68rem;
+      line-height: 1.45;
+      color: var(--text-dim);
+      margin-top: 0.65rem;
+    }
+    .nav-tabs { display: flex; flex-direction: column; gap: 5px; }
+    .tab-btn {
+      background: rgba(18, 26, 40, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: #d7e6f8;
+      font-family: var(--font);
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 9px 10px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      width: 100%;
+    }
+    .tab-btn .tab-icon { font-size: 1rem; flex-shrink: 0; }
+    .tab-btn .tab-desc {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 400;
+      color: var(--text-dim);
+      margin-top: 2px;
+      font-family: var(--font-clean);
+    }
+    .tab-btn:hover { border-color: var(--accent-hot); color: var(--text); background: rgba(56, 189, 248, 0.06); }
+    .tab-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+    .tab-btn.active .tab-desc { color: #9fdcf8; }
+    main { display: flex; flex-direction: column; min-width: 0; background: transparent; }
+    .main-toolbar {
+      flex-shrink: 0;
+      padding: 7px 12px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(14, 21, 32, 0.88);
+    }
+    .main-toolbar span {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .frame-wrap { flex: 1; min-height: 0; position: relative; }
+    .frame-wrap iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #0a1018;
+    }
+    .placeholder-panel {
+      display: none;
+      position: absolute;
+      inset: 0;
+      overflow-y: auto;
+      padding: 20px 16px;
+      background: linear-gradient(180deg, rgba(10, 16, 24, 0.97), rgba(7, 11, 18, 0.98));
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .placeholder-panel.active { display: flex; }
+    .placeholder-card {
+      max-width: 460px;
+      width: 100%;
+      margin: 24px auto;
+      padding: 22px 20px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(18, 26, 40, 0.92);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    }
+    .placeholder-card h2 { font-size: 1.15rem; margin-bottom: 8px; }
+    .placeholder-card p {
+      font-family: var(--font-clean);
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    .placeholder-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 9px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--accent-hot);
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .hub-scroll-separator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 10px 12px;
+      margin: 10px 14px 0;
+      color: var(--text-faint);
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .hub-scroll-separator-chevron { color: var(--gold); }
+    .hub-desk-section {
+      margin: 0 14px 18px;
+      max-width: 1280px;
+      width: calc(100% - 28px);
+      align-self: center;
+      border: 1px solid rgba(201, 169, 97, 0.28);
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(8, 12, 20, 0.55);
+      backdrop-filter: blur(8px);
+      min-height: var(--desk-panel-h);
+      display: flex;
+      flex-direction: column;
+    }
+    .desk-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 9px 12px;
+      border-bottom: 1px solid rgba(201, 169, 97, 0.22);
+      background: rgba(14, 21, 32, 0.88);
+    }
+    .desk-toolbar-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+    }
+    .desk-preview-badge {
+      font-size: 0.52rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(201, 169, 97, 0.35);
+      color: #e8d5a3;
+      background: var(--gold-dim);
+    }
+    .desk-full-link {
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .desk-frame-wrap {
+      flex: 1;
+      min-height: 480px;
+      position: relative;
+      background: #0a1018;
+    }
+    .desk-frame-wrap iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    .wix-embed-footer {
+      text-align: center;
+      padding: 8px 12px 14px;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.06em;
+      color: var(--text-faint);
+    }
+    @media (max-width: 800px) {
+      .app { grid-template-columns: 1fr; }
+      aside { display: none; }
+      .mobile-tabs { display: flex; }
+      .hub-scan-block { min-height: 560px; height: auto; }
+      .desk-frame-wrap { min-height: 420px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wire-backdrop" aria-hidden="true"></div>
+  <div class="shell">
+    <div class="page-pad">
+      <div class="back-row">
+        <a href="/greenways/finance-agent">← Vincent</a>
+        <a href="/greenways/finance-desk">Finance desk</a>
+      </div>
+      <header>
+        <div class="logo">
+          <div class="logo-icon" aria-hidden="true">€</div>
+          <div>
+            <div class="logo-text">Finance <span>Wire</span></div>
+            <div class="logo-sub">Vincent · market scan</div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="btn-header" id="btnRefresh">Refresh panel</button>
+          <a class="btn-header primary" id="btnOpenTab" href="/greenways/finance-wire" target="_blank" rel="noopener">Full page ↗</a>
+        </div>
+      </header>
+    </div>
+
+    <div class="hub-scan-block">
+      <div class="mobile-tabs" id="mobileTabs" aria-label="Sections"></div>
+      <div class="app">
+        <aside>
+          <div class="sidebar-section">
+            <div class="sidebar-label">Market scan</div>
+            <div class="nav-tabs" id="navTabs"></div>
+            <p class="sidebar-note">Default view shows the <strong style="color:var(--accent)">ticker + news tablets</strong> — like Music Finder. Scroll to the <strong style="color:var(--gold)">finance desk below</strong> for calculators and funding paths.</p>
+          </div>
+        </aside>
+        <main>
+          <div class="main-toolbar">
+            <span id="toolbarLabel">Finance wire · ticker + news tablets</span>
+          </div>
+          <div class="frame-wrap">
+            <iframe id="hubFrame" title="Finance wire panel" src="/greenways/finance-wire-main?embed=1"></iframe>
+            <div class="placeholder-panel" id="vincentPanel" aria-hidden="true">
+              <div class="placeholder-card">
+                <h2>Ask Vincent</h2>
+                <p>Payback cases, funding stack, BNPL vs loans, and why efficient equipment wins when unit costs move — full chat with module tablets.</p>
+                <a class="placeholder-btn" href="/greenways/finance-agent" target="_top" rel="noopener">Open Vincent chat ↗</a>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <div class="hub-scroll-separator" role="region" aria-label="Scroll to finance desk">
+      <span aria-hidden="true">···</span>
+      <span>Independent module below · finance desk</span>
+      <span class="hub-scroll-separator-chevron" aria-hidden="true">↓</span>
+    </div>
+
+    <section class="hub-desk-section" id="deskSection">
+      <div class="desk-toolbar">
+        <div class="desk-toolbar-title">
+          <span>Finance desk</span>
+          <span class="desk-preview-badge">Module picker</span>
+        </div>
+        <a class="desk-full-link" id="deskFullLink" href="/greenways/finance-desk" target="_top" rel="noopener">Open full desk →</a>
+      </div>
+      <div class="desk-frame-wrap">
+        <iframe id="deskFrame" title="Vincent finance desk" data-desk-src="/greenways/finance-desk-embed" loading="lazy"></iframe>
+      </div>
+    </section>
+
+    <p class="wix-embed-footer">Vincent · Finance wire · Greenways</p>
+  </div>
+
+  <script>
+    (function () {
+      var RENDER = 'https://energy-calc-backend.onrender.com';
+
+      function origin() {
+        var h = location.hostname || '';
+        if (h === 'localhost' || h === '127.0.0.1' || h.indexOf('energy-calc-backend') !== -1) {
+          return location.origin || RENDER;
+        }
+        return RENDER;
+      }
+
+      function abs(path) {
+        var p = String(path || '').trim();
+        if (!p) return p;
+        if (/^https?:\/\//i.test(p)) return p;
+        return origin() + (p.charAt(0) === '/' ? p : '/' + p);
+      }
+
+      var TABS = [
+        {
+          id: 'ticker',
+          icon: '📡',
+          title: 'Wire main',
+          desc: 'Ticker + news tablets',
+          toolbar: 'Finance wire · ticker + news tablets',
+          src: '/greenways/finance-wire-main?embed=1',
+          openHref: '/greenways/finance-wire-main'
+        },
+        {
+          id: 'board',
+          icon: '📊',
+          title: 'Prices board',
+          desc: 'KPIs + hub table',
+          toolbar: 'Prices board · hub KPIs & ~€/kWh guide',
+          src: '/greenways/finance-prices-board-embed',
+          openHref: '/greenways/finance-prices-board'
+        },
+        {
+          id: 'news',
+          icon: '📰',
+          title: 'Finance news',
+          desc: 'Full story list',
+          toolbar: 'Finance news · funding & market lens',
+          src: '/greenways/finance-wire-news?embed=1',
+          openHref: '/greenways/finance-wire-news'
+        },
+        {
+          id: 'vincent',
+          icon: '💶',
+          title: 'Ask Vincent',
+          desc: 'Payback & funding chat',
+          toolbar: 'Ask Vincent · finance chat',
+          panel: 'vincent'
+        }
+      ];
+
+      var activeTab = 'ticker';
+      var frame = document.getElementById('hubFrame');
+      var vincentPanel = document.getElementById('vincentPanel');
+      var toolbarLabel = document.getElementById('toolbarLabel');
+      var btnOpenTab = document.getElementById('btnOpenTab');
+      var navTabs = document.getElementById('navTabs');
+      var mobileTabs = document.getElementById('mobileTabs');
+      var deskFrame = document.getElementById('deskFrame');
+      var deskFullLink = document.getElementById('deskFullLink');
+
+      function findTab(id) {
+        for (var i = 0; i < TABS.length; i++) if (TABS[i].id === id) return TABS[i];
+        return TABS[0];
+      }
+
+      function setActive(id) {
+        activeTab = id;
+        var tab = findTab(id);
+        toolbarLabel.textContent = tab.toolbar;
+        document.querySelectorAll('.tab-btn, .mobile-tabs button').forEach(function (el) {
+          el.classList.toggle('active', el.getAttribute('data-tab') === id);
+        });
+        if (tab.panel === 'vincent') {
+          frame.style.display = 'none';
+          vincentPanel.classList.add('active');
+          vincentPanel.setAttribute('aria-hidden', 'false');
+          btnOpenTab.href = abs('/greenways/finance-agent');
+          return;
+        }
+        vincentPanel.classList.remove('active');
+        vincentPanel.setAttribute('aria-hidden', 'true');
+        frame.style.display = 'block';
+        frame.src = abs(tab.src);
+        btnOpenTab.href = abs(tab.openHref || tab.src);
+      }
+
+      function renderTabs() {
+        navTabs.innerHTML = '';
+        mobileTabs.innerHTML = '';
+        TABS.forEach(function (tab) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'tab-btn' + (tab.id === activeTab ? ' active' : '');
+          btn.setAttribute('data-tab', tab.id);
+          btn.innerHTML =
+            '<span class="tab-icon" aria-hidden="true">' + tab.icon + '</span>' +
+            '<span><strong>' + tab.title + '</strong><span class="tab-desc">' + tab.desc + '</span></span>';
+          btn.addEventListener('click', function () { setActive(tab.id); });
+          navTabs.appendChild(btn);
+
+          var m = document.createElement('button');
+          m.type = 'button';
+          m.setAttribute('data-tab', tab.id);
+          m.className = tab.id === activeTab ? 'active' : '';
+          m.textContent = tab.title;
+          m.addEventListener('click', function () { setActive(tab.id); });
+          mobileTabs.appendChild(m);
+        });
+      }
+
+      function initDeskPreview() {
+        if (deskFullLink) deskFullLink.href = abs('/greenways/finance-desk');
+        if (!deskFrame || deskFrame.getAttribute('src')) return;
+        deskFrame.src = abs(deskFrame.getAttribute('data-desk-src') || '/greenways/finance-desk-embed');
+      }
+
+      document.getElementById('btnRefresh').addEventListener('click', function () {
+        var tab = findTab(activeTab);
+        if (tab.panel === 'vincent') return;
+        frame.src = abs(tab.src);
+      });
+
+      renderTabs();
+      setActive(activeTab);
+      initDeskPreview();
+
+      var params = new URLSearchParams(location.search);
+      var tabParam = params.get('tab');
+      if (tabParam && findTab(tabParam).id === tabParam) setActive(tabParam);
+    })();
+  </script>
+</body>
+</html>

@@ -47,6 +47,12 @@
     ["finance-desk", "finance-desk"],
     ["greenways-finance-prices-board", "finance-prices-board"],
     ["finance-prices-board", "finance-prices-board"],
+    ["greenways-finance-wire", "finance-wire"],
+    ["finance-wire", "finance-wire"],
+    ["greenways-finance-wire-main", "finance-wire-main"],
+    ["finance-wire-main", "finance-wire-main"],
+    ["greenways-finance-wire-news", "finance-wire-news"],
+    ["finance-wire-news", "finance-wire-news"],
     ["equipment_intelligence_tool", "etl-finder"],
     ["etl-official-site", "etl-official-site"],
     ["etl.energysecurity.gov.uk", "etl-official-site"],
@@ -139,6 +145,30 @@
       description: "Wholesale hub KPIs, sparklines, and compact market table — honest wholesale ≠ retail bill framing.",
       usageHint: "Check your hub first, then open Finance Finder or tariff compare for retail contracts and peak/off-peak timing.",
       href: "/greenways/finance-prices-board",
+      defaultOpenSize: "expanded"
+    },
+    "finance-wire": {
+      id: "finance-wire",
+      title: "Finance wire",
+      description: "Music Finder–style market scan — price ticker, prices board, finance news spotlights, with finance desk beneath.",
+      usageHint: "Scan the wire for what’s moving, then scroll to the finance desk module picker for calculators and funding paths.",
+      href: "/greenways/finance-wire",
+      defaultOpenSize: "near-full"
+    },
+    "finance-wire-main": {
+      id: "finance-wire-main",
+      title: "Finance wire main",
+      description: "Ticker lanes plus news spotlight tablets — Music Finder main-panel pattern for Vincent.",
+      usageHint: "Read the wholesale lanes, then open a spotlight story or Ask Vincent.",
+      href: "/greenways/finance-wire-main",
+      defaultOpenSize: "near-full"
+    },
+    "finance-wire-news": {
+      id: "finance-wire-news",
+      title: "Finance wire news",
+      description: "Funding and energy stories with a Vincent finance lens.",
+      usageHint: "Read spotlight cards first, then open a story or ask Vincent for the payback take.",
+      href: "/greenways/finance-wire-news",
       defaultOpenSize: "expanded"
     },
     "savings-projection": {

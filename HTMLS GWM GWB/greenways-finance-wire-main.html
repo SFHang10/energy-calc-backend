@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="wix-html-scroll" content="no-scroll" />
+  <title>Vincent — Finance wire main</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
+  <style>
+    :root {
+      --blue: #38bdf8;
+      --gold: #c9a961;
+      --bg: #070b12;
+      --panel: rgba(8, 14, 22, 0.82);
+      --border: rgba(56, 189, 248, 0.2);
+      --text: #e8f0ff;
+      --muted: #8ba3c4;
+      --font: 'Space Grotesk', sans-serif;
+      --clean: 'IBM Plex Sans', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; }
+    body {
+      background: transparent;
+      color: var(--text);
+      font-family: var(--font);
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding: 18px 0 28px;
+    }
+    body.embed-mode .page-nav { display: none; }
+    .wrap { width: min(1100px, calc(100vw - 28px)); margin: 0 auto; }
+    .page-nav { margin-bottom: 10px; }
+    .page-nav a {
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .header { text-align: center; margin-bottom: 18px; }
+    .header-eyebrow {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    .header-title {
+      font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+    }
+    .header-title span { color: var(--blue); }
+    .header-sub {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-top: 8px;
+      letter-spacing: 0.06em;
+    }
+    .ticker-shell {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      margin-bottom: 14px;
+    }
+    .ticker-row {
+      display: flex;
+      align-items: stretch;
+      min-height: 52px;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.12);
+    }
+    .ticker-row:last-child { border-bottom: none; }
+    .ticker-label {
+      flex-shrink: 0;
+      width: 168px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-right: 1px solid rgba(56, 189, 248, 0.14);
+      background: rgba(0, 0, 0, 0.35);
+    }
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .label-elec { color: var(--blue); }
+    .label-elec .dot { background: var(--blue); box-shadow: 0 0 8px rgba(56, 189, 248, 0.7); }
+    .label-renew { color: var(--gold); }
+    .label-renew .dot { background: var(--gold); box-shadow: 0 0 8px rgba(201, 169, 97, 0.7); }
+    .ticker-track-outer {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+    .ticker-track {
+      display: flex;
+      gap: 8px;
+      padding: 8px 10px;
+      animation: marquee 42s linear infinite;
+      width: max-content;
+    }
+    .ticker-track:hover { animation-play-state: paused; }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ticker-track { animation: none; flex-wrap: wrap; width: auto; }
+    }
+    .pill {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border-radius: 8px;
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      background: rgba(10, 18, 28, 0.9);
+      font-size: 0.78rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .pill.gold { border-color: rgba(201, 169, 97, 0.35); }
+    .pill .chg {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      font-weight: 500;
+    }
+    .pill .chg.up { color: #f87171; }
+    .pill .chg.down { color: #4ade80; }
+    .pill .chg.flat { color: var(--muted); }
+    .pill .tag {
+      font-family: var(--mono);
+      font-size: 0.52rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 2px 5px;
+      border-radius: 3px;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: var(--blue);
+    }
+    .pill.gold .tag {
+      border-color: rgba(201, 169, 97, 0.45);
+      color: var(--gold);
+    }
+    .hint {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      color: var(--muted);
+      text-align: center;
+      margin: 0 0 14px;
+      letter-spacing: 0.04em;
+    }
+    .cards-section {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    @media (max-width: 860px) {
+      .cards-section { grid-template-columns: 1fr; }
+      .ticker-label { width: 120px; font-size: 0.52rem; }
+    }
+    .detail-card {
+      position: relative;
+      background: rgba(8, 14, 22, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      border-radius: 12px;
+      padding: 14px 14px 12px;
+      min-height: 168px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28), 0 0 24px rgba(56, 189, 248, 0.06);
+      transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+    .detail-card:hover {
+      border-color: rgba(56, 189, 248, 0.55);
+      transform: translateY(-1px);
+    }
+    .detail-card.gold {
+      border-color: rgba(201, 169, 97, 0.35);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28), 0 0 24px rgba(201, 169, 97, 0.08);
+    }
+    .detail-card.gold:hover { border-color: rgba(201, 169, 97, 0.6); }
+    .card-type {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .detail-card.gold .card-type { color: var(--gold); }
+    .card-type-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--blue);
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.7);
+    }
+    .detail-card.gold .card-type-dot {
+      background: var(--gold);
+      box-shadow: 0 0 8px rgba(201, 169, 97, 0.7);
+    }
+    .card-date {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 3px;
+      display: inline-block;
+      margin-bottom: 9px;
+      background: #0a1f3a;
+      color: var(--blue);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      width: fit-content;
+    }
+    .detail-card.gold .card-date {
+      background: #2a2208;
+      color: var(--gold);
+      border-color: rgba(201, 169, 97, 0.35);
+    }
+    .card-title-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .card-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      line-height: 1.25;
+      flex: 1;
+    }
+    .card-new-badge {
+      flex-shrink: 0;
+      font-family: var(--mono);
+      font-size: 0.52rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 2px 5px;
+      border-radius: 3px;
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      color: var(--blue);
+    }
+    .detail-card.gold .card-new-badge {
+      border-color: rgba(201, 169, 97, 0.5);
+      color: var(--gold);
+    }
+    .card-venue {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: rgba(56, 189, 248, 0.75);
+      margin-bottom: 8px;
+    }
+    .detail-card.gold .card-venue { color: rgba(201, 169, 97, 0.8); }
+    .card-desc {
+      font-family: var(--clean);
+      font-size: 0.78rem;
+      line-height: 1.45;
+      color: var(--muted);
+      flex: 1;
+      margin-bottom: 12px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: auto;
+    }
+    .card-actions a {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 9px;
+      border-radius: 4px;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      background: rgba(56, 189, 248, 0.08);
+      color: #9fdcf8;
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .detail-card.gold .card-actions a {
+      border-color: rgba(201, 169, 97, 0.4);
+      background: rgba(201, 169, 97, 0.08);
+      color: #e8d5a3;
+    }
+    .card-more {
+      font-family: var(--mono);
+      font-size: 0.52rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--blue);
+      opacity: 0.55;
+      margin-top: 8px;
+    }
+    .detail-card.gold .card-more { color: var(--gold); }
+    .status {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .status.error { color: #f87171; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="page-nav"><a href="/greenways/finance-wire">← Finance wire</a></nav>
+    <header class="header">
+      <div class="header-eyebrow">Finance wire · prices &amp; stories</div>
+      <h1 class="header-title">Vincent <span>Wire</span></h1>
+      <p class="header-sub">Wholesale guide above · funding &amp; market spotlights below</p>
+    </header>
+
+    <div class="ticker-shell" aria-label="Energy price lanes">
+      <div class="ticker-row">
+        <div class="ticker-label label-elec"><span class="dot"></span>Wholesale hubs</div>
+        <div class="ticker-track-outer">
+          <div class="ticker-track" id="track-elec"></div>
+        </div>
+      </div>
+      <div class="ticker-row">
+        <div class="ticker-label label-renew"><span class="dot"></span>Renewable share</div>
+        <div class="ticker-track-outer">
+          <div class="ticker-track" id="track-renew"></div>
+        </div>
+      </div>
+    </div>
+    <p class="hint">↑ wholesale ≠ retail bill · pair with Finance desk for payback &amp; funding</p>
+    <div class="status" id="status">Loading market spotlights…</div>
+    <div class="cards-section" id="cards"></div>
+  </div>
+
+  <script>
+    (function () {
+      function origin() {
+        var h = location.hostname || '';
+        if (h === 'localhost' || h === '127.0.0.1' || h.indexOf('energy-calc-backend') !== -1) {
+          return location.origin || '';
+        }
+        return 'https://energy-calc-backend.onrender.com';
+      }
+
+      function esc(s) {
+        return String(s || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function fmtChg(pct) {
+        var n = Number(pct);
+        if (!Number.isFinite(n) || n === 0) return { text: 'flat', cls: 'flat' };
+        if (n > 0) return { text: '+' + n.toFixed(1) + '%', cls: 'up' };
+        return { text: n.toFixed(1) + '%', cls: 'down' };
+      }
+
+      function duplicateTrack(html) {
+        return html + html;
+      }
+
+      function renderTicker(data) {
+        var elec = document.getElementById('track-elec');
+        var renew = document.getElementById('track-renew');
+        var rows = (data && data.allEnergy) || [];
+        var ren = (data && data.renewableShare) || [];
+        var elecHtml = rows.slice(0, 10).map(function (r) {
+          var ch = fmtChg(r.changePct);
+          var p = Number(r.priceEurMwh);
+          return (
+            '<span class="pill">' +
+            '<strong>' + esc(r.name || r.code) + '</strong>' +
+            '<span>' + (Number.isFinite(p) ? '€' + p.toFixed(1) + '/MWh' : '—') + '</span>' +
+            '<span class="chg ' + ch.cls + '">' + ch.text + '</span>' +
+            (Math.abs(Number(r.changePct) || 0) >= 1 ? '<span class="tag">Move</span>' : '') +
+            '</span>'
+          );
+        }).join('');
+        var renHtml = ren.slice(0, 10).map(function (r) {
+          var ch = fmtChg(r.changePct);
+          var s = Number(r.sharePct);
+          return (
+            '<span class="pill gold">' +
+            '<strong>' + esc(r.name || r.code) + '</strong>' +
+            '<span>' + (Number.isFinite(s) ? s.toFixed(1) + '%' : '—') + '</span>' +
+            '<span class="chg ' + ch.cls + '">' + ch.text + '</span>' +
+            '<span class="tag">Mix</span>' +
+            '</span>'
+          );
+        }).join('');
+        elec.innerHTML = duplicateTrack(elecHtml || '<span class="pill">No hub data</span>');
+        renew.innerHTML = duplicateTrack(renHtml || '<span class="pill gold">No renewable share data</span>');
+      }
+
+      function itemHref(item) {
+        if (item && item.url && /^https?:\/\//i.test(item.url)) return item.url;
+        if (item && item.href) {
+          if (/^https?:\/\//i.test(item.href)) return item.href;
+          return origin() + (item.href.charAt(0) === '/' ? item.href : '/' + item.href);
+        }
+        return origin() + '/greenways/finance-wire-news';
+      }
+
+      function blurb(item) {
+        return item.summary || item.excerpt || item.description || item.teaser || 'Open for the full story — Vincent can map it to payback or funding.';
+      }
+
+      function renderCards(items) {
+        var status = document.getElementById('status');
+        var cards = document.getElementById('cards');
+        var top = (items || []).slice(0, 3);
+        if (!top.length) {
+          status.className = 'status error';
+          status.textContent = 'No spotlights yet — open Finance news or ask Vincent.';
+          cards.innerHTML = '';
+          return;
+        }
+        status.textContent = 'Market spotlights · finance lens';
+        var kickers = ['Market spotlight', 'Market spotlight', 'Funding spotlight'];
+        cards.innerHTML = top.map(function (item, i) {
+          var gold = i === 2 ? ' gold' : '';
+          var tag = item.newsCategory || item.edition || item.topic || 'News';
+          var href = itemHref(item);
+          return (
+            '<article class="detail-card' + gold + '">' +
+            '<div class="card-type"><span class="card-type-dot"></span>' + esc(kickers[i]) + '</div>' +
+            '<div class="card-date">' + esc(tag) + '</div>' +
+            '<div class="card-title-row">' +
+            '<div class="card-title">' + esc(item.title || 'Untitled') + '</div>' +
+            (i === 0 ? '<span class="card-new-badge">New</span>' : '') +
+            '</div>' +
+            '<div class="card-venue">' + esc(item.source || item.edition || 'Greenways news') + '</div>' +
+            '<div class="card-desc">' + esc(blurb(item)) + '</div>' +
+            '<div class="card-actions">' +
+            '<a href="' + esc(href) + '" target="_top" rel="noopener">Open story</a>' +
+            '<a href="' + origin() + '/greenways/finance-agent" target="_top" rel="noopener">Ask Vincent</a>' +
+            '<a href="' + origin() + '/greenways/finance-desk" target="_top" rel="noopener">Desk</a>' +
+            '</div>' +
+            '<div class="card-more">Spotlight tablet</div>' +
+            '</article>'
+          );
+        }).join('');
+      }
+
+      var base = origin();
+      Promise.all([
+        fetch(base + '/api/energy-ticker').then(function (r) { return r.ok ? r.json() : null; }),
+        fetch(base + '/api/media-agent/news?q=finance%20grant%20energy%20price%20loan&limit=6')
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            if (data && data.items && data.items.length) return data;
+            return fetch(base + '/api/media-agent/news?limit=6').then(function (r2) {
+              return r2.ok ? r2.json() : null;
+            });
+          })
+      ])
+        .then(function (pair) {
+          renderTicker(pair[0] || {});
+          renderCards((pair[1] && pair[1].items) || []);
+        })
+        .catch(function () {
+          document.getElementById('status').className = 'status error';
+          document.getElementById('status').textContent = 'Could not load wire — try Refresh panel.';
+        });
+    })();
+  </script>
+</body>
+</html>
