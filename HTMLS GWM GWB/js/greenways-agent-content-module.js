@@ -147,20 +147,20 @@
       href: "/greenways/finance-prices-board",
       defaultOpenSize: "expanded"
     },
-    "finance-wire": {
-      id: "finance-wire",
-      title: "Finance wire",
-      description: "Music Finder–style market scan — wholesale ticker lanes plus news spotlight tablets.",
-      usageHint: "In chat, the modal shows ticker + tablets. Open full page for the finance desk module picker beneath.",
-      href: "/greenways/finance-wire",
-      defaultOpenSize: "near-full"
-    },
     "finance-wire-main": {
       id: "finance-wire-main",
-      title: "Finance wire main",
+      title: "Finance wire",
       description: "Ticker lanes plus news spotlight tablets — Music Finder main-panel pattern for Vincent.",
-      usageHint: "Read the wholesale lanes, then open a spotlight story or Ask Vincent.",
+      usageHint: "Wholesale lanes on top, three news tablets below. Open Wire hub for the full scan rail + desk.",
       href: "/greenways/finance-wire-main",
+      defaultOpenSize: "near-full"
+    },
+    "finance-wire": {
+      id: "finance-wire",
+      title: "Finance wire hub",
+      description: "Full market scan hub — rail tabs plus finance desk beneath.",
+      usageHint: "Use from Full page for ticker, board, news list, and desk together.",
+      href: "/greenways/finance-wire",
       defaultOpenSize: "near-full"
     },
     "finance-wire-news": {
