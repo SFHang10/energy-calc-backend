@@ -43,6 +43,17 @@
     }
     body.embed-mode .finance-page-nav,
     body.embed-mode .back-row { display: none !important; }
+    /* Chat/module iframe: show market scan only — desk stays a full-page companion below */
+    body.embed-mode .hub-scroll-separator,
+    body.embed-mode .hub-desk-section { display: none !important; }
+    body.embed-mode .hub-scan-block {
+      margin-bottom: 12px;
+      height: min(78vh, 900px);
+      min-height: 560px;
+    }
+    body.embed-mode .shell { min-height: 0; }
+    body.embed-mode { min-height: 0; }
+    html.embed-mode, html.embed-mode body { min-height: 0; }
     .wire-backdrop {
       position: fixed;
       inset: 0;
@@ -602,6 +613,7 @@
       }
 
       function initDeskPreview() {
+        if (document.body.classList.contains('embed-mode')) return;
         if (deskFullLink) deskFullLink.href = abs('/greenways/finance-desk');
         if (!deskFrame || deskFrame.getAttribute('src')) return;
         deskFrame.src = abs(deskFrame.getAttribute('data-desk-src') || '/greenways/finance-desk-embed');

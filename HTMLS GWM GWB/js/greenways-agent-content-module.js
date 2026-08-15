@@ -150,8 +150,8 @@
     "finance-wire": {
       id: "finance-wire",
       title: "Finance wire",
-      description: "Music Finder–style market scan — price ticker, prices board, finance news spotlights, with finance desk beneath.",
-      usageHint: "Scan the wire for what’s moving, then scroll to the finance desk module picker for calculators and funding paths.",
+      description: "Music Finder–style market scan — wholesale ticker lanes plus news spotlight tablets.",
+      usageHint: "In chat, the modal shows ticker + tablets. Open full page for the finance desk module picker beneath.",
       href: "/greenways/finance-wire",
       defaultOpenSize: "near-full"
     },
