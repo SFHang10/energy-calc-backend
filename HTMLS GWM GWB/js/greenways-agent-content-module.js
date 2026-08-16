@@ -149,18 +149,18 @@
     },
     "finance-wire-main": {
       id: "finance-wire-main",
-      title: "Finance wire",
+      title: "Finance wire main",
       description: "Ticker lanes plus news spotlight tablets — Music Finder main-panel pattern for Vincent.",
-      usageHint: "Wholesale lanes on top, three news tablets below. Open Wire hub for the full scan rail + desk.",
+      usageHint: "Wholesale lanes on top, three news tablets below. Prefer Finance wire for the full scan + desk hub.",
       href: "/greenways/finance-wire-main",
       defaultOpenSize: "near-full"
     },
     "finance-wire": {
       id: "finance-wire",
-      title: "Finance wire hub",
-      description: "Full market scan hub — rail tabs plus finance desk beneath.",
-      usageHint: "Use from Full page for ticker, board, news list, and desk together.",
-      href: "/greenways/finance-wire",
+      title: "Finance wire",
+      description: "Vincent’s joint market scan — ticker, news tablets, and finance desk in one place.",
+      usageHint: "Scroll the scan rail (prices / news), then the desk below for bills, payback, and funding tools.",
+      href: "/greenways/finance-wire-embed",
       defaultOpenSize: "near-full"
     },
     "finance-wire-news": {

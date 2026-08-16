@@ -27,7 +27,8 @@
       --font: 'Space Grotesk', sans-serif;
       --font-clean: 'IBM Plex Sans', system-ui, sans-serif;
       --mono: 'JetBrains Mono', monospace;
-      --wire-backdrop-image: url("https://static.wixstatic.com/media/c123de_1fe1c58ec83544f0b0eaf57cf9ac4e02~mv2.avif");
+      /* Shared with Finance desk — same photo so the pair feels linked */
+      --vincent-backdrop-image: url("https://static.wixstatic.com/media/c123de_1fe1c58ec83544f0b0eaf57cf9ac4e02~mv2.avif");
       --scan-panel-h: min(62vh, 820px);
       --desk-panel-h: min(58vh, 760px);
       --embed-min-h: 1280px;
@@ -35,7 +36,12 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { height: 100%; min-height: var(--embed-min-h); }
     body {
-      background: var(--black);
+      background-color: var(--black);
+      background-image: var(--vincent-backdrop-image);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
       color: var(--text);
       font-family: var(--font);
       overflow-x: hidden;
@@ -43,30 +49,38 @@
     }
     body.embed-mode .finance-page-nav,
     body.embed-mode .back-row { display: none !important; }
-    /* Chat/module iframe: show market scan only — desk stays a full-page companion below */
-    body.embed-mode .hub-scroll-separator,
-    body.embed-mode .hub-desk-section { display: none !important; }
-    body.embed-mode .hub-scan-block {
-      margin-bottom: 12px;
-      height: min(78vh, 900px);
-      min-height: 560px;
+    /* Chat/module: keep joint scan + desk (scroll inside modal) */
+    body.embed-mode {
+      min-height: 0;
+      background-attachment: scroll;
+      background-color: #070b12;
     }
-    body.embed-mode .shell { min-height: 0; }
-    body.embed-mode { min-height: 0; }
+    body.embed-mode .shell {
+      min-height: 0;
+    }
+    body.embed-mode .hub-scan-block {
+      height: min(52vh, 620px);
+      min-height: 420px;
+      margin-bottom: 0;
+    }
+    body.embed-mode .hub-desk-section {
+      min-height: min(48vh, 560px);
+      margin-bottom: 12px;
+    }
+    body.embed-mode .desk-frame-wrap {
+      min-height: 400px;
+    }
     html.embed-mode, html.embed-mode body { min-height: 0; }
+    /* Same restaurant photo + overlay — darker finance charcoal so mid-tones stay deep grey */
     .wire-backdrop {
       position: fixed;
       inset: 0;
       z-index: 0;
       pointer-events: none;
-      background-color: #070b12;
-      background-image:
-        linear-gradient(165deg, rgba(5, 10, 18, 0.88) 0%, rgba(8, 14, 24, 0.78) 45%, rgba(5, 10, 18, 0.9) 100%),
-        radial-gradient(ellipse 80% 55% at 50% -10%, rgba(56, 189, 248, 0.14), transparent 55%),
-        var(--wire-backdrop-image);
-      background-size: cover;
-      background-position: center;
-      filter: saturate(1.05) contrast(1.03) brightness(0.88);
+      background:
+        linear-gradient(180deg, rgba(5, 9, 14, 0.62) 0%, rgba(8, 12, 18, 0.72) 45%, rgba(4, 7, 12, 0.82) 100%),
+        radial-gradient(ellipse 80% 55% at 50% -10%, rgba(56, 189, 248, 0.1), transparent 55%),
+        radial-gradient(circle at 100% 85%, rgba(201, 169, 97, 0.08), transparent 42%);
     }
     .shell {
       position: relative;
@@ -96,7 +110,7 @@
     }
     header {
       flex-shrink: 0;
-      background: rgba(14, 21, 32, 0.72);
+      background: rgba(10, 15, 24, 0.9);
       backdrop-filter: blur(10px);
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -163,7 +177,7 @@
       border: 1px solid var(--border);
       border-radius: 14px;
       overflow: hidden;
-      background: rgba(8, 12, 20, 0.55);
+      background: rgba(6, 10, 16, 0.88);
       backdrop-filter: blur(8px);
       margin: 0 14px;
       max-width: 1280px;
@@ -176,7 +190,7 @@
       gap: 6px;
       padding: 8px 12px;
       border-bottom: 1px solid var(--border);
-      background: rgba(14, 21, 32, 0.9);
+      background: rgba(8, 12, 20, 0.94);
       flex-shrink: 0;
     }
     .mobile-tabs button {
@@ -203,7 +217,7 @@
       min-height: 0;
     }
     aside {
-      background: rgba(14, 21, 32, 0.82);
+      background: rgba(8, 12, 20, 0.92);
       border-right: 1px solid var(--border);
       overflow-y: auto;
       display: flex;
@@ -264,7 +278,7 @@
       flex-shrink: 0;
       padding: 7px 12px;
       border-bottom: 1px solid var(--border);
-      background: rgba(14, 21, 32, 0.88);
+      background: rgba(8, 12, 20, 0.94);
     }
     .main-toolbar span {
       font-family: var(--mono);
@@ -281,7 +295,8 @@
       width: 100%;
       height: 100%;
       border: 0;
-      background: #0a1018;
+      background: #070b12;
+      color-scheme: dark;
     }
     .placeholder-panel {
       display: none;
@@ -349,7 +364,7 @@
       border: 1px solid rgba(201, 169, 97, 0.28);
       border-radius: 14px;
       overflow: hidden;
-      background: rgba(8, 12, 20, 0.55);
+      background: rgba(6, 10, 16, 0.9);
       backdrop-filter: blur(8px);
       min-height: var(--desk-panel-h);
       display: flex;
@@ -363,7 +378,7 @@
       flex-wrap: wrap;
       padding: 9px 12px;
       border-bottom: 1px solid rgba(201, 169, 97, 0.22);
-      background: rgba(14, 21, 32, 0.88);
+      background: rgba(8, 12, 20, 0.94);
     }
     .desk-toolbar-title {
       display: flex;
@@ -396,7 +411,7 @@
       flex: 1;
       min-height: 480px;
       position: relative;
-      background: #0a1018;
+      background: #070b12;
     }
     .desk-frame-wrap iframe {
       position: absolute;
@@ -404,6 +419,8 @@
       width: 100%;
       height: 100%;
       border: 0;
+      background: #070b12;
+      color-scheme: dark;
     }
     .wix-embed-footer {
       text-align: center;
@@ -475,7 +492,7 @@
 
     <div class="hub-scroll-separator" role="region" aria-label="Scroll to finance desk">
       <span aria-hidden="true">···</span>
-      <span>Independent module below · finance desk</span>
+      <span>Finance desk below · bills · prices · payback</span>
       <span class="hub-scroll-separator-chevron" aria-hidden="true">↓</span>
     </div>
 
@@ -483,12 +500,12 @@
       <div class="desk-toolbar">
         <div class="desk-toolbar-title">
           <span>Finance desk</span>
-          <span class="desk-preview-badge">Module picker</span>
+          <span class="desk-preview-badge">In this hub</span>
         </div>
         <a class="desk-full-link" id="deskFullLink" href="/greenways/finance-desk" target="_top" rel="noopener">Open full desk →</a>
       </div>
       <div class="desk-frame-wrap">
-        <iframe id="deskFrame" title="Vincent finance desk" data-desk-src="/greenways/finance-desk-embed" loading="lazy"></iframe>
+        <iframe id="deskFrame" title="Vincent finance desk" data-desk-src="/greenways/finance-desk-embed"></iframe>
       </div>
     </section>
 
@@ -613,7 +630,6 @@
       }
 
       function initDeskPreview() {
-        if (document.body.classList.contains('embed-mode')) return;
         if (deskFullLink) deskFullLink.href = abs('/greenways/finance-desk');
         if (!deskFrame || deskFrame.getAttribute('src')) return;
         deskFrame.src = abs(deskFrame.getAttribute('data-desk-src') || '/greenways/finance-desk-embed');
