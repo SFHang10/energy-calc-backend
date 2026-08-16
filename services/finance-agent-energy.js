@@ -90,6 +90,7 @@ module.exports = {
   loadEnergySnapshot,
   formatModellingTariffLine,
   formatWholesaleBullets,
+  formatChange,
   volatilityHint,
   findMarketRow
 };

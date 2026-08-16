@@ -57,6 +57,7 @@ Staff / scripts / review  →  Tier 1 canonical JSON  →  Tier 2 generators  �
 | `npm run build:deals-feed` | `data/deals-feed.json` | Weekly or after deals seeds/input |
 | `npm run build:agent-highlights` | `data/greenways-agent-highlights.json` | Weekly — powers sidebar **This week** nudge on all seven agents |
 | `npm run build:media-daily-brief` | `data/media-daily-brief.json` | After new news edition |
+| `npm run build:finance-daily-review` | `data/finance-daily-review.json` | Daily (or after media brief) — Vincent price skim |
 | `npm run enrich:sustainable-products` | Grant overlay on `sust_*` catalog | After catalog or schemes change |
 | `npm run enrich:video-knowledge` | Draft Cheryce video summaries (captions/metadata → approve → `--merge`) | When adding YouTube ids or refreshing pointers |
 | `npm run sync:content-module-knowledge:apply` | Agent knowledge module blocks | After portal copy in content-modules |

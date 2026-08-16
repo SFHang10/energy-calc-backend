@@ -69,6 +69,26 @@ router.get('/briefing', async (_req, res) => {
   }
 });
 
+router.get('/daily-review', async (_req, res) => {
+  try {
+    const {
+      loadFinanceDailyReview,
+      composeFinanceDailyReview
+    } = require('../services/finance-daily-review');
+    let review = await loadFinanceDailyReview();
+    if (!review) {
+      review = await composeFinanceDailyReview({
+        profile: { region: 'nl', sector: 'restaurant' },
+        source: 'on-demand'
+      });
+    }
+    res.json({ ok: true, review });
+  } catch (error) {
+    console.error('Finance agent daily-review error:', error.message);
+    res.status(500).json({ ok: false, error: 'Failed to load daily price review.' });
+  }
+});
+
 router.get('/samples', async (req, res) => {
   try {
     const limit = Math.min(6, Math.max(1, Number(req.query.limit) || 3));

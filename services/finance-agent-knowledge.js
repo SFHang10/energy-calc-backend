@@ -60,6 +60,7 @@ const {
   buildSustainabilityFinanceNewsAnswer,
   buildFundingNewsAnswer
 } = require('./finance-agent-news');
+const { buildDailyReviewAnswer, loadFinanceDailyReview } = require('./finance-daily-review');
 const {
   buildHandoffTopicSummary,
   isReferralWelcomePair
@@ -647,10 +648,15 @@ async function buildEnergyPricesAnswer(profile, tip) {
   const ctx = profileContextLine(profile);
   const sensitivity = paybackSensitivityLine(snapshot, profile);
   const ctxPrompt = profileContextPrompt(profile);
+  const daily = await loadFinanceDailyReview();
+  const dailyLine = daily?.headline
+    ? `**Today's brief (${daily.meta?.briefDate || 'latest'}):** ${daily.headline} — ask *today's price review* for the full skim.\n\n`
+    : '';
 
   return {
     answer:
       `${ctx}\n\n` +
+      dailyLine +
       `**Energy prices (${regionLabel})** — wholesale €/MWh helps you time upgrades and tariff reviews. Your bill also depends on supplier, pass-through clauses, and time-of-use, so retail contracts can move differently from the board.\n\n` +
       `${headline}\n\n` +
       (modelling ? `${modelling}\n\n` : '') +
@@ -980,6 +986,9 @@ async function answerFromKnowledge(question, profile = {}) {
       break;
     case 'energy_prices':
       result = await buildEnergyPricesAnswer(profile, tip);
+      break;
+    case 'daily_price_review':
+      result = await buildDailyReviewAnswer(profile, tip);
       break;
     case 'price_upgrade_case':
       result = await buildPriceUpgradeCaseAnswer(schemes, profile, tip);

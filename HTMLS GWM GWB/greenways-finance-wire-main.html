@@ -369,6 +369,44 @@
       margin-bottom: 10px;
     }
     .status.error { color: #f87171; }
+    .daily-review {
+      margin: 0 0 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(201, 169, 97, 0.35);
+      background: rgba(8, 12, 20, 0.9);
+      text-align: left;
+    }
+    .daily-review-kicker {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+    .daily-review h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 0 0 8px;
+      letter-spacing: -0.02em;
+    }
+    .daily-review ul {
+      margin: 0;
+      padding-left: 1.1rem;
+      color: var(--muted);
+      font-family: var(--clean);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+    .daily-review li { margin-bottom: 4px; }
+    .daily-review li strong { color: var(--text); font-weight: 600; }
+    .daily-review-meta {
+      margin-top: 8px;
+      font-size: 0.68rem;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
   </style>
 </head>
 <body>
@@ -379,6 +417,13 @@
       <h1 class="header-title">Vincent <span>Wire</span></h1>
       <p class="header-sub">Wholesale guide above · funding &amp; market spotlights below</p>
     </header>
+
+    <section class="daily-review" id="dailyReview" hidden aria-live="polite">
+      <div class="daily-review-kicker">Today’s review</div>
+      <h2 id="dailyReviewHeadline"></h2>
+      <ul id="dailyReviewBullets"></ul>
+      <p class="daily-review-meta" id="dailyReviewMeta"></p>
+    </section>
 
     <div class="ticker-shell" aria-label="Energy price lanes">
       <div class="ticker-row">
@@ -517,6 +562,27 @@
         }).join('');
       }
 
+      function renderDailyReview(payload) {
+        var box = document.getElementById('dailyReview');
+        var review = payload && payload.review ? payload.review : payload;
+        if (!box || !review || !review.headline) return;
+        box.hidden = false;
+        document.getElementById('dailyReviewHeadline').textContent = review.headline;
+        var ul = document.getElementById('dailyReviewBullets');
+        var bullets = (review.bullets || []).slice(0, 4);
+        ul.innerHTML = bullets
+          .map(function (b) {
+            var t = esc(b.text || '').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            return '<li>' + t + '</li>';
+          })
+          .join('');
+        var meta = document.getElementById('dailyReviewMeta');
+        var date = (review.meta && review.meta.briefDate) || '';
+        meta.textContent =
+          (date ? 'As of ' + date + ' · ' : '') +
+          'Wholesale ≠ retail · Ask Vincent “today’s price review” for the chat version';
+      }
+
       var base = origin();
       Promise.all([
         fetch(base + '/api/energy-ticker').then(function (r) { return r.ok ? r.json() : null; }),
@@ -527,11 +593,15 @@
             return fetch(base + '/api/media-agent/news?limit=6').then(function (r2) {
               return r2.ok ? r2.json() : null;
             });
-          })
+          }),
+        fetch(base + '/api/finance-agent/daily-review')
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .catch(function () { return null; })
       ])
         .then(function (pair) {
           renderTicker(pair[0] || {});
           renderCards((pair[1] && pair[1].items) || []);
+          if (pair[2] && pair[2].ok) renderDailyReview(pair[2]);
         })
         .catch(function () {
           document.getElementById('status').className = 'status error';
