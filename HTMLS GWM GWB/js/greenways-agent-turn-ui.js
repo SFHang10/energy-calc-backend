@@ -766,7 +766,7 @@
         return (
           '<a class="agent-handoff-chip" href="' +
           escapeHtml(resolveHandoffHref(h)) +
-          '" target="_top" rel="noopener" data-prompt="' +
+          '" target="_top" rel="noopener" title="Confirm before opening — topic is prepared, not auto-sent" data-prompt="' +
           escapeHtml(prompt) +
           '">' +
           escapeHtml(h.name || h.id) +
@@ -780,7 +780,7 @@
       '<div class="agent-handoff-chips">' +
       chips +
       "</div>" +
-      '<p class="agent-handoff-hint">Tap a name to open that specialist with your question. Use ' +
+      '<p class="agent-handoff-hint">Tap a name to confirm a handoff — we prepare the topic for that specialist; nothing is sent until you ask. Use ' +
       '<button type="button" class="agent-handoff-journey-link" data-open-journey="1">Journey</button> ' +
       "at the top for a summary of your conversation across all our agents.</p>" +
       "</div>"

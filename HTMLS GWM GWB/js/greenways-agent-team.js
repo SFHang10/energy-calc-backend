@@ -1098,6 +1098,152 @@
   }
 
   function bindHandoffChipClicks(ctx) {
+    var confirmRoot = null;
+
+    function closeHandoffConfirm() {
+      if (confirmRoot && confirmRoot.parentNode) confirmRoot.parentNode.removeChild(confirmRoot);
+      confirmRoot = null;
+      document.removeEventListener('keydown', onConfirmKeydown, true);
+    }
+
+    function onConfirmKeydown(ev) {
+      if (ev.key === 'Escape') {
+        ev.preventDefault();
+        closeHandoffConfirm();
+      }
+    }
+
+    function agentLabelForSlug(slug, fallback) {
+      var roster = rosterCache || FALLBACK_ROSTER;
+      var agent = findAgentInRoster(roster, slug);
+      if (agent && agent.name) return agent.name;
+      return String(fallback || slug || 'specialist').trim();
+    }
+
+    function softHandoffHref(path, topic, fromLabel) {
+      var base = String(path || '').split('?')[0] || '/greenways/grants-agent';
+      if (
+        global.GreenwaysAgentTopicBridge &&
+        typeof global.GreenwaysAgentTopicBridge.buildHref === 'function'
+      ) {
+        var toSlug = slugFromPath(base);
+        return global.GreenwaysAgentTopicBridge.buildHref({
+          path: base,
+          toSlug: toSlug,
+          topic: topic,
+          fromLabel: fromLabel,
+          fromSlug: ctx.currentSlug,
+          fromIntentId: 'handoff_confirm',
+          handoffKey: 'topic_bridge',
+          suggestions: topic
+            ? [
+                { label: 'Ask this', prompt: topic },
+                { label: 'How does this fit?', prompt: 'How does this relate to my restaurant energy costs: ' + topic }
+              ]
+            : undefined
+        });
+      }
+      var qs = new URLSearchParams();
+      qs.set('bridge', '1');
+      if (topic) qs.set('topic', topic);
+      if (fromLabel) qs.set('from', fromLabel);
+      return base + '?' + qs.toString();
+    }
+
+    function showHandoffConfirm(link, payload) {
+      closeHandoffConfirm();
+
+      var root = document.createElement('div');
+      root.id = 'gw-handoff-confirm-root';
+      root.className = 'gw-handoff-confirm-root';
+
+      var backdrop = document.createElement('button');
+      backdrop.type = 'button';
+      backdrop.className = 'gw-handoff-confirm-backdrop';
+      backdrop.setAttribute('aria-label', 'Dismiss');
+      backdrop.addEventListener('click', closeHandoffConfirm);
+
+      var pop = document.createElement('div');
+      pop.className = 'gw-handoff-confirm';
+      pop.setAttribute('role', 'dialog');
+      pop.setAttribute('aria-modal', 'true');
+      pop.setAttribute('aria-labelledby', 'gw-handoff-confirm-title');
+
+      var subject = String(payload.topic || payload.question || '').trim();
+      var subjectHtml = subject
+        ? '<p class="gw-handoff-confirm-subject">“' + escapeHtml(subject) + '”</p>'
+        : '<p class="gw-handoff-confirm-subject is-muted">Your recent chat context will travel with you.</p>';
+
+      pop.innerHTML =
+        '<p class="gw-handoff-confirm-kicker">Specialist handoff</p>' +
+        '<h3 id="gw-handoff-confirm-title">Ask ' +
+        escapeHtml(payload.toName) +
+        ' about this?</h3>' +
+        subjectHtml +
+        '<p class="gw-handoff-confirm-note">Opens their chat with this topic ready — nothing is sent until you ask.</p>' +
+        '<div class="gw-handoff-confirm-actions">' +
+        '<button type="button" class="gw-handoff-confirm-stay">Stay here</button>' +
+        '<button type="button" class="gw-handoff-confirm-go">Ask ' +
+        escapeHtml(payload.toName) +
+        '</button>' +
+        '</div>';
+
+      root.appendChild(backdrop);
+      root.appendChild(pop);
+      document.body.appendChild(root);
+      confirmRoot = root;
+      document.addEventListener('keydown', onConfirmKeydown, true);
+
+      var rect = link.getBoundingClientRect();
+      var popW = Math.min(340, window.innerWidth - 24);
+      var left = Math.max(12, Math.min(rect.left, window.innerWidth - popW - 12));
+      var top = rect.bottom + 10;
+      if (top + 220 > window.innerHeight) {
+        top = Math.max(12, rect.top - 220);
+      }
+      pop.style.width = popW + 'px';
+      pop.style.left = left + 'px';
+      pop.style.top = top + 'px';
+
+      pop.querySelector('.gw-handoff-confirm-stay').addEventListener('click', closeHandoffConfirm);
+      pop.querySelector('.gw-handoff-confirm-go').addEventListener('click', function () {
+        if (payload.profile) writeSharedProfile(payload.profile);
+
+        var topic = subject || payload.topicSummary || '';
+        var href = softHandoffHref(payload.path, topic, payload.fromName);
+
+        // Write after soft href builders (TopicBridge may also write) so the prompt is kept for banner / first ask
+        writeHandoff({
+          fromSlug: payload.fromSlug,
+          fromName: payload.fromName,
+          toSlug: payload.toSlug,
+          question: payload.question,
+          summary: payload.summary,
+          topicSummary: payload.topicSummary,
+          fromIntentId: payload.fromIntentId,
+          handoffKey: payload.handoffKey || 'handoff_confirm',
+          chainId: payload.chainId || '',
+          siteId: payload.siteId || '',
+          companyId: payload.companyId || '',
+          profile: payload.profile
+        });
+
+        closeHandoffConfirm();
+        try {
+          if (global.top && global.top !== global) {
+            global.top.location.href = href;
+          } else {
+            global.location.href = href;
+          }
+        } catch (_) {
+          global.location.href = href;
+        }
+      });
+
+      var goBtn = pop.querySelector('.gw-handoff-confirm-go');
+      if (goBtn && typeof goBtn.focus === 'function') goBtn.focus();
+    }
+
     document.addEventListener('click', function (ev) {
       var link = ev.target.closest('a.agent-handoff-chip');
       if (!link) return;
@@ -1107,6 +1253,10 @@
 
       var toSlug = slugFromHref(href);
       if (!toSlug) return;
+
+      // Confirm first — avoid accidental navigation to another agent
+      ev.preventDefault();
+      ev.stopPropagation();
 
       var question =
         link.getAttribute('data-prompt') ||
@@ -1137,22 +1287,35 @@
       var profile = null;
       if (typeof ctx.getProfile === 'function') profile = ctx.getProfile();
 
-      writeHandoff({
-        fromSlug: ctx.currentSlug,
-        fromName: typeof ctx.getAgentName === 'function' ? ctx.getAgentName() : 'Agent',
+      var path = href;
+      try {
+        path = new URL(href, global.location.origin).pathname;
+      } catch (_) {
+        path = String(href).split('?')[0];
+      }
+
+      var toName =
+        String(link.textContent || '').trim() || agentLabelForSlug(toSlug, toSlug);
+      var fromName =
+        typeof ctx.getAgentName === 'function' ? ctx.getAgentName() : 'Agent';
+
+      showHandoffConfirm(link, {
+        path: path,
         toSlug: toSlug,
+        toName: toName,
+        fromSlug: ctx.currentSlug,
+        fromName: fromName,
         question: question,
+        topic: question || topicSummary,
         summary: summary,
         topicSummary: topicSummary,
         fromIntentId: fromIntentId,
-        handoffKey: link.getAttribute('data-handoff-key') || link.dataset.handoffKey || '',
+        handoffKey: link.getAttribute('data-handoff-key') || link.dataset.handoffKey || 'handoff_confirm',
         chainId: (profile && profile.chainId) || '',
         siteId: (profile && profile.siteId) || '',
         companyId: (profile && profile.companyId) || '',
         profile: profile
       });
-
-      if (profile) writeSharedProfile(profile);
     });
   }
 
