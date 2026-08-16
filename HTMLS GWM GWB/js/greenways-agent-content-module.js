@@ -51,8 +51,10 @@
     ["finance-wire", "finance-wire"],
     ["greenways-finance-wire-main", "finance-wire-main"],
     ["finance-wire-main", "finance-wire-main"],
-    ["greenways-finance-wire-news", "finance-wire-news"],
-    ["finance-wire-news", "finance-wire-news"],
+    ["greenways-finance-wire-news", "finance-news"],
+    ["finance-wire-news", "finance-news"],
+    ["greenways-finance-news", "finance-news"],
+    ["finance-news", "finance-news"],
     ["equipment_intelligence_tool", "etl-finder"],
     ["etl-official-site", "etl-official-site"],
     ["etl.energysecurity.gov.uk", "etl-official-site"],
@@ -165,11 +167,19 @@
     },
     "finance-wire-news": {
       id: "finance-wire-news",
-      title: "Finance wire news",
-      description: "Funding and energy stories with a Vincent finance lens.",
-      usageHint: "Read spotlight cards first, then open a story or ask Vincent for the payback take.",
-      href: "/greenways/finance-wire-news",
-      defaultOpenSize: "expanded"
+      title: "Finance news round-up",
+      description: "Vincent’s Music News–style market & funding round-up.",
+      usageHint: "Edition sections + cards — skeleton until richer stories land.",
+      href: "/greenways/finance-news",
+      defaultOpenSize: "near-full"
+    },
+    "finance-news": {
+      id: "finance-news",
+      title: "Finance news round-up",
+      description: "Vincent’s Music News–style market & funding round-up.",
+      usageHint: "Edition sections + cards — skeleton until richer stories land.",
+      href: "/greenways/finance-news",
+      defaultOpenSize: "near-full"
     },
     "savings-projection": {
       id: "savings-projection",

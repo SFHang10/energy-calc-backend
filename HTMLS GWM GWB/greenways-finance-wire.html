@@ -554,10 +554,10 @@
           id: 'news',
           icon: '📰',
           title: 'Finance news',
-          desc: 'Full story list',
-          toolbar: 'Finance news · funding & market lens',
-          src: '/greenways/finance-wire-news?embed=1',
-          openHref: '/greenways/finance-wire-news'
+          desc: 'Full round-up page',
+          toolbar: 'Finance news · market & funding round-up',
+          openFull: true,
+          openHref: '/greenways/finance-news'
         },
         {
           id: 'vincent',
@@ -591,6 +591,16 @@
         document.querySelectorAll('.tab-btn, .mobile-tabs button').forEach(function (el) {
           el.classList.toggle('active', el.getAttribute('data-tab') === id);
         });
+        if (tab.openFull && tab.openHref) {
+          var full = abs(tab.openHref);
+          try {
+            if (window.top && window.top !== window) window.top.location.href = full;
+            else window.location.href = full;
+          } catch (_) {
+            window.location.href = full;
+          }
+          return;
+        }
         if (tab.panel === 'vincent') {
           frame.style.display = 'none';
           vincentPanel.classList.add('active');

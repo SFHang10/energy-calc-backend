@@ -112,6 +112,7 @@ const LIVE_MUSIC_FILES = [
 const LIVE_MUSIC_DATA = [
   ['live-events-feed.json', path.join(__dirname, 'data', 'live-events-feed.json')],
   ['music-news-feed.json', path.join(__dirname, 'data', 'music-news-feed.json')],
+  ['finance-news-feed.json', path.join(__dirname, 'data', 'finance-news-feed.json')],
   ['music-venues.json', path.join(__dirname, 'data', 'music-venues.json')],
   ['europe.geojson', path.join(__dirname, 'data', 'europe.geojson')],
   ['greenways-agent-roster.json', path.join(__dirname, 'data', 'greenways-agent-roster.json')],
@@ -206,8 +207,17 @@ app.get('/greenways/finance-wire', (req, res) => sendLiveMusicHtml(res, 'greenwa
 app.get('/greenways/finance-wire-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-wire.html'));
 app.get('/greenways/finance-wire-main', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-wire-main.html'));
 app.get('/greenways/finance-wire-main-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-wire-main.html'));
-app.get('/greenways/finance-wire-news', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-wire-news.html'));
-app.get('/greenways/finance-wire-news-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-wire-news.html'));
+app.get('/greenways/finance-wire-news', (req, res) => {
+  const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+  return res.redirect(302, `/greenways/finance-news${qs}`);
+});
+app.get('/greenways/finance-wire-news-embed', (req, res) => {
+  const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+  const join = qs ? (qs.includes('embed=') ? qs : `${qs}&embed=1`) : '?embed=1';
+  return res.redirect(302, `/greenways/finance-news${join}`);
+});
+app.get('/greenways/finance-news', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-news.html'));
+app.get('/greenways/finance-news-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-news.html'));
 app.get('/greenways/energy-cost-guide', (req, res) => sendLiveMusicHtml(res, 'energy-cost-guide (1).html'));
 app.get('/greenways/energy-cost-guide-embed', (req, res) => sendLiveMusicHtml(res, 'energy-cost-guide (1).html'));
 app.get('/greenways/finance-finder', (req, res) => sendLiveMusicHtml(res, 'finance-finder-restaurant.html'));
