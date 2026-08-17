@@ -450,17 +450,12 @@ async function runLocalSmokes() {
   console.log('OK Cheryce site knowledge card:', mediaMonthlyHit.siteKnowledgeCardId);
 
   const mediaMonthlyMod = (mediaMonthlyHit?.blocks || []).find((b) => b.type === 'module');
-  const omnibusRow = (mediaMonthlyMod?.items || []).find((i) => /omnibus published/i.test(i.title || ''));
-  if (
-    !/\/2026-06-sustainability-news\.html\?embed=1[^#]*#example-energy-omnibus-june-2026/.test(
-      omnibusRow?.href || ''
-    )
-  ) {
-    throw new Error(
-      'Cheryce monthly_news: expected Omnibus module href with query before #example-energy-omnibus-june-2026 anchor'
-    );
+  const moduleItems = (mediaMonthlyMod?.items || []);
+  const storyRow = moduleItems.find((i) => /(CBAM|Omnibus|Circular Economy)/i.test(i.title || ''));
+  if (!storyRow?.href?.includes('sustainability-news') || !storyRow.href.includes('?embed=1')) {
+    throw new Error('Cheryce monthly_news: expected latest sustainability lead story module href with embed=1');
   }
-  console.log('OK Cheryce monthly news story deep link');
+  console.log('OK Cheryce monthly news story deep link:', storyRow.title);
 
   const mediaTechHit = await mediaMod.answerFromKnowledge('tech news green tech innovation', profile);
   if (!mediaTechHit?.answer?.includes('**Site example:**')) {

@@ -171,3 +171,25 @@ data/tech-news-category-knowledge.json
 2. Include `similarTo` references to prior entries when new items resemble older ones.
 3. Capture key differences and practical impact notes.
 
+---
+
+## 📦 Handoff to Content Operations
+
+After drafting:
+1. Move files to `content-ops/review/new-in-tech/`
+2. Apply the review checklist from `Skills/content-operations.md`
+3. After approval, move to `content-ops/ready/new-in-tech/` (when used)
+4. Update `wix-integration/member-content/content-catalog.json` if the Wix listing changes
+5. **Publish to agents with Sustainability News:** `npm run run:newsletter -- --publish` — see **`Skills/newsletter-run-playbook.md`**
+
+**Pair rule:** New in Tech must use the **same `YYYY-MM` month** as the Sustainability News edition. The run command validates both and rebuilds Cheryce's `techStories` in `media-daily-brief.json`.
+
+### Looking Ahead carry-forward (required)
+
+Same as Sustainability News — include **`#upcoming` / Looking Ahead** and a carry-forward table in `*-sources.md` mapping prior edition ahead items → this month's coverage.
+
+Example table header: `## May → June continuity (covered in this edition)`
+
+---
+
+**Last Updated:** August 2026

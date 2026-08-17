@@ -57,6 +57,7 @@ Staff / scripts / review  →  Tier 1 canonical JSON  →  Tier 2 generators  �
 | `npm run build:deals-feed` | `data/deals-feed.json` | Weekly or after deals seeds/input |
 | `npm run build:agent-highlights` | `data/greenways-agent-highlights.json` | Weekly — powers sidebar **This week** nudge on all seven agents |
 | `npm run build:media-daily-brief` | `data/media-daily-brief.json` | After new news edition |
+| `npm run run:newsletter -- --publish` | watchlist + media brief + finance review + finance news feed + highlights | After editions in **review/** — see **`Skills/newsletter-run-playbook.md`** |
 | `npm run build:finance-daily-review` | `data/finance-daily-review.json` | Daily (or after media brief) — Vincent price skim |
 | `npm run enrich:sustainable-products` | Grant overlay on `sust_*` catalog | After catalog or schemes change |
 | `npm run enrich:video-knowledge` | Draft Cheryce video summaries (captions/metadata → approve → `--merge`) | When adding YouTube ids or refreshing pointers |
@@ -81,7 +82,7 @@ Run only the steps that match files you changed. Full order (see `npm run refres
 2. **Schemes → products** — `node product-grants-integrator.js` if `schemes.json` touched
 3. **Sustainable catalog** — `npm run enrich:sustainable-products` if `sustainable-products-catalog.json` or schemes touched
 4. **Deals** — `npm run build:deals-feed` if seeds/weekly input touched
-5. **News** — `npm run build:media-daily-brief` if content-ops edition added
+5. **News** — `npm run run:newsletter -- --publish` if content-ops edition added (or `build:media-daily-brief` alone for a quick rebuild)
 6. **Portal modules** — `npm run sync:content-module-knowledge -- --dry-run` then `--apply` if modules changed
 7. **Sidebars / voice / team** — `npm run sync:agent-sidebar`, `node scripts/sync-greenways-agent-voice.js`, `node scripts/sync-greenways-agent-team.js` when roster or links change
 8. **QA** — `npm run smoke:agents-ask` · `npm run smoke:agent-links`
@@ -116,7 +117,7 @@ Drafts and research stay in **content-ops** or review JSON — never unreviewed 
 | **Vincent** | Finance tools/refs, energy pages | edit `data/finance-agent-*.json` |
 | **Artemis** | Products, renovation, deep dive | integrator + `FULL-DATABASE-5554.json` |
 | **Zara** | Deals spotlights | `build:deals-feed` |
-| **Cheryce** | News editions, companies map | `build:media-daily-brief` |
+| **Cheryce** | News editions, companies map | `npm run run:newsletter -- --publish` (or `build:media-daily-brief`) |
 | **Zyanne** | Sustainable catalog | `enrich:sustainable-products` |
 | **Edwardo** | After any Tier 2 run | verify checks on systems-agent |
 

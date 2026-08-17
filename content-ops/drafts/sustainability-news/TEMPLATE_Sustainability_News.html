@@ -18,6 +18,9 @@
             --space-xs: 8px; --space-sm: 16px; --space-md: 24px; --space-lg: 40px; --space-xl: 64px;
             --radius: 8px; --radius-lg: 12px; --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
             --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            /* Rotate --header-backdrop-image each edition — see hero-photo-pool.json headerBackdrops */
+            --header-backdrop-image: url('https://static.wixstatic.com/media/c123de_957ddf8c995e441cb9d1535015adbdf4~mv2.jpg');
+            --header-overlay: linear-gradient(135deg, rgba(18, 62, 40, 0.73), rgba(12, 52, 88, 0.67));
         }
         
         .container { max-width: 1200px; margin: 0 auto; padding: 0 var(--space-md); }
@@ -27,7 +30,35 @@
         aside { position: relative; z-index: 1; }
         .grid-auto { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
         
-        .site-header { background: linear-gradient(135deg, var(--primary-green), var(--primary-blue)); color: white; padding: var(--space-xl) var(--space-md); text-align: center; }
+        .site-header {
+            position: relative;
+            isolation: isolate;
+            color: white;
+            padding: var(--space-xl) var(--space-md);
+            text-align: center;
+            background-color: #1a3a2a;
+            background-image: var(--header-overlay), var(--header-backdrop-image);
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+        }
+        .site-header::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .site-header .site-title,
+        .site-header .site-subtitle,
+        .site-header .meta-info {
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.45);
+        }
         .site-title { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; margin-bottom: var(--space-sm); }
         .site-subtitle { font-size: 22px; opacity: 0.95; font-weight: 300; }
         .meta-info { margin-top: var(--space-md); font-size: 14px; opacity: 0.9; }

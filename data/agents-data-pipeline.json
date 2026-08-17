@@ -8,8 +8,12 @@
     "data cleaning agents",
     "stale agent data",
     "rebuild deals feed",
-    "refresh schemes"
+    "refresh schemes",
+    "run newsletter",
+    "publish newsletter",
+    "newsletter pipeline"
   ],
+  "newsletterPlaybook": "Skills/newsletter-run-playbook.md",
   "staffLinks": {
     "agentsAdmin": "/agents-admin.html",
     "agentsAdminMap": "/agents-admin-map.html",
@@ -39,8 +43,30 @@
         "products-with-grants-and-collection.json",
         "data/deals-feed.json",
         "data/media-daily-brief.json",
-        "data/finance-daily-review.json"
+        "data/finance-daily-review.json",
+        "data/finance-news-feed.json",
+        "data/newsletter-looking-ahead-watchlist.json"
       ]
+    }
+  ],
+  "newsletterPipeline": [
+    {
+      "id": "validate-editions",
+      "label": "Validate review editions + Looking Ahead",
+      "command": "npm run run:newsletter -- --validate"
+    },
+    {
+      "id": "publish-newsletter",
+      "label": "Full newsletter publish (agent feeds)",
+      "command": "npm run run:newsletter -- --publish",
+      "outputs": [
+        "data/newsletter-looking-ahead-watchlist.json",
+        "data/media-daily-brief.json",
+        "data/finance-daily-review.json",
+        "data/finance-news-feed.json",
+        "data/greenways-agent-highlights.json"
+      ],
+      "agents": ["media", "finance"]
     }
   ],
   "pipeline": [
@@ -99,6 +125,30 @@
       "npmScript": "build:finance-daily-review",
       "when": "daily cron (or after media daily brief) — thin ticker + news skim for Finance wire / chat",
       "agents": ["finance"]
+    },
+    {
+      "id": "run-newsletter",
+      "label": "Newsletter publish (all agent news feeds)",
+      "command": "npm run run:newsletter -- --publish",
+      "npmScript": "run:newsletter",
+      "when": "after content-ops monthly editions move to review/",
+      "agents": ["media", "finance"]
+    },
+    {
+      "id": "build-finance-news-feed",
+      "label": "Vincent finance news roundup feed",
+      "command": "npm run build:finance-news-feed",
+      "npmScript": "build:finance-news-feed",
+      "when": "after newsletter publish or edition HTML change",
+      "agents": ["finance"]
+    },
+    {
+      "id": "build-newsletter-watchlist",
+      "label": "Looking Ahead carry-forward watchlist",
+      "command": "npm run build:newsletter-watchlist",
+      "npmScript": "build:newsletter-watchlist",
+      "when": "before publish — checks prior Looking Ahead coverage",
+      "agents": ["media", "finance"]
     },
     {
       "id": "sync-module-knowledge",

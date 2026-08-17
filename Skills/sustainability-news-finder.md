@@ -251,6 +251,19 @@ After drafting:
 2. Apply the review checklist from `Skills/content-operations.md`
 3. After approval, move to `content-ops/ready/sustainability-news/`
 4. Only then add to `wix-integration/member-content/content-catalog.json`
+5. **Publish to agents:** `npm run run:newsletter -- --publish` — see **`Skills/newsletter-run-playbook.md`**
+
+**Pair with New in Tech:** Always draft **both** newsletters for the same `YYYY-MM` month. The publish command rebuilds Cheryce/Vincent feeds from **Sustainability News + New in Tech** together; it fails if months mismatch or either edition is missing.
+
+### Looking Ahead carry-forward (required)
+
+Each edition must include **`#upcoming` / Looking Ahead**. When drafting the next month:
+
+1. Read the **previous edition’s Looking Ahead** list.
+2. In `*-sources.md`, add a table mapping each prior item → where it is covered this month (or note if still open).
+3. `npm run run:newsletter` flags gaps before publish.
+
+Example table header: `## May → June continuity (covered in this edition)`
 
 ---
 
