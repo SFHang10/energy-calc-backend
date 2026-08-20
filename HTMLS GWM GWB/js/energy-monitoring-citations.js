@@ -19,7 +19,7 @@
         'ref-em-02': {
             num: 2,
             type: 'etl-official',
-            short: 'ETL monitoring equipment — costs, payback, ROI examples',
+            short: 'ETL monitoring equipment — illustrative performance / savings ranges (not Greenways shop prices)',
             label: 'UK ETL — monitoring & targeting',
         },
         'ref-em-03': {
@@ -127,7 +127,7 @@
         'ref-em-etl-disclaimer': {
             num: 2,
             type: 'etl-official',
-            short: 'ETL = listed product criteria & published example economics only',
+            short: 'ETL = listed product criteria & illustrative performance — not Greenways shop prices',
             label: 'ETL vs other figures',
         },
     };
