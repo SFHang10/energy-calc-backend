@@ -202,6 +202,7 @@
       href: "/greenways/sustainability-map-intro",
       defaultOpenSize: "expanded"
     },
+    "savings-projection": {
       id: "savings-projection",
       title: "Equipment savings projection",
       href: "./equipment-savings-projection.html",
