@@ -231,6 +231,16 @@ app.get('/greenways/deals-agent', (req, res) => sendLiveMusicHtml(res, 'greenway
 app.get('/greenways/deals-agent-wix-frame', (req, res) => sendLiveMusicHtml(res, 'greenways-deals-agent-wix-frame.html'));
 app.get('/greenways/deals-agent-embed-test', (req, res) => sendLiveMusicHtml(res, 'greenways-deals-agent-embed-test.html'));
 app.get('/greenways/media-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-media-agent.html'));
+app.get('/greenways/sustainability-map', (req, res) =>
+  sendLiveMusicHtml(res, 'European Company - Case Study Finder (Standalone) - Wix bundle.html'));
+app.get('/greenways/sustainability-map-embed', (req, res) =>
+  sendLiveMusicHtml(res, 'European Company - Case Study Finder (Standalone) - Wix bundle.html'));
+app.get('/greenways/sustainability-map-intro', (req, res) =>
+  sendLiveMusicHtml(res, 'greenways-sustainability-map-explainer.html'));
+app.get('/greenways/sustainability-map-explainer', (req, res) =>
+  sendLiveMusicHtml(res, 'greenways-sustainability-map-explainer.html'));
+app.get('/greenways/sustainability-map-intro-embed', (req, res) =>
+  sendLiveMusicHtml(res, 'greenways-sustainability-map-explainer.html'));
 app.get('/greenways/media-video-desk', (req, res) => sendLiveMusicHtml(res, 'greenways-media-video-desk.html'));
 app.get('/greenways/media-video-desk-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-media-video-desk.html'));
 app.get('/greenways/sustainable-products-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-sustainable-products-agent.html'));

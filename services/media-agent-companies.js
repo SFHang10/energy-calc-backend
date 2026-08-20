@@ -6,8 +6,7 @@ const { toLinkItem, toModuleItem, REGION_LABELS } = require('./greenways-agent-s
 const companiesPath = path.join(__dirname, '..', 'data', 'companies.json');
 const orgsInlinePath = path.join(__dirname, '..', 'data', 'orgs-directory-inline.js');
 
-const MAP_PAGE_HREF =
-  './European%20Company%20-%20Case%20Study%20Finder%20(Standalone)%20-%20Wix%20bundle.html';
+const MAP_PAGE_HREF = '/greenways/sustainability-map';
 
 const MEDIA_MODULE = { theme: 'media', agentName: 'Cheryce' };
 

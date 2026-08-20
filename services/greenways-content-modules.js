@@ -352,10 +352,10 @@ const INTENT_MODULE_HINTS = {
     explain_renewable: ['european-energy', 'declining-cost-renewables']
   },
   media: {
-    overview: ['sustainability-map', 'sustainability-news-page'],
-    sustainability_map: ['sustainability-map'],
-    sustainability_map_explained: ['sustainability-map'],
-    energy_examples: ['restaurant-energy-monitoring-guide', 'sustainability-map', 'energy-prices-ticker'],
+    overview: ['sustainability-map-explainer', 'sustainability-map', 'sustainability-news-page'],
+    sustainability_map: ['sustainability-map-explainer', 'sustainability-map'],
+    sustainability_map_explained: ['sustainability-map-explainer', 'sustainability-map'],
+    energy_examples: ['sustainability-map-explainer', 'restaurant-energy-monitoring-guide', 'sustainability-map', 'energy-prices-ticker'],
     monthly_news: ['sustainability-news-page', 'tech-news-edition'],
     daily_brief: ['sustainability-news-page', 'tech-news-edition'],
     policy_news: ['sustainability-news-page', 'sustainable-references'],
@@ -394,6 +394,7 @@ const INTENT_MODULE_HINTS = {
     sensors_home: ['sensor-dashboard', 'energy-monitoring'],
     sensors_office: ['sensor-dashboard', 'greenways-dashboard'],
     monitoring_products: ['equipment-data-capture', 'sensor-dashboard'],
+    systems_innovation: ['tech-news-edition', 'sensor-dashboard', 'restaurant-energy-monitoring-guide'],
     greenways_dashboard: ['greenways-dashboard', 'utility-detail'],
     dashboard_math: ['greenways-dashboard', 'utility-detail'],
     time_of_use: ['site-energy-reading', 'utility-detail', 'greenways-dashboard'],

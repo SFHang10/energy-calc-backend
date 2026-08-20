@@ -27,7 +27,10 @@
   var activeReturnToJourney = false;
   var moduleRegistryById = {};
 
-  var MODULE_ID_ALIASES = { "energy-ticker": "energy-prices-ticker" };
+  var MODULE_ID_ALIASES = {
+    "energy-ticker": "energy-prices-ticker",
+    "systems-tech-news": "tech-news-edition"
+  };
 
   /** Sync fallback when /data/greenways-content-modules.json has not loaded yet */
   var STATIC_HREF_NEEDLES = [
@@ -85,6 +88,8 @@
     ["content-ops/review/new-in-tech", "tech-news-edition"],
     ["sustainable%20references", "sustainable-references"],
     ["european%20company%20-%20case%20study", "sustainability-map"],
+    ["greenways-sustainability-map-explainer", "sustainability-map-explainer"],
+    ["sustainability-map-intro", "sustainability-map-explainer"],
     ["discover%20energy%20savings", "discover-savings"],
     ["greenways%20green%20table", "green-table"],
     ["europes%20energy%20saving", "europe-savings"],
@@ -181,7 +186,22 @@
       href: "/greenways/finance-news",
       defaultOpenSize: "near-full"
     },
-    "savings-projection": {
+    "sustainability-map": {
+      id: "sustainability-map",
+      title: "Sustainability map",
+      description: "514 case studies + 391 directory organisations — interactive map with savings stats.",
+      usageHint: "Filter by sector or topic, jump to a city, and click markers for case studies.",
+      href: "/greenways/sustainability-map",
+      defaultOpenSize: "near-full"
+    },
+    "sustainability-map-explainer": {
+      id: "sustainability-map-explainer",
+      title: "Why the sustainability map",
+      description: "Three cooperation stories — products, process, and networks.",
+      usageHint: "Read examples, use Ask agent chips, then open the full map.",
+      href: "/greenways/sustainability-map-intro",
+      defaultOpenSize: "expanded"
+    },
       id: "savings-projection",
       title: "Equipment savings projection",
       href: "./equipment-savings-projection.html",
