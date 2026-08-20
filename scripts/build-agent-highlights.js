@@ -50,10 +50,10 @@ const AGENT_META = {
     skills: ['Water lane', 'Electricity lane', 'Gas lane', 'Catalog']
   },
   systems: {
-    roleLine: 'Systems & monitoring',
+    roleLine: 'Systems, monitoring & innovation',
     theme: 'systems',
     accent: '#fbbf24',
-    skills: ['Monitoring', 'Sensors', 'Dashboards', 'Ops verify']
+    skills: ['Monitoring', 'Sensors', 'Innovation', 'Dashboards']
   }
 };
 
@@ -97,7 +97,7 @@ const AGENT_LOADERS = [
   {
     id: 'systems',
     slug: 'systems-agent',
-    question: 'How do I use the sensor dashboard and buildings overview?',
+    question: 'What systems innovation should restaurants watch this month for monitoring and proof of savings?',
     load: () => require(path.join(ROOT, 'services/systems-agent-knowledge'))
   }
 ];

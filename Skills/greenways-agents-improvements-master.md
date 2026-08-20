@@ -78,6 +78,7 @@
 - [x] **W8 / US-026 (partial):** Andrieus + Zyanne `voiceId` in voice config; Andrieus `useServerTts: true` — 2026-07-15
 - [x] **W8 / US-027:** Member auto-speak pilot — 🔁 Listen mode (`tier=member` + local opt-in); ⏹ stop while speaking — 2026-07-15
 - [ ] **W9 (deferred):** Agent email — mailbox registry + “Email me this” when ready
+- [ ] **Edwardo systems-tech-news (planned):** Vincent-style round-up for New in Tech — how new tech helps sustainability (measure / control / prove). Interim: module `tech-news-edition` + highlights intent `systems_innovation`. Still to deepen: chat welcome tags, fuller knowledge copy, dedicated feed `data/systems-tech-news-feed.json`, and a sharper highlights preview after each New in Tech edition. Playbook: `Skills/newsletter-run-playbook.md`
 
 ---
 
