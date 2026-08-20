@@ -28,7 +28,7 @@
       --font-clean: 'IBM Plex Sans', system-ui, sans-serif;
       --mono: 'JetBrains Mono', monospace;
       /* Shared with Finance desk — same photo so the pair feels linked */
-      --vincent-backdrop-image: url("https://static.wixstatic.com/media/c123de_1fe1c58ec83544f0b0eaf57cf9ac4e02~mv2.avif");
+      --vincent-backdrop-image: url("https://static.wixstatic.com/media/c123de_6fc35ea9558a4d89ae9f1f1f18241328~mv2.webp");
       --scan-panel-h: min(62vh, 820px);
       --desk-panel-h: min(58vh, 760px);
       --embed-min-h: 1280px;
@@ -164,9 +164,31 @@
     }
     .btn-header:hover { border-color: var(--accent-hot); color: var(--text); }
     .btn-header.primary {
+      position: relative;
       background: var(--accent-dim);
-      border-color: var(--accent-hot);
-      color: var(--accent);
+      border-color: rgba(201, 169, 97, 0.55);
+      color: var(--gold);
+      box-shadow: 0 0 0 0 rgba(255, 214, 80, 0.45);
+      animation: fullPagePulseRing 6s ease-in-out infinite;
+    }
+    .btn-header.primary:hover {
+      color: #ffe9a8;
+      border-color: rgba(255, 214, 80, 0.75);
+    }
+    @keyframes fullPagePulseRing {
+      0%, 62%, 100% {
+        box-shadow:
+          0 0 0 0 rgba(255, 214, 80, 0.08),
+          0 0 12px rgba(201, 169, 97, 0.08);
+      }
+      31% {
+        box-shadow:
+          0 0 0 10px rgba(255, 214, 80, 0.12),
+          0 0 56px rgba(255, 214, 80, 0.14);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .btn-header.primary { animation: none; }
     }
     .hub-scan-block {
       flex-shrink: 0;
@@ -257,7 +279,27 @@
       gap: 8px;
       width: 100%;
     }
-    .tab-btn .tab-icon { font-size: 1rem; flex-shrink: 0; }
+    .tab-btn .tab-icon {
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+      border-radius: 7px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #0a1018;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+    }
+    .tab-btn .tab-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      image-rendering: -webkit-optimize-contrast;
+    }
+    .tab-btn.active .tab-icon {
+      border-color: rgba(56, 189, 248, 0.45);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.22);
+    }
     .tab-btn .tab-desc {
       display: block;
       font-size: 0.65rem;
@@ -469,7 +511,7 @@
           <div class="sidebar-section">
             <div class="sidebar-label">Market scan</div>
             <div class="nav-tabs" id="navTabs"></div>
-            <p class="sidebar-note">Default view shows the <strong style="color:var(--accent)">ticker + news tablets</strong> — like Music Finder. Scroll to the <strong style="color:var(--gold)">finance desk below</strong> for calculators and funding paths.</p>
+            <p class="sidebar-note">Default view shows the <strong style="color:var(--accent)">ticker + news tablets</strong>. Scroll to the <strong style="color:var(--gold)">finance desk below</strong> for calculators and funding paths.</p>
           </div>
         </aside>
         <main>
@@ -534,7 +576,8 @@
       var TABS = [
         {
           id: 'ticker',
-          icon: '📡',
+          thumb: 'https://static.wixstatic.com/media/c123de_cf3c9a53550d498589191bb008fe08fa~mv2.jpeg',
+          thumbAlt: 'Finance wire markets',
           title: 'Wire main',
           desc: 'Ticker + news tablets',
           toolbar: 'Finance wire · ticker + news tablets',
@@ -543,7 +586,8 @@
         },
         {
           id: 'board',
-          icon: '📊',
+          thumb: 'https://static.wixstatic.com/media/c123de_a7746ac7981d466095fdc261bb208fa8~mv2.jpg',
+          thumbAlt: 'Energy prices board',
           title: 'Prices board',
           desc: 'KPIs + hub table',
           toolbar: 'Prices board · hub KPIs & ~€/kWh guide',
@@ -552,7 +596,8 @@
         },
         {
           id: 'news',
-          icon: '📰',
+          thumb: 'https://static.wixstatic.com/media/c123de_538ebcd0cb8744009c22d5676cb8a5da~mv2.jpg',
+          thumbAlt: 'Finance news round-up',
           title: 'Finance news',
           desc: 'Full round-up page',
           toolbar: 'Finance news · market & funding round-up',
@@ -561,7 +606,8 @@
         },
         {
           id: 'vincent',
-          icon: '💶',
+          thumb: 'https://static.wixstatic.com/media/c123de_63359ab891354966aa9ff792fe998677~mv2.png',
+          thumbAlt: 'Vincent finance agent',
           title: 'Ask Vincent',
           desc: 'Payback & funding chat',
           toolbar: 'Ask Vincent · finance chat',
@@ -615,6 +661,17 @@
         btnOpenTab.href = abs(tab.openHref || tab.src);
       }
 
+      function tabIconMarkup(tab) {
+        if (tab.thumb) {
+          return (
+            '<span class="tab-icon" aria-hidden="true">' +
+            '<img src="' + tab.thumb + '" alt="" loading="lazy" decoding="async">' +
+            '</span>'
+          );
+        }
+        return '<span class="tab-icon" aria-hidden="true">' + (tab.icon || '•') + '</span>';
+      }
+
       function renderTabs() {
         navTabs.innerHTML = '';
         mobileTabs.innerHTML = '';
@@ -624,7 +681,7 @@
           btn.className = 'tab-btn' + (tab.id === activeTab ? ' active' : '');
           btn.setAttribute('data-tab', tab.id);
           btn.innerHTML =
-            '<span class="tab-icon" aria-hidden="true">' + tab.icon + '</span>' +
+            tabIconMarkup(tab) +
             '<span><strong>' + tab.title + '</strong><span class="tab-desc">' + tab.desc + '</span></span>';
           btn.addEventListener('click', function () { setActive(tab.id); });
           navTabs.appendChild(btn);

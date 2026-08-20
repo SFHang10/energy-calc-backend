@@ -20,7 +20,7 @@
       --font-clean: 'IBM Plex Sans', system-ui, sans-serif;
       --mono: 'JetBrains Mono', monospace;
       --hub-max: min(1100px, calc(100vw - 36px));
-      --vincent-backdrop-image: url("https://static.wixstatic.com/media/c123de_1fe1c58ec83544f0b0eaf57cf9ac4e02~mv2.avif");
+      --vincent-backdrop-image: url("https://static.wixstatic.com/media/c123de_6fc35ea9558a4d89ae9f1f1f18241328~mv2.webp");
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: auto; overflow-x: hidden; }
@@ -135,6 +135,17 @@
       margin-bottom: 14px;
     }
     .roundup-lead p { margin-bottom: 8px; }
+    .roundup-block .hero-strip {
+      margin-bottom: 16px;
+    }
+    .roundup-sections-kicker {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin: 4px 0 10px;
+    }
     .roundup-sections { display: grid; gap: 12px; }
     .roundup-section {
       border-radius: 12px;
@@ -382,10 +393,10 @@
       <div class="roundup-kicker">Edition highlight</div>
       <h2 class="roundup-title" id="roundupTitle"></h2>
       <div class="roundup-lead" id="roundupLead"></div>
+      <div class="hero-strip" id="heroStrip" hidden></div>
+      <div class="roundup-sections-kicker" id="roundupSectionsKicker" hidden>Additional highlights</div>
       <div class="roundup-sections" id="roundupSections"></div>
     </section>
-
-    <div class="hero-strip" id="heroStrip" hidden></div>
 
     <div class="tab-row" id="tabRow" role="tablist" aria-label="Finance news categories"></div>
     <p class="tab-desc" id="tabDesc"></p>
@@ -478,7 +489,10 @@
           .map(function (p) { return '<p>' + escapeHtml(p) + '</p>'; })
           .join('');
         var sections = document.getElementById('roundupSections');
-        sections.innerHTML = (ru.sections || []).map(function (sec) {
+        var sectionsKicker = document.getElementById('roundupSectionsKicker');
+        var sectionList = ru.sections || [];
+        sectionsKicker.hidden = !sectionList.length;
+        sections.innerHTML = sectionList.map(function (sec) {
           var picks = (sec.picks || []).map(function (pick) {
             return (
               '<li class="roundup-pick">' +

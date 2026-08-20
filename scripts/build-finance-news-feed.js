@@ -95,6 +95,21 @@ async function loadStaticFallback() {
   }
 }
 
+const VINCENT_FINANCE_HERO_IMAGES = [
+  {
+    src: 'https://static.wixstatic.com/media/c123de_6fc35ea9558a4d89ae9f1f1f18241328~mv2.webp',
+    alt: 'Finance markets — Vincent wire backdrop'
+  },
+  {
+    src: 'https://static.wixstatic.com/media/c123de_a7746ac7981d466095fdc261bb208fa8~mv2.jpg',
+    alt: 'Energy markets — Vincent prices board backdrop'
+  },
+  {
+    src: 'https://static.wixstatic.com/media/c123de_538ebcd0cb8744009c22d5676cb8a5da~mv2.jpg',
+    alt: 'Finance atmosphere panel'
+  }
+];
+
 async function main() {
   const [editionPack, catalog, prior] = await Promise.all([
     loadEditionPack('sustainability'),
@@ -107,13 +122,7 @@ async function main() {
   const stories = pickFinanceStories(catalog, edition, 8);
   const lookingAhead = (editionPack?.lookingAhead || []).slice(0, 4);
 
-  const heroImages =
-    prior?.meta?.heroImages || [
-      {
-        src: 'https://static.wixstatic.com/media/c123de_1fe1c58ec83544f0b0eaf57cf9ac4e02~mv2.avif',
-        alt: 'Restaurant dining room — finance backdrop'
-      }
-    ];
+  const heroImages = prior?.meta?.heroImages || VINCENT_FINANCE_HERO_IMAGES;
 
   const policyPicks = [
     ...lookingAhead
