@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Artemis — Equipment desk</title>
+  <meta name="wix-html-scroll" content="no-scroll" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css" />
+    <style>
+    :root {
+      --bg: #0a1018;
+      --panel: #121a28;
+      --panel2: #162032;
+      --border: rgba(74, 222, 128, 0.22);
+      --text: #e8f0ff;
+      --muted: #8ba3c4;
+      --green: #4ade80;
+      --green-bright: #86efac;
+      --blue: #4ade80;
+      --blue-bright: #86efac;
+      --gold: #c9a961;
+      --accent: #4ade80;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+      --radius: 16px;
+      --font: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+      --head: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+      --font-clean: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, monospace;
+      /* Shared with Finance wire — same photo so the pair feels linked */
+      --artemis-backdrop-image: url("https://static.wixstatic.com/media/c123de_957ddf8c995e441cb9d1535015adbdf4~mv2.jpg");
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      color: var(--text);
+      font-family: var(--font);
+      background-color: var(--bg);
+      background-image: var(--artemis-backdrop-image);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(5, 9, 14, 0.62) 0%, rgba(8, 12, 18, 0.72) 45%, rgba(4, 7, 12, 0.82) 100%),
+        radial-gradient(ellipse 90% 70% at 50% -15%, rgba(74, 222, 128, 0.1), transparent 55%),
+        radial-gradient(circle at 100% 85%, rgba(201, 169, 97, 0.08), transparent 42%);
+    }
+    /* Inside Equipment desk embed: deep charcoal */
+    body.embed-mode {
+      background-color: rgba(5, 9, 14, 0.94);
+      background-image: none;
+      background-attachment: scroll;
+    }
+    body.embed-mode::before {
+      display: none;
+    }
+    html.embed-mode {
+      background: transparent;
+    }
+    body.embed-mode .equipment-page-nav,
+    body.embed-mode .back-row { display: none !important; }
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 22px 18px 48px;
+    }
+    .equipment-page-nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .equipment-page-nav .btn--ghost {
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(5, 10, 18, 0.45);
+      color: #c8d8f0;
+      cursor: pointer;
+      font-family: var(--font);
+    }
+    .equipment-page-nav .btn--ghost:hover {
+      border-color: rgba(74, 222, 128, 0.35);
+      color: #f0f7ff;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    }
+    .equipment-page-nav .btn--agent {
+      border-color: rgba(201, 169, 97, 0.42);
+      background: rgba(201, 169, 97, 0.14);
+      color: #fff4e0;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    header.hero {
+      text-align: center;
+      margin-bottom: 22px;
+      padding: 20px 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: linear-gradient(145deg, rgba(10, 15, 24, 0.94), rgba(6, 10, 16, 0.92));
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+    }
+    header.hero h1 {
+      font-family: var(--head);
+      font-size: clamp(1.35rem, 3.5vw, 1.85rem);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin: 0 0 8px;
+    }
+    header.hero p {
+      margin: 0 auto;
+      max-width: 62ch;
+      color: var(--muted);
+      font-family: var(--font-clean);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+    .rail {
+      position: sticky;
+      top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 14px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: rgba(18, 26, 40, 0.72);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+    }
+    .rail-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--gold);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .rail-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      text-align: left;
+      border: 1px solid rgba(74, 222, 128, 0.18);
+      background: rgba(5, 10, 18, 0.45);
+      color: #c8e6d0;
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s, background 0.2s, color 0.2s;
+      font-family: var(--font);
+    }
+    .rail-btn .ico {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      overflow: hidden;
+      background: #0a1018;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+    }
+    .rail-btn .ico img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      image-rendering: -webkit-optimize-contrast;
+    }
+    .rail-btn:hover {
+      border-color: rgba(201, 169, 97, 0.45);
+      background: rgba(201, 169, 97, 0.08);
+      color: #fff4e0;
+      box-shadow: 0 0 20px rgba(201, 169, 97, 0.12);
+      transform: translateX(3px);
+    }
+    .rail-btn.active {
+      border-color: rgba(74, 222, 128, 0.45);
+      background: rgba(74, 222, 128, 0.12);
+      color: #dcfce7;
+      box-shadow: 0 0 24px rgba(74, 222, 128, 0.15);
+    }
+    .rail-btn.active .ico {
+      border-color: rgba(74, 222, 128, 0.45);
+      box-shadow: 0 0 10px rgba(74, 222, 128, 0.22);
+    }
+    .back-row {
+      margin-top: 10px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(74, 222, 128, 0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .back-row a,
+    .rail-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 600;
+      background: none;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      font-family: var(--font);
+      text-align: left;
+    }
+    .back-row a:hover,
+    .rail-back-btn:hover { text-decoration: underline; }
+    .stage { min-width: 0; }
+    .tablet-wrap {
+      display: none;
+      animation: tabletIn 0.45s ease both;
+    }
+    .tablet-wrap.active { display: block; }
+    @keyframes tabletIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.985); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .tablet-bezel {
+      border-radius: 22px;
+      padding: 14px 14px 18px;
+      background: linear-gradient(160deg, #1a2e22 0%, #0a121c 40%, #142030 100%);
+      border: 1px solid rgba(201, 169, 97, 0.35);
+      box-shadow:
+        0 0 0 1px rgba(74, 222, 128, 0.08) inset,
+        0 22px 60px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(74, 222, 128, 0.1);
+      position: relative;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .tablet-wrap.active .tablet-bezel {
+        animation: floatBezel 6s ease-in-out infinite;
+      }
+    }
+    @keyframes floatBezel {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    .tablet-bezel::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 22px;
+      padding: 1px;
+      background: linear-gradient(120deg, rgba(201,169,97,0.5), transparent 40%, rgba(56,189,248,0.35), transparent 70%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      opacity: 0.55;
+    }
+    .tablet-notch {
+      width: 72px;
+      height: 6px;
+      border-radius: 99px;
+      background: #0a1018;
+      margin: 0 auto 12px;
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.06);
+    }
+    .tablet-screen {
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(74, 222, 128, 0.15);
+      background: #0a1018;
+      min-height: 120px;
+    }
+    .tablet-copy { padding: 18px 18px 6px; }
+    .tablet-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px 20px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .tablet-title-row h2 {
+      font-family: var(--head);
+      font-size: clamp(0.95rem, 2.4vw, 1.05rem);
+      font-weight: 700;
+      margin: 0;
+      flex: 1 1 220px;
+      min-width: 0;
+      line-height: 1.25;
+    }
+    .fd-gauge {
+      flex: 0 0 auto;
+      width: 156px;
+      max-width: 100%;
+      text-align: center;
+      margin: 0;
+    }
+    .fd-gauge-svg {
+      width: 156px;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.4));
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .fd-gauge--motion .fd-gauge-svg { animation: fdGaugeFloat 5s ease-in-out infinite; }
+      .fd-gauge--motion .fd-gauge-fill { animation: fdArcGlow 3.2s ease-in-out infinite; }
+    }
+    @keyframes fdGaugeFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    @keyframes fdArcGlow {
+      0%, 100% { opacity: 1; filter: brightness(1); }
+      50% { opacity: 0.94; filter: brightness(1.15); }
+    }
+    .fd-gauge-fill { transition: stroke-dashoffset 1s ease; }
+    .fd-gauge-readout {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #bbf7d0;
+      margin-top: 2px;
+    }
+    .fd-gauge-scale {
+      display: flex;
+      justify-content: space-between;
+      font-size: 8px;
+      color: #6a9a78;
+      margin-top: 4px;
+      padding: 0 2px;
+    }
+    .fd-gauge-caption { font-size: 8px; fill: #6a9a78; font-family: var(--font); }
+    .tablet-copy .lead {
+      font-family: var(--font-clean);
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+      margin: 0 0 14px;
+    }
+    .tablet-copy ul {
+      margin: 0 0 14px;
+      padding-left: 1.15rem;
+      color: #c8e6d0;
+      font-family: var(--font-clean);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .tablet-copy li { margin-bottom: 6px; }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: var(--font);
+      text-decoration: none;
+      border: 1px solid rgba(74, 222, 128, 0.35);
+      background: rgba(74, 222, 128, 0.1);
+      color: #dcfce7;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(74, 222, 128, 0.18);
+      border-color: rgba(74, 222, 128, 0.55);
+    }
+    .btn--gold {
+      border-color: rgba(201, 169, 97, 0.45);
+      background: rgba(201, 169, 97, 0.12);
+      color: #fff4e0;
+    }
+    .btn--gold:hover { box-shadow: 0 8px 24px rgba(201, 169, 97, 0.2); }
+    .iframe-wrap {
+      position: relative;
+      height: min(900px, max(480px, 72vh));
+      background: #050810;
+    }
+    .iframe-wrap iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+    .iframe-hint {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 8px 12px;
+      font-size: 11px;
+      color: var(--muted);
+      background: linear-gradient(transparent, rgba(5,10,18,0.92));
+      pointer-events: none;
+    }
+    .sp-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: max(12px, env(safe-area-inset-top)) 16px max(12px, env(safe-area-inset-bottom));
+    }
+    .sp-modal[hidden] { display: none !important; }
+    .sp-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(2, 8, 16, 0.78);
+      backdrop-filter: blur(6px);
+    }
+    .sp-modal-panel {
+      position: relative;
+      z-index: 1;
+      width: min(920px, 96vw);
+      height: min(720px, 88vh);
+      display: flex;
+      flex-direction: column;
+      border-radius: 18px;
+      border: 1px solid rgba(201, 169, 97, 0.4);
+      background: linear-gradient(165deg, rgba(18, 26, 40, 0.98), rgba(10, 16, 24, 0.98));
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+      overflow: hidden;
+    }
+    .sp-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid rgba(201, 169, 97, 0.22);
+      flex-shrink: 0;
+    }
+    .sp-modal-head strong { font-size: 14px; font-weight: 800; }
+    .sp-modal-head .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .sp-modal-close {
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      border-radius: 10px;
+      width: 36px;
+      height: 36px;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .sp-modal-frame-wrap { flex: 1; min-height: 0; background: #050810; }
+    .sp-modal-frame-wrap iframe { width: 100%; height: 100%; border: 0; display: block; }
+    .projection-demo-note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px dashed rgba(201, 169, 97, 0.35);
+      background: rgba(0, 0, 0, 0.2);
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+    .pulse-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--blue);
+      margin-right: 6px;
+      vertical-align: middle;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.35; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+    .fd-needle-spin { transform-origin: 0 0; }
+    @keyframes fdNeedle {
+      0%, 100% { transform: rotate(calc(var(--needle, -35deg) - 2deg)); }
+      50% { transform: rotate(calc(var(--needle, -35deg) + 2deg)); }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .fd-gauge--motion .fd-needle-spin { animation: fdNeedle 5.2s ease-in-out infinite; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .fd-gauge--motion .fd-gauge-svg,
+      .fd-gauge--motion .fd-gauge-fill,
+      .fd-gauge--motion .fd-needle-spin,
+      .tablet-wrap.active .tablet-bezel,
+      .pulse-dot { animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <nav class="equipment-page-nav" aria-label="Page navigation">
+      <button type="button" class="btn btn--ghost" id="equipmentBackBtn">← Previous page</button>
+      <a class="btn btn--agent" href="/greenways/equipment-agent">Ask Artemis</a>
+    </nav>
+
+    <header class="hero">
+      <h1>Equipment desk</h1>
+      <p>
+        Artemis’s equipment-first tour — compare gear, model payback, find ETL products, plan renovations, and build an upgrade plan.
+        Pick a topic on the left; previews run inside the tablet frame.
+      </p>
+    </header>
+
+    <div class="layout">
+      <nav class="rail" aria-label="Equipment topics">
+        <div class="rail-label">Explore</div>
+        <button type="button" class="rail-btn active" id="tab-deep-dive" data-panel="deep-dive" aria-pressed="true">
+          <span class="ico"><img src="https://static.wixstatic.com/media/c123de_e57c85ae1f0e4e59b2b6e1abece7df19~mv2.jpeg" alt="" loading="lazy" decoding="async"></span>
+          <span>Compare equipment</span>
+        </button>
+        <button type="button" class="rail-btn" id="tab-payback" data-panel="payback" aria-pressed="false">
+          <span class="ico"><img src="https://static.wixstatic.com/media/c123de_988c141478e044d5ba8d137d2a451713~mv2.png" alt="" loading="lazy" decoding="async"></span>
+          <span>Savings projection</span>
+        </button>
+        <button type="button" class="rail-btn" id="tab-etl" data-panel="etl" aria-pressed="false">
+          <span class="ico"><img src="https://static.wixstatic.com/media/c123de_463c4e119f8a4fa089cc86b8ba32494b~mv2.jpeg" alt="" loading="lazy" decoding="async"></span>
+          <span>Find ETL products</span>
+        </button>
+        <button type="button" class="rail-btn" id="tab-renovation" data-panel="renovation" aria-pressed="false">
+          <span class="ico"><img src="https://static.wixstatic.com/media/c123de_8d73f3cd13164907ba5b65e13e29370c~mv2.jpg" alt="" loading="lazy" decoding="async"></span>
+          <span>Premises upgrades</span>
+        </button>
+        <button type="button" class="rail-btn" id="tab-plan" data-panel="plan" aria-pressed="false">
+          <span class="ico"><img src="https://static.wixstatic.com/media/c123de_957ddf8c995e441cb9d1535015adbdf4~mv2.jpg" alt="" loading="lazy" decoding="async"></span>
+          <span>Upgrade plan</span>
+        </button>
+        <div class="back-row">
+          <button type="button" class="rail-back-btn" id="equipmentRailBackBtn">← Previous page</button>
+          <a href="/greenways/equipment-agent">← Back to Artemis</a>
+        </div>
+      </nav>
+
+      <div class="stage">
+        <svg width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden;clip:rect(0,0,0,0)">
+          <defs>
+            <filter id="fdGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="2" result="b" />
+              <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+            <linearGradient id="fdGradDeep" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#86efac" /><stop offset="55%" stop-color="#4ade80" /><stop offset="100%" stop-color="#c9a961" />
+            </linearGradient>
+            <linearGradient id="fdGradPayback" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#4ade80" /><stop offset="50%" stop-color="#c9a961" /><stop offset="100%" stop-color="#f5a623" />
+            </linearGradient>
+            <linearGradient id="fdGradEtl" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#bbf7d0" /><stop offset="100%" stop-color="#166534" />
+            </linearGradient>
+            <linearGradient id="fdGradReno" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#f0e6c8" /><stop offset="50%" stop-color="#c9a961" /><stop offset="100%" stop-color="#4ade80" />
+            </linearGradient>
+            <linearGradient id="fdGradPlan" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#4ade80" /><stop offset="100%" stop-color="#15803d" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <section class="tablet-wrap active" id="panel-deep-dive" role="tabpanel" aria-labelledby="tab-deep-dive">
+          <div class="tablet-bezel">
+            <div class="tablet-notch" aria-hidden="true"></div>
+            <div class="tablet-screen">
+              <div class="tablet-copy">
+                <div class="tablet-title-row">
+                  <h2><span class="pulse-dot" aria-hidden="true"></span>Equipment deep dive — compare &amp; project</h2>
+                  <figure class="fd-gauge fd-gauge--motion" data-pct="62" aria-hidden="true">
+                    <svg class="fd-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#14281c" stroke-width="10" stroke-linecap="round" />
+                      <path class="fd-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#fdGradDeep)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#4ade80" filter="url(#fdGlow)" />
+                      <g transform="translate(80,90)"><g class="fd-needle-spin"><line x1="0" y1="0" x2="0" y2="-48" stroke="#86efac" stroke-width="2" stroke-linecap="round" /></g></g>
+                      <text class="fd-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#e8f0ec" font-family="JetBrains Mono, monospace">62%</text>
+                      <text class="fd-gauge-caption" x="80" y="93" text-anchor="middle">upgrade readiness</text>
+                    </svg>
+                    <div class="fd-gauge-readout">Compare · specs · grants</div>
+                    <div class="fd-gauge-scale"><span>0%</span><span>Norm</span><span>High</span><span>Peak</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  Side-by-side restaurant equipment with energy context, grants, and a path into savings projection —
+                  start here when you know the appliance type but not which model to shortlist.
+                </p>
+                <ul>
+                  <li><strong>Deep dive:</strong> marketplace alternatives with specs and scheme chips.</li>
+                  <li><strong>Next step:</strong> open Savings projection once you have a candidate product.</li>
+                  <li>Best before you talk BNPL or grants with Vincent / Andrieus.</li>
+                </ul>
+                <div class="actions">
+                  <a class="btn fd-tool-link" data-fd-path="/HTMLS%20GWM%20GWB/restaurant-equipment-deep-dive.html" target="_blank" rel="noopener">Open equipment deep dive</a>
+                  <button type="button" class="btn btn--gold" data-toggle-iframe="deep" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="iframe-wrap" id="iframe-deep" hidden>
+                <iframe title="Equipment deep dive preview" loading="lazy" data-fd-iframe="/HTMLS%20GWM%20GWB/restaurant-equipment-deep-dive.html"></iframe>
+                <div class="iframe-hint">Long page — scroll inside the frame or open full tab.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tablet-wrap" id="panel-payback" role="tabpanel" aria-labelledby="tab-payback">
+          <div class="tablet-bezel">
+            <div class="tablet-notch" aria-hidden="true"></div>
+            <div class="tablet-screen">
+              <div class="tablet-copy">
+                <div class="tablet-title-row">
+                  <h2>Savings projection — payback curve</h2>
+                  <figure class="fd-gauge fd-gauge--motion" data-pct="66" aria-hidden="true">
+                    <svg class="fd-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#14281c" stroke-width="10" stroke-linecap="round" />
+                      <path class="fd-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#fdGradPayback)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#c9a961" filter="url(#fdGlow)" />
+                      <g transform="translate(80,90)"><g class="fd-needle-spin"><line x1="0" y1="0" x2="0" y2="-48" stroke="#c9a961" stroke-width="2" stroke-linecap="round" /></g></g>
+                      <text class="fd-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#fff4e0" font-family="JetBrains Mono, monospace">66%</text>
+                      <text class="fd-gauge-caption" x="80" y="93" text-anchor="middle">payback clarity</text>
+                    </svg>
+                    <div class="fd-gauge-readout">Popup · product demo</div>
+                    <div class="fd-gauge-scale"><span>0%</span><span>Norm</span><span>High</span><span>Peak</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  Do-nothing vs upgrade curves — grants, illustrative tax, and capex bands — so equipment finance has numbers behind it.
+                </p>
+                <ul>
+                  <li>Example uses a fridge scenario; real projections open from deep-dive cards.</li>
+                  <li>Best after ETL shortlist or Agent Market — before you sign monthly payments.</li>
+                </ul>
+                <div class="actions">
+                  <button type="button" class="btn btn--gold" id="btnProjectionDemo">See example projection</button>
+                  <a class="btn fd-tool-link" data-fd-path="/greenways/equipment-savings-projection" target="_blank" rel="noopener">Open projection page</a>
+                </div>
+                <p class="projection-demo-note">Illustrative payback chart only — not a quote or guarantee.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tablet-wrap" id="panel-etl" role="tabpanel" aria-labelledby="tab-etl">
+          <div class="tablet-bezel">
+            <div class="tablet-notch" aria-hidden="true"></div>
+            <div class="tablet-screen">
+              <div class="tablet-copy">
+                <div class="tablet-title-row">
+                  <h2>ETL finder — verified efficient products</h2>
+                  <figure class="fd-gauge fd-gauge--motion" data-pct="78" aria-hidden="true">
+                    <svg class="fd-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#14281c" stroke-width="10" stroke-linecap="round" />
+                      <path class="fd-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#fdGradEtl)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#4ade80" filter="url(#fdGlow)" />
+                      <g transform="translate(80,90)"><g class="fd-needle-spin"><line x1="0" y1="0" x2="0" y2="-48" stroke="#86efac" stroke-width="2" stroke-linecap="round" /></g></g>
+                      <text class="fd-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#e8f0ec" font-family="JetBrains Mono, monospace">78%</text>
+                      <text class="fd-gauge-caption" x="80" y="93" text-anchor="middle">list coverage</text>
+                    </svg>
+                    <div class="fd-gauge-readout">ETL · marketplace</div>
+                    <div class="fd-gauge-scale"><span>0%</span><span>Norm</span><span>High</span><span>Peak</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  Search Greenways equipment intelligence for ETL-listed and efficient alternatives —
+                  then open the official Energy Technology List when you need government wording.
+                </p>
+                <ul>
+                  <li><strong>Finder:</strong> marketplace search with grants context.</li>
+                  <li><strong>Official ETL:</strong> UK government-backed list for verification.</li>
+                </ul>
+                <div class="actions">
+                  <a class="btn fd-tool-link" data-fd-path="/HTMLS%20GWM%20GWB/equipment_intelligence_tool.html" target="_blank" rel="noopener">Open ETL finder</a>
+                  <a class="btn fd-tool-link" data-fd-path="/HTMLS%20GWM%20GWB/etl-official-site.html" target="_blank" rel="noopener">Official ETL site</a>
+                  <button type="button" class="btn btn--gold" data-toggle-iframe="etl" data-open-label="Preview finder in tablet">Preview finder in tablet</button>
+                </div>
+              </div>
+              <div class="iframe-wrap" id="iframe-etl" hidden>
+                <iframe title="ETL finder preview" loading="lazy" data-fd-iframe="/HTMLS%20GWM%20GWB/equipment_intelligence_tool.html"></iframe>
+                <div class="iframe-hint">Search tool — best full-width when comparing many rows.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tablet-wrap" id="panel-renovation" role="tabpanel" aria-labelledby="tab-renovation">
+          <div class="tablet-bezel">
+            <div class="tablet-notch" aria-hidden="true"></div>
+            <div class="tablet-screen">
+              <div class="tablet-copy">
+                <div class="tablet-title-row">
+                  <h2>Premises upgrades — renovations &amp; insulation</h2>
+                  <figure class="fd-gauge fd-gauge--motion" data-pct="58" aria-hidden="true">
+                    <svg class="fd-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#14281c" stroke-width="10" stroke-linecap="round" />
+                      <path class="fd-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#fdGradReno)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#c9a961" filter="url(#fdGlow)" />
+                      <g transform="translate(80,90)"><g class="fd-needle-spin"><line x1="0" y1="0" x2="0" y2="-48" stroke="#c9a961" stroke-width="2" stroke-linecap="round" /></g></g>
+                      <text class="fd-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#fff4e0" font-family="JetBrains Mono, monospace">58%</text>
+                      <text class="fd-gauge-caption" x="80" y="93" text-anchor="middle">fabric potential</text>
+                    </svg>
+                    <div class="fd-gauge-readout">Build · insulate · plan</div>
+                    <div class="fd-gauge-scale"><span>0%</span><span>Norm</span><span>High</span><span>Peak</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  When the cookline is already efficient, premises work — insulation, retrofit, renovation templates —
+                  often unlocks the next band of savings.
+                </p>
+                <ul>
+                  <li><strong>Renovations:</strong> sustainable premises upgrade guide.</li>
+                  <li><strong>Insulation:</strong> fabric savings for restaurants and sites.</li>
+                  <li><strong>Plans:</strong> project templates for phased works.</li>
+                </ul>
+                <div class="actions">
+                  <a class="btn fd-tool-link" data-fd-path="/HTMLS%20GWM%20GWB/Sustainable%20Renovations%20New%20.html" target="_blank" rel="noopener">Open renovations</a>
+                  <a class="btn fd-tool-link" data-fd-path="/HTMLS%20GWM%20GWB/Insulation%20.html" target="_blank" rel="noopener">Insulation guide</a>
+                  <button type="button" class="btn btn--gold" data-toggle-iframe="reno" data-open-label="Preview renovations">Preview renovations</button>
+                </div>
+              </div>
+              <div class="iframe-wrap" id="iframe-reno" hidden>
+                <iframe title="Sustainable renovations preview" loading="lazy" data-fd-iframe="/HTMLS%20GWM%20GWB/Sustainable%20Renovations%20New%20.html"></iframe>
+                <div class="iframe-hint">Premises guide — open insulation or renovation plans for more depth.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tablet-wrap" id="panel-plan" role="tabpanel" aria-labelledby="tab-plan">
+          <div class="tablet-bezel">
+            <div class="tablet-notch" aria-hidden="true"></div>
+            <div class="tablet-screen">
+              <div class="tablet-copy">
+                <div class="tablet-title-row">
+                  <h2>Upgrade Plan Studio</h2>
+                  <figure class="fd-gauge fd-gauge--motion" data-pct="70" aria-hidden="true">
+                    <svg class="fd-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#14281c" stroke-width="10" stroke-linecap="round" />
+                      <path class="fd-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#fdGradPlan)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#4ade80" filter="url(#fdGlow)" />
+                      <g transform="translate(80,90)"><g class="fd-needle-spin"><line x1="0" y1="0" x2="0" y2="-48" stroke="#86efac" stroke-width="2" stroke-linecap="round" /></g></g>
+                      <text class="fd-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#e8f0ec" font-family="JetBrains Mono, monospace">70%</text>
+                      <text class="fd-gauge-caption" x="80" y="93" text-anchor="middle">plan progress</text>
+                    </svg>
+                    <div class="fd-gauge-readout">Six-step checklist</div>
+                    <div class="fd-gauge-scale"><span>0%</span><span>Norm</span><span>High</span><span>Peak</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  Turn findings from deep dive, ETL, and renovations into a sequenced upgrade checklist —
+                  so the site has one plan instead of scattered tabs.
+                </p>
+                <ul>
+                  <li>Six-step studio for restaurant equipment and premises moves.</li>
+                  <li>Pair with Agent Market when you are ready to shortlist products.</li>
+                </ul>
+                <div class="actions">
+                  <a class="btn fd-tool-link" data-fd-path="/HTMLS%20GWM%20GWB/greenways-upgrade-plan-studio.html" target="_blank" rel="noopener">Open Upgrade Plan Studio</a>
+                  <button type="button" class="btn btn--gold" data-toggle-iframe="plan" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="iframe-wrap" id="iframe-plan" hidden>
+                <iframe title="Upgrade Plan Studio preview" loading="lazy" data-fd-iframe="/HTMLS%20GWM%20GWB/greenways-upgrade-plan-studio.html"></iframe>
+                <div class="iframe-hint">Checklist studio — complete steps in full page when collaborating.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div id="savingsProjectionModal" class="sp-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="savingsProjectionModalTitle">
+    <div class="sp-modal-backdrop" aria-hidden="true"></div>
+    <div class="sp-modal-panel">
+      <header class="sp-modal-head">
+        <div>
+          <strong id="savingsProjectionModalTitle">Example savings projection</strong>
+          <div class="sub">Illustrative payback chart · popup only</div>
+        </div>
+        <button type="button" class="sp-modal-close" aria-label="Close savings projection">×</button>
+      </header>
+      <div class="sp-modal-frame-wrap">
+        <iframe id="savingsProjectionFrame" title="Savings projection example" loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
+    <script>
+    (function () {
+      function gwOrigin() {
+        const h = location.hostname || '';
+        if (h === 'localhost' || h === '127.0.0.1' || h.indexOf('energy-calc-backend') !== -1) {
+          return location.origin || 'https://energy-calc-backend.onrender.com';
+        }
+        return 'https://energy-calc-backend.onrender.com';
+      }
+
+      function gwAbs(path) {
+        const p = String(path || '').trim();
+        if (!p) return p;
+        if (/^https?:\/\//i.test(p)) return p;
+        return gwOrigin() + (p.charAt(0) === '/' ? p : `/${p}`);
+      }
+
+      const isEmbed =
+        document.body.classList.contains('embed-mode') ||
+        /[?&]embed=1(?:&|$)/.test(location.search);
+
+      document.querySelectorAll('.fd-tool-link[data-fd-path]').forEach((a) => {
+        a.href = gwAbs(a.getAttribute('data-fd-path'));
+        if (isEmbed) a.target = '_top';
+      });
+
+      document.querySelectorAll('a[href^="/greenways/"]').forEach((a) => {
+        if (a.classList.contains('fd-tool-link')) return;
+        a.href = gwAbs(a.getAttribute('href'));
+        if (isEmbed) a.target = '_top';
+      });
+
+      function ensureIframeSrc(wrap) {
+        if (!wrap) return;
+        const iframe = wrap.querySelector('iframe[data-fd-iframe]');
+        if (!iframe || iframe.getAttribute('src')) return;
+        iframe.src = gwAbs(iframe.getAttribute('data-fd-iframe'));
+      }
+
+      const ARC_LEN = Math.PI * 60;
+      const VALID_TABS = ['deep-dive', 'payback', 'etl', 'renovation', 'plan'];
+
+      function needleDeg(pct) {
+        const p = Math.max(0, Math.min(100, Number(pct)));
+        if (Number.isNaN(p)) return -35;
+        return -90 + p * (55 / 65);
+      }
+
+      function syncGauge(fig) {
+        if (!fig) return;
+        const pct = Number(fig.dataset.pct);
+        const fill = fig.querySelector('.fd-gauge-fill');
+        const pctText = fig.querySelector('.fd-gauge-pct');
+        if (pctText && !Number.isNaN(pct)) pctText.textContent = `${Math.round(pct)}%`;
+        fig.style.setProperty('--needle', `${needleDeg(pct)}deg`);
+        if (fill && !Number.isNaN(pct)) {
+          fill.setAttribute('stroke-dasharray', String(ARC_LEN));
+          fill.setAttribute('stroke-dashoffset', String(ARC_LEN));
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              fill.setAttribute('stroke-dashoffset', String(ARC_LEN * (1 - pct / 100)));
+            });
+          });
+        }
+      }
+
+      const buttons = Array.from(document.querySelectorAll('.rail-btn[data-panel]'));
+      const panels = {};
+      VALID_TABS.forEach((key) => {
+        panels[key] = document.getElementById('panel-' + key);
+      });
+
+      function showPanel(key) {
+        if (!VALID_TABS.includes(key)) key = 'deep-dive';
+        Object.entries(panels).forEach(([k, el) => {
+          if (!el) return;
+          el.classList.toggle('active', k === key);
+        });
+        buttons.forEach((btn) => {
+          const on = btn.dataset.panel === key;
+          btn.classList.toggle('active', on);
+          btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        const activeEl = panels[key];
+        if (activeEl) activeEl.querySelectorAll('.fd-gauge').forEach(syncGauge);
+        try {
+          const url = new URL(location.href);
+          if (key === 'deep-dive') url.searchParams.delete('tab');
+          else url.searchParams.set('tab', key);
+          history.replaceState(null, '', url.pathname + url.search + url.hash);
+        } catch (_) { /* ignore */ }
+      }
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => showPanel(btn.dataset.panel));
+      });
+
+      document.querySelectorAll('.fd-gauge').forEach(syncGauge);
+
+            const tabParam = new URLSearchParams(location.search).get('tab');
+      if (tabParam && VALID_TABS.includes(tabParam)) showPanel(tabParam);
+
+      const toggleMap = {
+        deep: document.getElementById('iframe-deep'),
+        etl: document.getElementById('iframe-etl'),
+        reno: document.getElementById('iframe-reno'),
+        plan: document.getElementById('iframe-plan')
+      };
+
+      document.querySelectorAll('[data-toggle-iframe]').forEach((btn) => {
+        const wrap = toggleMap[btn.getAttribute('data-toggle-iframe')];
+        if (!wrap) return;
+        const openLabel = btn.getAttribute('data-open-label') || 'Preview';
+        btn.addEventListener('click', () => {
+          if (wrap.hasAttribute('hidden')) {
+            wrap.removeAttribute('hidden');
+            ensureIframeSrc(wrap);
+            btn.textContent = 'Hide preview';
+          } else {
+            wrap.setAttribute('hidden', '');
+            btn.textContent = openLabel;
+          }
+        });
+      });
+
+      function goBack() {
+        if (window.history.length > 1) window.history.back();
+        else window.location.href = gwAbs('/greenways/equipment-agent');
+      }
+      document.getElementById('equipmentBackBtn')?.addEventListener('click', goBack);
+      document.getElementById('equipmentRailBackBtn')?.addEventListener('click', goBack);
+
+      const DEMO_PROJECTION_URL = gwAbs(
+        '/greenways/equipment-savings-projection?popup=1&embed=1&from=equipment-desk&scenario=fridge'
+      );
+
+      function openProjectionDemo() {
+        const modal = document.getElementById('savingsProjectionModal');
+        const frame = document.getElementById('savingsProjectionFrame');
+        if (!modal || !frame) return;
+        frame.src = DEMO_PROJECTION_URL;
+        modal.hidden = false;
+        modal.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeProjectionDemo() {
+        const modal = document.getElementById('savingsProjectionModal');
+        const frame = document.getElementById('savingsProjectionFrame');
+        if (!modal) return;
+        modal.hidden = true;
+        modal.setAttribute('aria-hidden', 'true');
+        if (frame) frame.src = 'about:blank';
+      }
+
+      document.getElementById('btnProjectionDemo')?.addEventListener('click', openProjectionDemo);
+      const spModal = document.getElementById('savingsProjectionModal');
+      if (spModal) {
+        spModal.querySelector('.sp-modal-backdrop')?.addEventListener('click', closeProjectionDemo);
+        spModal.querySelector('.sp-modal-close')?.addEventListener('click', closeProjectionDemo);
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && !spModal.hidden) closeProjectionDemo();
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

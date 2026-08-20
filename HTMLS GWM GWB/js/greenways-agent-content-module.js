@@ -48,6 +48,8 @@
     ["energy-cost-guide", "energy-cost-guide"],
     ["greenways-finance-desk", "finance-desk"],
     ["finance-desk", "finance-desk"],
+    ["greenways-equipment-desk", "equipment-desk"],
+    ["equipment-desk", "equipment-desk"],
     ["greenways-finance-prices-board", "finance-prices-board"],
     ["finance-prices-board", "finance-prices-board"],
     ["greenways-finance-wire", "finance-wire"],
@@ -144,6 +146,14 @@
       description: "Vincent's numbers-first tour — bills, live prices, payback, and funding paths.",
       usageHint: "Pick a topic on the left rail; preview tools inside the tablet frame.",
       href: "/greenways/finance-desk",
+      defaultOpenSize: "near-full"
+    },
+    "equipment-desk": {
+      id: "equipment-desk",
+      title: "Equipment desk",
+      description: "Artemis’s equipment-first tour — compare gear, payback, ETL, renovations, and upgrade plans.",
+      usageHint: "Pick a topic on the left rail; preview tools inside the tablet or open full pages.",
+      href: "/greenways/equipment-desk-embed",
       defaultOpenSize: "near-full"
     },
     "finance-prices-board": {
