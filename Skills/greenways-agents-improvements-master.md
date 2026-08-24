@@ -15,6 +15,9 @@
 - [x] **Water Line Sketch:** agent-first HTML `greenways-water-line-sketch.html` + module `water-line-sketch` + `/api/water-line-sketch` — 2026-08-01
 - [x] **Service-hour cost board:** agent-first HTML `greenways-service-hour-cost-board.html` + module `service-hour-cost-board` + `/api/service-hour-cost-board` — 2026-08-01
 - [x] **Build gate:** `Skills/greenways-agents-build-gate.md` + `npm run smoke:agent-modules` / `smoke:agents-gate` — 2026-07-31
+- [x] **Sustainability map explainer:** `greenways-sustainability-map-explainer.html` + module `sustainability-map-explainer` + `/greenways/sustainability-map-intro` — Cheryce map intent + content module wiring — 2026-08-20
+- [x] **Artemis Equipment desk:** `greenways-equipment-desk.html` + module `equipment-desk` + `/greenways/equipment-desk` — 5 rails (deep dive, payback, ETL, renovation, upgrade plan); sidebar first link on Artemis — 2026-08-24
+- [x] **Edwardo systems innovation:** `systems_innovation` intent + New in Tech edition reading + site evidence card + welcome tag — 2026-08-24
 
 ---
 
@@ -78,7 +81,8 @@
 - [x] **W8 / US-026 (partial):** Andrieus + Zyanne `voiceId` in voice config; Andrieus `useServerTts: true` — 2026-07-15
 - [x] **W8 / US-027:** Member auto-speak pilot — 🔁 Listen mode (`tier=member` + local opt-in); ⏹ stop while speaking — 2026-07-15
 - [ ] **W9 (deferred):** Agent email — mailbox registry + “Email me this” when ready
-- [ ] **Agent desks (rollout):** Vincent has finance desk/wire. Artemis v1: `equipment-desk` (`/greenways/equipment-desk`). Later clone pattern for Andrieus, Zara, Cheryce, Zyanne, Edwardo — then thin sidebar tabs into each desk.
+- [x] **Agent desks (partial):** Vincent finance desk/wire + Artemis `equipment-desk` — see shipped entries above — 2026-08-24
+- [ ] **Agent desks (rollout — remaining):** Clone desk pattern for Andrieus, Zara, Cheryce, Zyanne, Edwardo — then thin sidebar tabs into each desk
 
 ---
 

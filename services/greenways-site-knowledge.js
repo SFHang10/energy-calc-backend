@@ -528,13 +528,14 @@ function scoreCard(card, { agentKey, question, intentId, profile = {} }) {
   if (card.schemeId && keywordHits > 0) score += 24;
   if (card.catalogId && keywordHits > 0) score += 24;
   if (card.useDailyBriefEdition && (intentId === 'monthly_news' || intentId === 'daily_brief')) score += 18;
-  if (card.useTechEditionStats && intentId === 'tech_news') score += 20;
+  if (card.useTechEditionStats && (intentId === 'tech_news' || intentId === 'systems_innovation')) score += 20;
   if (card.useMapCatalogStats && (intentId === 'sustainability_map' || intentId === 'sustainability_map_explained')) score += 20;
   if (intentId === 'policy_news' && card.id === 'evidence-cbam-declaration-runway') score += 18;
   if (intentId === 'policy_news' && card.id === 'evidence-energy-omnibus-xii') score += 18;
   if (intentId === 'daily_brief' && card.id === 'evidence-daily-brief-headlines') score += 20;
   if (intentId === 'monthly_news' && card.id === 'evidence-latest-sustainability-edition') score += 20;
   if (intentId === 'tech_news' && card.id === 'evidence-tech-omnibus-eprel') score += 20;
+  if (intentId === 'systems_innovation' && card.id === 'evidence-edwardo-systems-innovation') score += 22;
   if (intentId === 'role_resources' && card.id === 'evidence-cheryce-news-curation') score += 18;
   if (card.useDashboardTariffs && (intentId === 'dashboard_math' || intentId === 'greenways_dashboard')) score += 20;
   if (card.useRestaurantSensorProfile && intentId === 'sensors_restaurant') score += 20;

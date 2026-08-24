@@ -568,6 +568,22 @@ async function runLocalSmokes() {
   }
   console.log('OK Edwardo dashboard module tablets');
 
+  const edInnovHit = await systemsMod.answerFromKnowledge(
+    'What systems innovation should restaurants watch this month for monitoring and proof of savings?',
+    profile
+  );
+  if (edInnovHit?.intentId !== 'systems_innovation') {
+    throw new Error('Edwardo systems_innovation: expected intentId systems_innovation');
+  }
+  const edInnovMod = (edInnovHit?.blocks || []).find((b) => b.type === 'module');
+  if (!edInnovMod?.items?.some((i) => i.moduleId === 'tech-news-edition')) {
+    throw new Error('Edwardo systems_innovation: expected tech-news-edition module');
+  }
+  if (!edInnovHit?.answer?.includes('**Site example:**')) {
+    throw new Error('Edwardo systems_innovation: expected **Site example:** grounded line');
+  }
+  console.log('OK Edwardo systems innovation:', edInnovHit.siteKnowledgeCardId);
+
   const edMonitorHit = await systemsMod.answerFromKnowledge('why energy monitoring measure first baseline', profile);
   if (!edMonitorHit?.answer?.includes('**Site example:**')) {
     throw new Error('Edwardo monitoring_why: expected **Site example:** grounded line');

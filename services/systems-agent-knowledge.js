@@ -23,6 +23,91 @@ const {
   buildRoleResourcesAnswer
 } = require('./systems-agent-dashboard');
 const { systemsModuleBlock } = require('./systems-agent-module-blocks');
+
+function systemsLensForTechTitle(title) {
+  const t = String(title || '').toLowerCase();
+  if (/eprel|omnibus|labell/.test(t)) {
+    return 'Treat digital labels as a **measure** feed — compare registry class with what your meters actually show.';
+  }
+  if (/qr|registry|retail/.test(t)) {
+    return 'Build the **control** path now — QR and product-registry data only help if site dashboards can attach SKUs to kWh.';
+  }
+  if (/grant|report/.test(t)) {
+    return '**Prove** savings with interval evidence — sub-meter packs beat narrative grant reports.';
+  }
+  if (/iot|sensor|meter|comput|pue|smart building/.test(t)) {
+    return 'Innovation helps sustainability only if you can **meter** it — start with the highest-load circuits.';
+  }
+  return 'Ask what this changes on site: what you **measure**, what you **control**, and what you can **prove**.';
+}
+
+async function buildSystemsInnovationAnswer(profile, tip) {
+  let edition = '';
+  let stories = [];
+  try {
+    const { loadFullNewsCatalog, getLatestEdition } = require('./media-news-loader');
+    const catalog = await loadFullNewsCatalog();
+    const tech = getLatestEdition(catalog.editions, 'tech');
+    if (tech?.edition) {
+      edition = tech.edition;
+      stories = (catalog.items || [])
+        .filter(
+          (item) =>
+            item.edition === tech.edition &&
+            item.editionType === 'tech' &&
+            item.catalogSource === 'content-ops-html' &&
+            !String(item.id || '').startsWith('edition-summary-')
+        )
+        .slice(0, 3);
+    }
+  } catch (_) {
+    stories = [];
+  }
+
+  const sector = profile?.sector || 'restaurant';
+  const editionNote = edition ? ` from the **${edition}** New in Tech edition` : ' from the latest New in Tech edition';
+  const storyLines = stories.length
+    ? stories.map((item) => `- **${item.title}** — ${systemsLensForTechTitle(item.title)}`).join('\n')
+    : [
+        '- **Digital EPREL / Omnibus XII** — labelling data is a measure feed, not only a sticker change.',
+        '- **QR and product-registry work** — dashboards should attach SKUs to real kWh before Q3 compliance peaks.',
+        '- **Clean-tech reporting** — interval evidence from sub-meters is stronger than a narrative report.'
+      ].join('\n');
+
+  return {
+    answer:
+      `New tech only helps a **${sector}** site if you can **measure, control, or prove** it.\n\n` +
+      `Cheryce owns the newsroom${editionNote}; I read the same headlines for systems — sensors, labelling data, and proof of savings.\n\n` +
+      `${storyLines}\n\n` +
+      `Pair digital product data with **IoT / sub-metering** so sustainability claims stay auditable on site. Open the edition on the right, then ask me what to meter first.\n\n` +
+      `_A dedicated systems tech round-up is planned — until then this is the interim reading, not a second newsroom._\n\n_${tip}_`,
+    suggestions: [],
+    intentId: 'systems_innovation',
+    blocks: [
+      systemsModuleBlock([
+        {
+          moduleId: 'tech-news-edition',
+          title: 'New in Tech edition',
+          usageHint: 'Cheryce’s latest tech round-up — I read it for what to measure first.',
+          openSize: 'near-full'
+        },
+        {
+          moduleId: 'sensor-dashboard',
+          title: 'Sensor dashboard',
+          usageHint: 'See which circuits to instrument so innovation claims stay measurable.',
+          openSize: 'near-full'
+        },
+        {
+          moduleId: 'restaurant-energy-monitoring-guide',
+          title: 'Restaurant monitoring guide',
+          usageHint: 'Baseline first — then attach new labelling or IoT data to real kWh.',
+          openSize: 'near-full'
+        }
+      ])
+    ]
+  };
+}
+
 const { siteBriefDemo } = require('./greenways-module-demo');
 const {
   applyPersona,
@@ -296,6 +381,9 @@ async function answerFromKnowledge(question, profile = {}) {
         break;
       case 'monitoring_products':
         result = await buildMonitoringProductsAnswer(question, profile, tip);
+        break;
+      case 'systems_innovation':
+        result = await buildSystemsInnovationAnswer(profile, tip);
         break;
       case 'greenways_dashboard':
         result = await buildGreenwaysDashboardAnswer(profile, tip);

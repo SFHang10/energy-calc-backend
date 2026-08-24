@@ -323,6 +323,7 @@
           <h2>Ask Edwardo</h2>
           <p><strong>Systems &amp; equipment specialist</strong> — why monitoring matters for homes and restaurants, which sensors to prioritise, and how Greenways dashboards make waste visible. Ops teams can still run read-only <strong>health checks</strong> via the status banner and <strong>Verify selected</strong>.</p>
           <div class="welcome-tags">
+            <button type="button" class="welcome-tag" data-prompt="What systems innovation should restaurants watch this month for monitoring and proof of savings?">Systems innovation</button>
             <button type="button" class="welcome-tag" data-prompt="Why is energy monitoring important before I upgrade equipment?">Why monitoring?</button>
             <button type="button" class="welcome-tag" data-prompt="What sensors should a restaurant install for cookline, refrigeration, and water?">Restaurant sensors</button>
             <button type="button" class="welcome-tag" data-prompt="What home energy monitoring and sensors help consumers save money?">Home monitoring</button>
@@ -337,7 +338,7 @@
       </div>
       <div class="chat-compose">
         <div class="compose-row">
-          <textarea id="chat-input" rows="1" placeholder="Ask about monitoring, sensors, dashboard maths, or platform health…"></textarea>
+          <textarea id="chat-input" rows="1" placeholder="Ask about monitoring, sensors, systems innovation, or dashboard maths…"></textarea>
                   <button type="button" class="gw-voice-btn" id="voice-mic-btn" aria-label="Speak your question" title="Speak">🎤</button>
         <button type="button" class="gw-voice-btn" id="voice-speak-btn" aria-label="Read last answer aloud" title="Listen">🔊</button>
         <button type="button" class="gw-voice-btn" id="voice-auto-btn" aria-label="Turn on auto-listen mode" title="Auto-listen" aria-pressed="false" hidden>🔁</button>
@@ -451,6 +452,7 @@
     { id: "agents", label: "Greenways agents" }
   ];
   const HELPERS = [
+    { icon: "✨", name: "Systems innovation", desc: "This month’s tech", prompt: "What systems innovation should restaurants watch this month for monitoring and proof of savings?" },
     { icon: "📡", name: "Why monitor?", desc: "Baseline first", prompt: "Why is energy monitoring important before I upgrade equipment?" },
     { icon: "🍳", name: "Restaurant", desc: "Kitchen sensors", prompt: "What sensors should a restaurant install for cookline, refrigeration, and water?" },
     { icon: "🏠", name: "Home", desc: "Consumer IoT", prompt: "What home energy monitoring and sensors help consumers save money?" },
@@ -721,11 +723,11 @@
     GreenwaysAgentContentModule.bindContainer(document.body);
   }
 
-                                      if (window.GreenwaysAgentSidebar) {
+  if (window.GreenwaysAgentSidebar) {
     GreenwaysAgentSidebar.init({
       quickLinks: [{"icon":"📡","name":"Restaurant monitoring","desc":"UK & EU guide","moduleOpen":true,"moduleId":"restaurant-energy-monitoring-guide","href":"./restaurant-energy-monitoring-guide.html","action":"Open"},{"icon":"📋","name":"Site Brief","desc":"Shareable site overview","moduleOpen":true,"moduleId":"restaurant-energy-snapshot","href":"./greenways-site-brief.html","action":"Open"},{"icon":"📊","name":"Sensor dashboard","desc":"Live view","moduleOpen":true,"moduleId":"sensor-dashboard","href":"./sensor-dashboard.html","action":"Open"},{"icon":"🏢","name":"Buildings dashboard","desc":"Portfolio KPIs","moduleOpen":true,"moduleId":"greenways-dashboard","href":"./Greenways%20Interface%20.html","action":"Open"}],
       linksHint: "Core portals stay here. More tools sit under the chat composer (Tools ▾).",
-      helpersHint: "Sensors, dashboards, peak timing, and ETL.",
+      helpersHint: "Innovation, sensors, dashboards, and ETL.",
       composerTools: [{"icon":"📡","name":"Monitoring primer","desc":"Why baseline","moduleOpen":true,"moduleId":"energy-monitoring","href":"./Importance%20of%20Energy%20Monitoring.html","action":"Open"},{"icon":"⚡","name":"Site energy reading","desc":"Grid carbon by postcode","moduleOpen":true,"moduleId":"site-energy-reading","href":"./site-energy-reading.html","action":"Open"},{"icon":"🔧","name":"Equipment Agent","desc":"Artemis · upgrades","href":"/greenways/equipment-agent","agent":true},{"icon":"💶","name":"Finance Agent","desc":"Vincent · payback","href":"/greenways/finance-agent","agent":true}],
       helpers: HELPERS,
       onAsk: function (prompt) { sendQuestion(prompt); },
