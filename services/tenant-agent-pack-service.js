@@ -45,6 +45,7 @@ async function listPacks() {
   const registry = await loadRegistry();
   const packs = [];
   for (const row of registry.packs || []) {
+    if (row.listInHub === false || row.status === 'website-demo') continue;
     try {
       const full = await loadPack(row.chainId);
       packs.push({

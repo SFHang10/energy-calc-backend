@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
 <style>
   :root {
     --text: #e8f0ec;
@@ -648,7 +649,7 @@
 
     var handoffHtml = (pack.handoffsToPlatform || [])
       .map(function (h) {
-        var prompt = h.w2wExample || h.when;
+        var prompt = h.w2wExample || h.sampleExample || h.when;
         var face = rosterEntry(h.to);
         return (
           '<a class="handoff-card" href="' + escapeHtml(platformAskHref(h.to, prompt, pack)) +
@@ -658,8 +659,8 @@
           '<div class="name">' + escapeHtml(h.toName || (face && face.name) || h.to) + '</div>' +
           '</div>' +
           '<div class="when">' + escapeHtml(h.when || '') + '</div>' +
-          (h.w2wExample
-            ? '<div class="ex"><em>W2W example</em>' + escapeHtml(h.w2wExample) + '</div>'
+          (h.w2wExample || h.sampleExample
+            ? '<div class="ex"><em>Example</em>' + escapeHtml(h.w2wExample || h.sampleExample) + '</div>'
             : '') +
           '</a>'
         );
@@ -704,7 +705,13 @@
       escapeHtml(assist.label || 'Assist') + '</a>' +
       '<a class="cta cta-ghost" href="/greenways/orchestra-hub-wix-frame" target="_top" rel="noopener">Transition Orchestra</a>' +
       '<a class="cta cta-ghost" href="/greenways/agents-highlights" target="_top" rel="noopener">Portal highlights</a>' +
-      '<a class="cta cta-ghost" href="/greenways/customer-hub" target="_top" rel="noopener">Your Hub</a>' +
+      '<a class="cta cta-ghost" href="' +
+      escapeHtml(
+        String(pack.status || '') === 'website-demo'
+          ? '/greenways/customer-hub-demo'
+          : '/greenways/customer-hub'
+      ) +
+      '" target="_top" rel="noopener">Your Hub</a>' +
       '</div></header>' +
 
       (tenantAgents
@@ -717,7 +724,9 @@
 
       (flowHtml
         ? '<section class="section"><h2>How chain + Transition Agents work together</h2>' +
-          '<p class="section-lede">Local tools first; Europe-wide specialists when the question needs them; then back to a Wok to Walk next step.</p>' +
+          '<p class="section-lede">Local tools first; Europe-wide specialists when the question needs them; then back to a ' +
+          escapeHtml(pack.brandName || 'restaurant') +
+          ' next step.</p>' +
           '<div class="flow" aria-label="Collaboration flow">' + flowHtml + '</div></section>'
         : '') +
 
@@ -736,7 +745,7 @@
 
       (handoffHtml
         ? '<section class="section"><h2>When they hand over to Transition Agents</h2>' +
-          '<p class="section-lede">Each specialist keeps their lane. Cards include a W2W-flavoured example question so you can try the handoff.</p>' +
+          '<p class="section-lede">Each specialist keeps their lane. Cards include a sample example question so you can try the handoff.</p>' +
           '<div class="handoff-cards">' + handoffHtml + '</div></section>'
         : '') +
 
@@ -765,6 +774,10 @@
         throw new Error((res.d && res.d.error) || 'Pack not found');
       }
       document.title = (res.d.pack.brandName || chainId) + ' · How chain agents work';
+      if (String(res.d.pack.status || '') === 'website-demo' || chainId === 'wok-restaurant-demo') {
+        document.documentElement.classList.add('embed-mode');
+        document.body.classList.add('embed-mode');
+      }
       render(res.d.pack);
     })
     .catch(function (err) {

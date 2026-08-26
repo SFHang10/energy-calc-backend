@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Restaurant Assist · Demo · Greenways</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
+<style>
+  :root {
+    --text: #e8f0ec;
+    --muted: #8fa89a;
+    --orange: #f97316;
+    --font: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    min-height: 100%;
+    font-family: var(--font);
+    color: var(--text);
+    background: #0b1220;
+    overflow-x: hidden;
+    line-height: 1.55;
+  }
+  .page-backdrop {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image: url("https://static.wixstatic.com/media/c123de_7a5c1fd6e495484a951ee85db603683a~mv2.jpg");
+    background-size: cover; background-position: center top;
+  }
+  .page-backdrop::after {
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(160deg, rgba(11, 18, 32, 0.78) 0%, rgba(15, 23, 42, 0.84) 50%, rgba(11, 18, 32, 0.92) 100%),
+      radial-gradient(circle at 18% 78%, rgba(249, 115, 22, 0.2), transparent 42%);
+  }
+  .page {
+    position: relative; z-index: 1;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px 16px 48px;
+  }
+  .hero {
+    display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap;
+    padding: 18px 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(249, 115, 22, 0.35);
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.8));
+    margin-bottom: 14px;
+  }
+  .face {
+    width: 88px; height: 88px; border-radius: 50%;
+    object-fit: cover; object-position: top center;
+    border: 3px solid rgba(249, 115, 22, 0.65);
+    background: #0f172a;
+  }
+  .eyebrow {
+    font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: #fdba74; font-weight: 600; margin-bottom: 6px;
+  }
+  h1 { font-size: 1.35rem; font-weight: 700; margin-bottom: 6px; }
+  .lede { color: var(--muted); font-size: 0.9rem; max-width: 48ch; }
+  .demo-note {
+    margin-top: 10px; font-size: 0.78rem; color: #fdba74;
+    border: 1px solid rgba(249, 115, 22, 0.28);
+    background: rgba(249, 115, 22, 0.08);
+    border-radius: 10px; padding: 8px 10px;
+  }
+  .thread {
+    border-radius: 16px;
+    border: 1px solid rgba(75, 140, 104, 0.28);
+    background: rgba(15, 23, 42, 0.88);
+    padding: 14px;
+    margin-bottom: 14px;
+    min-height: 220px;
+  }
+  .bubble {
+    max-width: 92%;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 0.88rem;
+  }
+  .bubble.assist {
+    background: rgba(249, 115, 22, 0.12);
+    border: 1px solid rgba(249, 115, 22, 0.28);
+  }
+  .bubble.user {
+    margin-left: auto;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.25);
+  }
+  .bubble strong { color: #fdba74; font-size: 0.72rem; display: block; margin-bottom: 4px; }
+  .prompts {
+    display: grid; gap: 8px; margin-bottom: 14px;
+  }
+  .prompt-btn {
+    text-align: left;
+    font: inherit;
+    color: var(--text);
+    cursor: pointer;
+    border-radius: 12px;
+    border: 1px solid rgba(249, 115, 22, 0.3);
+    background: rgba(15, 23, 42, 0.75);
+    padding: 11px 12px;
+  }
+  .prompt-btn:hover { border-color: rgba(249, 115, 22, 0.7); }
+  .prompt-btn span {
+    display: block; font-size: 0.7rem; color: #fdba74; font-weight: 600; margin-bottom: 3px;
+  }
+  .links {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .links a {
+    text-decoration: none;
+    color: #fdba74;
+    font-size: 0.8rem; font-weight: 600;
+    border: 1px solid rgba(249, 115, 22, 0.35);
+    border-radius: 999px;
+    padding: 7px 12px;
+    background: rgba(249, 115, 22, 0.08);
+  }
+</style>
+</head>
+<body>
+  <div class="page-backdrop" aria-hidden="true"></div>
+  <div class="page">
+    <header class="hero">
+      <img class="face" src="https://static.wixstatic.com/media/c123de_c39c61a15a1e4a858c8178d3facb305d~mv2.jpg" alt="Restaurant Assist" width="88" height="88" decoding="async">
+      <div>
+        <div class="eyebrow">Wok Restaurant · website demo</div>
+        <h1>Restaurant Assist</h1>
+        <p class="lede">Sample on-site co-pilot for a wok restaurant — local ops first, then hand off to Transition Agents for grants, finance, and equipment depth.</p>
+        <p class="demo-note">Demo preview only (not a live client chat). Tap a sample question to open a real Transition Agent with Wok Restaurant context.</p>
+      </div>
+    </header>
+
+    <div class="thread" aria-label="Sample conversation">
+      <div class="bubble assist">
+        <strong>Restaurant Assist</strong>
+        Hi — I’m the sample restaurant assistant for <em>Wok Restaurant</em>. Ask about tonight’s events, kitchen equipment, or energy on site. For NL/EU grants or payback I’ll bring in Andrieus, Vincent, or Artemis.
+      </div>
+      <div class="bubble user">
+        <strong>You</strong>
+        Our wok burners use a lot of gas — what should we look at first?
+      </div>
+      <div class="bubble assist">
+        <strong>Restaurant Assist</strong>
+        Start with a baseline (what’s on the line tonight), then compare efficient alternatives with Artemis and check NL/EU support with Andrieus. Vincent can sketch payback once you’ve picked a path. Try a sample question below.
+      </div>
+    </div>
+
+    <div class="prompts" id="prompts"></div>
+
+    <div class="links">
+      <a href="/greenways/tenants/wok-restaurant-demo" target="_top" rel="noopener">Their story</a>
+      <a href="/greenways/customer-hub-demo" target="_top" rel="noopener">Your Hub demo</a>
+      <a href="/greenways/orchestra-hub?embed=1" target="_top" rel="noopener">Orchestra</a>
+    </div>
+  </div>
+<script>
+(function () {
+  var PROMPTS = [
+    {
+      label: 'Grants · Andrieus',
+      text: 'Which NL or EU schemes might support a kitchen line upgrade for our Wok Restaurant sample site?',
+      href: '/greenways/grants-agent?embed=1&q='
+    },
+    {
+      label: 'Payback · Vincent',
+      text: 'Illustrate payback if we replace high-gas wok burners on this Wok Restaurant site.',
+      href: '/greenways/finance-agent?embed=1&q='
+    },
+    {
+      label: 'Equipment · Artemis',
+      text: 'Compare efficient alternatives to wok burners and cold line for a busy wok restaurant.',
+      href: '/greenways/equipment-agent?embed=1&q='
+    },
+    {
+      label: 'Events near site',
+      text: 'What local events or catering demand should a busy Amsterdam wok restaurant watch this weekend?',
+      href: '/greenways/orchestra-hub?embed=1&q='
+    }
+  ];
+  var mount = document.getElementById('prompts');
+  mount.innerHTML = PROMPTS.map(function (p) {
+    var url = p.href + encodeURIComponent(p.text) + '&chainId=wok-restaurant-demo';
+    return (
+      '<button type="button" class="prompt-btn" data-href="' + url.replace(/"/g, '&quot;') + '">' +
+      '<span>' + p.label + '</span>' + p.text +
+      '</button>'
+    );
+  }).join('');
+  mount.addEventListener('click', function (e) {
+    var btn = e.target.closest('.prompt-btn');
+    if (!btn) return;
+    var href = btn.getAttribute('data-href');
+    if (href) window.top.location.href = href;
+  });
+})();
+</script>
+</body>
+</html>

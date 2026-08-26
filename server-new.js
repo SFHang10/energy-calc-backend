@@ -308,6 +308,7 @@ app.get('/greenways/deals-hub', (req, res) => sendLiveMusicHtml(res, 'deals-tick
 app.get('/greenways/water-saving-finder', (req, res) => sendLiveMusicHtml(res, 'water-saving-finder.html'));
 app.get('/greenways/water-saving-finder.html', (req, res) => sendLiveMusicHtml(res, 'water-saving-finder.html'));
 app.get('/greenways/wok-assist', (req, res) => sendLiveMusicHtml(res, 'Chef 3 W2W .html'));
+app.get('/greenways/restaurant-assist-demo', (req, res) => sendLiveMusicHtml(res, 'greenways-restaurant-assist-demo.html'));
 app.get('/greenways/events-ticker', (req, res) => sendLiveMusicHtml(res, 'Events Ticker W2W .html'));
 app.get('/greenways/tenants/:chainId', (req, res) => sendLiveMusicHtml(res, 'greenways-tenant-hub.html'));
 app.get('/greenways/tenant-hub', (req, res) => sendLiveMusicHtml(res, 'greenways-tenant-hub.html'));
