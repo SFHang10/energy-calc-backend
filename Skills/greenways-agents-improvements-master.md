@@ -43,6 +43,8 @@
 ### Next up (Aug 2026)
 
 - [ ] **Data refresh:** schemes.json review + product-grants integrator/bundle; deals weekly input + `build:deals-feed`; smokes + agents-admin freshness — playbooks `Skills/grants-refresh-playbook.md` · `Skills/agents-data-refresh-playbook.md`
+- [x] **Grants/schemes refresh (Aug 2026):** france-renov + maprimenov link/copy; integrator + products-grants-bundle + enrich sust catalog — 2026-08-26
+- [ ] **Deals refresh:** `data/deals-weekly-input.json` + `npm run build:deals-feed`
 - [ ] **Talking phase (bring them to life):** PRD `tasks/prd-agents-talking-phase.json` — AV-001…AV-007 (branded TTS all seven → spokenSummary style → talk UX → Wix mic → optional STT). Extends Wave 8; say *“Start Ralph loop for agents talking phase”* when ready.
 - [ ] **Professional project packs (consumer deliverable):** When user opens **Project** / plan — concise but thorough professional document (not a novel). Prefer **internal Greenways template** fed by agent-structured JSON (upgrade plan / renovation / finance case) → print-ready HTML/PDF + email (W9). Do **not** depend on Notion/Asana/Monday for the customer-facing pack; optional later export *into* those tools for ops teams. Build on `upgrade_plan` + Upgrade Plan Studio + renovation planner — deepen sections (scope, steps, grants, payback, risks, next actions) and one shared “project pack” shell.
 

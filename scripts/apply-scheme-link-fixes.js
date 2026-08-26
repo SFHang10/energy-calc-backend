@@ -31,6 +31,7 @@ const PRIMARY_LINK_FIXES = {
   refurbishment: 'https://www.rvo.nl/onderwerpen/wetten-en-regels-gebouwen',
   'geea-label': 'https://www.dena.de/',
   'prime-adapt': 'https://www.anah.gouv.fr/',
+  'france-renov': 'https://www.service-public.fr/particuliers/vosdroits/F31911',
   'be-ev-premium': 'https://www.vlaanderen.be/mobiliteit-en-openbare-werken/duurzame-mobiliteit/milieuvriendelijke-voertuigen/premie-voor-aankoop-van-een-zero-emissievoertuig',
   'be-solar-premium': 'https://www.energuide.be/',
   'uci-urban': 'https://www.mivau.gob.es/',

@@ -1,5 +1,16 @@
 # Grants and Schemes Review - 2026-05-11
 
+## Applied status (2026-08-26)
+
+**Link + FR copy pass** on top of 2026-07-02 catalogue:
+- `france-renov` — primary URL moved off `france-renov.gouv.fr` (Node TLS leaf failure) to Service-Public F31911 + adviser directory
+- `maprimenov` — 2026 finance-law reopen / adviser note; Service-Public overview link added
+- Catalogue still **78** schemes (71 active / 6 expired / 1 paused). May review items remain applied.
+
+**Next:** integrator → grants bundle → enrich sustainable → smoke links.
+
+---
+
 ## Applied status (2026-07-02)
 
 All proposals below were checked against `schemes.json` (78 schemes). **Applied in catalogue** unless noted.
