@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css">
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
   <style>
     :root {
       --bg: #0b1410;
@@ -2019,7 +2020,27 @@
       .replace(/"/g, '&quot;');
   }
 
+  /** Website / Wix demos: anonymised sample restaurant — no live client tenant pack. */
+  function isDemoHub() {
+    try {
+      if (/[?&]demo=1(?:&|$)/.test(location.search)) return true;
+      return /(?:^|\/)customer-hub-demo\/?$/i.test(String(location.pathname || ''));
+    } catch (_) {
+      return false;
+    }
+  }
+
   function getProfile() {
+    if (isDemoHub()) {
+      return {
+        region: 'nl',
+        sector: 'restaurant',
+        tier: 'demo',
+        siteId: 'demo-wok-restaurant',
+        memberId: null,
+        memberStatus: 'demo'
+      };
+    }
     var member = readJson('greenways_member_context_v1') || {};
     var shared = readJson('gw-team-profile-v1') || {};
     return {
@@ -2215,6 +2236,19 @@
     var mount = document.getElementById('restaurant-agent-cards');
     if (!mount) return;
 
+    // Real member hub may load live tenant packs. Website demos use anonymised sample only.
+    var DEMO_PACK = {
+      brandName: 'Wok Restaurant',
+      hubRoute: '/greenways/orchestra-hub?embed=1',
+      assistRoute: '/greenways/orchestra-hub?embed=1',
+      agents: [{
+        name: 'Restaurant Assist',
+        roleLine: 'Site equipment, local events, catering, and day-to-day ops for a sample wok restaurant.',
+        imageUrl: 'https://static.wixstatic.com/media/c123de_c39c61a15a1e4a858c8178d3facb305d~mv2.jpg',
+        path: '/greenways/orchestra-hub?embed=1'
+      }]
+    };
+
     var FALLBACK = {
       brandName: 'Wok to Walk',
       hubRoute: '/greenways/tenants/wok-to-walk',
@@ -2226,6 +2260,26 @@
         path: '/greenways/wok-assist'
       }]
     };
+
+    function paintPack(pack) {
+      var a = pack.agents[0];
+      mount.innerHTML =
+        '<article class="tenant-agent-card">' +
+          '<img src="' + escapeHtml(a.imageUrl) + '" alt="' + escapeHtml(a.name) + '" width="72" height="72" decoding="async">' +
+          '<div class="brand">' + escapeHtml(pack.brandName) + '</div>' +
+          '<h3 class="name">' + escapeHtml(a.name) + '</h3>' +
+          '<p class="role">' + escapeHtml(a.roleLine) + '</p>' +
+          '<div class="tenant-agent-actions">' +
+            '<a class="btn-story" href="' + escapeHtml(pack.hubRoute) + '">Their story</a>' +
+            '<a class="btn-chat" href="' + escapeHtml(pack.assistRoute) + '">Open chat</a>' +
+          '</div>' +
+        '</article>';
+    }
+
+    if (isDemoHub()) {
+      paintPack(DEMO_PACK);
+      return;
+    }
 
     try {
       var list = await loadJson('/api/tenant-packs');
@@ -2268,18 +2322,7 @@
       }
       mount.innerHTML = cards.join('') || '<p class="restaurant-agents-empty">No restaurant agents yet.</p>';
     } catch (_) {
-      var a = FALLBACK.agents[0];
-      mount.innerHTML =
-        '<article class="tenant-agent-card">' +
-          '<img src="' + escapeHtml(a.imageUrl) + '" alt="' + escapeHtml(a.name) + '" width="72" height="72" decoding="async">' +
-          '<div class="brand">' + escapeHtml(FALLBACK.brandName) + '</div>' +
-          '<h3 class="name">' + escapeHtml(a.name) + '</h3>' +
-          '<p class="role">' + escapeHtml(a.roleLine) + '</p>' +
-          '<div class="tenant-agent-actions">' +
-            '<a class="btn-story" href="' + escapeHtml(FALLBACK.hubRoute) + '">Their story</a>' +
-            '<a class="btn-chat" href="' + escapeHtml(FALLBACK.assistRoute) + '">Open chat</a>' +
-          '</div>' +
-        '</article>';
+      paintPack(FALLBACK);
     }
   }
 
@@ -2816,9 +2859,35 @@
   function renderProfile(profile) {
     var region = REGION_LABELS[profile.region] || profile.region || 'Region';
     var sector = profile.sector ? profile.sector.charAt(0).toUpperCase() + profile.sector.slice(1) : 'Your business';
-    var tier = profile.tier ? ' · ' + profile.tier : (profile.memberId ? '' : ' · Guest');
+    var tier;
+    if (isDemoHub()) {
+      tier = ' · Demo · Wok Restaurant';
+    } else {
+      tier = profile.tier ? ' · ' + profile.tier : (profile.memberId ? '' : ' · Guest');
+    }
     document.getElementById('profile-chip').innerHTML =
       '<strong>' + escapeHtml(region) + '</strong> · ' + escapeHtml(sector) + escapeHtml(tier);
+  }
+
+  function applyDemoChrome() {
+    if (!isDemoHub()) return;
+    document.body.classList.add('hub-demo-mode');
+    var pill = document.querySelector('.hub-status-pill');
+    if (pill) pill.textContent = 'Demo hub';
+    var lede = document.querySelector('.hub-status-panel .lede');
+    if (lede) {
+      lede.textContent =
+        'Sample member home for the agent website — illustrative picks, deals, and news. Not a live client account.';
+    }
+    var panelLede = document.querySelector('.restaurant-agents-panel .panel-lede');
+    if (panelLede) {
+      panelLede.textContent =
+        'Sample restaurant desk for demos — anonymised branding. Real members see their own chain assistants here.';
+    }
+    var staff = document.querySelector('.gw-staff-admin-link');
+    if (staff) staff.hidden = true;
+    var membership = document.querySelector('.hub-panel-actions a[href*="membership"]');
+    if (membership) membership.hidden = true;
   }
 
   function initGreenwaysBackdropTheme() {
@@ -2949,6 +3018,7 @@
   }
 
   async function init() {
+    applyDemoChrome();
     initGreenwaysBackdropTheme();
     initTickerToggle('energyTickerShell', 'tickerToggleBtn', 'customerHubEnergyTickerHidden');
     initTickerToggle('eventsTickerShell', 'eventsTickerToggleBtn', 'customerHubEventsTickerHidden');

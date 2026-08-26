@@ -27,13 +27,14 @@ Alias: `/greenways/guide-agent` → same hub HTML. API: `POST /api/guide-agent/a
 **Portal entry pages (Wix marketing):**
 
 ```
+https://energy-calc-backend.onrender.com/greenways/customer-hub-demo
 https://energy-calc-backend.onrender.com/greenways/customer-hub
 https://energy-calc-backend.onrender.com/greenways/agents/grants-agent/story
 https://energy-calc-backend.onrender.com/greenways/agents-story
 https://energy-calc-backend.onrender.com/greenways/agents-highlights
 ```
 
-**Your Hub** = member home (saved / suggestions / deals / news) — open without sign-in for preview for now; membership gate later. **Agent story** = per-specialist selling page (`/greenways/agents/{slug}/story`, JSON in `data/greenways-agent-stories/`) — intro, video slot, 3-step journeys, live tool demos. Story = why the agents exist · Highlights = weekly grounded picks per specialist (`npm run build:agent-highlights`). Shared portal nav links Hub ↔ story ↔ highlights ↔ Orchestra ↔ agent map.
+**Your Hub demo** (`/greenways/customer-hub-demo`) = website sample with anonymised **Wok Restaurant** branding and portal menus hidden. **Your Hub** (`/customer-hub`) = member home (saved / suggestions / deals / news) — may show linked tenant packs when signed in. **Agent story** = per-specialist selling page (`/greenways/agents/{slug}/story`, JSON in `data/greenways-agent-stories/`) — intro, video slot, 3-step journeys, live tool demos. Story = why the agents exist · Highlights = weekly grounded picks per specialist (`npm run build:agent-highlights`). Shared portal nav links Hub ↔ story ↔ highlights ↔ Orchestra ↔ agent map.
 
 ### Website embeds vs demo (full menu) — Aug 2026
 
@@ -46,7 +47,8 @@ Use **`-embed` URLs** (or `?embed=1`) on the **new Wix website** so portal famil
 | Cheryce video desk | `/greenways/media-video-desk-embed` | `/greenways/media-video-desk` |
 | Vincent finance desk | `/greenways/finance-desk-embed` | `/greenways/finance-desk` |
 | Orchestra / operate portal | `/greenways/orchestra-hub-embed` (or `?embed=1` / wix-frame) | `/greenways/orchestra-hub` |
-| Your Hub | `/greenways/customer-hub?embed=1` | `/greenways/customer-hub` |
+| Your Hub (live / member) | `/greenways/customer-hub?embed=1` | `/greenways/customer-hub` |
+| Your Hub (**website demo** — no client brand) | `/greenways/customer-hub-demo` | same (menus already hidden) |
 | Agent story (per character) | `/greenways/agents/{slug}/story-embed` | `/greenways/agents/{slug}/story` |
 | Agent chat | `/greenways/{slug}?embed=1` | `/greenways/{slug}` |
 

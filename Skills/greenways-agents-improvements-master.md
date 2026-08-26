@@ -2,6 +2,7 @@
 
 **Purpose:** One place to track improvements for Greenways Agents. This combines:
 - **Ralph Power Platform PRD** (`tasks/prd-agents-power-platform.json`) — W1–W9 waves + user stories
+- **Talking phase PRD** (`tasks/prd-agents-talking-phase.json`) — branded TTS, spoken scripts, Wix mic ⭐
 - **Connective-tissue gaps backlog** (`Skills/greenways-agents-possible-next-steps.md`) — Gap 1–10
 
 **Rule:** Add new work here first. The two source documents can keep detail, but this is the **single working queue**.
@@ -39,6 +40,12 @@
 
 ## One combined queue (work order)
 
+### Next up (Aug 2026)
+
+- [ ] **Data refresh:** schemes.json review + product-grants integrator/bundle; deals weekly input + `build:deals-feed`; smokes + agents-admin freshness — playbooks `Skills/grants-refresh-playbook.md` · `Skills/agents-data-refresh-playbook.md`
+- [ ] **Talking phase (bring them to life):** PRD `tasks/prd-agents-talking-phase.json` — AV-001…AV-007 (branded TTS all seven → spokenSummary style → talk UX → Wix mic → optional STT). Extends Wave 8; say *“Start Ralph loop for agents talking phase”* when ready.
+- [ ] **Professional project packs (consumer deliverable):** When user opens **Project** / plan — concise but thorough professional document (not a novel). Prefer **internal Greenways template** fed by agent-structured JSON (upgrade plan / renovation / finance case) → print-ready HTML/PDF + email (W9). Do **not** depend on Notion/Asana/Monday for the customer-facing pack; optional later export *into* those tools for ops teams. Build on `upgrade_plan` + Upgrade Plan Studio + renovation planner — deepen sections (scope, steps, grants, payback, risks, next actions) and one shared “project pack” shell.
+
 ### Customer Hub (member home) — new track
 
 - [x] **CH-001 shell:** `greenways-customer-hub.html` + `/greenways/customer-hub` — scrollable Saved / Suggested / Deals / News / Site glance — 2026-07-17
@@ -47,6 +54,8 @@
 - [ ] **CH-003 deep:** Wire `/api/members/saved-items` when auth present
 - [ ] **CH-006:** Richer site glance (optional snapshot module) with trust labels
 - [ ] **Wix:** Embed / membership dashboard entry link to Customer Hub
+- [x] **Your Hub website demo:** `/greenways/customer-hub-demo` — same layout, anonymised **Wok Restaurant** (no Wok to Walk tenant pack), portal menus hidden — 2026-08-26
+- [ ] **Buildings dashboard website demo:** same pattern later — anonymised sample site, no live client meters/branding, `?embed=1` / `-demo` for Wix
 
 ### Gap 2 — Live data vs illustrative data
 
@@ -81,6 +90,9 @@
 - [x] **W8 / US-026 (partial):** Andrieus + Zyanne `voiceId` in voice config; Andrieus `useServerTts: true` — 2026-07-15
 - [x] **W8 / US-027:** Member auto-speak pilot — 🔁 Listen mode (`tier=member` + local opt-in); ⏹ stop while speaking — 2026-07-15
 - [ ] **W9 (deferred):** Agent email — mailbox registry + “Email me this” when ready
+- [ ] **Multi-channel outreach (W10 sketch):** Same `/ask` brain → channel adapters — **not** a separate bot per app. Order: (1) **Email** = W9, (2) **Microsoft Teams** (Graph bot / Adaptive Cards for hospitality teams), (3) optional **WhatsApp Business** if members opt in, (4) **LinkedIn** = light touch only (share links / InMail via human or approved CRM — LinkedIn Messaging API is not a good general chatbot channel). Requires member identity + opt-in prefs in Customer Hub. Do **not** start until talking phase + W9 email shape are clear.
+- [x] **W8 foundation:** browser voice + spokenSummary + TTS route + Andrieus premium pilot + listen mode — see power platform PRD
+- [ ] **Talking phase (AV-001–007):** branded TTS for remaining agents; spoken script quality; talk UX; Wix mic path; optional STT — `tasks/prd-agents-talking-phase.json`
 - [x] **Agent desks (partial):** Vincent finance desk/wire + Artemis `equipment-desk` — see shipped entries above — 2026-08-24
 - [ ] **Agent desks (rollout — remaining):** Clone desk pattern for Andrieus, Zara, Cheryce, Zyanne, Edwardo — then thin sidebar tabs into each desk
 
