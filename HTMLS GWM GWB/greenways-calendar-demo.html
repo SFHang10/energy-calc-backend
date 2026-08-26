@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="wix-html-scroll" content="no-scroll">
+<title>Greenways calendar · Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
+<style>
+  :root {
+    --text: #e8f0ec;
+    --muted: #8fa89a;
+    --gold: #c9a961;
+    --green: #3dcf7a;
+    --font: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+    --font-clean: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    min-height: 100%;
+    font-family: var(--font);
+    color: var(--text);
+    background: #0b1220;
+    overflow-x: hidden;
+  }
+  body.embed-mode { background: transparent; }
+  .page {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 16px 14px 40px;
+  }
+  body.embed-mode .page { padding: 8px 4px 12px; max-width: none; }
+  .head {
+    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+    gap: 10px; margin-bottom: 12px;
+  }
+  .eyebrow {
+    font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; margin-bottom: 4px;
+  }
+  h1 { font-size: 1.35rem; font-weight: 700; }
+  .lede { color: var(--muted); font-size: 0.86rem; max-width: 58ch; margin-top: 4px; }
+  .nav-months {
+    display: flex; gap: 8px; align-items: center;
+  }
+  .nav-months button {
+    font: inherit; cursor: pointer; color: var(--text);
+    border: 1px solid rgba(75, 140, 104, 0.35);
+    background: rgba(14, 33, 23, 0.85);
+    border-radius: 999px; padding: 6px 12px;
+  }
+  .month-label {
+    font-family: var(--font-clean);
+    font-weight: 600; min-width: 9rem; text-align: center;
+  }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px;
+    font-size: 0.72rem; color: var(--muted);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .swatch {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .swatch.grant { background: #22d3ee; }
+  .swatch.ops { background: #f97316; }
+  .swatch.plan { background: #c9a961; }
+  .grid-wrap {
+    border-radius: 14px;
+    border: 1px solid rgba(75, 140, 104, 0.28);
+    background: linear-gradient(180deg, rgba(14, 33, 23, 0.92), rgba(11, 26, 18, 0.95));
+    overflow: hidden;
+  }
+  .dow {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    border-bottom: 1px solid rgba(75, 140, 104, 0.2);
+    font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .dow span { padding: 8px 4px; text-align: center; }
+  .days {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+  }
+  .day {
+    min-height: 78px;
+    border-right: 1px solid rgba(75, 140, 104, 0.12);
+    border-bottom: 1px solid rgba(75, 140, 104, 0.12);
+    padding: 6px 5px;
+    font-family: var(--font-clean);
+  }
+  .day:nth-child(7n) { border-right: none; }
+  .day.is-muted { opacity: 0.35; }
+  .day.is-today .num {
+    color: #0b1220; background: var(--green); border-radius: 999px;
+    width: 1.4rem; height: 1.4rem; display: inline-flex; align-items: center; justify-content: center;
+  }
+  .num { font-size: 0.78rem; font-weight: 600; color: #b8f5d4; }
+  .dots { display: flex; flex-direction: column; gap: 3px; margin-top: 4px; }
+  .chip {
+    display: block; width: 100%; text-align: left;
+    font: inherit; font-size: 0.62rem; line-height: 1.25;
+    color: #e8f0ec; cursor: pointer;
+    border: none; border-radius: 4px; padding: 3px 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .chip.grant { background: rgba(34, 212, 255, 0.18); }
+  .chip.ops { background: rgba(249, 115, 22, 0.22); }
+  .chip.plan { background: rgba(201, 169, 97, 0.22); }
+  .detail {
+    margin-top: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(201, 169, 97, 0.28);
+    background: rgba(15, 23, 42, 0.88);
+    padding: 12px 14px;
+    display: none;
+  }
+  .detail.is-open { display: block; }
+  .detail h2 { font-size: 1rem; margin-bottom: 4px; }
+  .detail .meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; }
+  .detail p { font-size: 0.88rem; color: #d7e4dc; margin-bottom: 10px; }
+  .detail a {
+    display: inline-block; text-decoration: none;
+    color: #0b1220; font-weight: 600; font-size: 0.8rem;
+    background: var(--gold); border-radius: 999px; padding: 7px 12px;
+  }
+  .footer-note {
+    margin-top: 10px; font-size: 0.72rem; color: var(--muted);
+  }
+  body.embed-mode .footer-note { display: none; }
+  @media (max-width: 640px) {
+    .day { min-height: 64px; }
+    .chip { font-size: 0.58rem; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="head">
+      <div>
+        <div class="eyebrow">Wok Restaurant · website demo</div>
+        <h1>Your calendar</h1>
+        <p class="lede">Read-only demo: grant deadlines from the schemes catalogue plus sample restaurant ops milestones. Personal add / agent “save to calendar” comes later.</p>
+      </div>
+      <div class="nav-months">
+        <button type="button" id="prev-month" aria-label="Previous month">←</button>
+        <div class="month-label" id="month-label">—</div>
+        <button type="button" id="next-month" aria-label="Next month">→</button>
+      </div>
+    </div>
+    <div class="legend" aria-hidden="true">
+      <span><i class="swatch grant"></i> Grant deadline</span>
+      <span><i class="swatch ops"></i> Ops / events</span>
+      <span><i class="swatch plan"></i> Plan milestone</span>
+    </div>
+    <div class="grid-wrap">
+      <div class="dow" aria-hidden="true">
+        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+      </div>
+      <div class="days" id="days" role="grid" aria-label="Month calendar"></div>
+    </div>
+    <div class="detail" id="detail" aria-live="polite"></div>
+    <p class="footer-note">Demo calendar · not a live client diary · opens from Your Hub demo</p>
+  </div>
+<script>
+(function () {
+  var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var view = new Date();
+  view.setDate(1);
+  var events = [];
+  var selectedId = null;
+
+  function pad(n) { return n < 10 ? '0' + n : String(n); }
+  function isoDate(d) {
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  }
+  function parseIso(s) {
+    var m = String(s || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return null;
+    return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  }
+
+  function loadJson(url) {
+    return fetch(url).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+  }
+
+  function schemeEvents(schemes) {
+    var list = Array.isArray(schemes) ? schemes : (schemes && schemes.schemes) || [];
+    var out = [];
+    list.forEach(function (s) {
+      if (!s || s.status === 'expired' || s.status === 'paused') return;
+      var d = parseIso(s.deadline);
+      if (!d) return;
+      out.push({
+        id: 'scheme-' + s.id,
+        date: isoDate(d),
+        title: (s.title || s.id) + ' · deadline',
+        type: 'grant',
+        source: 'Andrieus · schemes',
+        summary: (s.description || 'Scheme deadline from the Greenways grants catalogue.') +
+          (s.region ? ' Region: ' + String(s.region).toUpperCase() + '.' : ''),
+        askAgent: 'grants-agent',
+        askPrompt: 'Tell me about the ' + (s.title || s.id) + ' scheme and what to do before the deadline.'
+      });
+    });
+    return out;
+  }
+
+  function eventsForDay(iso) {
+    return events.filter(function (e) { return e.date === iso; });
+  }
+
+  function showDetail(ev) {
+    selectedId = ev.id;
+    var el = document.getElementById('detail');
+    var href = '/greenways/' + encodeURIComponent(ev.askAgent || 'grants-agent') +
+      '?embed=1&q=' + encodeURIComponent(ev.askPrompt || ev.title);
+    el.className = 'detail is-open';
+    el.innerHTML =
+      '<h2>' + escapeHtml(ev.title) + '</h2>' +
+      '<div class="meta">' + escapeHtml(ev.date) + ' · ' + escapeHtml(ev.type) +
+      ' · ' + escapeHtml(ev.source || 'Greenways') + '</div>' +
+      '<p>' + escapeHtml(ev.summary || '') + '</p>' +
+      '<a href="' + href.replace(/"/g, '&quot;') + '" target="_top" rel="noopener">Ask ' +
+      escapeHtml(agentLabel(ev.askAgent)) + ' →</a>';
+  }
+
+  function agentLabel(slug) {
+    var map = {
+      'grants-agent': 'Andrieus',
+      'finance-agent': 'Vincent',
+      'equipment-agent': 'Artemis',
+      'systems-agent': 'Edwardo',
+      'deals-agent': 'Zara',
+      'media-agent': 'Cheryce'
+    };
+    return map[slug] || 'an agent';
+  }
+
+  function escapeHtml(s) {
+    return String(s || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function render() {
+    var y = view.getFullYear();
+    var m = view.getMonth();
+    document.getElementById('month-label').textContent = MONTHS[m] + ' ' + y;
+
+    var first = new Date(y, m, 1);
+    var startPad = (first.getDay() + 6) % 7; // Monday=0
+    var daysInMonth = new Date(y, m + 1, 0).getDate();
+    var prevDays = new Date(y, m, 0).getDate();
+    var todayIso = isoDate(new Date());
+    var cells = [];
+    var i;
+    for (i = 0; i < startPad; i++) {
+      var pd = prevDays - startPad + i + 1;
+      cells.push({ day: pd, muted: true, iso: isoDate(new Date(y, m - 1, pd)) });
+    }
+    for (i = 1; i <= daysInMonth; i++) {
+      cells.push({ day: i, muted: false, iso: isoDate(new Date(y, m, i)) });
+    }
+    while (cells.length % 7 !== 0) {
+      var nd = cells.length - (startPad + daysInMonth) + 1;
+      cells.push({ day: nd, muted: true, iso: isoDate(new Date(y, m + 1, nd)) });
+    }
+
+    var root = document.getElementById('days');
+    root.innerHTML = cells.map(function (c) {
+      var list = c.muted ? [] : eventsForDay(c.iso);
+      var chips = list.slice(0, 3).map(function (ev) {
+        return '<button type="button" class="chip ' + escapeHtml(ev.type) + '" data-id="' +
+          escapeHtml(ev.id) + '" title="' + escapeHtml(ev.title) + '">' +
+          escapeHtml(ev.title) + '</button>';
+      }).join('');
+      if (list.length > 3) {
+        chips += '<span style="font-size:0.58rem;color:#8fa89a">+' + (list.length - 3) + ' more</span>';
+      }
+      return (
+        '<div class="day' + (c.muted ? ' is-muted' : '') +
+        (c.iso === todayIso && !c.muted ? ' is-today' : '') +
+        '" data-iso="' + escapeHtml(c.iso) + '">' +
+        '<div class="num">' + c.day + '</div>' +
+        '<div class="dots">' + chips + '</div></div>'
+      );
+    }).join('');
+  }
+
+  document.getElementById('days').addEventListener('click', function (e) {
+    var btn = e.target.closest('.chip');
+    if (!btn) return;
+    var id = btn.getAttribute('data-id');
+    var ev = events.find(function (x) { return x.id === id; });
+    if (ev) showDetail(ev);
+  });
+  document.getElementById('prev-month').addEventListener('click', function () {
+    view.setMonth(view.getMonth() - 1);
+    render();
+  });
+  document.getElementById('next-month').addEventListener('click', function () {
+    view.setMonth(view.getMonth() + 1);
+    render();
+  });
+
+  Promise.all([
+    loadJson('/data/greenways-calendar-demo.json'),
+    loadJson('/schemes.json')
+  ]).then(function (pair) {
+    var demo = pair[0] || {};
+    var schemes = pair[1];
+    events = [].concat(demo.events || [], schemeEvents(schemes));
+    events.sort(function (a, b) { return String(a.date).localeCompare(String(b.date)); });
+    // Prefer September view if current month has few grant hits
+    var thisMonth = isoDate(new Date()).slice(0, 7);
+    var hasThis = events.some(function (e) { return String(e.date).indexOf(thisMonth) === 0; });
+    if (!hasThis) {
+      var nextGrant = events.find(function (e) { return e.type === 'grant' && e.date >= isoDate(new Date()); });
+      if (nextGrant) {
+        var d = parseIso(nextGrant.date);
+        if (d) { view = new Date(d.getFullYear(), d.getMonth(), 1); }
+      }
+    }
+    render();
+  });
+})();
+</script>
+</body>
+</html>

@@ -282,6 +282,7 @@ app.get('/greenways/buildings-dashboard', (req, res) => sendLiveMusicHtml(res, '
 app.get('/greenways/customer-hub', (req, res) => sendLiveMusicHtml(res, 'greenways-customer-hub.html'));
 app.get('/greenways/customer-hub-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-customer-hub.html'));
 app.get('/greenways/customer-hub-demo', (req, res) => sendLiveMusicHtml(res, 'greenways-customer-hub.html'));
+app.get('/greenways/calendar-demo', (req, res) => sendLiveMusicHtml(res, 'greenways-calendar-demo.html'));
 app.get('/greenways/customer-dashboard', (req, res) => sendLiveMusicHtml(res, 'greenways-customer-hub.html'));
 app.get('/greenways/agent-market', (req, res) => sendLiveMusicHtml(res, 'greenways-agent-market.html'));
 app.get('/greenways/agent-market.html', (req, res) => sendLiveMusicHtml(res, 'greenways-agent-market.html'));

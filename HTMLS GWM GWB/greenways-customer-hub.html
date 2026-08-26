@@ -941,6 +941,23 @@
       color: var(--muted);
       font-family: var(--font-clean);
     }
+    .hub-calendar-section[hidden] { display: none !important; }
+    .hub-calendar-lede {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.4;
+      max-width: 68ch;
+    }
+    .hub-calendar-frame {
+      display: block;
+      width: 100%;
+      min-height: 520px;
+      height: min(62vh, 640px);
+      border: 1px solid rgba(75, 140, 104, 0.28);
+      border-radius: 14px;
+      background: rgba(11, 18, 32, 0.55);
+    }
     .lane {
       display: flex;
       gap: 12px;
@@ -1845,6 +1862,20 @@
 
     <div class="layout">
       <main>
+        <section class="section hub-calendar-section" id="hub-calendar-section" hidden aria-labelledby="calendar-heading">
+          <div class="section-head">
+            <h2 id="calendar-heading">Your calendar</h2>
+            <a class="hint" href="/greenways/calendar-demo" target="_blank" rel="noopener noreferrer">Open full →</a>
+          </div>
+          <p class="hub-calendar-lede">Demo diary for Wok Restaurant — grant deadlines from the schemes catalogue plus sample ops milestones. Read-only for now.</p>
+          <iframe
+            class="hub-calendar-frame"
+            id="hub-calendar-frame"
+            title="Greenways demo calendar"
+            loading="lazy"
+            src="about:blank"></iframe>
+        </section>
+
         <section class="section" aria-labelledby="saved-heading">
           <div class="section-head">
             <h2 id="saved-heading">Saved for you</h2>
@@ -2877,7 +2908,7 @@
     var lede = document.querySelector('.hub-status-panel .lede');
     if (lede) {
       lede.textContent =
-        'Sample member home for the agent website — illustrative picks, deals, and news. Not a live client account.';
+        'Sample member home for the agent website — illustrative picks, deals, news, and calendar. Not a live client account.';
     }
     var panelLede = document.querySelector('.restaurant-agents-panel .panel-lede');
     if (panelLede) {
@@ -2888,6 +2919,14 @@
     if (staff) staff.hidden = true;
     var membership = document.querySelector('.hub-panel-actions a[href*="membership"]');
     if (membership) membership.hidden = true;
+    var cal = document.getElementById('hub-calendar-section');
+    var frame = document.getElementById('hub-calendar-frame');
+    if (cal) {
+      cal.hidden = false;
+      if (frame && (!frame.getAttribute('src') || frame.getAttribute('src') === 'about:blank')) {
+        frame.src = '/greenways/calendar-demo?embed=1';
+      }
+    }
   }
 
   function initGreenwaysBackdropTheme() {
