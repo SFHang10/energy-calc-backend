@@ -13,6 +13,7 @@
     "customerHub": "/greenways/customer-hub",
     "agentsStory": "/greenways/agents-story",
     "agentsHighlights": "/greenways/agents-highlights",
+    "financeHeadlinesAdmin": "/greenways/finance-headlines-admin",
     "agentsMap": "/greenways/agents-map",
     "orchestraHub": "/greenways/orchestra-hub-wix-frame",
     "orchestraHubFull": "/greenways/orchestra-hub",
@@ -95,6 +96,22 @@
       "phase": 2
     },
     {
+      "id": "build-finance-daily",
+      "label": "Build Vincent daily finance layer",
+      "npmScript": "build:finance-daily",
+      "command": "npm run build:finance-daily",
+      "description": "EU/EIB RSS + RVO queue + daily review + finance news feed",
+      "phase": 2
+    },
+    {
+      "id": "merge-finance-headlines",
+      "label": "Promote approved finance headlines",
+      "npmScript": "merge:finance-headlines",
+      "command": "npm run merge:finance-headlines",
+      "description": "Staff-approved NL headlines → rolling buffer (after finance-headlines-admin)",
+      "phase": 2
+    },
+    {
       "id": "smoke-agents-ask",
       "label": "Smoke test all agents",
       "npmScript": "smoke:agents-ask",
@@ -135,6 +152,8 @@
       "dataSources": [
         { "id": "finance-tools", "label": "Finance tools registry", "path": "data/finance-agent-tools.json" },
         { "id": "finance-refs", "label": "Finance references", "path": "data/finance-agent-references.json" },
+        { "id": "finance-daily-external", "label": "Daily external headlines", "path": "data/finance-daily-external.json", "warnDays": 1, "staleDays": 2 },
+        { "id": "finance-headline-candidates", "label": "Headline review queue", "path": "data/finance-headline-candidates.json", "warnDays": 3, "staleDays": 7 },
         { "id": "schemes", "label": "Schemes (read-only)", "path": "schemes.json" },
         { "id": "agent-story", "label": "Selling story page", "path": "data/greenways-agent-stories/finance-agent.json", "warnDays": 30, "staleDays": 90 }
       ],
@@ -231,9 +250,12 @@
       "skills": ["Skills/greenways-chat-interface-skill.md", "Skills/energy-dashboard-skill.md"],
       "dataSources": [
         { "id": "systems-checks", "label": "Health check config", "path": "data/systems-agent-checks.json" },
-        { "id": "agent-story", "label": "Selling story page", "path": "data/greenways-agent-stories/systems-agent.json", "warnDays": 30, "staleDays": 90 }
+        { "id": "agent-story", "label": "Selling story page", "path": "data/greenways-agent-stories/systems-agent.json", "warnDays": 30, "staleDays": 90 },
+        { "id": "systems-tech-news-feed", "label": "Systems tech round-up (planned)", "path": "data/systems-tech-news-feed.json", "planned": true }
       ],
-      "tasks": []
+      "tasks": [
+        { "id": "planned-systems-tech-news", "label": "Build systems tech news feed (planned)", "command": "npm run run:newsletter -- --publish", "phase": 3, "notes": "After systems-tech-news page exists — New in Tech → how tech helps sustainability" }
+      ]
     }
   ],
   "orchestrator": {

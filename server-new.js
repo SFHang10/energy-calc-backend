@@ -230,6 +230,7 @@ app.get('/greenways/finance-wire-news-embed', (req, res) => {
 });
 app.get('/greenways/finance-news', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-news.html'));
 app.get('/greenways/finance-news-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-news.html'));
+app.get('/greenways/finance-headlines-admin', (req, res) => sendLiveMusicHtml(res, 'finance-headlines-admin.html'));
 app.get('/greenways/energy-cost-guide', (req, res) => sendLiveMusicHtml(res, 'energy-cost-guide (1).html'));
 app.get('/greenways/energy-cost-guide-embed', (req, res) => sendLiveMusicHtml(res, 'energy-cost-guide (1).html'));
 app.get('/greenways/finance-finder', (req, res) => sendLiveMusicHtml(res, 'finance-finder-restaurant.html'));
@@ -524,6 +525,7 @@ let tenantPacksRouter;
 let greenwaysModuleRouter;
 let musicVenueInquiriesRouter;
 let musicMediaCandidatesRouter;
+let financeHeadlineCandidatesRouter;
 let restaurantSnapshotRouter;
 let siteEnergyReadingRouter;
 let agentVoiceRouter;
@@ -544,6 +546,7 @@ try {
   greenwaysModuleRouter = require('./routes/greenways-module');
   musicVenueInquiriesRouter = require('./routes/music-venue-inquiries');
   musicMediaCandidatesRouter = require('./routes/music-media-candidates');
+  financeHeadlineCandidatesRouter = require('./routes/finance-headline-candidates');
   restaurantSnapshotRouter = require('./routes/restaurant-snapshot');
   siteEnergyReadingRouter = require('./routes/site-energy-reading');
   agentVoiceRouter = require('./routes/agent-voice');
@@ -566,6 +569,7 @@ try {
   greenwaysModuleRouter = null;
   musicVenueInquiriesRouter = null;
   musicMediaCandidatesRouter = null;
+  financeHeadlineCandidatesRouter = null;
   restaurantSnapshotRouter = null;
   siteEnergyReadingRouter = null;
   agentVoiceRouter = null;
@@ -744,6 +748,10 @@ function mountApiRoutes() {
   if (musicMediaCandidatesRouter) {
     app.use('/api/music-media-candidates', musicMediaCandidatesRouter);
     console.log('✅ /api/music-media-candidates route mounted');
+  }
+  if (financeHeadlineCandidatesRouter) {
+    app.use('/api/finance-headline-candidates', financeHeadlineCandidatesRouter);
+    console.log('✅ /api/finance-headline-candidates route mounted');
   }
 
   console.log('All routes mounted successfully');
@@ -1392,6 +1400,9 @@ async function startServer() {
     console.log(`   - GET /api/wix/recommendations/:wixUserId (Get recommendations)`);
   }
   });
+
+  const { startFinanceDailyCron } = require('./services/finance-daily-cron');
+  startFinanceDailyCron();
 }
 
 function wantsMongoFromEnv() {

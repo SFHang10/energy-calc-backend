@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Finance Headlines Admin — Vincent</title>
+  <style>
+    body { margin: 0; background: #12100d; color: #ece8df; font-family: "Segoe UI", Tahoma, sans-serif; }
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 20px; }
+    h1 { margin: 0 0 6px; color: #c9a961; font-size: 1.5rem; }
+    .sub { margin-bottom: 14px; color: #a39b8c; font-size: 0.9rem; line-height: 1.45; }
+    .sub a { color: #d4b978; }
+    .bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center; }
+    input, select, button {
+      background: #1e1a14; color: #ece8df; border: 1px solid #3a3428; border-radius: 8px; padding: 8px 10px;
+    }
+    button { cursor: pointer; }
+    button:hover { border-color: #c9a961; color: #c9a961; }
+    button.approve { border-color: rgba(201, 169, 97, 0.55); color: #e8d4a8; }
+    button.reject { border-color: rgba(220, 90, 90, 0.45); color: #ffb4b4; }
+    table { width: 100%; border-collapse: collapse; border: 1px solid #2e2a22; background: #181410; }
+    th, td { text-align: left; border-bottom: 1px solid #262018; padding: 10px; font-size: 0.82rem; vertical-align: top; }
+    th { color: #c9a961; background: #100e0b; }
+    .status { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; }
+    .status.pending { background: rgba(201, 169, 97, 0.18); color: #e8d4a8; }
+    .status.approved { background: rgba(39, 174, 96, 0.22); color: #96e5b9; }
+    .status.promoted { background: rgba(80, 140, 200, 0.22); color: #9fd4ff; }
+    .status.rejected { background: rgba(120, 50, 50, 0.35); color: #ffb4b4; }
+    .tag { font-size: 0.7rem; color: #a39b8c; letter-spacing: 0.04em; }
+    .notes { width: 100%; min-height: 48px; resize: vertical; }
+    .merge-hint {
+      margin: 12px 0 16px; padding: 10px 12px; border-radius: 8px;
+      background: rgba(40, 32, 18, 0.65); border: 1px solid rgba(201, 169, 97, 0.28);
+      font-size: 0.84rem; color: #d8cdb8;
+    }
+    code { color: #e8d4a8; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Finance Headlines Admin</h1>
+    <div class="sub">
+      Review NL (RVO) and other queued headlines before they surface on
+      <a href="./greenways-finance-news.html">Finance News</a> and Vincent's daily brief.
+      Workflow: <code>npm run build:finance-external-news</code> → approve here → <code>npm run merge:finance-headlines</code> → <code>npm run build:finance-daily-review</code>.
+      <a href="./greenways-finance-agent.html">Finance desk</a>
+    </div>
+    <div class="merge-hint" id="merge-hint">Loading queue…</div>
+    <div class="bar">
+      <input id="q" placeholder="Search title, source, region">
+      <select id="status-filter">
+        <option value="pending">Pending review</option>
+        <option value="approved">Approved (not promoted)</option>
+        <option value="promoted">Promoted</option>
+        <option value="all">All</option>
+      </select>
+      <select id="region-filter">
+        <option value="all">All regions</option>
+        <option value="NL">NL</option>
+        <option value="EU">EU</option>
+      </select>
+      <button id="refresh">Refresh</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Headline</th>
+          <th>Source</th>
+          <th>Region</th>
+          <th>Status</th>
+          <th>Notes</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <script>
+    let candidates = [];
+
+    function escapeHtml(v) {
+      return String(v || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function statusOf(c) {
+      if (c.promotedAt) return { cls: 'promoted', label: `Promoted ${c.promotedAt}` };
+      if (c.rejectedAt) return { cls: 'rejected', label: 'Rejected' };
+      if (c.approved === true) return { cls: 'approved', label: 'Approved' };
+      return { cls: 'pending', label: 'Pending' };
+    }
+
+    function updateMergeHint() {
+      const el = document.getElementById('merge-hint');
+      const approved = candidates.filter((c) => c.approved === true && !c.promotedAt).length;
+      const pending = candidates.filter((c) => c.approved !== true && !c.rejectedAt && !c.promotedAt).length;
+      el.innerHTML = approved
+        ? `<strong>${approved}</strong> approved headline(s) ready — run <code>npm run merge:finance-headlines</code> then <code>npm run build:finance-daily-review</code>. <span style="opacity:0.85">${pending} still pending.</span>`
+        : `No approved headlines waiting for merge. <span style="opacity:0.85">${pending} pending review.</span>`;
+    }
+
+    function renderRows() {
+      const rows = document.getElementById('rows');
+      const q = document.getElementById('q').value.trim().toLowerCase();
+      const status = document.getElementById('status-filter').value;
+      const region = document.getElementById('region-filter').value;
+
+      const filtered = candidates.filter((c) => {
+        if (region !== 'all' && String(c.region || '').toUpperCase() !== region) return false;
+        const st = statusOf(c);
+        if (status === 'pending' && (c.approved === true || c.promotedAt || c.rejectedAt)) return false;
+        if (status === 'approved' && !(c.approved === true && !c.promotedAt)) return false;
+        if (status === 'promoted' && !c.promotedAt) return false;
+        if (!q) return true;
+        const blob = [c.id, c.title, c.summary, c.source, c.region, c.notes].filter(Boolean).join(' ').toLowerCase();
+        return blob.includes(q);
+      });
+
+      updateMergeHint();
+
+      if (!filtered.length) {
+        rows.innerHTML = '<tr><td colspan="6">No matching candidates. Run <code>npm run build:finance-external-news</code> to fetch RVO headlines.</td></tr>';
+        return;
+      }
+
+      rows.innerHTML = filtered.map((c) => {
+        const st = statusOf(c);
+        const url = c.url || c.href;
+        return `
+          <tr data-id="${escapeHtml(c.id)}">
+            <td>
+              <span class="tag">${escapeHtml(c.tag || 'NEWS')}</span><br>
+              <strong>${escapeHtml(c.title)}</strong>
+              ${c.summary ? `<br><span>${escapeHtml(c.summary)}</span>` : ''}
+              ${url ? `<br><a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Open source</a>` : ''}
+              <br><span>${escapeHtml(c.publishedAt ? c.publishedAt.slice(0, 10) : c.proposedAt || '')}</span>
+            </td>
+            <td>${escapeHtml(c.source || '—')}<br><code>${escapeHtml(c.sourceId || '')}</code></td>
+            <td>${escapeHtml(c.region || '—')}</td>
+            <td><span class="status ${st.cls}">${escapeHtml(st.label)}</span></td>
+            <td><textarea class="notes" data-notes-for="${escapeHtml(c.id)}">${escapeHtml(c.notes || '')}</textarea></td>
+            <td>
+              ${c.approved !== true && !c.promotedAt ? `<button class="approve" data-approve="${escapeHtml(c.id)}">Approve</button>` : ''}
+              ${!c.promotedAt ? `<button class="reject" data-reject="${escapeHtml(c.id)}">Reject</button>` : ''}
+              <button data-save-notes="${escapeHtml(c.id)}">Save notes</button>
+            </td>
+          </tr>`;
+      }).join('');
+
+      rows.querySelectorAll('[data-approve]').forEach((btn) => {
+        btn.addEventListener('click', () => patchCandidate(btn.dataset.approve, { approved: true }));
+      });
+      rows.querySelectorAll('[data-reject]').forEach((btn) => {
+        btn.addEventListener('click', () => patchCandidate(btn.dataset.reject, { approved: false, rejected: true }));
+      });
+      rows.querySelectorAll('[data-save-notes]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const ta = rows.querySelector(`[data-notes-for="${btn.dataset.saveNotes}"]`);
+          patchCandidate(btn.dataset.saveNotes, { notes: ta ? ta.value : '' });
+        });
+      });
+    }
+
+    async function patchCandidate(id, payload) {
+      try {
+        const res = await fetch(`/api/finance-headline-candidates/${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        const idx = candidates.findIndex((c) => c.id === id);
+        if (idx >= 0 && data.candidate) candidates[idx] = data.candidate;
+        renderRows();
+      } catch (_) {}
+    }
+
+    async function loadCandidates() {
+      const rows = document.getElementById('rows');
+      rows.innerHTML = '<tr><td colspan="6">Loading…</td></tr>';
+      try {
+        const res = await fetch('/api/finance-headline-candidates');
+        const data = await res.json();
+        candidates = data.candidates || [];
+        renderRows();
+      } catch (_) {
+        rows.innerHTML = '<tr><td colspan="6">Failed to load candidates. Is the API server running?</td></tr>';
+      }
+    }
+
+    document.getElementById('refresh').addEventListener('click', loadCandidates);
+    document.getElementById('status-filter').addEventListener('change', renderRows);
+    document.getElementById('region-filter').addEventListener('change', renderRows);
+    document.getElementById('q').addEventListener('input', renderRows);
+    loadCandidates();
+  </script>
+</body>
+</html>

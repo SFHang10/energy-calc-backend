@@ -12,6 +12,9 @@ const ROOT = path.join(__dirname, '..');
 const SOURCES_PATH = path.join(ROOT, 'data', 'finance-external-sources.json');
 const DAILY_OUT = path.join(ROOT, 'data', 'finance-daily-external.json');
 const ROLLING_OUT = path.join(ROOT, 'data', 'finance-news-rolling.json');
+const { upsertHeadlineCandidates } = require('./finance-headline-candidates');
+
+const RVO_BASE = 'https://www.rvo.nl';
 
 const DEFAULT_FINANCE_RE =
   /energy|climate|finance|grant|loan|eib|cbam|tariff|wholesale|subsidy|invest|sustain|green|carbon|omnibus|budget|fund|electricity|gas|renewable|efficiency|hospitality|restaurant|sme|bank|lending|decarbon/i;
@@ -31,14 +34,14 @@ function decodeEntities(text) {
 
 function pickTag(text, hay) {
   if (/cbam|carbon border|declaration/i.test(hay)) return 'COMPLIANCE';
-  if (/fund|grant|eib|loan|subsidy|invest|lending|finance/i.test(hay)) return 'FUNDING';
+  if (/fund|grant|eib|loan|subsidy|subsidie|invest|lending|finance/i.test(hay)) return 'FUNDING';
   if (/price|wholesale|tariff|electricity|gas|energy market/i.test(hay)) return 'PRICES';
   if (/omnibus|eprel|label|policy|regulation|directive/i.test(hay)) return 'POLICY';
   return 'NEWS';
 }
 
 function financeAngleFor(hay) {
-  if (/grant|fund|subsidy|horizon|eib|loan/i.test(hay)) {
+  if (/grant|fund|subsidy|subsidie|horizon|eib|loan/i.test(hay)) {
     return 'Funding signal — check Finance finder grants/loans and Andrieus for scheme fit.';
   }
   if (/cbam|carbon|reporting|compliance/i.test(hay)) {
@@ -102,6 +105,98 @@ async function fetchFeed(source, financeRe) {
   return parseRssItems(response.data, source, financeRe, source.maxItems || 20);
 }
 
+function rvoArticleUrl(row) {
+  const rel = String(row.url || '').trim();
+  if (!rel) return `${RVO_BASE}/nieuws`;
+  return rel.startsWith('http') ? rel : `${RVO_BASE}${rel.startsWith('/') ? '' : '/'}${rel}`;
+}
+
+function mapExternalRow(source, row, financeRe) {
+  const title = decodeEntities(row.title);
+  const summary = decodeEntities(row.summary || row.intro || '').slice(0, 280);
+  const url = row.url || row.href;
+  if (!title || !url) return null;
+  const hay = `${title} ${summary}`.toLowerCase();
+  if (!financeRe.test(hay)) return null;
+  const publishedAt = row.publishedAt || row.changed || row.created || null;
+  const iso =
+    publishedAt && !Number.isNaN(Date.parse(publishedAt)) ? new Date(publishedAt).toISOString() : null;
+  return {
+    id: row.id || `ext-${source.id}-${itemId(url, title)}`,
+    title,
+    summary,
+    url,
+    href: url,
+    source: source.name,
+    sourceId: source.id,
+    region: source.region || 'EU',
+    publishedAt: iso,
+    fetchedAt: new Date().toISOString(),
+    tag: pickTag(title, hay),
+    financeAngle: financeAngleFor(hay),
+    tab: pickTag(title, hay).toLowerCase() === 'funding' ? 'funding' : pickTag(title, hay).toLowerCase() === 'prices' ? 'prices' : 'policy'
+  };
+}
+
+async function fetchRvoArticles(source, financeRe) {
+  const response = await axios.get(`${RVO_BASE}/api/v1/opendata/articles`, {
+    timeout: 25000,
+    params: { limit: source.maxItems || 40 },
+    headers: {
+      'User-Agent': 'Greenways-Vincent-FinanceBot/1.0 (+https://energy-calc-backend.onrender.com)',
+      Accept: 'application/json'
+    },
+    validateStatus: (s) => s >= 200 && s < 400
+  });
+  const items = [];
+  for (const row of response.data || []) {
+    const mapped = mapExternalRow(
+      source,
+      {
+        ...row,
+        url: rvoArticleUrl(row),
+        summary: row.intro
+      },
+      financeRe
+    );
+    if (mapped) items.push(mapped);
+  }
+  return items;
+}
+
+function parseStaticItems(source) {
+  const fetchedAt = new Date().toISOString();
+  return (source.items || []).map((row) => {
+    const title = decodeEntities(row.title);
+    const summary = decodeEntities(row.summary || '').slice(0, 280);
+    const url = row.url || row.href;
+    const hay = `${title} ${summary}`.toLowerCase();
+    return {
+      id: row.id || `ext-${source.id}-${itemId(url, title)}`,
+      title,
+      summary,
+      url,
+      href: url,
+      source: source.name,
+      sourceId: source.id,
+      region: source.region || 'NL',
+      publishedAt: row.publishedAt || fetchedAt,
+      fetchedAt,
+      tag: row.tag || pickTag(title, hay),
+      financeAngle: row.financeAngle || financeAngleFor(hay),
+      tab: row.tab || 'funding',
+      static: true
+    };
+  });
+}
+
+async function fetchSource(source, financeRe) {
+  const type = String(source.type || 'rss').toLowerCase();
+  if (type === 'rvo-articles') return fetchRvoArticles(source, financeRe);
+  if (type === 'static') return parseStaticItems(source);
+  return fetchFeed(source, financeRe);
+}
+
 async function loadSourcesConfig() {
   try {
     return JSON.parse(await fs.readFile(SOURCES_PATH, 'utf8'));
@@ -144,30 +239,36 @@ async function mergeRolling(existing, freshItems, retentionDays = 14) {
   };
 }
 
-async function buildFinanceExternalNews({ write = true } = {}) {
+async function buildFinanceExternalNews({ write = true, upsertCandidates = true } = {}) {
   const config = await loadSourcesConfig();
   const financeRe = buildFinanceRegex(config.financeKeywords);
   const fetchedAt = new Date().toISOString();
   const briefDate = fetchedAt.slice(0, 10);
   const errors = [];
-  const allItems = [];
+  const autoItems = [];
+  const queueItems = [];
 
   for (const source of config.sources || []) {
     try {
-      const rows = await fetchFeed(source, financeRe);
-      allItems.push(...rows);
+      const rows = await fetchSource(source, financeRe);
+      if (source.autoPublish === false) {
+        queueItems.push(...rows);
+      } else {
+        autoItems.push(...rows);
+      }
     } catch (err) {
       errors.push({ sourceId: source.id, error: err.message });
     }
   }
 
-  allItems.sort((a, b) => {
+  const sortByDate = (a, b) => {
     const ta = Date.parse(a.publishedAt || a.fetchedAt || 0);
     const tb = Date.parse(b.publishedAt || b.fetchedAt || 0);
     return tb - ta;
-  });
+  };
+  autoItems.sort(sortByDate);
+  queueItems.sort(sortByDate);
 
-  const todayItems = allItems.slice(0, 12);
   let priorRolling = null;
   try {
     priorRolling = JSON.parse(await fs.readFile(ROLLING_OUT, 'utf8'));
@@ -175,7 +276,20 @@ async function buildFinanceExternalNews({ write = true } = {}) {
     /* first run */
   }
 
-  const rolling = await mergeRolling(priorRolling, allItems, config.retentionDays || 14);
+  const rolling = await mergeRolling(priorRolling, autoItems, config.retentionDays || 14);
+
+  const todayItems = [...rolling.items]
+    .sort((a, b) => {
+      if (a.staffPromoted && !b.staffPromoted) return -1;
+      if (!a.staffPromoted && b.staffPromoted) return 1;
+      return sortByDate(a, b);
+    })
+    .slice(0, 12);
+
+  let candidateUpsert = { added: 0 };
+  if (upsertCandidates && queueItems.length) {
+    candidateUpsert = await upsertHeadlineCandidates(queueItems, { write });
+  }
 
   const dailyPayload = {
     meta: {
@@ -184,10 +298,13 @@ async function buildFinanceExternalNews({ write = true } = {}) {
       fetchedAt,
       ok: errors.length < (config.sources || []).length,
       sourceCount: (config.sources || []).length,
-      matchCount: allItems.length,
+      matchCount: autoItems.length + queueItems.length,
+      autoPublishCount: autoItems.length,
+      queueCount: queueItems.length,
+      candidatesAdded: candidateUpsert.added || 0,
       errors,
       disclaimer:
-        'Headlines from official EU press RSS feeds — finance-framed for hospitality. Verify on source site before acting.'
+        'Headlines from official EU, EIB, RVO, and business.gov.nl sources — finance-framed for hospitality. NL rows may await staff review. Verify on source site before acting.'
     },
     items: todayItems
   };
@@ -197,7 +314,7 @@ async function buildFinanceExternalNews({ write = true } = {}) {
     await fs.writeFile(ROLLING_OUT, `${JSON.stringify(rolling, null, 2)}\n`, 'utf8');
   }
 
-  return { daily: dailyPayload, rolling };
+  return { daily: dailyPayload, rolling, queueItems, candidateUpsert };
 }
 
 async function loadFinanceDailyExternal() {
@@ -237,5 +354,7 @@ module.exports = {
   loadFinanceDailyExternal,
   loadFinanceNewsRolling,
   rollingToStoryShape,
-  parseRssItems
+  parseRssItems,
+  fetchSource,
+  mergeRolling
 };

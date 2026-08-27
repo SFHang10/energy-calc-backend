@@ -146,15 +146,26 @@ Spot-check: `/greenways/media-agent`, `/greenways/finance-agent`, `/greenways/fi
 
 ---
 
-## Automation (future / cron)
+## Automation (cron)
 
-On Render or GitHub Actions, schedule after staff drops editions in `review/`:
+On Render, enable the in-process daily build on the **web service**:
+
+```bash
+GREENWAYS_FINANCE_DAILY_CRON_ENABLED=1
+GREENWAYS_FINANCE_DAILY_CRON=0 6 * * *
+```
+
+This runs `npm run build:finance-daily` at 06:00 UTC (EU/EIB auto-publish + RVO queue upsert + merge approved + daily review).
+
+**NL headlines:** RVO rows land in `data/finance-headline-candidates.json` — approve at `/greenways/finance-headlines-admin`, then `npm run merge:finance-headlines` (included in `build:finance-daily`).
+
+For monthly newsletter editions, schedule after staff drops files in `review/`:
 
 ```bash
 npm run run:newsletter -- --validate && npm run run:newsletter -- --publish
 ```
 
-Daily (without new edition): `npm run build:finance-daily` — EU/EIB RSS headlines + Vincent wire brief + finance news feed refresh.
+Daily (without new edition): `npm run build:finance-daily` — EU/EIB RSS + RVO queue + Vincent wire brief + finance news feed refresh.
 
 Weekly: `npm run refresh:agents-weekly` — deals + highlights (independent of newsletter).
 
