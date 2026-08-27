@@ -625,12 +625,12 @@
                   <li>Best before you talk BNPL or grants with Vincent / Andrieus.</li>
                 </ul>
                 <div class="actions">
-                  <a class="btn fd-tool-link" data-fd-path="/HTMLS%20GWM%20GWB/restaurant-equipment-deep-dive.html" target="_blank" rel="noopener">Open equipment deep dive</a>
+                  <a class="btn fd-tool-link" href="/greenways/equipment-deep-dive" data-fd-path="/greenways/equipment-deep-dive" target="_blank" rel="noopener">Open equipment deep dive</a>
                   <button type="button" class="btn btn--gold" data-toggle-iframe="deep" data-open-label="Preview inside tablet">Preview inside tablet</button>
                 </div>
               </div>
               <div class="iframe-wrap" id="iframe-deep" hidden>
-                <iframe title="Equipment deep dive preview" loading="lazy" data-fd-iframe="/HTMLS%20GWM%20GWB/restaurant-equipment-deep-dive.html"></iframe>
+                <iframe title="Equipment deep dive preview" loading="lazy" data-fd-iframe="/greenways/equipment-deep-dive"></iframe>
                 <div class="iframe-hint">Long page — scroll inside the frame or open full tab.</div>
               </div>
             </div>
@@ -666,7 +666,7 @@
                 </ul>
                 <div class="actions">
                   <button type="button" class="btn btn--gold" id="btnProjectionDemo">See example projection</button>
-                  <a class="btn fd-tool-link" data-fd-path="/greenways/equipment-savings-projection" target="_blank" rel="noopener">Open projection page</a>
+                  <a class="btn fd-tool-link" href="/greenways/equipment-savings-projection" data-fd-path="/greenways/equipment-savings-projection" target="_blank" rel="noopener">Open projection page</a>
                 </div>
                 <p class="projection-demo-note">Illustrative payback chart only — not a quote or guarantee.</p>
               </div>
@@ -703,13 +703,13 @@
                   <li><strong>Official ETL:</strong> UK government-backed list for verification.</li>
                 </ul>
                 <div class="actions">
-                  <a class="btn fd-tool-link" data-fd-path="/HTMLS%20GWM%20GWB/equipment_intelligence_tool.html" target="_blank" rel="noopener">Open ETL finder</a>
-                  <a class="btn fd-tool-link" data-fd-path="/HTMLS%20GWM%20GWB/etl-official-site.html" target="_blank" rel="noopener">Official ETL site</a>
+                  <a class="btn fd-tool-link" href="/greenways/etl-finder" data-fd-path="/greenways/etl-finder" target="_blank" rel="noopener">Open ETL finder</a>
+                  <a class="btn fd-tool-link" href="/greenways/etl-official" data-fd-path="/greenways/etl-official" target="_blank" rel="noopener">Official ETL site</a>
                   <button type="button" class="btn btn--gold" data-toggle-iframe="etl" data-open-label="Preview finder in tablet">Preview finder in tablet</button>
                 </div>
               </div>
               <div class="iframe-wrap" id="iframe-etl" hidden>
-                <iframe title="ETL finder preview" loading="lazy" data-fd-iframe="/HTMLS%20GWM%20GWB/equipment_intelligence_tool.html"></iframe>
+                <iframe title="ETL finder preview" loading="lazy" data-fd-iframe="/greenways/etl-finder"></iframe>
                 <div class="iframe-hint">Search tool — best full-width when comparing many rows.</div>
               </div>
             </div>
@@ -746,13 +746,13 @@
                   <li><strong>Plans:</strong> project templates for phased works.</li>
                 </ul>
                 <div class="actions">
-                  <a class="btn fd-tool-link" data-fd-path="/HTMLS%20GWM%20GWB/Sustainable%20Renovations%20New%20.html" target="_blank" rel="noopener">Open renovations</a>
-                  <a class="btn fd-tool-link" data-fd-path="/HTMLS%20GWM%20GWB/Insulation%20.html" target="_blank" rel="noopener">Insulation guide</a>
+                  <a class="btn fd-tool-link" href="/greenways/sustainable-renovations" data-fd-path="/greenways/sustainable-renovations" target="_blank" rel="noopener">Open renovations</a>
+                  <a class="btn fd-tool-link" href="/greenways/insulation-guide" data-fd-path="/greenways/insulation-guide" target="_blank" rel="noopener">Insulation guide</a>
                   <button type="button" class="btn btn--gold" data-toggle-iframe="reno" data-open-label="Preview renovations">Preview renovations</button>
                 </div>
               </div>
               <div class="iframe-wrap" id="iframe-reno" hidden>
-                <iframe title="Sustainable renovations preview" loading="lazy" data-fd-iframe="/HTMLS%20GWM%20GWB/Sustainable%20Renovations%20New%20.html"></iframe>
+                <iframe title="Sustainable renovations preview" loading="lazy" data-fd-iframe="/greenways/sustainable-renovations"></iframe>
                 <div class="iframe-hint">Premises guide — open insulation or renovation plans for more depth.</div>
               </div>
             </div>
@@ -788,12 +788,12 @@
                   <li>Pair with Agent Market when you are ready to shortlist products.</li>
                 </ul>
                 <div class="actions">
-                  <a class="btn fd-tool-link" data-fd-path="/HTMLS%20GWM%20GWB/greenways-upgrade-plan-studio.html" target="_blank" rel="noopener">Open Upgrade Plan Studio</a>
+                  <a class="btn fd-tool-link" href="/greenways/upgrade-plan-studio" data-fd-path="/greenways/upgrade-plan-studio" target="_blank" rel="noopener">Open Upgrade Plan Studio</a>
                   <button type="button" class="btn btn--gold" data-toggle-iframe="plan" data-open-label="Preview inside tablet">Preview inside tablet</button>
                 </div>
               </div>
               <div class="iframe-wrap" id="iframe-plan" hidden>
-                <iframe title="Upgrade Plan Studio preview" loading="lazy" data-fd-iframe="/HTMLS%20GWM%20GWB/greenways-upgrade-plan-studio.html"></iframe>
+                <iframe title="Upgrade Plan Studio preview" loading="lazy" data-fd-iframe="/greenways/upgrade-plan-studio"></iframe>
                 <div class="iframe-hint">Checklist studio — complete steps in full page when collaborating.</div>
               </div>
             </div>
@@ -841,11 +841,14 @@
         document.body.classList.contains('embed-mode') ||
         /[?&]embed=1(?:&|$)/.test(location.search);
 
+      // Tool opens: always absolute Render URL + new tab (Wix/_top often breaks spaced or nested embeds).
       document.querySelectorAll('.fd-tool-link[data-fd-path]').forEach((a) => {
         a.href = gwAbs(a.getAttribute('data-fd-path'));
-        if (isEmbed) a.target = '_top';
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
       });
 
+      // Nav back to Artemis / desk chrome: break out of embed iframe when needed.
       document.querySelectorAll('a[href^="/greenways/"]').forEach((a) => {
         if (a.classList.contains('fd-tool-link')) return;
         a.href = gwAbs(a.getAttribute('href'));

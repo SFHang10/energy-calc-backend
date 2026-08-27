@@ -203,6 +203,12 @@ app.get('/greenways/finance-desk', (req, res) => sendLiveMusicHtml(res, 'greenwa
 app.get('/greenways/finance-desk-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-desk.html'));
 app.get('/greenways/equipment-desk', (req, res) => sendLiveMusicHtml(res, 'greenways-equipment-desk.html'));
 app.get('/greenways/equipment-desk-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-equipment-desk.html'));
+// Artemis desk tools — short /greenways paths (avoid fragile spaced HTMLS URLs in Wix embeds)
+app.get('/greenways/equipment-deep-dive', (req, res) => sendLiveMusicHtml(res, 'restaurant-equipment-deep-dive.html'));
+app.get('/greenways/etl-finder', (req, res) => sendLiveMusicHtml(res, 'equipment_intelligence_tool.html'));
+app.get('/greenways/etl-official', (req, res) => sendLiveMusicHtml(res, 'etl-official-site.html'));
+app.get('/greenways/sustainable-renovations', (req, res) => sendLiveMusicHtml(res, 'Sustainable Renovations New .html'));
+app.get('/greenways/insulation-guide', (req, res) => sendLiveMusicHtml(res, 'Insulation .html'));
 app.get('/greenways/finance-prices-board', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-prices-board.html'));
 app.get('/greenways/finance-prices-board-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-prices-board.html'));
 app.get('/greenways/finance-wire', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-wire.html'));
