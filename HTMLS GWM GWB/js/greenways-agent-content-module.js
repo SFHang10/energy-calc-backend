@@ -156,6 +156,22 @@
       href: "/greenways/equipment-desk-embed",
       defaultOpenSize: "near-full"
     },
+    "equipment-wire": {
+      id: "equipment-wire",
+      title: "Equipment wire",
+      description: "Artemis’s joint product scan — ETL counts, category lanes, and equipment desk in one place.",
+      usageHint: "Scroll the scan rail, then the desk below for compare, payback, and renovations.",
+      href: "/greenways/equipment-wire-embed",
+      defaultOpenSize: "near-full"
+    },
+    "equipment-wire-main": {
+      id: "equipment-wire-main",
+      title: "Equipment wire main",
+      description: "ETL KPI row plus category marquee — main scan panel for Artemis.",
+      usageHint: "Live counts on top, showcase lane below. Prefer Equipment wire for the full hub.",
+      href: "/greenways/equipment-wire-main",
+      defaultOpenSize: "near-full"
+    },
     "finance-prices-board": {
       id: "finance-prices-board",
       title: "Energy prices board",

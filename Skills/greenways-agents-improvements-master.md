@@ -98,7 +98,7 @@
 - [ ] **Multi-channel outreach (W10 sketch):** Same `/ask` brain → channel adapters — **not** a separate bot per app. Order: (1) **Email** = W9, (2) **Microsoft Teams** (Graph bot / Adaptive Cards for hospitality teams), (3) optional **WhatsApp Business** if members opt in, (4) **LinkedIn** = light touch only (share links / InMail via human or approved CRM — LinkedIn Messaging API is not a good general chatbot channel). Requires member identity + opt-in prefs in Customer Hub. Do **not** start until talking phase + W9 email shape are clear.
 - [x] **W8 foundation:** browser voice + spokenSummary + TTS route + Andrieus premium pilot + listen mode — see power platform PRD
 - [ ] **Talking phase (AV-001–007):** branded TTS for remaining agents; spoken script quality; talk UX; Wix mic path; optional STT — `tasks/prd-agents-talking-phase.json`
-- [x] **Agent desks (partial):** Vincent finance desk/wire + Artemis `equipment-desk` — see shipped entries above — 2026-08-24
+- [x] **Agent desks (partial):** Vincent finance desk/wire + Artemis `equipment-desk` + **equipment wire** (scan + desk hub, `/api/equipment-wire/snapshot`) — 2026-08-27
 - [ ] **Agent desks (rollout — remaining):** Clone desk pattern for Andrieus, Zara, Cheryce, Zyanne, Edwardo — then thin sidebar tabs into each desk
 
 ---

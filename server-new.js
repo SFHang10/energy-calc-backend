@@ -215,6 +215,10 @@ app.get('/greenways/finance-wire', (req, res) => sendLiveMusicHtml(res, 'greenwa
 app.get('/greenways/finance-wire-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-wire.html'));
 app.get('/greenways/finance-wire-main', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-wire-main.html'));
 app.get('/greenways/finance-wire-main-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-wire-main.html'));
+app.get('/greenways/equipment-wire', (req, res) => sendLiveMusicHtml(res, 'greenways-equipment-wire.html'));
+app.get('/greenways/equipment-wire-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-equipment-wire.html'));
+app.get('/greenways/equipment-wire-main', (req, res) => sendLiveMusicHtml(res, 'greenways-equipment-wire-main.html'));
+app.get('/greenways/equipment-wire-main-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-equipment-wire-main.html'));
 app.get('/greenways/finance-wire-news', (req, res) => {
   const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
   return res.redirect(302, `/greenways/finance-news${qs}`);
@@ -509,6 +513,7 @@ let musicGuideRouter;
 let grantsAgentRouter;
 let financeAgentRouter;
 let equipmentAgentRouter;
+let equipmentWireRouter;
 let dealsAgentRouter;
 let mediaAgentRouter;
 let sustainableProductsAgentRouter;
@@ -528,6 +533,7 @@ try {
   grantsAgentRouter = require('./routes/grants-agent');
   financeAgentRouter = require('./routes/finance-agent');
   equipmentAgentRouter = require('./routes/equipment-agent');
+  equipmentWireRouter = require('./routes/equipment-wire');
   dealsAgentRouter = require('./routes/deals-agent');
   mediaAgentRouter = require('./routes/media-agent');
   sustainableProductsAgentRouter = require('./routes/sustainable-products-agent');
@@ -549,6 +555,7 @@ try {
   grantsAgentRouter = null;
   financeAgentRouter = null;
   equipmentAgentRouter = null;
+  equipmentWireRouter = null;
   dealsAgentRouter = null;
   mediaAgentRouter = null;
   sustainableProductsAgentRouter = null;
@@ -661,6 +668,10 @@ function mountApiRoutes() {
   if (equipmentAgentRouter) {
     app.use('/api/equipment-agent', equipmentAgentRouter);
     console.log('✅ /api/equipment-agent route mounted');
+  }
+  if (equipmentWireRouter) {
+    app.use('/api/equipment-wire', equipmentWireRouter);
+    console.log('✅ /api/equipment-wire route mounted');
   }
   if (dealsAgentRouter) {
     app.use('/api/deals-agent', dealsAgentRouter);

@@ -46,6 +46,8 @@ Use **`-embed` URLs** (or `?embed=1`) on the **new Wix website** so portal famil
 | Portal highlights | `/greenways/agents-highlights-embed` | `/greenways/agents-highlights` |
 | Cheryce video desk | `/greenways/media-video-desk-embed` | `/greenways/media-video-desk` |
 | Vincent finance desk | `/greenways/finance-desk-embed` | `/greenways/finance-desk` |
+| Artemis equipment wire | `/greenways/equipment-wire-embed` | `/greenways/equipment-wire` |
+| Artemis equipment desk | `/greenways/equipment-desk-embed` | `/greenways/equipment-desk` |
 | Orchestra / operate portal | `/greenways/orchestra-hub-embed` (or `?embed=1` / wix-frame) | `/greenways/orchestra-hub` |
 | Your Hub (live / member) | `/greenways/customer-hub?embed=1` | `/greenways/customer-hub` |
 | Your Hub (**website demo** — no client brand) | `/greenways/customer-hub-demo` | same (menus already hidden) |
@@ -84,6 +86,28 @@ https://energy-calc-backend.onrender.com/greenways/finance-desk-embed
 Full page (same UI): `/greenways/finance-desk` · Cost guide tab: `?tab=cost-guide`
 
 Tool short routes (used inside the desk): `/greenways/energy-cost-guide` · `/greenways/energy-ticker` · `/greenways/finance-finder` · `/greenways/service-hour-cost-board`
+
+#### Artemis · Equipment wire (website showcase, no menus)
+
+Green product scan — ETL counts, category lanes, and equipment desk in one scroll hub.
+
+```
+https://energy-calc-backend.onrender.com/greenways/equipment-wire-embed
+```
+
+Full page (same UI): `/greenways/equipment-wire` · Desk tab deep-link: `?deskTab=etl|deep-dive|payback|renovation|plan` · Wire tab: `?tab=wire|etl|deep-dive|premises|artemis`
+
+#### Artemis · Equipment desk (website showcase, no menus)
+
+Green equipment tour — compare, payback, ETL finder, premises upgrades, upgrade plan.
+
+```
+https://energy-calc-backend.onrender.com/greenways/equipment-desk-embed
+```
+
+Full page (same UI): `/greenways/equipment-desk` · Tab deep-link: `?tab=deep-dive|payback|etl|renovation|plan`
+
+Tool short routes (used inside the desk): `/greenways/equipment-deep-dive` · `/greenways/etl-finder` · `/greenways/sustainable-renovations` · `/greenways/insulation-guide`
 
 #### Orchestra — website iframe (no menus)
 
