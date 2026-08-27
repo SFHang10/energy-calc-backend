@@ -199,16 +199,16 @@
     "finance-wire-news": {
       id: "finance-wire-news",
       title: "Finance news round-up",
-      description: "Vincent’s Music News–style market & funding round-up.",
-      usageHint: "Edition sections + cards — skeleton until richer stories land.",
+      description: "Vincent’s market & funding round-up — daily brief plus newsletter signals.",
+      usageHint: "Today's brief at top, then edition sections and cards.",
       href: "/greenways/finance-news",
       defaultOpenSize: "near-full"
     },
     "finance-news": {
       id: "finance-news",
       title: "Finance news round-up",
-      description: "Vincent’s Music News–style market & funding round-up.",
-      usageHint: "Edition sections + cards — skeleton until richer stories land.",
+      description: "Vincent’s market & funding round-up — daily brief plus newsletter signals.",
+      usageHint: "Today's brief at top, then edition sections and cards.",
       href: "/greenways/finance-news",
       defaultOpenSize: "near-full"
     },

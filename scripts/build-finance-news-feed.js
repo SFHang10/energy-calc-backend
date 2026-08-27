@@ -36,6 +36,103 @@ function monthLabel(edition) {
   return `${names[idx] || m} ${y}`;
 }
 
+function editionDisplayLabel(edition) {
+  const now = new Date();
+  const monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+  ];
+  const currentLabel = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+  if (!edition) return currentLabel;
+  const [y, m] = edition.split('-').map((v) => parseInt(v, 10));
+  if (y === now.getFullYear() && m === now.getMonth() + 1) return monthLabel(edition);
+  if (y === now.getFullYear() && m === now.getMonth()) return currentLabel;
+  return monthLabel(edition);
+}
+
+function stripMarkdown(text) {
+  return String(text || '').replace(/\*\*/g, '').trim();
+}
+
+function urgencyDateLabel(when, headline) {
+  const hay = `${when || ''} ${headline || ''}`;
+  if (/31\s*august\s*2026/i.test(hay)) {
+    const now = new Date();
+    const deadline = new Date('2026-08-31T23:59:59');
+    const days = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+    if (days > 0 && days <= 14) return `THIS WEEK · ${days}d left`;
+    if (days <= 0) return 'DEADLINE PASSED';
+  }
+  return when || 'AHEAD';
+}
+
+async function loadDailyReview() {
+  try {
+    return JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'finance-daily-review.json'), 'utf8'));
+  } catch (_) {
+    return null;
+  }
+}
+
+async function loadSchemeFundingPicks(limit = 3) {
+  try {
+    const raw = JSON.parse(await fs.readFile(path.join(ROOT, 'schemes.json'), 'utf8'));
+    const schemes = Array.isArray(raw) ? raw : raw.schemes || [];
+    return schemes
+      .filter((s) => s.status !== 'inactive')
+      .filter((s) => {
+        const hay = `${s.title} ${s.description} ${(s.keywords || []).join(' ')}`.toLowerCase();
+        return (
+          (s.region === 'nl' || (s.regions || []).includes('Netherlands')) &&
+          /restaurant|equipment|kitchen|hospitality|mia|vamil|bmkb|horizon|wbso/i.test(hay)
+        );
+      })
+      .slice(0, limit)
+      .map((s) => ({
+        date: 'NL',
+        headline: s.title,
+        tag: String(s.type || 'GRANT').toUpperCase(),
+        detail: String(s.description || s.relevance || '').slice(0, 160),
+        href: '/greenways/finance-finder',
+        cta: 'Open finder'
+      }));
+  } catch (_) {
+    return [];
+  }
+}
+
+function buildRoundupParagraphs(edition, dailyReview, editionPack, prior) {
+  if (prior?.roundup?.paragraphs?.length) return prior.roundup.paragraphs;
+  const lead = dailyReview?.headline
+    ? `Today's wholesale skim: ${stripMarkdown(dailyReview.headline)}. Vincent refreshes the daily brief from hub prices and the Greenways news catalogue — last built ${dailyReview.meta?.briefDate || 'recently'}.`
+    : 'Vincent refreshes this round-up from wholesale hub data and the Greenways sustainability newsletter pipeline.';
+  const editionNote = editionPack?.summary
+    ? stripMarkdown(String(editionPack.summary).slice(0, 280))
+    : `This edition tracks ${monthLabel(edition)} policy and funding signals for hospitality — CBAM's 31 August declaration, Omnibus XII labelling, and NL scheme windows.`;
+  return [lead, editionNote];
+}
+
+function buildEditionSummary(editionPack, dailyReview, edition) {
+  if (editionPack?.summary) {
+    return stripMarkdown(String(editionPack.summary).slice(0, 320));
+  }
+  const priceBit = dailyReview?.headline ? stripMarkdown(dailyReview.headline) + ' · ' : '';
+  return (
+    priceBit +
+    `${editionDisplayLabel(edition)} finance digest — CBAM final declaration week, EU energy labelling simplification, and NL funding paths for equipment upgrades.`
+  );
+}
+
 function pickFinanceStories(catalog, edition, limit = 6) {
   const pool = catalog.items.filter((item) => {
     if (item.id?.startsWith('edition-summary-')) return false;
@@ -57,10 +154,13 @@ function lookingAheadToPick(item, pageHref) {
         ? 'POLICY'
         : 'AHEAD';
   return {
-    date: item.when || 'AHEAD',
+    date: urgencyDateLabel(item.when, item.headline),
     headline: item.headline.slice(0, 120),
     tag,
-    detail: 'From this edition\'s Looking Ahead — verify dates before acting.',
+    detail: String(item.detail || item.summary || "From this edition's Looking Ahead — verify dates before acting.").slice(
+      0,
+      160
+    ),
     href: pageHref,
     cta: 'Details'
   };
@@ -111,16 +211,19 @@ const VINCENT_FINANCE_HERO_IMAGES = [
 ];
 
 async function main() {
-  const [editionPack, catalog, prior] = await Promise.all([
+  const [editionPack, catalog, prior, dailyReview, schemeFunding] = await Promise.all([
     loadEditionPack('sustainability'),
     loadFullNewsCatalog(),
-    loadStaticFallback()
+    loadStaticFallback(),
+    loadDailyReview(),
+    loadSchemeFundingPicks(3)
   ]);
 
   const edition = editionPack?.edition || getLatestEdition(catalog.editions, 'sustainability')?.edition;
   const pageHref = editionPack?.pageHref || null;
   const stories = pickFinanceStories(catalog, edition, 8);
   const lookingAhead = (editionPack?.lookingAhead || []).slice(0, 4);
+  const today = new Date().toISOString().slice(0, 10);
 
   const heroImages = prior?.meta?.heroImages || VINCENT_FINANCE_HERO_IMAGES;
 
@@ -133,18 +236,22 @@ async function main() {
       .filter((s) => /policy|cbam|omnibus|circular|energy/i.test(`${s.title} ${s.summary}`))
       .slice(0, 2)
       .map((s) => ({
-        date: edition ? edition.replace('-', ' ').toUpperCase() : 'NEWS',
+        date: /31\s*august/i.test(`${s.title} ${s.summary}`)
+          ? urgencyDateLabel('31 August 2026', s.title)
+          : edition
+            ? edition.replace('-', ' ').toUpperCase()
+            : 'NEWS',
         headline: s.title,
         tag: 'POLICY',
         detail: String(s.summary || '').slice(0, 160),
         href: s.pageHref || pageHref,
         cta: 'Details'
       }))
-  ].slice(0, 4);
+  ].slice(0, 5);
 
-  const fundingPicks = stories
+  const fundingFromStories = stories
     .filter((s) => /fund|grant|eib|loan|subsidy|programme/i.test(`${s.title} ${s.summary}`))
-    .slice(0, 3)
+    .slice(0, 2)
     .map((s) => ({
       date: edition ? edition.replace('-', ' ').toUpperCase() : 'NEWS',
       headline: s.title,
@@ -154,10 +261,22 @@ async function main() {
       cta: 'Details'
     }));
 
-  const staticSections = prior?.roundup?.sections || [];
-  const instrumentsSection =
-    staticSections.find((s) => s.id === 'instruments') ||
+  const fundingPicks = [
+    ...schemeFunding,
+    ...fundingFromStories,
     {
+      date: 'PORTAL',
+      headline: 'Restaurant finance finder',
+      tag: 'TOOLS',
+      detail: 'Grants · BNPL · equipment · loans · Europe tabs.',
+      href: '/greenways/finance-finder',
+      cta: 'Open finder'
+    }
+  ].slice(0, 5);
+
+  const instrumentsSection =
+    prior?.instrumentsSection ||
+    prior?.roundup?.sections?.find((s) => s.id === 'instruments') || {
       id: 'instruments',
       title: 'Instruments & next steps',
       icon: '🧭',
@@ -165,17 +284,42 @@ async function main() {
       picks: []
     };
 
+  const dailyPick = dailyReview
+    ? {
+        date: 'TODAY',
+        headline: stripMarkdown(dailyReview.headline) || 'Vincent daily price review',
+        tag: 'BRIEF',
+        detail: stripMarkdown(dailyReview.bullets?.[0]?.text || 'Wholesale skim from Finance wire hubs.'),
+        href: '/greenways/finance-wire-main',
+        cta: 'Open wire main'
+      }
+    : {
+        date: 'DAILY',
+        headline: 'Vincent daily price review',
+        tag: 'BRIEF',
+        detail: 'Run npm run build:finance-daily-review after ticker updates.',
+        href: '/greenways/finance-wire-main',
+        cta: 'Open wire main'
+      };
+
   const payload = {
     meta: {
-      edition: monthLabel(edition),
+      edition: editionDisplayLabel(edition),
+      sourceEdition: edition,
       region: prior?.meta?.region || 'EU · NL hospitality lens',
-      publishedAt: new Date().toISOString().slice(0, 10),
+      publishedAt: today,
+      updatedAt: today,
+      briefDate: dailyReview?.meta?.briefDate || today,
       tagline: prior?.meta?.tagline || 'Prices · policy · funding · instruments',
-      summary:
-        editionPack?.summary ||
-        prior?.meta?.summary ||
-        'Finance-framed round-up seeded from the latest sustainability newsletter.',
+      summary: buildEditionSummary(editionPack, dailyReview, edition),
       heroImages,
+      dailyReview: dailyReview
+        ? {
+            headline: dailyReview.headline,
+            briefDate: dailyReview.meta?.briefDate,
+            href: '/greenways/finance-wire-main'
+          }
+        : null,
       generatedFrom: {
         edition,
         pageHref,
@@ -184,10 +328,7 @@ async function main() {
     },
     roundup: {
       title: `${monthLabel(edition)} — finance & energy signals for hospitality`,
-      paragraphs: prior?.roundup?.paragraphs || [
-        'Headlines below are pulled from the shared Greenways news catalogue and framed for payback, grants, and loans.',
-        'Wholesale hubs on Finance wire remain the live price skim.'
-      ],
+      paragraphs: buildRoundupParagraphs(edition, dailyReview, editionPack, prior),
       sections: [
         {
           id: 'prices',
@@ -195,13 +336,14 @@ async function main() {
           icon: '📡',
           tone: 'prices',
           picks: [
+            dailyPick,
             {
-              date: 'DAILY',
-              headline: 'Vincent daily price review',
-              tag: 'BRIEF',
-              detail: 'Thin auto skim (ticker + news lens). Rebuilt on newsletter publish.',
-              href: '/greenways/finance-wire-main',
-              cta: 'Open wire main'
+              date: 'LIVE',
+              headline: 'Finance wire — wholesale lanes',
+              tag: 'WIRE',
+              detail: 'Hub KPIs and market tablets — refresh for the latest skim.',
+              href: '/greenways/finance-wire',
+              cta: 'Open wire'
             },
             {
               date: 'GUIDE',
@@ -223,9 +365,9 @@ async function main() {
             : [
                 {
                   date: 'AHEAD',
-                  headline: 'Add policy picks from Looking Ahead',
+                  headline: 'Policy picks rebuild with newsletter',
                   tag: 'POLICY',
-                  detail: 'Run npm run run:newsletter after the monthly HTML is in review.',
+                  detail: 'Run npm run build:finance-news-feed after the monthly HTML is in review.',
                   href: pageHref || '/greenways/finance-news',
                   cta: 'Details'
                 }
@@ -236,38 +378,45 @@ async function main() {
           title: 'Funding & programmes',
           icon: '💶',
           tone: 'funding',
-          picks: fundingPicks.length
-            ? fundingPicks
-            : [
-                {
-                  date: 'PORTAL',
-                  headline: 'Restaurant finance finder',
-                  tag: 'TOOLS',
-                  detail: 'Grants · BNPL · equipment · loans · Europe tabs.',
-                  href: '/greenways/finance-finder',
-                  cta: 'Open finder'
-                }
-              ]
+          picks: fundingPicks
         },
         instrumentsSection
       ]
     },
     tabs: prior?.tabs || [
       { id: 'all', label: 'All signals', desc: 'Every card in this edition.' },
-      { id: 'prices', label: 'Prices', desc: 'Wholesale guide and daily brief links.' },
+      { id: 'prices', label: 'Prices', desc: 'Daily brief and wholesale guide links.' },
       { id: 'policy', label: 'Policy', desc: 'EU / compliance headlines with a finance lens.' },
       { id: 'funding', label: 'Funding', desc: 'Programmes and finder tools.' },
       { id: 'instruments', label: 'Instruments', desc: 'What to do next on Greenways.' }
     ],
     items: [
-      ...stories.slice(0, 5).map(storyToItem),
+      ...(dailyReview
+        ? [
+            {
+              id: 'item-daily-review',
+              tab: 'prices',
+              date: 'TODAY',
+              title: stripMarkdown(dailyReview.headline),
+              tag: 'DAILY',
+              summary: stripMarkdown(
+                (dailyReview.bullets || [])
+                  .slice(0, 2)
+                  .map((b) => b.text)
+                  .join(' ')
+              ).slice(0, 220),
+              href: '/greenways/finance-wire-main'
+            }
+          ]
+        : []),
+      ...stories.slice(0, 6).map(storyToItem),
       {
         id: 'item-wire',
         tab: 'prices',
         date: 'LIVE',
         title: 'Finance wire — ticker + tablets',
         tag: 'WIRE',
-        summary: 'Wholesale lanes and news spotlights on the main wire panel.',
+        summary: 'Wholesale lanes and finance spotlights on the main wire panel.',
         href: '/greenways/finance-wire-main'
       },
       {

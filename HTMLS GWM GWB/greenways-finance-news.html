@@ -95,6 +95,41 @@
       margin-bottom: 18px;
     }
     .meta-bar strong { color: #a8bdd8; }
+    .daily-brief {
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      background: rgba(6, 10, 16, 0.92);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+    }
+    .daily-brief-kicker {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+    .daily-brief-headline {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .daily-brief-list {
+      margin: 0 0 8px;
+      padding-left: 1.1rem;
+      color: var(--text-dim);
+      font-family: var(--font-clean);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+    .daily-brief-meta {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: #6a7f9a;
+    }
     .err-banner {
       display: none;
       margin-bottom: 14px;
@@ -384,8 +419,14 @@
     <header class="header">
       <div class="header-eyebrow" id="headerEyebrow">Vincent · Finance news</div>
       <h1 class="header-title">Finance <span>News</span></h1>
-      <p class="header-sub" id="headerSub">Market &amp; funding round-up — Music News–style cards for Vincent. Skeleton edition until richer stories land.</p>
+      <p class="header-sub" id="headerSub">Market &amp; funding round-up — daily wholesale brief plus newsletter signals for payback, grants, and loans.</p>
     </header>
+    <section class="daily-brief" id="dailyBrief" hidden aria-live="polite">
+      <div class="daily-brief-kicker">Today's brief · Vincent</div>
+      <h2 class="daily-brief-headline" id="dailyBriefHeadline"></h2>
+      <ul class="daily-brief-list" id="dailyBriefList"></ul>
+      <p class="daily-brief-meta" id="dailyBriefMeta"></p>
+    </section>
     <p class="meta-bar" id="metaBar">Loading…</p>
     <div class="err-banner" id="errBanner" role="alert"></div>
 
@@ -450,10 +491,47 @@
         document.getElementById('headerEyebrow').textContent =
           (m.region || 'EU') + ' · Vincent Finance News';
         if (m.summary) document.getElementById('headerSub').textContent = m.summary;
+        var updated = m.updatedAt || m.briefDate || m.publishedAt;
         document.getElementById('metaBar').innerHTML =
           '<strong>' + escapeHtml(m.edition || 'Edition') + '</strong>' +
-          (m.publishedAt ? ' · published ' + escapeHtml(m.publishedAt) : '') +
+          (m.sourceEdition ? ' · source ' + escapeHtml(m.sourceEdition) : '') +
+          (updated ? ' · updated ' + escapeHtml(updated) : '') +
           (m.tagline ? ' · ' + escapeHtml(m.tagline) : '');
+      }
+
+      function renderDailyBrief(review) {
+        var box = document.getElementById('dailyBrief');
+        if (!box) return;
+        var data = review && review.ok !== false ? review : (FEED.meta && FEED.meta.dailyReview);
+        if (review && review.ok !== false && review.headline) {
+          box.hidden = false;
+          document.getElementById('dailyBriefHeadline').textContent = review.headline;
+          var ul = document.getElementById('dailyBriefList');
+          ul.innerHTML = (review.bullets || []).slice(0, 3).map(function (b) {
+            return '<li>' + escapeHtml(String(b.text || '').replace(/\*\*/g, '')) + '</li>';
+          }).join('');
+          document.getElementById('dailyBriefMeta').textContent =
+            'As of ' + (review.meta && review.meta.briefDate ? review.meta.briefDate : 'today') +
+            ' · wholesale ≠ retail · Open Finance wire for live hubs';
+          return;
+        }
+        if (data && data.headline) {
+          box.hidden = false;
+          document.getElementById('dailyBriefHeadline').textContent = data.headline;
+          document.getElementById('dailyBriefList').innerHTML = '';
+          document.getElementById('dailyBriefMeta').textContent =
+            'Brief dated ' + (data.briefDate || '') + ' · refresh on wire main';
+        }
+      }
+
+      function fetchDailyReview() {
+        var base = location.hostname === 'localhost' || location.hostname === '127.0.0.1' ||
+          (location.hostname || '').indexOf('energy-calc-backend') !== -1
+          ? (location.origin || '')
+          : 'https://energy-calc-backend.onrender.com';
+        return fetch(base + '/api/finance-agent/daily-review', { cache: 'no-store' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .catch(function () { return null; });
       }
 
       function renderHero() {
@@ -582,6 +660,10 @@
           renderHero();
           renderTabs();
           renderGrid();
+          return fetchDailyReview();
+        })
+        .then(function (review) {
+          renderDailyBrief(review);
         })
         .catch(function (e) {
           var ban = document.getElementById('errBanner');

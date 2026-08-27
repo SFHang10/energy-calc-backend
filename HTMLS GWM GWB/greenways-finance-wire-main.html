@@ -555,7 +555,7 @@
           cards.innerHTML = '';
           return;
         }
-        status.textContent = 'Market spotlights · finance lens';
+        status.textContent = 'Market spotlights · Vincent finance feed';
         var kickers = ['Market spotlight', 'Market spotlight', 'Funding spotlight'];
         cards.innerHTML = top.map(function (item, i) {
           var gold = i === 2 ? ' gold' : '';
@@ -606,21 +606,35 @@
       var base = origin();
       Promise.all([
         fetch(base + '/api/energy-ticker').then(function (r) { return r.ok ? r.json() : null; }),
-        fetch(base + '/api/media-agent/news?q=finance%20grant%20energy%20price%20loan&limit=6')
+        fetch(base + '/data/finance-news-feed.json')
           .then(function (r) { return r.ok ? r.json() : null; })
-          .then(function (data) {
-            if (data && data.items && data.items.length) return data;
-            return fetch(base + '/api/media-agent/news?limit=6').then(function (r2) {
-              return r2.ok ? r2.json() : null;
-            });
-          }),
+          .catch(function () { return null; }),
         fetch(base + '/api/finance-agent/daily-review')
           .then(function (r) { return r.ok ? r.json() : null; })
           .catch(function () { return null; })
       ])
         .then(function (pair) {
           renderTicker(pair[0] || {});
-          renderCards((pair[1] && pair[1].items) || []);
+          var feed = pair[1];
+          var feedItems = (feed && feed.items) || [];
+          if (feedItems.length) {
+            renderCards(feedItems.map(function (item) {
+              return {
+                title: item.title,
+                summary: item.summary,
+                newsCategory: item.tag,
+                edition: item.date,
+                source: 'Vincent finance feed',
+                href: item.href
+              };
+            }));
+          } else {
+            return fetch(base + '/api/media-agent/news?q=finance%20grant%20energy%20price%20loan&limit=6')
+              .then(function (r) { return r.ok ? r.json() : null; })
+              .then(function (data) {
+                renderCards((data && data.items) || []);
+              });
+          }
           if (pair[2] && pair[2].ok) renderDailyReview(pair[2]);
         })
         .catch(function () {
