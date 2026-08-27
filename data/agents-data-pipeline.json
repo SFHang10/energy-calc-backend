@@ -43,6 +43,8 @@
         "products-with-grants-and-collection.json",
         "data/deals-feed.json",
         "data/media-daily-brief.json",
+        "data/finance-daily-external.json",
+        "data/finance-news-rolling.json",
         "data/finance-daily-review.json",
         "data/finance-news-feed.json",
         "data/newsletter-looking-ahead-watchlist.json"
@@ -62,6 +64,8 @@
       "outputs": [
         "data/newsletter-looking-ahead-watchlist.json",
         "data/media-daily-brief.json",
+        "data/finance-daily-external.json",
+        "data/finance-news-rolling.json",
         "data/finance-daily-review.json",
         "data/finance-news-feed.json",
         "data/greenways-agent-highlights.json"
@@ -117,6 +121,22 @@
       "npmScript": "build:media-daily-brief",
       "when": "new content-ops news edition",
       "agents": ["media"]
+    },
+    {
+      "id": "build-finance-external-news",
+      "label": "Vincent external RSS headlines",
+      "command": "npm run build:finance-external-news",
+      "npmScript": "build:finance-external-news",
+      "when": "daily cron — EU Commission + EIB press RSS",
+      "agents": ["finance"]
+    },
+    {
+      "id": "build-finance-daily",
+      "label": "Vincent full daily stack (RSS + review + feed)",
+      "command": "npm run build:finance-daily",
+      "npmScript": "build:finance-daily",
+      "when": "daily cron on Render",
+      "agents": ["finance"]
     },
     {
       "id": "build-finance-daily-review",

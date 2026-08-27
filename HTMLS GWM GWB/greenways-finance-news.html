@@ -371,6 +371,12 @@
       padding: 3px 8px;
       border-radius: 999px;
     }
+    .news-card-venue {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: rgba(56, 189, 248, 0.75);
+      margin-bottom: 8px;
+    }
     .news-card-summary {
       font-family: var(--font-clean);
       font-size: 0.8rem;
@@ -454,7 +460,7 @@
         'https://energy-calc-backend.onrender.com/data/finance-news-feed.json'
       ];
       var FEED = { meta: {}, roundup: null, tabs: [], items: [] };
-      var activeTab = 'all';
+      var activeTab = 'today';
 
       function escapeHtml(s) {
         return String(s == null ? '' : s)
@@ -644,6 +650,7 @@
             '<h3 class="news-card-title">' + escapeHtml(item.title || '') + '</h3>' +
             '</div>' +
             (item.tag ? '<span class="news-card-tag">' + escapeHtml(item.tag) + '</span>' : '') +
+            (item.source ? '<div class="news-card-venue">' + escapeHtml(item.source) + '</div>' : '') +
             '<p class="news-card-summary">' + escapeHtml(item.summary || '') + '</p>' +
             (item.href
               ? '<a class="news-card-link" href="' + escapeHtml(absHref(item.href)) + '" target="_top" rel="noopener">Details</a>'

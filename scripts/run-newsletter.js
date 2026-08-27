@@ -32,6 +32,12 @@ const PUBLISH_STEPS = [
     agents: ['Cheryce']
   },
   {
+    id: 'finance-external',
+    label: 'Vincent external RSS headlines (EU Commission + EIB)',
+    command: 'npm run build:finance-external-news',
+    agents: ['Vincent']
+  },
+  {
     id: 'finance-review',
     label: 'Vincent daily price review',
     command: 'npm run build:finance-daily-review',

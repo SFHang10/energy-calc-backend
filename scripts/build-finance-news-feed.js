@@ -7,6 +7,7 @@ const fs = require('fs/promises');
 const path = require('path');
 const { loadEditionPack } = require('../services/newsletter-looking-ahead');
 const { loadFullNewsCatalog, getLatestEdition } = require('../services/media-news-loader');
+const { loadFinanceDailyExternal } = require('../services/finance-external-news');
 
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'data', 'finance-news-feed.json');
@@ -211,12 +212,13 @@ const VINCENT_FINANCE_HERO_IMAGES = [
 ];
 
 async function main() {
-  const [editionPack, catalog, prior, dailyReview, schemeFunding] = await Promise.all([
+  const [editionPack, catalog, prior, dailyReview, schemeFunding, externalDaily] = await Promise.all([
     loadEditionPack('sustainability'),
     loadFullNewsCatalog(),
     loadStaticFallback(),
     loadDailyReview(),
-    loadSchemeFundingPicks(3)
+    loadSchemeFundingPicks(3),
+    loadFinanceDailyExternal()
   ]);
 
   const edition = editionPack?.edition || getLatestEdition(catalog.editions, 'sustainability')?.edition;
@@ -302,6 +304,17 @@ async function main() {
         cta: 'Open wire main'
       };
 
+  const externalItems = (externalDaily?.items || []).slice(0, 8).map((item, idx) => ({
+    id: `item-ext-${item.id || idx}`,
+    tab: 'today',
+    date: 'TODAY',
+    title: item.title,
+    tag: item.tag || 'NEWS',
+    summary: String(item.summary || item.financeAngle || '').slice(0, 220),
+    href: item.url || item.href,
+    source: item.source
+  }));
+
   const payload = {
     meta: {
       edition: editionDisplayLabel(edition),
@@ -320,6 +333,8 @@ async function main() {
             href: '/greenways/finance-wire-main'
           }
         : null,
+      externalFetchedAt: externalDaily?.meta?.fetchedAt || null,
+      externalHeadlineCount: externalItems.length,
       generatedFrom: {
         edition,
         pageHref,
@@ -383,14 +398,18 @@ async function main() {
         instrumentsSection
       ]
     },
-    tabs: prior?.tabs || [
-      { id: 'all', label: 'All signals', desc: 'Every card in this edition.' },
-      { id: 'prices', label: 'Prices', desc: 'Daily brief and wholesale guide links.' },
-      { id: 'policy', label: 'Policy', desc: 'EU / compliance headlines with a finance lens.' },
-      { id: 'funding', label: 'Funding', desc: 'Programmes and finder tools.' },
-      { id: 'instruments', label: 'Instruments', desc: 'What to do next on Greenways.' }
+    tabs: [
+      { id: 'today', label: 'Today', desc: 'Official EU press headlines — refreshed daily.' },
+      ...(prior?.tabs || [
+        { id: 'all', label: 'All signals', desc: 'Every card in this edition.' },
+        { id: 'prices', label: 'Prices', desc: 'Daily brief and wholesale guide links.' },
+        { id: 'policy', label: 'Policy', desc: 'EU / compliance headlines with a finance lens.' },
+        { id: 'funding', label: 'Funding', desc: 'Programmes and finder tools.' },
+        { id: 'instruments', label: 'Instruments', desc: 'What to do next on Greenways.' }
+      ]).filter((t) => t.id !== 'today')
     ],
     items: [
+      ...externalItems,
       ...(dailyReview
         ? [
             {

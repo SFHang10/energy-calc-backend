@@ -13,6 +13,7 @@ const {
   HTMLS_NEWS_PAGES
 } = require('./media-news-loader');
 const { PORTAL_LINKS } = require('./greenways-agent-shared');
+const { loadFinanceNewsRolling } = require('./finance-external-news');
 
 const FINANCE_NEWS_CATEGORIES = new Set(['funding', 'policy', 'circular', 'monthly']);
 
@@ -126,9 +127,36 @@ function editionLinksBlock(catalog) {
   return lines.join('\n');
 }
 
+function formatExternalBullet(item) {
+  const hints = instrumentHintsForItem({
+    title: item.title,
+    summary: item.summary,
+    newsCategory: item.tag?.toLowerCase()
+  })
+    .map((h) => `  _Finance path:_ ${h.label} — ${h.action}`)
+    .join('\n');
+  const when = item.publishedAt ? new Date(item.publishedAt).toISOString().slice(0, 10) : 'recent';
+  return (
+    `- **${item.title}** _(${item.source || 'EU press'}, ${when})_\n` +
+    `  ${item.summary || item.financeAngle || ''}\n` +
+    (item.url ? `  [Source](${item.url})\n` : '') +
+    hints
+  );
+}
+
 async function buildFinanceNewsAnswer(question, profile, tip, options = {}) {
   const catalog = await loadFullNewsCatalog();
   const category = options.category || null;
+  const rolling = await loadFinanceNewsRolling(30);
+  let rollingPicks = rolling;
+  if (category) {
+    rollingPicks = rolling.filter((item) => {
+      const tab = String(item.tab || '').toLowerCase();
+      if (category === 'funding') return tab === 'funding' || /fund|grant|loan|eib/i.test(`${item.title} ${item.summary}`);
+      return tab === category || item.tag?.toLowerCase() === category;
+    });
+  }
+
   let pool = catalog.items;
   if (category) {
     pool = filterByCategory(catalog.items, category);
@@ -142,17 +170,27 @@ async function buildFinanceNewsAnswer(question, profile, tip, options = {}) {
     ? ranked
     : rankFinanceNews(catalog.items, question || 'funding finance grant', 6);
 
+  const externalBullets = rollingPicks
+    .slice(0, 3)
+    .map(formatExternalBullet)
+    .join('\n\n');
+  const catalogueBullets = formatFinanceNewsBullets(picks, 6);
+
   const label = category
     ? category.charAt(0).toUpperCase() + category.slice(1)
     : 'Sustainability & finance';
 
   return {
     answer:
-      `**${label} news** — ${catalog.stats.total} items in the shared catalogue (knowledge base + monthly editions + content-ops sources):\n\n` +
-      `${formatFinanceNewsBullets(picks, 6) || '_No tight match — try “Horizon Europe funding” or “EIB climate finance”._'}\n\n` +
+      `**${label} news** — daily official headlines + ${catalog.stats.total} items in the Greenways catalogue:\n\n` +
+      (externalBullets
+        ? `**Today's wire (EU press RSS)**\n${externalBullets}\n\n`
+        : '_No fresh RSS headlines in the rolling buffer — run `npm run build:finance-external-news`._\n\n') +
+      `**Monthly edition & knowledge base**\n` +
+      `${catalogueBullets || '_No tight match — try “Horizon Europe funding” or “EIB climate finance”._'}\n\n` +
       `**How Vincent uses this:** each headline links to **financial instruments on Greenways** — grants (Andrieus), green loans, BNPL, equipment finance, and ETL upgrades — not just the headline.\n\n` +
       `**Editions & pages:**\n${editionLinksBlock(catalog)}\n\n` +
-      `_Sources: sustainability news library and monthly editions (same pipeline as Cheryce)._\n\n_${tip}_`,
+      `_Daily: EU Commission + EIB RSS. Monthly: sustainability newsletter (Cheryce pipeline)._\n\n_${tip}_`,
     suggestions: [],
     editionChips: pickEditionChips(catalog, { citedItems: picks, intentId: options.intentId || 'finance_news' }),
     intentId: options.intentId || 'finance_news'

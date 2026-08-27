@@ -14,6 +14,11 @@ const {
 const { rankFinanceNews, instrumentHintsForItem } = require('./finance-agent-news');
 const { loadFullNewsCatalog } = require('./media-news-loader');
 const { PORTAL_LINKS } = require('./greenways-agent-shared');
+const {
+  loadFinanceDailyExternal,
+  loadFinanceNewsRolling,
+  rollingToStoryShape
+} = require('./finance-external-news');
 
 const ROOT = path.join(__dirname, '..');
 const OUT_PATH = path.join(ROOT, 'data', 'finance-daily-review.json');
@@ -73,9 +78,18 @@ function financeAngleForStory(item) {
 }
 
 async function collectStories(limit = 3) {
-  const mediaBrief = await readJsonSafe(MEDIA_BRIEF_PATH);
   const stories = [];
   const seen = new Set();
+
+  const rolling = await loadFinanceNewsRolling(limit * 2);
+  for (const item of rolling) {
+    if (!item?.id || seen.has(item.id)) continue;
+    seen.add(item.id);
+    stories.push(rollingToStoryShape(item));
+    if (stories.length >= limit) return stories;
+  }
+
+  const mediaBrief = await readJsonSafe(MEDIA_BRIEF_PATH);
 
   const briefStories = Array.isArray(mediaBrief?.stories) ? mediaBrief.stories : [];
   for (const item of briefStories) {
@@ -179,6 +193,7 @@ async function composeFinanceDailyReview(options = {}) {
   const markets = pickMarkets(snapshot, 4);
   const stories = await collectStories(3);
   const mediaBrief = await readJsonSafe(MEDIA_BRIEF_PATH);
+  const externalDaily = await loadFinanceDailyExternal();
   const now = new Date();
   const bullets = buildBullets(snapshot, markets, stories, profile);
   const headline = buildHeadline(markets, profile);
@@ -192,13 +207,16 @@ async function composeFinanceDailyReview(options = {}) {
       tickerUpdatedAt: snapshot.updatedAt || snapshot.meta?.updatedAt || null,
       mediaBriefDate: mediaBrief?.meta?.briefDate || null,
       edition: mediaBrief?.meta?.edition || null,
+      externalHeadlinesAt: externalDaily?.meta?.fetchedAt || null,
+      externalHeadlineCount: externalDaily?.items?.length || 0,
       disclaimer:
-        'Illustrative wholesale guide and curated news — not live retail quotes or investment advice.'
+        'Illustrative wholesale guide and curated news — not live retail quotes or investment advice. External headlines attributed to official RSS sources.'
     },
     headline,
     bullets,
     markets,
     stories,
+    externalHeadlines: (externalDaily?.items || []).slice(0, 5),
     cta: {
       label: 'Open Finance wire',
       href: '/greenways/finance-wire',
@@ -224,7 +242,11 @@ function formatReviewForChat(review, tip) {
     .join('\n');
   const storyLines = (review.stories || [])
     .slice(0, 2)
-    .map((s) => `- **${s.title}** — ${s.financeAngle || s.summary || ''}`)
+    .map((s) => `- **${s.title}** — ${s.financeAngle || s.summary || ''}${s.source ? ` _(${s.source})_` : ''}`)
+    .join('\n');
+  const externalLines = (review.externalHeadlines || [])
+    .slice(0, 3)
+    .map((s) => `- **${s.title}** — ${s.financeAngle || s.summary || ''} _(${s.source || 'EU press'})_`)
     .join('\n');
 
   return {
@@ -232,7 +254,8 @@ function formatReviewForChat(review, tip) {
       `**Vincent · daily price review** (${date})\n\n` +
       `**${review.headline}**\n\n` +
       `${bulletLines}\n\n` +
-      (storyLines ? `**News to watch (finance lens)**\n${storyLines}\n\n` : '') +
+      (externalLines ? `**Today's official headlines (finance lens)**\n${externalLines}\n\n` : '') +
+      (storyLines ? `**Also in the monthly edition**\n${storyLines}\n\n` : '') +
       `_${review.meta?.disclaimer || 'Wholesale ≠ retail.'}_\n\n` +
       `Skim **Finance wire** for the board; ask for a payback case when you want the next step.\n\n_${tip || ''}_`,
     blocks: []

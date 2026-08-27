@@ -154,7 +154,7 @@ On Render or GitHub Actions, schedule after staff drops editions in `review/`:
 npm run run:newsletter -- --validate && npm run run:newsletter -- --publish
 ```
 
-Daily (without new edition): `npm run build:finance-daily-review` only — keeps Vincent’s wire brief fresh from ticker.
+Daily (without new edition): `npm run build:finance-daily` — EU/EIB RSS headlines + Vincent wire brief + finance news feed refresh.
 
 Weekly: `npm run refresh:agents-weekly` — deals + highlights (independent of newsletter).
 
