@@ -41,6 +41,9 @@ function pickTag(text, hay) {
 }
 
 function financeAngleFor(hay) {
+  if (/boiler upgrade|bus grant|warm home|ecr|energy bills rebate|net zero/i.test(hay)) {
+    return 'UK funding signal — cross-check schemes.json UK rows, BUS/ECO grants, and Finance finder.';
+  }
   if (/grant|fund|subsidy|subsidie|horizon|eib|loan/i.test(hay)) {
     return 'Funding signal — check Finance finder grants/loans and Andrieus for scheme fit.';
   }
@@ -57,6 +60,30 @@ function itemId(url, title) {
   return crypto.createHash('sha1').update(`${url}|${title}`).digest('hex').slice(0, 16);
 }
 
+function buildExternalItem(source, { title, url, summary, publishedAtRaw }) {
+  if (!title || !url) return null;
+  const summaryText = decodeEntities(summary || '').slice(0, 280);
+  const hay = `${title} ${summaryText}`.toLowerCase();
+  const publishedAt = publishedAtRaw ? new Date(decodeEntities(publishedAtRaw)).toISOString() : null;
+  const tag = pickTag(title, hay);
+  const tab = tag.toLowerCase() === 'funding' ? 'funding' : tag.toLowerCase() === 'prices' ? 'prices' : 'policy';
+  return {
+    id: `ext-${source.id}-${itemId(url, title)}`,
+    title,
+    summary: summaryText,
+    url,
+    href: url,
+    source: source.name,
+    sourceId: source.id,
+    region: source.region || 'EU',
+    publishedAt: publishedAt && !Number.isNaN(Date.parse(publishedAt)) ? publishedAt : null,
+    fetchedAt: new Date().toISOString(),
+    tag,
+    financeAngle: financeAngleFor(hay),
+    tab
+  };
+}
+
 function parseRssItems(xml, source, financeRe, limit = 20) {
   const items = [];
   const blocks = String(xml).split(/<item[\s>]/i).slice(1);
@@ -68,41 +95,68 @@ function parseRssItems(xml, source, financeRe, limit = 20) {
     const dateMatch = block.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i);
     const title = decodeEntities(titleMatch ? titleMatch[1] : '');
     const url = decodeEntities(linkMatch ? linkMatch[1] : '').trim();
-    if (!title || !url) continue;
-    const summary = decodeEntities(descMatch ? descMatch[1] : '').slice(0, 280);
-    const hay = `${title} ${summary}`.toLowerCase();
+    const summary = descMatch ? descMatch[1] : '';
+    const hay = `${title} ${decodeEntities(summary)}`.toLowerCase();
     if (!financeRe.test(hay)) continue;
-    const publishedAt = dateMatch ? new Date(decodeEntities(dateMatch[1])).toISOString() : null;
-    items.push({
-      id: `ext-${source.id}-${itemId(url, title)}`,
+    const row = buildExternalItem(source, {
       title,
-      summary,
       url,
-      href: url,
-      source: source.name,
-      sourceId: source.id,
-      region: source.region || 'EU',
-      publishedAt: publishedAt && !Number.isNaN(Date.parse(publishedAt)) ? publishedAt : null,
-      fetchedAt: new Date().toISOString(),
-      tag: pickTag(title, hay),
-      financeAngle: financeAngleFor(hay),
-      tab: pickTag(title, hay).toLowerCase() === 'funding' ? 'funding' : pickTag(title, hay).toLowerCase() === 'prices' ? 'prices' : 'policy'
+      summary,
+      publishedAtRaw: dateMatch ? dateMatch[1] : null
     });
+    if (row) items.push(row);
   }
   return items;
 }
 
-async function fetchFeed(source, financeRe) {
+function parseAtomItems(xml, source, financeRe, limit = 20) {
+  const items = [];
+  const blocks = String(xml).split(/<entry[\s>]/i).slice(1);
+  for (const block of blocks) {
+    if (items.length >= limit) break;
+    const titleMatch = block.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+    const linkMatch =
+      block.match(/<link[^>]*rel=["']alternate["'][^>]*href=["']([^"']+)["']/i) ||
+      block.match(/<link[^>]*href=["']([^"']+)["'][^>]*rel=["']alternate["']/i) ||
+      block.match(/<link[^>]*href=["']([^"']+)["']/i);
+    const summaryMatch = block.match(/<summary[^>]*>([\s\S]*?)<\/summary>/i);
+    const dateMatch =
+      block.match(/<updated[^>]*>([\s\S]*?)<\/updated>/i) ||
+      block.match(/<published[^>]*>([\s\S]*?)<\/published>/i);
+    const title = decodeEntities(titleMatch ? titleMatch[1] : '');
+    const url = decodeEntities(linkMatch ? linkMatch[1] : '').trim();
+    const summary = summaryMatch ? summaryMatch[1] : '';
+    const hay = `${title} ${decodeEntities(summary)}`.toLowerCase();
+    if (!financeRe.test(hay)) continue;
+    const row = buildExternalItem(source, {
+      title,
+      url,
+      summary,
+      publishedAtRaw: dateMatch ? dateMatch[1] : null
+    });
+    if (row) items.push(row);
+  }
+  return items;
+}
+
+async function fetchXmlFeed(source, financeRe) {
   const response = await axios.get(source.url, {
     timeout: 20000,
     headers: {
       'User-Agent': 'Greenways-Vincent-FinanceBot/1.0 (+https://energy-calc-backend.onrender.com)',
-      Accept: 'application/rss+xml, application/xml, text/xml, */*'
+      Accept: 'application/rss+xml, application/atom+xml, application/xml, text/xml, */*'
     },
     responseType: 'text',
     validateStatus: (s) => s >= 200 && s < 400
   });
-  return parseRssItems(response.data, source, financeRe, source.maxItems || 20);
+  const type = String(source.type || 'rss').toLowerCase();
+  const limit = source.maxItems || 20;
+  if (type === 'atom') return parseAtomItems(response.data, source, financeRe, limit);
+  return parseRssItems(response.data, source, financeRe, limit);
+}
+
+async function fetchFeed(source, financeRe) {
+  return fetchXmlFeed(source, financeRe);
 }
 
 function rvoArticleUrl(row) {
@@ -194,6 +248,7 @@ async function fetchSource(source, financeRe) {
   const type = String(source.type || 'rss').toLowerCase();
   if (type === 'rvo-articles') return fetchRvoArticles(source, financeRe);
   if (type === 'static') return parseStaticItems(source);
+  if (type === 'atom' || type === 'rss') return fetchXmlFeed(source, financeRe);
   return fetchFeed(source, financeRe);
 }
 
@@ -355,6 +410,7 @@ module.exports = {
   loadFinanceNewsRolling,
   rollingToStoryShape,
   parseRssItems,
+  parseAtomItems,
   fetchSource,
   mergeRolling
 };

@@ -148,14 +148,16 @@ Spot-check: `/greenways/media-agent`, `/greenways/finance-agent`, `/greenways/fi
 
 ## Automation (cron)
 
-On Render, enable the in-process daily build on the **web service**:
+On Render, the in-process daily build is **on by default** (`RENDER` env detected). Optional overrides:
 
 ```bash
-GREENWAYS_FINANCE_DAILY_CRON_ENABLED=1
-GREENWAYS_FINANCE_DAILY_CRON=0 6 * * *
+GREENWAYS_FINANCE_DAILY_CRON=0 6 * * *   # default 06:00 UTC
+GREENWAYS_FINANCE_DAILY_CRON_ENABLED=0   # disable
 ```
 
-This runs `npm run build:finance-daily` at 06:00 UTC (EU/EIB auto-publish + RVO queue upsert + merge approved + daily review).
+This runs `npm run build:finance-daily` at 06:00 UTC (EU/EIB + UK DESNZ auto-publish, RVO/DBT queue upsert, merge approved, daily review).
+
+**UK lane:** DESNZ Atom feed auto-publishes; DBT business news goes to the staff queue (`/greenways/finance-headlines-admin`). Static card: GOV.UK business finance support.
 
 **NL headlines:** RVO rows land in `data/finance-headline-candidates.json` — approve at `/greenways/finance-headlines-admin`, then `npm run merge:finance-headlines` (included in `build:finance-daily`).
 

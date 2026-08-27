@@ -10,7 +10,9 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const CRON_EXPR = process.env.GREENWAYS_FINANCE_DAILY_CRON || '0 6 * * *';
-const ENABLED = process.env.GREENWAYS_FINANCE_DAILY_CRON_ENABLED === '1';
+const ENABLED =
+  process.env.GREENWAYS_FINANCE_DAILY_CRON_ENABLED === '1' ||
+  (process.env.GREENWAYS_FINANCE_DAILY_CRON_ENABLED !== '0' && Boolean(process.env.RENDER));
 
 let running = false;
 
@@ -43,7 +45,9 @@ function runFinanceDailyBuild() {
 
 function startFinanceDailyCron() {
   if (!ENABLED) {
-    console.log('ℹ️ finance-daily cron disabled (set GREENWAYS_FINANCE_DAILY_CRON_ENABLED=1 on Render)');
+    console.log(
+      'ℹ️ finance-daily cron disabled (set GREENWAYS_FINANCE_DAILY_CRON_ENABLED=1, or deploy on Render)'
+    );
     return;
   }
   if (!cron.validate(CRON_EXPR)) {
