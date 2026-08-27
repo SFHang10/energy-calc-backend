@@ -211,6 +211,39 @@ const VINCENT_FINANCE_HERO_IMAGES = [
   }
 ];
 
+const VINCENT_FINANCE_SECTION_THUMBS = {
+  prices: {
+    src: 'https://static.wixstatic.com/media/c123de_a7746ac7981d466095fdc261bb208fa8~mv2.jpg',
+    alt: 'Wholesale prices — Vincent prices board'
+  },
+  policy: {
+    src: 'https://static.wixstatic.com/media/c123de_538ebcd0cb8744009c22d5676cb8a5da~mv2.jpg',
+    alt: 'Policy and compliance — finance news panel'
+  },
+  funding: {
+    src: 'https://static.wixstatic.com/media/c123de_6fc35ea9558a4d89ae9f1f1f18241328~mv2.webp',
+    alt: 'Funding and grants — Vincent finance markets'
+  },
+  instruments: {
+    src: 'https://static.wixstatic.com/media/c123de_63359ab891354966aa9ff792fe998677~mv2.png',
+    alt: 'Vincent — finance instruments and next steps'
+  }
+};
+
+function withSectionThumb(section, thumbs) {
+  const thumb = thumbs?.[section.id];
+  if (!thumb?.src) return section;
+  return {
+    ...section,
+    thumb: thumb.src,
+    thumbAlt: thumb.alt || section.title
+  };
+}
+
+function applySectionThumbs(sections, thumbs) {
+  return (sections || []).map((section) => withSectionThumb(section, thumbs));
+}
+
 async function main() {
   const [editionPack, catalog, prior, dailyReview, schemeFunding, externalDaily] = await Promise.all([
     loadEditionPack('sustainability'),
@@ -228,6 +261,7 @@ async function main() {
   const today = new Date().toISOString().slice(0, 10);
 
   const heroImages = prior?.meta?.heroImages || VINCENT_FINANCE_HERO_IMAGES;
+  const sectionThumbs = prior?.sectionThumbs || VINCENT_FINANCE_SECTION_THUMBS;
 
   const policyPicks = [
     ...lookingAhead
@@ -396,7 +430,7 @@ async function main() {
           picks: fundingPicks
         },
         instrumentsSection
-      ]
+      ].map((section) => withSectionThumb(section, sectionThumbs))
     },
     tabs: [
       { id: 'today', label: 'Today', desc: 'Official EU press headlines — refreshed daily.' },

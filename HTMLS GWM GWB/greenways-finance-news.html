@@ -195,10 +195,32 @@
     .roundup-section-head {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 10px;
       padding-bottom: 8px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .roundup-section-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(0, 0, 0, 0.25);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+    .roundup-section-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      image-rendering: crisp-edges;
+      image-rendering: -webkit-optimize-contrast;
+    }
+    .roundup-section-emoji {
+      font-size: 1.1rem;
+      line-height: 1;
+      flex-shrink: 0;
     }
     .roundup-section-title { font-size: 0.85rem; font-weight: 700; }
     .roundup-picks { list-style: none; display: grid; gap: 8px; }
@@ -577,6 +599,10 @@
         var sectionList = ru.sections || [];
         sectionsKicker.hidden = !sectionList.length;
         sections.innerHTML = sectionList.map(function (sec) {
+          var headIcon = sec.thumb
+            ? '<span class="roundup-section-icon"><img src="' + escapeHtml(sec.thumb) + '" alt="' +
+              escapeHtml(sec.thumbAlt || sec.title || '') + '" loading="lazy" decoding="async"></span>'
+            : '<span class="roundup-section-emoji" aria-hidden="true">' + escapeHtml(sec.icon || '•') + '</span>';
           var picks = (sec.picks || []).map(function (pick) {
             return (
               '<li class="roundup-pick">' +
@@ -597,7 +623,7 @@
           return (
             '<section class="roundup-section roundup-section--' + escapeHtml(sec.tone || sec.id || '') + '">' +
             '<div class="roundup-section-head">' +
-            '<span aria-hidden="true">' + escapeHtml(sec.icon || '•') + '</span>' +
+            headIcon +
             '<h3 class="roundup-section-title">' + escapeHtml(sec.title || '') + '</h3>' +
             '</div>' +
             '<ul class="roundup-picks">' + picks + '</ul>' +
