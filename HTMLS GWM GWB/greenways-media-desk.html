@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="wix-html-scroll" content="no-scroll" />
+  <title>Cheryce — Media desk</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css" />
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
+  <style>
+    :root {
+      --bg: #0a0712;
+      --panel: #120a1c;
+      --border: rgba(168, 85, 247, 0.28);
+      --text: #f5f3ff;
+      --muted: #9ca8bf;
+      --violet: #a855f7;
+      --lilac: #c084fc;
+      --gold: #c9a961;
+      --font: 'Space Grotesk', system-ui, sans-serif;
+      --clean: 'IBM Plex Sans', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      --cheryce-backdrop-image: url("https://static.wixstatic.com/media/c123de_8a963be5ecc04d50beb604b701d66bfa~mv2.png");
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; color: var(--text); font-family: var(--font); background: var(--bg); }
+    body {
+      background-image: var(--cheryce-backdrop-image);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(8, 5, 14, 0.78), rgba(6, 4, 10, 0.9));
+    }
+    body.embed-mode { background-image: none; background-color: rgba(8, 5, 14, 0.96); }
+    body.embed-mode::before { display: none; }
+    body.embed-mode .media-page-nav, body.embed-mode .back-row { display: none !important; }
+    .page { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 18px 16px 40px; }
+    .media-page-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .btn {
+      display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.14); background: rgba(8,5,14,0.55);
+      color: #ddd6fe; text-decoration: none; font-size: 0.82rem; cursor: pointer; font-family: var(--font);
+    }
+    .btn--agent { border-color: rgba(168,85,247,0.4); color: var(--lilac); }
+    .hero h1 { font-size: 1.65rem; margin: 0 0 8px; }
+    .hero p { color: var(--muted); line-height: 1.5; max-width: 720px; margin: 0 0 16px; }
+    .layout { display: grid; grid-template-columns: 220px 1fr; gap: 14px; min-height: 62vh; }
+    @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+    .rail {
+      border: 1px solid var(--border); border-radius: 12px; background: rgba(12,8,20,0.9);
+      padding: 12px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .rail-label { font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+    .rail-btn {
+      display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+      border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--text);
+      padding: 10px; cursor: pointer; font-family: var(--font); font-size: 0.86rem;
+    }
+    .rail-btn.active, .rail-btn:hover { border-color: rgba(168,85,247,0.4); background: rgba(168,85,247,0.1); }
+    .rail-btn .ico { width: 28px; height: 28px; border-radius: 6px; overflow: hidden; flex-shrink: 0; }
+    .rail-btn .ico img { width: 100%; height: 100%; object-fit: cover; }
+    .stage {
+      border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #07050d; min-height: 520px;
+    }
+    .stage iframe { width: 100%; height: min(68vh, 720px); border: 0; display: block; background: #07050d; }
+    .back-row { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; font-size: 0.78rem; }
+    .back-row a { color: var(--lilac); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <nav class="media-page-nav" aria-label="Page navigation">
+      <button type="button" class="btn" id="mediaBackBtn">← Previous page</button>
+      <a class="btn btn--agent" href="/greenways/media-agent">Ask Cheryce</a>
+    </nav>
+    <header class="hero">
+      <h1>Media desk</h1>
+      <p>
+        Cheryce’s news-first tour — browse sustainability editions, open the video desk,
+        then explore the map when a headline becomes a case study you want to benchmark.
+      </p>
+    </header>
+    <div class="layout">
+      <nav class="rail" aria-label="Media topics">
+        <div class="rail-label">Explore</div>
+        <button type="button" class="rail-btn active" data-panel="news" aria-pressed="true">
+          <span class="ico"><img src="https://static.wixstatic.com/media/c123de_333c90ab8930465a98b503e1d24316b4~mv2.png" alt="" loading="lazy"></span>
+          <span>News edition</span>
+        </button>
+        <button type="button" class="rail-btn" data-panel="video" aria-pressed="false">
+          <span class="ico"><img src="https://static.wixstatic.com/media/c123de_18dbdb1160fe4048bf54df3de814ba32~mv2.jpg" alt="" loading="lazy"></span>
+          <span>Video desk</span>
+        </button>
+        <button type="button" class="rail-btn" data-panel="map" aria-pressed="false">
+          <span class="ico"><img src="https://static.wixstatic.com/media/c123de_8a963be5ecc04d50beb604b701d66bfa~mv2.png" alt="" loading="lazy"></span>
+          <span>Sustainability map</span>
+        </button>
+        <button type="button" class="rail-btn" data-panel="references" aria-pressed="false">
+          <span class="ico"><img src="https://static.wixstatic.com/media/c123de_333c90ab8930465a98b503e1d24316b4~mv2.png" alt="" loading="lazy"></span>
+          <span>References</span>
+        </button>
+        <div class="back-row">
+          <a href="/greenways/media-wire">Media wire</a>
+          <a href="/greenways/media-agent">← Back to Cheryce</a>
+        </div>
+      </nav>
+      <div class="stage">
+        <iframe id="deskFrame" title="Media desk tool" loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var PANELS = {
+        news: '/content-ops/review/sustainability-news/2026-07-sustainability-news.html',
+        video: '/greenways/media-video-desk-embed',
+        map: '/greenways/sustainability-map-embed',
+        references: '/HTMLS%20GWM%20GWB/Sustainable%20References%20.HTML'
+      };
+      var VALID = Object.keys(PANELS);
+
+      function origin() {
+        var h = location.hostname || '';
+        if (h === 'localhost' || h === '127.0.0.1' || h.indexOf('energy-calc-backend') !== -1) {
+          return location.origin || 'https://energy-calc-backend.onrender.com';
+        }
+        return 'https://energy-calc-backend.onrender.com';
+      }
+      function abs(path) {
+        var p = String(path || '').trim();
+        if (!p || /^https?:\/\//i.test(p)) return p;
+        return origin() + (p.charAt(0) === '/' ? p : '/' + p);
+      }
+
+      var frame = document.getElementById('deskFrame');
+      var buttons = Array.from(document.querySelectorAll('.rail-btn[data-panel]'));
+
+      function showPanel(key) {
+        if (!VALID.includes(key)) key = 'news';
+        buttons.forEach(function (btn) {
+          var on = btn.dataset.panel === key;
+          btn.classList.toggle('active', on);
+          btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        frame.src = abs(PANELS[key]);
+        try {
+          var url = new URL(location.href);
+          if (key === 'news') url.searchParams.delete('tab');
+          else url.searchParams.set('tab', key);
+          history.replaceState(null, '', url.pathname + url.search + url.hash);
+        } catch (_) {}
+      }
+
+      buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () { showPanel(btn.dataset.panel); });
+      });
+
+      document.querySelectorAll('a[href^="/greenways/"]').forEach(function (a) {
+        a.href = abs(a.getAttribute('href'));
+      });
+
+      document.getElementById('mediaBackBtn').addEventListener('click', function () {
+        if (window.history.length > 1) window.history.back();
+        else window.location.href = abs('/greenways/media-agent');
+      });
+
+      var tab = new URLSearchParams(location.search).get('tab');
+      showPanel(tab && VALID.includes(tab) ? tab : 'news');
+    })();
+  </script>
+</body>
+</html>

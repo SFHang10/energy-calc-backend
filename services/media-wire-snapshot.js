@@ -1,0 +1,118 @@
+const path = require('path');
+const fs = require('fs/promises');
+const { loadFullNewsCatalog } = require('./media-news-loader');
+const { loadMapCatalog } = require('./media-agent-companies');
+
+const WIRE_FEED_PATH = path.join(__dirname, '..', 'data', 'media-wire-feed.json');
+const VIDEO_PATH = path.join(__dirname, '..', 'data', 'wix-video-catalog.json');
+const DAILY_BRIEF_PATH = path.join(__dirname, '..', 'data', 'media-daily-brief.json');
+
+const LANE_LABELS = {
+  news: 'News library',
+  videos: 'Videos',
+  map: 'Map profiles',
+  sustainability: 'Sustainability',
+  tech: 'New in Tech'
+};
+
+let snapshotCache = null;
+let cacheTimestamp = 0;
+const CACHE_MS = 5 * 60 * 1000;
+
+async function loadJson(filePath, fallback) {
+  try {
+    const raw = await fs.readFile(filePath, 'utf8');
+    return JSON.parse(raw);
+  } catch (_) {
+    return fallback;
+  }
+}
+
+async function buildMediaWireSnapshot() {
+  const now = Date.now();
+  if (snapshotCache && now - cacheTimestamp < CACHE_MS) {
+    return snapshotCache;
+  }
+
+  const [wireFeed, catalog, mapCatalog, videoCatalog, dailyBrief, briefStat] = await Promise.all([
+    loadJson(WIRE_FEED_PATH, { spotlights: [] }),
+    loadFullNewsCatalog().catch(() => ({ items: [], editions: [] })),
+    loadMapCatalog(),
+    loadJson(VIDEO_PATH, { videos: [] }),
+    loadJson(DAILY_BRIEF_PATH, { meta: {}, stories: [] }),
+    fs.stat(DAILY_BRIEF_PATH).catch(() => null)
+  ]);
+
+  const items = Array.isArray(catalog.items) ? catalog.items : [];
+  const videos = Array.isArray(videoCatalog.videos) ? videoCatalog.videos : [];
+  const caseStudies = Array.isArray(mapCatalog.caseStudies) ? mapCatalog.caseStudies : [];
+  const directory = Array.isArray(mapCatalog.directory) ? mapCatalog.directory : [];
+  const meta = dailyBrief.meta || {};
+
+  const techCount = items.filter((row) => row.editionType === 'tech').length;
+  const sustCount = items.length - techCount;
+
+  const lanes = {
+    news: items.length,
+    videos: videos.length,
+    map: caseStudies.length + directory.length,
+    sustainability: meta.storyCount || sustCount,
+    tech: meta.tech?.storyCount || techCount
+  };
+
+  const topLanes = [
+    { code: 'news', name: LANE_LABELS.news, count: lanes.news },
+    { code: 'videos', name: LANE_LABELS.videos, count: lanes.videos },
+    { code: 'map', name: LANE_LABELS.map, count: lanes.map }
+  ].filter((row) => row.count > 0);
+
+  const headlines = (dailyBrief.stories || [])
+    .slice(0, 8)
+    .map((story) => ({
+      id: story.id,
+      title: story.title || story.id,
+      edition: story.edition || meta.edition || '',
+      editionType: story.editionType || 'sustainability'
+    }));
+
+  const refreshedAt =
+    (briefStat && briefStat.mtime.toISOString().slice(0, 10)) ||
+    (meta.generatedAt && String(meta.generatedAt).slice(0, 10)) ||
+    wireFeed.updatedAt ||
+    null;
+
+  const snapshot = {
+    ok: true,
+    generatedAt: new Date().toISOString(),
+    source: 'media-daily-brief.json + news catalog',
+    totalNewsItems: meta.catalogItems || items.length,
+    sustainabilityStories: lanes.sustainability,
+    techStories: lanes.tech,
+    videoCount: lanes.videos,
+    mapCaseStudies: caseStudies.length,
+    mapDirectory: directory.length,
+    mapTotal: lanes.map,
+    latestEdition: meta.edition || '',
+    latestTechEdition: meta.tech?.edition || '',
+    lanes,
+    topLanes,
+    headlines,
+    spotlights: wireFeed.spotlights || [],
+    meta: {
+      illustrativeSpotlights: Boolean(wireFeed.meta && wireFeed.meta.illustrative),
+      editionTitle: meta.editionTitle || '',
+      trustLine: refreshedAt
+        ? `Media scan from news catalog + daily brief · refreshed ${refreshedAt}`
+        : 'Media scan from news catalog + daily brief'
+    }
+  };
+
+  snapshotCache = snapshot;
+  cacheTimestamp = now;
+  return snapshot;
+}
+
+module.exports = {
+  buildMediaWireSnapshot,
+  LANE_LABELS
+};

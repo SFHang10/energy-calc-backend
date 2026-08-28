@@ -47,6 +47,7 @@ const {
   buildHandoffTopicSummary,
   isReferralWelcomePair
 } = require('./greenways-agent-handoff');
+const { buildMediaWireSnapshot } = require('./media-wire-snapshot');
 
 let dailyBriefCache = null;
 
@@ -101,6 +102,65 @@ function mediaModuleBlock(rows) {
     type: 'module',
     items: rows.map((row) => toModuleItem({ ...MEDIA_MODULE, ...mergeModuleRow(row) }))
   };
+}
+
+function mediaWireModuleRow(overrides = {}) {
+  return {
+    moduleId: 'media-wire',
+    title: 'Media wire',
+    description: 'News counts, headline marquees, and media desk in one hub.',
+    usageHint: 'Scroll the scan rail, then open the desk for news edition, video desk, and sustainability map.',
+    openSize: 'near-full',
+    ...overrides
+  };
+}
+
+function dedupeModuleRows(rows) {
+  const seen = new Set();
+  return (rows || []).filter((row) => {
+    const id = String(row.moduleId || row.id || '');
+    if (!id || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+}
+
+function formatMediaWireSnapshotBlock(snapshot) {
+  if (!snapshot?.ok) return '';
+  const total = Number(snapshot.totalNewsItems || 0);
+  const videos = Number(snapshot.videoCount || 0);
+  const mapTotal = Number(snapshot.mapTotal || 0);
+  const sust = Number(snapshot.sustainabilityStories || 0);
+  const tech = Number(snapshot.techStories || 0);
+  const refreshed = String(snapshot.meta?.trustLine || '').replace(/^Media scan from news catalog \+ daily brief · refreshed /, '') ||
+    String(snapshot.generatedAt || '').slice(0, 10);
+
+  let block =
+    `**Media wire scan (live):** **${total.toLocaleString('en-GB')}** items in news library` +
+    (videos ? ` · **${videos.toLocaleString('en-GB')}** videos` : '') +
+    (refreshed ? ` · refreshed ${refreshed}` : '') +
+    '.\n';
+  if (sust || tech || mapTotal) {
+    block += `- **Lanes:** sustainability **${sust}** · tech **${tech}** · map profiles **${mapTotal}**\n`;
+  }
+  const headlines = (snapshot.headlines || []).slice(0, 3);
+  if (headlines.length) {
+    block += `- **Latest headlines:** ${headlines.map((row) => row.title).join(' · ')}\n`;
+  }
+  return block;
+}
+
+function prependWireToBlocks(blocks = [], extraModuleRows = []) {
+  const wireBlock = mediaModuleBlock(dedupeModuleRows([mediaWireModuleRow(), ...extraModuleRows]));
+  const rest = (blocks || [])
+    .map((block) => {
+      if (block.type !== 'module' || !Array.isArray(block.items)) return block;
+      const items = block.items.filter((item) => String(item.moduleId || item.id || '') !== 'media-wire');
+      if (!items.length) return null;
+      return { ...block, items };
+    })
+    .filter(Boolean);
+  return [wireBlock, ...rest];
 }
 
 function isExternalNewsUrl(url) {
@@ -1145,21 +1205,56 @@ async function pickMediaSamples(question, profile = {}, limit = 4) {
   return samples.slice(0, limit);
 }
 
-async function buildOverviewAnswer(catalog, videos, tip, briefing) {
+async function buildOverviewAnswer(catalog, videos, tip, briefing, wireSnapshot) {
   const b = briefing || (await loadBriefing());
   const { caseStudies, directory } = await loadMapCatalog();
+  const scan = formatMediaWireSnapshotBlock(wireSnapshot);
   return {
     answer:
       agentIntroParagraph('media', b) +
-      `Ask about **monthly news**, the **sustainability map** (${caseStudies.length} case studies + ${directory.length} organisations), **videos**, or the **energy price ticker**. I summarise here and put editions, map examples, and tools on the right.\n\n` +
+      (scan ? `${scan}\n` : '') +
+      `Ask about **monthly news**, the **sustainability map** (${caseStudies.length} case studies + ${directory.length} organisations), **videos**, or the **energy price ticker**. Start on the **Media wire** for live counts and headline lanes, then open the desk for editions, video desk, and map.\n\n` +
       `Not sure where to start? Try "latest sustainability roundup" or "organisations on the map for restaurant savings".\n\n_${tip}_`,
     suggestions: [],
     agentHandoffs: buildHandoffs(b, '', 'overview'),
-    blocks: linkOrModuleBlocks([
-      ...editionToLinkItems(catalog).slice(0, 2),
-      toLinkItem('Sustainability map', MAP_PAGE_HREF, 'Case studies + directory — open in module'),
-      toLinkItem('Energy prices ticker', MEDIA_PAGES.energyTicker, 'Wholesale context for timing upgrades')
-    ])
+    blocks: prependWireToBlocks(
+      linkOrModuleBlocks([
+        ...editionToLinkItems(catalog).slice(0, 2),
+        toLinkItem('Sustainability map', MAP_PAGE_HREF, 'Case studies + directory — open in module'),
+        toLinkItem('Energy prices ticker', MEDIA_PAGES.energyTicker, 'Wholesale context for timing upgrades')
+      ]),
+      [{ moduleId: 'media-desk', openSize: 'near-full' }]
+    )
+  };
+}
+
+async function buildMediaWireAnswer(profile, tip) {
+  const snapshot = await buildMediaWireSnapshot();
+  const scan = formatMediaWireSnapshotBlock(snapshot);
+  const spotlights = (snapshot.spotlights || []).slice(0, 3);
+  const spotlightLine = spotlights.length
+    ? `**Desk spotlights:** ${spotlights.map((row) => row.title).join(' · ')}\n\n`
+    : '';
+
+  return {
+    answer:
+      `**Media wire** — my scan + desk hub on Greenways.\n\n` +
+      (scan ? `${scan}\n` : '') +
+      spotlightLine +
+      `Scroll the scan rail for content counts and latest headlines, then use the desk below for the news edition, video desk, and sustainability map. ` +
+      `The counts refresh from the **news catalog** and **daily brief** — same source as the wire page on the right.\n\n` +
+      `_${tip}_`,
+    blocks: [
+      mediaModuleBlock(
+        dedupeModuleRows([
+          mediaWireModuleRow(),
+          { moduleId: 'media-desk', openSize: 'near-full' },
+          { moduleId: 'media-video-desk', openSize: 'near-full' },
+          { moduleId: 'sustainability-news-page', openSize: 'near-full' }
+        ])
+      )
+    ],
+    suggestions: []
   };
 }
 
@@ -1719,6 +1814,7 @@ async function answerFromKnowledge(question, profile = {}) {
 
   const intent = matchIntent(question, intents);
   const tip = pickTip(intents.staticTips, intent?.id, { skipIntentIds: voice.skipTipIntents });
+  const wireSnapshot = await buildMediaWireSnapshot();
 
   let result;
   if (shouldTryDailyBrief(question)) {
@@ -1731,8 +1827,11 @@ async function answerFromKnowledge(question, profile = {}) {
   } else if (intent) {
   switch (intent.answerType) {
       case 'overview':
-        result = await buildOverviewAnswer(catalog, videos, tip, briefing);
+        result = await buildOverviewAnswer(catalog, videos, tip, briefing, wireSnapshot);
         result = await attachModules(result, profile, ['sustainability-map', 'energy-prices-ticker']);
+        break;
+      case 'media_wire':
+        result = await buildMediaWireAnswer(profile, tip);
         break;
       case 'sustainability_map_explained': {
         result = await buildSustainabilityMapExplainedAnswer(question, profile, tip);

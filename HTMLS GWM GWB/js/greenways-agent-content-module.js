@@ -220,6 +220,30 @@
       href: "/greenways/deals-desk-embed",
       defaultOpenSize: "near-full"
     },
+    "media-wire": {
+      id: "media-wire",
+      title: "Media wire",
+      description: "Cheryce’s joint content scan — news counts, headline marquees, and media desk in one place.",
+      usageHint: "Scroll the scan rail, then the desk below for news edition, video desk, and sustainability map.",
+      href: "/greenways/media-wire-embed",
+      defaultOpenSize: "near-full"
+    },
+    "media-wire-main": {
+      id: "media-wire-main",
+      title: "Media wire main",
+      description: "Content KPI row plus lane and headline marquees — main scan panel for Cheryce.",
+      usageHint: "Live counts on top, headline lane below. Prefer Media wire for the full hub.",
+      href: "/greenways/media-wire-main",
+      defaultOpenSize: "near-full"
+    },
+    "media-desk": {
+      id: "media-desk",
+      title: "Media desk",
+      description: "Cheryce’s news-first tour — sustainability edition, video desk, map, and references.",
+      usageHint: "Pick a topic on the left rail; preview tools inside the tablet or open full pages.",
+      href: "/greenways/media-desk-embed",
+      defaultOpenSize: "near-full"
+    },
     "finance-prices-board": {
       id: "finance-prices-board",
       title: "Energy prices board",

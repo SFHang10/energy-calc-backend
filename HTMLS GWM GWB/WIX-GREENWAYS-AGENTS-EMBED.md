@@ -52,6 +52,8 @@ Use **`-embed` URLs** (or `?embed=1`) on the **new Wix website** so portal famil
 | Andrieus grants desk | `/greenways/grants-desk-embed` | `/greenways/grants-desk` |
 | Zara deals wire | `/greenways/deals-wire-embed` | `/greenways/deals-wire` |
 | Zara deals desk | `/greenways/deals-desk-embed` | `/greenways/deals-desk` |
+| Cheryce media wire | `/greenways/media-wire-embed` | `/greenways/media-wire` |
+| Cheryce media desk | `/greenways/media-desk-embed` | `/greenways/media-desk` |
 | Orchestra / operate portal | `/greenways/orchestra-hub-embed` (or `?embed=1` / wix-frame) | `/greenways/orchestra-hub` |
 | Your Hub (live / member) | `/greenways/customer-hub?embed=1` | `/greenways/customer-hub` |
 | Your Hub (**website demo** — no client brand) | `/greenways/customer-hub-demo` | same (menus already hidden) |
@@ -156,6 +158,28 @@ https://energy-calc-backend.onrender.com/greenways/deals-desk-embed
 Full page (same UI): `/greenways/deals-desk` · Tab deep-link: `?tab=hub|energy|water|full`
 
 Tool short routes (used inside the desk): `/greenways/deals-hub` · European energy portal · `/greenways/water-saving-finder` · full Deals page
+
+#### Cheryce · Media wire (website showcase, no menus)
+
+Content scan — news counts, headline marquees, and media desk in one scroll hub.
+
+```
+https://energy-calc-backend.onrender.com/greenways/media-wire-embed
+```
+
+Full page (same UI): `/greenways/media-wire` · Desk tab deep-link: `?deskTab=news|video|map|references` · Wire tab: `?tab=wire|news|video|map|cheryce`
+
+#### Cheryce · Media desk (website showcase, no menus)
+
+News-first tour — sustainability edition, video desk, sustainability map, and references.
+
+```
+https://energy-calc-backend.onrender.com/greenways/media-desk-embed
+```
+
+Full page (same UI): `/greenways/media-desk` · Tab deep-link: `?tab=news|video|map|references`
+
+Tool short routes (used inside the desk): sustainability news edition · `/greenways/media-video-desk` · `/greenways/sustainability-map` · Sustainable References
 
 #### Orchestra — website iframe (no menus)
 
