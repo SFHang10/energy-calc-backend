@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="wix-html-scroll" content="no-scroll" />
+  <title>Zyanne — Products desk</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css" />
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
+  <style>
+    :root {
+      --bg: #071018;
+      --panel: #0e1a28;
+      --border: rgba(0, 123, 255, 0.26);
+      --text: #e8f4ff;
+      --muted: #8ba3c4;
+      --blue: #60a5fa;
+      --teal: #22d3ee;
+      --gold: #c9a961;
+      --font: 'Space Grotesk', system-ui, sans-serif;
+      --clean: 'IBM Plex Sans', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      --zyanne-backdrop-image: url("https://static.wixstatic.com/media/c123de_f9c0cade510541d9a5953df184d442f8~mv2.jpeg");
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; color: var(--text); font-family: var(--font); background: var(--bg); }
+    body {
+      background-image: var(--zyanne-backdrop-image);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(5, 10, 18, 0.76), rgba(4, 8, 14, 0.9));
+    }
+    body.embed-mode { background-image: none; background-color: rgba(5, 10, 18, 0.96); }
+    body.embed-mode::before { display: none; }
+    body.embed-mode .products-page-nav, body.embed-mode .back-row { display: none !important; }
+    .page { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 18px 16px 40px; }
+    .products-page-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .btn {
+      display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.14); background: rgba(5,10,18,0.55);
+      color: #c8d8f0; text-decoration: none; font-size: 0.82rem; cursor: pointer; font-family: var(--font);
+    }
+    .btn--agent { border-color: rgba(96,165,250,0.4); color: var(--blue); }
+    .hero h1 { font-size: 1.65rem; margin: 0 0 8px; }
+    .hero p { color: var(--muted); line-height: 1.5; max-width: 720px; margin: 0 0 16px; }
+    .layout { display: grid; grid-template-columns: 220px 1fr; gap: 14px; min-height: 62vh; }
+    @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+    .rail {
+      border: 1px solid var(--border); border-radius: 12px; background: rgba(8,14,22,0.9);
+      padding: 12px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .rail-label { font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+    .rail-btn {
+      display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+      border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--text);
+      padding: 10px; cursor: pointer; font-family: var(--font); font-size: 0.86rem;
+    }
+    .rail-btn.active, .rail-btn:hover { border-color: rgba(96,165,250,0.4); background: rgba(0,123,255,0.1); }
+    .rail-btn .ico { width: 28px; height: 28px; border-radius: 6px; overflow: hidden; flex-shrink: 0; }
+    .rail-btn .ico img { width: 100%; height: 100%; object-fit: cover; }
+    .stage {
+      border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #070b12; min-height: 520px;
+    }
+    .stage iframe { width: 100%; height: min(68vh, 720px); border: 0; display: block; background: #070b12; }
+    .back-row { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; font-size: 0.78rem; }
+    .back-row a { color: var(--blue); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <nav class="products-page-nav" aria-label="Page navigation">
+      <button type="button" class="btn" id="productsBackBtn">← Previous page</button>
+      <a class="btn btn--agent" href="/greenways/sustainable-products-agent">Ask Zyanne</a>
+    </nav>
+    <header class="hero">
+      <h1>Products desk</h1>
+      <p>
+        Zyanne’s catalogue-first tour — start on the water lane, open the full product finder
+        for electricity and gas, then use Water Line Sketch when you need €/mo context before you buy.
+      </p>
+    </header>
+    <div class="layout">
+      <nav class="rail" aria-label="Product lanes">
+        <div class="rail-label">Explore</div>
+        <button type="button" class="rail-btn active" data-panel="water" aria-pressed="true">
+          <span class="ico"><img src="https://static.wixstatic.com/media/c123de_dc5b2e3e4aef4cc4b75c7b44888281bd~mv2.png" alt="" loading="lazy"></span>
+          <span>Water finder</span>
+        </button>
+        <button type="button" class="rail-btn" data-panel="finder" aria-pressed="false">
+          <span class="ico"><img src="https://static.wixstatic.com/media/c123de_f9c0cade510541d9a5953df184d442f8~mv2.jpeg" alt="" loading="lazy"></span>
+          <span>Product finder</span>
+        </button>
+        <button type="button" class="rail-btn" data-panel="sketch" aria-pressed="false">
+          <span class="ico"><img src="https://static.wixstatic.com/media/c123de_e57c85ae1f0e4e59b2b6e1abece7df19~mv2.jpeg" alt="" loading="lazy"></span>
+          <span>Water Line Sketch</span>
+        </button>
+        <button type="button" class="rail-btn" data-panel="market" aria-pressed="false">
+          <span class="ico"><img src="https://static.wixstatic.com/media/c123de_dc5b2e3e4aef4cc4b75c7b44888281bd~mv2.png" alt="" loading="lazy"></span>
+          <span>Agent Market</span>
+        </button>
+        <div class="back-row">
+          <a href="/greenways/products-wire">Products wire</a>
+          <a href="/greenways/sustainable-products-agent">← Back to Zyanne</a>
+        </div>
+      </nav>
+      <div class="stage">
+        <iframe id="deskFrame" title="Products desk tool" loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var PANELS = {
+        water: '/greenways/water-saving-finder?embed=1',
+        finder: '/HTMLS%20GWM%20GWB/sustainable_product_deal_finder_portal.html',
+        sketch: '/greenways/water-line-sketch?embed=1',
+        market: '/greenways/agent-market?embed=1'
+      };
+      var VALID = Object.keys(PANELS);
+
+      function origin() {
+        var h = location.hostname || '';
+        if (h === 'localhost' || h === '127.0.0.1' || h.indexOf('energy-calc-backend') !== -1) {
+          return location.origin || 'https://energy-calc-backend.onrender.com';
+        }
+        return 'https://energy-calc-backend.onrender.com';
+      }
+      function abs(path) {
+        var p = String(path || '').trim();
+        if (!p || /^https?:\/\//i.test(p)) return p;
+        return origin() + (p.charAt(0) === '/' ? p : '/' + p);
+      }
+
+      var frame = document.getElementById('deskFrame');
+      var buttons = Array.from(document.querySelectorAll('.rail-btn[data-panel]'));
+
+      function showPanel(key) {
+        if (!VALID.includes(key)) key = 'water';
+        buttons.forEach(function (btn) {
+          var on = btn.dataset.panel === key;
+          btn.classList.toggle('active', on);
+          btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        frame.src = abs(PANELS[key]);
+        try {
+          var url = new URL(location.href);
+          if (key === 'water') url.searchParams.delete('tab');
+          else url.searchParams.set('tab', key);
+          history.replaceState(null, '', url.pathname + url.search + url.hash);
+        } catch (_) {}
+      }
+
+      buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () { showPanel(btn.dataset.panel); });
+      });
+
+      document.querySelectorAll('a[href^="/greenways/"]').forEach(function (a) {
+        a.href = abs(a.getAttribute('href'));
+      });
+
+      document.getElementById('productsBackBtn').addEventListener('click', function () {
+        if (window.history.length > 1) window.history.back();
+        else window.location.href = abs('/greenways/sustainable-products-agent');
+      });
+
+      var tab = new URLSearchParams(location.search).get('tab');
+      showPanel(tab && VALID.includes(tab) ? tab : 'water');
+    })();
+  </script>
+</body>
+</html>

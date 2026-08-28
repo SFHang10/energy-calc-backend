@@ -54,6 +54,8 @@ Use **`-embed` URLs** (or `?embed=1`) on the **new Wix website** so portal famil
 | Zara deals desk | `/greenways/deals-desk-embed` | `/greenways/deals-desk` |
 | Cheryce media wire | `/greenways/media-wire-embed` | `/greenways/media-wire` |
 | Cheryce media desk | `/greenways/media-desk-embed` | `/greenways/media-desk` |
+| Zyanne products wire | `/greenways/products-wire-embed` | `/greenways/products-wire` |
+| Zyanne products desk | `/greenways/products-desk-embed` | `/greenways/products-desk` |
 | Orchestra / operate portal | `/greenways/orchestra-hub-embed` (or `?embed=1` / wix-frame) | `/greenways/orchestra-hub` |
 | Your Hub (live / member) | `/greenways/customer-hub?embed=1` | `/greenways/customer-hub` |
 | Your Hub (**website demo** — no client brand) | `/greenways/customer-hub-demo` | same (menus already hidden) |
@@ -180,6 +182,28 @@ https://energy-calc-backend.onrender.com/greenways/media-desk-embed
 Full page (same UI): `/greenways/media-desk` · Tab deep-link: `?tab=news|video|map|references`
 
 Tool short routes (used inside the desk): sustainability news edition · `/greenways/media-video-desk` · `/greenways/sustainability-map` · Sustainable References
+
+#### Zyanne · Products wire (website showcase, no menus)
+
+Catalogue scan — lane counts, catalog marquees, and products desk in one scroll hub.
+
+```
+https://energy-calc-backend.onrender.com/greenways/products-wire-embed
+```
+
+Full page (same UI): `/greenways/products-wire` · Desk tab deep-link: `?deskTab=water|finder|sketch|market` · Wire tab: `?tab=wire|water|finder|sketch|zyanne`
+
+#### Zyanne · Products desk (website showcase, no menus)
+
+Finder-first tour — water finder, product finder, Water Line Sketch, and Agent Market.
+
+```
+https://energy-calc-backend.onrender.com/greenways/products-desk-embed
+```
+
+Full page (same UI): `/greenways/products-desk` · Tab deep-link: `?tab=water|finder|sketch|market`
+
+Tool short routes (used inside the desk): `/greenways/water-saving-finder` · sustainable product finder · `/greenways/water-line-sketch` · Agent Market
 
 #### Orchestra — website iframe (no menus)
 

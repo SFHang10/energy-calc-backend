@@ -268,6 +268,12 @@ app.get('/greenways/media-wire-main', (req, res) => sendLiveMusicHtml(res, 'gree
 app.get('/greenways/media-wire-main-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-media-wire-main.html'));
 app.get('/greenways/media-desk', (req, res) => sendLiveMusicHtml(res, 'greenways-media-desk.html'));
 app.get('/greenways/media-desk-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-media-desk.html'));
+app.get('/greenways/products-wire', (req, res) => sendLiveMusicHtml(res, 'greenways-products-wire.html'));
+app.get('/greenways/products-wire-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-products-wire.html'));
+app.get('/greenways/products-wire-main', (req, res) => sendLiveMusicHtml(res, 'greenways-products-wire-main.html'));
+app.get('/greenways/products-wire-main-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-products-wire-main.html'));
+app.get('/greenways/products-desk', (req, res) => sendLiveMusicHtml(res, 'greenways-products-desk.html'));
+app.get('/greenways/products-desk-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-products-desk.html'));
 app.get('/greenways/sustainable-products-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-sustainable-products-agent.html'));
 app.get('/greenways/systems-agent', (req, res) => sendLiveMusicHtml(res, 'greenways-systems-agent.html'));
 app.get('/greenways/orchestra-hub', (req, res) => sendLiveMusicHtml(res, 'greenways-orchestra-hub.html'));
@@ -536,6 +542,7 @@ let equipmentWireRouter;
 let grantsWireRouter;
 let dealsWireRouter;
 let mediaWireRouter;
+let productsWireRouter;
 let dealsAgentRouter;
 let mediaAgentRouter;
 let sustainableProductsAgentRouter;
@@ -560,6 +567,7 @@ try {
   grantsWireRouter = require('./routes/grants-wire');
   dealsWireRouter = require('./routes/deals-wire');
   mediaWireRouter = require('./routes/media-wire');
+  productsWireRouter = require('./routes/products-wire');
   dealsAgentRouter = require('./routes/deals-agent');
   mediaAgentRouter = require('./routes/media-agent');
   sustainableProductsAgentRouter = require('./routes/sustainable-products-agent');
@@ -715,6 +723,10 @@ function mountApiRoutes() {
   if (mediaWireRouter) {
     app.use('/api/media-wire', mediaWireRouter);
     console.log('✅ /api/media-wire route mounted');
+  }
+  if (productsWireRouter) {
+    app.use('/api/products-wire', productsWireRouter);
+    console.log('✅ /api/products-wire route mounted');
   }
   if (dealsAgentRouter) {
     app.use('/api/deals-agent', dealsAgentRouter);

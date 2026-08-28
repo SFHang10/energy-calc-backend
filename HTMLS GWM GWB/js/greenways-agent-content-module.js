@@ -244,6 +244,30 @@
       href: "/greenways/media-desk-embed",
       defaultOpenSize: "near-full"
     },
+    "products-wire": {
+      id: "products-wire",
+      title: "Products wire",
+      description: "Zyanne’s joint catalogue scan — lane counts, catalog marquees, and products desk in one place.",
+      usageHint: "Scroll the scan rail, then the desk below for water finder, product finder, Water Line Sketch, and Agent Market.",
+      href: "/greenways/products-wire-embed",
+      defaultOpenSize: "near-full"
+    },
+    "products-wire-main": {
+      id: "products-wire-main",
+      title: "Products wire main",
+      description: "Catalogue KPI row plus lane and new-row marquees — main scan panel for Zyanne.",
+      usageHint: "Live counts on top, new catalog lane below. Prefer Products wire for the full hub.",
+      href: "/greenways/products-wire-main",
+      defaultOpenSize: "near-full"
+    },
+    "products-desk": {
+      id: "products-desk",
+      title: "Products desk",
+      description: "Zyanne’s finder-first tour — water finder, product finder, Water Line Sketch, and Agent Market.",
+      usageHint: "Pick a topic on the left rail; preview tools inside the tablet or open full pages.",
+      href: "/greenways/products-desk-embed",
+      defaultOpenSize: "near-full"
+    },
     "finance-prices-board": {
       id: "finance-prices-board",
       title: "Energy prices board",

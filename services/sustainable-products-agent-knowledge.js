@@ -30,6 +30,7 @@ const {
   buildHandoffTopicSummary,
   isReferralWelcomePair
 } = require('./greenways-agent-handoff');
+const { buildProductsWireSnapshot } = require('./products-wire-snapshot');
 
 let equipmentIntelService = null;
 function getEquipmentIntel() {
@@ -194,6 +195,98 @@ const LANE_LABELS = {
 
 function zyanneIntroParagraph(briefing = {}) {
   return agentIntroParagraph('products', briefing);
+}
+
+function productsWireModuleRow(overrides = {}) {
+  return {
+    moduleId: 'products-wire',
+    title: 'Products wire',
+    description: 'Lane counts, catalog marquees, and products desk in one hub.',
+    usageHint: 'Scroll the scan rail, then open the desk for water finder, product finder, and Water Line Sketch.',
+    openSize: 'near-full',
+    ...overrides
+  };
+}
+
+function dedupeModuleRows(rows) {
+  const seen = new Set();
+  return (rows || []).filter((row) => {
+    const id = String(row.moduleId || row.id || '');
+    if (!id || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+}
+
+function formatProductsWireSnapshotBlock(snapshot) {
+  if (!snapshot?.ok) return '';
+  const total = Number(snapshot.totalProducts || 0);
+  const lanes = snapshot.lanes || {};
+  const water = Number(lanes.water || 0);
+  const elec = Number(lanes.electricity || 0);
+  const gas = Number(lanes.gas || 0);
+  const grants = Number(snapshot.grantsCount || 0);
+  const refreshed = String(snapshot.meta?.trustLine || '').replace(/^Catalog from sustainable-products-catalog\.json · refreshed /, '') ||
+    String(snapshot.generatedAt || '').slice(0, 10);
+
+  let block =
+    `**Products wire scan (live):** **${total.toLocaleString('en-GB')}** catalogue rows` +
+    (refreshed ? ` · refreshed ${refreshed}` : '') +
+    '.\n';
+  if (water || elec || gas) {
+    block += `- **Lanes:** water **${water}** · electricity **${elec}** · gas **${gas}**` +
+      (grants ? ` · with grants **${grants}**` : '') +
+      '\n';
+  }
+  const spotlights = (snapshot.newSpotlights || []).slice(0, 3);
+  if (spotlights.length) {
+    block += `- **Recent catalog rows:** ${spotlights.map((row) => row.title).join(' · ')}\n`;
+  }
+  return block;
+}
+
+function prependWireToBlocks(blocks = [], extraModuleRows = []) {
+  const wireBlock = productsModuleBlock(dedupeModuleRows([productsWireModuleRow(), ...extraModuleRows]));
+  const rest = (blocks || [])
+    .map((block) => {
+      if (block.type !== 'module' || !Array.isArray(block.items)) return block;
+      const items = block.items.filter((item) => String(item.moduleId || item.id || '') !== 'products-wire');
+      if (!items.length) return null;
+      return { ...block, items };
+    })
+    .filter(Boolean);
+  return [wireBlock, ...rest];
+}
+
+async function buildProductsWireAnswer(profile, tip) {
+  const snapshot = await buildProductsWireSnapshot();
+  const scan = formatProductsWireSnapshotBlock(snapshot);
+  const spotlights = (snapshot.spotlights || []).slice(0, 3);
+  const spotlightLine = spotlights.length
+    ? `**Desk spotlights:** ${spotlights.map((row) => row.title).join(' · ')}\n\n`
+    : '';
+
+  return {
+    answer:
+      `**Products wire** — my scan + desk hub on Greenways.\n\n` +
+      (scan ? `${scan}\n` : '') +
+      spotlightLine +
+      `Scroll the scan rail for lane counts and recent catalog rows, then use the desk below for the water finder, product finder, Water Line Sketch, and Agent Market. ` +
+      `The counts refresh from **sustainable-products-catalog.json** — same source as the wire page on the right.\n\n` +
+      `_${tip}_`,
+    blocks: [
+      productsModuleBlock(
+        dedupeModuleRows([
+          productsWireModuleRow(),
+          { moduleId: 'products-desk', openSize: 'near-full' },
+          { moduleId: 'water-saving-finder', openSize: 'near-full' },
+          { moduleId: 'sustainable-product-finder', openSize: 'near-full' },
+          { moduleId: 'water-line-sketch', openSize: 'near-full' }
+        ])
+      )
+    ],
+    suggestions: []
+  };
 }
 
 let catalogCache = null;
@@ -661,7 +754,7 @@ async function buildRoleResourcesAnswer(question, profile, tip) {
   };
 }
 
-async function buildOverviewAnswer(catalog, tip, briefing) {
+async function buildOverviewAnswer(catalog, tip, briefing, wireSnapshot) {
   const rows = catalog.products || [];
   const water = rows.filter((p) => catalogMatchesLane(p, 'water')).length;
   const elec = rows.filter((p) => catalogMatchesLane(p, 'electricity')).length;
@@ -669,26 +762,31 @@ async function buildOverviewAnswer(catalog, tip, briefing) {
   const b = briefing || (await loadBriefing());
   const paths = b.guidePaths || {};
   const journey = b.journeyPrinciple || '';
+  const scan = formatProductsWireSnapshotBlock(wireSnapshot);
   return {
     answer:
       zyanneIntroParagraph(b) +
+      (scan ? `${scan}\n` : '') +
       `**Three utility lanes:**\n` +
       `- ${LANE_LABELS.water} — ${water} \`sust_*\` catalog rows + marketplace dishwashers & aerators\n` +
       `- ${LANE_LABELS.electricity} — ${elec} rows + ETL refrigeration & cooking\n` +
       `- ${LANE_LABELS.gas} — ${gas} rows + wok, fryer & cooking retrofits\n\n` +
       `${journey ? `**Journey:** ${journey}\n\n` : ''}` +
-      `Chat shows **On Greenways** showcase picks + **Market alternative** catalog rows. ` +
-      `I explain **how** products help — not only links. Open finders for full marketplace search.\n\n` +
+      `Start on the **Products wire** for live lane counts and recent catalog rows, then open finders for full marketplace search. ` +
+      `Chat shows **On Greenways** showcase picks + **Market alternative** catalog rows.\n\n` +
       `**Toolbox:** eco planner ${paths.ecoProjectPlanning || PORTAL_LINKS.ecoProjectPlanning} · ` +
       `case studies ${paths.europeanBuildings || './sustainable_european_buildings_eco_materials.html'} · ` +
       `recycling ${paths.recycling || '../HTMLs/Recycling.html'}\n\n` +
       `**Deal spotlights:** **Zara** (${PORTAL_LINKS.dealsAgent}) — I search the full catalog here.\n\n` +
       `**Water lane:** **Water Saving Guide** (education) + **Water Saving Finder** (product compare). Other lanes use the product finder module.\n\n_${tip}_`,
     suggestions: [],
-    blocks: linkOrModuleBlocks([
-      ...portalLinkItems('all'),
-      toLinkItem('Eco project planner', paths.ecoProjectPlanning || PORTAL_LINKS.ecoProjectPlanning, 'Home · Restaurant · Office journey')
-    ]),
+    blocks: prependWireToBlocks(
+      linkOrModuleBlocks([
+        ...portalLinkItems('all'),
+        toLinkItem('Eco project planner', paths.ecoProjectPlanning || PORTAL_LINKS.ecoProjectPlanning, 'Home · Restaurant · Office journey')
+      ]),
+      [{ moduleId: 'products-desk', openSize: 'near-full' }]
+    ),
     agentHandoffs: buildHandoffs(b, '', 'overview')
   };
 }
@@ -1271,12 +1369,16 @@ async function answerFromKnowledge(question, profile = {}) {
 
   const intent = matchIntent(question, intents);
   const tip = pickTip(intents.staticTips, intent?.id, { skipIntentIds: voice.skipTipIntents });
+  const wireSnapshot = await buildProductsWireSnapshot();
 
   let result = resolveGlossaryFromIntent(intent, question, profile, tip, 'products');
   if (!result && intent) {
     switch (intent.answerType) {
       case 'overview':
-        result = await buildOverviewAnswer(catalog, tip, briefing);
+        result = await buildOverviewAnswer(catalog, tip, briefing, wireSnapshot);
+        break;
+      case 'products_wire':
+        result = await buildProductsWireAnswer(profile, tip);
         break;
       case 'lane':
         result = buildLaneAnswer(intent.lane, catalog, showcase, tip);
