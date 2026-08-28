@@ -50,6 +50,8 @@ Use **`-embed` URLs** (or `?embed=1`) on the **new Wix website** so portal famil
 | Artemis equipment desk | `/greenways/equipment-desk-embed` | `/greenways/equipment-desk` |
 | Andrieus grants wire | `/greenways/grants-wire-embed` | `/greenways/grants-wire` |
 | Andrieus grants desk | `/greenways/grants-desk-embed` | `/greenways/grants-desk` |
+| Zara deals wire | `/greenways/deals-wire-embed` | `/greenways/deals-wire` |
+| Zara deals desk | `/greenways/deals-desk-embed` | `/greenways/deals-desk` |
 | Orchestra / operate portal | `/greenways/orchestra-hub-embed` (or `?embed=1` / wix-frame) | `/greenways/orchestra-hub` |
 | Your Hub (live / member) | `/greenways/customer-hub?embed=1` | `/greenways/customer-hub` |
 | Your Hub (**website demo** — no client brand) | `/greenways/customer-hub-demo` | same (menus already hidden) |
@@ -132,6 +134,28 @@ https://energy-calc-backend.onrender.com/greenways/grants-desk-embed
 Full page (same UI): `/greenways/grants-desk` · Tab deep-link: `?tab=fit|restaurant|finance|brief`
 
 Tool short routes (used inside the desk): `/greenways/scheme-fit` · restaurant schemes portal · `/greenways/finance-finder` · `/greenways/site-brief`
+
+#### Zara · Deals wire (website showcase, no menus)
+
+Supply scan — lane counts, feed marquees, and deals desk in one scroll hub.
+
+```
+https://energy-calc-backend.onrender.com/greenways/deals-wire-embed
+```
+
+Full page (same UI): `/greenways/deals-wire` · Desk tab deep-link: `?deskTab=hub|energy|water|full` · Wire tab: `?tab=wire|hub|energy|water|zara`
+
+#### Zara · Deals desk (website showcase, no menus)
+
+Supply-first tour — deals ticker hub, European energy portal, water finder, and full Deals page.
+
+```
+https://energy-calc-backend.onrender.com/greenways/deals-desk-embed
+```
+
+Full page (same UI): `/greenways/deals-desk` · Tab deep-link: `?tab=hub|energy|water|full`
+
+Tool short routes (used inside the desk): `/greenways/deals-hub` · European energy portal · `/greenways/water-saving-finder` · full Deals page
 
 #### Orchestra — website iframe (no menus)
 

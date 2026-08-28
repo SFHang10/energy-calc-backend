@@ -196,6 +196,30 @@
       href: "/greenways/grants-desk-embed",
       defaultOpenSize: "near-full"
     },
+    "deals-wire": {
+      id: "deals-wire",
+      title: "Deals wire",
+      description: "Zara’s joint supply scan — lane counts, feed marquees, and deals desk in one place.",
+      usageHint: "Scroll the scan rail, then the desk below for ticker hub, energy portal, and water finder.",
+      href: "/greenways/deals-wire-embed",
+      defaultOpenSize: "near-full"
+    },
+    "deals-wire-main": {
+      id: "deals-wire-main",
+      title: "Deals wire main",
+      description: "Deal KPI row plus lane and new-spotlight marquees — main scan panel for Zara.",
+      usageHint: "Live counts on top, new spotlight lane below. Prefer Deals wire for the full hub.",
+      href: "/greenways/deals-wire-main",
+      defaultOpenSize: "near-full"
+    },
+    "deals-desk": {
+      id: "deals-desk",
+      title: "Deals desk",
+      description: "Zara’s supply-first tour — deals ticker hub, energy portal, water finder, and full Deals page.",
+      usageHint: "Pick a topic on the left rail; preview tools inside the tablet or open full pages.",
+      href: "/greenways/deals-desk-embed",
+      defaultOpenSize: "near-full"
+    },
     "finance-prices-board": {
       id: "finance-prices-board",
       title: "Energy prices board",

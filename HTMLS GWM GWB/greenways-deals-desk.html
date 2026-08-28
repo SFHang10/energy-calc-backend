@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="wix-html-scroll" content="no-scroll" />
+  <title>Zara — Deals desk</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css" />
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
+  <style>
+    :root {
+      --bg: #0a1018;
+      --panel: #121a28;
+      --border: rgba(77, 166, 255, 0.24);
+      --text: #e8edf8;
+      --muted: #8b9bb8;
+      --cyan: #4da6ff;
+      --orange: #ff8c1a;
+      --gold: #c9a961;
+      --font: 'Space Grotesk', system-ui, sans-serif;
+      --clean: 'IBM Plex Sans', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      --zara-backdrop-image: url("https://static.wixstatic.com/media/c123de_374114018b1b4defa5fc6475cae63ce2~mv2.jpeg");
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; color: var(--text); font-family: var(--font); background: var(--bg); }
+    body {
+      background-image: var(--zara-backdrop-image);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(5, 9, 14, 0.72), rgba(4, 7, 12, 0.88));
+    }
+    body.embed-mode { background-image: none; background-color: rgba(5, 9, 14, 0.96); }
+    body.embed-mode::before { display: none; }
+    body.embed-mode .deals-page-nav, body.embed-mode .back-row { display: none !important; }
+    .page { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 18px 16px 40px; }
+    .deals-page-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .btn {
+      display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.14); background: rgba(5,10,18,0.5);
+      color: #c8d8f0; text-decoration: none; font-size: 0.82rem; cursor: pointer; font-family: var(--font);
+    }
+    .btn--agent { border-color: rgba(77,166,255,0.35); color: #9ec5ff; }
+    .hero h1 { font-size: 1.65rem; margin: 0 0 8px; }
+    .hero p { color: var(--muted); line-height: 1.5; max-width: 720px; margin: 0 0 16px; }
+    .layout { display: grid; grid-template-columns: 220px 1fr; gap: 14px; min-height: 62vh; }
+    @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+    .rail {
+      border: 1px solid var(--border); border-radius: 12px; background: rgba(8,14,22,0.88);
+      padding: 12px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .rail-label { font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+    .rail-btn {
+      display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+      border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--text);
+      padding: 10px; cursor: pointer; font-family: var(--font); font-size: 0.86rem;
+    }
+    .rail-btn.active, .rail-btn:hover { border-color: rgba(77,166,255,0.35); background: rgba(77,166,255,0.08); }
+    .rail-btn .ico { width: 28px; height: 28px; border-radius: 6px; overflow: hidden; flex-shrink: 0; }
+    .rail-btn .ico img { width: 100%; height: 100%; object-fit: cover; }
+    .stage {
+      border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #070b12; min-height: 520px;
+    }
+    .stage iframe { width: 100%; height: min(68vh, 720px); border: 0; display: block; background: #070b12; }
+    .back-row { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; font-size: 0.78rem; }
+    .back-row a { color: var(--cyan); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <nav class="deals-page-nav" aria-label="Page navigation">
+      <button type="button" class="btn" id="dealsBackBtn">← Previous page</button>
+      <a class="btn btn--agent" href="/greenways/deals-agent">Ask Zara</a>
+    </nav>
+    <header class="hero">
+      <h1>Deals desk</h1>
+      <p>
+        Zara’s supply-first tour — browse the ticker hub lanes, compare energy tariffs,
+        then open the water finder when savings sit outside your contract.
+      </p>
+    </header>
+    <div class="layout">
+      <nav class="rail" aria-label="Deals topics">
+        <div class="rail-label">Explore</div>
+        <button type="button" class="rail-btn active" data-panel="hub" aria-pressed="true">
+          <span class="ico"><img src="https://static.wixstatic.com/media/c123de_c7cdbed4a4ee407289677a4f0079c1e5~mv2.png" alt="" loading="lazy"></span>
+          <span>Deals hub</span>
+        </button>
+        <button type="button" class="rail-btn" data-panel="energy" aria-pressed="false">
+          <span class="ico"><img src="https://static.wixstatic.com/media/c123de_374114018b1b4defa5fc6475cae63ce2~mv2.jpeg" alt="" loading="lazy"></span>
+          <span>Energy portal</span>
+        </button>
+        <button type="button" class="rail-btn" data-panel="water" aria-pressed="false">
+          <span class="ico"><img src="https://static.wixstatic.com/media/c123de_6636e625d6e24fbfad80468144c585f9~mv2.jpeg" alt="" loading="lazy"></span>
+          <span>Water finder</span>
+        </button>
+        <button type="button" class="rail-btn" data-panel="full" aria-pressed="false">
+          <span class="ico"><img src="https://static.wixstatic.com/media/c123de_730cc6f6f243445aae3dffd962cf6706~mv2.jpg" alt="" loading="lazy"></span>
+          <span>Full Deals page</span>
+        </button>
+        <div class="back-row">
+          <a href="/greenways/deals-wire">Deals wire</a>
+          <a href="/greenways/deals-agent">← Back to Zara</a>
+        </div>
+      </nav>
+      <div class="stage">
+        <iframe id="deskFrame" title="Deals desk tool" loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var PANELS = {
+        hub: '/greenways/deals-hub?embed=1',
+        energy: '/HTMLS%20GWM%20GWB/european_energy_deals_portal.html',
+        water: '/greenways/water-saving-finder?embed=1',
+        full: '/HTMLS%20GWM%20GWB/Deals.html'
+      };
+      var VALID = Object.keys(PANELS);
+
+      function origin() {
+        var h = location.hostname || '';
+        if (h === 'localhost' || h === '127.0.0.1' || h.indexOf('energy-calc-backend') !== -1) {
+          return location.origin || 'https://energy-calc-backend.onrender.com';
+        }
+        return 'https://energy-calc-backend.onrender.com';
+      }
+      function abs(path) {
+        var p = String(path || '').trim();
+        if (!p || /^https?:\/\//i.test(p)) return p;
+        return origin() + (p.charAt(0) === '/' ? p : '/' + p);
+      }
+
+      var frame = document.getElementById('deskFrame');
+      var buttons = Array.from(document.querySelectorAll('.rail-btn[data-panel]'));
+
+      function showPanel(key) {
+        if (!VALID.includes(key)) key = 'hub';
+        buttons.forEach(function (btn) {
+          var on = btn.dataset.panel === key;
+          btn.classList.toggle('active', on);
+          btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        frame.src = abs(PANELS[key]);
+        try {
+          var url = new URL(location.href);
+          if (key === 'hub') url.searchParams.delete('tab');
+          else url.searchParams.set('tab', key);
+          history.replaceState(null, '', url.pathname + url.search + url.hash);
+        } catch (_) {}
+      }
+
+      buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () { showPanel(btn.dataset.panel); });
+      });
+
+      document.querySelectorAll('a[href^="/greenways/"]').forEach(function (a) {
+        a.href = abs(a.getAttribute('href'));
+      });
+
+      document.getElementById('dealsBackBtn').addEventListener('click', function () {
+        if (window.history.length > 1) window.history.back();
+        else window.location.href = abs('/greenways/deals-agent');
+      });
+
+      var tab = new URLSearchParams(location.search).get('tab');
+      showPanel(tab && VALID.includes(tab) ? tab : 'hub');
+    })();
+  </script>
+</body>
+</html>

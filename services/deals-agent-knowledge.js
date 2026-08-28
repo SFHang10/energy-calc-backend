@@ -22,6 +22,7 @@ const {
   buildHandoffTopicSummary,
   isReferralWelcomePair
 } = require('./greenways-agent-handoff');
+const { buildDealsWireSnapshot } = require('./deals-wire-snapshot');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'deals-agent-intents.json');
 const showcasePath = path.join(__dirname, '..', 'data', 'deals-agent-showcase.json');
@@ -56,6 +57,66 @@ function portalPathToModuleId(path) {
     if (hay.includes(needle.toLowerCase())) return moduleId;
   }
   return '';
+}
+
+function dealsWireModuleRow(overrides = {}) {
+  return {
+    moduleId: 'deals-wire',
+    title: 'Deals wire',
+    description: 'Lane counts, feed marquees, and deals desk in one hub.',
+    usageHint: 'Scroll the scan rail, then open the desk for ticker hub, energy portal, and water finder.',
+    openSize: 'near-full',
+    ...overrides
+  };
+}
+
+function dedupeModuleRows(rows) {
+  const seen = new Set();
+  return (rows || []).filter((row) => {
+    const id = String(row.moduleId || row.id || '');
+    if (!id || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+}
+
+function formatDealsWireSnapshotBlock(snapshot) {
+  if (!snapshot?.ok) return '';
+  const total = Number(snapshot.totalDeals || 0);
+  const lanes = snapshot.lanes || {};
+  const energy = Number(lanes.energy || 0);
+  const water = Number(lanes.water || 0);
+  const sust = Number(lanes.sustainability || 0);
+  const fresh = Number(snapshot.newCount || 0);
+  const refreshed = String(snapshot.meta?.trustLine || '').replace(/^Deals feed from deals-feed\.json · refreshed /, '') ||
+    String(snapshot.generatedAt || '').slice(0, 10);
+
+  let block =
+    `**Deals wire scan (live):** **${total.toLocaleString('en-GB')}** rows in feed` +
+    (fresh ? ` · **${fresh.toLocaleString('en-GB')}** new this week` : '') +
+    (refreshed ? ` · refreshed ${refreshed}` : '') +
+    '.\n';
+  if (energy || water || sust) {
+    block += `- **Lanes:** energy **${energy}** · water **${water}** · sustainability **${sust}**\n`;
+  }
+  const newest = (snapshot.newThisMonth || []).slice(0, 3);
+  if (newest.length) {
+    block += `- **New spotlights:** ${newest.map((row) => row.title).join(' · ')}\n`;
+  }
+  return block;
+}
+
+function prependWireToBlocks(blocks = [], extraModuleRows = []) {
+  const wireBlock = dealsModuleBlock(dedupeModuleRows([dealsWireModuleRow(), ...extraModuleRows]));
+  const rest = (blocks || [])
+    .map((block) => {
+      if (block.type !== 'module' || !Array.isArray(block.items)) return block;
+      const items = block.items.filter((item) => String(item.moduleId || item.id || '') !== 'deals-wire');
+      if (!items.length) return null;
+      return { ...block, items };
+    })
+    .filter(Boolean);
+  return [wireBlock, ...rest];
 }
 
 function dealsModuleBlock(rows) {
@@ -343,13 +404,14 @@ function isProductDealRow(deal) {
   return tags.includes('product') || tags.includes('weekly');
 }
 
-function buildOverviewAnswer(deals, feedMeta, briefing, tip) {
+function buildOverviewAnswer(deals, feedMeta, briefing, tip, wireSnapshot) {
   const energy = filterByCategory(deals, 'energy').length;
   const water = filterByCategory(deals, 'water').length;
   const sust = filterByCategory(deals, 'sustainability').length;
   const productSpotlights = deals.filter(isProductDealRow).length;
   const newest = deals.filter((d) => d.isNew).slice(0, 4);
   const generated = feedMeta?.generatedAt ? `\n_Feed generated: ${String(feedMeta.generatedAt).slice(0, 10)}_\n\n` : '';
+  const scan = formatDealsWireSnapshotBlock(wireSnapshot);
 
   return {
     answer:
@@ -358,15 +420,49 @@ function buildOverviewAnswer(deals, feedMeta, briefing, tip) {
         `**Zara — Deals & spotlights**`,
         briefing.roleSummary || 'Curated deals across energy, water, and sustainability lanes.'
       ) +
+      (scan ? `${scan}\n` : '') +
       `**${deals.length}** rows in the **deals feed**:\n` +
       `- **Energy tariffs & packages:** ${energy}\n` +
       `- **Water savings:** ${water}\n` +
       `- **Sustainability lane:** ${sust} (**${productSpotlights}** product spotlight${productSpotlights === 1 ? '' : 's'})\n\n` +
       generated +
       (newest.length ? `**Recently added:**\n${formatDealBullets(newest, 4)}\n\n` : '') +
+      `Start on the **Deals wire** for live lane counts, then open the desk for ticker hub, energy portal, and water finder.\n\n` +
       `**Two paths:** (1) **Supply** — compare tariffs on the energy portal; (2) **Product spotlights** — weekly offers here; **full catalog** → Sustainable Products Agent.\n\n` +
       portalFooter(tip),
-    blocks: linkOrModuleBlocks(dealsPortalLinkItems()),
+    blocks: prependWireToBlocks(linkOrModuleBlocks(dealsPortalLinkItems()), [
+      { moduleId: 'deals-desk', openSize: 'near-full' }
+    ]),
+    suggestions: []
+  };
+}
+
+async function buildDealsWireAnswer(profile, tip) {
+  const snapshot = await buildDealsWireSnapshot();
+  const scan = formatDealsWireSnapshotBlock(snapshot);
+  const spotlights = (snapshot.spotlights || []).slice(0, 3);
+  const spotlightLine = spotlights.length
+    ? `**Desk spotlights:** ${spotlights.map((row) => row.title).join(' · ')}\n\n`
+    : '';
+
+  return {
+    answer:
+      `**Deals wire** — my scan + desk hub on Greenways.\n\n` +
+      (scan ? `${scan}\n` : '') +
+      spotlightLine +
+      `Scroll the scan rail for lane counts and new spotlights, then use the desk below for the ticker hub, energy portal, and water finder. ` +
+      `The counts refresh from **deals-feed.json** — same source as the wire page on the right.\n\n` +
+      `_${tip}_`,
+    blocks: [
+      dealsModuleBlock(
+        dedupeModuleRows([
+          dealsWireModuleRow(),
+          { moduleId: 'deals-desk', openSize: 'near-full' },
+          { moduleId: 'deals-ticker', openSize: 'near-full' },
+          { moduleId: 'european-energy', openSize: 'near-full' }
+        ])
+      )
+    ],
     suggestions: []
   };
 }
@@ -934,6 +1030,7 @@ async function answerFromKnowledge(question, profile = {}) {
     intent?.id,
     { skipIntentIds: voice.skipTipIntents }
   );
+  const wireSnapshot = await buildDealsWireSnapshot();
 
   let result = resolveGlossaryFromIntent(intent, question, profile, tip, 'deals');
   if (!result && !intent && shouldTryDealsFeedScan(question)) {
@@ -944,7 +1041,10 @@ async function answerFromKnowledge(question, profile = {}) {
   } else if (!result && intent) {
   switch (intent.answerType) {
     case 'overview':
-      result = buildOverviewAnswer(deals, feed.meta || {}, briefing, tip);
+      result = buildOverviewAnswer(deals, feed.meta || {}, briefing, tip, wireSnapshot);
+      break;
+    case 'deals_wire':
+      result = await buildDealsWireAnswer(profile, tip);
       break;
     case 'why_deals':
       result = buildWhyDealsAnswer(briefing, tip);
