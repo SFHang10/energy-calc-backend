@@ -151,7 +151,7 @@
     "equipment-desk": {
       id: "equipment-desk",
       title: "Equipment desk",
-      description: "Artemis’s equipment-first tour — compare gear, payback, ETL, renovations, and upgrade plans.",
+      description: "Artemis’s equipment-first tour — compare equipment, payback, ETL, renovations, and upgrade plans.",
       usageHint: "Pick a topic on the left rail; preview tools inside the tablet or open full pages.",
       href: "/greenways/equipment-desk-embed",
       defaultOpenSize: "near-full"
