@@ -119,7 +119,7 @@ Scheme scan — catalogue counts, region lanes, and grants desk in one scroll hu
 https://energy-calc-backend.onrender.com/greenways/grants-wire-embed
 ```
 
-Full page (same UI): `/greenways/grants-wire` · Desk tab deep-link: `?deskTab=fit|restaurant|eu|brief` · Wire tab: `?tab=wire|fit|restaurant|eu|andrieus`
+Full page (same UI): `/greenways/grants-wire` · Desk tab deep-link: `?deskTab=fit|restaurant|finance|brief` · Wire tab: `?tab=wire|fit|restaurant|finance|andrieus`
 
 #### Andrieus · Grants desk (website showcase, no menus)
 
@@ -129,9 +129,9 @@ Scheme-first tour — Scheme Fit, restaurant and EU portals, Site Brief.
 https://energy-calc-backend.onrender.com/greenways/grants-desk-embed
 ```
 
-Full page (same UI): `/greenways/grants-desk` · Tab deep-link: `?tab=fit|restaurant|eu|brief`
+Full page (same UI): `/greenways/grants-desk` · Tab deep-link: `?tab=fit|restaurant|finance|brief`
 
-Tool short routes (used inside the desk): `/greenways/scheme-fit` · restaurant/EU schemes portals · `/greenways/site-brief`
+Tool short routes (used inside the desk): `/greenways/scheme-fit` · restaurant schemes portal · `/greenways/finance-finder` · `/greenways/site-brief`
 
 #### Orchestra — website iframe (no menus)
 
