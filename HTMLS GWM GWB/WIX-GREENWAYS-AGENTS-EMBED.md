@@ -48,6 +48,8 @@ Use **`-embed` URLs** (or `?embed=1`) on the **new Wix website** so portal famil
 | Vincent finance desk | `/greenways/finance-desk-embed` | `/greenways/finance-desk` |
 | Artemis equipment wire | `/greenways/equipment-wire-embed` | `/greenways/equipment-wire` |
 | Artemis equipment desk | `/greenways/equipment-desk-embed` | `/greenways/equipment-desk` |
+| Andrieus grants wire | `/greenways/grants-wire-embed` | `/greenways/grants-wire` |
+| Andrieus grants desk | `/greenways/grants-desk-embed` | `/greenways/grants-desk` |
 | Orchestra / operate portal | `/greenways/orchestra-hub-embed` (or `?embed=1` / wix-frame) | `/greenways/orchestra-hub` |
 | Your Hub (live / member) | `/greenways/customer-hub?embed=1` | `/greenways/customer-hub` |
 | Your Hub (**website demo** — no client brand) | `/greenways/customer-hub-demo` | same (menus already hidden) |
@@ -108,6 +110,28 @@ https://energy-calc-backend.onrender.com/greenways/equipment-desk-embed
 Full page (same UI): `/greenways/equipment-desk` · Tab deep-link: `?tab=deep-dive|payback|etl|renovation|plan`
 
 Tool short routes (used inside the desk): `/greenways/equipment-deep-dive` · `/greenways/etl-finder` · `/greenways/sustainable-renovations` · `/greenways/insulation-guide`
+
+#### Andrieus · Grants wire (website showcase, no menus)
+
+Scheme scan — catalogue counts, region lanes, and grants desk in one scroll hub.
+
+```
+https://energy-calc-backend.onrender.com/greenways/grants-wire-embed
+```
+
+Full page (same UI): `/greenways/grants-wire` · Desk tab deep-link: `?deskTab=fit|restaurant|eu|brief` · Wire tab: `?tab=wire|fit|restaurant|eu|andrieus`
+
+#### Andrieus · Grants desk (website showcase, no menus)
+
+Scheme-first tour — Scheme Fit, restaurant and EU portals, Site Brief.
+
+```
+https://energy-calc-backend.onrender.com/greenways/grants-desk-embed
+```
+
+Full page (same UI): `/greenways/grants-desk` · Tab deep-link: `?tab=fit|restaurant|eu|brief`
+
+Tool short routes (used inside the desk): `/greenways/scheme-fit` · restaurant/EU schemes portals · `/greenways/site-brief`
 
 #### Orchestra — website iframe (no menus)
 

@@ -211,6 +211,12 @@ app.get('/greenways/sustainable-renovations', (req, res) => sendLiveMusicHtml(re
 app.get('/greenways/insulation-guide', (req, res) => sendLiveMusicHtml(res, 'Insulation .html'));
 app.get('/greenways/finance-prices-board', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-prices-board.html'));
 app.get('/greenways/finance-prices-board-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-prices-board.html'));
+app.get('/greenways/grants-wire', (req, res) => sendLiveMusicHtml(res, 'greenways-grants-wire.html'));
+app.get('/greenways/grants-wire-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-grants-wire.html'));
+app.get('/greenways/grants-wire-main', (req, res) => sendLiveMusicHtml(res, 'greenways-grants-wire-main.html'));
+app.get('/greenways/grants-wire-main-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-grants-wire-main.html'));
+app.get('/greenways/grants-desk', (req, res) => sendLiveMusicHtml(res, 'greenways-grants-desk.html'));
+app.get('/greenways/grants-desk-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-grants-desk.html'));
 app.get('/greenways/finance-wire', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-wire.html'));
 app.get('/greenways/finance-wire-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-wire.html'));
 app.get('/greenways/finance-wire-main', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-wire-main.html'));
@@ -515,6 +521,7 @@ let grantsAgentRouter;
 let financeAgentRouter;
 let equipmentAgentRouter;
 let equipmentWireRouter;
+let grantsWireRouter;
 let dealsAgentRouter;
 let mediaAgentRouter;
 let sustainableProductsAgentRouter;
@@ -536,6 +543,7 @@ try {
   financeAgentRouter = require('./routes/finance-agent');
   equipmentAgentRouter = require('./routes/equipment-agent');
   equipmentWireRouter = require('./routes/equipment-wire');
+  grantsWireRouter = require('./routes/grants-wire');
   dealsAgentRouter = require('./routes/deals-agent');
   mediaAgentRouter = require('./routes/media-agent');
   sustainableProductsAgentRouter = require('./routes/sustainable-products-agent');
@@ -559,6 +567,7 @@ try {
   financeAgentRouter = null;
   equipmentAgentRouter = null;
   equipmentWireRouter = null;
+  grantsWireRouter = null;
   dealsAgentRouter = null;
   mediaAgentRouter = null;
   sustainableProductsAgentRouter = null;
@@ -676,6 +685,10 @@ function mountApiRoutes() {
   if (equipmentWireRouter) {
     app.use('/api/equipment-wire', equipmentWireRouter);
     console.log('✅ /api/equipment-wire route mounted');
+  }
+  if (grantsWireRouter) {
+    app.use('/api/grants-wire', grantsWireRouter);
+    console.log('✅ /api/grants-wire route mounted');
   }
   if (dealsAgentRouter) {
     app.use('/api/deals-agent', dealsAgentRouter);

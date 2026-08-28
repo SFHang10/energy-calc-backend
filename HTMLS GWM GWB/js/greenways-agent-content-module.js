@@ -172,6 +172,30 @@
       href: "/greenways/equipment-wire-main",
       defaultOpenSize: "near-full"
     },
+    "grants-wire": {
+      id: "grants-wire",
+      title: "Grants wire",
+      description: "Andrieus’s joint scheme scan — catalogue counts, region lanes, and grants desk in one place.",
+      usageHint: "Scroll the scan rail, then the desk below for Scheme Fit, portals, and Site Brief.",
+      href: "/greenways/grants-wire-embed",
+      defaultOpenSize: "near-full"
+    },
+    "grants-wire-main": {
+      id: "grants-wire-main",
+      title: "Grants wire main",
+      description: "Scheme KPI row plus region and deadline marquees — main scan panel for Andrieus.",
+      usageHint: "Live counts on top, deadline lane below. Prefer Grants wire for the full hub.",
+      href: "/greenways/grants-wire-main",
+      defaultOpenSize: "near-full"
+    },
+    "grants-desk": {
+      id: "grants-desk",
+      title: "Grants desk",
+      description: "Andrieus’s scheme-first tour — Scheme Fit, restaurant and EU portals, and Site Brief.",
+      usageHint: "Pick a topic on the left rail; preview tools inside the tablet or open full pages.",
+      href: "/greenways/grants-desk-embed",
+      defaultOpenSize: "near-full"
+    },
     "finance-prices-board": {
       id: "finance-prices-board",
       title: "Energy prices board",

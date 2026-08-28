@@ -16,6 +16,7 @@ const {
   isReferralWelcomePair,
   grantsReferralAngle
 } = require('./greenways-agent-handoff');
+const { buildGrantsWireSnapshot } = require('./grants-wire-snapshot');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'grants-agent-intents.json');
 const briefingPath = path.join(__dirname, '..', 'data', 'grants-agent-briefing.json');
@@ -65,6 +66,68 @@ function portalPathToModuleId(path) {
     if (hay.includes(needle.toLowerCase())) return moduleId;
   }
   return '';
+}
+
+function grantsWireModuleRow(overrides = {}) {
+  return {
+    moduleId: 'grants-wire',
+    title: 'Grants wire',
+    description: 'Scheme counts, region lanes, and grants desk in one hub.',
+    usageHint: 'Scroll the scan rail, then open the desk for Scheme Fit, portals, and Site Brief.',
+    openSize: 'near-full',
+    ...overrides
+  };
+}
+
+function dedupeModuleRows(rows) {
+  const seen = new Set();
+  return (rows || []).filter((row) => {
+    const id = String(row.moduleId || row.id || '');
+    if (!id || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+}
+
+function formatGrantsWireSnapshotBlock(snapshot) {
+  if (!snapshot?.ok) return '';
+  const total = Number(snapshot.totalSchemes || 0);
+  const active = Number(snapshot.activeSchemes || 0);
+  const regions = snapshot.regions || {};
+  const nl = Number(regions.nl || 0);
+  const uk = Number(regions.uk || 0);
+  const eu = Number(regions.eu || 0);
+  const refreshed = String(snapshot.meta?.trustLine || '').replace(/^Scheme catalogue from schemes\.json · refreshed /, '') ||
+    String(snapshot.generatedAt || '').slice(0, 10);
+
+  let block =
+    `**Grants wire scan (live):** **${total.toLocaleString('en-GB')}** schemes in catalogue` +
+    (active ? ` · **${active.toLocaleString('en-GB')}** active` : '') +
+    (refreshed ? ` · refreshed ${refreshed}` : '') +
+    '.\n';
+  if (nl || uk || eu) {
+    block += `- **Key regions:** NL **${nl}** · UK **${uk}** · EU **${eu}**\n`;
+  }
+  const deadlines = (snapshot.upcomingDeadlines || []).slice(0, 3);
+  if (deadlines.length) {
+    block += `- **Deadlines (120d):** ${deadlines.map((row) => `${row.title} (${row.deadline})`).join(' · ')}\n`;
+  }
+  return block;
+}
+
+function prependWireToBlocks(blocks = [], extraModuleRows = []) {
+  const wireBlock = grantsModuleBlock(dedupeModuleRows([grantsWireModuleRow(), ...extraModuleRows]));
+  const rest = (blocks || [])
+    .map((block) => {
+      if (block.type !== 'module' || !Array.isArray(block.items)) return block;
+      const items = block.items.filter(
+        (item) => String(item.moduleId || item.id || '') !== 'grants-wire'
+      );
+      if (!items.length) return null;
+      return { ...block, items };
+    })
+    .filter(Boolean);
+  return [wireBlock, ...rest];
 }
 
 function grantsModuleBlock(rows) {
@@ -357,7 +420,7 @@ function buildCheryceHandoffs(question, briefing = {}) {
   ];
 }
 
-function buildOverviewAnswer(schemes, tip, briefing = {}) {
+function buildOverviewAnswer(schemes, tip, briefing = {}, snapshot = null) {
   const byRegion = {};
   for (const s of schemes) {
     const r = String(s.region || 'eu').toLowerCase();
@@ -365,6 +428,7 @@ function buildOverviewAnswer(schemes, tip, briefing = {}) {
   }
   const nlCount = byRegion.nl || 0;
   const ukCount = byRegion.uk || 0;
+  const scan = formatGrantsWireSnapshotBlock(snapshot);
   const statItems = Object.keys(byRegion)
     .sort()
     .map((r) => ({
@@ -379,17 +443,18 @@ function buildOverviewAnswer(schemes, tip, briefing = {}) {
     answer: withTip(
       agentIntroParagraph('grants', briefing) +
         focusLine +
+        (scan ? `${scan}\n` : '') +
         `We track **${schemes.length}** active funding schemes in the Greenways catalogue, across several regions.\n\n` +
-        'On the right you will see how they break down by country, plus portals to browse the full catalogue.',
+        'Start on the **Grants wire** for live counts and region lanes, then open portals or Scheme Fit on the right.',
       tip
     ),
-    blocks: [
+    blocks: prependWireToBlocks([
       { type: 'stat', items: statItems },
       grantsModuleBlock([
         { moduleId: 'schemes-portal-restaurant', openSize: 'near-full' },
         { moduleId: 'schemes-portal-eu', openSize: 'near-full' }
       ])
-    ],
+    ]),
     suggestions: schemes.filter((s) => s.priority).slice(0, 6).map(toSuggestion)
   };
 }
@@ -558,14 +623,49 @@ function buildDeadlinesAnswer(schemes, tip) {
   };
 }
 
-function buildPortalsAnswer(tip) {
+function buildPortalsAnswer(tip, snapshot = null) {
+  const scan = formatGrantsWireSnapshotBlock(snapshot);
   return {
     answer: withTip(
-      'Not sure where to browse? Greenways keeps a few dedicated tools in one place — restaurant and EU scheme portals, a finance finder for loans and BNPL, and the official Dutch government hub.\n\n' +
+      'Not sure where to browse? Start on the **Grants wire** for live catalogue counts, then open Scheme Fit, restaurant and EU portals, finance finder, or Site Brief.\n\n' +
+        (scan ? `${scan}\n` : '') +
         'Pick a tile on the right to jump straight in.',
       tip
     ),
-    blocks: linkOrModuleBlocks(portalLinkItems())
+    blocks: prependWireToBlocks(linkOrModuleBlocks(portalLinkItems()), [
+      { moduleId: 'grants-desk', openSize: 'near-full' }
+    ])
+  };
+}
+
+async function buildGrantsWireAnswer(profile, tip) {
+  const snapshot = await buildGrantsWireSnapshot();
+  const scan = formatGrantsWireSnapshotBlock(snapshot);
+  const spotlights = (snapshot.spotlights || []).slice(0, 3);
+  const spotlightLine = spotlights.length
+    ? `**Desk spotlights:** ${spotlights.map((row) => row.title).join(' · ')}\n\n`
+    : '';
+
+  return {
+    answer: withTip(
+      `**Grants wire** — my scan + desk hub on Greenways.\n\n` +
+        (scan ? `${scan}\n` : '') +
+        spotlightLine +
+        `Scroll the scan rail for scheme counts and region lanes, then use the desk below for Scheme Fit, hospitality catalogues, and Site Brief. ` +
+        `The counts refresh from **schemes.json** — same source as the wire page on the right.\n\n`,
+      tip
+    ),
+    blocks: [
+      grantsModuleBlock(
+        dedupeModuleRows([
+          grantsWireModuleRow(),
+          { moduleId: 'grants-desk', openSize: 'near-full' },
+          { moduleId: 'scheme-fit', openSize: 'near-full' },
+          { moduleId: 'schemes-portal-restaurant', openSize: 'near-full' }
+        ])
+      )
+    ],
+    suggestions: []
   };
 }
 
@@ -901,12 +1001,13 @@ async function answerFromKnowledge(question, profile = {}) {
 
   const defaultTip = (intents.staticTips || [])[0] || '';
   const intent = matchIntent(question, intents);
+  const wireSnapshot = await buildGrantsWireSnapshot();
 
   let result = resolveGlossaryFromIntent(intent, question, profile, defaultTip, 'grants');
   if (!result && intent) {
   switch (intent.answerType) {
     case 'overview':
-      result = buildOverviewAnswer(schemes, defaultTip, briefing);
+      result = buildOverviewAnswer(schemes, defaultTip, briefing, wireSnapshot);
       break;
     case 'nl_hub':
       result = buildNlHubAnswer(schemes, defaultTip);
@@ -927,7 +1028,10 @@ async function answerFromKnowledge(question, profile = {}) {
       result = buildDeadlinesAnswer(schemes, defaultTip);
       break;
     case 'portals':
-      result = buildPortalsAnswer(defaultTip);
+      result = buildPortalsAnswer(defaultTip, wireSnapshot);
+      break;
+    case 'grants_wire':
+      result = await buildGrantsWireAnswer(profile, defaultTip);
       break;
     case 'product_grants':
       result = await buildProductGrantsAnswer(defaultTip, question, profile);
