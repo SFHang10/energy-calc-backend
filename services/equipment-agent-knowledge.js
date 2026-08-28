@@ -30,6 +30,7 @@ const {
   pickTip,
   agentIntroParagraph
 } = require('./greenways-agent-persona');
+const { buildEquipmentWireSnapshot } = require('./equipment-wire-snapshot');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'equipment-agent-intents.json');
 const showcasePath = path.join(__dirname, '..', 'data', 'equipment-agent-showcase.json');
@@ -78,7 +79,16 @@ const REF_MODULE_IDS = {
   'restaurant-design': 'restaurant-design-sustainability'
 };
 
+const WIRE_BUCKET_LABELS = {
+  cookline: 'Cookline',
+  refrigeration: 'Refrigeration',
+  ventilation: 'Ventilation & HVAC',
+  other: 'Other ETL'
+};
+
 const PORTAL_PATH_MODULE_IDS = [
+  ['equipment-wire', 'equipment-wire'],
+  ['equipment-desk', 'equipment-desk'],
   ['restaurant-equipment-deep-dive', 'equipment-deep-dive'],
   ['equipment_intelligence_tool', 'etl-finder'],
   ['sustainable%20renovations', 'sustainable-renovations'],
@@ -124,6 +134,64 @@ function equipmentModuleBlock(rows) {
     type: 'module',
     items: rows.map((row) => toModuleItem({ ...EQUIPMENT_MODULE, ...mergeModuleRow(row) }))
   };
+}
+
+function formatWireBucketLine(buckets = {}) {
+  return Object.entries(buckets)
+    .filter(([, count]) => count > 0)
+    .map(([key, count]) => `${WIRE_BUCKET_LABELS[key] || key}: **${Number(count).toLocaleString('en-GB')}**`)
+    .join(' · ');
+}
+
+function formatEquipmentWireSnapshotBlock(snapshot) {
+  if (!snapshot?.ok) return '';
+  const total = Number(snapshot.totalProducts || 0);
+  const grants = Number(snapshot.grantsEnriched || 0);
+  const refreshed = snapshot.grantsRefreshedAt || String(snapshot.generatedAt || '').slice(0, 10);
+  const buckets = formatWireBucketLine(snapshot.buckets);
+  const topCategories = (snapshot.topCategories || [])
+    .slice(0, 3)
+    .map((row) => `${row.name} (${row.count})`)
+    .join(', ');
+
+  let block =
+    `**Equipment wire scan (live):** **${total.toLocaleString('en-GB')}** UK ETL marketplace rows` +
+    (grants ? ` · **${grants.toLocaleString('en-GB')}** with grant overlays` : '') +
+    (refreshed ? ` · grants data ${refreshed}` : '') +
+    '.\n';
+  if (buckets) block += `- **Lanes:** ${buckets}\n`;
+  if (topCategories) block += `- **Top categories:** ${topCategories}\n`;
+  return block;
+}
+
+function equipmentWireModuleRow(overrides = {}) {
+  return {
+    moduleId: 'equipment-wire',
+    title: 'Equipment wire',
+    description: 'ETL counts, category lanes, and equipment desk in one hub.',
+    usageHint: 'Scroll the scan rail, then open the desk for compare, payback, and renovations.',
+    openSize: 'near-full',
+    ...overrides
+  };
+}
+
+function wireFirstModuleBlock(extraRows = []) {
+  return equipmentModuleBlock(dedupeModuleRows([equipmentWireModuleRow(), ...extraRows]));
+}
+
+function prependWireToBlocks(blocks = [], extraModuleRows = []) {
+  const wireBlock = wireFirstModuleBlock(extraModuleRows);
+  const rest = (blocks || [])
+    .map((block) => {
+      if (block.type !== 'module' || !Array.isArray(block.items)) return block;
+      const items = block.items.filter(
+        (item) => String(item.moduleId || item.id || '') !== 'equipment-wire'
+      );
+      if (!items.length) return null;
+      return { ...block, items };
+    })
+    .filter(Boolean);
+  return [wireBlock, ...rest];
 }
 
 function dedupeModuleRows(rows) {
@@ -308,6 +376,8 @@ function toolsToBlocks(tools, max = 6) {
 
 function equipmentPortalLinks() {
   return [
+    toLinkItem('Equipment wire', '/greenways/equipment-wire-embed', 'Live ETL counts, category lanes, and desk hub'),
+    toLinkItem('Equipment desk', '/greenways/equipment-desk-embed', 'Compare, payback, ETL finder, and renovation tabs'),
     toLinkItem('Equipment deep dive', PORTAL_LINKS.deepDive, 'Compare current vs efficient equipment with grants'),
     toLinkItem('Sustainable renovations', PORTAL_LINKS.sustainableRenovations, 'Building retrofit pathways and grants'),
     toLinkItem('Retrofit ROI guide', PORTAL_LINKS.retrofitRoiGuide, 'ETL retrofit payback and savings'),
@@ -371,11 +441,15 @@ async function pickEquipmentSamples(question, profile = {}, limit = 3) {
 }
 
 async function buildOverviewAnswer(profile, tip) {
-  const briefing = await loadBriefing();
-  const guide = await loadRenovationGuide();
+  const [briefing, guide, snapshot] = await Promise.all([
+    loadBriefing(),
+    loadRenovationGuide(),
+    buildEquipmentWireSnapshot()
+  ]);
   const focus = (briefing.restaurantFocus || []).slice(0, 4);
   const tools = (guide.greenwaysTools || []).slice(0, 5);
   const steps = (briefing.workflowSteps || []).slice(0, 5);
+  const scan = formatEquipmentWireSnapshotBlock(snapshot);
 
   return {
     answer:
@@ -386,9 +460,10 @@ async function buildOverviewAnswer(profile, tip) {
       ) +
       `**What I help with:**\n${focus.map((f) => `- ${f}`).join('\n')}\n\n` +
       `**Typical path:**\n${steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}\n\n` +
+      (scan ? `${scan}\n` : '') +
       `**Greenways tools:**\n${formatToolsListProse(tools, 5)}\n\n` +
-      `_Ask about a **${profile.sector || 'restaurant'}** category, renovation, deep dive, or savings projection._\n\n_${tip}_`,
-    blocks: toolsToModuleBlocks(tools, 6),
+      `_Start on the **Equipment wire** for live ETL counts, then ask about a **${profile.sector || 'restaurant'}** category, renovation, deep dive, or savings projection._\n\n_${tip}_`,
+    blocks: prependWireToBlocks(toolsToModuleBlocks(tools, 6)),
     suggestions: [],
     agentHandoffs: buildHandoffs(briefing, '', 'overview')
   };
@@ -455,12 +530,16 @@ async function buildLifecycleCostAnswer(tip) {
 }
 
 async function buildEtlVerificationAnswer(profile, tip) {
-  const briefing = await loadBriefing();
+  const [briefing, refs, schemes, snapshot] = await Promise.all([
+    loadBriefing(),
+    loadReferences(),
+    loadSchemes(),
+    buildEquipmentWireSnapshot()
+  ]);
   const etl = briefing.etlProducts || {};
-  const refs = await loadReferences();
-  const schemes = await loadSchemes();
   const etlRefs = (refs.external || []).filter((r) => /etl/i.test(r.id || r.title)).slice(0, 3);
   const relatedSchemes = rankSchemes(schemes, 'equipment kitchen restaurant etl', profile, 3);
+  const scan = formatEquipmentWireSnapshotBlock(snapshot);
 
   const region = String(profile.region || '').toLowerCase();
   const sector = String(profile.sector || '').trim();
@@ -492,27 +571,30 @@ async function buildEtlVerificationAnswer(profile, tip) {
       `I'm **Artemis**. When you ask about **ETL**, I'm really explaining how we help you choose equipment you can trust on your sustainable journey — not just marketing that says "efficient".\n\n` +
       `The **Energy Technology List** is the UK's independently checked list. Products on the list are ${quartilePhrase}, so you are buying against tested performance rather than a brochure claim alone.${profileSentence}${grantsSentence}\n\n` +
       `On Greenways, **etl_*** rows connect that verification to action: specs, grant chips, equipment deep dive comparisons, and savings projection so you can see payback before capex. I use those tools to move you from "sounds green" to a numbers-backed upgrade plan.\n\n` +
-      `The tablets on the right open the official ETL overview, our equipment finder, and deep dive — each explains what it does and how it can help your next step. Would you like me to apply this to a kitchen category, or show how grants stack on a specific **etl_*** pick?\n\n_${tip}_`,
+      (scan ? `${scan}\n` : '') +
+      `The tablets on the right open the **Equipment wire** scan, official ETL overview, equipment finder, and deep dive — each explains what it does and how it can help your next step. Would you like me to apply this to a kitchen category, or show how grants stack on a specific **etl_*** pick?\n\n_${tip}_`,
     suggestions: relatedSchemes.map(toSuggestion),
-    blocks: linkOrModuleBlocks([
-      ...etlRefs.map((r) =>
+    blocks: prependWireToBlocks(
+      linkOrModuleBlocks([
+        ...etlRefs.map((r) =>
+          toLinkItem(
+            r.title,
+            r.url,
+            `${r.summary || 'Official ETL reference'} — open when you want the full list detail and category rules.`
+          )
+        ),
         toLinkItem(
-          r.title,
-          r.url,
-          `${r.summary || 'Official ETL reference'} — open when you want the full list detail and category rules.`
+          'Equipment intelligence tool',
+          PORTAL_LINKS.equipmentTool,
+          'Search verified **etl_*** products and check baseline use before you buy.'
+        ),
+        toLinkItem(
+          'Equipment deep dive',
+          PORTAL_LINKS.deepDive,
+          'Compare what you run today against efficient alternatives — grants and projection included.'
         )
-      ),
-      toLinkItem(
-        'Equipment intelligence tool',
-        PORTAL_LINKS.equipmentTool,
-        'Search verified **etl_*** products and check baseline use before you buy.'
-      ),
-      toLinkItem(
-        'Equipment deep dive',
-        PORTAL_LINKS.deepDive,
-        'Compare what you run today against efficient alternatives — grants and projection included.'
-      )
-    ]),
+      ])
+    ),
     agentHandoffs: buildHandoffs(briefing, 'what is etl', 'etl_verification')
   };
 }
@@ -798,13 +880,53 @@ function buildEquipmentDataCaptureAnswer(tip) {
   };
 }
 
-function buildPortalsAnswer(tip) {
+async function buildPortalsAnswer(tip) {
+  const snapshot = await buildEquipmentWireSnapshot();
+  const scan = formatEquipmentWireSnapshotBlock(snapshot);
+
   return {
     answer: withTip(
-      '**Equipment and renovation on Greenways** — pick a portal on the right to browse equipment, comparisons, or building guides.',
+      `**Equipment and renovation on Greenways** — start on the **Equipment wire** for live ETL counts, then open desk tools or building guides.\n\n` +
+        (scan ? `${scan}\n` : '') +
+        '_Pick a module on the right — description and how to use at the top of each tablet._',
       tip
     ),
-    blocks: linkOrModuleBlocks(equipmentPortalLinks())
+    blocks: prependWireToBlocks(linkOrModuleBlocks(equipmentPortalLinks()), [
+      { moduleId: 'equipment-desk', openSize: 'near-full' }
+    ])
+  };
+}
+
+async function buildEquipmentWireAnswer(profile, tip) {
+  const [snapshot, briefing] = await Promise.all([
+    buildEquipmentWireSnapshot(),
+    loadBriefing()
+  ]);
+  const scan = formatEquipmentWireSnapshotBlock(snapshot);
+  const spotlights = (snapshot.spotlights || []).slice(0, 3);
+  const spotlightLine = spotlights.length
+    ? `**Desk spotlights:** ${spotlights.map((row) => row.title).join(' · ')}\n\n`
+    : '';
+
+  return {
+    answer:
+      `**Equipment wire** — my scan + desk hub on Greenways.\n\n` +
+      (scan ? `${scan}\n` : '') +
+      spotlightLine +
+      `Scroll the scan rail for ETL counts and category lanes, then use the desk below for compare, payback, renovations, and the six-step upgrade plan. ` +
+      `The counts refresh from our enriched marketplace export — same source as the wire page you can open on the right.\n\n_${tip}_`,
+    blocks: [
+      equipmentModuleBlock(
+        dedupeModuleRows([
+          equipmentWireModuleRow(),
+          { moduleId: 'equipment-desk', openSize: 'near-full' },
+          { moduleId: 'etl-finder', openSize: 'near-full' },
+          { moduleId: 'equipment-deep-dive', openSize: 'near-full' }
+        ])
+      )
+    ],
+    suggestions: [],
+    agentHandoffs: buildHandoffs(briefing, 'equipment wire', 'equipment_wire')
   };
 }
 
@@ -1173,7 +1295,10 @@ async function answerFromKnowledge(question, profile = {}) {
       result = buildEquipmentDataCaptureAnswer(tip);
       break;
     case 'portals':
-      result = buildPortalsAnswer(tip);
+      result = await buildPortalsAnswer(tip);
+      break;
+    case 'equipment_wire':
+      result = await buildEquipmentWireAnswer(profile, tip);
       break;
     case 'renovation':
       result = buildRenovationAnswer(intent.focus || 'general', schemes, profile, tip, guide);
