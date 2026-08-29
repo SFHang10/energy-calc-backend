@@ -61,6 +61,7 @@ const {
   buildFundingNewsAnswer
 } = require('./finance-agent-news');
 const { buildDailyReviewAnswer, loadFinanceDailyReview } = require('./finance-daily-review');
+const { buildFinanceWireSnapshot } = require('./finance-wire-snapshot');
 const {
   buildHandoffTopicSummary,
   isReferralWelcomePair
@@ -148,6 +149,73 @@ function financeModuleBlock(rows) {
   return {
     type: 'module',
     items: rows.map((row) => toModuleItem({ ...VINCENT_MODULE, ...mergeModuleRow(row) }))
+  };
+}
+
+function financeWireModuleRow(overrides = {}) {
+  return {
+    moduleId: 'finance-wire',
+    title: 'Finance wire',
+    description: 'Wholesale ticker, daily review, and market spotlights in one hub.',
+    usageHint: 'Skim wire main, then open Finance desk for payback and funding paths.',
+    openSize: 'near-full',
+    ...overrides
+  };
+}
+
+function formatFinanceWireSnapshotBlock(snapshot) {
+  if (!snapshot?.ok) return '';
+  const hubs = Number(snapshot.hubCount || 0);
+  const stories = Number(snapshot.spotlightCount || 0);
+  const focus = snapshot.focusMarket;
+  const refreshed =
+    String(snapshot.meta?.trustLine || '').replace(
+      /^Finance wire from finance-news-feed\.json \+ wholesale ticker · refreshed /,
+      ''
+    ) || String(snapshot.generatedAt || '').slice(0, 10);
+
+  let block =
+    `**Finance wire scan (live):** **${hubs}** wholesale hubs` +
+    (stories ? ` · **${stories}** market spotlights` : '') +
+    (refreshed ? ` · refreshed ${refreshed}` : '') +
+    '.\n';
+  if (focus && Number.isFinite(focus.priceEurMwh)) {
+    block += `- **Focus hub:** ${focus.name} — €${focus.priceEurMwh.toFixed(1)}/MWh wholesale (${focus.changeLabel || 'flat'})\n`;
+  }
+  if (snapshot.dailyReview?.headline) {
+    block += `- **Today's review:** ${snapshot.dailyReview.headline}\n`;
+  }
+  const top = (snapshot.spotlights || []).slice(0, 3);
+  if (top.length) {
+    block += `- **Spotlights:** ${top.map((row) => row.title).join(' · ')}\n`;
+  }
+  return block;
+}
+
+async function buildFinanceWireAnswer(profile, tip) {
+  const snapshot = await buildFinanceWireSnapshot();
+  const scan = formatFinanceWireSnapshotBlock(snapshot);
+  const desk = (snapshot.deskSpotlights || []).slice(0, 3);
+  const deskLine = desk.length
+    ? `**Desk spotlights:** ${desk.map((row) => row.title).join(' · ')}\n\n`
+    : '';
+
+  return {
+    answer:
+      `**Finance wire** — my scan + desk hub on Greenways.\n\n` +
+      (scan ? `${scan}\n` : '') +
+      deskLine +
+      `Scroll the scan rail for wholesale lanes and market tablets, then use the desk below for prices board, finance finder, and payback projection. ` +
+      `Counts refresh from **finance-news-feed.json** and the wholesale ticker — same source as the wire page.\n\n` +
+      `_${tip}_`,
+    blocks: [
+      financeModuleBlock([
+        financeWireModuleRow(),
+        { moduleId: 'finance-desk', openSize: 'near-full' },
+        { moduleId: 'finance-prices-board', openSize: 'expanded' }
+      ])
+    ],
+    suggestions: []
   };
 }
 
@@ -364,8 +432,12 @@ async function buildRoleResourcesAnswer(question, profile, tip) {
 }
 
 async function buildOverviewAnswer(schemes, profile, tip) {
-  const snapshot = await loadEnergySnapshot();
-  const briefing = await loadBriefing();
+  const [snapshot, briefing, wireSnapshot] = await Promise.all([
+    loadEnergySnapshot(),
+    loadBriefing(),
+    buildFinanceWireSnapshot()
+  ]);
+  const scan = formatFinanceWireSnapshotBlock(wireSnapshot);
   const market = formatWholesaleBullets(snapshot, profile, 2).join('\n');
   const workflow = (briefing?.workflowSteps || [])
     .map((s, i) => `${i + 1}. ${s}`)
@@ -378,6 +450,7 @@ async function buildOverviewAnswer(schemes, profile, tip) {
       agentIntroParagraph('finance', briefing) +
       `${ctx}\n\n` +
       `**Focus:** ${briefing?.roleGoal || 'funding and the energy-price story for upgrades'}\n\n` +
+      (scan ? `${scan}\n` : '') +
       `${stack}\n\n` +
       `- **Grants & subsidies** — non-repayable support (scheme detail → **Andrieus**)\n` +
       `- **BNPL** — split equipment payments where providers allow\n` +
@@ -394,6 +467,7 @@ async function buildOverviewAnswer(schemes, profile, tip) {
       `Open the modules on the right for finance finder, prices board, audit, and calculators.\n\n_${tip}_`,
     blocks: [
       financeModuleBlock([
+        financeWireModuleRow(),
         { moduleId: 'finance-finder', openSize: 'near-full' },
         { moduleId: 'finance-prices-board', openSize: 'expanded' },
         { moduleId: 'energy-ticker', openSize: 'expanded' },
@@ -638,7 +712,12 @@ function buildServiceHourCostBoardAnswer(tip) {
 }
 
 async function buildEnergyPricesAnswer(profile, tip) {
-  const snapshot = await loadEnergySnapshot();
+  const [snapshot, wireSnapshot, daily] = await Promise.all([
+    loadEnergySnapshot(),
+    buildFinanceWireSnapshot(),
+    loadFinanceDailyReview()
+  ]);
+  const scan = formatFinanceWireSnapshotBlock(wireSnapshot);
   const bullets = formatWholesaleBullets(snapshot, profile, 4);
   const modelling = formatModellingTariffLine(snapshot.modellingTariffs);
   const regionLabel = REGION_LABELS[profile.region] || 'your market';
@@ -648,7 +727,6 @@ async function buildEnergyPricesAnswer(profile, tip) {
   const ctx = profileContextLine(profile);
   const sensitivity = paybackSensitivityLine(snapshot, profile);
   const ctxPrompt = profileContextPrompt(profile);
-  const daily = await loadFinanceDailyReview();
   const dailyLine = daily?.headline
     ? `**Today's brief (${daily.meta?.briefDate || 'latest'}):** ${daily.headline} — ask *today's price review* for the full skim.\n\n`
     : '';
@@ -656,6 +734,7 @@ async function buildEnergyPricesAnswer(profile, tip) {
   return {
     answer:
       `${ctx}\n\n` +
+      (scan ? `${scan}\n` : '') +
       dailyLine +
       `**Energy prices (${regionLabel})** — wholesale €/MWh helps you time upgrades and tariff reviews. Your bill also depends on supplier, pass-through clauses, and time-of-use, so retail contracts can move differently from the board.\n\n` +
       `${headline}\n\n` +
@@ -938,6 +1017,9 @@ async function answerFromKnowledge(question, profile = {}) {
   switch (intent.answerType) {
     case 'overview':
       result = await buildOverviewAnswer(schemes, profile, tip);
+      break;
+    case 'finance_wire':
+      result = await buildFinanceWireAnswer(profile, tip);
       break;
     case 'grants_tab':
       result = buildTabAnswer(

@@ -604,38 +604,28 @@
       }
 
       var base = origin();
-      Promise.all([
-        fetch(base + '/api/energy-ticker').then(function (r) { return r.ok ? r.json() : null; }),
-        fetch(base + '/data/finance-news-feed.json')
-          .then(function (r) { return r.ok ? r.json() : null; })
-          .catch(function () { return null; }),
-        fetch(base + '/api/finance-agent/daily-review')
-          .then(function (r) { return r.ok ? r.json() : null; })
-          .catch(function () { return null; })
-      ])
-        .then(function (pair) {
-          renderTicker(pair[0] || {});
-          var feed = pair[1];
-          var feedItems = (feed && feed.items) || [];
-          if (feedItems.length) {
-            renderCards(feedItems.map(function (item) {
-              return {
-                title: item.title,
-                summary: item.summary,
-                newsCategory: item.tag,
-                edition: item.date,
-                source: 'Vincent finance feed',
-                href: item.href
-              };
-            }));
-          } else {
-            return fetch(base + '/api/media-agent/news?q=finance%20grant%20energy%20price%20loan&limit=6')
-              .then(function (r) { return r.ok ? r.json() : null; })
-              .then(function (data) {
-                renderCards((data && data.items) || []);
-              });
+      fetch(base + '/api/finance-wire/snapshot')
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (!data || !data.ok) throw new Error('snapshot unavailable');
+          renderTicker(data.ticker || {});
+          if (data.dailyReview) {
+            renderDailyReview({ ok: true, review: data.dailyReview });
           }
-          if (pair[2] && pair[2].ok) renderDailyReview(pair[2]);
+          renderCards((data.spotlights || []).map(function (item) {
+            return {
+              title: item.title,
+              summary: item.summary,
+              newsCategory: item.tag,
+              edition: item.date,
+              source: item.source || 'Vincent finance feed',
+              href: item.href
+            };
+          }));
+          var status = document.getElementById('status');
+          if (status && data.meta && data.meta.trustLine) {
+            status.textContent = data.meta.trustLine;
+          }
         })
         .catch(function () {
           document.getElementById('status').className = 'status error';
