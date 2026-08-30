@@ -143,7 +143,7 @@ function formatWireBucketLine(buckets = {}) {
     .join(' · ');
 }
 
-function formatEquipmentWireSnapshotBlock(snapshot) {
+function formatEquipmentWireSnapshotBlock(snapshot, profile = {}) {
   if (!snapshot?.ok) return '';
   const total = Number(snapshot.totalProducts || 0);
   const grants = Number(snapshot.grantsEnriched || 0);
@@ -159,8 +159,19 @@ function formatEquipmentWireSnapshotBlock(snapshot) {
     (grants ? ` · **${grants.toLocaleString('en-GB')}** with grant overlays` : '') +
     (refreshed ? ` · grants data ${refreshed}` : '') +
     '.\n';
+  const region = String(profile.region || '').toLowerCase().slice(0, 2);
+  if (region && REGION_LABELS[region]) {
+    block += `- **Your region:** ${REGION_LABELS[region]} — grant copy and scheme hints favour this market when you open the desk.\n`;
+  }
   if (buckets) block += `- **Lanes:** ${buckets}\n`;
   if (topCategories) block += `- **Top categories:** ${topCategories}\n`;
+  const showcase = (snapshot.showcase || []).slice(0, 3);
+  if (showcase.length) {
+    block += `- **Showcase picks (live):** ${showcase.map((row) => row.label || row.name).join(' · ')}\n`;
+  }
+  if (snapshot.meta?.illustrativeSpotlights || snapshot.meta?.illustrativeNewRows) {
+    block += '- **Trust:** ETL counts and showcase picks are **live** from the enriched marketplace; desk spotlight cards and “new this month” ticker rows on the wire are **illustrative** curated links.\n';
+  }
   return block;
 }
 
@@ -902,10 +913,14 @@ async function buildEquipmentWireAnswer(profile, tip) {
     buildEquipmentWireSnapshot(),
     loadBriefing()
   ]);
-  const scan = formatEquipmentWireSnapshotBlock(snapshot);
+  const scan = formatEquipmentWireSnapshotBlock(snapshot, profile);
   const spotlights = (snapshot.spotlights || []).slice(0, 3);
+  const illustrative = snapshot.meta?.illustrativeSpotlights;
   const spotlightLine = spotlights.length
-    ? `**Desk spotlights:** ${spotlights.map((row) => row.title).join(' · ')}\n\n`
+    ? `**Desk spotlights${illustrative ? ' (illustrative)' : ''}:** ${spotlights.map((row) => row.title).join(' · ')}\n\n`
+    : '';
+  const trustNote = snapshot.meta?.spotlightsTrustLine
+    ? `_${snapshot.meta.spotlightsTrustLine}._\n\n`
     : '';
 
   return {
@@ -914,7 +929,9 @@ async function buildEquipmentWireAnswer(profile, tip) {
       (scan ? `${scan}\n` : '') +
       spotlightLine +
       `Scroll the scan rail for ETL counts and category lanes, then use the desk below for compare, payback, renovations, and the six-step upgrade plan. ` +
-      `The counts refresh from our enriched marketplace export — same source as the wire page you can open on the right.\n\n_${tip}_`,
+      `The counts refresh from our enriched marketplace export — same source as the wire page you can open on the right.\n\n` +
+      trustNote +
+      `_${tip}_`,
     blocks: [
       equipmentModuleBlock(
         dedupeModuleRows([

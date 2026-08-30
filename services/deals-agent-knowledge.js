@@ -80,7 +80,7 @@ function dedupeModuleRows(rows) {
   });
 }
 
-function formatDealsWireSnapshotBlock(snapshot) {
+function formatDealsWireSnapshotBlock(snapshot, profile = {}) {
   if (!snapshot?.ok) return '';
   const total = Number(snapshot.totalDeals || 0);
   const lanes = snapshot.lanes || {};
@@ -88,7 +88,11 @@ function formatDealsWireSnapshotBlock(snapshot) {
   const water = Number(lanes.water || 0);
   const sust = Number(lanes.sustainability || 0);
   const fresh = Number(snapshot.newCount || 0);
-  const refreshed = String(snapshot.meta?.trustLine || '').replace(/^Deals feed from deals-feed\.json · refreshed /, '') ||
+  const regions = snapshot.regions || {};
+  const refreshed =
+    String(snapshot.meta?.trustLine || '')
+      .replace(/^Live counts from deals-feed\.json · refreshed /, '')
+      .replace(/^Deals feed from deals-feed\.json · refreshed /, '') ||
     String(snapshot.generatedAt || '').slice(0, 10);
 
   let block =
@@ -96,12 +100,27 @@ function formatDealsWireSnapshotBlock(snapshot) {
     (fresh ? ` · **${fresh.toLocaleString('en-GB')}** new this week` : '') +
     (refreshed ? ` · refreshed ${refreshed}` : '') +
     '.\n';
+  const region = String(profile.region || '').toLowerCase().slice(0, 2);
+  const regionKey = region.toUpperCase();
+  if (region && regions[regionKey]) {
+    block += `- **Your region (${REGION_LABELS[region] || region}):** **${regions[regionKey]}** deals\n`;
+  } else {
+    const nl = Number(regions.NL || regions.nl || 0);
+    const uk = Number(regions.UK || regions.uk || 0);
+    const eu = Number(regions.EU || regions.eu || 0);
+    if (nl || uk || eu) {
+      block += `- **Key regions:** NL **${nl}** · UK **${uk}** · EU **${eu}**\n`;
+    }
+  }
   if (energy || water || sust) {
     block += `- **Lanes:** energy **${energy}** · water **${water}** · sustainability **${sust}**\n`;
   }
   const newest = (snapshot.newThisMonth || []).slice(0, 3);
   if (newest.length) {
-    block += `- **New spotlights:** ${newest.map((row) => row.title).join(' · ')}\n`;
+    block += `- **New spotlights (live):** ${newest.map((row) => row.title).join(' · ')}\n`;
+  }
+  if (snapshot.meta?.illustrativeSpotlights) {
+    block += '- **Trust:** lane counts and new spotlights are **live** from deals-feed.json; desk spotlight cards on the wire are **illustrative** curated links.\n';
   }
   return block;
 }
@@ -439,10 +458,14 @@ function buildOverviewAnswer(deals, feedMeta, briefing, tip, wireSnapshot) {
 
 async function buildDealsWireAnswer(profile, tip) {
   const snapshot = await buildDealsWireSnapshot();
-  const scan = formatDealsWireSnapshotBlock(snapshot);
+  const scan = formatDealsWireSnapshotBlock(snapshot, profile);
   const spotlights = (snapshot.spotlights || []).slice(0, 3);
+  const illustrative = snapshot.meta?.illustrativeSpotlights;
   const spotlightLine = spotlights.length
-    ? `**Desk spotlights:** ${spotlights.map((row) => row.title).join(' · ')}\n\n`
+    ? `**Desk spotlights${illustrative ? ' (illustrative)' : ''}:** ${spotlights.map((row) => row.title).join(' · ')}\n\n`
+    : '';
+  const trustNote = snapshot.meta?.spotlightsTrustLine
+    ? `_${snapshot.meta.spotlightsTrustLine}._\n\n`
     : '';
 
   return {
@@ -452,6 +475,7 @@ async function buildDealsWireAnswer(profile, tip) {
       spotlightLine +
       `Scroll the scan rail for lane counts and new spotlights, then use the desk below for the ticker hub, energy portal, and water finder. ` +
       `The counts refresh from **deals-feed.json** — same source as the wire page on the right.\n\n` +
+      trustNote +
       `_${tip}_`,
     blocks: [
       dealsModuleBlock(

@@ -155,6 +155,35 @@
       margin-bottom: 12px;
       letter-spacing: 0.04em;
     }
+    .wire-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 0 0 8px;
+    }
+    .trust-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-family: var(--mono);
+      font-size: 0.52rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .trust-badge--live {
+      border: 1px solid rgba(74, 222, 128, 0.35);
+      background: rgba(74, 222, 128, 0.1);
+      color: #86efac;
+    }
+    .trust-badge--illustrative {
+      border: 1px solid rgba(201, 169, 97, 0.35);
+      background: rgba(201, 169, 97, 0.08);
+      color: #e8d5a3;
+    }
     .wire-hero-banner {
       position: relative;
       margin: 0 auto 14px;
@@ -395,6 +424,9 @@
       <div class="kpi-card"><div class="kpi-val" id="kpiCold">—</div><div class="kpi-label">Refrigeration</div></div>
       <div class="kpi-card"><div class="kpi-val" id="kpiVent">—</div><div class="kpi-label">HVAC / vent</div></div>
     </div>
+    <div class="wire-section-head">
+      <span class="trust-badge trust-badge--live">Live counts</span>
+    </div>
     <p class="trust-line" id="trustLine">Loading marketplace counts…</p>
 
     <div class="wire-hero-banner" role="img" aria-label="Commercial kitchen — equipment scan backdrop"></div>
@@ -414,6 +446,9 @@
       </div>
     </div>
     <p class="hint" id="regionHint">↑ illustrative “new this month” rows are labelled · scroll wire hub for the desk</p>
+    <div class="wire-section-head" id="spotlightHead">
+      <span class="trust-badge trust-badge--illustrative">Illustrative desk links</span>
+    </div>
     <div class="status" id="status">Loading product spotlights…</div>
     <div class="cards-section" id="cards"></div>
   </div>
@@ -550,9 +585,12 @@
         );
       }
 
-      function renderCards(spotlights) {
+      function renderCards(spotlights, meta) {
         var status = document.getElementById('status');
         var cards = document.getElementById('cards');
+        var head = document.getElementById('spotlightHead');
+        var illustrative = meta && meta.spotlightsTrust === 'illustrative';
+        if (head) head.style.display = illustrative ? 'flex' : 'none';
         var top = (spotlights || []).slice(0, 3);
         if (!top.length) {
           status.className = 'status error';
@@ -560,14 +598,21 @@
           cards.innerHTML = '';
           return;
         }
-        status.textContent = 'Desk spotlights · equipment lens';
+        status.textContent =
+          (meta && meta.spotlightsTrustLine) ||
+          (illustrative
+            ? 'Desk spotlights · illustrative curated links'
+            : 'Desk spotlights · equipment lens');
         cards.innerHTML = top.map(function (item, i) {
           var gold = i === 2 ? ' gold' : '';
           var tab = item.deskTab || 'deep-dive';
           var href = item.href ? (item.href.indexOf('/') === 0 ? origin() + item.href : item.href) : deskWireHref(tab);
+          var badge = illustrative
+            ? '<span class="trust-badge trust-badge--illustrative">Illustrative</span>'
+            : '<span class="trust-badge trust-badge--live">Live</span>';
           return (
             '<article class="detail-card' + gold + '">' +
-            '<div class="card-type"><span class="card-type-dot"></span>' + esc(item.kicker || 'Desk spotlight') + '</div>' +
+            '<div class="card-type"><span class="card-type-dot"></span>' + esc(item.kicker || 'Desk spotlight') + ' ' + badge + '</div>' +
             '<div class="card-title">' + esc(item.title || 'Equipment tool') + '</div>' +
             '<div class="card-desc">' + esc(item.summary || 'Open in the desk below.') + '</div>' +
             '<div class="card-actions">' +
@@ -587,22 +632,33 @@
         });
       }
 
-      renderRegion(readJson('greenways_member_context_v1'));
+      function applySnapshot(data) {
+        if (!data || !data.ok) throw new Error('snapshot');
+        renderKpis(data);
+        renderBucketTrack(data);
+        renderShowcaseTrack(data.showcase);
+        renderCards(data.spotlights, data.meta);
+      }
 
-      fetch(origin() + '/api/equipment-wire/snapshot')
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (data) {
-          if (!data || !data.ok) throw new Error('snapshot');
-          renderKpis(data);
-          renderBucketTrack(data);
-          renderShowcaseTrack(data.showcase);
-          renderCards(data.spotlights);
-        })
-        .catch(function () {
-          document.getElementById('status').className = 'status error';
-          document.getElementById('status').textContent = 'Could not load wire — try Refresh panel on the hub.';
-          document.getElementById('trustLine').textContent = 'Counts unavailable — ETL API may be warming up';
-        });
+      function loadSnapshot() {
+        return fetch(origin() + '/api/equipment-wire/snapshot')
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            applySnapshot(data);
+          })
+          .catch(function () {
+            document.getElementById('status').className = 'status error';
+            document.getElementById('status').textContent = 'Could not load wire — try Refresh panel on the hub.';
+            document.getElementById('trustLine').textContent = 'Counts unavailable — ETL API may be warming up';
+          });
+      }
+
+      renderRegion(readJson('greenways_member_context_v1'));
+      loadSnapshot();
+
+      window.addEventListener('message', function (ev) {
+        if (ev.data && ev.data.type === 'gw-wire-refresh') loadSnapshot();
+      });
     })();
   </script>
 </body>

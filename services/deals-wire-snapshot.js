@@ -96,9 +96,16 @@ async function buildDealsWireSnapshot() {
     spotlights: wireFeed.spotlights || [],
     meta: {
       illustrativeSpotlights: Boolean(wireFeed.meta && wireFeed.meta.illustrative),
+      countsTrust: 'live',
+      laneTrust: 'live',
+      newRowsTrust: 'live',
+      spotlightsTrust: wireFeed.meta && wireFeed.meta.illustrative ? 'illustrative' : 'live',
       trustLine: refreshedAt
-        ? `Deals feed from deals-feed.json · refreshed ${refreshedAt}`
-        : 'Deals feed from deals-feed.json'
+        ? `Live counts from deals-feed.json · refreshed ${refreshedAt}`
+        : 'Live counts from deals-feed.json',
+      spotlightsTrustLine: wireFeed.meta && wireFeed.meta.illustrative
+        ? 'Desk spotlight cards are illustrative curated links — lane counts and new spotlights above are live'
+        : 'Desk spotlights from deals wire feed'
     }
   };
 

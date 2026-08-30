@@ -125,14 +125,17 @@ function dedupeModuleRows(rows) {
   });
 }
 
-function formatMediaWireSnapshotBlock(snapshot) {
+function formatMediaWireSnapshotBlock(snapshot, profile = {}) {
   if (!snapshot?.ok) return '';
   const total = Number(snapshot.totalNewsItems || 0);
   const videos = Number(snapshot.videoCount || 0);
   const mapTotal = Number(snapshot.mapTotal || 0);
   const sust = Number(snapshot.sustainabilityStories || 0);
   const tech = Number(snapshot.techStories || 0);
-  const refreshed = String(snapshot.meta?.trustLine || '').replace(/^Media scan from news catalog \+ daily brief · refreshed /, '') ||
+  const refreshed =
+    String(snapshot.meta?.trustLine || '')
+      .replace(/^Live counts from news catalog \+ daily brief · refreshed /, '')
+      .replace(/^Media scan from news catalog \+ daily brief · refreshed /, '') ||
     String(snapshot.generatedAt || '').slice(0, 10);
 
   let block =
@@ -140,12 +143,19 @@ function formatMediaWireSnapshotBlock(snapshot) {
     (videos ? ` · **${videos.toLocaleString('en-GB')}** videos` : '') +
     (refreshed ? ` · refreshed ${refreshed}` : '') +
     '.\n';
+  const region = String(profile.region || '').toLowerCase().slice(0, 2);
+  if (region && REGION_LABELS[region]) {
+    block += `- **Your region:** ${REGION_LABELS[region]} — news picks and map examples favour this market when available.\n`;
+  }
   if (sust || tech || mapTotal) {
     block += `- **Lanes:** sustainability **${sust}** · tech **${tech}** · map profiles **${mapTotal}**\n`;
   }
   const headlines = (snapshot.headlines || []).slice(0, 3);
   if (headlines.length) {
-    block += `- **Latest headlines:** ${headlines.map((row) => row.title).join(' · ')}\n`;
+    block += `- **Latest headlines (live):** ${headlines.map((row) => row.title).join(' · ')}\n`;
+  }
+  if (snapshot.meta?.illustrativeSpotlights) {
+    block += '- **Trust:** content counts and headlines are **live** from the news catalog and daily brief; desk spotlight cards on the wire are **illustrative** curated links.\n';
   }
   return block;
 }
@@ -1230,10 +1240,14 @@ async function buildOverviewAnswer(catalog, videos, tip, briefing, wireSnapshot)
 
 async function buildMediaWireAnswer(profile, tip) {
   const snapshot = await buildMediaWireSnapshot();
-  const scan = formatMediaWireSnapshotBlock(snapshot);
+  const scan = formatMediaWireSnapshotBlock(snapshot, profile);
   const spotlights = (snapshot.spotlights || []).slice(0, 3);
+  const illustrative = snapshot.meta?.illustrativeSpotlights;
   const spotlightLine = spotlights.length
-    ? `**Desk spotlights:** ${spotlights.map((row) => row.title).join(' · ')}\n\n`
+    ? `**Desk spotlights${illustrative ? ' (illustrative)' : ''}:** ${spotlights.map((row) => row.title).join(' · ')}\n\n`
+    : '';
+  const trustNote = snapshot.meta?.spotlightsTrustLine
+    ? `_${snapshot.meta.spotlightsTrustLine}._\n\n`
     : '';
 
   return {
@@ -1243,6 +1257,7 @@ async function buildMediaWireAnswer(profile, tip) {
       spotlightLine +
       `Scroll the scan rail for content counts and latest headlines, then use the desk below for the news edition, video desk, and sustainability map. ` +
       `The counts refresh from the **news catalog** and **daily brief** — same source as the wire page on the right.\n\n` +
+      trustNote +
       `_${tip}_`,
     blocks: [
       mediaModuleBlock(

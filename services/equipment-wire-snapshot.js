@@ -145,10 +145,18 @@ async function buildEquipmentWireSnapshot() {
     newThisMonth: feed.newThisMonth || [],
     spotlights: feed.spotlights || [],
     meta: {
+      illustrativeSpotlights: Boolean(feed.meta && feed.meta.illustrative),
       illustrativeNewRows: Boolean(feed.meta && feed.meta.illustrative),
+      countsTrust: 'live',
+      showcaseTrust: 'live',
+      newRowsTrust: feed.meta && feed.meta.illustrative ? 'illustrative' : 'live',
+      spotlightsTrust: feed.meta && feed.meta.illustrative ? 'illustrative' : 'live',
       trustLine: grantsRefreshedAt
-        ? `Counts from UK ETL marketplace · grants refreshed ${grantsRefreshedAt}`
-        : 'Counts from UK ETL marketplace · grants overlay from enriched export'
+        ? `Live counts from UK ETL marketplace · grants refreshed ${grantsRefreshedAt}`
+        : 'Live counts from UK ETL marketplace · grants overlay from enriched export',
+      spotlightsTrustLine: feed.meta && feed.meta.illustrative
+        ? 'Desk spotlight cards and “new this month” ticker rows are illustrative curated links — ETL counts and showcase picks above are live'
+        : 'Desk spotlights from equipment wire feed'
     }
   };
 
