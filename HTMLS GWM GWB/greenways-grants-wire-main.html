@@ -155,6 +155,35 @@
       margin-bottom: 12px;
       letter-spacing: 0.04em;
     }
+    .wire-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 0 0 8px;
+    }
+    .trust-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-family: var(--mono);
+      font-size: 0.52rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .trust-badge--live {
+      border: 1px solid rgba(74, 222, 128, 0.35);
+      background: rgba(74, 222, 128, 0.1);
+      color: #86efac;
+    }
+    .trust-badge--illustrative {
+      border: 1px solid rgba(201, 169, 97, 0.35);
+      background: rgba(201, 169, 97, 0.08);
+      color: #e8d5a3;
+    }
     .wire-hero-banner {
       position: relative;
       margin: 0 auto 14px;
@@ -395,6 +424,9 @@
       <div class="kpi-card"><div class="kpi-val" id="kpiUk">—</div><div class="kpi-label">United Kingdom</div></div>
       <div class="kpi-card"><div class="kpi-val" id="kpiEu">—</div><div class="kpi-label">EU-wide</div></div>
     </div>
+    <div class="wire-section-head">
+      <span class="trust-badge trust-badge--live">Live counts</span>
+    </div>
     <p class="trust-line" id="trustLine">Loading scheme counts…</p>
 
     <div class="wire-hero-banner" role="img" aria-label="EU government building — grants scan backdrop"></div>
@@ -414,6 +446,13 @@
       </div>
     </div>
     <p class="hint" id="regionHint">↑ deadlines within 120 days · scroll wire hub for the grants desk</p>
+    <div class="wire-section-head" id="schemePickHead" hidden>
+      <span class="trust-badge trust-badge--live">Live scheme picks</span>
+    </div>
+    <div class="cards-section" id="schemeCards"></div>
+    <div class="wire-section-head" id="spotlightHead">
+      <span class="trust-badge trust-badge--illustrative">Illustrative desk links</span>
+    </div>
     <div class="status" id="status">Loading desk spotlights…</div>
     <div class="cards-section" id="cards"></div>
   </div>
@@ -545,9 +584,41 @@
         );
       }
 
-      function renderCards(spotlights) {
+      function renderSchemeCards(schemes) {
+        var wrap = document.getElementById('schemeCards');
+        var head = document.getElementById('schemePickHead');
+        var rows = (schemes || []).slice(0, 3);
+        if (!wrap) return;
+        if (!rows.length) {
+          wrap.innerHTML = '';
+          if (head) head.hidden = true;
+          return;
+        }
+        if (head) head.hidden = false;
+        wrap.innerHTML = rows.map(function (row, i) {
+          var gold = i === 2 ? ' gold' : '';
+          return (
+            '<article class="detail-card' + gold + '">' +
+            '<div class="card-type"><span class="card-type-dot"></span>Scheme pick <span class="trust-badge trust-badge--live">Live</span></div>' +
+            '<div class="card-title">' + esc(row.title || row.id) + '</div>' +
+            '<div class="card-desc">' + esc((row.region || '').toUpperCase()) +
+            (row.deadline ? ' · deadline ' + esc(row.deadline) : '') +
+            (row.maxFunding ? ' · ' + esc(row.maxFunding) : '') + '</div>' +
+            '<div class="card-actions">' +
+            '<a href="' + origin() + '/greenways/grants-agent?q=' + encodeURIComponent(row.title || row.id) + '" target="_top" rel="noopener">Ask Andrieus</a>' +
+            '<a href="' + origin() + '/greenways/grants-desk?tab=fit" target="_top" rel="noopener">Scheme Fit</a>' +
+            '</div>' +
+            '</article>'
+          );
+        }).join('');
+      }
+
+      function renderCards(spotlights, meta) {
         var status = document.getElementById('status');
         var cards = document.getElementById('cards');
+        var head = document.getElementById('spotlightHead');
+        var illustrative = meta && meta.spotlightsTrust === 'illustrative';
+        if (head) head.style.display = illustrative ? 'flex' : 'none';
         var top = (spotlights || []).slice(0, 3);
         if (!top.length) {
           status.className = 'status error';
@@ -555,14 +626,21 @@
           cards.innerHTML = '';
           return;
         }
-        status.textContent = 'Desk spotlights · grants lens';
+        status.textContent =
+          (meta && meta.spotlightsTrustLine) ||
+          (illustrative
+            ? 'Desk spotlights · illustrative curated links'
+            : 'Desk spotlights · grants lens');
         cards.innerHTML = top.map(function (item, i) {
           var gold = i === 2 ? ' gold' : '';
           var tab = item.deskTab || 'fit';
           var href = item.href ? (item.href.indexOf('/') === 0 ? origin() + item.href : item.href) : deskWireHref(tab);
+          var badge = illustrative
+            ? '<span class="trust-badge trust-badge--illustrative">Illustrative</span>'
+            : '<span class="trust-badge trust-badge--live">Live</span>';
           return (
             '<article class="detail-card' + gold + '">' +
-            '<div class="card-type"><span class="card-type-dot"></span>' + esc(item.kicker || 'Desk spotlight') + '</div>' +
+            '<div class="card-type"><span class="card-type-dot"></span>' + esc(item.kicker || 'Desk spotlight') + ' ' + badge + '</div>' +
             '<div class="card-title">' + esc(item.title || 'Grants tool') + '</div>' +
             '<div class="card-desc">' + esc(item.summary || 'Open in the desk below.') + '</div>' +
             '<div class="card-actions">' +
@@ -582,22 +660,34 @@
         });
       }
 
-      renderRegion(readJson('greenways_member_context_v1'));
+      function applySnapshot(data) {
+        if (!data || !data.ok) throw new Error('snapshot');
+        renderKpis(data);
+        renderRegionTrack(data);
+        renderDeadlineTrack(data.upcomingDeadlines);
+        renderSchemeCards(data.spotlightSchemes);
+        renderCards(data.spotlights, data.meta);
+      }
 
-      fetch(origin() + '/api/grants-wire/snapshot')
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (data) {
-          if (!data || !data.ok) throw new Error('snapshot');
-          renderKpis(data);
-          renderRegionTrack(data);
-          renderDeadlineTrack(data.upcomingDeadlines);
-          renderCards(data.spotlights);
-        })
-        .catch(function () {
-          document.getElementById('status').className = 'status error';
-          document.getElementById('status').textContent = 'Could not load wire — try Refresh panel on the hub.';
-          document.getElementById('trustLine').textContent = 'Counts unavailable — snapshot API may be warming up';
-        });
+      function loadSnapshot() {
+        return fetch(origin() + '/api/grants-wire/snapshot')
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            applySnapshot(data);
+          })
+          .catch(function () {
+            document.getElementById('status').className = 'status error';
+            document.getElementById('status').textContent = 'Could not load wire — try Refresh panel on the hub.';
+            document.getElementById('trustLine').textContent = 'Counts unavailable — snapshot API may be warming up';
+          });
+      }
+
+      renderRegion(readJson('greenways_member_context_v1'));
+      loadSnapshot();
+
+      window.addEventListener('message', function (ev) {
+        if (ev.data && ev.data.type === 'gw-wire-refresh') loadSnapshot();
+      });
     })();
   </script>
 </body>

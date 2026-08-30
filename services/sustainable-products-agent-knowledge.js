@@ -218,7 +218,7 @@ function dedupeModuleRows(rows) {
   });
 }
 
-function formatProductsWireSnapshotBlock(snapshot) {
+function formatProductsWireSnapshotBlock(snapshot, profile = {}) {
   if (!snapshot?.ok) return '';
   const total = Number(snapshot.totalProducts || 0);
   const lanes = snapshot.lanes || {};
@@ -226,13 +226,20 @@ function formatProductsWireSnapshotBlock(snapshot) {
   const elec = Number(lanes.electricity || 0);
   const gas = Number(lanes.gas || 0);
   const grants = Number(snapshot.grantsCount || 0);
-  const refreshed = String(snapshot.meta?.trustLine || '').replace(/^Catalog from sustainable-products-catalog\.json · refreshed /, '') ||
+  const refreshed =
+    String(snapshot.meta?.trustLine || '')
+      .replace(/^Live counts from sustainable-products-catalog\.json · refreshed /, '')
+      .replace(/^Catalog from sustainable-products-catalog\.json · refreshed /, '') ||
     String(snapshot.generatedAt || '').slice(0, 10);
 
   let block =
     `**Products wire scan (live):** **${total.toLocaleString('en-GB')}** catalogue rows` +
     (refreshed ? ` · refreshed ${refreshed}` : '') +
     '.\n';
+  const region = String(profile.region || '').toLowerCase().slice(0, 2);
+  if (region && REGION_LABELS[region]) {
+    block += `- **Your region:** ${REGION_LABELS[region]} — finders and grants favour this market when you open the desk.\n`;
+  }
   if (water || elec || gas) {
     block += `- **Lanes:** water **${water}** · electricity **${elec}** · gas **${gas}**` +
       (grants ? ` · with grants **${grants}**` : '') +
@@ -240,7 +247,10 @@ function formatProductsWireSnapshotBlock(snapshot) {
   }
   const spotlights = (snapshot.newSpotlights || []).slice(0, 3);
   if (spotlights.length) {
-    block += `- **Recent catalog rows:** ${spotlights.map((row) => row.title).join(' · ')}\n`;
+    block += `- **Recent catalog rows (live):** ${spotlights.map((row) => row.title).join(' · ')}\n`;
+  }
+  if (snapshot.meta?.illustrativeSpotlights) {
+    block += '- **Trust:** lane counts are **live** from the catalog; desk spotlight cards on the wire are **illustrative** curated links.\n';
   }
   return block;
 }
@@ -260,10 +270,13 @@ function prependWireToBlocks(blocks = [], extraModuleRows = []) {
 
 async function buildProductsWireAnswer(profile, tip) {
   const snapshot = await buildProductsWireSnapshot();
-  const scan = formatProductsWireSnapshotBlock(snapshot);
+  const scan = formatProductsWireSnapshotBlock(snapshot, profile);
   const spotlights = (snapshot.spotlights || []).slice(0, 3);
   const spotlightLine = spotlights.length
-    ? `**Desk spotlights:** ${spotlights.map((row) => row.title).join(' · ')}\n\n`
+    ? `**Desk spotlights (illustrative):** ${spotlights.map((row) => row.title).join(' · ')}\n\n`
+    : '';
+  const trustNote = snapshot.meta?.spotlightsTrustLine
+    ? `_${snapshot.meta.spotlightsTrustLine}._\n\n`
     : '';
 
   return {
@@ -272,7 +285,8 @@ async function buildProductsWireAnswer(profile, tip) {
       (scan ? `${scan}\n` : '') +
       spotlightLine +
       `Scroll the scan rail for lane counts and recent catalog rows, then use the desk below for the water finder, product finder, Water Line Sketch, and Agent Market. ` +
-      `The counts refresh from **sustainable-products-catalog.json** — same source as the wire page on the right.\n\n` +
+      `Counts refresh from **sustainable-products-catalog.json** — same source as the wire page.\n\n` +
+      trustNote +
       `_${tip}_`,
     blocks: [
       productsModuleBlock(
@@ -754,7 +768,7 @@ async function buildRoleResourcesAnswer(question, profile, tip) {
   };
 }
 
-async function buildOverviewAnswer(catalog, tip, briefing, wireSnapshot) {
+async function buildOverviewAnswer(catalog, tip, briefing, wireSnapshot, profile = {}) {
   const rows = catalog.products || [];
   const water = rows.filter((p) => catalogMatchesLane(p, 'water')).length;
   const elec = rows.filter((p) => catalogMatchesLane(p, 'electricity')).length;
@@ -762,7 +776,7 @@ async function buildOverviewAnswer(catalog, tip, briefing, wireSnapshot) {
   const b = briefing || (await loadBriefing());
   const paths = b.guidePaths || {};
   const journey = b.journeyPrinciple || '';
-  const scan = formatProductsWireSnapshotBlock(wireSnapshot);
+  const scan = formatProductsWireSnapshotBlock(wireSnapshot, profile);
   return {
     answer:
       zyanneIntroParagraph(b) +
@@ -1375,7 +1389,7 @@ async function answerFromKnowledge(question, profile = {}) {
   if (!result && intent) {
     switch (intent.answerType) {
       case 'overview':
-        result = await buildOverviewAnswer(catalog, tip, briefing, wireSnapshot);
+        result = await buildOverviewAnswer(catalog, tip, briefing, wireSnapshot, profile);
         break;
       case 'products_wire':
         result = await buildProductsWireAnswer(profile, tip);

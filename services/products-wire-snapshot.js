@@ -118,9 +118,16 @@ async function buildProductsWireSnapshot() {
     spotlights: wireFeed.spotlights || [],
     meta: {
       illustrativeSpotlights: Boolean(wireFeed.meta && wireFeed.meta.illustrative),
+      countsTrust: 'live',
+      laneTrust: 'live',
+      newRowsTrust: 'live',
+      spotlightsTrust: wireFeed.meta && wireFeed.meta.illustrative ? 'illustrative' : 'live',
       trustLine: refreshedAt
-        ? `Catalog from sustainable-products-catalog.json · refreshed ${refreshedAt}`
-        : 'Catalog from sustainable-products-catalog.json'
+        ? `Live counts from sustainable-products-catalog.json · refreshed ${refreshedAt}`
+        : 'Live counts from sustainable-products-catalog.json',
+      spotlightsTrustLine: wireFeed.meta && wireFeed.meta.illustrative
+        ? 'Desk spotlight cards are illustrative curated links — lane counts above are live'
+        : 'Desk spotlights from products wire feed'
     }
   };
 

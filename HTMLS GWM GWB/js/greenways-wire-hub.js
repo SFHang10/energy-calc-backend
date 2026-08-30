@@ -248,11 +248,22 @@
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
+    function bustCacheUrl(path) {
+      var url = abs(path);
+      var sep = url.indexOf('?') >= 0 ? '&' : '?';
+      return url + sep + '_gw=' + Date.now();
+    }
+
     document.getElementById('btnRefresh').addEventListener('click', function () {
       var tab = findTab(activeTab);
       if (tab.panel === askPanelId) return;
       if (tab.openFull) return;
-      frame.src = abs(tab.src);
+      frame.src = bustCacheUrl(tab.src);
+      try {
+        if (frame.contentWindow) {
+          frame.contentWindow.postMessage({ type: 'gw-wire-refresh' }, '*');
+        }
+      } catch (_) {}
     });
 
     if (postMessageType) {

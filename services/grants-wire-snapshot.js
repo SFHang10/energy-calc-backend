@@ -126,9 +126,16 @@ async function buildGrantsWireSnapshot() {
     spotlights: feed.spotlights || [],
     meta: {
       illustrativeSpotlights: Boolean(feed.meta && feed.meta.illustrative),
+      countsTrust: 'live',
+      deadlineTrust: 'live',
+      schemePicksTrust: spotlightSchemes.length ? 'live' : 'illustrative',
+      spotlightsTrust: feed.meta && feed.meta.illustrative ? 'illustrative' : 'live',
       trustLine: refreshedAt
-        ? `Scheme catalogue from schemes.json · refreshed ${refreshedAt}`
-        : 'Scheme catalogue from schemes.json'
+        ? `Live scheme catalogue from schemes.json · refreshed ${refreshedAt}`
+        : 'Live scheme catalogue from schemes.json',
+      spotlightsTrustLine: feed.meta && feed.meta.illustrative
+        ? 'Desk spotlight cards are illustrative curated links — counts and deadlines above are live'
+        : 'Desk spotlights from grants wire feed'
     }
   };
 

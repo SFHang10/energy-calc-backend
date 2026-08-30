@@ -89,7 +89,7 @@ function dedupeModuleRows(rows) {
   });
 }
 
-function formatGrantsWireSnapshotBlock(snapshot) {
+function formatGrantsWireSnapshotBlock(snapshot, profile = {}) {
   if (!snapshot?.ok) return '';
   const total = Number(snapshot.totalSchemes || 0);
   const active = Number(snapshot.activeSchemes || 0);
@@ -97,7 +97,10 @@ function formatGrantsWireSnapshotBlock(snapshot) {
   const nl = Number(regions.nl || 0);
   const uk = Number(regions.uk || 0);
   const eu = Number(regions.eu || 0);
-  const refreshed = String(snapshot.meta?.trustLine || '').replace(/^Scheme catalogue from schemes\.json · refreshed /, '') ||
+  const refreshed =
+    String(snapshot.meta?.trustLine || '')
+      .replace(/^Live scheme catalogue from schemes\.json · refreshed /, '')
+      .replace(/^Scheme catalogue from schemes\.json · refreshed /, '') ||
     String(snapshot.generatedAt || '').slice(0, 10);
 
   let block =
@@ -105,12 +108,22 @@ function formatGrantsWireSnapshotBlock(snapshot) {
     (active ? ` · **${active.toLocaleString('en-GB')}** active` : '') +
     (refreshed ? ` · refreshed ${refreshed}` : '') +
     '.\n';
-  if (nl || uk || eu) {
+  const region = String(profile.region || '').toLowerCase().slice(0, 2);
+  if (region && regions[region]) {
+    block += `- **Your region (${REGION_LABELS[region] || region}):** **${regions[region]}** schemes\n`;
+  } else if (nl || uk || eu) {
     block += `- **Key regions:** NL **${nl}** · UK **${uk}** · EU **${eu}**\n`;
   }
   const deadlines = (snapshot.upcomingDeadlines || []).slice(0, 3);
   if (deadlines.length) {
-    block += `- **Deadlines (120d):** ${deadlines.map((row) => `${row.title} (${row.deadline})`).join(' · ')}\n`;
+    block += `- **Deadlines (120d, live):** ${deadlines.map((row) => `${row.title} (${row.deadline})`).join(' · ')}\n`;
+  }
+  const schemePicks = (snapshot.spotlightSchemes || []).slice(0, 3);
+  if (schemePicks.length) {
+    block += `- **Featured schemes (live):** ${schemePicks.map((row) => row.title).join(' · ')}\n`;
+  }
+  if (snapshot.meta?.illustrativeSpotlights) {
+    block += '- **Trust:** catalogue counts and deadlines are **live** from schemes.json; desk spotlight cards on the wire are **illustrative** curated links.\n';
   }
   return block;
 }
@@ -420,7 +433,7 @@ function buildCheryceHandoffs(question, briefing = {}) {
   ];
 }
 
-function buildOverviewAnswer(schemes, tip, briefing = {}, snapshot = null) {
+function buildOverviewAnswer(schemes, tip, briefing = {}, snapshot = null, profile = {}) {
   const byRegion = {};
   for (const s of schemes) {
     const r = String(s.region || 'eu').toLowerCase();
@@ -428,7 +441,7 @@ function buildOverviewAnswer(schemes, tip, briefing = {}, snapshot = null) {
   }
   const nlCount = byRegion.nl || 0;
   const ukCount = byRegion.uk || 0;
-  const scan = formatGrantsWireSnapshotBlock(snapshot);
+  const scan = formatGrantsWireSnapshotBlock(snapshot, profile);
   const statItems = Object.keys(byRegion)
     .sort()
     .map((r) => ({
@@ -623,8 +636,8 @@ function buildDeadlinesAnswer(schemes, tip) {
   };
 }
 
-function buildPortalsAnswer(tip, snapshot = null) {
-  const scan = formatGrantsWireSnapshotBlock(snapshot);
+function buildPortalsAnswer(tip, snapshot = null, profile = {}) {
+  const scan = formatGrantsWireSnapshotBlock(snapshot, profile);
   return {
     answer: withTip(
       'Not sure where to browse? Start on the **Grants wire** for live catalogue counts, then open Scheme Fit, restaurant and EU portals, finance finder, or Site Brief.\n\n' +
@@ -640,10 +653,13 @@ function buildPortalsAnswer(tip, snapshot = null) {
 
 async function buildGrantsWireAnswer(profile, tip) {
   const snapshot = await buildGrantsWireSnapshot();
-  const scan = formatGrantsWireSnapshotBlock(snapshot);
+  const scan = formatGrantsWireSnapshotBlock(snapshot, profile);
   const spotlights = (snapshot.spotlights || []).slice(0, 3);
   const spotlightLine = spotlights.length
-    ? `**Desk spotlights:** ${spotlights.map((row) => row.title).join(' · ')}\n\n`
+    ? `**Desk spotlights (illustrative):** ${spotlights.map((row) => row.title).join(' · ')}\n\n`
+    : '';
+  const trustNote = snapshot.meta?.spotlightsTrustLine
+    ? `_${snapshot.meta.spotlightsTrustLine}._\n\n`
     : '';
 
   return {
@@ -652,7 +668,8 @@ async function buildGrantsWireAnswer(profile, tip) {
         (scan ? `${scan}\n` : '') +
         spotlightLine +
         `Scroll the scan rail for scheme counts and region lanes, then use the desk below for Scheme Fit, hospitality catalogues, and Site Brief. ` +
-        `The counts refresh from **schemes.json** — same source as the wire page on the right.\n\n`,
+        `Counts refresh from **schemes.json** — same source as the wire page.\n\n` +
+        trustNote,
       tip
     ),
     blocks: [
@@ -1007,7 +1024,7 @@ async function answerFromKnowledge(question, profile = {}) {
   if (!result && intent) {
   switch (intent.answerType) {
     case 'overview':
-      result = buildOverviewAnswer(schemes, defaultTip, briefing, wireSnapshot);
+      result = buildOverviewAnswer(schemes, defaultTip, briefing, wireSnapshot, profile);
       break;
     case 'nl_hub':
       result = buildNlHubAnswer(schemes, defaultTip);
@@ -1028,7 +1045,7 @@ async function answerFromKnowledge(question, profile = {}) {
       result = buildDeadlinesAnswer(schemes, defaultTip);
       break;
     case 'portals':
-      result = buildPortalsAnswer(defaultTip, wireSnapshot);
+      result = buildPortalsAnswer(defaultTip, wireSnapshot, profile);
       break;
     case 'grants_wire':
       result = await buildGrantsWireAnswer(profile, defaultTip);
