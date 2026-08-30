@@ -269,7 +269,13 @@
     if (postMessageType) {
       window.addEventListener('message', function (ev) {
         var data = ev.data || {};
-        if (data.type === postMessageType && data.tab) {
+        if (data.type !== postMessageType) return;
+        if (data.wireTab) {
+          var wireTab = findTab(data.wireTab);
+          if (wireTab.id === data.wireTab) setActive(data.wireTab);
+          return;
+        }
+        if (data.tab) {
           setDeskTab(data.tab);
           scrollToDesk();
         }

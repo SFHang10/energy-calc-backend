@@ -447,9 +447,9 @@
         </div>
       </div>
     </div>
-    <p class="hint" id="regionHint">↑ headlines from daily brief · scroll wire hub for the media desk</p>
+    <p class="hint" id="regionHint">↑ wire lanes for live scan context · desk below for sustainability + tech editions, video, references, monitoring</p>
     <div class="wire-section-head" id="spotlightHead">
-      <span class="trust-badge trust-badge--illustrative">Illustrative desk links</span>
+      <span class="trust-badge trust-badge--illustrative">Illustrative wire lanes</span>
     </div>
     <div class="status" id="status">Loading desk spotlights…</div>
     <div class="cards-section" id="cards"></div>
@@ -503,10 +503,15 @@
         return origin() + '/greenways/media-wire' + q;
       }
 
-      function postDesk(tab) {
+      function postNav(opts) {
+        opts = opts || {};
         try {
           if (window.parent && window.parent !== window) {
-            window.parent.postMessage({ type: 'gw-media-wire-desk', tab: tab }, '*');
+            window.parent.postMessage({
+              type: 'gw-media-wire-desk',
+              tab: opts.deskTab || undefined,
+              wireTab: opts.wireTab || undefined
+            }, '*');
             return true;
           }
         } catch (_) {}
@@ -514,8 +519,14 @@
       }
 
       function openDesk(tab) {
-        if (!postDesk(tab)) {
+        if (!postNav({ deskTab: tab })) {
           window.top.location.href = deskWireHref(tab);
+        }
+      }
+
+      function openWireTab(tab) {
+        if (!postNav({ wireTab: tab })) {
+          window.top.location.href = origin() + '/greenways/media-wire?tab=' + encodeURIComponent(tab);
         }
       }
 
@@ -532,9 +543,9 @@
           hint.textContent = '↑ headlines are catalogue-wide · map examples favour ' + label + ' when you open the desk';
         } else {
           row.innerHTML =
-            '<span class="region-chip muted">News library</span>' +
-            '<span class="region-chip muted">Video desk</span>' +
-            '<span class="region-chip muted">Sustainability map</span>';
+            '<span class="region-chip muted">Sustainability map</span>' +
+            '<span class="region-chip muted">Energy ticker</span>' +
+            '<span class="region-chip muted">Deals hub</span>';
         }
       }
 
@@ -600,22 +611,29 @@
         status.textContent =
           (meta && meta.spotlightsTrustLine) ||
           (illustrative
-            ? 'Desk spotlights · illustrative curated links'
-            : 'Desk spotlights · media lens');
+            ? 'Wire scan lanes · illustrative quick links (desk tools are below)'
+            : 'Wire scan lanes · media lens');
         cards.innerHTML = top.map(function (item, i) {
           var gold = i === 2 ? ' gold' : '';
-          var tab = item.deskTab || 'news';
-          var href = item.href ? (item.href.indexOf('/') === 0 ? origin() + item.href : item.href) : deskWireHref(tab);
+          var deskTab = item.deskTab || '';
+          var wireTab = item.wireTab || '';
+          var href = item.href ? (item.href.indexOf('/') === 0 ? origin() + item.href : item.href) : deskWireHref(deskTab || 'news');
           var badge = illustrative
             ? '<span class="trust-badge trust-badge--illustrative">Illustrative</span>'
             : '<span class="trust-badge trust-badge--live">Live</span>';
+          var navBtn = '';
+          if (deskTab) {
+            navBtn = '<a href="#" data-desk-tab="' + esc(deskTab) + '" class="js-desk-link">Open in desk</a>';
+          } else if (wireTab) {
+            navBtn = '<a href="#" data-wire-tab="' + esc(wireTab) + '" class="js-wire-link">Open wire lane</a>';
+          }
           return (
             '<article class="detail-card' + gold + '">' +
-            '<div class="card-type"><span class="card-type-dot"></span>' + esc(item.kicker || 'Desk spotlight') + ' ' + badge + '</div>' +
+            '<div class="card-type"><span class="card-type-dot"></span>' + esc(item.kicker || 'Wire lane') + ' ' + badge + '</div>' +
             '<div class="card-title">' + esc(item.title || 'Media tool') + '</div>' +
-            '<div class="card-desc">' + esc(item.summary || 'Open in the desk below.') + '</div>' +
+            '<div class="card-desc">' + esc(item.summary || 'Open from the wire scan rail.') + '</div>' +
             '<div class="card-actions">' +
-            '<a href="#" data-desk-tab="' + esc(tab) + '" class="js-desk-link">Open in desk</a>' +
+            navBtn +
             '<a href="' + esc(href) + '" target="_top" rel="noopener">Full tool</a>' +
             '<a href="' + origin() + '/greenways/media-agent" target="_top" rel="noopener">Ask Cheryce</a>' +
             '</div>' +
@@ -627,6 +645,12 @@
           a.addEventListener('click', function (ev) {
             ev.preventDefault();
             openDesk(a.getAttribute('data-desk-tab'));
+          });
+        });
+        cards.querySelectorAll('.js-wire-link').forEach(function (a) {
+          a.addEventListener('click', function (ev) {
+            ev.preventDefault();
+            openWireTab(a.getAttribute('data-wire-tab'));
           });
         });
       }

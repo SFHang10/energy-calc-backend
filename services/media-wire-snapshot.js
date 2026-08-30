@@ -109,8 +109,8 @@ async function buildMediaWireSnapshot() {
         ? `Live counts from news catalog + daily brief · refreshed ${refreshedAt}`
         : 'Live counts from news catalog + daily brief',
       spotlightsTrustLine: wireFeed.meta && wireFeed.meta.illustrative
-        ? 'Desk spotlight cards are illustrative curated links — content counts and headlines above are live'
-        : 'Desk spotlights from media wire feed'
+        ? 'Wire scan lane cards are illustrative quick links — content counts and headlines above are live; full editions and video live on the media desk below'
+        : 'Wire scan lanes from media wire feed'
     }
   };
 

@@ -108,8 +108,8 @@ function mediaWireModuleRow(overrides = {}) {
   return {
     moduleId: 'media-wire',
     title: 'Media wire',
-    description: 'News counts, headline marquees, and media desk in one hub.',
-    usageHint: 'Scroll the scan rail, then open the desk for news edition, video desk, and sustainability map.',
+    description: 'News counts, headline marquees, and wire scan lanes in one hub.',
+    usageHint: 'Wire tabs: sustainability map, energy ticker, deals hub. Desk below: sustainability + tech editions, video, references, monitoring.',
     openSize: 'near-full',
     ...overrides
   };
@@ -155,7 +155,7 @@ function formatMediaWireSnapshotBlock(snapshot, profile = {}) {
     block += `- **Latest headlines (live):** ${headlines.map((row) => row.title).join(' · ')}\n`;
   }
   if (snapshot.meta?.illustrativeSpotlights) {
-    block += '- **Trust:** content counts and headlines are **live** from the news catalog and daily brief; desk spotlight cards on the wire are **illustrative** curated links.\n';
+    block += '- **Trust:** content counts and headlines are **live** from the news catalog and daily brief; wire scan lane cards are **illustrative** quick links — full editions and video are on the media desk.\n';
   }
   return block;
 }
@@ -1244,7 +1244,7 @@ async function buildMediaWireAnswer(profile, tip) {
   const spotlights = (snapshot.spotlights || []).slice(0, 3);
   const illustrative = snapshot.meta?.illustrativeSpotlights;
   const spotlightLine = spotlights.length
-    ? `**Desk spotlights${illustrative ? ' (illustrative)' : ''}:** ${spotlights.map((row) => row.title).join(' · ')}\n\n`
+    ? `**Wire scan lanes${illustrative ? ' (illustrative)' : ''}:** ${spotlights.map((row) => row.title).join(' · ')}\n\n`
     : '';
   const trustNote = snapshot.meta?.spotlightsTrustLine
     ? `_${snapshot.meta.spotlightsTrustLine}._\n\n`
@@ -1255,8 +1255,8 @@ async function buildMediaWireAnswer(profile, tip) {
       `**Media wire** — my scan + desk hub on Greenways.\n\n` +
       (scan ? `${scan}\n` : '') +
       spotlightLine +
-      `Scroll the scan rail for content counts and latest headlines, then use the desk below for the news edition, video desk, and sustainability map. ` +
-      `The counts refresh from the **news catalog** and **daily brief** — same source as the wire page on the right.\n\n` +
+      `Scroll the scan rail for content counts and latest headlines, then use the wire tabs for the sustainability map (live directory), energy ticker, and deals hub. ` +
+      `Scroll to the **media desk** for sustainability and tech editions, video, references, and monitoring.\n\n` +
       trustNote +
       `_${tip}_`,
     blocks: [
