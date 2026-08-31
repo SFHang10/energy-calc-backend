@@ -109,7 +109,7 @@ function mediaWireModuleRow(overrides = {}) {
     moduleId: 'media-wire',
     title: 'Media wire',
     description: 'News counts, headline marquees, and wire scan lanes in one hub.',
-    usageHint: 'Wire tabs: sustainability map, energy ticker, deals hub. Desk below: sustainability + tech editions, video, references, monitoring.',
+    usageHint: 'Wire tabs: energy ticker and deals hub. Desk below: sustainability + tech editions, video, map, references, monitoring.',
     openSize: 'near-full',
     ...overrides
   };
@@ -1255,8 +1255,8 @@ async function buildMediaWireAnswer(profile, tip) {
       `**Media wire** — my scan + desk hub on Greenways.\n\n` +
       (scan ? `${scan}\n` : '') +
       spotlightLine +
-      `Scroll the scan rail for content counts and latest headlines, then use the wire tabs for the sustainability map (live directory), energy ticker, and deals hub. ` +
-      `Scroll to the **media desk** for sustainability and tech editions, video, references, and monitoring.\n\n` +
+      `Scroll the scan rail for content counts and latest headlines (including map profile totals), then use the wire tabs for the energy ticker and deals hub. ` +
+      `Scroll to the **media desk** for sustainability and tech editions, video, the sustainability map, references, and monitoring.\n\n` +
       trustNote +
       `_${tip}_`,
     blocks: [
