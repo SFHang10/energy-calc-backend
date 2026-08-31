@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css">
   <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.css">
+  <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-wire-ticker.css">
   <style>
     :root {
       --bg: #060a10;
@@ -319,6 +320,7 @@
   </div>
 
   <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.js"></script>
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-wire-ticker.js"></script>
   <script>
 (function () {
   var MODULE_HREF_FALLBACK = {
@@ -600,6 +602,9 @@
     }).join("");
 
     return (
+      '<div id="gw-wire-ticker-mount" class="gw-wire-ticker-mount gw-wire-ticker-mount--story" data-agent="' +
+      escapeHtml(story.slug || "") +
+      '" aria-label="Live wire scan"></div>' +
       '<header class="glass hero">' +
       "<div>" +
       '<p class="hero-brand">Greenways Transition Agent</p>' +
@@ -742,6 +747,10 @@
         root.className = "";
         root.innerHTML = renderStory(story, parts[1], parts[2]);
         wireStoryModules(story, root);
+        var tickerMount = root.querySelector("#gw-wire-ticker-mount");
+        if (tickerMount && window.GreenwaysAgentWireTicker && typeof window.GreenwaysAgentWireTicker.initMount === "function") {
+          window.GreenwaysAgentWireTicker.initMount(tickerMount);
+        }
       })
       .catch(function (err) {
         root.className = "glass error-box";

@@ -1,0 +1,192 @@
+/* Compact live wire ticker — agent story intros + chat shells (above showcase / map bar) */
+.gw-wire-ticker {
+  flex-shrink: 0;
+  border: 1px solid var(--gw-ticker-border, rgba(77, 166, 255, 0.28));
+  border-radius: 10px;
+  background: var(--gw-ticker-bg, rgba(8, 14, 22, 0.88));
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+}
+
+.gw-wire-ticker-mount--chat {
+  margin: 0 12px 10px;
+}
+
+.gw-wire-ticker-mount--story {
+  margin: 0 0 14px;
+}
+
+.gw-wire-ticker--grants {
+  --gw-ticker-accent: #4da6ff;
+  --gw-ticker-border: rgba(77, 166, 255, 0.28);
+  --gw-ticker-bg: rgba(6, 12, 22, 0.92);
+  --gw-ticker-pill-border: rgba(77, 166, 255, 0.32);
+}
+
+.gw-wire-ticker--media {
+  --gw-ticker-accent: #c084fc;
+  --gw-ticker-border: rgba(168, 85, 247, 0.28);
+  --gw-ticker-bg: rgba(10, 7, 18, 0.92);
+  --gw-ticker-pill-border: rgba(168, 85, 247, 0.32);
+}
+
+.gw-wire-ticker--finance {
+  --gw-ticker-accent: #c9a961;
+  --gw-ticker-border: rgba(201, 169, 97, 0.32);
+  --gw-ticker-bg: rgba(14, 12, 8, 0.92);
+  --gw-ticker-pill-border: rgba(201, 169, 97, 0.34);
+}
+
+.gw-wire-ticker--equipment {
+  --gw-ticker-accent: #3dcf7a;
+  --gw-ticker-border: rgba(61, 207, 122, 0.28);
+  --gw-ticker-bg: rgba(6, 14, 10, 0.92);
+  --gw-ticker-pill-border: rgba(61, 207, 122, 0.32);
+}
+
+.gw-wire-ticker--deals {
+  --gw-ticker-accent: #60a5fa;
+  --gw-ticker-border: rgba(96, 165, 250, 0.28);
+  --gw-ticker-bg: rgba(8, 12, 20, 0.92);
+  --gw-ticker-pill-border: rgba(255, 140, 26, 0.34);
+}
+
+.gw-wire-ticker--products {
+  --gw-ticker-accent: #2dd4bf;
+  --gw-ticker-border: rgba(45, 212, 191, 0.28);
+  --gw-ticker-bg: rgba(6, 14, 16, 0.92);
+  --gw-ticker-pill-border: rgba(45, 212, 191, 0.32);
+}
+
+.gw-wire-ticker-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--gw-ticker-border);
+  background: rgba(0, 0, 0, 0.28);
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+}
+
+.gw-wire-ticker-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #86efac;
+}
+
+.gw-wire-ticker-live::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.7);
+}
+
+.gw-wire-ticker-scan {
+  color: var(--gw-ticker-accent);
+  font-weight: 600;
+}
+
+.gw-wire-ticker-trust {
+  flex: 1;
+  min-width: 0;
+  color: #8ba3c4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gw-wire-ticker-cta {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--gw-ticker-pill-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--gw-ticker-accent);
+  font-weight: 700;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.55rem;
+}
+
+.gw-wire-ticker-cta:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.gw-wire-ticker-track-outer {
+  overflow: hidden;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+}
+
+.gw-wire-ticker-track {
+  display: flex;
+  gap: 8px;
+  padding: 7px 10px;
+  width: max-content;
+  animation: gw-wire-ticker-marquee 42s linear infinite;
+}
+
+.gw-wire-ticker-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gw-wire-ticker-track {
+    animation: none;
+    flex-wrap: wrap;
+    width: auto;
+  }
+}
+
+@keyframes gw-wire-ticker-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.gw-wire-ticker-pill {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 7px;
+  border: 1px solid var(--gw-ticker-pill-border);
+  background: rgba(10, 18, 28, 0.9);
+  font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #e8f0ff;
+  white-space: nowrap;
+}
+
+.gw-wire-ticker-pill strong {
+  color: var(--gw-ticker-accent);
+  font-weight: 700;
+}
+
+.gw-wire-ticker-pill .tag {
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--gw-ticker-pill-border);
+  color: var(--gw-ticker-accent);
+}
+
+.gw-wire-ticker--error .gw-wire-ticker-trust {
+  color: #f87171;
+}
