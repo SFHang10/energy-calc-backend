@@ -1,6 +1,6 @@
 /**
- * Collapse product showcase banner after conversation starts — more room for chat turns.
- * Optional expand via slim strip. Resets when welcome card returns (new chat).
+ * Collapse product showcase + wire ticker after conversation starts — more room for chat.
+ * Slim strip keeps Show/Hide spotlight. Resets when welcome card returns (new chat).
  */
 (function (global) {
   "use strict";
@@ -13,6 +13,10 @@
 
   function bannerEl() {
     return document.getElementById("product-showcase-banner");
+  }
+
+  function tickerEl() {
+    return document.getElementById("gw-wire-ticker-mount");
   }
 
   function threadEl() {
@@ -35,9 +39,9 @@
     var btn = document.querySelector(".gw-banner-expand-btn");
     var main = mainEl();
     if (!btn || !main) return;
-    btn.textContent = main.classList.contains("is-banner-expanded")
-      ? "Hide spotlight"
-      : "Show spotlight";
+    var expanded = main.classList.contains("is-banner-expanded");
+    btn.textContent = expanded ? "Hide spotlight" : "Show spotlight";
+    btn.setAttribute("aria-expanded", expanded ? "true" : "false");
   }
 
   function setConversation(active) {
@@ -48,8 +52,44 @@
     syncToggleLabel();
   }
 
-  function ensureToggleBar(banner) {
-    if (!banner || banner.querySelector(".gw-banner-collapse-bar")) return;
+  function ensureSpotlightZone() {
+    var banner = bannerEl();
+    if (!banner) return null;
+
+    var zone = document.getElementById("agent-spotlight-zone");
+    if (zone) return zone;
+
+    var ticker = tickerEl();
+    var parent = banner.parentNode;
+    if (!parent) return null;
+
+    zone = document.createElement("div");
+    zone.id = "agent-spotlight-zone";
+    zone.className = "agent-spotlight-zone";
+
+    if (ticker && ticker.parentNode === parent) {
+      parent.insertBefore(zone, ticker);
+      zone.appendChild(ticker);
+      zone.appendChild(banner);
+    } else {
+      parent.insertBefore(zone, banner);
+      zone.appendChild(banner);
+    }
+
+    return zone;
+  }
+
+  function ensureToggleBar(zone) {
+    var banner = bannerEl();
+    if (!zone || !banner) return;
+
+    var existing =
+      zone.querySelector(".gw-banner-collapse-bar") ||
+      banner.querySelector(".gw-banner-collapse-bar");
+    if (existing && existing.parentNode !== zone) {
+      zone.insertBefore(existing, zone.firstChild);
+    }
+    if (zone.querySelector(".gw-banner-collapse-bar")) return;
 
     var labelEl = banner.querySelector(".product-showcase-label");
     var hintEl = banner.querySelector(".product-showcase-hint");
@@ -67,8 +107,8 @@
         ? '<span class="gw-banner-collapse-hint">' + escapeHtml(hintText) + "</span>"
         : "") +
       "</span>" +
-      '<button type="button" class="gw-banner-expand-btn">Show spotlight</button>';
-    banner.insertBefore(bar, banner.firstChild);
+      '<button type="button" class="gw-banner-expand-btn" aria-expanded="false">Show spotlight</button>';
+    zone.insertBefore(bar, zone.firstChild);
 
     bar.querySelector(".gw-banner-expand-btn").addEventListener("click", function () {
       var main = mainEl();
@@ -87,7 +127,8 @@
     var thread = threadEl();
     if (!banner || !thread) return;
 
-    ensureToggleBar(banner);
+    var zone = ensureSpotlightZone();
+    ensureToggleBar(zone);
     refresh();
 
     if (observer) return;

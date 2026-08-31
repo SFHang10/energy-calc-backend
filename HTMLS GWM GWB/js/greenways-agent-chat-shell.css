@@ -103,7 +103,13 @@
   }
 }
 
-/* Product banner collapse — more chat space after first message */
+/* Product banner + wire ticker collapse — more chat space after first message */
+.agent-spotlight-zone {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .gw-banner-collapse-bar {
   display: none;
   align-items: center;
@@ -111,6 +117,9 @@
   gap: 10px;
   flex-wrap: wrap;
   width: 100%;
+  padding: 8px 14px 10px;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent, #64748b) 18%, transparent);
+  background: color-mix(in srgb, var(--accent, #64748b) 5%, rgba(10, 16, 28, 0.55));
 }
 
 .gw-banner-collapse-copy {
@@ -157,9 +166,15 @@
   display: flex;
 }
 
+.guide-main.has-conversation:not(.is-banner-expanded) .agent-spotlight-zone #gw-wire-ticker-mount,
+.guide-main.has-conversation:not(.is-banner-expanded) .agent-spotlight-zone #product-showcase-banner {
+  display: none !important;
+}
+
 .guide-main.has-conversation:not(.is-banner-expanded) .product-showcase-head,
 .guide-main.has-conversation:not(.is-banner-expanded) .product-samples--banner,
-.guide-main.has-conversation:not(.is-banner-expanded) #top-product-samples {
+.guide-main.has-conversation:not(.is-banner-expanded) #top-product-samples,
+.guide-main.has-conversation:not(.is-banner-expanded) #map-module-launch-bar {
   display: none !important;
 }
 
@@ -184,12 +199,24 @@
   min-height: min(58vh, 540px);
 }
 
+.guide-main.has-conversation:not(.is-banner-expanded) .chat-panel {
+  min-height: min(64vh, 600px);
+}
+
 .guide-main.has-conversation .chat-thread {
   min-height: 220px;
+}
+
+.guide-main.has-conversation:not(.is-banner-expanded) .chat-thread {
+  min-height: 280px;
 }
 
 @media (max-width: 720px) {
   .guide-main.has-conversation .chat-panel {
     min-height: min(50vh, 420px);
+  }
+
+  .guide-main.has-conversation:not(.is-banner-expanded) .chat-panel {
+    min-height: min(56vh, 480px);
   }
 }
