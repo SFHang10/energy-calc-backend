@@ -1,11 +1,12 @@
 /**
- * Collapse product showcase + wire ticker after conversation starts — more room for chat.
- * Slim strip keeps Show/Hide spotlight. Resets when welcome card returns (new chat).
+ * Collapse wire ticker + product showcase for more chat room.
+ * Show/Hide spotlight toggle is always visible; preference saved per agent in sessionStorage.
  */
 (function (global) {
   "use strict";
 
   var observer = null;
+  var STORAGE_PREFIX = "gw_spotlight_collapsed_";
 
   function mainEl() {
     return document.querySelector(".guide-main");
@@ -21,6 +22,30 @@
 
   function threadEl() {
     return document.getElementById("chat-thread");
+  }
+
+  function storageKey() {
+    var ticker = tickerEl();
+    var agent = ticker && ticker.getAttribute("data-agent");
+    if (agent) return STORAGE_PREFIX + agent;
+    var path = location.pathname || "";
+    var match = path.match(/\/greenways\/([^/?]+)/);
+    return STORAGE_PREFIX + (match ? match[1] : "agent");
+  }
+
+  function loadCollapsedState() {
+    try {
+      return sessionStorage.getItem(storageKey()) === "1";
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function saveCollapsedState(collapsed) {
+    try {
+      if (collapsed) sessionStorage.setItem(storageKey(), "1");
+      else sessionStorage.removeItem(storageKey());
+    } catch (_) {}
   }
 
   function hasWelcomeOnly(thread) {
@@ -44,11 +69,22 @@
     btn.setAttribute("aria-expanded", expanded ? "true" : "false");
   }
 
+  function applySpotlightExpanded(expanded) {
+    var main = mainEl();
+    if (!main) return;
+    main.classList.toggle("is-banner-expanded", !!expanded);
+    saveCollapsedState(!expanded);
+    syncToggleLabel();
+  }
+
+  function initSpotlightState() {
+    applySpotlightExpanded(!loadCollapsedState());
+  }
+
   function setConversation(active) {
     var main = mainEl();
     if (!main) return;
     main.classList.toggle("has-conversation", !!active);
-    if (!active) main.classList.remove("is-banner-expanded");
     syncToggleLabel();
   }
 
@@ -107,14 +143,13 @@
         ? '<span class="gw-banner-collapse-hint">' + escapeHtml(hintText) + "</span>"
         : "") +
       "</span>" +
-      '<button type="button" class="gw-banner-expand-btn" aria-expanded="false">Show spotlight</button>';
+      '<button type="button" class="gw-banner-expand-btn" aria-expanded="true">Hide spotlight</button>';
     zone.insertBefore(bar, zone.firstChild);
 
     bar.querySelector(".gw-banner-expand-btn").addEventListener("click", function () {
       var main = mainEl();
       if (!main) return;
-      main.classList.toggle("is-banner-expanded");
-      syncToggleLabel();
+      applySpotlightExpanded(!main.classList.contains("is-banner-expanded"));
     });
   }
 
@@ -129,6 +164,7 @@
 
     var zone = ensureSpotlightZone();
     ensureToggleBar(zone);
+    initSpotlightState();
     refresh();
 
     if (observer) return;

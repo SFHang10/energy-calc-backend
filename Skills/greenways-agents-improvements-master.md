@@ -3,7 +3,7 @@
 **Purpose:** One place to track improvements for Greenways Agents. This combines:
 - **Ralph Power Platform PRD** (`tasks/prd-agents-power-platform.json`) — W1–W9 waves + user stories
 - **Talking phase PRD** (`tasks/prd-agents-talking-phase.json`) — branded TTS, spoken scripts, Wix mic ⭐
-- **Connective-tissue gaps backlog** (`Skills/greenways-agents-possible-next-steps.md`) — Gap 1–10
+- **Connective-tissue gaps backlog** (`Skills/greenways-agents-possible-next-steps.md`) — Gap 1–12
 
 **Rule:** Add new work here first. The two source documents can keep detail, but this is the **single working queue**.
 
@@ -19,6 +19,12 @@
 - [x] **Sustainability map explainer:** `greenways-sustainability-map-explainer.html` + module `sustainability-map-explainer` + `/greenways/sustainability-map-intro` — Cheryce map intent + content module wiring — 2026-08-20
 - [x] **Artemis Equipment desk:** `greenways-equipment-desk.html` + module `equipment-desk` + `/greenways/equipment-desk` — 5 rails (deep dive, payback, ETL, renovation, upgrade plan); sidebar first link on Artemis — 2026-08-24
 - [x] **Edwardo systems innovation:** `systems_innovation` intent + New in Tech edition reading + site evidence card + welcome tag — 2026-08-24
+- [x] **Wire + desk hub (six specialists):** `data/greenways-wire-config.json` + `greenways-wire-hub.js` — thin wire shells for grants, finance, equipment, deals, media, products — 2026-08-31
+- [x] **Wire snapshot trust + chat grounding:** live vs illustrative badges on wire mains; `/api/*-wire/snapshot` trust lines; region-aware wire blocks in knowledge services (all six) — 2026-08-31
+- [x] **Agent desk rails (Vincent template):** shared `greenways-desk-rail.css` on grants, deals, media, products desks — 2026-08-31
+- [x] **Cheryce wire vs desk split:** wire = energy ticker + deals hub + counts; desk = news editions, video, map, references, monitoring (no duplicate map on wire) — 2026-08-31
+- [x] **Live wire ticker:** `greenways-agent-wire-ticker.js` on agent story intros + all six chat shells (`data/greenways-agent-wire-ticker.json`) — 2026-08-31
+- [x] **Spotlight collapse UX:** Show/Hide spotlight from page load; wire ticker + showcase in `agent-spotlight-zone`; `sessionStorage` per agent; accent pulse on toggle — 2026-09-01
 
 ---
 
@@ -35,12 +41,20 @@
 - [x] **W7 / US-021:** Top misses panel on `agents-admin.html` (`GET /api/agents-admin/ask-misses`) — 2026-07-14
 - [x] **W6 — Proactive nudges (partial):** sidebar “This week”, Andrieus deadline chip, Zara welcome spotlight — 2026-07-14
 - [x] **Gap 2 (partial):** Site energy reading module (UK live; EU benchmark until ENTSO-E key) — 2026-07-13
+- [x] **Wire + desk pattern (Aug 2026):** six wire hubs, desk rails, snapshot trust, story/chat wire tickers, spotlight toggle — see bullets above — 2026-08-31
 
 ---
 
 ## One combined queue (work order)
 
-### Next up (Aug 2026)
+### Suggested focus (Sep 2026)
+
+1. **Desk parity polish** — Edwardo systems desk + guided paths on existing desks (Andrieus / Cheryce next)
+2. **Deals feed automation** — `build:deals-feed` on schedule (keeps Zara wire honest)
+3. **Talking phase** — branded TTS + Wix mic (`prd-agents-talking-phase.json`)
+4. **Member context on wire/desk** — profile/site from Customer Hub → snapshot pills
+
+### Next up (Aug–Sep 2026)
 
 - [ ] **Data refresh:** schemes.json review + product-grants integrator/bundle; deals weekly input + `build:deals-feed`; smokes + agents-admin freshness — playbooks `Skills/grants-refresh-playbook.md` · `Skills/agents-data-refresh-playbook.md`
 - [x] **Grants/schemes refresh (Aug 2026):** france-renov + maprimenov link/copy; integrator + products-grants-bundle + enrich sust catalog — 2026-08-26
@@ -99,7 +113,11 @@
 - [x] **W8 foundation:** browser voice + spokenSummary + TTS route + Andrieus premium pilot + listen mode — see power platform PRD
 - [ ] **Talking phase (AV-001–007):** branded TTS for remaining agents; spoken script quality; talk UX; Wix mic path; optional STT — `tasks/prd-agents-talking-phase.json`
 - [x] **Agent desks (partial):** Vincent finance desk/wire + Artemis `equipment-desk` + **equipment wire** (scan + desk hub, `/api/equipment-wire/snapshot`) — 2026-08-27
-- [ ] **Agent desks (rollout — remaining):** Clone desk pattern for Andrieus, Zara, Cheryce, Zyanne, Edwardo — then thin sidebar tabs into each desk
+- [x] **Vincent daily external news v1:** EU/EIB RSS, RVO/DBT staff queue, UK DESNZ, headline admin, Render cron — 2026-08-27
+- [ ] **Gap 12 — Vincent finance feeds (later):** Ofgem, HMRC Atom, UKRI; IE/DE/FR gov Atom — `Skills/greenways-agents-possible-next-steps.md` § Gap 12
+- [x] **Agent desk rails (grants, deals, media, products):** Vincent-template Explore sidebar on four desks — 2026-08-31
+- [ ] **Agent desks (rollout — remaining):** Edwardo systems desk; guided desk paths (step 1→2→3); cross-agent strip on wire hubs; member context on wire/desk snapshots
+- [ ] **Wire/desk enhancements:** Map “new company” live marquees on Cheryce wire KPI row (counts only — map stays on desk)
 
 ---
 
