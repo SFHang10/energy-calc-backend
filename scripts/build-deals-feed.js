@@ -32,6 +32,8 @@ function weeklyToFeedDeals(weekly, generatedAt) {
       region: 'EU',
       tags: ['product', 'weekly'],
       href: d.url || './sustainable_product_deal_finder_portal.html',
+      trust: d.trust || 'live',
+      sourceName: d.sourceName || 'Weekly deal intake',
       isNew: true,
       addedAt: generatedAt.slice(0, 10),
       productId: d.productId

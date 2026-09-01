@@ -23,6 +23,7 @@ const {
   isReferralWelcomePair
 } = require('./greenways-agent-handoff');
 const { buildDealsWireSnapshot } = require('./deals-wire-snapshot');
+const { handoffsFromDeals, dedupeHandoffs } = require('./deals-feed-utils');
 
 const intentsPath = path.join(__dirname, '..', 'data', 'deals-agent-intents.json');
 const showcasePath = path.join(__dirname, '..', 'data', 'deals-agent-showcase.json');
@@ -320,7 +321,10 @@ function toDealSample(deal, imageUrl) {
     grantsCount: 0,
     marketplaceHref: dealHref(deal),
     region: deal.region || 'EU',
-    isNew: !!deal.isNew
+    isNew: !!deal.isNew,
+    trust: deal.trust || 'curated',
+    sourceName: deal.sourceName || '',
+    stackHints: Array.isArray(deal.stackHints) ? deal.stackHints : []
   };
 }
 
@@ -916,13 +920,15 @@ async function buildDealsFeedScanAnswer(deals, feedMeta, profile, question, tip,
     `On the right are live examples${profileNote} — open a card for tariffs, water savings, or product spotlights on the live portal.\n\n` +
     `_Prices and contract terms change — confirm on the linked page before switching._`;
 
-  const linkItems = picks.map((d) =>
-    toLinkItem(
+  const linkItems = picks.map((d) => {
+    const trustNote = d.trust ? ` · ${d.trust}` : '';
+    const sourceNote = d.sourceName ? ` · ${d.sourceName}` : '';
+    return toLinkItem(
       `${d.isNew ? '🆕 ' : ''}${d.title || d.id}`,
       dealHref(d),
-      `${String(d.line || d.category || 'Deal').slice(0, 90)} · ${d.region || 'EU'}`
-    )
-  );
+      `${String(d.line || d.category || 'Deal').slice(0, 90)} · ${d.region || 'EU'}${trustNote}${sourceNote}`
+    );
+  });
 
   const blocks = [
     { type: 'stat', items: statItems },
@@ -934,12 +940,19 @@ async function buildDealsFeedScanAnswer(deals, feedMeta, profile, question, tip,
   ];
 
   const productSamples = await dealSamplesFromDeals(picks, 3);
+  const stackHandoffs = handoffsFromDeals(picks, question);
+  const briefingHandoffs = buildHandoffs(
+    await loadBriefing(),
+    question,
+    focus === 'new' ? 'new_deals' : 'deals_feed_scan'
+  );
 
   return {
     answer: `${intro}\n\n_${tip}_`,
     suggestions: [],
     blocks,
     productSamples,
+    agentHandoffs: dedupeHandoffs([...stackHandoffs, ...briefingHandoffs]),
     intentId: focus === 'new' ? 'new_deals' : 'deals_feed_scan'
   };
 }

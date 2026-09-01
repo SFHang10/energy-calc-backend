@@ -39,8 +39,6 @@
 
 ### Phase 1 — Thin slice seeds ✅ (2026-09-01)
 
-**Goal:** ~**3 real rows per lane** in `deals-feed-seeds.json` (9 total), each with:
-
 | Field | Required |
 |-------|----------|
 | `id` | stable slug |
@@ -58,6 +56,14 @@
 
 - [x] 9 seed rows (3 per lane) in `deals-feed-seeds.json` v2
 - [x] `npm run build:deals-feed`
+
+### Phase 1b — Tester UX ✅ (2026-09-01)
+
+- [x] Trust badges + `sourceName` on deals hub cards (`deals-ticker-hub.html`)
+- [x] Wire desk spotlights from newest feed row per lane (`deals-wire-snapshot.js`)
+- [x] Zara welcome spotlight → **Open this deal** (`greenways-deals-agent.html`)
+- [x] Stack hint chips (hub cards + Zara handoffs from `stackHints`)
+- [x] `npm run smoke:deals-feed` + agents-data-pipeline validator
 
 ### Phase 2 — Candidate pipeline (next)
 
@@ -82,9 +88,9 @@ Label `trust: live` only when tied to repo data; else `curated`.
 
 ### Phase 4 — Consumer tool polish
 
-- Deals hub: search by title, tags, region, `productId`
-- Zara wire pills: headline from newest **approved** row per lane
-- Stack chips: “Check grants” / “Payback with Vincent”
+- [x] Stack chips: grants / payback / equipment on hub + Zara handoffs
+- [ ] Deals hub: search by `productId` and `trust`
+- [ ] Zara wire pills: headline from newest row per lane (partial — wire spotlights done)
 
 ### Phase 5 — Ops (Edwardo-aligned, later)
 

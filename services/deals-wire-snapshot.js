@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs/promises');
+const { buildFeedSpotlights } = require('./deals-feed-utils');
 
 const FEED_PATH = path.join(__dirname, '..', 'data', 'deals-feed.json');
 const WIRE_FEED_PATH = path.join(__dirname, '..', 'data', 'deals-wire-feed.json');
@@ -81,6 +82,20 @@ async function buildDealsWireSnapshot() {
     wireFeed.updatedAt ||
     null;
 
+  const feedSpotlights = buildFeedSpotlights(deals);
+  const spotlightsFromFeed = feedSpotlights.length >= 3;
+  const spotlights = spotlightsFromFeed ? feedSpotlights : wireFeed.spotlights || [];
+  const spotlightTrusts = new Set(spotlights.map((row) => row.trust || 'curated'));
+  const spotlightsTrust = spotlightsFromFeed
+    ? spotlightTrusts.size === 1 && spotlightTrusts.has('illustrative')
+      ? 'illustrative'
+      : spotlightTrusts.has('live')
+        ? 'live'
+        : 'curated'
+    : wireFeed.meta && wireFeed.meta.illustrative
+      ? 'illustrative'
+      : 'live';
+
   const snapshot = {
     ok: true,
     generatedAt: new Date().toISOString(),
@@ -93,19 +108,22 @@ async function buildDealsWireSnapshot() {
     newThisMonth,
     showcase,
     highlights: (feed.highlights || []).slice(0, 3),
-    spotlights: wireFeed.spotlights || [],
+    spotlights,
     meta: {
-      illustrativeSpotlights: Boolean(wireFeed.meta && wireFeed.meta.illustrative),
+      illustrativeSpotlights: !spotlightsFromFeed && Boolean(wireFeed.meta && wireFeed.meta.illustrative),
+      spotlightsFromFeed,
       countsTrust: 'live',
       laneTrust: 'live',
       newRowsTrust: 'live',
-      spotlightsTrust: wireFeed.meta && wireFeed.meta.illustrative ? 'illustrative' : 'live',
+      spotlightsTrust,
       trustLine: refreshedAt
         ? `Live counts from deals-feed.json · refreshed ${refreshedAt}`
         : 'Live counts from deals-feed.json',
-      spotlightsTrustLine: wireFeed.meta && wireFeed.meta.illustrative
-        ? 'Desk spotlight cards are illustrative curated links — lane counts and new spotlights above are live'
-        : 'Desk spotlights from deals wire feed'
+      spotlightsTrustLine: spotlightsFromFeed
+        ? 'Desk spotlight cards · newest deals-feed row per lane (trust label on each card)'
+        : wireFeed.meta && wireFeed.meta.illustrative
+          ? 'Desk spotlight cards are illustrative curated links — lane counts and new spotlights above are live'
+          : 'Desk spotlights from deals wire feed'
     }
   };
 

@@ -186,6 +186,11 @@
       background: rgba(201, 169, 97, 0.08);
       color: #e8d5a3;
     }
+    .trust-badge--curated {
+      border: 1px solid rgba(34, 212, 255, 0.35);
+      background: rgba(34, 212, 255, 0.08);
+      color: #7dd3fc;
+    }
     .wire-hero-banner {
       position: relative;
       margin: 0 auto 14px;
@@ -585,12 +590,37 @@
         );
       }
 
+      var STACK_HINT_LINKS = {
+        'grants-agent': { label: 'Grants', href: '/greenways/grants-agent' },
+        'finance-agent': { label: 'Payback', href: '/greenways/finance-agent' },
+        'equipment-agent': { label: 'Equipment', href: '/greenways/equipment-agent' }
+      };
+
+      function trustBadgeFor(item, illustrative) {
+        var trust = String(item.trust || (illustrative ? 'illustrative' : 'live')).toLowerCase();
+        if (trust === 'live') return '<span class="trust-badge trust-badge--live">Live</span>';
+        if (trust === 'curated') return '<span class="trust-badge trust-badge--curated">Curated</span>';
+        return '<span class="trust-badge trust-badge--illustrative">Illustrative</span>';
+      }
+
+      function stackLinksHtml(item) {
+        var hints = item.stackHints || [];
+        if (!hints.length) return '';
+        return hints.map(function (hint) {
+          var row = STACK_HINT_LINKS[hint];
+          if (!row) return '';
+          return '<a href="' + origin() + esc(row.href) + '" target="_top" rel="noopener">' + esc(row.label) + '</a>';
+        }).join('');
+      }
       function renderCards(spotlights, meta) {
         var status = document.getElementById('status');
         var cards = document.getElementById('cards');
         var head = document.getElementById('spotlightHead');
+        var fromFeed = meta && meta.spotlightsFromFeed;
         var illustrative = meta && meta.spotlightsTrust === 'illustrative';
-        if (head) head.style.display = illustrative ? 'flex' : 'none';
+        if (head) {
+          head.style.display = fromFeed ? 'none' : illustrative ? 'flex' : 'none';
+        }
         var top = (spotlights || []).slice(0, 3);
         if (!top.length) {
           status.className = 'status error';
@@ -598,6 +628,7 @@
           cards.innerHTML = '';
           return;
         }
+        status.className = 'status';
         status.textContent =
           (meta && meta.spotlightsTrustLine) ||
           (illustrative
@@ -607,17 +638,21 @@
           var gold = i === 2 ? ' gold' : '';
           var tab = item.deskTab || 'hub';
           var href = item.href ? (item.href.indexOf('/') === 0 ? origin() + item.href : item.href) : deskWireHref(tab);
-          var badge = illustrative
-            ? '<span class="trust-badge trust-badge--illustrative">Illustrative</span>'
-            : '<span class="trust-badge trust-badge--live">Live</span>';
+          var badge = trustBadgeFor(item, illustrative);
+          var sourceLine = item.sourceName
+            ? '<div class="card-desc" style="margin-top:-4px;font-size:0.55rem;opacity:0.85">' + esc(item.sourceName) + '</div>'
+            : '';
+          var stackLine = stackLinksHtml(item);
           return (
             '<article class="detail-card' + gold + '">' +
             '<div class="card-type"><span class="card-type-dot"></span>' + esc(item.kicker || 'Desk spotlight') + ' ' + badge + '</div>' +
             '<div class="card-title">' + esc(item.title || 'Deals tool') + '</div>' +
             '<div class="card-desc">' + esc(item.summary || 'Open in the desk below.') + '</div>' +
+            sourceLine +
             '<div class="card-actions">' +
             '<a href="#" data-desk-tab="' + esc(tab) + '" class="js-desk-link">Open in desk</a>' +
-            '<a href="' + esc(href) + '" target="_top" rel="noopener">Full tool</a>' +
+            '<a href="' + esc(href) + '" target="_top" rel="noopener">Open deal</a>' +
+            (stackLine || '') +
             '<a href="' + origin() + '/greenways/deals-agent" target="_top" rel="noopener">Ask Zara</a>' +
             '</div>' +
             '</article>'

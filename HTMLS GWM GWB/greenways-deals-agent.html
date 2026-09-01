@@ -231,6 +231,40 @@
     color: #fff7ed;
     border: 1px solid rgba(255, 140, 26, 0.5);
     background: rgba(120, 53, 15, 0.45);
+    margin-right: 6px;
+  }
+  .welcome-deal-spotlight-btn--ghost {
+    color: #fdba74;
+    background: transparent;
+    border-color: rgba(255, 140, 26, 0.35);
+  }
+  .welcome-deal-spotlight-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .welcome-deal-trust {
+    font-size: 0.52rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 99px;
+    border: 1px solid rgba(34, 212, 255, 0.35);
+    color: #7dd3fc;
+  }
+  .welcome-deal-trust--live { border-color: rgba(74, 222, 128, 0.35); color: #86efac; }
+  .welcome-deal-trust--illustrative { border-color: rgba(201, 169, 97, 0.35); color: #e8d5a3; }
+  .welcome-deal-source {
+    font-size: 0.58rem;
+    color: var(--muted);
+  }
+  .welcome-deal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
   }
   .welcome-tags {
     display: flex;
@@ -1553,15 +1587,60 @@
     return pool.find(function (d) { return d.isNew; }) || pool[0];
   }
 
+  var welcomeDealSpotlight = null;
+
+  function openWelcomeDeal(deal) {
+    if (!deal || !deal.href) return;
+    var href = String(deal.href);
+    var base = apiBase();
+    if (/^https?:\/\//i.test(href)) {
+      window.open(href, "_blank", "noopener,noreferrer");
+      return;
+    }
+    if (href.indexOf("/") === 0) {
+      window.top.location.href = base + href;
+      return;
+    }
+    if (/product-page-v2-marketplace/i.test(href)) {
+      var productPath = href.replace(/^\.\//, "");
+      if (productPath.indexOf("/") !== 0) productPath = "/" + productPath;
+      window.top.location.href = base + productPath;
+      return;
+    }
+    if (/european_energy_deals_portal/i.test(href) && window.GreenwaysAgentContentModule) {
+      GreenwaysAgentContentModule.openById("european-energy");
+      return;
+    }
+    if (/water-saving-finder/i.test(href) && window.GreenwaysAgentContentModule) {
+      GreenwaysAgentContentModule.openById("water-saving-finder");
+      return;
+    }
+    if (/sustainable_product_deal_finder/i.test(href) && window.GreenwaysAgentContentModule) {
+      GreenwaysAgentContentModule.openById("sustainable-product-finder");
+      return;
+    }
+    window.top.location.href = base + "/HTMLS%20GWM%20GWB/" + href.replace(/^\.\//, "");
+  }
+
   function welcomeSpotlightHtml(deal) {
     if (!deal) return "";
+    var trust = String(deal.trust || "curated").toLowerCase();
+    var trustClass = trust === "live" || trust === "illustrative" ? trust : "curated";
+    var meta =
+      '<div class="welcome-deal-spotlight-meta">' +
+      '<span class="welcome-deal-trust welcome-deal-trust--' + trustClass + '">' + escapeHtml(trust) + "</span>" +
+      (deal.sourceName ? '<span class="welcome-deal-source">' + escapeHtml(deal.sourceName) + "</span>" : "") +
+      "</div>";
     return (
       '<div class="welcome-deal-spotlight" id="welcome-deal-spotlight">' +
       '<span class="welcome-deal-spotlight-label">Deal spotlight</span>' +
+      meta +
       '<span class="welcome-deal-spotlight-title">' + escapeHtml(deal.title || "Featured deal") + "</span>" +
       '<span class="welcome-deal-spotlight-line">' + escapeHtml(deal.line || "") + "</span>" +
-      '<button type="button" class="welcome-deal-spotlight-btn" data-module-open="deals-ticker">Open deals hub</button>' +
-      "</div>"
+      '<div class="welcome-deal-actions">' +
+      '<button type="button" class="welcome-deal-spotlight-btn" data-deal-open="1">Open this deal</button>' +
+      '<button type="button" class="welcome-deal-spotlight-btn welcome-deal-spotlight-btn--ghost" data-module-open="deals-ticker">All deals</button>' +
+      "</div></div>"
     );
   }
 
@@ -1577,6 +1656,7 @@
       var profile = typeof getProfile === "function" ? getProfile() : {};
       var deal = pickDealForProfile(data.deals, profile.region);
       if (!deal) return;
+      welcomeDealSpotlight = deal;
       var tags = card.querySelector(".welcome-tags");
       var existing = document.getElementById("welcome-deal-spotlight");
       if (existing) existing.remove();
@@ -1878,9 +1958,16 @@
         sendQuestion(btn.getAttribute("data-prompt"));
       });
     });
-    var spotlightBtn = document.querySelector(".welcome-deal-spotlight-btn");
+    var spotlightBtn = document.querySelector(".welcome-deal-spotlight-btn[data-deal-open]");
     if (spotlightBtn) {
       spotlightBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (welcomeDealSpotlight) openWelcomeDeal(welcomeDealSpotlight);
+      });
+    }
+    var hubBtn = document.querySelector(".welcome-deal-spotlight-btn[data-module-open='deals-ticker']");
+    if (hubBtn) {
+      hubBtn.addEventListener("click", function (e) {
         e.preventDefault();
         if (window.GreenwaysAgentContentModule) {
           GreenwaysAgentContentModule.openById("deals-ticker");
