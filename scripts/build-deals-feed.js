@@ -53,7 +53,7 @@ function main() {
   const payload = {
     meta: {
       ...(seeds.meta || {}),
-      version: 1,
+      version: (seeds.meta && seeds.meta.version) || 1,
       generatedAt,
       sources: ['deals-feed-seeds.json', 'deals-weekly-input.json (merged when present)']
     },

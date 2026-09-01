@@ -1,0 +1,285 @@
+{
+  "version": 1,
+  "updatedAt": "2026-09-01",
+  "strategy": "balanced-thin-slice",
+  "description": "Where Zara deals feed v2 hunts per lane. External rows land in data/deals-candidates.json (approved: false) → merge into seeds/weekly → npm run build:deals-feed. Internal rows from grants overlay, catalog, and energy ticker (see playbook).",
+  "lanes": {
+    "energy": {
+      "label": "Energy supply & tariffs",
+      "consumerTools": [
+        "/HTMLS%20GWM%20GWB/european_energy_deals_portal.html",
+        "/greenways/deals-hub"
+      ],
+      "trustTiers": {
+        "live": "Official regulator or supplier tariff page with dated terms",
+        "curated": "Staff-verified comparison portal or promo — confirm before switch",
+        "illustrative": "Greenways navigation or example — not a live price"
+      },
+      "regions": ["NL", "UK", "EU"],
+      "sources": [
+        {
+          "id": "nl-energievergelijk",
+          "name": "Energievergelijk.nl",
+          "type": "comparison",
+          "region": "NL",
+          "url": "https://www.energievergelijk.nl/",
+          "hospitalityNote": "SME / zakelijk filters — pair with VAT-aware copy",
+          "autoFetch": false,
+          "priority": "high"
+        },
+        {
+          "id": "nl-pricewise",
+          "name": "Pricewise (NL)",
+          "type": "comparison",
+          "region": "NL",
+          "url": "https://www.pricewise.nl/",
+          "autoFetch": false,
+          "priority": "medium"
+        },
+        {
+          "id": "nl-acm",
+          "name": "ACM — energy market (NL)",
+          "type": "regulator",
+          "region": "NL",
+          "url": "https://www.acm.nl/nl/onderwerpen/energie",
+          "autoFetch": false,
+          "priority": "medium"
+        },
+        {
+          "id": "uk-uswitch-business",
+          "name": "Uswitch — business energy",
+          "type": "comparison",
+          "region": "UK",
+          "url": "https://www.uswitch.com/gas-electricity/business-energy/",
+          "autoFetch": false,
+          "priority": "high"
+        },
+        {
+          "id": "uk-ofgem",
+          "name": "Ofgem",
+          "type": "regulator",
+          "region": "UK",
+          "url": "https://www.ofgem.gov.uk/",
+          "autoFetch": false,
+          "priority": "medium"
+        },
+        {
+          "id": "uk-mse",
+          "name": "MoneySavingExpert — energy",
+          "type": "editorial",
+          "region": "UK",
+          "url": "https://www.moneysavingexpert.com/utilities/",
+          "autoFetch": false,
+          "priority": "medium"
+        },
+        {
+          "id": "cross-desnz-atom",
+          "name": "UK DESNZ Atom (shared with Vincent)",
+          "type": "atom",
+          "region": "UK",
+          "url": "https://www.gov.uk/search/news-and-communications.atom?organisations[]=department-for-energy-security-and-net-zero",
+          "crossAgent": "finance-agent",
+          "dealKeywords": "tariff|price cap|green|renewable|business|hospitality|SME",
+          "autoFetch": true,
+          "priority": "high",
+          "status": "planned"
+        },
+        {
+          "id": "internal-energy-ticker",
+          "name": "Greenways wholesale / energy ticker",
+          "type": "internal",
+          "region": "EU",
+          "api": "/api/finance-wire/snapshot",
+          "autoFetch": true,
+          "priority": "high",
+          "status": "planned"
+        }
+      ]
+    },
+    "water": {
+      "label": "Water savings products & trade offers",
+      "consumerTools": [
+        "/greenways/water-saving-finder",
+        "/greenways/deals-hub"
+      ],
+      "trustTiers": {
+        "live": "Supplier or retailer listing with SKU and price",
+        "curated": "Trade promo or campaign page — verify stock and region",
+        "illustrative": "Tip or grant pointer only"
+      },
+      "regions": ["NL", "UK", "EU"],
+      "sources": [
+        {
+          "id": "horeca-trade-suppliers",
+          "name": "HORECA / catering equipment distributors",
+          "type": "trade",
+          "region": "EU",
+          "examples": ["Hobart", "Meiko", "Winterhalter", "local warewash dealers"],
+          "searchHints": ["pre-rinse", "aerator", "low-flow", "submeter", "leak detection"],
+          "autoFetch": false,
+          "priority": "high"
+        },
+        {
+          "id": "amazon-business",
+          "name": "Amazon Business",
+          "type": "retail",
+          "region": "EU",
+          "url": "https://www.amazon.co.uk/business",
+          "searchHints": ["tap aerator commercial", "pre-rinse spray valve", "dishwasher efficiency"],
+          "autoFetch": false,
+          "priority": "medium"
+        },
+        {
+          "id": "internal-water-finder",
+          "name": "Water Saving Finder persistCatalog",
+          "type": "internal",
+          "region": "EU",
+          "api": "/api/equipment-intelligence/alternatives?persistCatalog=1",
+          "catalog": "data/sustainable-products-catalog.json",
+          "autoFetch": true,
+          "priority": "high",
+          "status": "planned"
+        },
+        {
+          "id": "grants-crosslink",
+          "name": "Schemes with water / warewash keywords",
+          "type": "internal",
+          "region": "EU",
+          "data": "schemes.json",
+          "crossAgent": "grants-agent",
+          "autoFetch": true,
+          "priority": "medium",
+          "status": "planned"
+        }
+      ]
+    },
+    "sustainability": {
+      "label": "Efficient equipment & product offers",
+      "consumerTools": [
+        "/greenways/sustainable-products-agent",
+        "/greenways/agent-market",
+        "/product-page-v2-marketplace.html"
+      ],
+      "trustTiers": {
+        "live": "ETL-listed product or approved sust_* catalog row with price hint",
+        "curated": "Retailer promo tied to known productId or sust_* id",
+        "illustrative": "Category spotlight without verified price"
+      },
+      "regions": ["NL", "UK", "EU"],
+      "sources": [
+        {
+          "id": "greenways-etl-marketplace",
+          "name": "Greenways ETL marketplace",
+          "type": "internal",
+          "region": "UK",
+          "data": "products-with-grants-and-collection.json",
+          "autoFetch": true,
+          "priority": "high",
+          "status": "planned"
+        },
+        {
+          "id": "sustainable-catalog",
+          "name": "Sustainable products catalog",
+          "type": "internal",
+          "region": "EU",
+          "data": "data/sustainable-products-catalog.json",
+          "autoFetch": true,
+          "priority": "high",
+          "status": "planned"
+        },
+        {
+          "id": "uk-retail-currys",
+          "name": "Currys — commercial / pro",
+          "type": "retail",
+          "region": "UK",
+          "url": "https://www.currys.co.uk/",
+          "categories": ["refrigeration", "lighting", "smallwares"],
+          "autoFetch": false,
+          "priority": "medium"
+        },
+        {
+          "id": "uk-retail-ao",
+          "name": "AO.com",
+          "type": "retail",
+          "region": "UK",
+          "url": "https://ao.com/",
+          "categories": ["refrigeration", "laundry"],
+          "autoFetch": false,
+          "priority": "medium"
+        },
+        {
+          "id": "nl-retail-coolblue",
+          "name": "Coolblue (NL)",
+          "type": "retail",
+          "region": "NL",
+          "url": "https://www.coolblue.nl/",
+          "autoFetch": false,
+          "priority": "medium"
+        },
+        {
+          "id": "deal-aggregators-uk",
+          "name": "HotUKDeals",
+          "type": "aggregator",
+          "region": "UK",
+          "url": "https://www.hotukdeals.com/",
+          "searchHints": ["commercial fridge", "LED", "combi oven"],
+          "autoFetch": false,
+          "priority": "low"
+        },
+        {
+          "id": "deal-aggregators-nl",
+          "name": "Pepper / NL deal communities",
+          "type": "aggregator",
+          "region": "NL",
+          "url": "https://nl.pepper.com/",
+          "autoFetch": false,
+          "priority": "low"
+        },
+        {
+          "id": "product-deal-finder-guide",
+          "name": "Product Deal Finder Guide (search playbook)",
+          "type": "playbook",
+          "region": "EU",
+          "path": "Skills/Product_Deal_Finder_Guide.md",
+          "autoFetch": false,
+          "priority": "high"
+        }
+      ]
+    }
+  },
+  "phases": [
+    {
+      "id": "phase-0",
+      "name": "Registry + schema",
+      "status": "done",
+      "date": "2026-09-01"
+    },
+    {
+      "id": "phase-1",
+      "name": "Thin slice — 2–3 curated rows per lane in seeds",
+      "status": "done",
+      "targetCountPerLane": 3,
+      "date": "2026-09-01"
+    },
+    {
+      "id": "phase-2",
+      "name": "Candidate queue + merge script + staff review",
+      "status": "next"
+    },
+    {
+      "id": "phase-3",
+      "name": "Internal synthesis (grants + catalog + ticker)",
+      "status": "planned"
+    },
+    {
+      "id": "phase-4",
+      "name": "Hub search + Zara wire headlines from real rows",
+      "status": "planned"
+    },
+    {
+      "id": "phase-5",
+      "name": "Scheduled build + Edwardo feed health",
+      "status": "planned"
+    }
+  ]
+}
