@@ -49,7 +49,7 @@
 
 ### Suggested focus (Sep 2026)
 
-1. **Desk parity polish** — Edwardo systems desk + Zyanne products-desk tablet upgrade (Andrieus + Zara done 2026-09-02; **Cheryce media desk skipped**)
+1. **Desk parity polish** — Edwardo systems desk (Andrieus + Zara + Zyanne done 2026-09-02; **Cheryce media desk skipped**)
 2. **Deals feed automation** — `build:deals-feed` on schedule (keeps Zara wire honest)
 3. **Talking phase** — branded TTS + Wix mic (`prd-agents-talking-phase.json`)
 4. **Member context on wire/desk** — profile/site from Customer Hub → snapshot pills
@@ -120,8 +120,9 @@
 - [x] **Agent desk rails (grants, deals, media, products):** Vincent-template Explore sidebar on four desks — 2026-08-31
 - [x] **Andrieus grants desk (Vincent tablet pattern):** shared `greenways-desk-tablet.css/js` + guided 4-step panels — 2026-09-02
 - [x] **Zara deals desk (Vincent tablet pattern):** cyan/orange theme + hub → energy → water → full Deals journey — 2026-09-02
+- [x] **Zyanne products desk (Vincent tablet pattern):** blue/teal theme + water → finder → sketch → Droppie → Agent Market — 2026-09-02
 - [x] **Cheryce media desk (tablet rollout):** skipped by design — media desk opens modules well; wire/desk split already clear — 2026-09-02
-- [ ] **Agent desks (rollout — remaining):** Edwardo systems desk; Zyanne products-desk tablet upgrade; guided paths on wire hubs; member context on wire/desk snapshots
+- [ ] **Agent desks (rollout — remaining):** Edwardo systems desk; guided paths on wire hubs; member context on wire/desk snapshots
 - [ ] **Wire/desk enhancements:** Map “new company” live marquees on Cheryce wire KPI row (counts only — map stays on desk)
 
 ---

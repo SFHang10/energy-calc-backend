@@ -7,163 +7,382 @@
   <title>Zyanne — Products desk</title>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css" />
-  <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-desk-rail.css" />
+  <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-desk-tablet.css" />
   <script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
   <style>
     :root {
       --bg: #071018;
-      --panel: #0e1a28;
-      --border: rgba(0, 123, 255, 0.26);
       --text: #e8f4ff;
       --muted: #8ba3c4;
       --blue: #60a5fa;
       --teal: #22d3ee;
       --gold: #c9a961;
       --font: 'Space Grotesk', system-ui, sans-serif;
-      --clean: 'IBM Plex Sans', system-ui, sans-serif;
+      --head: 'Space Grotesk', system-ui, sans-serif;
+      --font-clean: 'IBM Plex Sans', system-ui, sans-serif;
       --mono: 'JetBrains Mono', monospace;
       --zyanne-backdrop-image: url("https://static.wixstatic.com/media/c123de_f9c0cade510541d9a5953df184d442f8~mv2.jpeg");
-      --desk-border: rgba(0, 123, 255, 0.26);
-      --desk-rail-accent: #60a5fa;
-      --desk-rail-accent-dim: rgba(96, 165, 250, 0.18);
-      --desk-rail-accent-active-bg: rgba(96, 165, 250, 0.12);
-      --desk-rail-accent-glow: rgba(96, 165, 250, 0.15);
-      --desk-rail-accent-ico: rgba(96, 165, 250, 0.45);
-      --desk-rail-back-divider: rgba(96, 165, 250, 0.12);
-      --desk-rail-text: #c5d4e8;
-      --desk-rail-active-text: #d4ecff;
+      --desk-accent: #60a5fa;
+      --desk-accent-bright: #93c5fd;
+      --desk-border: rgba(96, 165, 250, 0.28);
+      --desk-accent-dim: rgba(96, 165, 250, 0.2);
+      --desk-accent-active-bg: rgba(96, 165, 250, 0.14);
+      --desk-accent-glow: rgba(96, 165, 250, 0.18);
+      --desk-accent-ico: rgba(96, 165, 250, 0.5);
+      --desk-back-divider: rgba(96, 165, 250, 0.14);
       --desk-rail-link: #60a5fa;
     }
     * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; color: var(--text); font-family: var(--font); background: var(--bg); }
-    body {
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      color: var(--text);
+      font-family: var(--font);
+      background-color: var(--bg);
       background-image: var(--zyanne-backdrop-image);
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
+      overflow-x: hidden;
     }
     body::before {
       content: '';
       position: fixed;
       inset: 0;
+      z-index: 0;
       pointer-events: none;
-      background: linear-gradient(180deg, rgba(5, 10, 18, 0.76), rgba(4, 8, 14, 0.9));
+      background:
+        linear-gradient(180deg, rgba(5, 10, 18, 0.72) 0%, rgba(4, 8, 14, 0.88) 100%),
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(96, 165, 250, 0.12), transparent 55%),
+        radial-gradient(ellipse 50% 40% at 10% 90%, rgba(34, 211, 238, 0.08), transparent 50%);
     }
-    body.embed-mode { background-image: none; background-color: rgba(5, 10, 18, 0.96); }
+    body.embed-mode {
+      background-image: none;
+      background-color: rgba(5, 10, 18, 0.96);
+      background-attachment: scroll;
+    }
     body.embed-mode::before { display: none; }
-    body.embed-mode .products-page-nav, body.embed-mode .back-row { display: none !important; }
-    .page { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 18px 16px 40px; }
-    .products-page-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-    .btn {
-      display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.14); background: rgba(5,10,18,0.55);
-      color: #c8d8f0; text-decoration: none; font-size: 0.82rem; cursor: pointer; font-family: var(--font);
+    body.embed-mode .gw-desk-page-nav,
+    body.embed-mode .gw-desk-back-row { display: none !important; }
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 22px 18px 48px;
     }
-    .btn--agent { border-color: rgba(96,165,250,0.4); color: var(--blue); }
-    .hero h1 { font-size: 1.65rem; margin: 0 0 8px; }
-    .hero p { color: var(--muted); line-height: 1.5; max-width: 720px; margin: 0 0 16px; }
+    .gw-desk-page-nav .btn--agent {
+      border-color: rgba(34, 211, 238, 0.4);
+      background: rgba(34, 211, 238, 0.1);
+      color: #c8f8ff;
+    }
+    .gw-desk-btn--teal {
+      border-color: rgba(34, 211, 238, 0.42);
+      background: rgba(34, 211, 238, 0.12);
+      color: #c8f8ff;
+    }
+    .gw-desk-btn--teal:hover {
+      border-color: rgba(34, 211, 238, 0.62);
+      background: rgba(34, 211, 238, 0.2);
+    }
+    .gw-desk-step-pill:nth-child(3) { border-color: rgba(34, 211, 238, 0.35); color: #a5f3fc; }
+    .gw-desk-step-pill:nth-child(4) { border-color: rgba(52, 211, 153, 0.35); color: #a7f3d0; }
   </style>
 </head>
 <body>
   <div class="page">
-    <nav class="products-page-nav" aria-label="Page navigation">
-      <button type="button" class="btn" id="productsBackBtn">← Previous page</button>
+    <nav class="gw-desk-page-nav" aria-label="Page navigation">
+      <button type="button" class="btn btn--ghost" id="gwDeskBackBtn">← Previous page</button>
       <a class="btn btn--agent" href="/greenways/sustainable-products-agent">Ask Zyanne</a>
     </nav>
-    <header class="hero">
+
+    <header class="gw-desk-hero">
       <h1>Products desk</h1>
       <p>
-        Zyanne’s catalogue-first tour — start on the water lane, open the full product finder
-        for electricity and gas, then use Water Line Sketch when you need €/mo context before you buy.
+        Zyanne’s catalogue-first tour — start on the water lane, open the full product finder for electricity and gas,
+        sketch monthly € context, plan NL recycle drop-off with Droppie, then browse Agent Market when you are ready to buy.
       </p>
+      <div class="gw-desk-step-pills" aria-label="Suggested journey">
+        <span class="gw-desk-step-pill">1 · Water finder</span>
+        <span class="gw-desk-step-pill">2 · Product finder</span>
+        <span class="gw-desk-step-pill">3 · Water Line Sketch</span>
+        <span class="gw-desk-step-pill">4 · Droppie recycle</span>
+        <span class="gw-desk-step-pill">5 · Agent Market</span>
+      </div>
     </header>
-    <div class="layout">
-      <nav class="rail" aria-label="Product lanes">
-        <div class="rail-label">Explore</div>
-        <button type="button" class="rail-btn active" data-panel="water" aria-pressed="true">
+
+    <div class="gw-desk-layout">
+      <nav class="gw-desk-rail" aria-label="Product lanes">
+        <div class="gw-desk-rail-label">Explore</div>
+        <button type="button" class="gw-desk-rail-btn active" data-panel="water" aria-pressed="true">
           <span class="ico"><img src="https://static.wixstatic.com/media/c123de_dc5b2e3e4aef4cc4b75c7b44888281bd~mv2.png" alt="" loading="lazy"></span>
           <span>Water finder</span>
         </button>
-        <button type="button" class="rail-btn" data-panel="finder" aria-pressed="false">
+        <button type="button" class="gw-desk-rail-btn" data-panel="finder" aria-pressed="false">
           <span class="ico"><img src="https://static.wixstatic.com/media/c123de_f9c0cade510541d9a5953df184d442f8~mv2.jpeg" alt="" loading="lazy"></span>
           <span>Product finder</span>
         </button>
-        <button type="button" class="rail-btn" data-panel="sketch" aria-pressed="false">
+        <button type="button" class="gw-desk-rail-btn" data-panel="sketch" aria-pressed="false">
           <span class="ico"><img src="https://static.wixstatic.com/media/c123de_e57c85ae1f0e4e59b2b6e1abece7df19~mv2.jpeg" alt="" loading="lazy"></span>
           <span>Water Line Sketch</span>
         </button>
-        <button type="button" class="rail-btn" data-panel="market" aria-pressed="false">
+        <button type="button" class="gw-desk-rail-btn" data-panel="droppie" aria-pressed="false">
           <span class="ico"><img src="https://static.wixstatic.com/media/c123de_dc5b2e3e4aef4cc4b75c7b44888281bd~mv2.png" alt="" loading="lazy"></span>
+          <span>Droppie recycle</span>
+        </button>
+        <button type="button" class="gw-desk-rail-btn" data-panel="market" aria-pressed="false">
+          <span class="ico"><img src="https://static.wixstatic.com/media/c123de_730cc6f6f243445aae3dffd962cf6706~mv2.jpg" alt="" loading="lazy"></span>
           <span>Agent Market</span>
         </button>
-        <div class="back-row">
+        <div class="gw-desk-back-row">
+          <button type="button" class="gw-desk-rail-back-btn" id="gwDeskRailBackBtn">← Previous page</button>
           <a href="/greenways/products-wire">Products wire</a>
           <a href="/greenways/sustainable-products-agent">← Back to Zyanne</a>
         </div>
       </nav>
-      <div class="stage">
-        <iframe id="deskFrame" title="Products desk tool" loading="lazy"></iframe>
+
+      <div class="gw-desk-stage">
+        <svg width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden">
+          <defs>
+            <linearGradient id="pdGradWater" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#22d3ee" /><stop offset="100%" stop-color="#60a5fa" />
+            </linearGradient>
+            <linearGradient id="pdGradFinder" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#60a5fa" /><stop offset="50%" stop-color="#22d3ee" /><stop offset="100%" stop-color="#60a5fa" />
+            </linearGradient>
+            <linearGradient id="pdGradSketch" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#93c5fd" /><stop offset="100%" stop-color="#22d3ee" />
+            </linearGradient>
+            <linearGradient id="pdGradDroppie" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#34d399" /><stop offset="100%" stop-color="#22d3ee" />
+            </linearGradient>
+            <linearGradient id="pdGradMarket" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#c9a961" /><stop offset="100%" stop-color="#60a5fa" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <section class="gw-tablet-wrap active" id="panel-water" role="tabpanel">
+          <div class="gw-tablet-bezel">
+            <div class="gw-tablet-notch" aria-hidden="true"></div>
+            <div class="gw-tablet-screen">
+              <div class="gw-tablet-copy">
+                <div class="gw-tablet-title-row">
+                  <h2><span class="gw-desk-pulse-dot" aria-hidden="true"></span>Water finder — start here</h2>
+                  <figure class="gw-desk-gauge gw-desk-gauge--motion" data-pct="78" aria-hidden="true">
+                    <svg class="gw-desk-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#1a2840" stroke-width="10" stroke-linecap="round" />
+                      <path class="gw-desk-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#pdGradWater)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#22d3ee" />
+                      <g transform="translate(80,90)"><g class="gw-desk-needle-spin"><line x1="0" y1="0" x2="0" y2="-48" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" /></g></g>
+                      <text class="gw-desk-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#e8f4ff" font-family="JetBrains Mono, monospace">78%</text>
+                      <text class="gw-desk-gauge-caption" x="80" y="93" text-anchor="middle">water savings</text>
+                    </svg>
+                    <div class="gw-desk-gauge-readout">Taps · dishwash · monitoring</div>
+                    <div class="gw-desk-gauge-scale"><span>Baseline</span><span>Trim</span><span>Upgrade</span><span>Save</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  Most sites leak water cost through equipment before the tariff moves. Pick a category, compare
+                  marketplace and sustainable catalog rows, and open details when a match fits your kitchen or wash-up line.
+                </p>
+                <ul>
+                  <li>Searches can enrich the sustainable catalog — good for niche hospitality equipment.</li>
+                  <li>Zara’s water lane points here when supply deals are not the bottleneck.</li>
+                  <li><strong>Next step:</strong> open the product finder for electricity and gas lanes on the same site.</li>
+                </ul>
+                <div class="gw-desk-actions">
+                  <a class="gw-desk-btn" data-gw-tool-path="/greenways/water-saving-finder" target="_blank" rel="noopener">Open water finder (full page)</a>
+                  <button type="button" class="gw-desk-btn gw-desk-btn--teal" data-toggle-iframe="water" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="gw-desk-iframe-wrap" id="iframe-water" hidden>
+                <iframe title="Water finder preview" loading="lazy" data-gw-iframe="/greenways/water-saving-finder?embed=1"></iframe>
+                <div class="gw-desk-iframe-hint">Filter by equipment type — open full page for side-by-side compare.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="gw-tablet-wrap" id="panel-finder" role="tabpanel">
+          <div class="gw-tablet-bezel">
+            <div class="gw-tablet-notch" aria-hidden="true"></div>
+            <div class="gw-tablet-screen">
+              <div class="gw-tablet-copy">
+                <div class="gw-tablet-title-row">
+                  <h2>Sustainable product finder</h2>
+                  <figure class="gw-desk-gauge gw-desk-gauge--motion" data-pct="72" aria-hidden="true">
+                    <svg class="gw-desk-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#1a2840" stroke-width="10" stroke-linecap="round" />
+                      <path class="gw-desk-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#pdGradFinder)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#60a5fa" />
+                      <g transform="translate(80,90)"><g class="gw-desk-needle-spin"><line x1="0" y1="0" x2="0" y2="-48" stroke="#93c5fd" stroke-width="2" stroke-linecap="round" /></g></g>
+                      <text class="gw-desk-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#e8f4ff" font-family="JetBrains Mono, monospace">72%</text>
+                      <text class="gw-desk-gauge-caption" x="80" y="93" text-anchor="middle">catalog match</text>
+                    </svg>
+                    <div class="gw-desk-gauge-readout">Water · electricity · gas</div>
+                    <div class="gw-desk-gauge-scale"><span>Search</span><span>Filter</span><span>Compare</span><span>Shortlist</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  Full three-lane search — water, electricity, and gas efficient equipment — with marketplace
+                  alternatives and external sustainable rows side by side.
+                </p>
+                <ul>
+                  <li>Pair with Artemis when you need renovation or deep-dive spec sheets on shortlisted IDs.</li>
+                  <li>Grant chips on marketplace rows come from the same schemes catalogue as Andrieus.</li>
+                  <li><strong>Next step:</strong> Water Line Sketch when you want €/mo context before capex approval.</li>
+                </ul>
+                <div class="gw-desk-actions">
+                  <a class="gw-desk-btn" data-gw-tool-path="/HTMLS%20GWM%20GWB/sustainable_product_deal_finder_portal.html" target="_blank" rel="noopener">Open product finder</a>
+                  <a class="gw-desk-btn" href="/greenways/equipment-agent" target="_top" rel="noopener">Ask Artemis</a>
+                  <button type="button" class="gw-desk-btn gw-desk-btn--teal" data-toggle-iframe="finder" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="gw-desk-iframe-wrap" id="iframe-finder" hidden>
+                <iframe title="Sustainable product finder" loading="lazy" data-gw-iframe="/HTMLS%20GWM%20GWB/sustainable_product_deal_finder_portal.html"></iframe>
+                <div class="gw-desk-iframe-hint">Three utility lanes — open full page for persistent shortlist sessions.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="gw-tablet-wrap" id="panel-sketch" role="tabpanel">
+          <div class="gw-tablet-bezel">
+            <div class="gw-tablet-notch" aria-hidden="true"></div>
+            <div class="gw-tablet-screen">
+              <div class="gw-tablet-copy">
+                <div class="gw-tablet-title-row">
+                  <h2>Water Line Sketch</h2>
+                  <figure class="gw-desk-gauge gw-desk-gauge--motion" data-pct="65" aria-hidden="true">
+                    <svg class="gw-desk-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#1a2840" stroke-width="10" stroke-linecap="round" />
+                      <path class="gw-desk-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#pdGradSketch)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#22d3ee" />
+                      <g transform="translate(80,90)"><g class="gw-desk-needle-spin"><line x1="0" y1="0" x2="0" y2="-48" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" /></g></g>
+                      <text class="gw-desk-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#c8f8ff" font-family="JetBrains Mono, monospace">65%</text>
+                      <text class="gw-desk-gauge-caption" x="80" y="93" text-anchor="middle">monthly clarity</text>
+                    </svg>
+                    <div class="gw-desk-gauge-readout">Illustrative €/mo bands</div>
+                    <div class="gw-desk-gauge-scale"><span>Today</span><span>Trim</span><span>Upgrade</span><span>Target</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  Sketch monthly water cost bands before you buy — illustrative ranges labelled clearly,
+                  not live meter claims. Useful when a shortlist needs internal sign-off.
+                </p>
+                <ul>
+                  <li>Best after the water finder or product finder gave you candidate equipment.</li>
+                  <li>Vincent can stack payback when water and energy upgrades land together.</li>
+                  <li><strong>Next step:</strong> plan end-of-life drop-off with Droppie when retiring old kit in NL.</li>
+                </ul>
+                <div class="gw-desk-actions">
+                  <a class="gw-desk-btn" data-gw-tool-path="/greenways/water-line-sketch" target="_blank" rel="noopener">Open Water Line Sketch</a>
+                  <button type="button" class="gw-desk-btn gw-desk-btn--teal" data-toggle-iframe="sketch" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="gw-desk-iframe-wrap" id="iframe-sketch" hidden>
+                <iframe title="Water Line Sketch" loading="lazy" data-gw-iframe="/greenways/water-line-sketch?embed=1"></iframe>
+                <div class="gw-desk-iframe-hint">Illustrative bands — confirm trust labels before external share.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="gw-tablet-wrap" id="panel-droppie" role="tabpanel">
+          <div class="gw-tablet-bezel">
+            <div class="gw-tablet-notch" aria-hidden="true"></div>
+            <div class="gw-tablet-screen">
+              <div class="gw-tablet-copy">
+                <div class="gw-tablet-title-row">
+                  <h2>Recycle with Droppie (NL)</h2>
+                  <figure class="gw-desk-gauge gw-desk-gauge--motion" data-pct="81" aria-hidden="true">
+                    <svg class="gw-desk-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#1a2840" stroke-width="10" stroke-linecap="round" />
+                      <path class="gw-desk-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#pdGradDroppie)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#34d399" />
+                      <g transform="translate(80,90)"><g class="gw-desk-needle-spin"><line x1="0" y1="0" x2="0" y2="-48" stroke="#34d399" stroke-width="2" stroke-linecap="round" /></g></g>
+                      <text class="gw-desk-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#d1fae5" font-family="JetBrains Mono, monospace">81%</text>
+                      <text class="gw-desk-gauge-caption" x="80" y="93" text-anchor="middle">drop-off ready</text>
+                    </svg>
+                    <div class="gw-desk-gauge-readout">Streams · store · prep</div>
+                    <div class="gw-desk-gauge-scale"><span>Sort</span><span>Locate</span><span>Prep</span><span>Drop</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  When you retire equipment without a retailer trade-in, Droppie stores across the Netherlands
+                  accept separated streams in one visit — cooking oil, small e-waste, textiles, plastics, and more.
+                </p>
+                <ul>
+                  <li>Choose streams, find the nearest store, prep for drop-off, then open the Droppie app for rewards.</li>
+                  <li>Hospitality-friendly when a dishwasher or fridge leaves the site without a collection scheme.</li>
+                  <li><strong>Next step:</strong> pair with Artemis for replacement specs; use Agent Market when you are ready to buy.</li>
+                </ul>
+                <div class="gw-desk-actions">
+                  <a class="gw-desk-btn" data-gw-tool-path="/greenways/droppie-recycle" target="_blank" rel="noopener">Open Droppie journey</a>
+                  <button type="button" class="gw-desk-btn gw-desk-btn--teal" data-toggle-iframe="droppie" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="gw-desk-iframe-wrap" id="iframe-droppie" hidden>
+                <iframe title="Droppie recycle journey" loading="lazy" data-gw-iframe="/greenways/droppie-recycle?embed=1"></iframe>
+                <div class="gw-desk-iframe-hint">NL stores only — commercial bulk uses the notify step in the journey.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="gw-tablet-wrap" id="panel-market" role="tabpanel">
+          <div class="gw-tablet-bezel">
+            <div class="gw-tablet-notch" aria-hidden="true"></div>
+            <div class="gw-tablet-screen">
+              <div class="gw-tablet-copy">
+                <div class="gw-tablet-title-row">
+                  <h2>Agent Market — buy when ready</h2>
+                  <figure class="gw-desk-gauge gw-desk-gauge--motion" data-pct="86" aria-hidden="true">
+                    <svg class="gw-desk-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#1a2840" stroke-width="10" stroke-linecap="round" />
+                      <path class="gw-desk-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#pdGradMarket)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#c9a961" />
+                      <g transform="translate(80,90)"><g class="gw-desk-needle-spin"><line x1="0" y1="0" x2="0" y2="-48" stroke="#c9a961" stroke-width="2" stroke-linecap="round" /></g></g>
+                      <text class="gw-desk-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#fff4e0" font-family="JetBrains Mono, monospace">86%</text>
+                      <text class="gw-desk-gauge-caption" x="80" y="93" text-anchor="middle">purchase ready</text>
+                    </svg>
+                    <div class="gw-desk-gauge-readout">Shortlist · compare · buy</div>
+                    <div class="gw-desk-gauge-scale"><span>Browse</span><span>Shortlist</span><span>Compare</span><span>Buy</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  In-agent shop lanes with shortlist, dual compare, and buy handoff — best after finders gave you
+                  candidate IDs, not as the first stop for an open-ended search.
+                </p>
+                <ul>
+                  <li>Shared marketplace backdrop with grant chips on eligible ETL products.</li>
+                  <li>Andrieus and Vincent links stay in chat when funding or payback still needs stacking.</li>
+                  <li>Return to the water finder when a new site or equipment line needs a fresh pass.</li>
+                </ul>
+                <div class="gw-desk-actions">
+                  <a class="gw-desk-btn" data-gw-tool-path="/greenways/agent-market" target="_blank" rel="noopener">Open Agent Market</a>
+                  <button type="button" class="gw-desk-btn gw-desk-btn--teal" data-toggle-iframe="market" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="gw-desk-iframe-wrap" id="iframe-market" hidden>
+                <iframe title="Agent Market preview" loading="lazy" data-gw-iframe="/greenways/agent-market?embed=1"></iframe>
+                <div class="gw-desk-iframe-hint">Shortlist persists in-session — open full page for compare and buy handoff.</div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   </div>
+
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-desk-tablet.js"></script>
   <script>
-    (function () {
-      var PANELS = {
-        water: '/greenways/water-saving-finder?embed=1',
-        finder: '/HTMLS%20GWM%20GWB/sustainable_product_deal_finder_portal.html',
-        sketch: '/greenways/water-line-sketch?embed=1',
-        market: '/greenways/agent-market?embed=1'
-      };
-      var VALID = Object.keys(PANELS);
-
-      function origin() {
-        var h = location.hostname || '';
-        if (h === 'localhost' || h === '127.0.0.1' || h.indexOf('energy-calc-backend') !== -1) {
-          return location.origin || 'https://energy-calc-backend.onrender.com';
-        }
-        return 'https://energy-calc-backend.onrender.com';
-      }
-      function abs(path) {
-        var p = String(path || '').trim();
-        if (!p || /^https?:\/\//i.test(p)) return p;
-        return origin() + (p.charAt(0) === '/' ? p : '/' + p);
-      }
-
-      var frame = document.getElementById('deskFrame');
-      var buttons = Array.from(document.querySelectorAll('.rail-btn[data-panel]'));
-
-      function showPanel(key) {
-        if (!VALID.includes(key)) key = 'water';
-        buttons.forEach(function (btn) {
-          var on = btn.dataset.panel === key;
-          btn.classList.toggle('active', on);
-          btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-        });
-        frame.src = abs(PANELS[key]);
-        try {
-          var url = new URL(location.href);
-          if (key === 'water') url.searchParams.delete('tab');
-          else url.searchParams.set('tab', key);
-          history.replaceState(null, '', url.pathname + url.search + url.hash);
-        } catch (_) {}
-      }
-
-      buttons.forEach(function (btn) {
-        btn.addEventListener('click', function () { showPanel(btn.dataset.panel); });
-      });
-
-      document.querySelectorAll('a[href^="/greenways/"]').forEach(function (a) {
-        a.href = abs(a.getAttribute('href'));
-      });
-
-      document.getElementById('productsBackBtn').addEventListener('click', function () {
-        if (window.history.length > 1) window.history.back();
-        else window.location.href = abs('/greenways/sustainable-products-agent');
-      });
-
-      var tab = new URLSearchParams(location.search).get('tab');
-      showPanel(tab && VALID.includes(tab) ? tab : 'water');
-    })();
+    GreenwaysDeskTablet.init({
+      validPanels: ['water', 'finder', 'sketch', 'droppie', 'market'],
+      defaultPanel: 'water',
+      backAgentPath: '/greenways/sustainable-products-agent'
+    });
   </script>
 </body>
 </html>
