@@ -7,163 +7,332 @@
   <title>Zara — Deals desk</title>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css" />
-  <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-desk-rail.css" />
+  <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-desk-tablet.css" />
   <script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
   <style>
     :root {
       --bg: #0a1018;
-      --panel: #121a28;
-      --border: rgba(77, 166, 255, 0.24);
       --text: #e8edf8;
       --muted: #8b9bb8;
       --cyan: #4da6ff;
       --orange: #ff8c1a;
       --gold: #c9a961;
       --font: 'Space Grotesk', system-ui, sans-serif;
-      --clean: 'IBM Plex Sans', system-ui, sans-serif;
+      --head: 'Space Grotesk', system-ui, sans-serif;
+      --font-clean: 'IBM Plex Sans', system-ui, sans-serif;
       --mono: 'JetBrains Mono', monospace;
       --zara-backdrop-image: url("https://static.wixstatic.com/media/c123de_374114018b1b4defa5fc6475cae63ce2~mv2.jpeg");
-      --desk-border: rgba(77, 166, 255, 0.24);
-      --desk-rail-accent: #4da6ff;
-      --desk-rail-accent-dim: rgba(77, 166, 255, 0.18);
-      --desk-rail-accent-active-bg: rgba(77, 166, 255, 0.12);
-      --desk-rail-accent-glow: rgba(77, 166, 255, 0.15);
-      --desk-rail-accent-ico: rgba(77, 166, 255, 0.45);
-      --desk-rail-back-divider: rgba(77, 166, 255, 0.12);
-      --desk-rail-text: #c5d4e8;
-      --desk-rail-active-text: #d4ecff;
+      --desk-accent: #4da6ff;
+      --desk-accent-bright: #7ec0ff;
+      --desk-border: rgba(77, 166, 255, 0.28);
+      --desk-accent-dim: rgba(77, 166, 255, 0.2);
+      --desk-accent-active-bg: rgba(77, 166, 255, 0.14);
+      --desk-accent-glow: rgba(77, 166, 255, 0.18);
+      --desk-accent-ico: rgba(77, 166, 255, 0.5);
+      --desk-back-divider: rgba(77, 166, 255, 0.14);
       --desk-rail-link: #4da6ff;
     }
     * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; color: var(--text); font-family: var(--font); background: var(--bg); }
-    body {
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      color: var(--text);
+      font-family: var(--font);
+      background-color: var(--bg);
       background-image: var(--zara-backdrop-image);
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
+      overflow-x: hidden;
     }
     body::before {
       content: '';
       position: fixed;
       inset: 0;
+      z-index: 0;
       pointer-events: none;
-      background: linear-gradient(180deg, rgba(5, 9, 14, 0.72), rgba(4, 7, 12, 0.88));
+      background:
+        linear-gradient(180deg, rgba(5, 9, 14, 0.68) 0%, rgba(4, 7, 12, 0.85) 100%),
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(77, 166, 255, 0.12), transparent 55%),
+        radial-gradient(ellipse 60% 40% at 90% 80%, rgba(255, 140, 26, 0.08), transparent 50%);
     }
-    body.embed-mode { background-image: none; background-color: rgba(5, 9, 14, 0.96); }
+    body.embed-mode {
+      background-image: none;
+      background-color: rgba(5, 9, 14, 0.96);
+      background-attachment: scroll;
+    }
     body.embed-mode::before { display: none; }
-    body.embed-mode .deals-page-nav, body.embed-mode .back-row { display: none !important; }
-    .page { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 18px 16px 40px; }
-    .deals-page-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-    .btn {
-      display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.14); background: rgba(5,10,18,0.5);
-      color: #c8d8f0; text-decoration: none; font-size: 0.82rem; cursor: pointer; font-family: var(--font);
+    body.embed-mode .gw-desk-page-nav,
+    body.embed-mode .gw-desk-back-row { display: none !important; }
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 22px 18px 48px;
     }
-    .btn--agent { border-color: rgba(77,166,255,0.35); color: #9ec5ff; }
-    .hero h1 { font-size: 1.65rem; margin: 0 0 8px; }
-    .hero p { color: var(--muted); line-height: 1.5; max-width: 720px; margin: 0 0 16px; }
+    .gw-desk-page-nav .btn--agent {
+      border-color: rgba(255, 140, 26, 0.45);
+      background: rgba(255, 140, 26, 0.12);
+      color: #ffe8cc;
+    }
+    .gw-desk-btn--orange {
+      border-color: rgba(255, 140, 26, 0.45);
+      background: rgba(255, 140, 26, 0.14);
+      color: #ffe8cc;
+    }
+    .gw-desk-btn--orange:hover {
+      border-color: rgba(255, 140, 26, 0.65);
+      background: rgba(255, 140, 26, 0.22);
+    }
+    .gw-desk-step-pill:nth-child(2) { border-color: rgba(255, 140, 26, 0.35); color: #ffd4a8; }
   </style>
 </head>
 <body>
   <div class="page">
-    <nav class="deals-page-nav" aria-label="Page navigation">
-      <button type="button" class="btn" id="dealsBackBtn">← Previous page</button>
+    <nav class="gw-desk-page-nav" aria-label="Page navigation">
+      <button type="button" class="btn btn--ghost" id="gwDeskBackBtn">← Previous page</button>
       <a class="btn btn--agent" href="/greenways/deals-agent">Ask Zara</a>
     </nav>
-    <header class="hero">
+
+    <header class="gw-desk-hero">
       <h1>Deals desk</h1>
       <p>
-        Zara’s supply-first tour — browse the ticker hub lanes, compare energy tariffs,
-        then open the water finder when savings sit outside your contract.
+        Zara’s supply-first tour — scan the ticker hub lanes, compare energy tariffs when renewal timing matters,
+        open the water finder when waste drives the bill, then use the full Deals page as your home base.
       </p>
+      <div class="gw-desk-step-pills" aria-label="Suggested journey">
+        <span class="gw-desk-step-pill">1 · Deals hub</span>
+        <span class="gw-desk-step-pill">2 · Energy portal</span>
+        <span class="gw-desk-step-pill">3 · Water finder</span>
+        <span class="gw-desk-step-pill">4 · Full Deals page</span>
+      </div>
     </header>
-    <div class="layout">
-      <nav class="rail" aria-label="Deals topics">
-        <div class="rail-label">Explore</div>
-        <button type="button" class="rail-btn active" data-panel="hub" aria-pressed="true">
+
+    <div class="gw-desk-layout">
+      <nav class="gw-desk-rail" aria-label="Deals topics">
+        <div class="gw-desk-rail-label">Explore</div>
+        <button type="button" class="gw-desk-rail-btn active" data-panel="hub" aria-pressed="true">
           <span class="ico"><img src="https://static.wixstatic.com/media/c123de_c7cdbed4a4ee407289677a4f0079c1e5~mv2.png" alt="" loading="lazy"></span>
           <span>Deals hub</span>
         </button>
-        <button type="button" class="rail-btn" data-panel="energy" aria-pressed="false">
+        <button type="button" class="gw-desk-rail-btn" data-panel="energy" aria-pressed="false">
           <span class="ico"><img src="https://static.wixstatic.com/media/c123de_374114018b1b4defa5fc6475cae63ce2~mv2.jpeg" alt="" loading="lazy"></span>
           <span>Energy portal</span>
         </button>
-        <button type="button" class="rail-btn" data-panel="water" aria-pressed="false">
+        <button type="button" class="gw-desk-rail-btn" data-panel="water" aria-pressed="false">
           <span class="ico"><img src="https://static.wixstatic.com/media/c123de_6636e625d6e24fbfad80468144c585f9~mv2.jpeg" alt="" loading="lazy"></span>
           <span>Water finder</span>
         </button>
-        <button type="button" class="rail-btn" data-panel="full" aria-pressed="false">
+        <button type="button" class="gw-desk-rail-btn" data-panel="full" aria-pressed="false">
           <span class="ico"><img src="https://static.wixstatic.com/media/c123de_730cc6f6f243445aae3dffd962cf6706~mv2.jpg" alt="" loading="lazy"></span>
           <span>Full Deals page</span>
         </button>
-        <div class="back-row">
+        <div class="gw-desk-back-row">
+          <button type="button" class="gw-desk-rail-back-btn" id="gwDeskRailBackBtn">← Previous page</button>
           <a href="/greenways/deals-wire">Deals wire</a>
           <a href="/greenways/deals-agent">← Back to Zara</a>
         </div>
       </nav>
-      <div class="stage">
-        <iframe id="deskFrame" title="Deals desk tool" loading="lazy"></iframe>
+
+      <div class="gw-desk-stage">
+        <svg width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden">
+          <defs>
+            <linearGradient id="zdGradHub" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#7ec0ff" /><stop offset="100%" stop-color="#4da6ff" />
+            </linearGradient>
+            <linearGradient id="zdGradEnergy" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#4da6ff" /><stop offset="50%" stop-color="#ff8c1a" /><stop offset="100%" stop-color="#4da6ff" />
+            </linearGradient>
+            <linearGradient id="zdGradWater" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#4da6ff" /><stop offset="100%" stop-color="#38bdf8" />
+            </linearGradient>
+            <linearGradient id="zdGradFull" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#ff8c1a" /><stop offset="100%" stop-color="#4da6ff" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <section class="gw-tablet-wrap active" id="panel-hub" role="tabpanel">
+          <div class="gw-tablet-bezel">
+            <div class="gw-tablet-notch" aria-hidden="true"></div>
+            <div class="gw-tablet-screen">
+              <div class="gw-tablet-copy">
+                <div class="gw-tablet-title-row">
+                  <h2><span class="gw-desk-pulse-dot" aria-hidden="true"></span>Deals hub — start here</h2>
+                  <figure class="gw-desk-gauge gw-desk-gauge--motion" data-pct="76" aria-hidden="true">
+                    <svg class="gw-desk-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#1a2840" stroke-width="10" stroke-linecap="round" />
+                      <path class="gw-desk-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#zdGradHub)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#4da6ff" />
+                      <g transform="translate(80,90)"><g class="gw-desk-needle-spin"><line x1="0" y1="0" x2="0" y2="-48" stroke="#7ec0ff" stroke-width="2" stroke-linecap="round" /></g></g>
+                      <text class="gw-desk-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#e8edf8" font-family="JetBrains Mono, monospace">76%</text>
+                      <text class="gw-desk-gauge-caption" x="80" y="93" text-anchor="middle">lane freshness</text>
+                    </svg>
+                    <div class="gw-desk-gauge-readout">Energy · water · sustainability</div>
+                    <div class="gw-desk-gauge-scale"><span>Scan</span><span>Filter</span><span>Shortlist</span><span>Act</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  Three marquee lanes — <strong>energy</strong>, <strong>water</strong>, and <strong>sustainability</strong> —
+                  plus search when you know the supplier. These are timely spotlights, not your live invoice.
+                </p>
+                <ul>
+                  <li>Each lane carries a short “why it helps” note so tariffs, water waste, and upgrades read as different jobs.</li>
+                  <li>Watch scrolling rows for renewal timing, then open the energy portal when wholesale moves.</li>
+                  <li><strong>Next step:</strong> compare tariffs or jump to the water finder when usage — not only supply — drives cost.</li>
+                </ul>
+                <div class="gw-desk-actions">
+                  <a class="gw-desk-btn" data-gw-tool-path="/greenways/deals-hub" target="_blank" rel="noopener">Open deals hub (full page)</a>
+                  <button type="button" class="gw-desk-btn gw-desk-btn--orange" data-toggle-iframe="hub" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="gw-desk-iframe-wrap" id="iframe-hub" hidden>
+                <iframe title="Deals hub preview" loading="lazy" data-gw-iframe="/greenways/deals-hub?embed=1"></iframe>
+                <div class="gw-desk-iframe-hint">Three lanes + search — open full page to share with a site manager.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="gw-tablet-wrap" id="panel-energy" role="tabpanel">
+          <div class="gw-tablet-bezel">
+            <div class="gw-tablet-notch" aria-hidden="true"></div>
+            <div class="gw-tablet-screen">
+              <div class="gw-tablet-copy">
+                <div class="gw-tablet-title-row">
+                  <h2>European energy portal</h2>
+                  <figure class="gw-desk-gauge gw-desk-gauge--motion" data-pct="64" aria-hidden="true">
+                    <svg class="gw-desk-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#1a2840" stroke-width="10" stroke-linecap="round" />
+                      <path class="gw-desk-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#zdGradEnergy)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#ff8c1a" />
+                      <g transform="translate(80,90)"><g class="gw-desk-needle-spin"><line x1="0" y1="0" x2="0" y2="-48" stroke="#ff8c1a" stroke-width="2" stroke-linecap="round" /></g></g>
+                      <text class="gw-desk-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#ffe8cc" font-family="JetBrains Mono, monospace">64%</text>
+                      <text class="gw-desk-gauge-caption" x="80" y="93" text-anchor="middle">tariff fit</text>
+                    </svg>
+                    <div class="gw-desk-gauge-readout">NL · UK · EU compare</div>
+                    <div class="gw-desk-gauge-scale"><span>Fixed</span><span>Green</span><span>Variable</span><span>Renew</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  Compare hospitality and SME energy packages when your contract window opens — green tariffs,
+                  fixed vs variable, and regional portals in one shell.
+                </p>
+                <ul>
+                  <li>Best after the hub lane flags renewal timing — not before you know your region and meter type.</li>
+                  <li>Pair with Vincent for payback when an upgrade and a tariff change land together.</li>
+                  <li><strong>Next step:</strong> if bills stay high after supply, open the water finder — waste often hides in equipment.</li>
+                </ul>
+                <div class="gw-desk-actions">
+                  <a class="gw-desk-btn" data-gw-tool-path="/HTMLS%20GWM%20GWB/european_energy_deals_portal.html" target="_blank" rel="noopener">Open energy portal</a>
+                  <a class="gw-desk-btn" href="/greenways/finance-agent" target="_top" rel="noopener">Ask Vincent</a>
+                  <button type="button" class="gw-desk-btn gw-desk-btn--orange" data-toggle-iframe="energy" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="gw-desk-iframe-wrap" id="iframe-energy" hidden>
+                <iframe title="European energy portal" loading="lazy" data-gw-iframe="/HTMLS%20GWM%20GWB/european_energy_deals_portal.html"></iframe>
+                <div class="gw-desk-iframe-hint">Regional compare — open full page for assessor sharing or print.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="gw-tablet-wrap" id="panel-water" role="tabpanel">
+          <div class="gw-tablet-bezel">
+            <div class="gw-tablet-notch" aria-hidden="true"></div>
+            <div class="gw-tablet-screen">
+              <div class="gw-tablet-copy">
+                <div class="gw-tablet-title-row">
+                  <h2>Water saving finder</h2>
+                  <figure class="gw-desk-gauge gw-desk-gauge--motion" data-pct="71" aria-hidden="true">
+                    <svg class="gw-desk-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#1a2840" stroke-width="10" stroke-linecap="round" />
+                      <path class="gw-desk-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#zdGradWater)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#4da6ff" />
+                      <g transform="translate(80,90)"><g class="gw-desk-needle-spin"><line x1="0" y1="0" x2="0" y2="-48" stroke="#7ec0ff" stroke-width="2" stroke-linecap="round" /></g></g>
+                      <text class="gw-desk-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#e8edf8" font-family="JetBrains Mono, monospace">71%</text>
+                      <text class="gw-desk-gauge-caption" x="80" y="93" text-anchor="middle">waste reduction</text>
+                    </svg>
+                    <div class="gw-desk-gauge-readout">Equipment · taps · dishwash</div>
+                    <div class="gw-desk-gauge-scale"><span>Baseline</span><span>Trim</span><span>Upgrade</span><span>Save</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  When water cost rises but your energy contract is fine, this finder surfaces aerators, efficient
+                  dishwashers, and monitoring paths — savings that sit outside tariff compare.
+                </p>
+                <ul>
+                  <li>Matches marketplace and sustainable catalog alternatives; searches can enrich the catalog.</li>
+                  <li>Zyanne owns deep product compare — use this step when Zara’s water lane flagged a fit.</li>
+                  <li><strong>Next step:</strong> open the full Deals page to keep ticker + sidebar finders in one shell.</li>
+                </ul>
+                <div class="gw-desk-actions">
+                  <a class="gw-desk-btn" data-gw-tool-path="/greenways/water-saving-finder" target="_blank" rel="noopener">Open water finder</a>
+                  <a class="gw-desk-btn" href="/greenways/sustainable-products-agent" target="_top" rel="noopener">Ask Zyanne</a>
+                  <button type="button" class="gw-desk-btn gw-desk-btn--orange" data-toggle-iframe="water" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="gw-desk-iframe-wrap" id="iframe-water" hidden>
+                <iframe title="Water saving finder" loading="lazy" data-gw-iframe="/greenways/water-saving-finder?embed=1"></iframe>
+                <div class="gw-desk-iframe-hint">Search by equipment type — open full page for side-by-side compare.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="gw-tablet-wrap" id="panel-full" role="tabpanel">
+          <div class="gw-tablet-bezel">
+            <div class="gw-tablet-notch" aria-hidden="true"></div>
+            <div class="gw-tablet-screen">
+              <div class="gw-tablet-copy">
+                <div class="gw-tablet-title-row">
+                  <h2>Full Deals page — home base</h2>
+                  <figure class="gw-desk-gauge gw-desk-gauge--motion" data-pct="88" aria-hidden="true">
+                    <svg class="gw-desk-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#1a2840" stroke-width="10" stroke-linecap="round" />
+                      <path class="gw-desk-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#zdGradFull)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#ff8c1a" />
+                      <g transform="translate(80,90)"><g class="gw-desk-needle-spin"><line x1="0" y1="0" x2="0" y2="-48" stroke="#ff8c1a" stroke-width="2" stroke-linecap="round" /></g></g>
+                      <text class="gw-desk-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#ffe8cc" font-family="JetBrains Mono, monospace">88%</text>
+                      <text class="gw-desk-gauge-caption" x="80" y="93" text-anchor="middle">desk coverage</text>
+                    </svg>
+                    <div class="gw-desk-gauge-readout">Ticker + sidebar portals</div>
+                    <div class="gw-desk-gauge-scale"><span>Scan</span><span>Portal</span><span>Compare</span><span>Save</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  The Greenways Buildings deals shell — marquee lanes up front, sidebar links to energy, water,
+                  and product finders without hopping modules. Best when you want one tab open all week.
+                </p>
+                <ul>
+                  <li>Same feed as the hub, plus sidebar portals for deeper compare sessions.</li>
+                  <li>Use after you have a shortlist from lanes — not as the first stop for a quick scan.</li>
+                  <li>Hand off to Andrieus when a spotlight needs grant stacking behind the deal.</li>
+                </ul>
+                <div class="gw-desk-actions">
+                  <a class="gw-desk-btn" data-gw-tool-path="/HTMLS%20GWM%20GWB/Deals.html" target="_blank" rel="noopener">Open full Deals page</a>
+                  <button type="button" class="gw-desk-btn gw-desk-btn--orange" data-toggle-iframe="full" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="gw-desk-iframe-wrap" id="iframe-full" hidden>
+                <iframe title="Full Deals page" loading="lazy" data-gw-iframe="/HTMLS%20GWM%20GWB/Deals.html"></iframe>
+                <div class="gw-desk-iframe-hint">Wide layout — open full page on a large screen for sidebar portals.</div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   </div>
+
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-desk-tablet.js"></script>
   <script>
-    (function () {
-      var PANELS = {
-        hub: '/greenways/deals-hub?embed=1',
-        energy: '/HTMLS%20GWM%20GWB/european_energy_deals_portal.html',
-        water: '/greenways/water-saving-finder?embed=1',
-        full: '/HTMLS%20GWM%20GWB/Deals.html'
-      };
-      var VALID = Object.keys(PANELS);
-
-      function origin() {
-        var h = location.hostname || '';
-        if (h === 'localhost' || h === '127.0.0.1' || h.indexOf('energy-calc-backend') !== -1) {
-          return location.origin || 'https://energy-calc-backend.onrender.com';
-        }
-        return 'https://energy-calc-backend.onrender.com';
-      }
-      function abs(path) {
-        var p = String(path || '').trim();
-        if (!p || /^https?:\/\//i.test(p)) return p;
-        return origin() + (p.charAt(0) === '/' ? p : '/' + p);
-      }
-
-      var frame = document.getElementById('deskFrame');
-      var buttons = Array.from(document.querySelectorAll('.rail-btn[data-panel]'));
-
-      function showPanel(key) {
-        if (!VALID.includes(key)) key = 'hub';
-        buttons.forEach(function (btn) {
-          var on = btn.dataset.panel === key;
-          btn.classList.toggle('active', on);
-          btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-        });
-        frame.src = abs(PANELS[key]);
-        try {
-          var url = new URL(location.href);
-          if (key === 'hub') url.searchParams.delete('tab');
-          else url.searchParams.set('tab', key);
-          history.replaceState(null, '', url.pathname + url.search + url.hash);
-        } catch (_) {}
-      }
-
-      buttons.forEach(function (btn) {
-        btn.addEventListener('click', function () { showPanel(btn.dataset.panel); });
-      });
-
-      document.querySelectorAll('a[href^="/greenways/"]').forEach(function (a) {
-        a.href = abs(a.getAttribute('href'));
-      });
-
-      document.getElementById('dealsBackBtn').addEventListener('click', function () {
-        if (window.history.length > 1) window.history.back();
-        else window.location.href = abs('/greenways/deals-agent');
-      });
-
-      var tab = new URLSearchParams(location.search).get('tab');
-      showPanel(tab && VALID.includes(tab) ? tab : 'hub');
-    })();
+    GreenwaysDeskTablet.init({
+      validPanels: ['hub', 'energy', 'water', 'full'],
+      defaultPanel: 'hub',
+      backAgentPath: '/greenways/deals-agent'
+    });
   </script>
 </body>
 </html>
