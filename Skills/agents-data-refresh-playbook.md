@@ -152,7 +152,9 @@ Run **`npm run refresh:agents-weekly`** every Monday (or after major catalogue e
 - `data/deals-feed.json` — Zara welcome spotlight + deals lanes
 - `data/greenways-agent-highlights.json` — sidebar **This week** on all seven agents
 
-**Options:**
+**On Render (auto):** `services/wire-refresh-cron.js` runs the same script **Mondays 05:00 UTC** when `RENDER` is set (override with `GREENWAYS_WIRE_REFRESH_CRON_*` env vars). Writes JSON on the live instance — no git commit; redeploy resets to repo copy until next cron run.
+
+**Manual / git-backed options:**
 
 1. **Local / staff** — `npm run refresh:agents-weekly` → commit both JSON files → push (Render serves static `data/`).
 2. **GitHub Actions** (optional) — weekly workflow on `main` that runs the script and opens a PR when outputs change.

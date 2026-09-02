@@ -1382,6 +1382,8 @@ async function startServer() {
 
   const { startFinanceDailyCron } = require('./services/finance-daily-cron');
   startFinanceDailyCron();
+  const { startWireRefreshCron } = require('./services/wire-refresh-cron');
+  startWireRefreshCron();
 }
 
 function wantsMongoFromEnv() {

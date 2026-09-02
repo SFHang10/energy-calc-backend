@@ -94,7 +94,7 @@ Label `trust: live` only when tied to repo data; else `curated`.
 
 ### Phase 5 — Ops (Edwardo-aligned, later)
 
-- Render cron: `npm run build:deals-feed` weekly
+- [x] Render in-process weekly cron: `services/wire-refresh-cron.js` → `npm run refresh:agents-weekly` (deals feed + agent highlights) — 2026-09-02
 - `agents-data-pipeline.json` stale badges (already registered)
 - Edwardo status: deals feed age + candidate queue depth
 

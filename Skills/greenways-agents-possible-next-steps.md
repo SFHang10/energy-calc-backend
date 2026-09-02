@@ -130,8 +130,9 @@
 
 | Step | Status | Notes |
 |------|--------|-------|
-| Render cron or external scheduler for `npm run build:deals-feed` | ☐ | Daily |
-| Weekly `npm run build:agent-highlights` | ☐ | |
+| Render weekly wire refresh (`wire-refresh-cron.js` → deals feed + agent highlights) | ☑ | Auto on `RENDER` — Monday 05:00 UTC default (2026-09-02) |
+| Render in-process cron for `npm run build:finance-daily` | ☑ | Auto on `RENDER` env — `services/finance-daily-cron.js` (2026-08-27) |
+| Weekly `npm run build:agent-highlights` | ☑ | Bundled in `refresh:agents-weekly` + wire cron |
 | After `schemes.json` edit — documented chain: integrator → bundle | ☐ | `agents-data-refresh-playbook.md` |
 | Edwardo verify alerts staff only today — optional public “feed as of” pill | ☐ | Low priority |
 
@@ -191,6 +192,46 @@ Work through in this order unless a launch deadline forces a swap:
 8. **Gap 7** — Pick one thin narrative (recycling or CBAM)
 9. **Gap 10** — Cheryce video knowledge pointers (transcript enrich + approve pilot set)
 10. **Gap 9** — Orchestra depth (when membership embed exists)
+11. **Gap 11** — Edwardo systems tech round-up (after next newsletter is live; page not required yet)
+12. **Gap 12** — Vincent finance external news — deeper UK & regional feeds (Ofgem, HMRC, etc.)
+
+---
+
+## Gap 11 — Edwardo systems tech round-up (planned)
+
+**Problem:** Vincent has a framed finance news page from the monthly pipeline. Edwardo should have the same for **New in Tech** — not a second newsroom, but **how new tech could help sustainability** (monitoring, sensors, dashboards, data quality).
+
+**Do not build the page yet.** Path is recorded so the newsletter run can grow a feed later.
+
+| Step | Status | Notes |
+|------|--------|-------|
+| Briefing + module `systems-tech-news` (interim href = tech edition) | ☑ | 2026-08-17 |
+| Cheryce handoff reason includes tech → Edwardo | ☑ | `media-agent-briefing.json` |
+| `data/systems-tech-news-feed.json` builder | ☐ | Mirror `scripts/build-finance-news-feed.js` from New in Tech + Looking Ahead |
+| HTML page `/greenways/systems-tech-news` (Music News / finance-news shell) | ☐ | Systems theme; question on every card: how does this help sustainability? |
+| Wire into `npm run run:newsletter -- --publish` | ☐ | After feed + page exist |
+| Edwardo chat intent `tech_for_sustainability` | ☐ | Open module + systems lens copy |
+
+**Key files:** `Skills/newsletter-run-playbook.md` § Edwardo tech round-up · `data/systems-agent-briefing.json` `plannedSurfaces` · `data/greenways-content-modules.json` `systems-tech-news`
+
+---
+
+## Gap 12 — Vincent finance external news — deeper UK & regional feeds (planned)
+
+**Problem:** ETL catalogue is UK-heavy; Vincent’s daily layer now has **DESNZ** (auto) + **DBT** (staff queue) + GOV.UK business finance card. Still missing regulator and tax signals hospitality operators care about (tariff cap, VAT relief, green incentives).
+
+**Shipped baseline (2026-08-27):** EU/EIB RSS · RVO NL queue · DESNZ Atom · DBT queue · business.gov.nl + GOV.UK static finders · `finance-headlines-admin` · Render daily cron.
+
+| Step | Status | Notes |
+|------|--------|-------|
+| **Ofgem** — price cap / market news | ☐ | `/rss` returned 405 in probe; try gov.uk search Atom, press office, or licensed data path |
+| **HMRC** — tax / VAT / capital allowances on energy equipment | ☐ | `gov.uk/.../hm-revenue-customs.atom` works — add with keyword filter; staff queue vs auto-publish TBD |
+| **UKRI / Innovate UK** — innovation grants for hospitality tech | ☐ | gov.uk Atom by organisation |
+| **Carbon Trust / MCS** — certification & SME programmes | ☐ | Lower priority; static cards if no stable feed |
+| **IE / DE / FR** gov press Atom (mirror UK pattern) | ☐ | After UK lane stable — reuse `type: atom` in `finance-external-sources.json` |
+| Re-tune UK hospitality keywords (pub, hotel, catering, BUS, ECO) | ☐ | `financeKeywords` + `financeAngleFor` after new sources land |
+
+**Key files:** `data/finance-external-sources.json` · `services/finance-external-news.js` · `data/finance-headline-candidates.json` · `HTMLS GWM GWB/finance-headlines-admin.html` · `Skills/newsletter-run-playbook.md`
 
 ---
 
@@ -203,6 +244,9 @@ Work through in this order unless a launch deadline forces a swap:
 | 2026-07-13 | **Site energy reading module** | UK + EU NL/ES/PT postcode grid carbon; Edwardo / Vincent / Zara wiring; commits `1ad6573`, `3681ccd` |
 | 2026-07-13 | **TODO — ENTSO-E live EU grid** | Gap 2: register token + `ENTSOE_API_KEY` on Render (EU still on zone benchmark until done) |
 | 2026-07-15 | **Gap 10 enrich pipeline** | `npm run enrich:video-knowledge` → drafts in `content-ops/drafts/video-knowledge/`; `--merge` for approved; 8 live Cheryce pointers |
+| 2026-08-17 | **Gap 11 path recorded** | Edwardo systems-tech-news planned (Vincent finance-news pattern); interim = New in Tech edition |
+| 2026-08-27 | **Vincent daily external news v1** | EU/EIB + RVO queue + DESNZ/DBT UK + staff admin + Render cron — commits `0e33bd9`, `b2d0510` |
+| 2026-08-27 | **Gap 12 recorded** | Backlog: Ofgem, HMRC, UKRI, IE/DE/FR Atom feeds — after UK baseline stable |
 
 ---
 
