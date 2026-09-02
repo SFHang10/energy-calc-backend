@@ -637,7 +637,7 @@
         }
 
         // Display dashboard
-        function displayDashboard(data) {
+        async function displayDashboard(data) {
             document.getElementById('login-container').classList.add('hidden');
             document.getElementById('member-dashboard').classList.remove('hidden');
 
@@ -672,8 +672,31 @@
             // Check if user is admin and show admin section
             checkAdminAccess();
 
-            // Store lightweight member context for Greenways agent chats (other pages/iframes).
-            // Fail-open: if anything is missing, agents just behave like public visitors.
+            await persistGreenwaysMemberContext(data);
+        }
+
+        function inferRegionFromLocation(locationRaw) {
+            const loc = String(locationRaw || '').toLowerCase();
+            if (!loc) return '';
+            if (/\b(netherlands|nederland|holland|amsterdam|rotterdam|utrecht)\b/.test(loc)) return 'nl';
+            if (/\b(uk|united kingdom|england|scotland|wales|london|manchester)\b/.test(loc)) return 'uk';
+            if (/\b(ireland|dublin|cork)\b/.test(loc)) return 'ie';
+            if (/\b(germany|deutschland|berlin|hamburg|munich)\b/.test(loc)) return 'de';
+            if (/\b(france|paris|lyon)\b/.test(loc)) return 'fr';
+            if (/\b(spain|espa|madrid|barcelona)\b/.test(loc)) return 'es';
+            if (/\b(portugal|lisbon|lisboa|porto)\b/.test(loc)) return 'pt';
+            if (/\b(belgium|brussels|antwerp)\b/.test(loc)) return 'be';
+            return '';
+        }
+
+        function inferSectorFromProfile(company, jobTitle) {
+            const hay = `${company || ''} ${jobTitle || ''}`.toLowerCase();
+            if (/\b(restaurant|hospitality|cafe|café|kitchen|hotel|bar|wok)\b/.test(hay)) return 'restaurant';
+            if (/\b(retail|shop|store)\b/.test(hay)) return 'sme';
+            return '';
+        }
+
+        async function persistGreenwaysMemberContext(data) {
             try {
                 const marketplace = data.membership_sync?.marketplace || data.wix_sync?.marketplace || {};
                 const buildings = data.membership_sync?.buildings || data.wix_sync?.buildings || {};
@@ -682,12 +705,37 @@
                     : (buildings && buildings.hasAccess && buildings.siteId)
                         ? buildings.siteId
                         : '';
+
+                let profile = {};
+                try {
+                    const pr = await fetch(`${API_BASE_URL}/members/profile`, {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+                    if (pr.ok) {
+                        const pd = await pr.json();
+                        profile = pd.user || {};
+                    }
+                } catch (_) {
+                    /* profile optional */
+                }
+
+                const region = inferRegionFromLocation(profile.location);
+                const sector = inferSectorFromProfile(profile.company, profile.job_title);
+
                 const ctx = {
                     version: 1,
                     updatedAt: new Date().toISOString(),
                     memberId: data?.member?.id || null,
                     tier: data?.member?.subscription_tier || '',
                     status: data?.member?.subscription_status || '',
+                    displayName: profile.display_name || data.member.name || '',
+                    company: profile.company || '',
+                    jobTitle: profile.job_title || '',
+                    location: profile.location || '',
+                    region: region,
+                    country: region,
+                    sector: sector,
+                    focus: 'general',
                     siteId: preferredSiteId || '',
                     wix: {
                         buildings: {
@@ -703,8 +751,20 @@
                     }
                 };
                 localStorage.setItem('greenways_member_context_v1', JSON.stringify(ctx));
+                try {
+                    sessionStorage.setItem('gw-team-profile-v1', JSON.stringify({
+                        region: region,
+                        sector: sector,
+                        focus: 'general',
+                        tier: ctx.tier,
+                        memberId: String(ctx.memberId || ''),
+                        siteId: ctx.siteId
+                    }));
+                } catch (_) {
+                    /* ignore */
+                }
             } catch (error) {
-                // ignore
+                /* fail-open */
             }
         }
         

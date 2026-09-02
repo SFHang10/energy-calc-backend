@@ -4,6 +4,7 @@
   var ROSTER_URL = '/data/greenways-agent-roster.json';
   var HANDOFF_KEY = 'gw-team-handoff-v1';
   var PROFILE_KEY = 'gw-team-profile-v1';
+  var MEMBER_CTX_KEY = 'greenways_member_context_v1';
   var JOURNEY_KEY = 'gw-team-journey-v1';
   var JOURNEY_PLAN_KEY = 'gw-team-journey-plan-v1';
   var JOURNEY_MAX = 24;
@@ -67,6 +68,90 @@
     } catch (_) {
       return null;
     }
+  }
+
+  function readLocalJson(key) {
+    try {
+      var raw = global.localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function normalizeAgentRegion(raw) {
+    var r = String(raw || '').toLowerCase().trim();
+    if (!r) return '';
+    if (r === 'nl' || r.indexOf('netherlands') !== -1 || r.indexOf('holland') !== -1) return 'nl';
+    if (r === 'uk' || r.indexOf('united kingdom') !== -1 || r.indexOf('england') !== -1 || r.indexOf('scotland') !== -1) return 'uk';
+    if (r === 'ie' || r.indexOf('ireland') !== -1) return 'ie';
+    if (r === 'de' || r.indexOf('germany') !== -1 || r.indexOf('deutschland') !== -1) return 'de';
+    if (r === 'fr' || r.indexOf('france') !== -1) return 'fr';
+    if (r === 'es' || r.indexOf('spain') !== -1 || r.indexOf('espa') !== -1) return 'es';
+    if (r === 'pt' || r.indexOf('portugal') !== -1) return 'pt';
+    if (r === 'be' || r.indexOf('belgium') !== -1) return 'be';
+    if (r === 'eu' || r.indexOf('eu-wide') !== -1) return 'eu';
+    if (r.indexOf('eu.') === 0) {
+      var part = r.split('.')[1] || '';
+      return normalizeAgentRegion(part);
+    }
+    if (r.length === 2) return r;
+    return '';
+  }
+
+  function inferRegionFromLocation(locationRaw) {
+    var loc = String(locationRaw || '').toLowerCase();
+    if (!loc) return '';
+    if (/\b(netherlands|nederland|holland|amsterdam|rotterdam|utrecht)\b/.test(loc)) return 'nl';
+    if (/\b(uk|united kingdom|england|scotland|wales|london|manchester)\b/.test(loc)) return 'uk';
+    if (/\b(ireland|dublin|cork)\b/.test(loc)) return 'ie';
+    if (/\b(germany|deutschland|berlin|hamburg|munich)\b/.test(loc)) return 'de';
+    if (/\b(france|paris|lyon)\b/.test(loc)) return 'fr';
+    if (/\b(spain|espa|madrid|barcelona)\b/.test(loc)) return 'es';
+    if (/\b(portugal|lisbon|lisboa|porto)\b/.test(loc)) return 'pt';
+    if (/\b(belgium|brussels|antwerp)\b/.test(loc)) return 'be';
+    return '';
+  }
+
+  function inferSectorFromProfile(company, jobTitle) {
+    var hay = (String(company || '') + ' ' + String(jobTitle || '')).toLowerCase();
+    if (/\b(restaurant|hospitality|cafe|café|kitchen|hotel|bar|wok)\b/.test(hay)) return 'restaurant';
+    if (/\b(retail|shop|store)\b/.test(hay)) return 'sme';
+    return '';
+  }
+
+  function memberContextToProfile(ctx) {
+    if (!ctx || typeof ctx !== 'object') return null;
+    var region = normalizeAgentRegion(ctx.region || ctx.country || '');
+    if (!region && ctx.location) region = inferRegionFromLocation(ctx.location);
+    var sector = String(ctx.sector || '').trim() || inferSectorFromProfile(ctx.company, ctx.jobTitle);
+    var memberId = ctx.memberId != null ? String(ctx.memberId) : '';
+    if (!memberId && !region && !sector) return null;
+    return {
+      region: region,
+      sector: sector,
+      focus: String(ctx.focus || 'general'),
+      tier: String(ctx.tier || ''),
+      memberId: memberId,
+      siteId: String(ctx.siteId || '')
+    };
+  }
+
+  function bootstrapMemberContext() {
+    var ctx = readMemberContext();
+    var mapped = memberContextToProfile(ctx);
+    if (!mapped) return null;
+    var existing = readSharedProfile() || {};
+    var merged = {};
+    Object.keys(existing).forEach(function (k) {
+      merged[k] = existing[k];
+    });
+    Object.keys(mapped).forEach(function (k) {
+      if (mapped[k] != null && mapped[k] !== '' && !merged[k]) merged[k] = mapped[k];
+    });
+    writeSharedProfile(merged);
+    applySharedProfile();
+    return merged;
   }
 
   function writeJson(key, value) {
@@ -156,7 +241,7 @@
   }
 
   function readMemberContext() {
-    return readJson('greenways_member_context_v1');
+    return readLocalJson(MEMBER_CTX_KEY) || readJson(MEMBER_CTX_KEY);
   }
 
   function mergeMemberContext(profile) {
@@ -169,6 +254,15 @@
     if (!out.tier && ctx.tier) out.tier = String(ctx.tier);
     if (!out.memberId && ctx.memberId != null) out.memberId = String(ctx.memberId);
     if (!out.siteId && ctx.siteId) out.siteId = String(ctx.siteId);
+    if (!out.region) {
+      var region = normalizeAgentRegion(ctx.region || ctx.country || '');
+      if (!region && ctx.location) region = inferRegionFromLocation(ctx.location);
+      if (region) out.region = region;
+    }
+    if (!out.sector) {
+      var sector = String(ctx.sector || '').trim() || inferSectorFromProfile(ctx.company, ctx.jobTitle);
+      if (sector) out.sector = sector;
+    }
     return out;
   }
 
@@ -209,6 +303,39 @@
       el.addEventListener('change', function () {
         if (typeof getProfile === 'function') writeSharedProfile(getProfile());
       });
+    });
+  }
+
+  function renderDeskMemberPills() {
+    var ctx = readMemberContext();
+    var profile = memberContextToProfile(ctx) || readSharedProfile();
+    if (!profile || (!profile.region && !profile.sector && !profile.memberId)) return;
+    var hero = document.querySelector('.gw-desk-hero');
+    if (!hero || hero.querySelector('.gw-desk-member-pills')) return;
+    var labels = [];
+    if (profile.region) labels.push(String(profile.region).toUpperCase());
+    if (profile.sector) labels.push(profile.sector);
+    if (profile.tier) labels.push(profile.tier + ' member');
+    if (!labels.length) return;
+    var row = document.createElement('div');
+    row.className = 'gw-desk-member-pills';
+    row.setAttribute('aria-label', 'Member context');
+    row.innerHTML = labels
+      .map(function (label) {
+        return '<span class="gw-desk-member-pill">' + escapeHtml(label) + '</span>';
+      })
+      .join('');
+    var steps = hero.querySelector('.gw-desk-step-pills');
+    if (steps && steps.parentNode === hero) hero.insertBefore(row, steps);
+    else hero.appendChild(row);
+  }
+
+  var memberStorageBound = false;
+  function bindMemberContextStorage() {
+    if (memberStorageBound) return;
+    memberStorageBound = true;
+    global.addEventListener('storage', function (ev) {
+      if (ev && ev.key === MEMBER_CTX_KEY) bootstrapMemberContext();
     });
   }
 
@@ -1335,6 +1462,8 @@
     var currentSlug = opts.currentSlug || slugFromPath(global.location.pathname);
     var roster = await loadRoster();
 
+    bindMemberContextStorage();
+    bootstrapMemberContext();
     applySharedProfile();
     if (typeof opts.getProfile === 'function') {
       bindProfileSync(opts.getProfile);
@@ -1395,6 +1524,8 @@
     profileForAsk: profileForAsk,
     readMemberContext: readMemberContext,
     mergeMemberContext: mergeMemberContext,
+    bootstrapMemberContext: bootstrapMemberContext,
+    renderDeskMemberPills: renderDeskMemberPills,
     readSharedProfile: readSharedProfile,
     writeSharedProfile: writeSharedProfile,
     slugFromPath: slugFromPath,

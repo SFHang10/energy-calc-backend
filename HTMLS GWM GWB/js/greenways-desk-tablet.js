@@ -52,6 +52,37 @@
     iframe.setAttribute('src', abs(iframe.getAttribute('data-gw-iframe')));
   }
 
+  function renderDeskMemberPills() {
+    var ctx = null;
+    try {
+      var raw = global.localStorage.getItem('greenways_member_context_v1');
+      ctx = raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      ctx = null;
+    }
+    if (!ctx || typeof ctx !== 'object') return;
+    var labels = [];
+    var region = String(ctx.region || ctx.country || '').trim();
+    if (region) labels.push(region.toUpperCase().slice(0, 2));
+    if (ctx.sector) labels.push(String(ctx.sector));
+    if (ctx.tier) labels.push(String(ctx.tier) + ' member');
+    if (!labels.length) return;
+    var hero = document.querySelector('.gw-desk-hero');
+    if (!hero || hero.querySelector('.gw-desk-member-pills')) return;
+    var row = document.createElement('div');
+    row.className = 'gw-desk-member-pills';
+    row.setAttribute('aria-label', 'Member context');
+    labels.forEach(function (label) {
+      var pill = document.createElement('span');
+      pill.className = 'gw-desk-member-pill';
+      pill.textContent = label;
+      row.appendChild(pill);
+    });
+    var steps = hero.querySelector('.gw-desk-step-pills');
+    if (steps && steps.parentNode === hero) hero.insertBefore(row, steps);
+    else hero.appendChild(row);
+  }
+
   function init(opts) {
     opts = opts || {};
     var validPanels = opts.validPanels || [];
@@ -137,6 +168,8 @@
     var tabParam = new URLSearchParams(global.location.search).get('tab');
     if (tabParam && validPanels.indexOf(tabParam) !== -1) showPanel(tabParam);
     else showPanel(defaultPanel);
+
+    renderDeskMemberPills();
 
     return { showPanel: showPanel, abs: abs };
   }

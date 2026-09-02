@@ -28,9 +28,10 @@
 
 | Step | Status | Notes |
 |------|--------|-------|
-| Pass `tier`, `memberId`, `region`, `siteId` from member dashboard iframe → `/ask` | ☐ | Same agent HTML; query or `postMessage` profile |
+| Pass `tier`, `memberId`, `region`, `sector` from member dashboard → agent `/ask` | ☑ partial | `greenways_member_context_v1` (localStorage) + `gw-team-profile-v1`; membership dashboard enriches from `/members/profile` — 2026-09-02 |
+| Pre-fill profile block in chat (region, sector) | ☑ partial | `GreenwaysAgentTeam.bootstrapMemberContext()` on agent load |
+| Wire / desk member pills | ☑ partial | Wire `regionChips` + desk `gw-desk-member-pill` from same context key |
 | Verify Wix member via existing `/api/members` patterns | ☐ | Decision TBD: token header vs member id lookup |
-| Pre-fill profile block in chat (region, sector, site name) | ☐ | `gw-team-profile-v1` already exists for handoffs |
 | Higher LLM quota for members vs public | ☐ | Needs quota service first |
 
 **Key files:** `unified-membership-dashboard.html` · `routes/members.js` · `services/greenways-agent-llm-fallback.js` · `Skills/greenways-agents-roadmap.md` § Phase 3

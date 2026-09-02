@@ -52,7 +52,7 @@
 1. **Desk parity polish** — **complete for consumer desks** (Andrieus, Zara, Zyanne tablet pattern — 2026-09-02). **Cheryce skipped** (media launcher works). **Edwardo deferred** — ops/systems page already dense; plan a distinct dashboard (config + verify) after wider platform work lands
 2. **Deals feed automation** — `build:deals-feed` on schedule (keeps Zara wire honest) — **Render weekly cron** `wire-refresh-cron.js` → `refresh:agents-weekly` — 2026-09-02
 3. **Talking phase** — branded TTS + Wix mic (`prd-agents-talking-phase.json`)
-4. **Member context on wire/desk** — profile/site from Customer Hub → snapshot pills
+4. **Member context on wire/desk** — profile/site from Customer Hub → snapshot pills — **v1 slice:** membership dashboard → `greenways_member_context_v1` → agents + wire + desk pills — 2026-09-02
 
 ### Next up (Aug–Sep 2026)
 
