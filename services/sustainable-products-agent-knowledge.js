@@ -65,6 +65,7 @@ const PORTAL_PATH_MODULE_IDS = [
   ['restaurant-equipment-deep-dive', 'equipment-deep-dive'],
   ['equipment_intelligence_tool', 'etl-finder'],
   ['eco_project_planning_guide', 'eco-project-planner'],
+  ['droppie-recycle', 'droppie-recycle-journey'],
   ['deals.html', 'deals-full-page'],
   ['deals-ticker-hub', 'deals-ticker']
 ];
@@ -853,13 +854,51 @@ async function buildCitizenBenefitsAnswer(tip) {
   return guideLinkBlock('Citizen benefits of sustainability', href, narrative, tip);
 }
 
-async function buildRecyclingAnswer(tip) {
+async function buildRecyclingAnswer(tip, profile = {}) {
   const briefing = await loadBriefing();
-  const paths = briefing.guidePaths || {};
-  const href = paths.recycling || '../HTMLs/Recycling.html';
+  const region = String(profile.region || 'nl').toLowerCase();
+  const isNl = region === 'nl' || region === 'netherlands' || region === 'eu.netherlands';
   const narrative =
     briefing.guideNarratives?.recycling ||
-    'Recycling old equipment improves your sustainability profile and can return value through trade-in or collection paths.';
+    'Recycling old equipment improves your sustainability profile and can return value through trade-in, drop-off, or collection paths.';
+  if (isNl) {
+    const lat = profile.lat || profile.siteLat;
+    const lng = profile.lng || profile.siteLng;
+    let moduleHref = '/greenways/droppie-recycle';
+    if (lat && lng) moduleHref += `?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}`;
+    return {
+      answer:
+        `**Recycle with Droppie (Netherlands)**\n\n` +
+        `${narrative}\n\n` +
+        `**Your plan:**\n` +
+        `1. Choose what you are retiring — cooking oil, small e-waste, textiles, packaging\n` +
+        `2. See the **nearest Droppie** that accepts those streams\n` +
+        `3. Prep, open the **Droppie app**, and drop off (QR at the store)\n` +
+        `4. Optional: send a **bulk heads-up** for commercial quantities or awkward equipment\n\n` +
+        `Replacing kit? **Artemis** can spec the upgrade; retailer trade-in paths still appear on marketplace product cards.\n\n` +
+        `Open the journey module on the right.\n\n_${tip}_`,
+      suggestions: [],
+      blocks: [
+        productsModuleBlock([
+          {
+            moduleId: 'droppie-recycle-journey',
+            title: 'Recycle with Droppie',
+            usageHint: 'Step-by-step NL drop-off plan',
+            openSize: 'near-full'
+          },
+          {
+            moduleId: 'equipment-deep-dive',
+            title: 'Equipment deep dive',
+            usageHint: 'Compare replacements after trade-in',
+            openSize: 'near-full'
+          }
+        ])
+      ],
+      agentHandoffs: buildHandoffs(briefing, '', 'recycling')
+    };
+  }
+  const paths = briefing.guidePaths || {};
+  const href = paths.recycling || '../HTMLs/Recycling.html';
   const out = guideLinkBlock('Recycling & circular economy', href, narrative, tip);
   out.agentHandoffs = buildHandoffs(briefing, '', 'recycling');
   return out;
@@ -1425,7 +1464,7 @@ async function answerFromKnowledge(question, profile = {}) {
         result = await buildCitizenBenefitsAnswer(tip);
         break;
       case 'recycling':
-        result = await buildRecyclingAnswer(tip);
+        result = await buildRecyclingAnswer(tip, profile);
         break;
       case 'product_transition':
         result = await buildProductTransitionAnswer(tip);

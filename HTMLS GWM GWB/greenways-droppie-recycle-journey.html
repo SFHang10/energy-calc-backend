@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="wix-html-scroll" content="no-scroll" />
+  <title>Zyanne — Recycle with Droppie</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
+  <style>
+    :root {
+      --bg: #050a12;
+      --panel: rgba(8, 18, 28, 0.94);
+      --border: rgba(34, 212, 255, 0.28);
+      --accent: #22d4ff;
+      --accent-bright: #00f582;
+      --accent-dim: rgba(34, 212, 255, 0.12);
+      --gold: #c9a961;
+      --text: #e8f4fc;
+      --muted: #8aa4bd;
+      --font: 'Space Grotesk', system-ui, sans-serif;
+      --clean: 'IBM Plex Sans', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; overflow-x: hidden; }
+    body {
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(180deg, rgba(5, 12, 20, 0.92) 0%, rgba(5, 14, 22, 0.96) 100%),
+        radial-gradient(circle at 20% 0%, rgba(34, 212, 255, 0.12), transparent 45%),
+        radial-gradient(circle at 90% 80%, rgba(0, 245, 130, 0.08), transparent 40%);
+      color: var(--text);
+      font-family: var(--font);
+      padding: 22px 0 36px;
+    }
+    body.embed-mode { padding: 14px 0 24px; }
+    body.embed-mode .page-nav { display: none; }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 0 16px; }
+    .page-nav {
+      margin-bottom: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    .page-nav a { color: var(--accent); text-decoration: none; font-weight: 600; }
+    .hero {
+      text-align: center;
+      margin-bottom: 18px;
+      padding: 20px 16px 18px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    }
+    .hero-eyebrow {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    .hero h1 {
+      font-size: clamp(1.45rem, 3.5vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 10px;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero-lead {
+      font-family: var(--clean);
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: var(--muted);
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .step-rail {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin: 16px 0 18px;
+    }
+    .step-pill {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(34, 212, 255, 0.25);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--muted);
+    }
+    .step-pill.is-active {
+      border-color: rgba(34, 212, 255, 0.65);
+      background: var(--accent-dim);
+      color: #b8ecff;
+    }
+    .step-pill.is-done {
+      border-color: rgba(0, 245, 130, 0.45);
+      color: #9dffd0;
+    }
+    .journey-card {
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      padding: 16px 14px 14px;
+      margin-bottom: 14px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+    }
+    .journey-kicker {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+    .journey-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; }
+    .journey-lead {
+      font-family: var(--clean);
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .chip-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .stream-chip {
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-family: var(--clean);
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .stream-chip:hover { border-color: rgba(34, 212, 255, 0.45); }
+    .stream-chip.is-selected {
+      border-color: rgba(34, 212, 255, 0.75);
+      background: var(--accent-dim);
+      color: #dff6ff;
+    }
+    .field-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .field-row label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .field {
+      flex: 1 1 140px;
+      min-width: 0;
+    }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(34, 212, 255, 0.22);
+      background: rgba(0, 0, 0, 0.25);
+      color: var(--text);
+      font-family: var(--clean);
+      font-size: 0.85rem;
+      padding: 9px 11px;
+    }
+    .field textarea { min-height: 72px; resize: vertical; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border-radius: 10px;
+      border: 1px solid rgba(34, 212, 255, 0.35);
+      background: rgba(34, 212, 255, 0.12);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 9px 14px;
+      cursor: pointer;
+    }
+    .btn:hover { background: rgba(34, 212, 255, 0.2); }
+    .btn--primary {
+      border-color: rgba(0, 245, 130, 0.45);
+      background: rgba(0, 245, 130, 0.14);
+      color: #d6ffe9;
+    }
+    .btn--ghost {
+      border-color: rgba(255, 255, 255, 0.14);
+      background: transparent;
+      color: var(--muted);
+    }
+    .store-card {
+      border-radius: 12px;
+      border: 1px solid rgba(0, 245, 130, 0.35);
+      background: rgba(0, 245, 130, 0.06);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .store-name { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+    .store-meta {
+      font-family: var(--clean);
+      font-size: 0.8rem;
+      line-height: 1.45;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .store-distance {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #9dffd0;
+      margin-bottom: 8px;
+    }
+    .stream-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .stream-tag {
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 4px 7px;
+      border-radius: 6px;
+      border: 1px solid rgba(34, 212, 255, 0.25);
+      color: #b8ecff;
+    }
+    .checklist {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .checklist li {
+      font-family: var(--clean);
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: var(--muted);
+      padding-left: 1.35rem;
+      position: relative;
+    }
+    .checklist li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--accent-bright);
+      font-weight: 700;
+    }
+    .agent-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 14px;
+    }
+    .agent-ask {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 10px 5px 5px;
+      border-radius: 999px;
+      border: 1px solid rgba(34, 212, 255, 0.35);
+      background: rgba(34, 212, 255, 0.1);
+      color: #b8ecff;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+    .agent-ask-face {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+    .agent-ask:hover { border-color: rgba(34, 212, 255, 0.65); color: #fff; }
+    .footer-note {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(138, 164, 189, 0.7);
+      text-align: center;
+      margin-top: 10px;
+    }
+    .disclaimer {
+      font-family: var(--clean);
+      font-size: 0.72rem;
+      line-height: 1.45;
+      color: rgba(138, 164, 189, 0.85);
+      margin-top: 8px;
+    }
+    .hidden { display: none !important; }
+    @media (max-width: 600px) {
+      .step-rail { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="page-nav" aria-label="Greenways navigation">
+      <a href="/greenways/sustainable-products-agent">← Zyanne</a>
+      <a href="https://www.godroppie.com/en" target="_blank" rel="noopener">Droppie website</a>
+    </nav>
+
+    <header class="hero">
+      <div class="hero-eyebrow">Zyanne · Circular economy · Netherlands</div>
+      <h1>Recycle with <span>Droppie</span></h1>
+      <p class="hero-lead">
+        A step-by-step plan for restaurants and SMEs: choose what you are retiring, find the nearest Droppie store,
+        prep for drop-off, and open the app. You can also send a heads-up for bulk or awkward equipment.
+      </p>
+      <div class="step-rail" id="stepRail" aria-label="Journey steps">
+        <span class="step-pill is-active" data-step="1">1 · What</span>
+        <span class="step-pill" data-step="2">2 · Where</span>
+        <span class="step-pill" data-step="3">3 · Go</span>
+        <span class="step-pill" data-step="4">4 · Bulk</span>
+      </div>
+    </header>
+
+    <article class="journey-card" id="step1">
+      <div class="journey-kicker">Step 1</div>
+      <h2 class="journey-title">What are you recycling?</h2>
+      <p class="journey-lead">Pick everything you plan to drop off. We will match stores that accept those streams.</p>
+      <div class="chip-grid" id="streamChips"></div>
+      <div class="btn-row">
+        <button type="button" class="btn btn--primary" id="btnToStep2">Next — find nearest store</button>
+      </div>
+    </article>
+
+    <article class="journey-card hidden" id="step2">
+      <div class="journey-kicker">Step 2</div>
+      <h2 class="journey-title">Nearest Droppie for your site</h2>
+      <p class="journey-lead">We estimate distance from your site. Adjust city or postcode if needed.</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="siteLabel">Site label</label>
+          <input id="siteLabel" type="text" placeholder="e.g. Amsterdam restaurant" />
+        </div>
+        <div class="field">
+          <label for="siteCity">City</label>
+          <select id="siteCity">
+            <option value="amsterdam">Amsterdam</option>
+            <option value="rotterdam">Rotterdam</option>
+            <option value="utrecht">Utrecht</option>
+            <option value="denhaag">Den Haag</option>
+          </select>
+        </div>
+      </div>
+      <div id="storeResult" class="store-card hidden">
+        <div class="store-distance" id="storeDistance"></div>
+        <div class="store-name" id="storeName"></div>
+        <div class="store-meta" id="storeMeta"></div>
+        <div class="stream-tags" id="storeStreams"></div>
+        <div class="btn-row">
+          <a class="btn btn--primary" id="storeMaps" href="#" target="_blank" rel="noopener">Directions</a>
+          <button type="button" class="btn" id="btnToStep3">Prep checklist</button>
+        </div>
+      </div>
+      <p class="disclaimer hidden" id="storeEmpty">Select at least one stream in step 1 to see matching stores.</p>
+      <div class="btn-row">
+        <button type="button" class="btn btn--ghost" id="btnBack1">← Back</button>
+      </div>
+    </article>
+
+    <article class="journey-card hidden" id="step3">
+      <div class="journey-kicker">Step 3</div>
+      <h2 class="journey-title">Prep &amp; open the Droppie app</h2>
+      <p class="journey-lead">At the store, staff scan your personal QR code in the app and register each stream.</p>
+      <ul class="checklist">
+        <li>Download the Droppie app and create your account before you travel.</li>
+        <li>Separate streams cleanly — sealed bags or containers, as clean as possible.</li>
+        <li>Check opening hours in the app; they can change by location.</li>
+        <li>Bring your QR code on your phone — rewards land in your Droppie wallet.</li>
+      </ul>
+      <div class="btn-row">
+        <a class="btn btn--primary" id="appIos" href="#" target="_blank" rel="noopener">App Store</a>
+        <a class="btn btn--primary" id="appAndroid" href="#" target="_blank" rel="noopener">Google Play</a>
+        <a class="btn" id="appWeb" href="https://www.godroppie.com/en" target="_blank" rel="noopener">Droppie website</a>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn btn--ghost" id="btnBack2">← Back</button>
+        <button type="button" class="btn" id="btnToStep4">Bulk / commercial heads-up →</button>
+      </div>
+    </article>
+
+    <article class="journey-card hidden" id="step4">
+      <div class="journey-kicker">Step 4 · Optional</div>
+      <h2 class="journey-title">Notify Droppie about bulk items</h2>
+      <p class="journey-lead">For multiple appliances, commercial quantities, or awkward equipment — send a short heads-up so the store can prepare.</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="notifyName">Your name</label>
+          <input id="notifyName" type="text" placeholder="Contact name" />
+        </div>
+        <div class="field">
+          <label for="notifySite">Site / business</label>
+          <input id="notifySite" type="text" placeholder="Restaurant or site name" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="notifyItems">What you have for collection or drop-off</label>
+        <textarea id="notifyItems" placeholder="e.g. 2 combi ovens, fryer oil drums, cable bundle, staff uniforms…"></textarea>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn--primary" id="btnNotify" href="#">Email Droppie</a>
+        <button type="button" class="btn btn--ghost" id="btnBack3">← Back</button>
+      </div>
+      <p class="disclaimer">Opens your email client with a pre-filled message to Droppie. For API partner intake later, this can become an in-app form.</p>
+    </article>
+
+    <div class="agent-row">
+      <a class="agent-ask" href="/greenways/sustainable-products-agent?q=How%20does%20recycling%20old%20equipment%20improve%20my%20sustainability%20profile%3F">
+        <img class="agent-ask-face" src="https://static.wixstatic.com/media/c123de_dc5b2e3e4aef4cc4b75c7b44888281bd~mv2.png" alt="" /> Ask Zyanne
+      </a>
+      <a class="agent-ask" href="/greenways/equipment-agent?q=I%20am%20replacing%20kitchen%20equipment%20%E2%80%94%20what%20should%20I%20do%20with%20the%20old%20units%3F">
+        <img class="agent-ask-face" src="https://static.wixstatic.com/media/c123de_126830b1fc224df880dfa37ec830620e~mv2.png" alt="" /> Ask Artemis
+      </a>
+      <a class="agent-ask" href="/greenways/media-agent?q=Show%20circular%20economy%20and%20recycling%20examples%20on%20the%20sustainability%20map">
+        <img class="agent-ask-face" src="https://static.wixstatic.com/media/c123de_333c90ab8930465a98b503e1d24316b4~mv2.png" alt="" /> Ask Cheryce
+      </a>
+    </div>
+
+    <p class="footer-note">/greenways/droppie-recycle · Greenways × Droppie · v1 curated locations</p>
+  </div>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      if (params.get('embed') === '1') document.body.classList.add('embed-mode');
+
+      var CITY_CENTRES = {
+        amsterdam: { lat: 52.3676, lng: 4.8941, label: 'Amsterdam' },
+        rotterdam: { lat: 51.9225, lng: 4.4792, label: 'Rotterdam' },
+        utrecht: { lat: 52.0907, lng: 5.1214, label: 'Utrecht' },
+        denhaag: { lat: 52.0705, lng: 4.3007, label: 'Den Haag' }
+      };
+
+      var state = {
+        streams: [],
+        locations: [],
+        labels: {},
+        meta: {},
+        siteLat: CITY_CENTRES.amsterdam.lat,
+        siteLng: CITY_CENTRES.amsterdam.lng,
+        currentStep: 1,
+        nearest: null
+      };
+
+      function origin() {
+        var h = location.hostname || '';
+        if (h === 'localhost' || h === '127.0.0.1' || h.indexOf('energy-calc-backend') !== -1) {
+          return location.origin || '';
+        }
+        return 'https://energy-calc-backend.onrender.com';
+      }
+      function abs(path) {
+        var p = String(path || '').trim();
+        if (!p) return '#';
+        if (/^https?:\/\//i.test(p)) return p;
+        return origin() + (p.charAt(0) === '/' ? p : '/' + p);
+      }
+      document.querySelectorAll('a[href^="/"]').forEach(function (a) {
+        var href = a.getAttribute('href');
+        if (href) a.setAttribute('href', abs(href));
+      });
+
+      function haversineKm(lat1, lng1, lat2, lng2) {
+        var R = 6371;
+        var dLat = (lat2 - lat1) * Math.PI / 180;
+        var dLng = (lng2 - lng1) * Math.PI / 180;
+        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+          Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      }
+
+      function setStep(n) {
+        state.currentStep = n;
+        [1, 2, 3, 4].forEach(function (i) {
+          var el = document.getElementById('step' + i);
+          if (el) el.classList.toggle('hidden', i !== n);
+        });
+        document.querySelectorAll('.step-pill').forEach(function (pill) {
+          var s = Number(pill.getAttribute('data-step'));
+          pill.classList.toggle('is-active', s === n);
+          pill.classList.toggle('is-done', s < n);
+        });
+      }
+
+      function renderStreamChips() {
+        var grid = document.getElementById('streamChips');
+        if (!grid) return;
+        grid.innerHTML = '';
+        Object.keys(state.labels).forEach(function (id) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'stream-chip' + (state.streams.indexOf(id) !== -1 ? ' is-selected' : '');
+          btn.textContent = state.labels[id];
+          btn.addEventListener('click', function () {
+            var idx = state.streams.indexOf(id);
+            if (idx === -1) state.streams.push(id);
+            else state.streams.splice(idx, 1);
+            renderStreamChips();
+          });
+          grid.appendChild(btn);
+        });
+        var pre = (params.get('streams') || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        if (pre.length && !state.streams.length) {
+          pre.forEach(function (id) {
+            if (state.labels[id] && state.streams.indexOf(id) === -1) state.streams.push(id);
+          });
+          renderStreamChips();
+        }
+      }
+
+      function findNearest() {
+        var pool = state.locations.filter(function (loc) {
+          if (!state.streams.length) return true;
+          return state.streams.every(function (s) { return loc.streams.indexOf(s) !== -1; });
+        });
+        if (!pool.length) {
+          pool = state.locations.slice();
+        }
+        pool.sort(function (a, b) {
+          return haversineKm(state.siteLat, state.siteLng, a.lat, a.lng) -
+            haversineKm(state.siteLat, state.siteLng, b.lat, b.lng);
+        });
+        state.nearest = pool[0] || null;
+        renderStore();
+      }
+
+      function renderStore() {
+        var card = document.getElementById('storeResult');
+        var empty = document.getElementById('storeEmpty');
+        if (!state.nearest) {
+          if (card) card.classList.add('hidden');
+          if (empty) empty.classList.remove('hidden');
+          return;
+        }
+        if (empty) empty.classList.add('hidden');
+        if (card) card.classList.remove('hidden');
+        var km = haversineKm(state.siteLat, state.siteLng, state.nearest.lat, state.nearest.lng);
+        document.getElementById('storeDistance').textContent = '~' + km.toFixed(1) + ' km from your site';
+        document.getElementById('storeName').textContent = state.nearest.name;
+        document.getElementById('storeMeta').textContent = state.nearest.address + ' · ' + (state.nearest.hoursNote || '');
+        var tags = document.getElementById('storeStreams');
+        tags.innerHTML = '';
+        state.nearest.streams.forEach(function (id) {
+          var span = document.createElement('span');
+          span.className = 'stream-tag';
+          span.textContent = state.labels[id] || id;
+          tags.appendChild(span);
+        });
+        var maps = document.getElementById('storeMaps');
+        if (maps) maps.href = state.nearest.mapsUrl || '#';
+      }
+
+      function buildNotifyMailto() {
+        var name = document.getElementById('notifyName').value.trim();
+        var site = document.getElementById('notifySite').value.trim() || document.getElementById('siteLabel').value.trim();
+        var items = document.getElementById('notifyItems').value.trim();
+        var streams = state.streams.map(function (id) { return state.labels[id] || id; }).join(', ');
+        var store = state.nearest ? state.nearest.name + ' — ' + state.nearest.address : 'nearest Droppie';
+        var body = [
+          'Hello Droppie team,',
+          '',
+          'I am contacting you via Greenways about recycling / drop-off.',
+          '',
+          'Contact: ' + (name || '(not provided)'),
+          'Site: ' + (site || '(not provided)'),
+          'Preferred store: ' + store,
+          'Streams: ' + (streams || '(not specified)'),
+          '',
+          'Items:',
+          items || '(please describe)',
+          '',
+          'Please let me know if drop-off or a collection heads-up works best.',
+          '',
+          'Sent from Greenways Droppie recycle journey'
+        ].join('\n');
+        var email = state.meta.partnerEmail || 'info@godroppie.com';
+        return 'mailto:' + encodeURIComponent(email) +
+          '?subject=' + encodeURIComponent('Greenways — recycling heads-up') +
+          '&body=' + encodeURIComponent(body);
+      }
+
+      document.getElementById('btnToStep2').addEventListener('click', function () {
+        setStep(2);
+        findNearest();
+      });
+      document.getElementById('btnToStep3').addEventListener('click', function () { setStep(3); });
+      document.getElementById('btnToStep4').addEventListener('click', function () { setStep(4); });
+      document.getElementById('btnBack1').addEventListener('click', function () { setStep(1); });
+      document.getElementById('btnBack2').addEventListener('click', function () { setStep(2); });
+      document.getElementById('btnBack3').addEventListener('click', function () { setStep(3); });
+      document.getElementById('siteCity').addEventListener('change', function () {
+        var c = CITY_CENTRES[this.value];
+        if (c) {
+          state.siteLat = c.lat;
+          state.siteLng = c.lng;
+          document.getElementById('siteLabel').value = c.label + ' site';
+        }
+        findNearest();
+      });
+      document.getElementById('btnNotify').addEventListener('click', function (e) {
+        e.preventDefault();
+        this.href = buildNotifyMailto();
+        window.location.href = this.href;
+      });
+
+      fetch(abs('/data/droppie-locations.json'))
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          state.locations = data.locations || [];
+          state.labels = (data.meta && data.meta.streamLabels) || {};
+          state.meta = data.meta || {};
+          if (data.defaultSite) {
+            state.siteLat = data.defaultSite.lat;
+            state.siteLng = data.defaultSite.lng;
+            document.getElementById('siteLabel').value = data.defaultSite.label || 'My site';
+          }
+          var lat = parseFloat(params.get('lat'));
+          var lng = parseFloat(params.get('lng'));
+          if (!isNaN(lat) && !isNaN(lng)) {
+            state.siteLat = lat;
+            state.siteLng = lng;
+          }
+          if (state.meta.appIos) document.getElementById('appIos').href = state.meta.appIos;
+          if (state.meta.appAndroid) document.getElementById('appAndroid').href = state.meta.appAndroid;
+          if (state.meta.partnerUrl) document.getElementById('appWeb').href = state.meta.partnerUrl;
+          renderStreamChips();
+        })
+        .catch(function () {
+          document.getElementById('streamChips').innerHTML = '<p class="disclaimer">Could not load location data. Try again later.</p>';
+        });
+    })();
+  </script>
+</body>
+</html>

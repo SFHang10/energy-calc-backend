@@ -485,6 +485,23 @@ const COLLECTION_AGENCIES_DATABASE = {
                     additionalBenefits: ['Free collection', 'Certificate of recycling'],
                     ecoCertification: 'WEEE Compliant',
                     circularEconomyImpact: 'High - Components reused'
+                },
+                {
+                    agencyName: 'Droppie',
+                    agencyType: 'Recycle store',
+                    collectionMethod: 'Drop-off',
+                    incentiveType: 'Cash Payment',
+                    incentiveAmount: 0,
+                    currency: 'EUR',
+                    description: 'Drop off separated waste streams at a Droppie store — rewards via the Droppie app (no new purchase required)',
+                    requirements: ['Download Droppie app', 'Separate streams cleanly', 'Confirm accepted streams per location in app'],
+                    collectionArea: 'Netherlands (Amsterdam, Rotterdam, Utrecht, Den Haag + expanding)',
+                    contactInfo: 'info@godroppie.com',
+                    website: 'https://www.godroppie.com/en',
+                    processingTime: 'Same visit',
+                    additionalBenefits: ['Cooking oil and small e-waste accepted', 'Greenways journey: /greenways/droppie-recycle'],
+                    ecoCertification: 'Circular economy partner',
+                    circularEconomyImpact: 'High - Clean separated streams for recyclers'
                 }
             ],
             'Refrigerator': [
@@ -504,6 +521,23 @@ const COLLECTION_AGENCIES_DATABASE = {
                     additionalBenefits: ['Free delivery', 'Professional installation'],
                     ecoCertification: 'WEEE Compliant',
                     circularEconomyImpact: 'High - Refurbished for resale'
+                },
+                {
+                    agencyName: 'Droppie',
+                    agencyType: 'Recycle store',
+                    collectionMethod: 'Drop-off',
+                    incentiveType: 'Cash Payment',
+                    incentiveAmount: 0,
+                    currency: 'EUR',
+                    description: 'Drop off old refrigeration units and small e-waste at a Droppie store — app rewards',
+                    requirements: ['Download Droppie app', 'Confirm store accepts your stream'],
+                    collectionArea: 'Netherlands',
+                    contactInfo: 'info@godroppie.com',
+                    website: 'https://www.godroppie.com/en',
+                    processingTime: 'Same visit',
+                    additionalBenefits: ['No purchase required', 'Greenways: /greenways/droppie-recycle'],
+                    ecoCertification: 'Circular economy partner',
+                    circularEconomyImpact: 'High - Components recovered'
                 }
             ]
         }
