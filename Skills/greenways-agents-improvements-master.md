@@ -69,7 +69,7 @@
 - [x] **CH-001 shell:** `greenways-customer-hub.html` + `/greenways/customer-hub` — scrollable Saved / Suggested / Deals / News / Site glance — 2026-07-17
 - [x] **PRD:** `tasks/prd-customer-hub.json` (CH1–CH4 waves)
 - [ ] **CH-002–004:** Tighten agent badges, shortlist empty states, profile filter polish
-- [ ] **CH-003 deep:** Wire `/api/members/saved-items` when auth present
+- [x] **CH-003:** Saved lane merges session shortlist + `GET /api/members/saved-items` when `energy_calc_membership_token` present (+ local `gw_saved_products` fallback)
 - [ ] **CH-006:** Richer site glance (optional snapshot module) with trust labels
 - [ ] **Wix:** Embed / membership dashboard entry link to Customer Hub
 - [x] **Your Hub website demo:** `/greenways/customer-hub-demo` — same layout, anonymised **Wok Restaurant** (no Wok to Walk tenant pack), portal menus hidden — 2026-08-26

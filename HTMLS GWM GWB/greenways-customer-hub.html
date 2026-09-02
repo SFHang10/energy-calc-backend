@@ -2092,6 +2092,131 @@
     } catch (_) { return []; }
   }
 
+  function getAuthToken() {
+    try {
+      return localStorage.getItem('energy_calc_membership_token') || '';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function readLocalSavedProducts() {
+    try {
+      var raw = localStorage.getItem('gw_saved_products');
+      var parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function resolveSavedHref(item) {
+    var url = String((item && (item.url || item.href || item.marketplaceHref)) || '').trim();
+    if (url) {
+      if (/^https?:\/\//i.test(url)) return url;
+      if (url.charAt(0) === '/') return url;
+      if (/restaurant-equipment-deep-dive|equipment_intelligence_tool/i.test(url)) {
+        return '/HTMLS%20GWM%20GWB/' + url.replace(/^\.\//, '');
+      }
+      return '/' + url.replace(/^\.\//, '');
+    }
+    var id = String((item && item.id) || '').trim();
+    if (/^(etl_|sust_)/i.test(id)) {
+      return '/product-page-v2-marketplace.html?product=' + encodeURIComponent(id) + '&fromPopup=true';
+    }
+    return '';
+  }
+
+  function shortlistRowToCard(row) {
+    return {
+      id: String(row.id || ''),
+      title: row.title || row.name || row.id || 'Shortlisted product',
+      line: row.fromName ? 'Shortlist · ' + row.fromName : 'Session shortlist',
+      image: productCardImage(row),
+      href: resolveSavedHref(row) || '/product-page-v2-marketplace.html?product=' + encodeURIComponent(row.id || ''),
+      source: 'shortlist'
+    };
+  }
+
+  function savedProductToCard(row) {
+    var cat = String(row.category || 'product').toLowerCase();
+    var line = cat === 'comparison'
+      ? (row.description || 'Saved equipment comparison')
+      : (row.description || row.category || 'Saved to your profile');
+    return {
+      id: String(row.id || ''),
+      title: row.title || row.name || row.id || 'Saved item',
+      line: line,
+      image: productCardImage(row),
+      href: resolveSavedHref(row) || '/wix-integration/unified-membership-dashboard.html',
+      source: 'profile'
+    };
+  }
+
+  async function fetchMemberSavedProducts() {
+    var token = getAuthToken();
+    if (!token || isDemoHub()) return [];
+    try {
+      var response = await fetch('/api/members/saved-items', {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      if (!response.ok) return [];
+      var data = await response.json();
+      return Array.isArray(data.saved && data.saved.products) ? data.saved.products : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function mergeSavedSurface(shortlist, profileProducts, localProducts) {
+    var merged = [];
+    var seen = new Set();
+
+    function pushCard(card) {
+      if (!card || !card.id || seen.has(card.id)) return;
+      seen.add(card.id);
+      merged.push(card);
+    }
+
+    (shortlist || []).forEach(function (row) {
+      if (!row || !row.id) return;
+      pushCard(shortlistRowToCard(row));
+    });
+
+    (profileProducts || []).forEach(function (row) {
+      if (!row || !row.id) return;
+      pushCard(savedProductToCard(row));
+    });
+
+    (localProducts || []).forEach(function (row) {
+      if (!row || !row.id || seen.has(row.id)) return;
+      pushCard(savedProductToCard(row));
+    });
+
+    return merged;
+  }
+
+  function savedCountLabel(cards, shortlistLen, profileLen) {
+    if (!cards.length) return 'Nothing saved yet';
+    if (shortlistLen && profileLen) {
+      return cards.length + ' saved · ' + shortlistLen + ' shortlist · ' + profileLen + ' profile';
+    }
+    if (shortlistLen) return cards.length + ' shortlisted';
+    return cards.length + ' from your profile';
+  }
+
+  function savedEmptyHtml() {
+    return emptyHtml(
+      '<strong>Nothing saved yet</strong>' +
+      'Shortlist products from agent chats, or save from the marketplace and equipment tools.' +
+      '<div class="empty-actions">' +
+      '<a href="/product-page-v2-marketplace.html">Browse marketplace</a>' +
+      '<a href="/greenways/equipment-agent">Ask Artemis</a>' +
+      '<a href="/greenways/sustainable-products-agent">Ask Zyanne</a>' +
+      '</div>'
+    );
+  }
+
   function agentById(roster, id) {
     return (roster.agents || []).find(function (a) { return a.id === id || a.slug === id; }) || null;
   }
@@ -2237,27 +2362,47 @@
     }).join('');
   }
 
-  function renderSaved(lane) {
-    var items = readShortlist();
-    document.getElementById('saved-count').textContent = items.length
-      ? items.length + ' shortlisted'
-      : 'Starter picks · save yours next';
-    if (!items.length) {
-      lane.innerHTML =
-        starterCardsHtml() +
-        emptyHtml(
-          '<strong>Nothing shortlisted yet</strong>' +
-          'Swipe starters, or save from Artemis / Zyanne chat.' +
-          '<div class="empty-actions"><a href="/greenways/equipment-agent">Ask Artemis</a></div>'
-        );
+  async function renderSaved(lane, roster) {
+    if (!lane) return;
+
+    var shortlist = readShortlist();
+    var profileProducts = await fetchMemberSavedProducts();
+    var localProducts = readLocalSavedProducts();
+    var profileSource = profileProducts.length ? profileProducts : localProducts;
+    var cards = mergeSavedSurface(shortlist, profileProducts, localProducts);
+    var shortlistIds = {};
+    shortlist.forEach(function (row) {
+      if (row && row.id) shortlistIds[row.id] = true;
+    });
+    var profileOnlyCount = 0;
+    profileSource.forEach(function (row) {
+      if (row && row.id && !shortlistIds[row.id]) profileOnlyCount++;
+    });
+
+    document.getElementById('saved-count').textContent = savedCountLabel(
+      cards,
+      shortlist.length,
+      profileOnlyCount
+    );
+
+    if (!cards.length) {
+      if (isDemoHub()) {
+        lane.innerHTML = starterCardsHtml() + savedEmptyHtml();
+      } else {
+        lane.innerHTML = savedEmptyHtml();
+      }
       return;
     }
-    lane.innerHTML = items.slice(0, 10).map(function (item) {
+
+    var artemis = roster && agentById(roster, 'equipment-agent');
+    lane.innerHTML = cards.slice(0, 12).map(function (card) {
+      var agent = card.source === 'shortlist' ? artemis : null;
       return cardHtml({
-        title: item.name || item.title || item.id || 'Saved product',
-        line: item.id || '',
-        image: productCardImage(item),
-        href: item.href || ('/product-page-v2-marketplace.html?product=' + encodeURIComponent(item.id || '')),
+        title: card.title,
+        line: card.line,
+        image: card.image,
+        href: card.href,
+        agent: agent,
         mediaLabel: 'Saved'
       });
     }).join('');
@@ -3065,9 +3210,13 @@
     initLazyModules();
     var profile = getProfile();
     renderProfile(profile);
-    renderSaved(document.getElementById('saved-lane'));
 
     var roster = await loadJson('/data/greenways-agent-roster.json') || { agents: [] };
+    await renderSaved(document.getElementById('saved-lane'), roster);
+
+    window.addEventListener('gw-shortlist-change', function () {
+      renderSaved(document.getElementById('saved-lane'), roster);
+    });
     renderTeam(roster);
     renderGlance(roster, profile);
     renderRestaurantAgents();
