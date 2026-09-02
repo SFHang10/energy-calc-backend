@@ -118,7 +118,8 @@
 - [x] **Vincent daily external news v1:** EU/EIB RSS, RVO/DBT staff queue, UK DESNZ, headline admin, Render cron — 2026-08-27
 - [ ] **Gap 12 — Vincent finance feeds (later):** Ofgem, HMRC Atom, UKRI; IE/DE/FR gov Atom — `Skills/greenways-agents-possible-next-steps.md` § Gap 12
 - [x] **Agent desk rails (grants, deals, media, products):** Vincent-template Explore sidebar on four desks — 2026-08-31
-- [ ] **Agent desks (rollout — remaining):** Edwardo systems desk; guided desk paths (step 1→2→3); cross-agent strip on wire hubs; member context on wire/desk snapshots
+- [x] **Andrieus grants desk (Vincent tablet pattern):** shared `greenways-desk-tablet.css/js` + guided 4-step panels — 2026-09-02
+- [ ] **Agent desks (rollout — remaining):** Edwardo systems desk; Cheryce / Zara / Zyanne tablet upgrades; guided paths on wire hubs; member context on wire/desk snapshots
 - [ ] **Wire/desk enhancements:** Map “new company” live marquees on Cheryce wire KPI row (counts only — map stays on desk)
 
 ---

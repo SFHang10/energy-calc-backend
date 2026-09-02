@@ -7,162 +7,326 @@
   <title>Andrieus — Grants desk</title>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css" />
-  <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-desk-rail.css" />
+  <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-desk-tablet.css" />
   <script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
   <style>
     :root {
       --bg: #0a1018;
-      --panel: #121a28;
-      --border: rgba(0, 123, 255, 0.24);
       --text: #e8f0ff;
       --muted: #8ba3c4;
-      --blue: #60a5fa;
       --gold: #c9a961;
       --font: 'Space Grotesk', system-ui, sans-serif;
-      --clean: 'IBM Plex Sans', system-ui, sans-serif;
+      --head: 'Space Grotesk', system-ui, sans-serif;
+      --font-clean: 'IBM Plex Sans', system-ui, sans-serif;
       --mono: 'JetBrains Mono', monospace;
       --andrieus-backdrop-image: url("https://static.wixstatic.com/media/c123de_6fc35ea9558a4d89ae9f1f1f18241328~mv2.webp");
-      --desk-border: rgba(0, 123, 255, 0.24);
-      --desk-rail-accent: #60a5fa;
-      --desk-rail-accent-dim: rgba(96, 165, 250, 0.18);
-      --desk-rail-accent-active-bg: rgba(96, 165, 250, 0.12);
-      --desk-rail-accent-glow: rgba(96, 165, 250, 0.15);
-      --desk-rail-accent-ico: rgba(96, 165, 250, 0.45);
-      --desk-rail-back-divider: rgba(96, 165, 250, 0.12);
-      --desk-rail-text: #c5d4e8;
-      --desk-rail-active-text: #d4ecff;
+      --desk-accent: #60a5fa;
+      --desk-accent-bright: #93c5fd;
+      --desk-border: rgba(96, 165, 250, 0.28);
+      --desk-accent-dim: rgba(96, 165, 250, 0.2);
+      --desk-accent-active-bg: rgba(96, 165, 250, 0.14);
+      --desk-accent-glow: rgba(96, 165, 250, 0.18);
+      --desk-accent-ico: rgba(96, 165, 250, 0.5);
+      --desk-back-divider: rgba(96, 165, 250, 0.14);
       --desk-rail-link: #60a5fa;
     }
     * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; color: var(--text); font-family: var(--font); background: var(--bg); }
-    body {
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      color: var(--text);
+      font-family: var(--font);
+      background-color: var(--bg);
       background-image: var(--andrieus-backdrop-image);
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
+      overflow-x: hidden;
     }
     body::before {
       content: '';
       position: fixed;
       inset: 0;
+      z-index: 0;
       pointer-events: none;
-      background: linear-gradient(180deg, rgba(5, 9, 14, 0.72), rgba(4, 7, 12, 0.88));
+      background:
+        linear-gradient(180deg, rgba(5, 9, 14, 0.68) 0%, rgba(4, 7, 12, 0.85) 100%),
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(96, 165, 250, 0.12), transparent 55%);
     }
-    body.embed-mode { background-image: none; background-color: rgba(5, 9, 14, 0.96); }
+    body.embed-mode {
+      background-image: none;
+      background-color: rgba(5, 9, 14, 0.96);
+      background-attachment: scroll;
+    }
     body.embed-mode::before { display: none; }
-    body.embed-mode .grants-page-nav, body.embed-mode .back-row { display: none !important; }
-    .page { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 18px 16px 40px; }
-    .grants-page-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-    .btn {
-      display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.14); background: rgba(5,10,18,0.5);
-      color: #c8d8f0; text-decoration: none; font-size: 0.82rem; cursor: pointer; font-family: var(--font);
+    body.embed-mode .gw-desk-page-nav,
+    body.embed-mode .gw-desk-back-row { display: none !important; }
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 22px 18px 48px;
     }
-    .btn--agent { border-color: rgba(0,123,255,0.35); color: #9ec5ff; }
-    .hero h1 { font-size: 1.65rem; margin: 0 0 8px; }
-    .hero p { color: var(--muted); line-height: 1.5; max-width: 720px; margin: 0 0 16px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(5, 10, 18, 0.45);
+      color: #c8d8f0;
+      text-decoration: none;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="page">
-    <nav class="grants-page-nav" aria-label="Page navigation">
-      <button type="button" class="btn" id="grantsBackBtn">← Previous page</button>
+    <nav class="gw-desk-page-nav" aria-label="Page navigation">
+      <button type="button" class="btn btn--ghost" id="gwDeskBackBtn">← Previous page</button>
       <a class="btn btn--agent" href="/greenways/grants-agent">Ask Andrieus</a>
     </nav>
-    <header class="hero">
+
+    <header class="gw-desk-hero">
       <h1>Grants desk</h1>
       <p>
         Andrieus’s scheme-first tour — shortlist with Scheme Fit, browse the restaurant catalogue,
-        stack finance finder when grants leave a gap, then package hints in Site Brief.
+        stack finance when grants leave a gap, then package the story in Site Brief for assessors.
       </p>
+      <div class="gw-desk-step-pills" aria-label="Suggested journey">
+        <span class="gw-desk-step-pill">1 · Scheme Fit</span>
+        <span class="gw-desk-step-pill">2 · Restaurant portal</span>
+        <span class="gw-desk-step-pill">3 · Finance gap</span>
+        <span class="gw-desk-step-pill">4 · Site Brief</span>
+      </div>
     </header>
-    <div class="layout">
-      <nav class="rail" aria-label="Grants topics">
-        <div class="rail-label">Explore</div>
-        <button type="button" class="rail-btn active" data-panel="fit" aria-pressed="true">
+
+    <div class="gw-desk-layout">
+      <nav class="gw-desk-rail" aria-label="Grants topics">
+        <div class="gw-desk-rail-label">Explore</div>
+        <button type="button" class="gw-desk-rail-btn active" data-panel="fit" aria-pressed="true">
           <span class="ico"><img src="https://static.wixstatic.com/media/c123de_46943b6b1f8d41a59960fd8fdde4097b~mv2.png" alt="" loading="lazy"></span>
           <span>Scheme Fit</span>
         </button>
-        <button type="button" class="rail-btn" data-panel="restaurant" aria-pressed="false">
+        <button type="button" class="gw-desk-rail-btn" data-panel="restaurant" aria-pressed="false">
           <span class="ico"><img src="https://static.wixstatic.com/media/c123de_6fc35ea9558a4d89ae9f1f1f18241328~mv2.webp" alt="" loading="lazy"></span>
           <span>Restaurant portal</span>
         </button>
-        <button type="button" class="rail-btn" data-panel="finance" aria-pressed="false">
+        <button type="button" class="gw-desk-rail-btn" data-panel="finance" aria-pressed="false">
           <span class="ico"><img src="https://static.wixstatic.com/media/c123de_a7746ac7981d466095fdc261bb208fa8~mv2.jpg" alt="" loading="lazy"></span>
           <span>Finance finder</span>
         </button>
-        <button type="button" class="rail-btn" data-panel="brief" aria-pressed="false">
+        <button type="button" class="gw-desk-rail-btn" data-panel="brief" aria-pressed="false">
           <span class="ico"><img src="https://static.wixstatic.com/media/c123de_988c141478e044d5ba8d137d2a451713~mv2.png" alt="" loading="lazy"></span>
           <span>Site Brief</span>
         </button>
-        <div class="back-row">
+        <div class="gw-desk-back-row">
+          <button type="button" class="gw-desk-rail-back-btn" id="gwDeskRailBackBtn">← Previous page</button>
           <a href="/greenways/grants-wire">Grants wire</a>
           <a href="/greenways/grants-agent">← Back to Andrieus</a>
         </div>
       </nav>
-      <div class="stage">
-        <iframe id="deskFrame" title="Grants desk tool" loading="lazy"></iframe>
+
+      <div class="gw-desk-stage">
+        <svg width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden">
+          <defs>
+            <linearGradient id="gdGradFit" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#93c5fd" /><stop offset="100%" stop-color="#3b82f6" />
+            </linearGradient>
+            <linearGradient id="gdGradRestaurant" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#60a5fa" /><stop offset="50%" stop-color="#c9a961" /><stop offset="100%" stop-color="#3b82f6" />
+            </linearGradient>
+            <linearGradient id="gdGradFinance" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#f0e6c8" /><stop offset="100%" stop-color="#60a5fa" />
+            </linearGradient>
+            <linearGradient id="gdGradBrief" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#60a5fa" /><stop offset="100%" stop-color="#34d399" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <section class="gw-tablet-wrap active" id="panel-fit" role="tabpanel">
+          <div class="gw-tablet-bezel">
+            <div class="gw-tablet-notch" aria-hidden="true"></div>
+            <div class="gw-tablet-screen">
+              <div class="gw-tablet-copy">
+                <div class="gw-tablet-title-row">
+                  <h2><span class="gw-desk-pulse-dot" aria-hidden="true"></span>Scheme Fit — start here</h2>
+                  <figure class="gw-desk-gauge gw-desk-gauge--motion" data-pct="74" aria-hidden="true">
+                    <svg class="gw-desk-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#1a2840" stroke-width="10" stroke-linecap="round" />
+                      <path class="gw-desk-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#gdGradFit)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#60a5fa" />
+                      <g transform="translate(80,90)"><g class="gw-desk-needle-spin"><line x1="0" y1="0" x2="0" y2="-48" stroke="#93c5fd" stroke-width="2" stroke-linecap="round" /></g></g>
+                      <text class="gw-desk-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#e8f0ff" font-family="JetBrains Mono, monospace">74%</text>
+                      <text class="gw-desk-gauge-caption" x="80" y="93" text-anchor="middle">scheme match</text>
+                    </svg>
+                    <div class="gw-desk-gauge-readout">Region · sector · lane</div>
+                    <div class="gw-desk-gauge-scale"><span>Low</span><span>Fit</span><span>Strong</span><span>Top</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  Before you open every scheme row, Scheme Fit narrows the catalogue to what matches your
+                  <strong>region</strong>, <strong>sector</strong>, and upgrade lane — dishwasher grants, ventilation, insulation, and more.
+                </p>
+                <ul>
+                  <li><strong>Step 1:</strong> set region and hospitality profile, then review matched schemes.</li>
+                  <li><strong>Next step:</strong> open the restaurant portal for full browse, or jump to finance if funding still gaps.</li>
+                  <li>Pair with Vincent when you need payback numbers behind a shortlisted scheme.</li>
+                </ul>
+                <div class="gw-desk-actions">
+                  <a class="gw-desk-btn" data-gw-tool-path="/greenways/scheme-fit" target="_blank" rel="noopener">Open Scheme Fit (full page)</a>
+                  <button type="button" class="gw-desk-btn gw-desk-btn--gold" data-toggle-iframe="fit" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="gw-desk-iframe-wrap" id="iframe-fit" hidden>
+                <iframe title="Scheme Fit preview" loading="lazy" data-gw-iframe="/greenways/scheme-fit?embed=1"></iframe>
+                <div class="gw-desk-iframe-hint">Scroll inside the frame or open the full page to save your shortlist.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="gw-tablet-wrap" id="panel-restaurant" role="tabpanel">
+          <div class="gw-tablet-bezel">
+            <div class="gw-tablet-notch" aria-hidden="true"></div>
+            <div class="gw-tablet-screen">
+              <div class="gw-tablet-copy">
+                <div class="gw-tablet-title-row">
+                  <h2>Restaurant schemes portal</h2>
+                  <figure class="gw-desk-gauge gw-desk-gauge--motion" data-pct="68" aria-hidden="true">
+                    <svg class="gw-desk-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#1a2840" stroke-width="10" stroke-linecap="round" />
+                      <path class="gw-desk-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#gdGradRestaurant)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#c9a961" />
+                      <g transform="translate(80,90)"><g class="gw-desk-needle-spin"><line x1="0" y1="0" x2="0" y2="-48" stroke="#c9a961" stroke-width="2" stroke-linecap="round" /></g></g>
+                      <text class="gw-desk-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#e8f0ff" font-family="JetBrains Mono, monospace">68%</text>
+                      <text class="gw-desk-gauge-caption" x="80" y="93" text-anchor="middle">catalogue depth</text>
+                    </svg>
+                    <div class="gw-desk-gauge-readout">62+ schemes · EU + UK</div>
+                    <div class="gw-desk-gauge-scale"><span>Browse</span><span>Filter</span><span>Compare</span><span>Apply</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  The full restaurant lens on our schemes catalogue — search by country, category, and keywords.
+                  Use after Scheme Fit when you want to read deadlines, links, and eligibility in one place.
+                </p>
+                <ul>
+                  <li>Header links to the NL business.gov finder for environmental and innovation schemes.</li>
+                  <li>Cross-check marketplace products — grants on product pages come from the same catalogue.</li>
+                  <li><strong>Next step:</strong> if grants do not cover the full capex, open Finance finder.</li>
+                </ul>
+                <div class="gw-desk-actions">
+                  <a class="gw-desk-btn" data-gw-tool-path="/HTMLS%20GWM%20GWB/Full%20Schemes%20Portal%20Restaurant.html" target="_blank" rel="noopener">Open restaurant portal</a>
+                  <button type="button" class="gw-desk-btn gw-desk-btn--gold" data-toggle-iframe="restaurant" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="gw-desk-iframe-wrap" id="iframe-restaurant" hidden>
+                <iframe title="Restaurant schemes portal" loading="lazy" data-gw-iframe="/HTMLS%20GWM%20GWB/Full%20Schemes%20Portal%20Restaurant.html"></iframe>
+                <div class="gw-desk-iframe-hint">Long catalogue — filter by region or open full page for assessor sharing.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="gw-tablet-wrap" id="panel-finance" role="tabpanel">
+          <div class="gw-tablet-bezel">
+            <div class="gw-tablet-notch" aria-hidden="true"></div>
+            <div class="gw-tablet-screen">
+              <div class="gw-tablet-copy">
+                <div class="gw-tablet-title-row">
+                  <h2>Finance when grants leave a gap</h2>
+                  <figure class="gw-desk-gauge gw-desk-gauge--motion" data-pct="58" aria-hidden="true">
+                    <svg class="gw-desk-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#1a2840" stroke-width="10" stroke-linecap="round" />
+                      <path class="gw-desk-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#gdGradFinance)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#c9a961" />
+                      <g transform="translate(80,90)"><g class="gw-desk-needle-spin"><line x1="0" y1="0" x2="0" y2="-48" stroke="#c9a961" stroke-width="2" stroke-linecap="round" /></g></g>
+                      <text class="gw-desk-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#fff4e0" font-family="JetBrains Mono, monospace">58%</text>
+                      <text class="gw-desk-gauge-caption" x="80" y="93" text-anchor="middle">capex covered</text>
+                    </svg>
+                    <div class="gw-desk-gauge-readout">Grants + finance stack</div>
+                    <div class="gw-desk-gauge-scale"><span>Grant</span><span>BNPL</span><span>Loan</span><span>Lease</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  Schemes rarely pay 100% upfront. Vincent’s finance finder surfaces BNPL, equipment finance,
+                  and loan paths when your grant shortlist still leaves a monthly or capex gap.
+                </p>
+                <ul>
+                  <li>Open from here or hand off in chat — Andrieus keeps scheme detail; Vincent owns payback.</li>
+                  <li>Best after you know <em>which</em> upgrade you are funding, not before Scheme Fit.</li>
+                  <li><strong>Next step:</strong> package grants + finance story in Site Brief.</li>
+                </ul>
+                <div class="gw-desk-actions">
+                  <a class="gw-desk-btn" data-gw-tool-path="/greenways/finance-finder" target="_blank" rel="noopener">Open finance finder</a>
+                  <a class="gw-desk-btn" href="/greenways/finance-agent" target="_top" rel="noopener">Ask Vincent</a>
+                  <button type="button" class="gw-desk-btn gw-desk-btn--gold" data-toggle-iframe="finance" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="gw-desk-iframe-wrap" id="iframe-finance" hidden>
+                <iframe title="Finance finder preview" loading="lazy" data-gw-iframe="/greenways/finance-finder?embed=1"></iframe>
+                <div class="gw-desk-iframe-hint">Five tabs — grants, BNPL, equipment, loans, Europe.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="gw-tablet-wrap" id="panel-brief" role="tabpanel">
+          <div class="gw-tablet-bezel">
+            <div class="gw-tablet-notch" aria-hidden="true"></div>
+            <div class="gw-tablet-screen">
+              <div class="gw-tablet-copy">
+                <div class="gw-tablet-title-row">
+                  <h2>Site Brief — package for stakeholders</h2>
+                  <figure class="gw-desk-gauge gw-desk-gauge--motion" data-pct="82" aria-hidden="true">
+                    <svg class="gw-desk-gauge-svg" viewBox="0 0 160 100">
+                      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="#1a2840" stroke-width="10" stroke-linecap="round" />
+                      <path class="gw-desk-gauge-fill" d="M 20 90 A 60 60 0 0 1 140 90" fill="none" stroke="url(#gdGradBrief)" stroke-width="10" stroke-linecap="round" stroke-dasharray="188.495559" stroke-dashoffset="188.495559" />
+                      <circle cx="80" cy="90" r="5" fill="#34d399" />
+                      <g transform="translate(80,90)"><g class="gw-desk-needle-spin"><line x1="0" y1="0" x2="0" y2="-48" stroke="#34d399" stroke-width="2" stroke-linecap="round" /></g></g>
+                      <text class="gw-desk-gauge-pct" x="80" y="78" text-anchor="middle" font-size="19" font-weight="700" fill="#e8f0ff" font-family="JetBrains Mono, monospace">82%</text>
+                      <text class="gw-desk-gauge-caption" x="80" y="93" text-anchor="middle">brief readiness</text>
+                    </svg>
+                    <div class="gw-desk-gauge-readout">Shareable site overview</div>
+                    <div class="gw-desk-gauge-scale"><span>Draft</span><span>Review</span><span>Share</span><span>Apply</span></div>
+                  </figure>
+                </div>
+                <p class="lead">
+                  Turn scheme picks and site context into a one-page brief landlords, assessors, or internal
+                  approvers can skim — illustrative KPIs labelled clearly, not live meter claims.
+                </p>
+                <ul>
+                  <li>Loads pilot snapshot data when available; trust labels show demo vs live.</li>
+                  <li>Export or share link before a grant deadline conversation.</li>
+                  <li>Hand off to Edwardo when you need monitoring proof after install.</li>
+                </ul>
+                <div class="gw-desk-actions">
+                  <a class="gw-desk-btn" data-gw-tool-path="/greenways/site-brief" target="_blank" rel="noopener">Open Site Brief</a>
+                  <button type="button" class="gw-desk-btn gw-desk-btn--gold" data-toggle-iframe="brief" data-open-label="Preview inside tablet">Preview inside tablet</button>
+                </div>
+              </div>
+              <div class="gw-desk-iframe-wrap" id="iframe-brief" hidden>
+                <iframe title="Site Brief preview" loading="lazy" data-gw-iframe="/greenways/site-brief?embed=1"></iframe>
+                <div class="gw-desk-iframe-hint">Illustrative site glance — confirm trust badges before external share.</div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   </div>
+
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-desk-tablet.js"></script>
   <script>
-    (function () {
-      var PANELS = {
-        fit: '/greenways/scheme-fit?embed=1',
-        restaurant: '/HTMLS%20GWM%20GWB/Full%20Schemes%20Portal%20Restaurant.html',
-        finance: '/greenways/finance-finder?embed=1',
-        brief: '/greenways/site-brief?embed=1'
-      };
-      var VALID = Object.keys(PANELS);
-
-      function origin() {
-        var h = location.hostname || '';
-        if (h === 'localhost' || h === '127.0.0.1' || h.indexOf('energy-calc-backend') !== -1) {
-          return location.origin || 'https://energy-calc-backend.onrender.com';
-        }
-        return 'https://energy-calc-backend.onrender.com';
-      }
-      function abs(path) {
-        var p = String(path || '').trim();
-        if (!p || /^https?:\/\//i.test(p)) return p;
-        return origin() + (p.charAt(0) === '/' ? p : '/' + p);
-      }
-
-      var frame = document.getElementById('deskFrame');
-      var buttons = Array.from(document.querySelectorAll('.rail-btn[data-panel]'));
-
-      function showPanel(key) {
-        if (!VALID.includes(key)) key = 'fit';
-        buttons.forEach(function (btn) {
-          var on = btn.dataset.panel === key;
-          btn.classList.toggle('active', on);
-          btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-        });
-        frame.src = abs(PANELS[key]);
-        try {
-          var url = new URL(location.href);
-          if (key === 'fit') url.searchParams.delete('tab');
-          else url.searchParams.set('tab', key);
-          history.replaceState(null, '', url.pathname + url.search + url.hash);
-        } catch (_) {}
-      }
-
-      buttons.forEach(function (btn) {
-        btn.addEventListener('click', function () { showPanel(btn.dataset.panel); });
-      });
-
-      document.querySelectorAll('a[href^="/greenways/"]').forEach(function (a) {
-        a.href = abs(a.getAttribute('href'));
-      });
-
-      document.getElementById('grantsBackBtn').addEventListener('click', function () {
-        if (window.history.length > 1) window.history.back();
-        else window.location.href = abs('/greenways/grants-agent');
-      });
-
-      var tab = new URLSearchParams(location.search).get('tab');
-      showPanel(tab && VALID.includes(tab) ? tab : 'fit');
-    })();
+    GreenwaysDeskTablet.init({
+      validPanels: ['fit', 'restaurant', 'finance', 'brief'],
+      defaultPanel: 'fit',
+      backAgentPath: '/greenways/grants-agent'
+    });
   </script>
 </body>
 </html>
