@@ -279,6 +279,34 @@
       border-color: rgba(255, 255, 255, 0.12);
       color: #c5ddd0;
     }
+    .hub-panel-actions .profile-filters {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+    .hub-panel-actions .profile-filters label {
+      color: #6a8f7a;
+    }
+    .hub-panel-actions .profile-filters select {
+      border-color: rgba(255, 255, 255, 0.14);
+      background-color: rgba(0, 0, 0, 0.35);
+      color: #e8f5ee;
+    }
+    .hub-panel-actions .profile-reset {
+      display: none;
+      padding: 6px 10px;
+      font-size: 0.72rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.06);
+      color: #c5ddd0;
+      cursor: pointer;
+      font-family: var(--font-clean);
+    }
+    .hub-panel-actions .profile-reset.is-visible {
+      display: inline-flex;
+    }
     .curator-label {
       font-size: 9px;
       letter-spacing: 0.12em;
@@ -940,6 +968,14 @@
       font-size: 0.78rem;
       color: var(--muted);
       font-family: var(--font-clean);
+    }
+    .section-head-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px 12px;
+      min-width: 0;
     }
     .hub-calendar-section[hidden] { display: none !important; }
     .hub-calendar-lede {
@@ -1778,6 +1814,33 @@
             </div>
             <div class="hub-panel-actions" aria-label="Hub shortcuts">
               <span class="profile-chip" id="profile-chip">Loading profile…</span>
+              <div class="profile-filters" id="profile-filters" aria-label="Filter hub by region and sector">
+                <label for="hub-region-select">Region
+                  <select id="hub-region-select">
+                    <option value="nl">Netherlands</option>
+                    <option value="uk">United Kingdom</option>
+                    <option value="ie">Ireland</option>
+                    <option value="de">Germany</option>
+                    <option value="fr">France</option>
+                    <option value="be">Belgium</option>
+                    <option value="es">Spain</option>
+                    <option value="pt">Portugal</option>
+                    <option value="eu">EU-wide</option>
+                    <option value="all">All regions</option>
+                  </select>
+                </label>
+                <label for="hub-sector-select">Sector
+                  <select id="hub-sector-select">
+                    <option value="restaurant">Restaurant</option>
+                    <option value="hospitality">Hospitality</option>
+                    <option value="hotel">Hotel</option>
+                    <option value="retail">Retail</option>
+                    <option value="office">Office</option>
+                    <option value="home">Home</option>
+                  </select>
+                </label>
+                <button type="button" class="profile-reset" id="hub-profile-reset" title="Reset to membership profile">Reset</button>
+              </div>
               <a class="btn ghost" href="/greenways/orchestra-hub">Orchestra</a>
               <a class="btn" href="/wix-integration/unified-membership-dashboard.html">Membership</a>
               <a class="gw-staff-admin-link" href="/agents-admin.html" title="Staff · Agents admin (password required)">Staff · Agents admin</a>
@@ -1887,7 +1950,7 @@
         <section class="section" aria-labelledby="suggest-heading">
           <div class="section-head">
             <h2 id="suggest-heading"><img id="artemis-face" alt="" hidden> Suggested for you</h2>
-            <span class="hint">From Artemis &amp; Zyanne · based on sector</span>
+            <span class="hint" id="suggest-filter-hint">From Artemis &amp; Zyanne · based on sector</span>
           </div>
           <div class="lane" id="suggest-lane"></div>
         </section>
@@ -1895,7 +1958,10 @@
         <section class="section" aria-labelledby="deals-heading">
           <div class="section-head">
             <h2 id="deals-heading"><img id="zara-face" alt="" hidden> Deals &amp; tariffs</h2>
-            <a class="hint" href="/greenways/deals-hub">Open deals hub →</a>
+            <div class="section-head-meta">
+              <span class="deals-filter-hint" id="deals-filter-hint"></span>
+              <a class="hint" href="/greenways/deals-hub">Open deals hub →</a>
+            </div>
           </div>
           <div class="lane" id="deals-lane"></div>
         </section>
@@ -2061,7 +2127,32 @@
     }
   }
 
-  function getProfile() {
+  var HUB_PROFILE_OVERRIDE_KEY = 'greenways_hub_profile_override_v1';
+
+  function readHubOverride() {
+    try {
+      var raw = sessionStorage.getItem(HUB_PROFILE_OVERRIDE_KEY);
+      var parsed = raw ? JSON.parse(raw) : null;
+      return parsed && typeof parsed === 'object' ? parsed : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function writeHubOverride(partial) {
+    try {
+      var next = Object.assign({}, readHubOverride() || {}, partial || {});
+      sessionStorage.setItem(HUB_PROFILE_OVERRIDE_KEY, JSON.stringify(next));
+    } catch (_) { /* private mode */ }
+  }
+
+  function clearHubOverride() {
+    try {
+      sessionStorage.removeItem(HUB_PROFILE_OVERRIDE_KEY);
+    } catch (_) { /* private mode */ }
+  }
+
+  function getBaseProfile() {
     if (isDemoHub()) {
       return {
         region: 'nl',
@@ -2081,6 +2172,20 @@
       siteId: String(member.siteId || shared.siteId || ''),
       memberId: member.memberId || shared.memberId || null,
       memberStatus: String(member.status || '')
+    };
+  }
+
+  function getProfile() {
+    var base = getBaseProfile();
+    var override = readHubOverride() || {};
+    return {
+      region: String(override.region || base.region || 'nl').toLowerCase(),
+      sector: String(override.sector || base.sector || 'restaurant').toLowerCase(),
+      tier: base.tier,
+      siteId: base.siteId,
+      memberId: base.memberId,
+      memberStatus: base.memberStatus,
+      isOverride: !!(override.region || override.sector)
     };
   }
 
@@ -2721,19 +2826,33 @@
 
   async function renderDeals(roster, profile) {
     var lane = document.getElementById('deals-lane');
+    var hint = document.getElementById('deals-filter-hint');
     var zara = agentById(roster, 'deals');
     setFace('zara-face', zara);
     var feed = await loadJson('/data/deals-feed.json') || await loadJson('../data/deals-feed.json');
     var deals = (feed && feed.deals) || [];
-    var region = profile.region;
-    var filtered = deals.filter(function (d) {
+    var region = String(profile.region || '').toLowerCase();
+    var matched = deals.filter(function (d) {
       if (!region || region === 'all' || region === 'eu') return true;
       var r = String(d.region || '').toLowerCase();
       return !r || r === 'eu' || r === region || (d.tags || []).some(function (t) {
         return String(t).toLowerCase() === region;
       });
     });
-    if (!filtered.length) filtered = deals;
+    var usedFallback = !matched.length && deals.length;
+    var filtered = matched.length ? matched : deals;
+    if (hint) {
+      var regionLabel = REGION_LABELS[region] || region || 'All regions';
+      if (!filtered.length) {
+        hint.textContent = '';
+      } else if (!region || region === 'all' || region === 'eu') {
+        hint.textContent = 'Showing all regions';
+      } else if (usedFallback) {
+        hint.textContent = 'No ' + regionLabel + ' tags yet · showing all deals';
+      } else {
+        hint.textContent = 'Filtered for ' + regionLabel + ' · ' + filtered.length + ' deal' + (filtered.length === 1 ? '' : 's');
+      }
+    }
     if (!filtered.length) {
       lane.innerHTML = emptyHtml('<a href="/greenways/deals-hub">Open the deals hub</a> for live lanes.');
       return;
@@ -2741,9 +2860,10 @@
     lane.innerHTML = filtered.slice(0, 10).map(function (d) {
       var href = d.href || '/greenways/deals-hub';
       if (href.indexOf('./') === 0) href = '/HTMLS%20GWM%20GWB/' + href.slice(2);
+      var dealRegion = d.region ? String(d.region).toUpperCase() : '';
       return cardHtml({
         title: d.title || 'Deal',
-        line: d.line || d.category || '',
+        line: [d.line || d.category || '', dealRegion].filter(Boolean).join(' · '),
         href: href,
         agent: zara,
         image: dealCardImage(d),
@@ -3044,8 +3164,67 @@
     } else {
       tier = profile.tier ? ' · ' + profile.tier : (profile.memberId ? '' : ' · Guest');
     }
+    if (profile.isOverride) tier += ' · Viewing filter';
     document.getElementById('profile-chip').innerHTML =
       '<strong>' + escapeHtml(region) + '</strong> · ' + escapeHtml(sector) + escapeHtml(tier);
+
+    var regionSelect = document.getElementById('hub-region-select');
+    var sectorSelect = document.getElementById('hub-sector-select');
+    var resetBtn = document.getElementById('hub-profile-reset');
+    if (regionSelect) regionSelect.value = profile.region || 'nl';
+    if (sectorSelect) {
+      var sectorVal = profile.sector || 'restaurant';
+      if (![].some.call(sectorSelect.options, function (o) { return o.value === sectorVal; })) {
+        var opt = document.createElement('option');
+        opt.value = sectorVal;
+        opt.textContent = sector;
+        sectorSelect.appendChild(opt);
+      }
+      sectorSelect.value = sectorVal;
+    }
+    if (resetBtn) {
+      resetBtn.classList.toggle('is-visible', !!profile.isOverride);
+      resetBtn.hidden = !profile.isOverride;
+    }
+
+    var suggestHint = document.getElementById('suggest-filter-hint');
+    if (suggestHint) {
+      suggestHint.textContent = 'From Artemis & Zyanne · ' + (sector || 'your sector');
+    }
+  }
+
+  function bindProfileFilters(roster) {
+    var regionSelect = document.getElementById('hub-region-select');
+    var sectorSelect = document.getElementById('hub-sector-select');
+    var resetBtn = document.getElementById('hub-profile-reset');
+    if (!regionSelect || !sectorSelect) return;
+
+    async function applyAndRefresh() {
+      var profile = getProfile();
+      renderProfile(profile);
+      renderGlance(roster, profile);
+      await Promise.all([
+        renderSuggestions(roster, profile),
+        renderDeals(roster, profile),
+        renderNews(roster, profile)
+      ]);
+      markHubScrollers();
+    }
+
+    regionSelect.addEventListener('change', function () {
+      writeHubOverride({ region: regionSelect.value });
+      applyAndRefresh();
+    });
+    sectorSelect.addEventListener('change', function () {
+      writeHubOverride({ sector: sectorSelect.value });
+      applyAndRefresh();
+    });
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        clearHubOverride();
+        applyAndRefresh();
+      });
+    }
   }
 
   function applyDemoChrome() {
@@ -3223,6 +3402,7 @@
     renderTeam(roster);
     renderGlance(roster, profile);
     renderRestaurantAgents();
+    bindProfileFilters(roster);
     await Promise.all([
       renderSuggestions(roster, profile),
       renderDeals(roster, profile),
