@@ -2365,6 +2365,13 @@
   async function renderSaved(lane, roster) {
     if (!lane) return;
 
+    // Website demo never reads member token, profile saves, or a live shortlist.
+    if (isDemoHub()) {
+      document.getElementById('saved-count').textContent = 'Sample picks · not a live account';
+      lane.innerHTML = starterCardsHtml() + savedEmptyHtml();
+      return;
+    }
+
     var shortlist = readShortlist();
     var profileProducts = await fetchMemberSavedProducts();
     var localProducts = readLocalSavedProducts();
@@ -2386,11 +2393,7 @@
     );
 
     if (!cards.length) {
-      if (isDemoHub()) {
-        lane.innerHTML = starterCardsHtml() + savedEmptyHtml();
-      } else {
-        lane.innerHTML = savedEmptyHtml();
-      }
+      lane.innerHTML = savedEmptyHtml();
       return;
     }
 
