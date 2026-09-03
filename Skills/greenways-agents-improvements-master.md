@@ -71,7 +71,7 @@
 - [ ] **CH-002 polish:** Tighten agent badges on suggestion cards
 - [x] **CH-003:** Saved lane merges session shortlist + `GET /api/members/saved-items` when `energy_calc_membership_token` present (+ local `gw_saved_products` fallback)
 - [x] **CH-004:** Profile-aware header — region/sector chip + filters, deals lane region filter hint, Orchestra + Membership links (demo stays anonymised) — 2026-09-03
-- [ ] **CH-006:** Richer site glance (optional snapshot module) with trust labels
+- [x] **CH-006:** Richer site glance with trust labels (`Demo model` / `Catalogue`) + Site Brief quick link; still not a live meter dashboard — 2026-09-03
 - [ ] **Wix:** Embed / membership dashboard entry link to Customer Hub
 - [x] **Your Hub website demo:** `/greenways/customer-hub-demo` — same layout, anonymised **Wok Restaurant** (no Wok to Walk tenant pack), portal menus hidden — 2026-08-26
 - [x] **Restaurant story + Assist demos:** `/greenways/tenants/wok-restaurant-demo` + `/greenways/restaurant-assist-demo` (thin chat preview → Transition Agents) — 2026-08-26

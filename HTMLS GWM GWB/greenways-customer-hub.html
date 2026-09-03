@@ -2012,9 +2012,10 @@
           </div>
           <div class="glance-actions">
             <a class="btn" href="/greenways/buildings-dashboard">Open buildings dashboard</a>
+            <a class="btn ghost" href="/greenways/site-brief">Open Site Brief</a>
             <button type="button" class="btn ghost" id="ask-edwardo-btn">Ask Edwardo in desk</button>
           </div>
-          <p class="trust">Illustrative demo model until your site meters are connected — not a live feed. KPIs mirror the buildings dashboard vocabulary so the full ops view feels familiar.</p>
+          <p class="trust" id="glance-trust-copy">Illustrative demo model until your site meters are connected — not a live feed. KPIs mirror the buildings dashboard vocabulary so the full ops view feels familiar.</p>
         </section>
       </main>
 
@@ -3142,8 +3143,26 @@
     }
 
     var siteLabel = document.getElementById('glance-site-label');
-    if (siteLabel && profile && profile.siteId) {
-      siteLabel.textContent = 'Site ' + profile.siteId + ' · demo figures until live meters connect';
+    var sourcePill = document.getElementById('glance-source-pill');
+    var trustCopy = document.getElementById('glance-trust-copy');
+    var hasSite = !!(profile && profile.siteId);
+    var demoMode = isDemoHub();
+    var sourceLabel = demoMode ? 'Demo model' : 'Catalogue';
+
+    if (sourcePill) {
+      sourcePill.innerHTML = '<span class="dot" aria-hidden="true"></span> ' + escapeHtml(sourceLabel);
+    }
+    if (siteLabel && hasSite) {
+      siteLabel.textContent = 'Site ' + profile.siteId + ' · baseline snapshot until live meters connect';
+    } else if (siteLabel) {
+      siteLabel.textContent = demoMode
+        ? 'Illustrative site · same language as the energy dash'
+        : 'Catalogue baseline · connect meters for a live site feed';
+    }
+    if (trustCopy) {
+      trustCopy.textContent = demoMode
+        ? 'Illustrative demo model — not a live client feed. KPIs mirror the buildings dashboard vocabulary so the full ops view feels familiar.'
+        : 'Catalogue baseline for your profile — not a live meter feed yet. Use Site Brief for a shareable snapshot, or open the buildings dashboard for full ops monitoring.';
     }
 
     var askEd = document.getElementById('ask-edwardo-btn');
