@@ -68,7 +68,8 @@
 
 - [x] **CH-001 shell:** `greenways-customer-hub.html` + `/greenways/customer-hub` — scrollable Saved / Suggested / Deals / News / Site glance — 2026-07-17
 - [x] **PRD:** `tasks/prd-customer-hub.json` (CH1–CH4 waves)
-- [ ] **CH-002 polish:** Tighten agent badges on suggestion cards
+- [x] **CH-002:** Agent portrait badges on suggestion cards (Artemis/Zyanne) + deals (Zara) — `cardHtml` `agent-badge` — 2026-09-03
+- [x] **CH-005:** Cheryce news rail — `/api/media-agent/news`, portrait, `?q=` follow-up links — 2026-09-03
 - [x] **CH-003:** Saved lane merges session shortlist + `GET /api/members/saved-items` when `energy_calc_membership_token` present (+ local `gw_saved_products` fallback)
 - [x] **CH-004:** Profile-aware header — region/sector chip + filters, deals lane region filter hint, Orchestra + Membership links (demo stays anonymised) — 2026-09-03
 - [x] **CH-006:** Richer site glance with trust labels (`Demo model` / `Catalogue`) + Site Brief quick link; still not a live meter dashboard — 2026-09-03
