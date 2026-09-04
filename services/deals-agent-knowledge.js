@@ -699,7 +699,7 @@ function buildProductDealsAnswer(deals, tip) {
 
 function buildTariffCompareAnswer(deals, briefing, tip) {
   const energy = filterByCategory(deals, 'energy');
-  const flagship = findDealById(deals, 'energy-eu-compare') || energy[0];
+  const flagship = findDealById(deals, 'energy-eu-greenways-portal') || energy[0];
   const rows = flagship ? [flagship, ...energy.filter((d) => d.id !== flagship?.id)].slice(0, 5) : energy.slice(0, 5);
   const basics = (briefing?.tariffBasics || []).slice(0, 2);
   return {
@@ -716,7 +716,7 @@ function buildTariffCompareAnswer(deals, briefing, tip) {
 
 function buildNlRestaurantEnergyAnswer(deals, tip) {
   const nlEnergy =
-    findDealById(deals, 'energy-nl-restaurant') ||
+    findDealById(deals, 'energy-nl-zakelijk-compare') ||
     filterByRegion(filterByCategory(deals, 'energy'), 'NL')[0];
   const related = filterByCategory(deals, 'energy').filter((d) => d.id !== nlEnergy?.id).slice(0, 3);
   const blocks = nlEnergy ? [nlEnergy, ...related] : filterByCategory(deals, 'energy').slice(0, 4);
@@ -733,7 +733,7 @@ function buildNlRestaurantEnergyAnswer(deals, tip) {
 
 function buildUkGreenTariffAnswer(deals, tip) {
   const ukGreen =
-    findDealById(deals, 'energy-uk-green-tariff') ||
+    findDealById(deals, 'energy-uk-business-switch') ||
     filterByRegion(filterByCategory(deals, 'energy'), 'UK').find((d) =>
       (d.tags || []).includes('green')
     );

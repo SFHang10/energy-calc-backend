@@ -638,6 +638,7 @@ function buildDeadlinesAnswer(schemes, tip) {
 
 function buildPortalsAnswer(tip, snapshot = null, profile = {}) {
   const scan = formatGrantsWireSnapshotBlock(snapshot, profile);
+  const externalLinks = portalLinkItems().filter((item) => /^https?:\/\//i.test(item.url));
   return {
     answer: withTip(
       'Not sure where to browse? Start on the **Grants wire** for live catalogue counts, then open Scheme Fit, restaurant and EU portals, finance finder, or Site Brief.\n\n' +
@@ -645,9 +646,19 @@ function buildPortalsAnswer(tip, snapshot = null, profile = {}) {
         'Pick a tile on the right to jump straight in.',
       tip
     ),
-    blocks: prependWireToBlocks(linkOrModuleBlocks(portalLinkItems()), [
-      { moduleId: 'grants-desk', openSize: 'near-full' }
-    ])
+    blocks: [
+      grantsModuleBlock(
+        dedupeModuleRows([
+          grantsWireModuleRow(),
+          { moduleId: 'grants-desk', openSize: 'near-full' },
+          { moduleId: 'schemes-portal-restaurant', openSize: 'near-full' },
+          { moduleId: 'schemes-portal-eu', openSize: 'near-full' },
+          { moduleId: 'finance-finder', openSize: 'near-full' },
+          { moduleId: 'savings-tour', openSize: 'near-full' }
+        ])
+      ),
+      ...(externalLinks.length ? [{ type: 'link', items: externalLinks }] : [])
+    ]
   };
 }
 

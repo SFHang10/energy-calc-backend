@@ -126,15 +126,23 @@ function matchIntent(question, intents) {
   const q = question.toLowerCase();
   let best = null;
   let bestScore = 0;
+  let bestSpec = 0;
   for (const intent of intents.intents || []) {
     let score = 0;
+    let spec = 0;
     for (const pattern of intent.patterns || []) {
       const p = pattern.toLowerCase().trim();
       if (!p) continue;
-      if (q.includes(p)) score += p.length >= 8 ? 3 : 2;
+      if (q.includes(p)) {
+        // Prefer longer phrases so "deep dive" beats short/generic tokens on ties.
+        const weight = p.length >= 8 ? 3 : 2;
+        score += weight + Math.min(2, Math.floor(p.length / 10));
+        spec = Math.max(spec, p.length);
+      }
     }
-    if (score > bestScore) {
+    if (score > bestScore || (score === bestScore && spec > bestSpec)) {
       bestScore = score;
+      bestSpec = spec;
       best = intent;
     }
   }

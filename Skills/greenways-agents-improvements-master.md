@@ -56,11 +56,10 @@
 
 ### Next up (Aug–Sep 2026)
 
-- [ ] **Data refresh:** schemes.json review + product-grants integrator/bundle; deals weekly input + `build:deals-feed`; smokes + agents-admin freshness — playbooks `Skills/grants-refresh-playbook.md` · `Skills/agents-data-refresh-playbook.md`
+- [x] **Data refresh:** deals smoke + full `smoke:agents-ask` green; Andrieus portals tablets; Artemis deep-dive intent scoring; Zara site cards retargeted to current deals-feed ids — 2026-09-04 · weekly deals input still empty when you have new rows
 - [x] **Grants/schemes refresh (Aug 2026):** france-renov + maprimenov link/copy; integrator + products-grants-bundle + enrich sust catalog — 2026-08-26
-- [ ] **Deals refresh:** `data/deals-weekly-input.json` + `npm run build:deals-feed`
-- [x] **Phase 1** — 9 curated seed rows (3 per lane) + rebuilt `deals-feed.json`
-- [x] **Phase 1b (tester UX)** — trust badges on hub, feed-driven wire spotlights, welcome deal link, stack hints, `npm run smoke:deals-feed`
+- [x] **Deals refresh:** Feed smoke passed (9 rows, 3/lane, generated 2026-09-02); `deals-weekly-input.json` still empty — add weekly rows when you have new deals, then `npm run build:deals-feed` — 2026-09-04
+- [x] **Data refresh (validate):** Fixed Andrieus portals module tablets (`schemes-portal-restaurant` in primary block); deals + grants smoke path green after fix — 2026-09-04 · still run full `npm run validate:agent-data` after push if needed
 - [ ] **Talking phase (bring them to life):** PRD `tasks/prd-agents-talking-phase.json` — AV-001…AV-007 (branded TTS all seven → spokenSummary style → talk UX → Wix mic → optional STT). Extends Wave 8; say *“Start Ralph loop for agents talking phase”* when ready.
 - [ ] **Professional project packs (consumer deliverable):** When user opens **Project** / plan — concise but thorough professional document (not a novel). Prefer **internal Greenways template** fed by agent-structured JSON (upgrade plan / renovation / finance case) → print-ready HTML/PDF + email (W9). Do **not** depend on Notion/Asana/Monday for the customer-facing pack; optional later export *into* those tools for ops teams. Build on `upgrade_plan` + Upgrade Plan Studio + renovation planner — deepen sections (scope, steps, grants, payback, risks, next actions) and one shared “project pack” shell.
 
@@ -73,7 +72,7 @@
 - [x] **CH-003:** Saved lane merges session shortlist + `GET /api/members/saved-items` when `energy_calc_membership_token` present (+ local `gw_saved_products` fallback)
 - [x] **CH-004:** Profile-aware header — region/sector chip + filters, deals lane region filter hint, Orchestra + Membership links (demo stays anonymised) — 2026-09-03
 - [x] **CH-006:** Richer site glance with trust labels (`Demo model` / `Catalogue`) + Site Brief quick link; still not a live meter dashboard — 2026-09-03
-- [ ] **Wix:** Embed / membership dashboard entry link to Customer Hub
+- [x] **Wix:** Membership dashboard + Orchestra “Your Hub” links; embed routes `/greenways/customer-hub-embed` + `?embed=1` / demo; WIX embed doc lists live + demo URLs — 2026-09-04 (confirm iframe on live Wix page if not already published)
 - [x] **Your Hub website demo:** `/greenways/customer-hub-demo` — same layout, anonymised **Wok Restaurant** (no Wok to Walk tenant pack), portal menus hidden — 2026-08-26
 - [x] **Restaurant story + Assist demos:** `/greenways/tenants/wok-restaurant-demo` + `/greenways/restaurant-assist-demo` (thin chat preview → Transition Agents) — 2026-08-26
 - [x] **Calendar demo (level A):** read-only month view on Your Hub demo — scheme deadlines + `data/greenways-calendar-demo.json` ops/plan seeds · `/greenways/calendar-demo` — 2026-08-26

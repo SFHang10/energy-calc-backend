@@ -57,7 +57,7 @@ Use **`-embed` URLs** (or `?embed=1`) on the **new Wix website** so portal famil
 | Zyanne products wire | `/greenways/products-wire-embed` | `/greenways/products-wire` |
 | Zyanne products desk | `/greenways/products-desk-embed` | `/greenways/products-desk` |
 | Orchestra / operate portal | `/greenways/orchestra-hub-embed` (or `?embed=1` / wix-frame) | `/greenways/orchestra-hub` |
-| Your Hub (live / member) | `/greenways/customer-hub?embed=1` | `/greenways/customer-hub` |
+| Your Hub (live / member) | `/greenways/customer-hub-embed` or `/greenways/customer-hub?embed=1` | `/greenways/customer-hub` |
 | Your Hub (**website demo** — no client brand) | `/greenways/customer-hub-demo` | same (menus already hidden) |
 | Restaurant story (**website demo**) | `/greenways/tenants/wok-restaurant-demo` | live: `/greenways/tenants/wok-to-walk` |
 | Restaurant Assist chat (**website demo**) | `/greenways/restaurant-assist-demo` | live: `/greenways/wok-assist` |
