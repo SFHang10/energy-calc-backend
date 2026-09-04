@@ -127,7 +127,7 @@
     "energy-ticker": {
       id: "energy-ticker",
       title: "Energy prices ticker",
-      href: "../content-ops/drafts/energy-ticker/energy-ticker-green-wire.html",
+      href: "../content-ops/drafts/energy-ticker/energy-ticker-colour-swap.html",
       defaultOpenSize: "expanded"
     },
     "savings-trajectory": {
