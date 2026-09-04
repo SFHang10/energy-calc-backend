@@ -3,8 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="wix-html-scroll" content="no-scroll">
 <title>Greenways Buildings — Transition Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@1,600&display=swap" rel="stylesheet" />
+<script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -737,6 +739,27 @@
     background: #121a24;
     border-color: rgba(160, 200, 240, 0.5);
     color: #ecf4ff;
+  }
+  /* Website demo — hide membership / live-client chrome */
+  body.dashboard-demo-mode #topTabMembership,
+  body.dashboard-demo-mode #tab-membership,
+  body.dashboard-demo-mode #sideNavMembership,
+  body.dashboard-demo-mode .gw-staff-admin-link {
+    display: none !important;
+  }
+  body.dashboard-demo-mode .dashboard-demo-banner {
+    display: block;
+  }
+  .dashboard-demo-banner {
+    display: none;
+    margin: 0 0 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(201, 169, 97, 0.35);
+    background: rgba(201, 169, 97, 0.1);
+    color: #e8d5a3;
+    font-size: 12px;
+    line-height: 1.4;
   }
   .charts-row-3 > .card { border: 1px solid rgba(34, 212, 255, 0.32); box-shadow: 0 0 0 1px rgba(34, 212, 255, 0.07), 0 10px 32px rgba(0, 0, 0, 0.28); }
   .charts-row-3 > .card:hover { border-color: rgba(34, 212, 255, 0.45); }
@@ -2923,6 +2946,9 @@
         <button class="period-btn" id="demoResetBtn" type="button">Reset hold</button>
       </div>
     </div>
+    <div class="dashboard-demo-banner" id="dashboardDemoBanner" role="status">
+      Website demo — anonymised <strong>Wok Restaurant</strong> sample sites. Illustrative KPIs, not a live client meter feed.
+    </div>
 
     <!-- ══════════════════════════════════════
          OVERVIEW TAB
@@ -3834,6 +3860,82 @@ const GREENWAYS_CANONICAL_ROUTES = {
   'restaurant-data.html': '/greenways/restaurant-data'
 };
 
+/** Website demo (Wix sample) — not the Live refresh / hold toolbar. */
+function isDemoDashboard() {
+  if (/[?&]demo=1(?:&|$)/.test(location.search)) return true;
+  return /(?:^|\/)buildings-dashboard-demo\/?$/i.test(location.pathname || '');
+}
+
+const DEMO_PORTFOLIO_SITES = [
+  {
+    id: 'demo-wok-restaurant-01',
+    name: 'Wok Restaurant — Canal',
+    address: 'Sample canal street, Amsterdam',
+    imageUrl: 'https://static.wixstatic.com/media/c123de_6abbc3ae613646deb1d871fae2b2f709~mv2.jpg',
+    energy: { mainPowerKw: 78, electricityKwhMonth: 18600, gasM3Month: 940, waterM3Month: 214 }
+  },
+  {
+    id: 'demo-wok-restaurant-02',
+    name: 'Wok Restaurant — Centre',
+    address: 'Sample centre street, Amsterdam',
+    imageUrl: 'https://static.wixstatic.com/media/c123de_f79995cc543e41478974135f3f64859c~mv2.jpg',
+    energy: { mainPowerKw: 64, electricityKwhMonth: 15400, gasM3Month: 820, waterM3Month: 186 }
+  },
+  {
+    id: 'demo-wok-restaurant-03',
+    name: 'Wok Restaurant — Market',
+    address: 'Sample market street, Amsterdam',
+    imageUrl: 'https://static.wixstatic.com/media/c123de_16c0316351cb43ffa2b465483e13e2a4~mv2.jpg',
+    energy: { mainPowerKw: 58, electricityKwhMonth: 13900, gasM3Month: 740, waterM3Month: 171 }
+  },
+  {
+    id: 'demo-wok-restaurant-04',
+    name: 'Wok Restaurant — Station',
+    address: 'Sample station street, Amsterdam',
+    imageUrl: 'https://static.wixstatic.com/media/c123de_cf49fe75466b4d1d90dbd103b6405ced~mv2.jpeg',
+    energy: { mainPowerKw: 67, electricityKwhMonth: 16100, gasM3Month: 860, waterM3Month: 198 }
+  }
+];
+
+function applyDemoChrome() {
+  if (!isDemoDashboard()) return;
+  document.body.classList.add('dashboard-demo-mode');
+  document.title = 'Greenways Buildings — Website demo';
+
+  const side = document.getElementById('sideNavWokAssist');
+  if (side) {
+    side.childNodes.forEach(function (node) {
+      if (node.nodeType === Node.TEXT_NODE && /Wok/i.test(node.textContent || '')) {
+        node.textContent = ' Restaurant Assist';
+      }
+    });
+  }
+  const topWok = document.getElementById('topTabWokAssist');
+  if (topWok) topWok.textContent = 'Restaurant Assist';
+  const wokBtn = document.getElementById('systemStatusWokBtn');
+  if (wokBtn) wokBtn.textContent = 'Ask in Restaurant Assist';
+  const trust = document.getElementById('systemStatusTrust');
+  if (trust) {
+    trust.textContent =
+      'Website demo — illustrative sample sites (Wok Restaurant). KPIs use a demo model, not a live client meter feed.';
+  }
+
+  const cardTitle = document.querySelector('#tab-wok-assist .card-title');
+  if (cardTitle) cardTitle.textContent = 'Restaurant Assist';
+  const cardSub = document.querySelector('#tab-wok-assist .card-sub');
+  if (cardSub) cardSub.textContent = 'Sample restaurant desk for website demos — anonymised branding';
+  const frame = document.querySelector('#tab-wok-assist .wok-assist-frame');
+  if (frame) {
+    frame.src = '/greenways/restaurant-assist-demo?embed=1';
+    frame.title = 'Restaurant Assist (demo)';
+  }
+  const newTab = document.querySelector('#tab-wok-assist a.action-btn[href*="wok-assist"]');
+  if (newTab) {
+    newTab.href = '/greenways/restaurant-assist-demo';
+    newTab.textContent = 'Open demo Assist';
+  }
+}
+
 function gwbHref(rel) {
   const raw = String(rel || '').trim();
   if (!raw || /^https?:\/\//i.test(raw) || /^mailto:/i.test(raw)) return raw;
@@ -3980,7 +4082,9 @@ function openCompanyMapPage() {
 }
 
 function openWokAssistPage() {
-  window.location.href = '/greenways/wok-assist';
+  window.location.href = isDemoDashboard()
+    ? '/greenways/restaurant-assist-demo'
+    : '/greenways/wok-assist';
 }
 
 function setCompanyMapEmbedOpen(open) {
@@ -4105,7 +4209,9 @@ function updateSystemStatusPanel(opts) {
   const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   if (stamp) stamp.textContent = (mode === 'hold' ? 'Display frozen — ' : 'Updated — ' + now.toLocaleDateString('en-GB', { weekday: 'short' }) + ' ') + timeStr;
   if (trust) {
-    trust.textContent = illustrative
+    trust.textContent = isDemoDashboard()
+      ? 'Website demo — illustrative sample sites (Wok Restaurant). KPIs use a demo model, not a live client meter feed.'
+      : illustrative
       ? 'KPIs use an illustrative demo model until live meters connect per site. Energy ticker and schemes catalogue are separate live or file-backed feeds.'
       : 'Live utility feed connected. Sensor lines below reflect the latest refresh from your energy connector.';
   }
@@ -4307,6 +4413,7 @@ function normalizeMappedSites(rawSites, rootCompanyId) {
 }
 
 function portfolioSitesList() {
+  if (isDemoDashboard()) return DEMO_PORTFOLIO_SITES;
   return mappedSites.length ? mappedSites : PORTFOLIO_SITES_FALLBACK;
 }
 
@@ -4318,14 +4425,18 @@ function portfolioTabShortLabel(site) {
 }
 
 async function loadMappedSites() {
-  try {
-    const res = await fetch(resolveApiUrl('/data/company-map-buildings.json'), { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    mappedSites = normalizeMappedSites(json.buildings, json.companyId);
-  } catch (e) {
-    console.warn('Mapped sites unavailable, using fallback:', e.message);
-    mappedSites = [];
+  if (isDemoDashboard()) {
+    mappedSites = DEMO_PORTFOLIO_SITES.slice();
+  } else {
+    try {
+      const res = await fetch(resolveApiUrl('/data/company-map-buildings.json'), { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      mappedSites = normalizeMappedSites(json.buildings, json.companyId);
+    } catch (e) {
+      console.warn('Mapped sites unavailable, using fallback:', e.message);
+      mappedSites = [];
+    }
   }
   try {
     const stored = localStorage.getItem('portfolioSelectedSiteId');
@@ -4333,7 +4444,7 @@ async function loadMappedSites() {
       selectedMappedSiteId = stored;
     }
   } catch (_) { /* ignore */ }
-  if (!selectedMappedSiteId) {
+  if (!selectedMappedSiteId || !portfolioSitesList().some((s) => s.id === selectedMappedSiteId)) {
     selectedMappedSiteId = portfolioSitesList()[0]?.id || '';
   }
 }
@@ -4724,6 +4835,7 @@ function wokApplianceFromInventory(item, seed) {
 }
 
 async function mergeWokVenueInventory() {
+  if (isDemoDashboard()) return;
   try {
     const res = await fetch(wokInventoryJsonUrl(), { cache: 'no-store' });
     if (!res.ok) return;
@@ -4893,7 +5005,7 @@ function buildRestaurantEquipmentDeepDiveHref(source, returnPath) {
   const nav = resolveEquipDeepDiveTarget(source || {});
   if (nav.wok) {
     params.set('wok', nav.wok);
-    params.set('site', 'wok-to-walk');
+    if (!isDemoDashboard()) params.set('site', 'wok-to-walk');
   } else if (nav.profile) {
     params.set('profile', nav.profile);
   } else if (nav.equipment) {
@@ -6553,6 +6665,7 @@ window.GreenwaysDashboard = {
 };
 
 (async function bootEquipmentDashboard() {
+  applyDemoChrome();
   await mergeWokVenueInventory();
   await loadMappedSites();
   renderMappedSiteSelector();
@@ -6572,10 +6685,12 @@ initOpsLivePulse();
 initGreenTableEmbed();
 loadGrantRadarFromApi();
 setInterval(loadGrantRadarFromApi, 120000);
-loadMembershipPanel();
-const membershipRefreshBtn = document.getElementById('membershipRefreshBtn');
-if (membershipRefreshBtn) membershipRefreshBtn.addEventListener('click', () => loadMembershipPanel());
-setInterval(loadMembershipPanel, 180000);
+if (!isDemoDashboard()) {
+  loadMembershipPanel();
+  const membershipRefreshBtn = document.getElementById('membershipRefreshBtn');
+  if (membershipRefreshBtn) membershipRefreshBtn.addEventListener('click', () => loadMembershipPanel());
+  setInterval(loadMembershipPanel, 180000);
+}
 dashboardRuntime.startPolling(20000);
 </script>
 

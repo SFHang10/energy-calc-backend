@@ -29,6 +29,7 @@ Alias: `/greenways/guide-agent` → same hub HTML. API: `POST /api/guide-agent/a
 ```
 https://energy-calc-backend.onrender.com/greenways/customer-hub-demo
 https://energy-calc-backend.onrender.com/greenways/customer-hub
+https://energy-calc-backend.onrender.com/greenways/buildings-dashboard-demo
 https://energy-calc-backend.onrender.com/greenways/agents/grants-agent/story
 https://energy-calc-backend.onrender.com/greenways/agents-story
 https://energy-calc-backend.onrender.com/greenways/agents-highlights
@@ -59,6 +60,8 @@ Use **`-embed` URLs** (or `?embed=1`) on the **new Wix website** so portal famil
 | Orchestra / operate portal | `/greenways/orchestra-hub-embed` (or `?embed=1` / wix-frame) | `/greenways/orchestra-hub` |
 | Your Hub (live / member) | `/greenways/customer-hub-embed` or `/greenways/customer-hub?embed=1` | `/greenways/customer-hub` |
 | Your Hub (**website demo** — no client brand) | `/greenways/customer-hub-demo` | same (menus already hidden) |
+| Buildings dashboard (live) | `/greenways/buildings-dashboard-embed` or `?embed=1` | `/greenways/buildings-dashboard` |
+| Buildings dashboard (**website demo**) | `/greenways/buildings-dashboard-demo` | same (menus already hidden) |
 | Restaurant story (**website demo**) | `/greenways/tenants/wok-restaurant-demo` | live: `/greenways/tenants/wok-to-walk` |
 | Restaurant Assist chat (**website demo**) | `/greenways/restaurant-assist-demo` | live: `/greenways/wok-assist` |
 | Calendar (member + personal reminders) | `/greenways/calendar-embed` or `/greenways/calendar?embed=1` | `/greenways/calendar` |

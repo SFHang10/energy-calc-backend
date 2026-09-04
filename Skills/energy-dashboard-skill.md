@@ -75,6 +75,13 @@ Safety references:
 - Default data connector is **`MockConnector()`** (jittered KPIs). To bind server feed: `dashboardRuntime.useHttpFeed('/api/dashboard/live', token)` in console or boot script.
 - Source badge uses **“Energy Feed”** labelling when synthetic (`services/dashboard-live-service.js`); assistant scrubs legacy “Mock Live” strings in `routes/assistant.js`.
 
+### Website demo mode (Wix sample)
+
+- **Routes:** `/greenways/buildings-dashboard-demo` · `/greenways/buildings-dashboard-embed` · or `?demo=1` on the live HTML (`isDemoDashboard()`).
+- **Anonymised:** **Wok Restaurant** sample portfolio (not live Wok to Walk / `company-map-buildings.json`); **Restaurant Assist** → `/greenways/restaurant-assist-demo`; Membership tab hidden; no member API polling; deep-dive omits `site=wok-to-walk`.
+- **Keep live:** `/greenways/buildings-dashboard` unchanged for real client branding.
+- Distinct from toolbar **Live refresh / Reset hold** (demo model KPIs vs website-demo chrome).
+
 ### Overview tab
 
 - **Triple semi-circular gauges:** Electricity (green), Water (blue), Gas (orange) — `triple-gauge-row` / `mini-gauge`.
