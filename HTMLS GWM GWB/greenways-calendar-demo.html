@@ -4,12 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="wix-html-scroll" content="no-scroll">
-<title>Greenways calendar · Demo</title>
+<title>Greenways calendar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
+<script src="/HTMLS%20GWM%20GWB/js/greenways-calendar-events.js"></script>
 <style>
   :root {
     --text: #e8f0ec;
@@ -68,6 +69,48 @@
   .swatch.grant { background: #22d3ee; }
   .swatch.ops { background: #f97316; }
   .swatch.plan { background: #c9a961; }
+  .swatch.personal { background: #38bdf8; }
+  .add-panel {
+    margin: 0 0 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(75, 140, 104, 0.28);
+    background: rgba(14, 33, 23, 0.72);
+    padding: 10px 12px;
+  }
+  .add-panel h2 {
+    font-size: 0.82rem; font-weight: 600; margin-bottom: 8px; color: #b8f5d4;
+  }
+  .add-row {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end;
+  }
+  .add-row label {
+    display: flex; flex-direction: column; gap: 4px;
+    font-size: 0.68rem; color: var(--muted);
+  }
+  .add-row input, .add-row textarea {
+    font: inherit; font-size: 0.82rem; color: var(--text);
+    background: rgba(11, 18, 32, 0.9);
+    border: 1px solid rgba(75, 140, 104, 0.35);
+    border-radius: 8px; padding: 6px 8px; min-width: 0;
+  }
+  .add-row input[type="date"] { min-width: 9.5rem; }
+  .add-row input[type="text"] { min-width: 12rem; flex: 1; }
+  .add-row textarea { width: 100%; min-height: 52px; resize: vertical; }
+  .add-row button, .detail button {
+    font: inherit; cursor: pointer; font-weight: 600; font-size: 0.8rem;
+    border: none; border-radius: 999px; padding: 7px 12px;
+    background: var(--gold); color: #0b1220;
+  }
+  .detail button.ghost {
+    background: transparent; color: #94a3b8;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+  }
+  .toast {
+    display: none; margin: 0 0 10px; padding: 8px 10px; border-radius: 8px;
+    background: rgba(61, 207, 122, 0.16); border: 1px solid rgba(61, 207, 122, 0.35);
+    font-size: 0.78rem; color: #b8f5d4;
+  }
+  .toast.is-on { display: block; }
   .grid-wrap {
     border-radius: 14px;
     border: 1px solid rgba(75, 140, 104, 0.28);
@@ -89,12 +132,17 @@
     border-bottom: 1px solid rgba(75, 140, 104, 0.12);
     padding: 6px 5px;
     font-family: var(--font-clean);
+    cursor: pointer;
   }
   .day:nth-child(7n) { border-right: none; }
-  .day.is-muted { opacity: 0.35; }
+  .day.is-muted { opacity: 0.35; cursor: default; }
   .day.is-today .num {
     color: #0b1220; background: var(--green); border-radius: 999px;
     width: 1.4rem; height: 1.4rem; display: inline-flex; align-items: center; justify-content: center;
+  }
+  .day.is-focus {
+    outline: 1px solid rgba(56, 189, 248, 0.55);
+    outline-offset: -2px;
   }
   .num { font-size: 0.78rem; font-weight: 600; color: #b8f5d4; }
   .dots { display: flex; flex-direction: column; gap: 3px; margin-top: 4px; }
@@ -108,6 +156,7 @@
   .chip.grant { background: rgba(34, 212, 255, 0.18); }
   .chip.ops { background: rgba(249, 115, 22, 0.22); }
   .chip.plan { background: rgba(201, 169, 97, 0.22); }
+  .chip.personal { background: rgba(56, 189, 248, 0.22); }
   .detail {
     margin-top: 12px;
     border-radius: 12px;
@@ -120,6 +169,7 @@
   .detail h2 { font-size: 1rem; margin-bottom: 4px; }
   .detail .meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; }
   .detail p { font-size: 0.88rem; color: #d7e4dc; margin-bottom: 10px; }
+  .detail .actions { display: flex; flex-wrap: wrap; gap: 8px; }
   .detail a {
     display: inline-block; text-decoration: none;
     color: #0b1220; font-weight: 600; font-size: 0.8rem;
@@ -139,9 +189,9 @@
   <div class="page">
     <div class="head">
       <div>
-        <div class="eyebrow">Wok Restaurant · website demo</div>
+        <div class="eyebrow" id="cal-eyebrow">Greenways</div>
         <h1>Your calendar</h1>
-        <p class="lede">Read-only demo: grant deadlines from the schemes catalogue plus sample restaurant ops milestones. Personal add / agent “save to calendar” comes later.</p>
+        <p class="lede" id="cal-lede">Grant deadlines from the schemes catalogue, sample milestones, and your own reminders saved in this browser. Agents can add scheme deadlines with “Add to calendar”.</p>
       </div>
       <div class="nav-months">
         <button type="button" id="prev-month" aria-label="Previous month">←</button>
@@ -149,11 +199,30 @@
         <button type="button" id="next-month" aria-label="Next month">→</button>
       </div>
     </div>
+    <div class="toast" id="toast" role="status"></div>
     <div class="legend" aria-hidden="true">
       <span><i class="swatch grant"></i> Grant deadline</span>
       <span><i class="swatch ops"></i> Ops / events</span>
       <span><i class="swatch plan"></i> Plan milestone</span>
+      <span><i class="swatch personal"></i> Your reminder</span>
     </div>
+    <form class="add-panel" id="add-form" autocomplete="off">
+      <h2>Add a reminder</h2>
+      <div class="add-row">
+        <label>Date
+          <input type="date" id="add-date" required>
+        </label>
+        <label style="flex:1;min-width:12rem">Title
+          <input type="text" id="add-title" maxlength="160" placeholder="e.g. Check MIA/Vamil eligibility" required>
+        </label>
+        <button type="submit">Save</button>
+      </div>
+      <div class="add-row" style="margin-top:8px">
+        <label style="flex:1;width:100%">Notes (optional)
+          <textarea id="add-summary" maxlength="500" placeholder="Short note for yourself"></textarea>
+        </label>
+      </div>
+    </form>
     <div class="grid-wrap">
       <div class="dow" aria-hidden="true">
         <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
@@ -161,25 +230,22 @@
       <div class="days" id="days" role="grid" aria-label="Month calendar"></div>
     </div>
     <div class="detail" id="detail" aria-live="polite"></div>
-    <p class="footer-note">Demo calendar · not a live client diary · opens from Your Hub demo</p>
+    <p class="footer-note">Personal reminders stay in this browser for now · grant deadlines refresh from schemes.json · Google/Outlook sync later</p>
   </div>
 <script>
 (function () {
+  var Cal = window.GreenwaysCalendarEvents;
   var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   var view = new Date();
   view.setDate(1);
+  var catalogEvents = [];
   var events = [];
   var selectedId = null;
+  var focusId = null;
+  var isDemoPath = /calendar-demo/i.test(location.pathname);
 
-  function pad(n) { return n < 10 ? '0' + n : String(n); }
-  function isoDate(d) {
-    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-  }
-  function parseIso(s) {
-    var m = String(s || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if (!m) return null;
-    return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-  }
+  function isoDate(d) { return Cal.isoDate(d); }
+  function parseIso(s) { return Cal.parseIso(s); }
 
   function loadJson(url) {
     return fetch(url).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
@@ -201,14 +267,33 @@
         summary: (s.description || 'Scheme deadline from the Greenways grants catalogue.') +
           (s.region ? ' Region: ' + String(s.region).toUpperCase() + '.' : ''),
         askAgent: 'grants-agent',
-        askPrompt: 'Tell me about the ' + (s.title || s.id) + ' scheme and what to do before the deadline.'
+        askPrompt: 'Tell me about the ' + (s.title || s.id) + ' scheme and what to do before the deadline.',
+        personal: false
       });
     });
     return out;
   }
 
+  function rebuildEvents() {
+    var personal = Cal.readPersonalEvents();
+    var byId = {};
+    catalogEvents.forEach(function (e) { byId[e.id] = e; });
+    // Personal / agent-added rows win when same id (e.g. scheme saved from chat)
+    personal.forEach(function (e) { byId[e.id] = e; });
+    events = Object.keys(byId).map(function (k) { return byId[k]; });
+    events.sort(function (a, b) { return String(a.date).localeCompare(String(b.date)); });
+  }
+
   function eventsForDay(iso) {
     return events.filter(function (e) { return e.date === iso; });
+  }
+
+  function showToast(msg) {
+    var el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast is-on';
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(function () { el.className = 'toast'; }, 3200);
   }
 
   function showDetail(ev) {
@@ -216,14 +301,35 @@
     var el = document.getElementById('detail');
     var href = '/greenways/' + encodeURIComponent(ev.askAgent || 'grants-agent') +
       '?embed=1&q=' + encodeURIComponent(ev.askPrompt || ev.title);
+    var canAsk = !!(ev.askAgent || ev.askPrompt);
+    var canRemove = !!(ev.personal || String(ev.id).indexOf('personal-') === 0 ||
+      (Cal.readPersonalEvents().some(function (p) { return p.id === ev.id; })));
     el.className = 'detail is-open';
     el.innerHTML =
       '<h2>' + escapeHtml(ev.title) + '</h2>' +
       '<div class="meta">' + escapeHtml(ev.date) + ' · ' + escapeHtml(ev.type) +
       ' · ' + escapeHtml(ev.source || 'Greenways') + '</div>' +
       '<p>' + escapeHtml(ev.summary || '') + '</p>' +
-      '<a href="' + href.replace(/"/g, '&quot;') + '" target="_top" rel="noopener">Ask ' +
-      escapeHtml(agentLabel(ev.askAgent)) + ' →</a>';
+      '<div class="actions">' +
+      (canAsk
+        ? '<a href="' + href.replace(/"/g, '&quot;') + '" target="_top" rel="noopener">Ask ' +
+          escapeHtml(agentLabel(ev.askAgent)) + ' →</a>'
+        : '') +
+      (canRemove
+        ? '<button type="button" class="ghost" id="remove-personal" data-id="' + escapeHtml(ev.id) + '">Remove reminder</button>'
+        : '') +
+      '</div>';
+    var rm = document.getElementById('remove-personal');
+    if (rm) {
+      rm.addEventListener('click', function () {
+        Cal.removePersonalEvent(rm.getAttribute('data-id'));
+        rebuildEvents();
+        render();
+        el.className = 'detail';
+        el.innerHTML = '';
+        showToast('Reminder removed');
+      });
+    }
   }
 
   function agentLabel(slug) {
@@ -252,7 +358,7 @@
     document.getElementById('month-label').textContent = MONTHS[m] + ' ' + y;
 
     var first = new Date(y, m, 1);
-    var startPad = (first.getDay() + 6) % 7; // Monday=0
+    var startPad = (first.getDay() + 6) % 7;
     var daysInMonth = new Date(y, m + 1, 0).getDate();
     var prevDays = new Date(y, m, 0).getDate();
     var todayIso = isoDate(new Date());
@@ -281,31 +387,104 @@
       if (list.length > 3) {
         chips += '<span style="font-size:0.58rem;color:#8fa89a">+' + (list.length - 3) + ' more</span>';
       }
+      var focused = focusId && list.some(function (ev) { return ev.id === focusId; });
       return (
         '<div class="day' + (c.muted ? ' is-muted' : '') +
         (c.iso === todayIso && !c.muted ? ' is-today' : '') +
+        (focused ? ' is-focus' : '') +
         '" data-iso="' + escapeHtml(c.iso) + '">' +
         '<div class="num">' + c.day + '</div>' +
         '<div class="dots">' + chips + '</div></div>'
       );
     }).join('');
+
+    if (focusId) {
+      var focusedEv = events.find(function (x) { return x.id === focusId; });
+      if (focusedEv) showDetail(focusedEv);
+    }
+  }
+
+  function applyAdd(raw, toastMsg) {
+    var ev = Cal.upsertPersonalEvent(raw);
+    if (!ev) return null;
+    rebuildEvents();
+    var d = parseIso(ev.date);
+    if (d) view = new Date(d.getFullYear(), d.getMonth(), 1);
+    focusId = ev.id;
+    render();
+    showToast(toastMsg || 'Saved to your calendar');
+    return ev;
   }
 
   document.getElementById('days').addEventListener('click', function (e) {
     var btn = e.target.closest('.chip');
-    if (!btn) return;
-    var id = btn.getAttribute('data-id');
-    var ev = events.find(function (x) { return x.id === id; });
-    if (ev) showDetail(ev);
+    if (btn) {
+      var id = btn.getAttribute('data-id');
+      var ev = events.find(function (x) { return x.id === id; });
+      if (ev) {
+        focusId = ev.id;
+        showDetail(ev);
+      }
+      return;
+    }
+    var day = e.target.closest('.day:not(.is-muted)');
+    if (!day) return;
+    var iso = day.getAttribute('data-iso');
+    document.getElementById('add-date').value = iso;
+    document.getElementById('add-title').focus();
   });
+
   document.getElementById('prev-month').addEventListener('click', function () {
     view.setMonth(view.getMonth() - 1);
+    focusId = null;
     render();
   });
   document.getElementById('next-month').addEventListener('click', function () {
     view.setMonth(view.getMonth() + 1);
+    focusId = null;
     render();
   });
+
+  document.getElementById('add-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var date = document.getElementById('add-date').value;
+    var title = document.getElementById('add-title').value.trim();
+    var summary = document.getElementById('add-summary').value.trim();
+    if (!date || !title) return;
+    applyAdd({
+      id: 'personal-' + date + '-' + Date.now(),
+      date: date,
+      title: title,
+      type: 'personal',
+      source: 'You',
+      summary: summary || 'Personal reminder'
+    });
+    document.getElementById('add-title').value = '';
+    document.getElementById('add-summary').value = '';
+  });
+
+  window.addEventListener('message', function (e) {
+    var data = e && e.data;
+    if (!data || data.type !== 'gw-calendar-add' || !data.event) return;
+    applyAdd(data.event, 'Added from agent chat');
+  });
+
+  if (isDemoPath) {
+    document.getElementById('cal-eyebrow').textContent = 'Wok Restaurant · website demo';
+    document.getElementById('cal-lede').textContent =
+      'Demo diary plus your own reminders in this browser. Grant deadlines come from the schemes catalogue; agents can add deadlines with “Add to calendar”.';
+  }
+
+  document.getElementById('add-date').value = isoDate(new Date());
+
+  var params = new URLSearchParams(location.search);
+  var addParam = params.get('add');
+  var monthParam = params.get('month');
+  focusId = params.get('focus') || null;
+  if (monthParam && /^\d{4}-\d{2}$/.test(monthParam)) {
+    var parts = monthParam.split('-');
+    view = new Date(Number(parts[0]), Number(parts[1]) - 1, 1);
+  }
 
   Promise.all([
     loadJson('/data/greenways-calendar-demo.json'),
@@ -313,16 +492,25 @@
   ]).then(function (pair) {
     var demo = pair[0] || {};
     var schemes = pair[1];
-    events = [].concat(demo.events || [], schemeEvents(schemes));
-    events.sort(function (a, b) { return String(a.date).localeCompare(String(b.date)); });
-    // Prefer September view if current month has few grant hits
-    var thisMonth = isoDate(new Date()).slice(0, 7);
-    var hasThis = events.some(function (e) { return String(e.date).indexOf(thisMonth) === 0; });
-    if (!hasThis) {
-      var nextGrant = events.find(function (e) { return e.type === 'grant' && e.date >= isoDate(new Date()); });
-      if (nextGrant) {
-        var d = parseIso(nextGrant.date);
-        if (d) { view = new Date(d.getFullYear(), d.getMonth(), 1); }
+    catalogEvents = [].concat(demo.events || [], schemeEvents(schemes));
+    rebuildEvents();
+
+    if (addParam) {
+      var incoming = Cal.decodeAddParam(addParam);
+      if (incoming) applyAdd(incoming, 'Saved from agent chat');
+    } else if (params.get('added') === '1') {
+      showToast('Saved to your calendar');
+    }
+
+    if (!monthParam && !addParam && !focusId) {
+      var thisMonth = isoDate(new Date()).slice(0, 7);
+      var hasThis = events.some(function (e) { return String(e.date).indexOf(thisMonth) === 0; });
+      if (!hasThis) {
+        var nextGrant = events.find(function (e) { return e.type === 'grant' && e.date >= isoDate(new Date()); });
+        if (nextGrant) {
+          var d = parseIso(nextGrant.date);
+          if (d) { view = new Date(d.getFullYear(), d.getMonth(), 1); }
+        }
       }
     }
     render();

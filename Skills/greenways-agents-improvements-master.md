@@ -76,7 +76,7 @@
 - [x] **Your Hub website demo:** `/greenways/customer-hub-demo` — same layout, anonymised **Wok Restaurant** (no Wok to Walk tenant pack), portal menus hidden — 2026-08-26
 - [x] **Restaurant story + Assist demos:** `/greenways/tenants/wok-restaurant-demo` + `/greenways/restaurant-assist-demo` (thin chat preview → Transition Agents) — 2026-08-26
 - [x] **Calendar demo (level A):** read-only month view on Your Hub demo — scheme deadlines + `data/greenways-calendar-demo.json` ops/plan seeds · `/greenways/calendar-demo` — 2026-08-26
-- [ ] **Calendar full (level B/C):** personal add (localStorage then member API); agent “Add to calendar” chips on grant/plan answers; optional Google/Outlook sync later
+- [x] **Calendar full (level B/C):** personal add via `localStorage` (`gw_personal_calendar_events`) + Add reminder form; agent scheme-tablet **Add to calendar** chips; routes `/greenways/calendar` (+ demo/embed aliases); hub shows calendar for all members — 2026-09-04 · member API + Google/Outlook sync still later
 - [ ] **Buildings dashboard website demo:** same pattern later — anonymised sample site, no live client meters/branding, `?embed=1` / `-demo` for Wix
 
 ### Gap 2 — Live data vs illustrative data

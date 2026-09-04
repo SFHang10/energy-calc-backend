@@ -471,6 +471,16 @@
       const linkHtml = url
         ? '<a class="scheme-tablet-link" href="' + url + '" target="_top" rel="noopener noreferrer">Official site ↗</a>'
         : "";
+      let calendarBtn = "";
+      if (s.deadline && window.GreenwaysCalendarEvents) {
+        const calEv = window.GreenwaysCalendarEvents.eventFromScheme(s);
+        if (calEv) {
+          calendarBtn =
+            '<button type="button" class="scheme-tablet-cal" data-calendar-event="' +
+            encodeURIComponent(JSON.stringify(calEv)) +
+            '" title="Save deadline to your Greenways calendar">Add to calendar</button>';
+        }
+      }
       return (
         '<article class="scheme-tablet">' +
         '<div class="scheme-tablet-head">' +
@@ -483,13 +493,14 @@
         '<p class="scheme-tablet-desc">' + desc + "</p>" +
         '<div class="scheme-tablet-actions">' +
         '<button type="button" class="scheme-tablet-ask scheme-chip-ask" data-prompt="' + escapeHtml(askPrompt) + '">Ask about this</button>' +
+        calendarBtn +
         linkHtml +
         "</div></article>"
       );
     }).join("");
     return (
       '<div class="scheme-tablets">' + tablets + "</div>" +
-      '<div class="scheme-chips-hint">Tap scheme title to select · Ask about this · pick 2 then Compare below</div>'
+      '<div class="scheme-chips-hint">Tap scheme title to select · Ask about this · Add to calendar when a deadline is listed · pick 2 then Compare below</div>'
     );
   }
 
@@ -789,6 +800,26 @@
 
   if (typeof document !== "undefined") {
     document.addEventListener("click", function (ev) {
+      const calBtn = ev.target.closest("[data-calendar-event]");
+      if (calBtn) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        let payload = null;
+        try {
+          payload = JSON.parse(decodeURIComponent(calBtn.getAttribute("data-calendar-event") || ""));
+        } catch (_) {
+          payload = null;
+        }
+        const Cal = window.GreenwaysCalendarEvents;
+        if (!Cal || !payload) return;
+        const saved = Cal.addAndOpen(payload, { open: true, target: "_blank" });
+        const label = calBtn.textContent;
+        calBtn.textContent = saved ? "Saved ✓" : "Could not save";
+        setTimeout(function () {
+          calBtn.textContent = label;
+        }, 1800);
+        return;
+      }
       const copyPlanBtn = ev.target.closest("[data-copy-upgrade-plan]");
       if (copyPlanBtn) {
         ev.preventDefault();

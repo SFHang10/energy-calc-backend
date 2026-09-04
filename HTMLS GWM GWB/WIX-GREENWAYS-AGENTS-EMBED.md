@@ -61,7 +61,8 @@ Use **`-embed` URLs** (or `?embed=1`) on the **new Wix website** so portal famil
 | Your Hub (**website demo** — no client brand) | `/greenways/customer-hub-demo` | same (menus already hidden) |
 | Restaurant story (**website demo**) | `/greenways/tenants/wok-restaurant-demo` | live: `/greenways/tenants/wok-to-walk` |
 | Restaurant Assist chat (**website demo**) | `/greenways/restaurant-assist-demo` | live: `/greenways/wok-assist` |
-| Calendar (**website demo**, read-only) | `/greenways/calendar-demo` (also embedded on Your Hub demo) | — |
+| Calendar (member + personal reminders) | `/greenways/calendar-embed` or `/greenways/calendar?embed=1` | `/greenways/calendar` |
+| Calendar (**website demo**) | `/greenways/calendar-demo` (also on Your Hub demo) | same |
 | Agent story (per character) | `/greenways/agents/{slug}/story-embed` | `/greenways/agents/{slug}/story` |
 | Agent chat | `/greenways/{slug}?embed=1` | `/greenways/{slug}` |
 

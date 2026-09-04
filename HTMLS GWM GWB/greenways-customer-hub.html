@@ -1925,18 +1925,18 @@
 
     <div class="layout">
       <main>
-        <section class="section hub-calendar-section" id="hub-calendar-section" hidden aria-labelledby="calendar-heading">
+        <section class="section hub-calendar-section" id="hub-calendar-section" aria-labelledby="calendar-heading">
           <div class="section-head">
             <h2 id="calendar-heading">Your calendar</h2>
-            <a class="hint" href="/greenways/calendar-demo" target="_blank" rel="noopener noreferrer">Open full →</a>
+            <a class="hint" id="hub-calendar-open" href="/greenways/calendar" target="_blank" rel="noopener noreferrer">Open full →</a>
           </div>
-          <p class="hub-calendar-lede">Demo diary for Wok Restaurant — grant deadlines from the schemes catalogue plus sample ops milestones. Read-only for now.</p>
+          <p class="hub-calendar-lede" id="hub-calendar-lede">Grant deadlines from the schemes catalogue plus your own reminders (saved in this browser). Agents can add scheme deadlines with “Add to calendar”.</p>
           <iframe
             class="hub-calendar-frame"
             id="hub-calendar-frame"
-            title="Greenways demo calendar"
+            title="Greenways calendar"
             loading="lazy"
-            src="about:blank"></iframe>
+            src="/greenways/calendar?embed=1"></iframe>
         </section>
 
         <section class="section" aria-labelledby="saved-heading">
@@ -3267,12 +3267,15 @@
     if (membership) membership.hidden = true;
     var cal = document.getElementById('hub-calendar-section');
     var frame = document.getElementById('hub-calendar-frame');
-    if (cal) {
-      cal.hidden = false;
-      if (frame && (!frame.getAttribute('src') || frame.getAttribute('src') === 'about:blank')) {
-        frame.src = '/greenways/calendar-demo?embed=1';
-      }
+    var calLede = document.getElementById('hub-calendar-lede');
+    var calOpen = document.getElementById('hub-calendar-open');
+    if (cal) cal.hidden = false;
+    if (calLede) {
+      calLede.textContent =
+        'Demo diary for Wok Restaurant — grant deadlines, sample ops milestones, and your own reminders in this browser.';
     }
+    if (calOpen) calOpen.href = '/greenways/calendar-demo';
+    if (frame) frame.src = '/greenways/calendar-demo?embed=1';
   }
 
   function initGreenwaysBackdropTheme() {
