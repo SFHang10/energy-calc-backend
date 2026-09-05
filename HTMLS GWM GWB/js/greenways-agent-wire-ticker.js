@@ -139,13 +139,17 @@
       var mediaPills = [];
       var news = Number(snapshot.totalNewsItems || 0);
       var mapTotal = Number(snapshot.mapTotal || 0);
+      var mapCases = Number(snapshot.mapCaseStudies || 0);
+      var mapDir = Number(snapshot.mapDirectory || 0);
       var videos = Number(snapshot.videoCount || 0);
       var tech = Number(snapshot.techStories || 0);
       if (news) mediaPills.push(pill('News library', news.toLocaleString('en-GB'), 'Live'));
       if (mapTotal) mediaPills.push(pill('Map profiles', mapTotal.toLocaleString('en-GB'), 'Live'));
+      if (mapCases) mediaPills.push(pill('Case studies', mapCases.toLocaleString('en-GB'), 'Map'));
+      if (mapDir) mediaPills.push(pill('Directory', mapDir.toLocaleString('en-GB'), 'Map'));
       if (videos) mediaPills.push(pill('Videos', videos.toLocaleString('en-GB'), 'Live'));
       if (tech) mediaPills.push(pill('New in Tech', tech.toLocaleString('en-GB'), 'Lane'));
-      (snapshot.headlines || []).slice(0, 3).forEach(function (row) {
+      (snapshot.headlines || []).slice(0, 2).forEach(function (row) {
         mediaPills.push(pill('Headline', truncate(row.title, 44), row.editionType || 'news'));
       });
       return mediaPills.slice(0, 6);

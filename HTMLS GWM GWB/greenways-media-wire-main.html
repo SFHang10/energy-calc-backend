@@ -282,6 +282,10 @@
       white-space: nowrap;
     }
     .pill.gold { border-color: rgba(201, 169, 97, 0.35); }
+    .pill.map { border-color: rgba(34, 212, 255, 0.4); cursor: pointer; }
+    .pill.map:hover { background: rgba(34, 212, 255, 0.12); }
+    .kpi-card.is-link { cursor: pointer; }
+    .kpi-card.is-link:hover { border-color: rgba(34, 212, 255, 0.45); }
     .pill .tag {
       font-family: var(--mono);
       font-size: 0.52rem;
@@ -295,6 +299,10 @@
     .pill.gold .tag {
       border-color: rgba(201, 169, 97, 0.45);
       color: var(--gold);
+    }
+    .pill.map .tag {
+      border-color: rgba(34, 212, 255, 0.45);
+      color: #7dd3fc;
     }
     .hint {
       font-family: var(--mono);
@@ -424,7 +432,10 @@
       <div class="kpi-card"><div class="kpi-val" id="kpiSust">—</div><div class="kpi-label">Sustainability</div></div>
       <div class="kpi-card"><div class="kpi-val" id="kpiTech">—</div><div class="kpi-label">New in Tech</div></div>
       <div class="kpi-card"><div class="kpi-val" id="kpiVideos">—</div><div class="kpi-label">Videos</div></div>
-      <div class="kpi-card"><div class="kpi-val" id="kpiMap">—</div><div class="kpi-label">Map profiles</div></div>
+      <div class="kpi-card is-link" id="kpiMapCard" role="button" tabindex="0" title="Open map on media desk">
+        <div class="kpi-val" id="kpiMap">—</div>
+        <div class="kpi-label">Map profiles</div>
+      </div>
     </div>
     <div class="wire-section-head">
       <span class="trust-badge trust-badge--live">Live counts</span>
@@ -441,13 +452,19 @@
         </div>
       </div>
       <div class="ticker-row">
+        <div class="ticker-label"><span class="dot"></span>Map catalogue</div>
+        <div class="ticker-track-outer">
+          <div class="ticker-track" id="track-map"></div>
+        </div>
+      </div>
+      <div class="ticker-row">
         <div class="ticker-label gold"><span class="dot"></span>Latest headlines</div>
         <div class="ticker-track-outer">
           <div class="ticker-track" id="track-headlines"></div>
         </div>
       </div>
     </div>
-    <p class="hint" id="regionHint">↑ map totals are live counts on the wire · open the desk below for the full map and editions</p>
+    <p class="hint" id="regionHint">↑ map catalogue counts are live on the wire · full interactive map stays on the desk below</p>
     <div class="wire-section-head" id="spotlightHead">
       <span class="trust-badge trust-badge--illustrative">Illustrative wire lanes</span>
     </div>
@@ -580,6 +597,39 @@
         );
       }
 
+      function renderMapTrack(data) {
+        var lanes = data.topMapLanes || [];
+        var highlights = data.mapHighlights || [];
+        var parts = lanes.map(function (row) {
+          return (
+            '<span class="pill map js-map-pill" data-desk-tab="map" title="Open map on desk">' +
+            '<strong>' + esc(row.name || row.code) + '</strong>' +
+            '<span>' + Number(row.count || 0).toLocaleString() + '</span>' +
+            '<span class="tag">Live</span>' +
+            '</span>'
+          );
+        });
+        highlights.forEach(function (row) {
+          parts.push(
+            '<span class="pill map js-map-pill" data-desk-tab="map" title="Open map on desk">' +
+            '<strong>' + esc(row.name) + '</strong>' +
+            '<span>On map</span>' +
+            '<span class="tag">Case</span>' +
+            '</span>'
+          );
+        });
+        var html = parts.join('');
+        var track = document.getElementById('track-map');
+        track.innerHTML = duplicateTrack(
+          html || '<span class="pill map">Map catalogue loads with snapshot</span>'
+        );
+        track.querySelectorAll('.js-map-pill').forEach(function (el) {
+          el.addEventListener('click', function () {
+            openDesk(el.getAttribute('data-desk-tab') || 'map');
+          });
+        });
+      }
+
       function renderHeadlineTrack(items) {
         var html = (items || []).map(function (row) {
           return (
@@ -659,6 +709,7 @@
         if (!data || !data.ok) throw new Error('snapshot');
         renderKpis(data);
         renderLaneTrack(data);
+        renderMapTrack(data);
         renderHeadlineTrack(data.headlines);
         renderCards(data.spotlights, data.meta);
       }
@@ -674,6 +725,17 @@
             document.getElementById('status').textContent = 'Could not load wire — try Refresh panel on the hub.';
             document.getElementById('trustLine').textContent = 'Counts unavailable — snapshot API may be warming up';
           });
+      }
+
+      var mapCard = document.getElementById('kpiMapCard');
+      if (mapCard) {
+        mapCard.addEventListener('click', function () { openDesk('map'); });
+        mapCard.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter' || ev.key === ' ') {
+            ev.preventDefault();
+            openDesk('map');
+          }
+        });
       }
 
       renderRegion(readJson('greenways_member_context_v1'));

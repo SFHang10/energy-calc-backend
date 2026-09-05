@@ -66,6 +66,23 @@ async function buildMediaWireSnapshot() {
     { code: 'map', name: LANE_LABELS.map, count: lanes.map }
   ].filter((row) => row.count > 0);
 
+  // Catalogue counts for wire marquee (not “new this week” — companies.json has no addedAt).
+  const topMapLanes = [
+    { code: 'case-studies', name: 'Case studies', count: caseStudies.length, deskTab: 'map' },
+    { code: 'directory', name: 'Directory', count: directory.length, deskTab: 'map' },
+    { code: 'map-total', name: 'Map profiles', count: lanes.map, deskTab: 'map' }
+  ].filter((row) => row.count > 0);
+
+  const mapHighlights = caseStudies
+    .slice(0, 6)
+    .map((row) => ({
+      id: row.id || row.name,
+      name: row.name || row.title || row.id || 'Organisation',
+      kind: 'case-study',
+      deskTab: 'map'
+    }))
+    .filter((row) => row.name);
+
   const headlines = (dailyBrief.stories || [])
     .slice(0, 8)
     .map((story) => ({
@@ -96,6 +113,8 @@ async function buildMediaWireSnapshot() {
     latestTechEdition: meta.tech?.edition || '',
     lanes,
     topLanes,
+    topMapLanes,
+    mapHighlights,
     headlines,
     spotlights: wireFeed.spotlights || [],
     meta: {
@@ -103,13 +122,14 @@ async function buildMediaWireSnapshot() {
       editionTitle: meta.editionTitle || '',
       countsTrust: 'live',
       laneTrust: 'live',
+      mapCatalogueTrust: 'live',
       headlinesTrust: 'live',
       spotlightsTrust: wireFeed.meta && wireFeed.meta.illustrative ? 'illustrative' : 'live',
       trustLine: refreshedAt
-        ? `Live counts from news catalog + daily brief · refreshed ${refreshedAt}`
-        : 'Live counts from news catalog + daily brief',
+        ? `Live counts from news catalog, map catalogue + daily brief · refreshed ${refreshedAt}`
+        : 'Live counts from news catalog, map catalogue + daily brief',
       spotlightsTrustLine: wireFeed.meta && wireFeed.meta.illustrative
-        ? 'Wire scan lane cards are illustrative quick links — content counts and headlines above are live; full editions and video live on the media desk below'
+        ? 'Wire scan lane cards are illustrative quick links — content counts, map catalogue, and headlines above are live; full map and editions live on the media desk below'
         : 'Wire scan lanes from media wire feed'
     }
   };

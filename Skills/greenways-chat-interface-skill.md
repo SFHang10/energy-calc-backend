@@ -730,6 +730,7 @@ http://localhost:4000/greenways/finance-agent?embed=1&q=What+are+current+energy+
 
 | Date | Change |
 |------|--------|
+| 2026-09-05 | **Cheryce wire — Map catalogue marquee** — `media-wire-snapshot` `topMapLanes` + `mapHighlights`; third ticker row on `greenways-media-wire-main.html` (counts + sample names); Map KPI opens desk map; interactive map stays on desk. |
 | 2026-06-21 | **Staff admin map — portal toolkit** — `agents-admin-map.html` middle ring = content modules; `POST /api/agents-admin/content-modules`; click-to-pin; § **Staff admin — network map & portal toolkit**. Portal URLs in Local URLs. |
 | 2026-06-14 | **Right panel sidebar order** — default agents: **Ask about** above **Quick links** (Vincent framing); shared note in `greenways-agent-sidebar.css`. **Exception:** Edwardo (`systems-agent`) — Ops verify → Quick links → Ask about (unchanged). |
 | 2026-06-14 | **Scheme tablet Ask button** — fix vertical “Ask about” text on Vincent/Artemis/etc.: higher-specificity pill styles in `greenways-agent-turn-ui.css` beat per-agent inline `.scheme-chip-ask` 22px circle. |

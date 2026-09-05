@@ -125,7 +125,7 @@
 - [x] **Cheryce media desk (tablet rollout):** skipped by design — media desk opens modules well; wire/desk split already clear — 2026-09-02
 - [ ] **Edwardo systems desk (deferred):** not Vincent tablet — target a systems/configuration dashboard (verify, monitoring, sensors) once member context + wire/desk snapshots and related platform pieces are in place — 2026-09-02
 - [ ] **Agent desks (rollout — remaining):** guided paths on wire hubs; member context on wire/desk snapshots
-- [ ] **Wire/desk enhancements:** Map “new company” live marquees on Cheryce wire KPI row (counts only — map stays on desk)
+- [x] **Wire/desk enhancements:** Cheryce wire **Map catalogue** marquee (case studies / directory / total + sample names) + clickable Map KPI → desk map; counts only — interactive map stays on desk — 2026-09-05
 
 ---
 
