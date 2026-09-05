@@ -730,6 +730,7 @@ http://localhost:4000/greenways/finance-agent?embed=1&q=What+are+current+energy+
 
 | Date | Change |
 |------|--------|
+| 2026-09-05 | **Wave 9 email preview** — `greenways-agent-mail.js/css` + `data/greenways-agent-mailboxes.json`; ✉️ **Email me this** on all seven agents opens grounded preview (Copy works; Send disabled). Sync: `npm run sync:agent-mail`. |
 | 2026-09-05 | **Cheryce wire — Map catalogue marquee** — `media-wire-snapshot` `topMapLanes` + `mapHighlights`; third ticker row on `greenways-media-wire-main.html` (counts + sample names); Map KPI opens desk map; interactive map stays on desk. |
 | 2026-06-21 | **Staff admin map — portal toolkit** — `agents-admin-map.html` middle ring = content modules; `POST /api/agents-admin/content-modules`; click-to-pin; § **Staff admin — network map & portal toolkit**. Portal URLs in Local URLs. |
 | 2026-06-14 | **Right panel sidebar order** — default agents: **Ask about** above **Quick links** (Vincent framing); shared note in `greenways-agent-sidebar.css`. **Exception:** Edwardo (`systems-agent`) — Ops verify → Quick links → Ask about (unchanged). |

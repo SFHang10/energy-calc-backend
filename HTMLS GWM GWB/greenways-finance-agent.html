@@ -13,6 +13,8 @@
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-voice.js"></script>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-mail.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-agent-mail.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-team.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-team.js"></script>
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-topic-bridge.js"></script>
@@ -942,6 +944,7 @@
                 <button type="button" class="gw-voice-btn" id="voice-mic-btn" aria-label="Speak your question" title="Speak">🎤</button>
         <button type="button" class="gw-voice-btn" id="voice-speak-btn" aria-label="Read last answer aloud" title="Listen">🔊</button>
         <button type="button" class="gw-voice-btn" id="voice-auto-btn" aria-label="Turn on auto-listen mode" title="Auto-listen" aria-pressed="false" hidden>🔁</button>
+        <button type="button" class="gw-mail-btn" id="mail-preview-btn" aria-label="Email me this answer" title="Email me this">✉️</button>
 <button type="button" class="send-btn" id="send-btn" aria-label="Send message" title="Send">➤</button>
       </div>
       <div class="compose-hint">Enter to send · Shift+Enter new line</div>
@@ -1486,6 +1489,15 @@
       } else if (window.GreenwaysAgentVoice && payload.spokenSummary) {
         GreenwaysAgentVoice.setLastSpokenSummary(payload.spokenSummary);
       }
+      if (window.GreenwaysAgentMail) {
+        GreenwaysAgentMail.setLastTurn({
+          question: payload.question || (typeof lastQuestion !== "undefined" ? lastQuestion : ""),
+          answer: typeof answer !== "undefined" ? answer : (payload.answer || ""),
+          spokenSummary: payload.spokenSummary || "",
+          intentId: typeof intentId !== "undefined" ? intentId : (payload.intentId || ""),
+          agentSlug: (typeof AGENT_PROFILE !== "undefined" && AGENT_PROFILE && AGENT_PROFILE.slug) ? AGENT_PROFILE.slug : undefined
+        });
+      }
 
 
     setStatus("Answered · " + src, payload.source === "llm" ? "ok" : "warn");
@@ -1819,6 +1831,15 @@
   updateCompareUi();
   
   var gwVoiceHandle = null;
+
+  var gwMailHandle = null;
+  if (window.GreenwaysAgentMail) {
+    gwMailHandle = GreenwaysAgentMail.init({
+      mailBtn: document.getElementById("mail-preview-btn"),
+      getProfile: typeof profileForAsk === "function" ? profileForAsk : (typeof getProfile === "function" ? getProfile : null)
+    });
+  }
+
   if (window.GreenwaysAgentVoice) {
     GreenwaysAgentVoice.init({
       input: input,
