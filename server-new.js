@@ -538,6 +538,7 @@ let financeHeadlineCandidatesRouter;
 let restaurantSnapshotRouter;
 let siteEnergyReadingRouter;
 let agentVoiceRouter;
+let agentMailRouter;
 try {
   musicVenuesRouter = require('./routes/music-venues');
   musicGuideRouter = require('./routes/music-guide');
@@ -564,6 +565,7 @@ try {
   restaurantSnapshotRouter = require('./routes/restaurant-snapshot');
   siteEnergyReadingRouter = require('./routes/site-energy-reading');
   agentVoiceRouter = require('./routes/agent-voice');
+  agentMailRouter = require('./routes/agent-mail');
   console.log('Live music routers loaded successfully');
 } catch (error) {
   console.error('❌ Failed to load live music routers:', error.message);
@@ -592,6 +594,7 @@ try {
   restaurantSnapshotRouter = null;
   siteEnergyReadingRouter = null;
   agentVoiceRouter = null;
+  agentMailRouter = null;
 }
 
 function mountApiRoutes() {
@@ -683,6 +686,10 @@ function mountApiRoutes() {
   if (agentVoiceRouter) {
     app.use('/api/agent-voice', agentVoiceRouter);
     console.log('✅ /api/agent-voice route mounted');
+  }
+  if (agentMailRouter) {
+    app.use('/api/agent-mail', agentMailRouter);
+    console.log('✅ /api/agent-mail route mounted');
   }
   if (greenwaysModuleRouter) {
     app.use('/api/greenways-module', greenwaysModuleRouter);

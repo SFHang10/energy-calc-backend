@@ -12,6 +12,8 @@
   var lastTurn = null;
   var lastContentTurn = null;
   var overlayEl = null;
+  var mailStatus = null;
+  var lastPreview = null;
 
   var THEME_BY_SLUG = {
     'grants-agent': 'grants',
@@ -107,6 +109,27 @@
     return null;
   }
 
+  function apiBase() {
+    if (global.GreenwaysAgentShared && typeof global.GreenwaysAgentShared.apiBase === 'function') {
+      return global.GreenwaysAgentShared.apiBase();
+    }
+    var h = (global.location && global.location.hostname) || '';
+    if (h === 'localhost' || h === '127.0.0.1' || h.indexOf('energy-calc-backend') !== -1) {
+      return (global.location && global.location.origin) || '';
+    }
+    return 'https://energy-calc-backend.onrender.com';
+  }
+
+  async function refreshMailStatus() {
+    try {
+      var res = await fetch(apiBase() + '/api/agent-mail/status');
+      if (res.ok) mailStatus = await res.json();
+    } catch (_) {
+      mailStatus = null;
+    }
+    return mailStatus;
+  }
+
   async function loadMailboxes() {
     if (mailboxesCache) return mailboxesCache;
     mailboxesCache = (await loadJson(MAILBOXES_URL)) || {
@@ -165,8 +188,8 @@
       slug: slug,
       name: row.name || face.name || 'Greenways Agent',
       fromName: row.fromName || row.name || face.name || 'Greenways',
-      fromAddress: row.fromAddress || 'hello@greenwaysbuildings.com',
-      replyTo: row.replyTo || 'hello@greenwaysbuildings.com',
+      fromAddress: row.fromAddress || 'gwta@greenwaysrestaurants.com',
+      replyTo: row.replyTo || 'gwta@greenwaysrestaurants.com',
       subjectPrefix: row.subjectPrefix || '',
       signOff: row.signOff || (row.name || face.name || 'Greenways'),
       imageUrl: face.imageUrl || '',
@@ -261,6 +284,7 @@
       fromName: mailbox.fromName,
       fromAddress: mailbox.fromAddress,
       to: toDisplay,
+      toEmail: toEmail,
       toMuted: toMuted,
       subject: subject,
       greeting: greeting,
@@ -270,8 +294,10 @@
       signRole: signRole,
       imageUrl: mailbox.imageUrl,
       agentName: mailbox.name,
+      agentSlug: mailbox.slug,
       role: mailbox.role,
       theme: mailbox.theme,
+      memberId: String((profile && profile.memberId) || '').trim(),
       plainCopy: 'Subject: ' + subject + '\nFrom: ' + mailbox.fromName + '\n\n' + bodyPlain
     };
   }
@@ -301,7 +327,7 @@
       '</div>' +
       '<dl class="gw-mail-meta">' +
       '<div class="gw-mail-meta-row"><dt>From</dt><dd id="gw-mail-from"></dd></div>' +
-      '<div class="gw-mail-meta-row"><dt>To</dt><dd id="gw-mail-to"></dd></div>' +
+      '<div class="gw-mail-meta-row"><dt>To</dt><dd id="gw-mail-to-wrap"><span id="gw-mail-to"></span><input type="email" class="gw-mail-to-input" id="gw-mail-to-input" hidden placeholder="you@example.com" autocomplete="email"></dd></div>' +
       '<div class="gw-mail-meta-row"><dt>Subject</dt><dd id="gw-mail-subject"></dd></div>' +
       '</dl>' +
       '<div class="gw-mail-letter-wrap">' +
@@ -364,7 +390,68 @@
       }
     });
 
+    overlayEl.querySelector('#gw-mail-send').addEventListener('click', function () {
+      sendPreviewEmail();
+    });
+
     return overlayEl;
+  }
+
+  function resolveSendTo() {
+    var input = overlayEl && overlayEl.querySelector('#gw-mail-to-input');
+    if (input && !input.hidden && input.value) return String(input.value || '').trim();
+    return (lastPreview && lastPreview.toEmail) || '';
+  }
+
+  async function sendPreviewEmail() {
+    if (!overlayEl || !lastPreview) return;
+    var note = overlayEl.querySelector('#gw-mail-note');
+    var btn = overlayEl.querySelector('#gw-mail-send');
+    if (!mailStatus || !mailStatus.sendEnabled) {
+      if (note) {
+        note.textContent =
+          'Send is not live yet — add App password on Render and set AGENT_MAIL_SEND_ENABLED=1.';
+      }
+      return;
+    }
+    var to = resolveSendTo();
+    if (!to || to.indexOf('@') === -1) {
+      if (note) note.textContent = 'Enter a valid To: email before sending.';
+      return;
+    }
+    btn.disabled = true;
+    btn.classList.add('is-sending');
+    btn.textContent = 'Sending…';
+    if (note) note.textContent = 'Sending via Green Ways Transition Agents…';
+    try {
+      var res = await fetch(apiBase() + '/api/agent-mail/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: to,
+          agentSlug: lastPreview.agentSlug,
+          subject: lastPreview.subject,
+          summary: lastPreview.summary,
+          greeting: lastPreview.greeting,
+          link: lastPreview.link,
+          memberId: lastPreview.memberId || ''
+        })
+      });
+      var data = await res.json().catch(function () {
+        return {};
+      });
+      if (!res.ok || !data.ok) {
+        throw new Error((data && (data.error || data.code)) || 'Send failed');
+      }
+      if (note) note.textContent = 'Sent to ' + to + ' — check inbox (and spam) for the agent note.';
+      btn.textContent = 'Sent';
+    } catch (err) {
+      if (note) note.textContent = 'Send failed: ' + (err && err.message ? err.message : 'unknown error');
+      btn.disabled = false;
+      btn.textContent = 'Send';
+    } finally {
+      btn.classList.remove('is-sending');
+    }
   }
 
   function setAvatar(imgEl, url, name) {
@@ -383,11 +470,13 @@
     opts = opts || {};
     var registry = await loadMailboxes();
     var roster = await loadRoster();
+    await refreshMailStatus();
     var slug = opts.agentSlug || (lastTurn && lastTurn.agentSlug) || agentSlugFromPath();
     var mailbox = resolveMailbox(slug, registry, roster);
     var profile = resolveProfile(opts.getProfile);
     var turn = opts.turn || lastTurn || {};
     var preview = buildPreview(mailbox, profile, turn);
+    lastPreview = preview;
     var el = ensureOverlay();
 
     el.className = 'gw-mail-overlay theme-' + (preview.theme || 'finance');
@@ -411,8 +500,21 @@
       '</div>';
 
     var toEl = el.querySelector('#gw-mail-to');
-    toEl.textContent = preview.to;
-    toEl.classList.toggle('muted', !!preview.toMuted);
+    var toInput = el.querySelector('#gw-mail-to-input');
+    var canSend = !!(mailStatus && mailStatus.sendEnabled);
+    if (preview.toEmail) {
+      toEl.textContent = preview.toEmail;
+      toEl.hidden = false;
+      toEl.classList.remove('muted');
+      toInput.hidden = true;
+      toInput.value = preview.toEmail;
+    } else {
+      toEl.textContent = canSend ? '' : preview.to;
+      toEl.classList.toggle('muted', !canSend);
+      toEl.hidden = canSend;
+      toInput.hidden = !canSend;
+      toInput.value = '';
+    }
     el.querySelector('#gw-mail-subject').textContent = preview.subject;
     el.querySelector('#gw-mail-greeting').textContent = preview.greeting;
     el.querySelector('#gw-mail-prose').textContent = preview.summary;
@@ -421,8 +523,17 @@
     linkEl.textContent = preview.link;
     el.querySelector('#gw-mail-sign-name').textContent = preview.signName;
     el.querySelector('#gw-mail-sign-role').textContent = preview.signRole;
-    el.querySelector('#gw-mail-note').textContent =
-      'Sending is not enabled yet — stylish preview for now. Copy works anytime.';
+
+    var sendBtn = el.querySelector('#gw-mail-send');
+    sendBtn.disabled = !canSend;
+    sendBtn.textContent = 'Send';
+    sendBtn.title = canSend
+      ? 'Send via gwta@greenwaysrestaurants.com'
+      : 'Sending not enabled yet — configure SMTP on Render';
+    el.querySelector('#gw-mail-note').textContent = canSend
+      ? 'Ready to send from Green Ways Transition Agents (gwta@…). Rate-limited.'
+      : 'Sending unlocks after App password + AGENT_MAIL_SEND_ENABLED on Render. Copy works anytime.';
+    el.querySelector('#gw-mail-badge').textContent = canSend ? 'Live send' : 'Preview only';
     el._copyText = preview.plainCopy;
     el.hidden = false;
     try {
