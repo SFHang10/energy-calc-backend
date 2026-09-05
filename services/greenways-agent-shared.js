@@ -647,6 +647,64 @@ function meaningForProfile(profile = {}, context = {}) {
   return `${where}, ${topicHint} is about **${focusHint}** and what you can act on next.`;
 }
 
+/** User asking to email / send themselves an answer (Wave 9 Email me this). */
+function looksLikeEmailMeRequest(question) {
+  const q = String(question || '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!q) return false;
+  const patterns = [
+    /\bemail me\b/,
+    /\be-?mail me\b/,
+    /\bsend me (an? )?(email|e-?mail|this|that|a (copy|summary|note))\b/,
+    /\b(email|e-?mail) (me )?(this|that|the answer|a copy|a summary)\b/,
+    /\bcan you (email|e-?mail)\b/,
+    /\bcould you (email|e-?mail)\b/,
+    /\bmail (me|this)\b/,
+    /\bemail (it|this) to me\b/,
+    /\bforward (this|that) (by )?email\b/,
+    /\bsend (this|that) (to my )?(email|inbox)\b/
+  ];
+  return patterns.some((re) => re.test(q));
+}
+
+/**
+ * Grounded answer for Email me this — points at the compose-bar ✉️ control.
+ * Keeps any existing blocks/suggestions from a prior knowledge hit.
+ */
+function buildEmailMeThisAnswer(agentKeyOrName, base = {}) {
+  const names = {
+    grants: 'Andrieus',
+    finance: 'Vincent',
+    equipment: 'Artemis',
+    deals: 'Zara',
+    media: 'Cheryce',
+    'sustainable-products': 'Zyanne',
+    systems: 'Edwardo'
+  };
+  const key = String(agentKeyOrName || '').trim();
+  const name = names[key] || key || 'your Greenways agent';
+  const answer =
+    `Yes — use **Email me this** (the ✉️ button next to Listen under the chat). ` +
+    `It opens a preview of a note from **${name}** with a short summary of the last answer and a link back here.\n\n` +
+    `Sending from Greenways is not switched on yet, so the panel is a **preview**: you can **Copy text** into your own mail, or close and keep chatting. ` +
+    `When outbound mail goes live, the same button will send to your member email.\n\n` +
+    `If you have not asked a content question yet, ask me first, then tap ✉️ so the summary has something useful to include. ` +
+    `Link tablets on the right still open the official sources if you prefer to bookmark those yourself.`;
+
+  return {
+    ...(base && typeof base === 'object' ? base : {}),
+    answer,
+    intentId: 'email_me_this',
+    source: 'knowledge',
+    suggestions: Array.isArray(base?.suggestions) ? base.suggestions : [],
+    blocks: Array.isArray(base?.blocks) ? base.blocks : [],
+    productSamples: Array.isArray(base?.productSamples) ? base.productSamples : [],
+    agentHandoffs: Array.isArray(base?.agentHandoffs) ? base.agentHandoffs : []
+  };
+}
+
 /**
  * Shared handoff chip builder — replaces duplicated buildHandoffs() per agent over time.
  * @param {object} briefing — agent briefing with handoffs map
@@ -796,6 +854,8 @@ module.exports = {
   pickProductSamples,
   getDefaultProductSamples,
   meaningForProfile,
+  looksLikeEmailMeRequest,
+  buildEmailMeThisAnswer,
   buildAgentHandoff,
   MEDIA_HANDOFF_RULES,
   FINANCE_HANDOFF_RULES

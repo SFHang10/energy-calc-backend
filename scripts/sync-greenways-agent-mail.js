@@ -72,16 +72,6 @@ function ensureComposeButton(html) {
 }
 
 function ensureMailOnTurn(html) {
-  if (html.includes('GreenwaysAgentMail.setLastTurn') || html.includes('gwMailHandle.setLastTurn')) {
-    return html;
-  }
-  const voiceHook =
-    '      if (gwVoiceHandle && gwVoiceHandle.maybeAutoSpeak && payload.spokenSummary) {\n' +
-    '        gwVoiceHandle.maybeAutoSpeak(payload.spokenSummary);\n' +
-    '      } else if (window.GreenwaysAgentVoice && payload.spokenSummary) {\n' +
-    '        GreenwaysAgentVoice.setLastSpokenSummary(payload.spokenSummary);\n' +
-    '      }';
-
   const mailHook =
     '\n      if (window.GreenwaysAgentMail) {\n' +
     '        GreenwaysAgentMail.setLastTurn({\n' +
@@ -91,16 +81,33 @@ function ensureMailOnTurn(html) {
     '          intentId: typeof intentId !== "undefined" ? intentId : (payload.intentId || ""),\n' +
     '          agentSlug: (typeof AGENT_PROFILE !== "undefined" && AGENT_PROFILE && AGENT_PROFILE.slug) ? AGENT_PROFILE.slug : undefined\n' +
     '        });\n' +
+    '        var _mailQ = payload.question || (typeof lastQuestion !== "undefined" ? lastQuestion : "");\n' +
+    '        if (payload.intentId === "email_me_this" || GreenwaysAgentMail.looksLikeEmailRequest(_mailQ)) {\n' +
+    '          try { GreenwaysAgentMail.openPreview({ getProfile: typeof profileForAsk === "function" ? profileForAsk : (typeof getProfile === "function" ? getProfile : null) }); } catch (_) {}\n' +
+    '        }\n' +
     '      }';
 
-  if (html.includes(voiceHook) && !html.includes('GreenwaysAgentMail.setLastTurn')) {
-    return html.replace(voiceHook, voiceHook + mailHook);
+  if (html.includes('GreenwaysAgentMail.looksLikeEmailRequest')) {
+    return html;
+  }
+
+  // Upgrade older setLastTurn-only hooks (tolerate CRLF — common on Windows).
+  const oldHookRe =
+    /\r?\n      if \(window\.GreenwaysAgentMail\) \{\r?\n        GreenwaysAgentMail\.setLastTurn\(\{[\s\S]*?\}\);\r?\n      \}/;
+  if (oldHookRe.test(html)) {
+    return html.replace(oldHookRe, mailHook);
+  }
+
+  const voiceHookRe =
+    /      if \(gwVoiceHandle && gwVoiceHandle\.maybeAutoSpeak && payload\.spokenSummary\) \{\r?\n        gwVoiceHandle\.maybeAutoSpeak\(payload\.spokenSummary\);\r?\n      \} else if \(window\.GreenwaysAgentVoice && payload\.spokenSummary\) \{\r?\n        GreenwaysAgentVoice\.setLastSpokenSummary\(payload\.spokenSummary\);\r?\n      \}/;
+  if (voiceHookRe.test(html)) {
+    return html.replace(voiceHookRe, (m) => m + mailHook);
   }
 
   // Systems agent uses a shorter status string.
   if (html.includes('setStatus("Answered"') && !html.includes('GreenwaysAgentMail.setLastTurn')) {
     return html.replace(
-      /(else if \(window\.GreenwaysAgentVoice && payload\.spokenSummary\) \{\n\s*GreenwaysAgentVoice\.setLastSpokenSummary\(payload\.spokenSummary\);\n\s*\})/,
+      /(else if \(window\.GreenwaysAgentVoice && payload\.spokenSummary\) \{\r?\n\s*GreenwaysAgentVoice\.setLastSpokenSummary\(payload\.spokenSummary\);\r?\n\s*\})/,
       `$1${mailHook}`
     );
   }

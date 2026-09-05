@@ -125,6 +125,25 @@
     return lastTurn;
   }
 
+  function looksLikeEmailRequest(text) {
+    var q = String(text || '')
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!q) return false;
+    return (
+      /\bemail me\b/.test(q) ||
+      /\be-?mail me\b/.test(q) ||
+      /\bsend me (an? )?(email|e-?mail|this|that|a (copy|summary|note))\b/.test(q) ||
+      /\b(email|e-?mail) (me )?(this|that|the answer|a copy|a summary)\b/.test(q) ||
+      /\bcan you (email|e-?mail)\b/.test(q) ||
+      /\bcould you (email|e-?mail)\b/.test(q) ||
+      /\bmail (me|this)\b/.test(q) ||
+      /\bemail (it|this) to me\b/.test(q) ||
+      /\bsend (this|that) (to my )?(email|inbox)\b/.test(q)
+    );
+  }
+
   function buildPreview(mailbox, profile, turn) {
     var summary =
       (turn && (turn.spokenSummary || turn.answer)) ||
@@ -305,6 +324,7 @@
     init: init,
     openPreview: openPreview,
     setLastTurn: setLastTurn,
-    getLastTurn: getLastTurn
+    getLastTurn: getLastTurn,
+    looksLikeEmailRequest: looksLikeEmailRequest
   };
 })(typeof window !== 'undefined' ? window : globalThis);

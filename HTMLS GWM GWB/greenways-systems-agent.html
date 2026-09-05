@@ -668,12 +668,16 @@
       }
       if (window.GreenwaysAgentMail) {
         GreenwaysAgentMail.setLastTurn({
-          question: typeof lastQuestion !== "undefined" ? lastQuestion : "",
-          answer: payload.answer || "",
+          question: payload.question || (typeof lastQuestion !== "undefined" ? lastQuestion : ""),
+          answer: typeof answer !== "undefined" ? answer : (payload.answer || ""),
           spokenSummary: payload.spokenSummary || "",
-          intentId: payload.intentId || "",
-          agentSlug: "systems-agent"
+          intentId: typeof intentId !== "undefined" ? intentId : (payload.intentId || ""),
+          agentSlug: (typeof AGENT_PROFILE !== "undefined" && AGENT_PROFILE && AGENT_PROFILE.slug) ? AGENT_PROFILE.slug : undefined
         });
+        var _mailQ = payload.question || (typeof lastQuestion !== "undefined" ? lastQuestion : "");
+        if (payload.intentId === "email_me_this" || GreenwaysAgentMail.looksLikeEmailRequest(_mailQ)) {
+          try { GreenwaysAgentMail.openPreview({ getProfile: typeof profileForAsk === "function" ? profileForAsk : (typeof getProfile === "function" ? getProfile : null) }); } catch (_) {}
+        }
       }
     });
   }

@@ -9,7 +9,9 @@ const {
   toSuggestion,
   conversationalSystemLines,
   meaningForProfile,
-  sanitizeLeftColumnProse
+  sanitizeLeftColumnProse,
+  looksLikeEmailMeRequest,
+  buildEmailMeThisAnswer
 } = require('./greenways-agent-shared');
 const {
   pickProductSamples: pickGrantsProductSamples,
@@ -82,7 +84,8 @@ const AGENT_PROFILES = {
       'Use energyPriceContext when discussing payback or tariffs — do not invent retail bill amounts.',
       'Say **efficient equipment** (not "efficient kit") when describing Product Calculator or upgrade paths.',
       'Ask if they want a term explained (BNPL, green loan, unit rate vs standing charge).',
-      'Do NOT list items as markdown bullets in the left column.'
+      'Do NOT list items as markdown bullets in the left column.',
+      'If they ask to email something, point them to the Email me this (envelope) button under the chat — never say you cannot email or that you only live in chat.'
     ]
   },
   equipment: {
@@ -483,6 +486,7 @@ function buildPolishSystemPrompt(agentKey) {
     'Do NOT paste link catalogues — point to tablets on the right when examples exist.',
     'Do NOT mention .json filenames — refer to Schemes, deals feed, catalogues, or portals in plain language.',
     'Do NOT use **kit** as shorthand for appliances — say **equipment** (except official supplier product names).',
+    'Never claim you cannot email or only live in chat — Email me this (envelope button) opens a preview; sending may still be preview-only.',
     'Keep all factual claims from originalAnswer; you may reorder and explain jargon.',
     'Return plain markdown prose only — no JSON wrapper.'
   ].join(' ');
@@ -493,6 +497,7 @@ function buildPolishSystemPrompt(agentKey) {
  */
 async function maybePolishKnowledgeAnswer(agentKey, knowledge, question, profile = {}) {
   if (!knowledge?.answer || !isPolishEnabled(agentKey)) return knowledge;
+  if (looksLikeEmailMeRequest(question) || knowledge.intentId === 'email_me_this') return knowledge;
   if (!isPolishIntentAllowed(agentKey, knowledge.intentId)) return knowledge;
 
   const polished = await maybeCallGreenwaysLlm({
@@ -540,12 +545,19 @@ function enrichWithMeaning(knowledge, profile, context = {}) {
  * Standard knowledge-hit response for agent routes (meaning line + optional polish).
  */
 async function finishKnowledgeAskResponse(agentKey, knowledge, question, profile = {}, context = {}) {
-  if (!knowledge?.answer) return null;
-  const skipMeaning = Boolean(knowledge.checkReport) || /_status$/.test(knowledge.intentId || '');
+  let working = knowledge;
+  if (looksLikeEmailMeRequest(question)) {
+    working = buildEmailMeThisAnswer(agentKey, knowledge && knowledge.answer ? knowledge : {});
+  }
+  if (!working?.answer) return null;
+  const skipMeaning =
+    Boolean(working.checkReport) ||
+    /_status$/.test(working.intentId || '') ||
+    working.intentId === 'email_me_this';
   const withMeaning =
     skipMeaning || process.env.GREENWAYS_AGENT_MEANING === '0'
-      ? knowledge
-      : enrichWithMeaning(knowledge, profile, context);
+      ? working
+      : enrichWithMeaning(working, profile, context);
   const final = await maybePolishKnowledgeAnswer(agentKey, withMeaning, question, profile);
   const answer = sanitizeLeftColumnProse(final.answer);
   const response = {
@@ -571,6 +583,13 @@ async function finishKnowledgeAskResponse(agentKey, knowledge, question, profile
 }
 
 async function buildAgentAskFallback(agentKey, question, profile = {}) {
+  if (looksLikeEmailMeRequest(question)) {
+    const email = buildEmailMeThisAnswer(agentKey, {});
+    email.answer = sanitizeLeftColumnProse(email.answer);
+    email.ok = true;
+    email.spokenSummary = spokenSummary(email.answer, 45);
+    return email;
+  }
   const builder = FALLBACK_BUILDERS[agentKey];
   if (!builder) {
     throw new Error(`No LLM fallback builder for agent: ${agentKey}`);
