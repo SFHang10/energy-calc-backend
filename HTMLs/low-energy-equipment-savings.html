@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy-Efficient Equipment Savings Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0a1628 0%, #1a2f4a 100%); color: #e0e0e0; line-height: 1.6; min-height: 100vh; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        header { background: linear-gradient(135deg, #122642 0%, #0c1a2d 100%); padding: 40px 20px; text-align: center; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+        header h1 { font-size: clamp(2em, 5vw, 3.5em); color: #ffffff; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        header p { font-size: clamp(1.1em, 3vw, 1.4em); color: #f0f0f0; opacity: 0.95; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; background: rgba(18,38,66,0.2); padding: 15px; border-radius: 10px; }
+        .tab { background: linear-gradient(135deg, #c0c0c0 0%, #a8a8a8 100%); color: #1a2f4a; border: 2px solid rgba(255,255,255,0.95); border-bottom: 3px solid #2fb9ff; padding: 15px 30px; border-radius: 10px; cursor: pointer; font-size: 1.05em; font-weight: 600; transition: all 0.3s ease; flex: 1; min-width: 150px; box-shadow: 0 4px 12px rgba(0,0,0,0.25), 0 0 12px rgba(47,185,255,0.45); text-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+        .tab:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(0,0,0,0.35), 0 0 16px rgba(47,185,255,0.6); }
+        .tab.active { background: linear-gradient(135deg, #122642 0%, #0c1a2d 100%); color: white; box-shadow: 0 6px 18px rgba(18,38,66,0.65), 0 0 20px rgba(47,185,255,0.7); }
+        .tab-content { display: none; animation: fadeIn 0.5s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .content-card { background: rgba(255,255,255,0.08); border-radius: 15px; padding: 30px; margin-bottom: 25px; border: 1px solid rgba(192,192,192,0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .content-card h2 { color: #2fb9ff; font-size: clamp(1.6em, 4vw, 2.2em); margin-bottom: 20px; border-bottom: 3px solid #122642; padding-bottom: 10px; }
+        .content-card h3 { color: #c0c0c0; font-size: 1.5em; margin: 25px 0 15px 0; }
+        .comparison-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin: 30px 0; }
+        .comparison-card { background: rgba(18,38,66,0.15); border-radius: 12px; padding: 25px; border: 2px solid; transition: all 0.3s ease; }
+        .comparison-card.old { border-color: #d32f2f; }
+        .comparison-card.new { border-color: #388e3c; }
+        .comparison-card:hover { transform: scale(1.03); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+        .comparison-card h4 { text-align: center; font-size: 1.4em; margin-bottom: 20px; padding: 10px; border-radius: 8px; }
+        .comparison-card.old h4 { background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%); color: white; }
+        .comparison-card.new h4 { background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%); color: white; }
+        .product-image { width: 100%; max-width: 300px; height: 300px; object-fit: contain; border-radius: 10px; margin: 20px auto; display: block; background: white; padding: 10px; }
+        .stat-row { display: flex; justify-content: space-between; padding: 12px 15px; margin: 8px 0; background: rgba(255,255,255,0.05); border-radius: 6px; border-left: 4px solid #2fb9ff; }
+        .stat-label { font-weight: 600; color: #c0c0c0; }
+        .stat-value { color: #ffffff; font-weight: bold; }
+        .highlight { background: linear-gradient(120deg, #122642 0%, #0c1a2d 100%); padding: 3px 10px; border-radius: 5px; color: white; font-weight: bold; }
+        .savings-highlight { background: linear-gradient(120deg, #388e3c 0%, #2e7d32 100%); padding: 3px 10px; border-radius: 5px; color: white; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin: 25px 0; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
+        th { background: linear-gradient(135deg, #122642 0%, #0c1a2d 100%); color: white; padding: 15px; text-align: left; font-weight: 600; }
+        td { padding: 12px 15px; border-bottom: 1px solid rgba(192,192,192,0.1); }
+        tr:hover { background: rgba(18,38,66,0.1); }
+        .chart-container { background: rgba(255,255,255,0.95); border-radius: 12px; padding: 25px; margin: 25px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .banner-images { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 30px 0; }
+        .banner-image { width: 100%; height: 250px; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+        .info-box { background: rgba(18,38,66,0.2); border-left: 5px solid #2fb9ff; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .info-box h4 { color: #2fb9ff; margin-bottom: 10px; }
+        .big-number { font-size: 3em; font-weight: bold; color: #388e3c; text-align: center; margin: 20px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .side-by-side { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 30px 0; }
+        .currency-note { background: rgba(47,185,255,0.1); border: 1px solid rgba(47,185,255,0.3); border-radius: 8px; padding: 10px 15px; margin: 10px 0; font-size: 0.9em; color: #c0c0c0; }
+        @media (max-width: 768px) { .side-by-side { grid-template-columns: 1fr; } .tabs { flex-direction: column; } .tab { min-width: 100%; } }
+        .glossary-term { background: rgba(192,192,192,0.1); padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #c0c0c0; }
+        .glossary-term strong { color: #2fb9ff; font-size: 1.1em; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>💡 Energy-Efficient Equipment Savings Analysis</h1>
+        <p>Discover how energy-efficient appliances save money, reduce carbon footprint, and improve your bottom line</p>
+    </header>
+
+    <div class="tabs">
+        <button class="tab active" onclick="openTab(event, 'overview')">🏠 Overview</button>
+        <button class="tab" onclick="openTab(event, 'comparison')">⚖️ Side-by-Side Comparison</button>
+        <button class="tab" onclick="openTab(event, 'savings')">💶 Cost Savings</button>
+        <button class="tab" onclick="openTab(event, 'charts')">📊 Charts &amp; Data</button>
+        <button class="tab" onclick="openTab(event, 'maintenance')">🔧 Maintenance</button>
+        <button class="tab" onclick="openTab(event, 'glossary')">📚 Glossary</button>
+    </div>
+
+    <!-- OVERVIEW TAB -->
+    <div id="overview" class="tab-content active">
+        <div class="content-card">
+            <h2>Why Choose Energy-Efficient Equipment?</h2>
+
+            <!-- Hero / banner images to visually match the classic version -->
+            <div class="banner-images">
+                <img src="https://static.wixstatic.com/media/c123de_b7fef0026496436aaa2816e06d31e8cf~mv2.png"
+                     alt="Efficient kitchen equipment overview"
+                     class="banner-image">
+                <img src="https://static.wixstatic.com/media/c123de_988c141478e044d5ba8d137d2a451713~mv2.png"
+                     alt="Modern restaurant kitchen"
+                     class="banner-image">
+                <img src="https://static.wixstatic.com/media/c123de_ecc860a8b68f4b59babfe59843d6bd7a~mv2.png"
+                     alt="Energy efficient restaurant appliances"
+                     class="banner-image">
+            </div>
+
+            <p style="font-size:1.2em;margin:25px 0;">Energy-efficient equipment isn't just environmentally friendly—it's a smart financial decision that pays dividends year after year. Modern energy-efficient appliances use <span class="highlight">up to 50% less electricity</span> than older models, translating to substantial cost savings.</p>
+            <div class="info-box">
+                <h4>🌍 Environmental Impact</h4>
+                <p>By switching to energy-efficient equipment, you're not only saving money but also reducing carbon emissions. A single energy-efficient refrigerator can prevent approximately <strong>700kg of CO₂</strong> emissions over 10 years compared to an older model.</p>
+            </div>
+            <div class="currency-note">💱 All prices shown in both British Pounds (£) and Euros (€). Conversion based on approximate rate of £1 = €1.17.</div>
+            <h3>Key Benefits at a Glance</h3>
+            <div class="comparison-grid">
+                <div class="content-card">
+                    <h4 style="color:#388e3c;">💶 Cost Savings</h4>
+                    <p>Save <strong>£38–70 / €44–82 per year</strong> per appliance on electricity costs</p>
+                </div>
+                <div class="content-card">
+                    <h4 style="color:#388e3c;">⚡ Energy Reduction</h4>
+                    <p>Cut electricity consumption by <strong>50%</strong> or more</p>
+                </div>
+                <div class="content-card">
+                    <h4 style="color:#388e3c;">🔧 Lower Maintenance</h4>
+                    <p>Modern components mean <strong>20–30% fewer repairs</strong></p>
+                </div>
+                <div class="content-card">
+                    <h4 style="color:#388e3c;">📈 ROI</h4>
+                    <p>Payback period of <strong>2–4 years</strong> on average</p>
+                </div>
+            </div>
+            <div class="big-number">£380–£780 / €445–€913</div>
+            <p style="text-align:center;font-size:1.2em;margin-bottom:30px;">Savings over 10 years per appliance</p>
+        </div>
+    </div>
+
+    <!-- COMPARISON TAB -->
+    <div id="comparison" class="tab-content">
+        <div class="content-card">
+            <h2>⚖️ Direct Comparison: Old vs. New</h2>
+            <p style="font-size:1.15em;margin-bottom:15px;">See the clear differences between a standard older commercial fridge and a modern ETL-listed energy-efficient model.</p>
+            <div class="currency-note">💱 Prices shown in both £ GBP and € EUR (approx. £1 = €1.17).</div>
+
+            <div class="side-by-side">
+                <!-- OLD FRIDGE -->
+                <div class="comparison-card old">
+                    <h4>❌ Standard Older Fridge</h4>
+                    <div class="stat-row"><span class="stat-label">Annual Energy Use:</span><span class="stat-value">280 kWh/year</span></div>
+                    <div class="stat-row"><span class="stat-label">UK Annual Cost:</span><span class="stat-value">£75.60 / €88.45</span></div>
+                    <div class="stat-row"><span class="stat-label">EU Annual Cost:</span><span class="stat-value">€78.40 / £66.97</span></div>
+                    <div class="stat-row"><span class="stat-label">Efficiency Rating:</span><span class="stat-value">F–G Class</span></div>
+                    <div class="stat-row"><span class="stat-label">Technology:</span><span class="stat-value">Older compressor</span></div>
+                    <div class="stat-row"><span class="stat-label">Maintenance Cost (10yr):</span><span class="stat-value">£500–800 / €585–936</span></div>
+                    <div class="stat-row"><span class="stat-label">Lifespan:</span><span class="stat-value">8–12 years</span></div>
+                </div>
+                <!-- NEW FRIDGE -->
+                <div class="comparison-card new">
+                    <h4>✅ ETL Energy-Efficient Fridge</h4>
+                    <div class="stat-row"><span class="stat-label">Annual Energy Use:</span><span class="stat-value">140 kWh/year</span></div>
+                    <div class="stat-row"><span class="stat-label">UK Annual Cost:</span><span class="stat-value">£37.80 / €44.23</span></div>
+                    <div class="stat-row"><span class="stat-label">EU Annual Cost:</span><span class="stat-value">€39.20 / £33.50</span></div>
+                    <div class="stat-row"><span class="stat-label">Efficiency Rating:</span><span class="stat-value">A–C Class</span></div>
+                    <div class="stat-row"><span class="stat-label">Technology:</span><span class="stat-value">Variable-speed compressor</span></div>
+                    <div class="stat-row"><span class="stat-label">Maintenance Cost (10yr):</span><span class="stat-value">£250–400 / €293–468</span></div>
+                    <div class="stat-row"><span class="stat-label">Lifespan:</span><span class="stat-value">12–15 years</span></div>
+                </div>
+            </div>
+
+            <div class="info-box" style="background:rgba(56,142,60,0.2);border-color:#388e3c;">
+                <h4 style="color:#388e3c;">💚 Annual Savings Summary</h4>
+                <p style="font-size:1.15em;">By choosing the ETL energy-efficient model, you save:</p>
+                <ul style="font-size:1.1em;margin-top:15px;">
+                    <li><strong>140 kWh</strong> of electricity per year (50% reduction)</li>
+                    <li><strong>£37.80 / €44.23</strong> in the UK annually</li>
+                    <li><strong>€39.20 / £33.50</strong> in the EU annually</li>
+                    <li><strong>£250–400 / €293–468</strong> in reduced maintenance costs over 10 years</li>
+                    <li><strong>700kg CO₂</strong> emissions prevented over 10 years</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SAVINGS TAB -->
+    <div id="savings" class="tab-content">
+        <div class="content-card">
+            <h2>💶 Detailed Cost Savings Analysis</h2>
+            <div class="currency-note">💱 All figures shown in both £ GBP and € EUR (approx. £1 = €1.17). UK rate: £0.27/kWh. EU rate: €0.28/kWh.</div>
+
+            <h3>Annual Running Costs Comparison</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Equipment Type</th>
+                        <th>Annual kWh</th>
+                        <th>UK Cost (£0.27/kWh)</th>
+                        <th>EU Cost (€0.28/kWh)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Standard Older Fridge</td>
+                        <td>280 kWh</td>
+                        <td>£75.60 <em>(€88.45)</em></td>
+                        <td>€78.40 <em>(£66.97)</em></td>
+                    </tr>
+                    <tr>
+                        <td>ETL Energy-Efficient Fridge</td>
+                        <td>140 kWh</td>
+                        <td>£37.80 <em>(€44.23)</em></td>
+                        <td>€39.20 <em>(£33.50)</em></td>
+                    </tr>
+                    <tr style="background:rgba(56,142,60,0.2);font-weight:bold;">
+                        <td>Annual Savings</td>
+                        <td>140 kWh (50%)</td>
+                        <td><span class="savings-highlight">£37.80 / €44.23</span></td>
+                        <td><span class="savings-highlight">€39.20 / £33.50</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Multi-Year Savings Projection</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time Period</th>
+                        <th>Energy Saved</th>
+                        <th>UK Savings £ / €</th>
+                        <th>EU Savings € / £</th>
+                        <th>CO₂ Prevented</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1 Year</td>
+                        <td>140 kWh</td>
+                        <td>£38 / €44</td>
+                        <td>€39 / £33</td>
+                        <td>70 kg</td>
+                    </tr>
+                    <tr>
+                        <td>5 Years</td>
+                        <td>700 kWh</td>
+                        <td>£190 / €222</td>
+                        <td>€195 / £167</td>
+                        <td>350 kg</td>
+                    </tr>
+                    <tr style="background:rgba(56,142,60,0.2);font-weight:bold;">
+                        <td>10 Years</td>
+                        <td>1,400 kWh</td>
+                        <td><span class="savings-highlight">£380 / €445</span></td>
+                        <td><span class="savings-highlight">€390 / £333</span></td>
+                        <td>700 kg</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="info-box">
+                <h4>📈 With Rising Energy Prices</h4>
+                <p>Energy prices typically increase 3–5% annually. If prices rise by just 4% per year, your 10-year savings could exceed <strong>£450 / €527</strong> in the UK or <strong>€460 / £393</strong> in the EU. The gap widens over time, making energy-efficient equipment an even smarter investment.</p>
+            </div>
+
+            <h3>Total Cost of Ownership (10 Years, UK)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cost Category</th>
+                        <th>Standard Fridge</th>
+                        <th>Energy-Efficient Fridge</th>
+                        <th>Difference</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Initial Purchase</td>
+                        <td>£400 / €468</td>
+                        <td>£650 / €761</td>
+                        <td>-£250 / -€293</td>
+                    </tr>
+                    <tr>
+                        <td>Energy Costs (10yr, UK)</td>
+                        <td>£756 / €885</td>
+                        <td>£378 / €442</td>
+                        <td><span class="savings-highlight">+£378 / +€442</span></td>
+                    </tr>
+                    <tr>
+                        <td>Maintenance (10yr)</td>
+                        <td>£650 / €761</td>
+                        <td>£325 / €380</td>
+                        <td><span class="savings-highlight">+£325 / +€380</span></td>
+                    </tr>
+                    <tr style="background:rgba(18,38,66,0.2);font-weight:bold;font-size:1.1em;">
+                        <td>Total 10-Year Cost</td>
+                        <td>£1,806 / €2,113</td>
+                        <td>£1,353 / €1,583</td>
+                        <td><span class="savings-highlight">+£453 / +€530 saved</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="big-number">£453 / €530</div>
+            <p style="text-align:center;font-size:1.2em;">Net savings over 10 years, even after higher initial cost</p>
+        </div>
+    </div>
+
+    <!-- CHARTS TAB -->
+    <div id="charts" class="tab-content">
+        <div class="content-card">
+            <h2>📊 Visual Data Analysis</h2>
+            <div class="currency-note">💱 UK figures in £ GBP; EU figures in € EUR. Approximate rate: £1 = €1.17.</div>
+
+            <h3>Annual Energy Consumption Comparison</h3>
+            <div class="chart-container"><canvas id="energyChart"></canvas></div>
+
+            <h3>Annual Cost Comparison (UK £ &amp; EU €)</h3>
+            <div class="chart-container"><canvas id="costChart"></canvas></div>
+
+            <h3>10-Year Cumulative Savings (UK £ &amp; EU €)</h3>
+            <div class="chart-container"><canvas id="cumulativeChart"></canvas></div>
+
+            <h3>Total Cost of Ownership — UK (10 Years, £)</h3>
+            <div class="chart-container"><canvas id="tcoChartUK"></canvas></div>
+
+            <h3>Total Cost of Ownership — EU (10 Years, €)</h3>
+            <div class="chart-container"><canvas id="tcoChartEU"></canvas></div>
+        </div>
+    </div>
+
+    <!-- MAINTENANCE TAB -->
+    <div id="maintenance" class="tab-content">
+        <div class="content-card">
+            <h2>🔧 Maintenance Requirements &amp; Costs</h2>
+            <p style="font-size:1.15em;margin-bottom:15px;">Energy-efficient equipment not only costs less to run but also requires less frequent maintenance due to superior build quality and modern components.</p>
+            <div class="currency-note">💱 All costs shown in both £ GBP and € EUR (approx. £1 = €1.17).</div>
+
+            <h3>Maintenance Schedule Comparison</h3>
+            <div class="side-by-side">
+                <div>
+                    <h4 style="color:#d32f2f;">Standard Fridge Maintenance</h4>
+                    <table>
+                        <thead><tr><th>Frequency</th><th>Task</th><th>Time / Cost</th></tr></thead>
+                        <tbody>
+                            <tr><td>Daily</td><td>Visual checks, cleaning</td><td>5–10 min</td></tr>
+                            <tr><td>Weekly</td><td>Condenser clean, temp check</td><td>15–20 min</td></tr>
+                            <tr><td>Monthly</td><td>Deep clean, lubrication</td><td>30–45 min</td></tr>
+                            <tr><td>Quarterly</td><td>Full service</td><td>1 hour</td></tr>
+                            <tr><td>Annual</td><td>Professional service</td><td>£100–150 / €117–176</td></tr>
+                            <tr style="background:rgba(211,47,47,0.2);"><td>10-Year Total</td><td>All maintenance + repairs</td><td><strong>£500–800 / €585–936</strong></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    <h4 style="color:#388e3c;">Energy-Efficient Fridge Maintenance</h4>
+                    <table>
+                        <thead><tr><th>Frequency</th><th>Task</th><th>Time / Cost</th></tr></thead>
+                        <tbody>
+                            <tr><td>Daily</td><td>Visual checks, cleaning</td><td>5 min</td></tr>
+                            <tr><td>Weekly</td><td>Condenser clean, temp check</td><td>10–15 min</td></tr>
+                            <tr><td>Monthly</td><td>Light cleaning, checks</td><td>20–30 min</td></tr>
+                            <tr><td>Quarterly</td><td>Service check</td><td>45 min</td></tr>
+                            <tr><td>Annual</td><td>Professional service</td><td>£60–120 / €70–140</td></tr>
+                            <tr style="background:rgba(56,142,60,0.2);"><td>10-Year Total</td><td>All maintenance + repairs</td><td><strong>£250–400 / €293–468</strong></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="info-box" style="background:rgba(56,142,60,0.2);border-color:#388e3c;">
+                <h4 style="color:#388e3c;">💡 Maintenance Savings</h4>
+                <p>Energy-efficient equipment saves <strong>£250–400 / €293–468</strong> in maintenance costs over 10 years due to:</p>
+                <ul>
+                    <li>Variable-speed compressors that reduce wear</li>
+                    <li>Better insulation preventing frost buildup</li>
+                    <li>High-quality seals lasting 4–5 years vs 2–3 years</li>
+                    <li>20–30% fewer service call-outs</li>
+                    <li>More durable components with longer warranties</li>
+                </ul>
+            </div>
+
+            <h3>Common Repair Costs</h3>
+            <table>
+                <thead>
+                    <tr><th>Repair Type</th><th>Standard Fridge</th><th>Energy-Efficient Fridge</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Door seal replacement</td><td>£50–100 / €59–117 (every 2–3 yrs)</td><td>£50–100 / €59–117 (every 4–5 yrs)</td></tr>
+                    <tr><td>Fan/motor repair</td><td>£150–250 / €176–293 (1–2× per life)</td><td>£100–200 / €117–234 (0–1× per life)</td></tr>
+                    <tr><td>Compressor repair</td><td>£300–500 / €351–585 (likely once)</td><td>£200–400 / €234–468 (rare)</td></tr>
+                    <tr><td>Thermostat replacement</td><td>£80–120 / €94–140</td><td>£60–100 / €70–117</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- GLOSSARY TAB -->
+    <div id="glossary" class="tab-content">
+        <div class="content-card">
+            <h2>📚 Glossary of Terms</h2>
+            <p style="margin-bottom:25px;">Understanding energy efficiency terminology helps make informed decisions.</p>
+
+            <div class="glossary-term">
+                <strong>kWh (Kilowatt-Hour)</strong>
+                <p>A unit of energy equal to one kilowatt (1,000 watts) used for one hour. Your electricity bill is calculated based on kWh consumption. For example, a 100-watt lightbulb running for 10 hours uses 1 kWh.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>Energy Efficiency Rating (A–G Scale)</strong>
+                <p>European energy labels rate appliances from A (most efficient) to G (least efficient). Modern standards have been updated, so older A+ ratings may now be C or D class. ETL-listed equipment typically achieves A–C ratings.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>ETL (Energy Technology List)</strong>
+                <p>A UK government database of energy-efficient products that meet strict performance criteria. Equipment on the ETL qualifies for Enhanced Capital Allowances, allowing businesses to claim 100% first-year tax relief.</p>
+                <p><a href="https://etl.energysecurity.gov.uk/" target="_blank" style="color:#2fb9ff;">Visit ETL Database →</a></p>
+            </div>
+            <div class="glossary-term">
+                <strong>Variable-Speed Compressor</strong>
+                <p>Modern compressor technology that adjusts speed based on cooling demand, unlike older fixed-speed compressors that run at full power or turn off completely. This reduces energy consumption by 30–50% and extends equipment life.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>CO₂ Emissions</strong>
+                <p>Carbon dioxide released when generating electricity. In the UK, each kWh produces approximately 0.5 kg CO₂. Reducing electricity consumption directly reduces your carbon footprint.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>Total Cost of Ownership (TCO)</strong>
+                <p>The complete cost of owning equipment over its lifetime, including purchase price, energy costs, maintenance, and disposal. TCO analysis often reveals that higher initial costs are offset by operational savings.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>Payback Period</strong>
+                <p>The time it takes for energy savings to equal the additional upfront cost of efficient equipment. For example, if an energy-efficient fridge costs £250 / €293 more but saves £50 / €59 per year, the payback period is 5 years.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>R-Value / U-Value</strong>
+                <p>Measures of insulation effectiveness. R-value measures resistance to heat flow (higher is better), while U-value measures heat transfer rate (lower is better). Better insulation reduces energy needed for cooling.</p>
+            </div>
+            <div class="info-box">
+                <h4>🔗 Useful Resources</h4>
+                <ul>
+                    <li><a href="https://etl.energysecurity.gov.uk/" target="_blank" style="color:#2fb9ff;">UK Energy Technology List (ETL)</a></li>
+                    <li><a href="https://www.energysavingtrust.org.uk/" target="_blank" style="color:#2fb9ff;">Energy Saving Trust</a></li>
+                    <li><a href="https://ec.europa.eu/energy/topics/energy-efficiency/energy-label-and-ecodesign_en" target="_blank" style="color:#2fb9ff;">EU Energy Label Information</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div><!-- end container -->
+
+<script>
+function openTab(evt, tabName) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(tabName).classList.add('active');
+    evt.currentTarget.classList.add('active');
+}
+
+// Energy Chart
+new Chart(document.getElementById('energyChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+        labels: ['Standard Fridge', 'Energy-Efficient Fridge'],
+        datasets: [{ label: 'Annual Energy Use (kWh)', data: [280, 140], backgroundColor: ['#d32f2f', '#388e3c'], borderWidth: 2, borderColor: ['#b71c1c', '#2e7d32'] }]
+    },
+    options: { responsive: true, plugins: { title: { display: true, text: 'Annual Energy Consumption (kWh/year)', font: { size: 18 } }, legend: { display: false } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'kWh per Year' } } } }
+});
+
+// Cost Chart — both currencies
+new Chart(document.getElementById('costChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+        labels: ['Standard Fridge\n(UK)', 'Energy-Efficient Fridge\n(UK)', 'Standard Fridge\n(EU)', 'Energy-Efficient Fridge\n(EU)'],
+        datasets: [
+            { label: 'UK Cost (£)', data: [75.60, 37.80, null, null], backgroundColor: '#2fb9ff' },
+            { label: 'EU Cost (€)', data: [null, null, 78.40, 39.20], backgroundColor: '#c0c0c0' }
+        ]
+    },
+    options: { responsive: true, plugins: { title: { display: true, text: 'Annual Running Costs — UK (£) and EU (€)', font: { size: 18 } } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'Annual Cost' } } } }
+});
+
+// Cumulative Chart — both currencies
+new Chart(document.getElementById('cumulativeChart').getContext('2d'), {
+    type: 'line',
+    data: {
+        labels: ['Yr 1','Yr 2','Yr 3','Yr 4','Yr 5','Yr 6','Yr 7','Yr 8','Yr 9','Yr 10'],
+        datasets: [
+            { label: 'UK Cumulative Savings (£)', data: [38,76,114,152,190,228,266,304,342,380], borderColor: '#388e3c', backgroundColor: 'rgba(56,142,60,0.1)', fill: true, tension: 0.4, borderWidth: 3 },
+            { label: 'EU Cumulative Savings (€)', data: [39,78,117,156,195,234,273,312,351,390], borderColor: '#2fb9ff', backgroundColor: 'rgba(47,185,255,0.08)', fill: true, tension: 0.4, borderWidth: 3, borderDash: [6,3] }
+        ]
+    },
+    options: { responsive: true, plugins: { title: { display: true, text: '10-Year Cumulative Savings — UK (£) vs EU (€)', font: { size: 18 } } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'Total Savings' } } } }
+});
+
+// TCO UK
+new Chart(document.getElementById('tcoChartUK').getContext('2d'), {
+    type: 'bar',
+    data: {
+        labels: ['Initial Cost','Energy (10yr)','Maintenance (10yr)','Total'],
+        datasets: [
+            { label: 'Standard Fridge (£)', data: [400, 756, 650, 1806], backgroundColor: '#d32f2f' },
+            { label: 'Energy-Efficient Fridge (£)', data: [650, 378, 325, 1353], backgroundColor: '#388e3c' }
+        ]
+    },
+    options: { responsive: true, plugins: { title: { display: true, text: 'Total Cost of Ownership — UK (£)', font: { size: 18 } } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'Cost (£)' } } } }
+});
+
+// TCO EU
+new Chart(document.getElementById('tcoChartEU').getContext('2d'), {
+    type: 'bar',
+    data: {
+        labels: ['Initial Cost','Energy (10yr)','Maintenance (10yr)','Total'],
+        datasets: [
+            { label: 'Standard Fridge (€)', data: [468, 885, 761, 2114], backgroundColor: '#d32f2f' },
+            { label: 'Energy-Efficient Fridge (€)', data: [761, 442, 380, 1583], backgroundColor: '#388e3c' }
+        ]
+    },
+    options: { responsive: true, plugins: { title: { display: true, text: 'Total Cost of Ownership — EU (€)', font: { size: 18 } } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'Cost (€)' } } } }
+});
+</script>
+</body>
+</html>
+
