@@ -28,7 +28,7 @@
             type: 'etl-official',
             short: 'Eligibility — products must meet top-quartile energy performance for their category',
             label: 'Top 25% efficiency criterion',
-            url: 'https://www.gov.uk/guidance/energy-technology-list-etl'
+            url: 'https://etl.energysecurity.gov.uk/'
         },
         'ref-etl-04': {
             num: 4,

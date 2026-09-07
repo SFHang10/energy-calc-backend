@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="wix-html-scroll" content="no-scroll">
 <title>Energy Cost Intelligence | Know Your Numbers</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -605,12 +604,57 @@
     padding: 14px;
     background: #eef6fc;
     border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
   }
-  .case-saving .s-label { font-size: 0.8rem; color: var(--muted); }
-  .case-saving .s-val { font-family: 'DM Mono', monospace; font-weight: 600; color: var(--safe); }
+
+  .case-saving-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 10px;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+  }
+
+  .case-saving-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .case-saving-amt {
+    background: rgba(255, 255, 255, 0.75);
+    border-radius: 6px;
+    padding: 10px 6px;
+    text-align: center;
+  }
+
+  .case-saving-amt .n {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+    font-weight: 700;
+    color: var(--forest);
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+
+  .case-saving--risk .case-saving-amt .n {
+    font-family: 'DM Mono', monospace;
+    font-size: clamp(0.88rem, 2.2vw, 1.05rem);
+    color: var(--safe);
+  }
+
+  .case-saving-amt .l {
+    font-size: 0.62rem;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .case-saving + .case-saving {
+    margin-top: 8px;
+  }
 
   /* ===== ETL SECTION ===== */
   .etl-section { background: var(--forest); color: var(--cream); }
@@ -715,6 +759,16 @@
   }
 
   .water-icon { font-size: 1.8rem; }
+  .gw-marketplace-name {
+    color: #1a5c3a;
+    font-weight: 700;
+  }
+  .water-section h2 .gw-marketplace-name {
+    font-size: 0.72em;
+    display: block;
+    margin-top: 0.35em;
+    font-family: 'DM Sans', sans-serif;
+  }
   .water-stat-row h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
   .water-stat-row p { font-size: 0.82rem; color: var(--muted); }
 
@@ -760,6 +814,252 @@
   }
   footer a { color: var(--leaf); text-decoration: none; }
 
+  /* ===== MEASURE CHECKBOXES ===== */
+  .measure-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .measure-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1.5px solid #b8d8ee;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+    position: relative;
+  }
+  .measure-check:hover { border-color: var(--leaf); background: #f0f9fe; }
+  .measure-check input[type=checkbox] { display: none; }
+  .measure-check.checked {
+    border-color: var(--leaf);
+    background: #eaf6fc;
+  }
+
+  .measure-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+  .measure-text {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--charcoal);
+    flex: 1;
+  }
+
+  .measure-save {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--safe);
+    background: rgba(27,168,212,0.1);
+    padding: 2px 6px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+
+  .measure-check.checked .measure-save {
+    background: rgba(27,168,212,0.2);
+    color: #0d85aa;
+  }
+
+  .measure-check::after {
+    content: '';
+    position: absolute;
+    top: 6px; right: 8px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid #b8d8ee;
+    background: white;
+    transition: all 0.2s;
+  }
+  .measure-check.checked::after {
+    background: var(--leaf);
+    border-color: var(--leaf);
+    content: '✓';
+    font-size: 9px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  .measure-summary {
+    margin-top: 10px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-style: italic;
+    min-height: 18px;
+    transition: color 0.3s;
+  }
+  .measure-summary.active { color: var(--safe); font-style: normal; font-weight: 500; }
+
+  /* ===== REFERENCES ===== */
+  .references-section { background: #f2f8fd; }
+
+  .ref-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 48px;
+    margin-bottom: 48px;
+  }
+
+  .ref-category {
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(13,31,53,0.06);
+  }
+
+  .ref-cat-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--forest);
+    padding: 22px 32px;
+  }
+
+  .ref-cat-icon { font-size: 1.5rem; }
+
+  .ref-cat-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: var(--cream);
+    font-weight: 700;
+  }
+
+  .ref-list {
+    list-style: none;
+    padding: 8px 0;
+  }
+
+  .ref-item {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    padding: 22px 32px;
+    border-bottom: 1px solid #e8f2f9;
+    transition: background 0.2s;
+  }
+  .ref-item:last-child { border-bottom: none; }
+  .ref-item:hover { background: #f7fbfe; }
+
+  .ref-number {
+    min-width: 32px; height: 32px;
+    background: var(--forest);
+    color: var(--leaf);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .ref-body { flex: 1; }
+
+  .ref-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--charcoal);
+    margin-bottom: 6px;
+  }
+
+  .ref-desc {
+    font-size: 0.84rem;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 10px;
+  }
+
+  .ref-link {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--leaf);
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(56,182,232,0.4);
+    padding-bottom: 1px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .ref-link:hover { color: #1ba8d4; border-color: #1ba8d4; }
+
+  .ref-disclaimer {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    background: rgba(13,31,53,0.05);
+    border: 1px solid rgba(56,182,232,0.2);
+    border-radius: 10px;
+    padding: 24px 28px;
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .ref-disc-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 2px; }
+  .ref-disclaimer strong { color: var(--charcoal); }
+  .ref-item.cite-highlight,
+  .ref-disclaimer.cite-highlight {
+    background: #fff9e6 !important;
+    box-shadow: inset 0 0 0 2px #f1c40f;
+  }
+  .cite-ref-badge {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+  .cite-type-third-party { background: rgba(56,182,232,0.15); color: #1ba8d4; }
+  .cite-type-etl-official { background: rgba(46,204,113,0.15); color: #27ae60; }
+  .cite-type-gw-estimate { background: rgba(243,156,18,0.15); color: #d68910; }
+  .cite-type-gw-tool { background: rgba(162,155,254,0.15); color: #7d3c98; }
+  .cite-type {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    vertical-align: middle;
+  }
+  .sources-banner {
+    max-width: 820px;
+    margin: 0 auto 32px;
+    padding: 14px 18px;
+    background: rgba(56,182,232,0.08);
+    border: 1px solid rgba(56,182,232,0.25);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.65;
+    text-align: center;
+  }
+  .sources-banner a { color: var(--leaf); }
+  .cite-demo { color: var(--leaf); font-weight: 700; }
+  .has-cite { position: relative; }
+  .cite-link {
+    margin-left: 3px;
+    font-size: 0.6em;
+    font-weight: 800;
+    color: #fff;
+    background: var(--forest);
+    border-radius: 4px;
+    padding: 0 4px;
+    text-decoration: none;
+    vertical-align: super;
+  }
+  .cite-link:hover { background: var(--leaf); color: var(--forest); }
+  .period-card:has(.has-cite:hover),
+  .case-card:has(.has-cite:hover),
+  .etl-card:has(.has-cite:hover),
+  .water-stat-row:has(.has-cite:hover) { position: relative; z-index: 2; }
+
   /* ===== ANIMATIONS ===== */
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(30px); }
@@ -797,7 +1097,7 @@
   }
 </style>
 </head>
-<body>
+<body data-gwm-cite-mode="energy-cost-guide">
 
 <!-- NAV -->
 <nav>
@@ -808,6 +1108,7 @@
     <li><a href="#cases">Case Studies</a></li>
     <li><a href="#etl">ETL Products</a></li>
     <li><a href="#water">Water Savings</a></li>
+    <li><a href="#references">References</a></li>
   </ul>
 </nav>
 
@@ -831,29 +1132,31 @@
       </div>
       <div class="hero-stat">
         <div class="num">£93k</div>
-        <div class="label">Office annual risk exposure</div>
+        <div class="label" data-cite="ref-ecg-illustrative">Office annual risk exposure</div>
       </div>
       <div class="hero-stat">
         <div class="num">50%+</div>
         <div class="label">Restaurant savings possible</div>
       </div>
       <div class="hero-stat">
-        <div class="num">8,000+</div>
-        <div class="label">ETL verified products</div>
+        <div class="num">~8,000</div>
+        <div class="label" data-cite="ref-ecg-02">ETL listed products</div>
       </div>
     </div>
   </div>
 </div>
+
+<div id="sources-banner" class="sources-banner" aria-live="polite" style="padding: 0 5% 24px; max-width: none;"></div>
 
 <!-- VOLATILITY -->
 <section class="volatility-section" id="volatility">
   <div class="section-inner">
     <div class="section-tag reveal">⚡ Price Volatility</div>
     <h2 class="reveal">Why Energy Prices Put You at Risk</h2>
-    <p class="lead reveal">UK electricity and gas prices have swung dramatically over recent years — driven by fuel markets, geopolitical events and policy shifts. If you haven't reduced your consumption, you absorb every spike at full cost.</p>
+    <p class="lead reveal">UK electricity and gas prices have swung dramatically over recent years — driven by fuel markets, geopolitical events and policy shifts. If you haven't reduced your consumption, you absorb every spike at full cost. Price scenarios below draw on <span data-cite="ref-ecg-01">Ofgem cap-era unit rates</span> and <span data-cite="ref-ecg-03">DESNZ price trends</span>.</p>
 
     <div class="price-timeline reveal">
-      <h3>UK Electricity Price Trend (Illustrative)</h3>
+      <h3>UK Electricity Price Trend <span data-cite="ref-ecg-illustrative">(Illustrative)</span></h3>
       <p>Unit rates in p/kWh for a typical household — calm years vs crisis peaks</p>
       <div class="chart-container">
         <canvas id="volatilityChart"></canvas>
@@ -866,15 +1169,15 @@
         <h4>Calm Market</h4>
         <div class="period-price">
           <span class="type">Electricity</span>
-          <span class="val">20p / €0.23 kWh</span>
+          <span class="val" data-cite="ref-ecg-01">20p / <span data-cite="ref-ecg-06">€0.23</span> kWh</span>
         </div>
         <div class="period-price">
           <span class="type">Gas</span>
-          <span class="val">6p / €0.07 kWh</span>
+          <span class="val" data-cite="ref-ecg-07">6p / €0.07 kWh</span>
         </div>
         <div class="period-price">
           <span class="type">House annual bill</span>
-          <span class="val">£1,320 / €1,518</span>
+          <span class="val" data-cite="ref-ecg-illustrative">£1,320 / €1,518</span>
         </div>
       </div>
 
@@ -920,7 +1223,7 @@
   <div class="section-inner">
     <div class="section-tag reveal">🧮 Interactive Calculator</div>
     <h2 class="reveal">What Could You Save?</h2>
-    <p class="lead reveal">Adjust the sliders to match your premises and see how energy prices affect your bills — and how much you could save with efficient technology and renewable energy.</p>
+    <p class="lead reveal">Adjust the sliders to match your premises and see how energy prices affect your bills — and how much you could save with efficient technology and renewable energy. Outputs are <span data-cite="ref-ecg-illustrative">illustrative</span>; tariff inputs align with <span data-cite="ref-ecg-01">Ofgem-style unit rates</span>.</p>
 
     <div class="calc-wrapper reveal">
       <div class="calc-header">
@@ -966,12 +1269,58 @@
             </div>
 
             <div class="input-group">
-              <label>Efficiency Level</label>
-              <div class="efficiency-toggle">
-                <button class="eff-btn active" onclick="setEfficiency('none', this)">No Changes</button>
-                <button class="eff-btn" onclick="setEfficiency('partial', this)">ETL Appliances</button>
-                <button class="eff-btn" onclick="setEfficiency('full', this)">ETL + Solar</button>
+              <label>Efficiency Measures — select all that apply</label>
+              <div class="measure-grid">
+                <label class="measure-check" title="High-efficacy LED bulbs with sensors cut lighting energy by 60–80%">
+                  <input type="checkbox" id="m_led" onchange="updateCalc()">
+                  <span class="measure-icon">💡</span>
+                  <span class="measure-text">LED Lighting</span>
+                  <span class="measure-save">↓ 70%</span>
+                </label>
+                <label class="measure-check" title="ETL-rated fridges, dishwashers and washing machines use 30–50% less energy">
+                  <input type="checkbox" id="m_appliances" onchange="updateCalc()">
+                  <span class="measure-icon">🏷️</span>
+                  <span class="measure-text" data-cite="ref-ecg-02">ETL Appliances</span>
+                  <span class="measure-save">↓ 40%</span>
+                </label>
+                <label class="measure-check" title="Heat pumps replace gas boilers and can cut space-heating energy use by 20–50%">
+                  <input type="checkbox" id="m_heatpump" onchange="updateCalc()">
+                  <span class="measure-icon">🌡️</span>
+                  <span class="measure-text" data-cite="ref-ecg-12">Heat Pump</span>
+                  <span class="measure-save">↓ 35% gas</span>
+                </label>
+                <label class="measure-check" title="Efficient HVAC with heat-recovery ventilation and variable-speed drives cuts heating/cooling load by 25–40%">
+                  <input type="checkbox" id="m_hvac" onchange="updateCalc()">
+                  <span class="measure-icon">🌀</span>
+                  <span class="measure-text" data-cite="ref-ecg-13">Efficient HVAC</span>
+                  <span class="measure-save">↓ 30%</span>
+                </label>
+                <label class="measure-check" title="Rooftop solar PV generates free electricity during daylight hours, offsetting 40–70% of grid imports">
+                  <input type="checkbox" id="m_solar" onchange="updateCalc()">
+                  <span class="measure-icon">☀️</span>
+                  <span class="measure-text" data-cite="ref-ecg-14">Solar PV</span>
+                  <span class="measure-save">↓ 55% elec</span>
+                </label>
+                <label class="measure-check" title="Low-flow taps, showers and spray valves cut hot-water energy demand by 30–50%">
+                  <input type="checkbox" id="m_water" onchange="updateCalc()">
+                  <span class="measure-icon">💧</span>
+                  <span class="measure-text" data-cite="ref-ecg-15">Water Saving</span>
+                  <span class="measure-save">↓ 30% hot water</span>
+                </label>
+                <label class="measure-check" title="Loft, wall insulation and double/triple glazing reduce space-heating demand by 15–30%">
+                  <input type="checkbox" id="m_insulation" onchange="updateCalc()">
+                  <span class="measure-icon">🏠</span>
+                  <span class="measure-text" data-cite="ref-ecg-05">Insulation</span>
+                  <span class="measure-save">↓ 25% heat</span>
+                </label>
+                <label class="measure-check" title="Smart meters and building management systems optimise scheduling, typically saving 10–20%">
+                  <input type="checkbox" id="m_smart" onchange="updateCalc()">
+                  <span class="measure-icon">📱</span>
+                  <span class="measure-text" data-cite="ref-ecg-11">Smart Controls</span>
+                  <span class="measure-save">↓ 15%</span>
+                </label>
               </div>
+              <div class="measure-summary" id="measureSummary">No measures selected — fully exposed to price changes</div>
             </div>
           </div>
 
@@ -1020,7 +1369,7 @@
               </div>
             </div>
 
-            <div style="margin-top:20px; font-size: 0.78rem; color: rgba(248,243,232,0.35); line-height:1.6;">
+            <div style="margin-top:20px; font-size: 0.78rem; color: rgba(248,243,232,0.35); line-height:1.6;" data-cite="ref-ecg-illustrative">
               * Illustrative estimates based on UK average consumption profiles. Actual savings depend on your specific usage, tariffs, and location.
             </div>
           </div>
@@ -1045,7 +1394,7 @@
         </div>
         <div class="case-body">
           <h3>Typical UK Family Home</h3>
-          <p>3,000 kWh electricity + 12,000 kWh gas per year. Fully exposed to market prices without any efficiency upgrades.</p>
+          <p>3,000 kWh electricity + 12,000 kWh gas per year. Fully exposed to market prices without any efficiency upgrades. Benchmarks: <span data-cite="ref-ecg-12">Energy Saving Trust</span>.</p>
           <div class="case-numbers">
             <div class="case-num">
               <div class="n">£1,320</div>
@@ -1056,13 +1405,31 @@
               <div class="l">High price year</div>
             </div>
           </div>
-          <div class="case-saving">
-            <span class="s-label">⚠️ Risk exposure (low vs high)</span>
-            <span class="s-val">+£1,620 / +€1,863</span>
+          <div class="case-saving case-saving--risk">
+            <div class="case-saving-title">⚠️ Risk exposure (low vs high)</div>
+            <div class="case-saving-row">
+              <div class="case-saving-amt">
+                <div class="n">+£1,620</div>
+                <div class="l">GBP swing</div>
+              </div>
+              <div class="case-saving-amt">
+                <div class="n">+€1,863</div>
+                <div class="l">EUR equivalent</div>
+              </div>
+            </div>
           </div>
-          <div class="case-saving" style="background:#eef6fc; margin-top:8px;">
-            <span class="s-label">✅ With ETL + Solar PV savings</span>
-            <span class="s-val">~£1,200 / €1,380 / yr</span>
+          <div class="case-saving" data-cite="ref-ecg-illustrative">
+            <div class="case-saving-title">✅ With <span data-cite="ref-ecg-02">ETL</span> + <span data-cite="ref-ecg-14">Solar PV</span> savings</div>
+            <div class="case-saving-row">
+              <div class="case-saving-amt">
+                <div class="n">~£1,200</div>
+                <div class="l">per year</div>
+              </div>
+              <div class="case-saving-amt">
+                <div class="n">~€1,380</div>
+                <div class="l">per year</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1073,7 +1440,7 @@
         </div>
         <div class="case-body">
           <h3>Medium-Sized Restaurant</h3>
-          <p>80,000 kWh electricity + 60,000 kWh gas per year. Energy intensity makes margins extremely vulnerable to price spikes.</p>
+          <p>80,000 kWh electricity + 60,000 kWh gas per year. Energy intensity makes margins extremely vulnerable to price spikes. Context: <span data-cite="ref-ecg-13">CIBSE commercial benchmarks</span>.</p>
           <div class="case-numbers">
             <div class="case-num">
               <div class="n">£19,600</div>
@@ -1084,13 +1451,31 @@
               <div class="l">High price year</div>
             </div>
           </div>
-          <div class="case-saving">
-            <span class="s-label">⚠️ Risk exposure (low vs high)</span>
-            <span class="s-val">+£27,600 / +€31,740</span>
+          <div class="case-saving case-saving--risk">
+            <div class="case-saving-title">⚠️ Risk exposure (low vs high)</div>
+            <div class="case-saving-row">
+              <div class="case-saving-amt">
+                <div class="n">+£27,600</div>
+                <div class="l">GBP swing</div>
+              </div>
+              <div class="case-saving-amt">
+                <div class="n">+€31,740</div>
+                <div class="l">EUR equivalent</div>
+              </div>
+            </div>
           </div>
-          <div class="case-saving" style="background:#eef6fc; margin-top:8px;">
-            <span class="s-label">✅ With ETL + Solar PV savings</span>
-            <span class="s-val">~£15,000 / €17,250 / yr</span>
+          <div class="case-saving" data-cite="ref-ecg-illustrative">
+            <div class="case-saving-title">✅ With <span data-cite="ref-ecg-02">ETL</span> + <span data-cite="ref-ecg-14">Solar PV</span> savings</div>
+            <div class="case-saving-row">
+              <div class="case-saving-amt">
+                <div class="n">~£15,000</div>
+                <div class="l">per year</div>
+              </div>
+              <div class="case-saving-amt">
+                <div class="n">~€17,250</div>
+                <div class="l">per year</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1101,7 +1486,7 @@
         </div>
         <div class="case-body">
           <h3>Multi-Storey Office Building</h3>
-          <p>300,000 kWh electricity + 50,000 kWh gas per year. Large consumption base means price swings translate to massive unplanned costs.</p>
+          <p>300,000 kWh electricity + 50,000 kWh gas per year. Large consumption base means price swings translate to massive unplanned costs. See <span data-cite="ref-ecg-13">CIBSE Guide F</span>.</p>
           <div class="case-numbers">
             <div class="case-num">
               <div class="n">£63,000</div>
@@ -1112,13 +1497,31 @@
               <div class="l">High price year</div>
             </div>
           </div>
-          <div class="case-saving">
-            <span class="s-label">⚠️ Risk exposure (low vs high)</span>
-            <span class="s-val">+£93,000 / +€106,950</span>
+          <div class="case-saving case-saving--risk">
+            <div class="case-saving-title">⚠️ Risk exposure (low vs high)</div>
+            <div class="case-saving-row">
+              <div class="case-saving-amt">
+                <div class="n">+£93,000</div>
+                <div class="l">GBP swing</div>
+              </div>
+              <div class="case-saving-amt">
+                <div class="n">+€106,950</div>
+                <div class="l">EUR equivalent</div>
+              </div>
+            </div>
           </div>
-          <div class="case-saving" style="background:#eef6fc; margin-top:8px;">
-            <span class="s-label">✅ With ETL + Solar PV savings</span>
-            <span class="s-val">~£54,800 / €63,020 / yr</span>
+          <div class="case-saving" data-cite="ref-ecg-illustrative">
+            <div class="case-saving-title">✅ With <span data-cite="ref-ecg-02">ETL</span> + <span data-cite="ref-ecg-14">Solar PV</span> savings</div>
+            <div class="case-saving-row">
+              <div class="case-saving-amt">
+                <div class="n">~£54,800</div>
+                <div class="l">per year</div>
+              </div>
+              <div class="case-saving-amt">
+                <div class="n">~€63,020</div>
+                <div class="l">per year</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1132,7 +1535,7 @@
   <div class="section-inner">
     <div class="section-tag reveal">📈 Before vs After</div>
     <h2 class="reveal">Visualising the Savings</h2>
-    <p class="lead reveal">See how efficiency upgrades and renewable energy dramatically cut energy costs across all three premise types — at every price level.</p>
+    <p class="lead reveal">See how efficiency upgrades and renewable energy dramatically cut energy costs across all three premise types — at every price level. Chart data is <span data-cite="ref-ecg-illustrative">illustrative</span>; the <span data-cite="ref-ecg-06">European Price Context</span> tab uses <span data-cite="ref-ecg-06">Eurostat electricity</span> and <span data-cite="ref-ecg-07">gas</span> comparators.</p>
 
     <div class="compare-wrapper reveal">
       <div class="compare-tabs">
@@ -1151,8 +1554,8 @@
 <section class="etl-section" id="etl">
   <div class="section-inner">
     <div class="section-tag">🏷️ ETL Energy Technology List</div>
-    <h2>Government-Verified Low-Energy Products</h2>
-    <p class="lead">The UK's Energy Technology List (ETL) contains <span data-cite="ref-ecg-02">around 8,000 independently verified products</span> proven to be in the top quartile for energy efficiency. Category names below match the official ETL register.</p>
+    <h2>Government-Backed and Independently Verified Energy Efficiency Products</h2>
+    <p class="lead">The UK's Energy Technology List (ETL) contains <span data-cite="ref-ecg-02">around 8,000 independently verified products</span> that are in the top quartile for energy efficiency. Category names below match the official ETL register (solar PV is not an ETL category — see Action Plan tip 04).</p>
 
     <div class="etl-grid">
       <div class="etl-card reveal">
@@ -1220,15 +1623,15 @@
     <div class="water-grid">
       <div class="reveal">
         <div class="section-tag">💧 Water & Energy Savings</div>
-        <h2>Water Saving Devices Reduce Energy Costs Too</h2>
-        <p class="lead" style="margin-bottom:0;">Hot water is a hidden energy cost. Reducing how much water you heat directly reduces gas and electricity bills — especially powerful when prices are high.</p>
+        <h2>Why Not Combine Water Savings With Your Low-Energy Devices? <span class="gw-marketplace-name">Greenways Marketplace</span></h2>
+        <p class="lead" style="margin-bottom:0;">Water-saving devices are <strong>not listed on the UK ETL</strong>, but they complement ETL-rated heating, lighting and appliances. Pair both on <strong class="gw-marketplace-name" data-cite="ref-ecg-16">Greenways Marketplace</strong> to cut water use and the energy needed to heat it — especially when prices are high.</p>
       </div>
       <div class="water-stats reveal">
         <div class="water-stat-row">
           <div class="water-icon">🚿</div>
           <div>
             <h4>Low-Flow Showers & Taps</h4>
-            <p>Reduce hot water demand by 30–50% in homes and restaurants. Lower water heated = lower bills.</p>
+            <p>Reduce hot water demand by <span data-cite="ref-ecg-15">30–50%</span> in homes and restaurants. Lower water heated = lower bills.</p>
           </div>
         </div>
         <div class="water-stat-row">
@@ -1242,14 +1645,14 @@
           <div class="water-icon">🍽️</div>
           <div>
             <h4>Pre-Rinse Spray Valves</h4>
-            <p>Commercial kitchen requirement that cuts hot water use by up to 40% versus standard fittings.</p>
+            <p>Commercial kitchen requirement that cuts hot water use by up to <span data-cite="ref-ecg-15">40%</span> versus standard fittings.</p>
           </div>
         </div>
         <div class="water-stat-row">
           <div class="water-icon">☀️</div>
           <div>
             <h4>Solar Thermal Water Heating</h4>
-            <p>Heats water directly from the sun, reducing hot water fuel use by 30–50% annually.</p>
+            <p>Heats water directly from the sun, reducing hot water fuel use by <span data-cite="ref-ecg-15">30–50%</span> annually.</p>
           </div>
         </div>
       </div>
@@ -1268,27 +1671,27 @@
       <div class="tip-card reveal">
         <div class="tip-num">01</div>
         <h4>Monitor Energy Prices Regularly</h4>
-        <p>Subscribe to Ofgem updates and Eurostat energy data. Knowing when prices are rising helps you time investments and spot the best moments to act.</p>
+        <p>Subscribe to <span data-cite="ref-ecg-01">Ofgem</span> updates and <span data-cite="ref-ecg-06">Eurostat</span> energy data. Knowing when prices are rising helps you time investments and spot the best moments to act.</p>
       </div>
       <div class="tip-card reveal" style="transition-delay:0.1s">
         <div class="tip-num">02</div>
         <h4>Calculate Your Actual Consumption</h4>
-        <p>Sub-meter key areas (kitchen, lighting, HVAC). You can't manage what you don't measure. Even simple smart plugs reveal surprising usage patterns.</p>
+        <p>Sub-meter key areas (kitchen, lighting, HVAC). You can't manage what you don't measure. See <span data-cite="ref-ecg-11">Carbon Trust</span> guidance on sub-metering.</p>
       </div>
       <div class="tip-card reveal" style="transition-delay:0.2s">
         <div class="tip-num">03</div>
-        <h4>Replace Appliances with ETL Products</h4>
-        <p>When appliances need replacing, choose from the UK Energy Technology List. Top-quartile efficiency products cut your kWh demand permanently.</p>
+        <h4>Replace equipment with ETL-listed products</h4>
+        <p>When equipment needs replacing, choose from the <span data-cite="ref-ecg-02">UK Energy Technology List</span> — use official category names (e.g. refrigeration equipment, PFSE, heat pumps) to find top-quartile options.</p>
       </div>
       <div class="tip-card reveal" style="transition-delay:0.3s">
         <div class="tip-num">04</div>
         <h4>Install Solar PV and Batteries</h4>
-        <p>Generate your own electricity during daylight hours. Pair with a battery for evening coverage. A 4 kWp home system can cover most daytime needs.</p>
+        <p>Generate your own electricity during daylight hours. Pair with a battery for evening coverage. A <span data-cite="ref-ecg-14">4 kWp home system</span> can cover most daytime needs; export via <span data-cite="ref-ecg-04">SEG</span> where eligible.</p>
       </div>
       <div class="tip-card reveal" style="transition-delay:0.4s">
         <div class="tip-num">05</div>
         <h4>Add Water-Saving Devices</h4>
-        <p>Low-flow taps, spray valves and solar thermal heating reduce both water bills and the energy needed to heat that water — a compounding saving.</p>
+        <p>Low-flow taps, spray valves and solar thermal heating reduce both water bills and the energy needed to heat that water — see <span data-cite="ref-ecg-15">Waterwise</span> and <span data-cite="ref-ecg-16">Greenways Marketplace</span>.</p>
       </div>
       <div class="tip-card reveal" style="transition-delay:0.5s">
         <div class="tip-num">06</div>
@@ -1299,13 +1702,190 @@
   </div>
 </section>
 
+<!-- REFERENCES -->
+<section class="references-section" id="references">
+  <div class="section-inner">
+    <div class="section-tag reveal">📚 References & Sources</div>
+    <h2 class="reveal">Data Sources & Further Reading</h2>
+    <p class="lead reveal">Numbered markers <sup class="cite-demo">n</sup> in the guide link to the matching source below. Hover for a summary; click to highlight the reference card.</p>
+
+    <div class="ref-grid reveal">
+
+      <div class="ref-category">
+        <div class="ref-cat-header">
+          <span class="ref-cat-icon">🇬🇧</span>
+          <h3>UK Regulatory & Government</h3>
+        </div>
+        <ol class="ref-list">
+          <li class="ref-item" id="ref-ecg-01">
+            <div class="ref-number">1</div>
+            <div class="ref-body">
+              <div class="ref-title">Ofgem — Energy Price Cap</div>
+              <div class="ref-desc">Quarterly price cap rates for domestic electricity and gas in Great Britain, including unit rates and standing charges by region.</div>
+              <a href="https://www.ofgem.gov.uk/check-if-energy-price-cap-affects-you" class="ref-link" target="_blank">ofgem.gov.uk/check-if-energy-price-cap-affects-you ↗</a>
+            </div>
+          </li>
+          <li class="ref-item" id="ref-ecg-02">
+            <div class="ref-number">2</div>
+            <div class="ref-body">
+              <div class="ref-title">UK Government — Energy Technology List (ETL)</div>
+              <div class="ref-desc">The official government-backed and independently verified list of around 8,000 energy-efficient products, updated regularly by DESNZ.</div>
+              <a href="https://etl.energysecurity.gov.uk/" class="ref-link" target="_blank">etl.energysecurity.gov.uk ↗</a>
+            </div>
+          </li>
+          <li class="ref-item" id="ref-ecg-03">
+            <div class="ref-number">3</div>
+            <div class="ref-body">
+              <div class="ref-title">DESNZ — UK Energy in Brief</div>
+              <div class="ref-desc">Annual statistical publication covering UK energy production, consumption, prices and trade across all fuel types.</div>
+              <a href="https://www.gov.uk/government/statistics/uk-energy-in-brief" class="ref-link" target="_blank">gov.uk/government/statistics/uk-energy-in-brief ↗</a>
+            </div>
+          </li>
+          <li class="ref-item" id="ref-ecg-04">
+            <div class="ref-number">4</div>
+            <div class="ref-body">
+              <div class="ref-title">Smart Export Guarantee (SEG) — Ofgem</div>
+              <div class="ref-desc">Mandatory minimum export payments for small-scale renewable generators in Great Britain, typically 3–15p/kWh.</div>
+              <a href="https://www.ofgem.gov.uk/environmental-and-social-schemes/smart-export-guarantee-seg" class="ref-link" target="_blank">ofgem.gov.uk/seg ↗</a>
+            </div>
+          </li>
+          <li class="ref-item" id="ref-ecg-05">
+            <div class="ref-number">5</div>
+            <div class="ref-body">
+              <div class="ref-title">ECO4 Scheme — GOV.UK</div>
+              <div class="ref-desc">The UK government's Energy Company Obligation scheme providing free or subsidised insulation and low-carbon heating for eligible households.</div>
+              <a href="https://www.gov.uk/improve-energy-efficiency" class="ref-link" target="_blank">gov.uk/improve-energy-efficiency ↗</a>
+            </div>
+          </li>
+        </ol>
+      </div>
+
+      <div class="ref-category">
+        <div class="ref-cat-header">
+          <span class="ref-cat-icon">🇪🇺</span>
+          <h3>European Statistical & Policy Sources</h3>
+        </div>
+        <ol class="ref-list">
+          <li class="ref-item" id="ref-ecg-06">
+            <div class="ref-number">6</div>
+            <div class="ref-body">
+              <div class="ref-title">Eurostat — Electricity Prices for Household Consumers</div>
+              <div class="ref-desc">Bi-annual data on household electricity prices across EU member states, broken down by consumption band and tax component.</div>
+              <a href="https://ec.europa.eu/eurostat/statistics-explained/index.php/Electricity_price_statistics" class="ref-link" target="_blank">ec.europa.eu/eurostat/electricity-price-statistics ↗</a>
+            </div>
+          </li>
+          <li class="ref-item" id="ref-ecg-07">
+            <div class="ref-number">7</div>
+            <div class="ref-body">
+              <div class="ref-title">Eurostat — Natural Gas Prices for Household Consumers</div>
+              <div class="ref-desc">Comparative gas price data across EU countries, including breakdown of energy costs, network charges, taxes and levies.</div>
+              <a href="https://ec.europa.eu/eurostat/statistics-explained/index.php/Natural_gas_price_statistics" class="ref-link" target="_blank">ec.europa.eu/eurostat/gas-price-statistics ↗</a>
+            </div>
+          </li>
+          <li class="ref-item" id="ref-ecg-08">
+            <div class="ref-number">8</div>
+            <div class="ref-body">
+              <div class="ref-title">European Commission — Renewable Energy Directive (RED III)</div>
+              <div class="ref-desc">The EU's legislative framework setting binding renewable energy targets and support mechanisms including feed-in tariffs and premiums.</div>
+              <a href="https://energy.ec.europa.eu/topics/renewable-energy/renewable-energy-directive-targets-and-rules/renewable-energy-directive_en" class="ref-link" target="_blank">energy.ec.europa.eu/renewable-energy-directive ↗</a>
+            </div>
+          </li>
+          <li class="ref-item" id="ref-ecg-09">
+            <div class="ref-number">9</div>
+            <div class="ref-body">
+              <div class="ref-title">Netherlands Enterprise Agency (RVO) — SDE++ Subsidy</div>
+              <div class="ref-desc">Details of the Dutch production incentive scheme for renewable energy (SDE++), with €13bn+ budget covering PV, wind and electrolysers.</div>
+              <a href="https://www.rvo.nl/subsidies-financiering/sde" class="ref-link" target="_blank">rvo.nl/subsidies-financiering/sde ↗</a>
+            </div>
+          </li>
+          <li class="ref-item" id="ref-ecg-10">
+            <div class="ref-number">10</div>
+            <div class="ref-body">
+              <div class="ref-title">German Federal Ministry for Economic Affairs — EEG</div>
+              <div class="ref-desc">The Renewable Energy Sources Act (Erneuerbare-Energien-Gesetz) governing feed-in tariffs, tax exemptions and KfW loans for solar PV in Germany.</div>
+              <a href="https://www.bmwk.de/Redaktion/EN/Dossier/renewable-energy.html" class="ref-link" target="_blank">bmwk.de/renewable-energy ↗</a>
+            </div>
+          </li>
+        </ol>
+      </div>
+
+      <div class="ref-category">
+        <div class="ref-cat-header">
+          <span class="ref-cat-icon">📊</span>
+          <h3>Energy Efficiency & Technical Guidance</h3>
+        </div>
+        <ol class="ref-list">
+          <li class="ref-item" id="ref-ecg-11">
+            <div class="ref-number">11</div>
+            <div class="ref-body">
+              <div class="ref-title">Carbon Trust — Energy Management Guide</div>
+              <div class="ref-desc">Practical guidance for businesses on sub-metering, energy auditing and identifying efficiency measures across commercial premises.</div>
+              <a href="https://www.carbontrust.com/resources" class="ref-link" target="_blank">carbontrust.com/resources ↗</a>
+            </div>
+          </li>
+          <li class="ref-item" id="ref-ecg-12">
+            <div class="ref-number">12</div>
+            <div class="ref-body">
+              <div class="ref-title">Energy Saving Trust — Home Renovation Advice</div>
+              <div class="ref-desc">Independent guidance on insulation, heat pumps, solar PV, LED lighting and other domestic energy-saving measures with indicative savings figures.</div>
+              <a href="https://energysavingtrust.org.uk/advice/" class="ref-link" target="_blank">energysavingtrust.org.uk/advice ↗</a>
+            </div>
+          </li>
+          <li class="ref-item" id="ref-ecg-13">
+            <div class="ref-number">13</div>
+            <div class="ref-body">
+              <div class="ref-title">CIBSE — Guide F: Energy Efficiency in Buildings</div>
+              <div class="ref-desc">The Chartered Institution of Building Services Engineers' authoritative reference for energy benchmarks in offices, retail and other commercial buildings.</div>
+              <a href="https://www.cibse.org/knowledge-research/knowledge-portal/guide-f-energy-efficiency-in-buildings-2012" class="ref-link" target="_blank">cibse.org/guide-f ↗</a>
+            </div>
+          </li>
+          <li class="ref-item" id="ref-ecg-14">
+            <div class="ref-number">14</div>
+            <div class="ref-body">
+              <div class="ref-title">Solar Trade Association — UK Solar PV Yield Data</div>
+              <div class="ref-desc">Generation yield estimates for solar PV systems across UK regions, including typical output figures for 4 kWp domestic and larger commercial installations.</div>
+              <a href="https://www.solar-trade.org.uk/resources/" class="ref-link" target="_blank">solar-trade.org.uk/resources ↗</a>
+            </div>
+          </li>
+          <li class="ref-item" id="ref-ecg-15">
+            <div class="ref-number">15</div>
+            <div class="ref-body">
+              <div class="ref-title">Waterwise — Water Efficiency in the UK</div>
+              <div class="ref-desc">Data and guidance on water-saving devices including low-flow taps, showers and pre-rinse spray valves, with links to energy co-savings from reduced hot water demand.</div>
+              <a href="https://www.waterwise.org.uk/save-water/" class="ref-link" target="_blank">waterwise.org.uk/save-water ↗</a>
+            </div>
+          </li>
+          <li class="ref-item" id="ref-ecg-16">
+            <div class="ref-number">16</div>
+            <div class="ref-body">
+              <div class="ref-title">Greenways Marketplace — Water-saving products (non-ETL)</div>
+              <div class="ref-desc">Curated water-efficiency products complementing ETL-listed heating and appliances. Water fittings are outside the UK ETL; Greenways Marketplace covers this gap for homes and foodservice.</div>
+              <a href="https://www.greenwaysmarket.com" class="ref-link" target="_blank">greenwaysmarket.com ↗</a>
+            </div>
+          </li>
+        </ol>
+      </div>
+
+    </div>
+
+    <div class="ref-disclaimer reveal" id="ref-ecg-illustrative">
+      <div class="ref-disc-icon">ℹ️</div>
+      <div>
+        <strong>Disclaimer on figures:</strong> All cost estimates and percentage savings presented in this guide are illustrative, based on typical UK consumption profiles and publicly available price data. Actual bills and savings will vary depending on your specific premises, tariff, location, usage patterns and the particular products installed. Exchange rate used throughout: <strong>1 GBP ≈ 1.15 EUR</strong>. Price data last reviewed February 2026.
+      </div>
+    </div>
+
+  </div>
+</section>
+
 <!-- FOOTER -->
 <footer>
-  <p style="font-family:'Playfair Display',serif; font-size:1.1rem; color:rgba(255,255,255,0.7); margin-bottom:12px;">Energy<span style="color:#69d66c">IQ</span></p>
+  <p style="font-family:'Playfair Display',serif; font-size:1.1rem; color:rgba(255,255,255,0.7); margin-bottom:12px;">Greenways Buildings <span style="color:#7fd4f5">Energy IQ</span></p>
   <p>Data references: <a href="https://www.ofgem.gov.uk">Ofgem</a> · <a href="https://ec.europa.eu/eurostat">Eurostat</a> · <a href="https://etl.energysecurity.gov.uk/">UK Energy Technology List (ETL)</a></p>
   <p style="margin-top:8px;">All figures are illustrative estimates. Actual savings depend on your premises, tariffs, and usage patterns. Exchange rate used: 1 GBP ≈ 1.15 EUR.</p>
 </footer>
 
+<script src="js/energy-cost-guide-citations.js"></script>
 <script>
 // ===== VOLATILITY CHART =====
 const voltCtx = document.getElementById('volatilityChart').getContext('2d');
@@ -1368,8 +1948,7 @@ let calcState = {
   premise: 'house',
   electricity: 3000,
   gas: 12000,
-  price: 'low',
-  efficiency: 'none'
+  price: 'low'
 };
 
 const prices = {
@@ -1384,11 +1963,22 @@ const premiseDefaults = {
   office:     { elec: 300000, gas: 50000,  elecMax: 500000, gasMax: 150000 }
 };
 
-const efficiencySavings = {
-  house:      { partial: 0.25, full: 0.65 },
-  restaurant: { partial: 0.30, full: 0.60 },
-  office:     { partial: 0.30, full: 0.58 }
+// Each measure: elecSave = fraction saved off electricity, gasSave = fraction saved off gas
+// Values are additive contributions; total is capped at 0.92 to stay realistic
+const measures = {
+  m_led:        { elecSave: 0.12, gasSave: 0.00, label: 'LED Lighting' },
+  m_appliances: { elecSave: 0.10, gasSave: 0.02, label: 'ETL Appliances' },
+  m_heatpump:   { elecSave: 0.02, gasSave: 0.35, label: 'Heat Pump' },
+  m_hvac:       { elecSave: 0.08, gasSave: 0.08, label: 'Efficient HVAC' },
+  m_solar:      { elecSave: 0.45, gasSave: 0.00, label: 'Solar PV' },
+  m_water:      { elecSave: 0.03, gasSave: 0.08, label: 'Water Saving' },
+  m_insulation: { elecSave: 0.02, gasSave: 0.20, label: 'Insulation' },
+  m_smart:      { elecSave: 0.06, gasSave: 0.05, label: 'Smart Controls' }
 };
+
+function getActiveMeasures() {
+  return Object.keys(measures).filter(id => document.getElementById(id)?.checked);
+}
 
 function setPremise(p, btn) {
   calcState.premise = p;
@@ -1413,13 +2003,6 @@ function setPrice(p, btn) {
   updateCalc();
 }
 
-function setEfficiency(e, btn) {
-  calcState.efficiency = e;
-  document.querySelectorAll('.eff-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  updateCalc();
-}
-
 function fmt(n) { return '£' + Math.round(n).toLocaleString('en-GB'); }
 function fmtEur(n) { return '≈ €' + Math.round(n * 1.15).toLocaleString('en-GB'); }
 
@@ -1433,49 +2016,82 @@ function updateCalc() {
   document.getElementById('gasVal').textContent = calcState.gas.toLocaleString('en-GB');
 
   const p = prices[calcState.price];
-  let elecCost = calcState.electricity * p.elec;
-  let gasCost = calcState.gas * p.gas;
-  let baseCost = elecCost + gasCost;
+  const baseElecCost = calcState.electricity * p.elec;
+  const baseGasCost  = calcState.gas * p.gas;
+  const baseCost = baseElecCost + baseGasCost;
 
-  let savingFactor = 0;
-  if (calcState.efficiency !== 'none') {
-    savingFactor = efficiencySavings[calcState.premise][calcState.efficiency] || 0;
-  }
-  let savings = baseCost * savingFactor;
-  let newCost = baseCost - savings;
+  // Sum up additive savings from each checked measure, capped at 92%
+  const active = getActiveMeasures();
+  let totalElecSave = 0, totalGasSave = 0;
+  active.forEach(id => {
+    totalElecSave += measures[id].elecSave;
+    totalGasSave  += measures[id].gasSave;
+  });
+  totalElecSave = Math.min(totalElecSave, 0.92);
+  totalGasSave  = Math.min(totalGasSave,  0.92);
 
-  // Update electricity
-  let showElec = calcState.efficiency === 'none' ? elecCost : elecCost * (1 - (savingFactor * 0.8));
-  let showGas = calcState.efficiency === 'none' ? gasCost : gasCost * (1 - (savingFactor * 0.5));
-  let showTotal = showElec + showGas;
+  // Update measure checkbox visual state
+  Object.keys(measures).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      const label = el.closest('.measure-check');
+      if (label) label.classList.toggle('checked', el.checked);
+    }
+  });
 
-  document.getElementById('elecBill').textContent = fmt(showElec);
+  const showElec  = baseElecCost * (1 - totalElecSave);
+  const showGas   = baseGasCost  * (1 - totalGasSave);
+  const showTotal = showElec + showGas;
+
+  document.getElementById('elecBill').textContent    = fmt(showElec);
   document.getElementById('elecBillEur').textContent = fmtEur(showElec);
-  document.getElementById('gasBill').textContent = fmt(showGas);
-  document.getElementById('gasBillEur').textContent = fmtEur(showGas);
-  document.getElementById('totalBill').textContent = fmt(showTotal);
+  document.getElementById('gasBill').textContent     = fmt(showGas);
+  document.getElementById('gasBillEur').textContent  = fmtEur(showGas);
+  document.getElementById('totalBill').textContent   = fmt(showTotal);
   document.getElementById('totalBillEur').textContent = fmtEur(showTotal);
-  document.getElementById('monthlyBill').textContent = fmt(showTotal / 12);
+  document.getElementById('monthlyBill').textContent  = fmt(showTotal / 12);
   document.getElementById('monthlyBillEur').textContent = fmtEur(showTotal / 12);
 
+  // Savings banner
   const savingBanner = document.getElementById('savingBanner');
-  if (calcState.efficiency !== 'none') {
-    let s = baseCost - showTotal;
+  if (active.length > 0) {
+    const saved = baseCost - showTotal;
     savingBanner.style.display = 'block';
-    document.getElementById('saveAmount').textContent = fmt(s);
-    document.getElementById('saveEur').textContent = fmtEur(s) + ' per year';
+    document.getElementById('saveAmount').textContent = fmt(saved);
+    document.getElementById('saveEur').textContent = fmtEur(saved) + ' per year';
   } else {
     savingBanner.style.display = 'none';
   }
 
+  // Measure summary text
+  const summary = document.getElementById('measureSummary');
+  if (active.length === 0) {
+    summary.textContent = 'No measures selected — fully exposed to price changes';
+    summary.classList.remove('active');
+  } else {
+    const pctElec = Math.round(totalElecSave * 100);
+    const pctGas  = Math.round(totalGasSave * 100);
+    summary.textContent = `${active.length} measure${active.length>1?'s':''} selected — cutting electricity by ~${pctElec}% and gas by ~${pctGas}%`;
+    summary.classList.add('active');
+  }
+
   // Risk exposure bar
   const riskMap = { low: 20, mid: 55, high: 90 };
-  const effReduction = calcState.efficiency === 'none' ? 0 : (calcState.efficiency === 'partial' ? 25 : 50);
+  const avgSave = active.length > 0 ? ((totalElecSave + totalGasSave) / 2) : 0;
+  const effReduction = Math.round(avgSave * 70);
   let exposure = Math.max(5, riskMap[calcState.price] - effReduction);
   document.getElementById('exposureBar').style.width = exposure + '%';
-  const labels = { low: 'Low', mid: 'Moderate', high: 'High' };
-  document.getElementById('exposureLabel').textContent = calcState.efficiency === 'none' ? labels[calcState.price] + ' — Fully Exposed' : labels[calcState.price] + ' — Protected';
+  const riskLabels = { low: 'Low', mid: 'Moderate', high: 'High' };
+  document.getElementById('exposureLabel').textContent = active.length === 0
+    ? riskLabels[calcState.price] + ' — Fully Exposed'
+    : riskLabels[calcState.price] + ' — ' + (exposure < 20 ? 'Well Protected' : 'Partially Protected');
 }
+
+// Attach change listeners to keep visual state in sync
+document.querySelectorAll('.measure-check input[type=checkbox]').forEach(cb => {
+  cb.addEventListener('change', updateCalc);
+});
+
 
 // ===== COMPARISON CHART =====
 let compareChart = null;
