@@ -63,6 +63,8 @@
     ["equipment_intelligence_tool", "etl-finder"],
     ["etl-official-site", "etl-official-site"],
     ["etl.energysecurity.gov.uk", "etl-official-site"],
+    ["organisation-desk", "organisation-desk"],
+    ["greenways-organisation-desk", "organisation-desk"],
     ["energy-calculator-enhanced", "etl-calculator"],
     ["energy-audit-widget", "energy-audit"],
     ["savings.html", "savings-tour"],
@@ -353,6 +355,14 @@
       usageHint: "Read how ETL verifies products, then open the official site for categories and product search.",
       href: "./etl-official-site.html",
       fullPageHref: "https://etl.energysecurity.gov.uk/",
+      defaultOpenSize: "near-full"
+    },
+    "organisation-desk": {
+      id: "organisation-desk",
+      title: "Organisation Desk",
+      description: "Plan board + calendar — save products, news, notes, and agent suggestions.",
+      usageHint: "Import your shortlist, pin dates, or open from Artemis/Zyanne Add to desk. Customer Hub is discovery; this desk owns the plan.",
+      href: "/greenways/organisation-desk",
       defaultOpenSize: "near-full"
     },
     "marketplace-about": {

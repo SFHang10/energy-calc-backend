@@ -167,7 +167,7 @@
   function writeHandoff(brief) {
     if (!brief || !brief.toSlug) return;
     var profile = brief.profile || null;
-    writeJson(HANDOFF_KEY, {
+    var payload = {
       fromSlug: brief.fromSlug || '',
       fromName: brief.fromName || 'Another agent',
       toSlug: brief.toSlug,
@@ -181,8 +181,22 @@
       companyId: String(brief.companyId || (profile && profile.companyId) || '').trim(),
       profile: profile,
       apiConsumed: false,
+      deskIngested: false,
       createdAt: new Date().toISOString()
-    });
+    };
+    writeJson(HANDOFF_KEY, payload);
+    try {
+      if (global.GreenwaysOrganisationDesk && typeof global.GreenwaysOrganisationDesk.queueHandoffSuggestion === 'function') {
+        global.GreenwaysOrganisationDesk.queueHandoffSuggestion(payload);
+        payload.deskIngested = true;
+        writeJson(HANDOFF_KEY, payload);
+      }
+    } catch (_) {}
+  }
+
+  function writeHandoffRaw(brief) {
+    if (!brief || !brief.toSlug) return;
+    writeJson(HANDOFF_KEY, brief);
   }
 
   function consumeHandoffForSlug(currentSlug) {
@@ -1520,6 +1534,7 @@
     loadRoster: loadRoster,
     readHandoff: readHandoff,
     writeHandoff: writeHandoff,
+    writeHandoffRaw: writeHandoffRaw,
     takeHandoffForAsk: takeHandoffForAsk,
     profileForAsk: profileForAsk,
     readMemberContext: readMemberContext,

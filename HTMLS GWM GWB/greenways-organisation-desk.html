@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Greenways — Organisation Desk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-organisation-desk.css">
+  <style>
+    :root {
+      --bg: #0c1210;
+      --surface: #141c18;
+      --surface-2: #1a2420;
+      --line: rgba(75, 140, 104, 0.28);
+      --text: #e8f0ea;
+      --muted: #9bb5a4;
+      --green: #3dcf7a;
+      --gold: #c9a961;
+      --cyan: #4ec8e8;
+      --font: "Space Grotesk", system-ui, sans-serif;
+      --font-clean: "IBM Plex Sans", system-ui, sans-serif;
+      --radius: 14px;
+      --shadow: 0 10px 32px rgba(0, 0, 0, 0.28);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      overflow-x: hidden;
+    }
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 20px 18px 48px;
+    }
+    .hero {
+      background: linear-gradient(145deg, #15261c 0%, #0e1a14 100%);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px 22px 18px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+    .hero-kicker {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    .hero h1 {
+      font-size: clamp(1.45rem, 3vw, 1.9rem);
+      margin: 0 0 8px;
+      font-weight: 700;
+    }
+    .hero p {
+      margin: 0;
+      max-width: 62ch;
+      color: var(--muted);
+      font-family: var(--font-clean);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-family: inherit;
+      color: inherit;
+      background: var(--surface-2);
+    }
+    .btn:hover { border-color: var(--line); }
+    .btn-primary {
+      background: rgba(61, 207, 122, 0.18);
+      border-color: rgba(61, 207, 122, 0.4);
+      color: #b8f0ce;
+    }
+    .btn-ghost {
+      background: transparent;
+      border-color: var(--line);
+      color: var(--muted);
+    }
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      align-items: center;
+      margin: 14px 0 18px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-family: var(--font-clean);
+    }
+    .meta-row strong { color: var(--text); font-weight: 600; }
+
+    .calendar {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px 14px 12px;
+      margin-bottom: 18px;
+    }
+    .calendar-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .calendar-head h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .cal-nav { display: flex; gap: 6px; }
+    .cal-nav button {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .cal-dow {
+      text-align: center;
+      font-size: 0.68rem;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding-bottom: 4px;
+    }
+    .cal-day {
+      min-height: 52px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: var(--surface-2);
+      padding: 6px;
+      cursor: pointer;
+      text-align: left;
+      color: var(--text);
+      font-family: var(--font-clean);
+    }
+    .cal-day:hover { border-color: var(--line); }
+    .cal-day.is-muted { opacity: 0.35; cursor: default; }
+    .cal-day.is-today { border-color: rgba(78, 200, 232, 0.45); }
+    .cal-day.is-selected { border-color: var(--gold); box-shadow: 0 0 0 1px rgba(201, 169, 97, 0.35); }
+    .cal-day-num { font-size: 0.78rem; font-weight: 600; display: block; margin-bottom: 4px; }
+    .cal-dots { display: flex; flex-wrap: wrap; gap: 3px; }
+    .cal-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+    .cal-dot[data-type="news"] { background: #a78bfa; }
+    .cal-dot[data-type="deal"] { background: #fb923c; }
+    .cal-dot[data-type="scheme"] { background: var(--cyan); }
+    .cal-dot[data-type="note"] { background: var(--gold); }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 960px) {
+      .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      .board { grid-template-columns: 1fr; }
+      .cal-day { min-height: 44px; }
+    }
+    .col {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      min-height: 220px;
+    }
+    .col-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .col-head h3 {
+      margin: 0;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+    .col-count {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-family: var(--font-clean);
+    }
+    .col-body { display: flex; flex-direction: column; gap: 8px; }
+
+    .card {
+      background: var(--surface-2);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 10px 10px 8px;
+    }
+    .card.is-dim { opacity: 0.4; }
+    .card-type {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+    .card-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      line-height: 1.3;
+      margin: 0 0 6px;
+    }
+    .card-title a { color: inherit; text-decoration: none; }
+    .card-title a:hover { color: var(--cyan); }
+    .card-meta {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: var(--font-clean);
+      margin-bottom: 8px;
+    }
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .card-actions select,
+    .card-actions input[type="date"],
+    .card-actions button {
+      font: 500 0.7rem/1.2 var(--font-clean);
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--text);
+      padding: 4px 6px;
+    }
+    .card-actions button { cursor: pointer; }
+    .card-actions button.danger { color: #fca5a5; border-color: rgba(248, 113, 113, 0.35); }
+
+    .compose {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .compose h2 {
+      margin: 0 0 10px;
+      font-size: 0.95rem;
+    }
+    .compose-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .compose input[type="text"] {
+      flex: 1 1 220px;
+      min-width: 160px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      color: var(--text);
+      font: 500 0.9rem/1.3 var(--font-clean);
+    }
+    .empty {
+      padding: 18px 14px;
+      text-align: center;
+      color: var(--muted);
+      font-family: var(--font-clean);
+      font-size: 0.88rem;
+      border: 1px dashed rgba(75, 140, 104, 0.35);
+      border-radius: 12px;
+    }
+    .foot {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: var(--font-clean);
+    }
+    .foot a { color: var(--cyan); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div class="hero-kicker">Plan · organise · follow through</div>
+      <h1>Organisation Desk</h1>
+      <p>
+        Park products, news, and agent suggestions here. Move them across the board,
+        pin dates on the calendar, and keep discovery on the Customer Hub.
+      </p>
+      <div class="hero-actions">
+        <button type="button" class="btn btn-primary" id="btnImportShortlist">Import shortlist</button>
+        <a class="btn" href="/greenways/customer-hub" target="_top">Customer Hub</a>
+        <a class="btn" href="/greenways/orchestra-hub" target="_top">Orchestra</a>
+        <a class="btn btn-ghost" href="/greenways/agent-market" target="_top">Agent Market</a>
+      </div>
+    </header>
+
+    <div class="meta-row">
+      <span><strong id="statTotal">0</strong> on desk</span>
+      <span id="filterLabel">Showing all columns</span>
+      <button type="button" class="btn btn-ghost" id="btnClearDayFilter" hidden>Clear day filter</button>
+    </div>
+
+    <section class="compose" id="suggestionsPanel" hidden>
+      <h2>Agent suggestions</h2>
+      <p style="margin:0 0 10px;font-size:0.85rem;color:var(--muted);font-family:var(--font-clean)">
+        Handoffs and specialist tips — Accept moves them to This week; Dismiss removes them.
+      </p>
+      <div class="col-body" id="suggestionsList"></div>
+    </section>
+
+    <section class="calendar" aria-label="Month calendar">
+      <div class="calendar-head">
+        <h2 id="calTitle">Calendar</h2>
+        <div class="cal-nav">
+          <button type="button" id="calPrev" aria-label="Previous month">‹</button>
+          <button type="button" id="calNext" aria-label="Next month">›</button>
+        </div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </section>
+
+    <section class="compose">
+      <h2>Quick note</h2>
+      <div class="compose-row">
+        <input type="text" id="noteTitle" maxlength="160" placeholder="Add a note to your Inbox…">
+        <button type="button" class="btn btn-primary" id="btnAddNote">Add note</button>
+      </div>
+    </section>
+
+    <div class="board" id="board">
+      <section class="col" data-status="inbox">
+        <div class="col-head"><h3>Inbox</h3><span class="col-count" data-count></span></div>
+        <div class="col-body" data-col></div>
+      </section>
+      <section class="col" data-status="planned">
+        <div class="col-head"><h3>This week</h3><span class="col-count" data-count></span></div>
+        <div class="col-body" data-col></div>
+      </section>
+      <section class="col" data-status="later">
+        <div class="col-head"><h3>Later</h3><span class="col-count" data-count></span></div>
+        <div class="col-body" data-col></div>
+      </section>
+      <section class="col" data-status="done">
+        <div class="col-head"><h3>Done</h3><span class="col-count" data-count></span></div>
+        <div class="col-body" data-col></div>
+      </section>
+    </div>
+
+    <p class="foot">
+      Desk cards stay in this browser (<code>greenways-organisation-desk-v1</code>).
+      Member sync across devices is a later wave — see
+      <a href="/greenways/customer-hub" target="_top">Customer Hub</a> for discovery.
+    </p>
+  </div>
+
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-team.js"></script>
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-organisation-desk.js"></script>
+  <script>
+    (function () {
+      var Desk = window.GreenwaysOrganisationDesk;
+      if (!Desk) return;
+
+      var viewYear;
+      var viewMonth;
+      var selectedDay = null;
+      var now = new Date();
+      viewYear = now.getFullYear();
+      viewMonth = now.getMonth();
+
+      var DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+      function ymd(d) {
+        var m = d.getMonth() + 1;
+        var day = d.getDate();
+        return d.getFullYear() + "-" + (m < 10 ? "0" : "") + m + "-" + (day < 10 ? "0" : "") + day;
+      }
+
+      function cardsForDay(dayStr) {
+        return Desk.readCards().filter(function (c) {
+          return c.date === dayStr;
+        });
+      }
+
+      function boardCards() {
+        return Desk.readCards().filter(function (c) {
+          return !(c.type === "suggestion" && c.status === "inbox");
+        });
+      }
+
+      function renderSuggestions() {
+        var panel = document.getElementById("suggestionsPanel");
+        var list = document.getElementById("suggestionsList");
+        if (!panel || !list) return;
+        var items = Desk.pendingSuggestions();
+        panel.hidden = !items.length;
+        list.innerHTML = "";
+        items.forEach(function (card) {
+          var el = document.createElement("article");
+          el.className = "card";
+          var agent =
+            card.sourceAgent && card.sourceAgent.name
+              ? Desk.escapeHtml(card.sourceAgent.name)
+              : "Specialist";
+          var href = card.href
+            ? '<a href="' + Desk.escapeHtml(card.href) + '" target="_top" rel="noopener">Open handoff</a>'
+            : "";
+          el.innerHTML =
+            '<div class="card-type">suggestion</div>' +
+            '<h4 class="card-title">' +
+            Desk.escapeHtml(card.title) +
+            "</h4>" +
+            '<div class="card-meta">From ' +
+            agent +
+            (card.note ? " · " + Desk.escapeHtml(card.note).slice(0, 120) : "") +
+            "</div>" +
+            '<div class="card-actions">' +
+            '<button type="button" data-act="accept">Accept → This week</button>' +
+            '<button type="button" data-act="dismiss" class="danger">Dismiss</button>' +
+            href +
+            "</div>";
+          el.querySelector('[data-act="accept"]').addEventListener("click", function () {
+            Desk.acceptSuggestion(card.id);
+            renderAll();
+          });
+          el.querySelector('[data-act="dismiss"]').addEventListener("click", function () {
+            Desk.dismissSuggestion(card.id);
+            renderAll();
+          });
+          list.appendChild(el);
+        });
+      }
+
+      function renderCalendar() {
+        var title = document.getElementById("calTitle");
+        var grid = document.getElementById("calGrid");
+        var monthName = new Date(viewYear, viewMonth, 1).toLocaleString("en-GB", {
+          month: "long",
+          year: "numeric"
+        });
+        title.textContent = monthName;
+        grid.innerHTML = "";
+        DOW.forEach(function (d) {
+          var el = document.createElement("div");
+          el.className = "cal-dow";
+          el.textContent = d;
+          grid.appendChild(el);
+        });
+
+        var first = new Date(viewYear, viewMonth, 1);
+        var startPad = (first.getDay() + 6) % 7;
+        var daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+        var todayStr = ymd(now);
+
+        for (var i = 0; i < startPad; i++) {
+          var empty = document.createElement("div");
+          empty.className = "cal-day is-muted";
+          empty.setAttribute("aria-hidden", "true");
+          grid.appendChild(empty);
+        }
+
+        for (var day = 1; day <= daysInMonth; day++) {
+          var dateStr = ymd(new Date(viewYear, viewMonth, day));
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "cal-day";
+          if (dateStr === todayStr) btn.classList.add("is-today");
+          if (selectedDay === dateStr) btn.classList.add("is-selected");
+          btn.setAttribute("data-date", dateStr);
+          btn.innerHTML =
+            '<span class="cal-day-num">' +
+            day +
+            '</span><span class="cal-dots"></span>';
+          var dots = btn.querySelector(".cal-dots");
+          cardsForDay(dateStr)
+            .slice(0, 4)
+            .forEach(function (c) {
+              var dot = document.createElement("span");
+              dot.className = "cal-dot";
+              dot.setAttribute("data-type", c.type);
+              dots.appendChild(dot);
+            });
+          btn.addEventListener("click", function () {
+            var d = this.getAttribute("data-date");
+            selectedDay = selectedDay === d ? null : d;
+            renderAll();
+          });
+          grid.appendChild(btn);
+        }
+      }
+
+      function statusOptions(current) {
+        return Desk.STATUSES.map(function (s) {
+          var label =
+            s === "inbox"
+              ? "Inbox"
+              : s === "planned"
+                ? "This week"
+                : s === "later"
+                  ? "Later"
+                  : "Done";
+          return (
+            '<option value="' +
+            s +
+            '"' +
+            (s === current ? " selected" : "") +
+            ">" +
+            label +
+            "</option>"
+          );
+        }).join("");
+      }
+
+      function renderBoard() {
+        var cards = boardCards();
+        document.getElementById("statTotal").textContent = String(Desk.readCards().length);
+        var filterLabel = document.getElementById("filterLabel");
+        var clearBtn = document.getElementById("btnClearDayFilter");
+        if (selectedDay) {
+          filterLabel.textContent = "Focusing " + selectedDay + " (dated cards highlighted)";
+          clearBtn.hidden = false;
+        } else {
+          filterLabel.textContent = "Showing all columns";
+          clearBtn.hidden = true;
+        }
+
+        Desk.STATUSES.forEach(function (status) {
+          var col = document.querySelector('.col[data-status="' + status + '"]');
+          if (!col) return;
+          var body = col.querySelector("[data-col]");
+          var countEl = col.querySelector("[data-count]");
+          var list = cards.filter(function (c) {
+            return c.status === status;
+          });
+          countEl.textContent = String(list.length);
+          body.innerHTML = "";
+
+          if (!list.length) {
+            var empty = document.createElement("div");
+            empty.className = "empty";
+            empty.textContent =
+              status === "inbox"
+                ? "Nothing here yet — import your shortlist, save news/deals/schemes, or add a note."
+                : "No cards in this column.";
+            body.appendChild(empty);
+            return;
+          }
+
+          list.forEach(function (card) {
+            var el = document.createElement("article");
+            el.className = "card";
+            if (selectedDay && card.date !== selectedDay) el.classList.add("is-dim");
+            var agent =
+              card.sourceAgent && card.sourceAgent.name
+                ? " · " + Desk.escapeHtml(card.sourceAgent.name)
+                : "";
+            var dateLabel = card.date ? " · " + Desk.escapeHtml(card.date) : "";
+            var titleHtml = Desk.escapeHtml(card.title);
+            if (card.href) {
+              titleHtml =
+                '<a href="' +
+                Desk.escapeHtml(card.href) +
+                '" target="_top" rel="noopener">' +
+                titleHtml +
+                "</a>";
+            }
+            el.innerHTML =
+              '<div class="card-type">' +
+              Desk.escapeHtml(card.type) +
+              "</div>" +
+              '<h4 class="card-title">' +
+              titleHtml +
+              "</h4>" +
+              '<div class="card-meta">' +
+              (card.refId ? Desk.escapeHtml(card.refId) : "Note") +
+              agent +
+              dateLabel +
+              "</div>" +
+              '<div class="card-actions">' +
+              '<select data-act="status" aria-label="Move column">' +
+              statusOptions(card.status) +
+              "</select>" +
+              '<input type="date" data-act="date" value="' +
+              (card.date || "") +
+              '" aria-label="Plan date">' +
+              '<button type="button" data-act="remove" class="danger">Remove</button>' +
+              "</div>";
+
+            el.querySelector('[data-act="status"]').addEventListener("change", function (e) {
+              Desk.updateCard(card.id, { status: e.target.value });
+              renderAll();
+            });
+            el.querySelector('[data-act="date"]').addEventListener("change", function (e) {
+              Desk.updateCard(card.id, { date: e.target.value || null });
+              renderAll();
+            });
+            el.querySelector('[data-act="remove"]').addEventListener("click", function () {
+              Desk.removeCard(card.id);
+              renderAll();
+            });
+            body.appendChild(el);
+          });
+        });
+      }
+
+      function renderAll() {
+        renderSuggestions();
+        renderCalendar();
+        renderBoard();
+      }
+
+      document.getElementById("calPrev").addEventListener("click", function () {
+        viewMonth -= 1;
+        if (viewMonth < 0) {
+          viewMonth = 11;
+          viewYear -= 1;
+        }
+        renderCalendar();
+      });
+      document.getElementById("calNext").addEventListener("click", function () {
+        viewMonth += 1;
+        if (viewMonth > 11) {
+          viewMonth = 0;
+          viewYear += 1;
+        }
+        renderCalendar();
+      });
+      document.getElementById("btnClearDayFilter").addEventListener("click", function () {
+        selectedDay = null;
+        renderAll();
+      });
+      document.getElementById("btnImportShortlist").addEventListener("click", function () {
+        var result = Desk.importShortlist();
+        Desk.showToast(
+          result.added
+            ? "Imported " + result.added + " new product(s) from shortlist"
+            : result.imported
+              ? "Shortlist already on your desk"
+              : "Shortlist is empty — save products with Artemis or Zyanne first"
+        );
+        renderAll();
+      });
+      document.getElementById("btnAddNote").addEventListener("click", function () {
+        var input = document.getElementById("noteTitle");
+        var title = (input.value || "").trim();
+        if (!title) {
+          input.focus();
+          return;
+        }
+        Desk.addCard({ type: "note", title: title, status: "inbox" });
+        input.value = "";
+        renderAll();
+      });
+      document.getElementById("noteTitle").addEventListener("keydown", function (e) {
+        if (e.key === "Enter") document.getElementById("btnAddNote").click();
+      });
+
+      window.addEventListener("gw-desk-change", renderAll);
+      if (window.parent && window.parent !== window) {
+        try {
+          window.parent.postMessage({ type: "gw-module-embed-ready", moduleId: "organisation-desk" }, "*");
+        } catch (_) {}
+      }
+      Desk.ingestOpenHandoff();
+      renderAll();
+    })();
+  </script>
+</body>
+</html>

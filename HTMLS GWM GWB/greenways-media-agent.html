@@ -19,6 +19,8 @@
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-wire-ticker.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-sidebar.js"></script>
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-wire-ticker.js"></script>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-organisation-desk.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-organisation-desk.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-video.css">
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-video.js"></script>
 <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-content-module.css">
@@ -1813,8 +1815,10 @@
   }
 
   function renderModuleSampleCard(p, moduleItem, badgeLabel, name, img, meta, grantLabel, askPrompt, title) {
+    var deskType = /news/i.test(badgeLabel) ? "news" : "module";
+    var deskId = escapeHtml(String(p.id || moduleItem && moduleItem.moduleId || title || "item"));
     return (
-      '<div class="product-sample-card is-module" data-banner-open="module">' +
+      '<div class="product-sample-card is-module' + (deskType === "news" ? " is-news" : "") + '" data-banner-open="module" data-desk-type="' + deskType + '" data-desk-id="' + deskId + '">' +
       '<button type="button" class="product-sample-link product-module-trigger"' + modulePayloadAttr(moduleItem, { map: false }) + ' title="' + escapeHtml(title || "Open in Cheryce’s module panel") + '">' +
       '<div class="product-sample-img-wrap">' + img + '<span class="gw-module-open-badge">' + escapeHtml(badgeLabel) + "</span></div>" +
       '<div class="product-sample-body">' +
@@ -1928,7 +1932,7 @@
     }
     var newsClass = p.type === "news" ? " is-news" : "";
     return (
-      '<div class="product-sample-card' + newsClass + '" data-banner-open="full">' +
+      '<div class="product-sample-card' + newsClass + '" data-banner-open="full" data-desk-type="news" data-desk-id="' + escapeHtml(String(p.id || rawName)) + '">' +
       '<a class="product-sample-link" href="' + href + '" target="_blank" rel="noopener noreferrer" title="Open page" style="text-decoration:none;color:inherit;display:flex;flex:1;min-width:0">' +
       '<div class="product-sample-img-wrap">' + img + "</div>" +
       '<div class="product-sample-body">' +
@@ -2628,9 +2632,9 @@
   }
   document.getElementById("new-chat-btn").addEventListener("click", clearChat);
 
-          if (window.GreenwaysAgentSidebar) {
+              if (window.GreenwaysAgentSidebar) {
     GreenwaysAgentSidebar.init({
-      quickLinks: [{"icon":"📡","name":"Media wire","desc":"Scan + desk hub","moduleOpen":true,"moduleId":"media-wire","href":"/greenways/media-wire-embed","action":"Open"},{"icon":"📰","name":"Sustainability news","desc":"Monthly editions","moduleOpen":true,"moduleId":"sustainability-news-page","action":"Open"},{"icon":"📚","name":"References","desc":"Curated links","moduleOpen":true,"moduleId":"sustainable-references","gwbFile":"Sustainable%20References%20.HTML","action":"Open"},{"icon":"🎬","name":"Video desk","desc":"Cinema briefings","moduleOpen":true,"moduleId":"media-video-desk","href":"/greenways/media-video-desk-embed","action":"Open"},{"icon":"📡","name":"Energy monitoring","desc":"Guide page","moduleOpen":true,"moduleId":"energy-monitoring","gwbFile":"Importance%20of%20Energy%20Monitoring.html","action":"Open"},{"icon":"💧","name":"Water finder","desc":"Saving products","moduleOpen":true,"moduleId":"water-saving-finder","gwbFile":"water-saving-finder.html","action":"Open"},{"icon":"🏷️","name":"Deals hub","desc":"Ticker + search","moduleOpen":true,"moduleId":"deals-ticker","gwbFile":"deals-ticker-hub.html","action":"Open"},{"icon":"📈","name":"Energy ticker","desc":"Live prices","moduleOpen":true,"moduleId":"energy-ticker","gwbFile":"../content-ops/drafts/energy-ticker/energy-ticker-green-wire.html","action":"Open"},{"icon":"🗺️","name":"Sustainability map","desc":"Case studies","mapOpen":true,"action":"Open"}],
+      quickLinks: [{"icon":"📡","name":"Media wire","desc":"Scan + desk hub","moduleOpen":true,"moduleId":"media-wire","href":"/greenways/media-wire-embed","action":"Open"},{"icon":"🗂️","name":"Organisation Desk","desc":"Plan board + calendar","moduleOpen":true,"moduleId":"organisation-desk","href":"/greenways/organisation-desk","action":"Open"},{"icon":"📰","name":"Sustainability news","desc":"Monthly editions","moduleOpen":true,"moduleId":"sustainability-news-page","action":"Open"},{"icon":"📚","name":"References","desc":"Curated links","moduleOpen":true,"moduleId":"sustainable-references","gwbFile":"Sustainable%20References%20.HTML","action":"Open"},{"icon":"🎬","name":"Video desk","desc":"Cinema briefings","moduleOpen":true,"moduleId":"media-video-desk","href":"/greenways/media-video-desk-embed","action":"Open"},{"icon":"📡","name":"Energy monitoring","desc":"Guide page","moduleOpen":true,"moduleId":"energy-monitoring","gwbFile":"Importance%20of%20Energy%20Monitoring.html","action":"Open"},{"icon":"💧","name":"Water finder","desc":"Saving products","moduleOpen":true,"moduleId":"water-saving-finder","gwbFile":"water-saving-finder.html","action":"Open"},{"icon":"🏷️","name":"Deals hub","desc":"Ticker + search","moduleOpen":true,"moduleId":"deals-ticker","gwbFile":"deals-ticker-hub.html","action":"Open"},{"icon":"📈","name":"Energy ticker","desc":"Live prices","moduleOpen":true,"moduleId":"energy-ticker","gwbFile":"../content-ops/drafts/energy-ticker/energy-ticker-green-wire.html","action":"Open"},{"icon":"🗺️","name":"Sustainability map","desc":"Case studies","mapOpen":true,"action":"Open"}],
       linksHint: "Portals open in-panel with a short guide — chat stays open behind.",
       helpersHint: "Policy, funding, videos, and the map.",
       helpers: HELPERS,
@@ -2696,6 +2700,12 @@
 
   restoreSession();
   loadBannerProducts();
+  if (window.GreenwaysOrganisationDesk) {
+    GreenwaysOrganisationDesk.init({
+      agentSlug: "media-agent",
+      agentName: "Cheryce"
+    });
+  }
 })();
 </script>
 </body>

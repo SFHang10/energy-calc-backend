@@ -22,6 +22,8 @@
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-topic-bridge.js"></script>
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-sidebar.js"></script>
 <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-wire-ticker.js"></script>
+<link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-organisation-desk.css">
+<script src="/HTMLS%20GWM%20GWB/js/greenways-organisation-desk.js"></script>
 <script>
 (function () {
   var p = location.pathname || "";
@@ -2169,9 +2171,9 @@
     GreenwaysAgentContentModule.bindContainer(document.body);
   }
 
-                                                          if (window.GreenwaysAgentSidebar) {
+                                                              if (window.GreenwaysAgentSidebar) {
     GreenwaysAgentSidebar.init({
-      quickLinks: [{"icon":"📡","name":"Grants wire","desc":"Scheme scan + desk hub","moduleOpen":true,"moduleId":"grants-wire","href":"/greenways/grants-wire-embed","action":"Open"},{"icon":"🎯","name":"Scheme Fit","desc":"Region + equipment shortlist","moduleOpen":true,"moduleId":"scheme-fit","href":"./greenways-scheme-fit.html","action":"Open"},{"icon":"🏛️","name":"Schemes portal","desc":"Restaurant catalogue","moduleOpen":true,"moduleId":"schemes-portal-restaurant","href":"./Full%20Schemes%20Portal%20Restaurant.html","action":"Open"},{"icon":"🌍","name":"EU schemes portal","desc":"Cross-border programmes","moduleOpen":true,"moduleId":"schemes-portal-eu","href":"./Full%20Schemes%20Portal%20html.html","action":"Open"},{"icon":"💶","name":"Finance finder","desc":"Loans & BNPL","moduleOpen":true,"moduleId":"finance-finder","href":"./finance-finder-restaurant.html","action":"Open"},{"icon":"🎯","name":"Savings tour","desc":"Grants & finance hub","moduleOpen":true,"moduleId":"savings-tour","href":"./savings.html","action":"Open"},{"icon":"✅","name":"ETL finder","desc":"Verified products","moduleOpen":true,"moduleId":"etl-finder","href":"./equipment_intelligence_tool.html","action":"Open"},{"icon":"💶","name":"Finance Agent","desc":"Vincent · payback","href":"/greenways/finance-agent","agent":true}],
+      quickLinks: [{"icon":"📡","name":"Grants wire","desc":"Scheme scan + desk hub","moduleOpen":true,"moduleId":"grants-wire","href":"/greenways/grants-wire-embed","action":"Open"},{"icon":"🗂️","name":"Organisation Desk","desc":"Plan board + calendar","moduleOpen":true,"moduleId":"organisation-desk","href":"/greenways/organisation-desk","action":"Open"},{"icon":"🎯","name":"Scheme Fit","desc":"Region + equipment shortlist","moduleOpen":true,"moduleId":"scheme-fit","href":"./greenways-scheme-fit.html","action":"Open"},{"icon":"🏛️","name":"Schemes portal","desc":"Restaurant catalogue","moduleOpen":true,"moduleId":"schemes-portal-restaurant","href":"./Full%20Schemes%20Portal%20Restaurant.html","action":"Open"},{"icon":"🌍","name":"EU schemes portal","desc":"Cross-border programmes","moduleOpen":true,"moduleId":"schemes-portal-eu","href":"./Full%20Schemes%20Portal%20html.html","action":"Open"},{"icon":"💶","name":"Finance finder","desc":"Loans & BNPL","moduleOpen":true,"moduleId":"finance-finder","href":"./finance-finder-restaurant.html","action":"Open"},{"icon":"🎯","name":"Savings tour","desc":"Grants & finance hub","moduleOpen":true,"moduleId":"savings-tour","href":"./savings.html","action":"Open"},{"icon":"✅","name":"ETL finder","desc":"Verified products","moduleOpen":true,"moduleId":"etl-finder","href":"./equipment_intelligence_tool.html","action":"Open"},{"icon":"💶","name":"Finance Agent","desc":"Vincent · payback","href":"/greenways/finance-agent","agent":true}],
       linksHint: "Portals open in-panel with a short guide — chat stays open behind.",
       helpersHint: "Schemes, regions, deadlines, and product overlays.",
       helpers: HELPERS,
@@ -2179,26 +2181,6 @@
       compactNameLen: 16
     });
   } else {
-    HELPERS.forEach(function (h) {
-      const card = document.createElement("button");
-      card.type = "button";
-      card.className = "helper-card";
-      card.innerHTML = h.name;
-      card.addEventListener("click", function () { sendQuestion(h.prompt); });
-      document.getElementById("helper-list").appendChild(card);
-    });
-  }
-
-  updateCompareUi();
-  
-  var gwVoiceHandle = null;
-
-  var gwMailHandle = null;
-  if (window.GreenwaysAgentMail) {
-    gwMailHandle = GreenwaysAgentMail.init({
-      mailBtn: document.getElementById("mail-preview-btn"),
-      getProfile: typeof profileForAsk === "function" ? profileForAsk : (typeof getProfile === "function" ? getProfile : null)
-    });
   }
 
   if (window.GreenwaysAgentVoice) {
@@ -2250,6 +2232,13 @@
 
   restoreSession();
   loadBannerProducts();
+  if (window.GreenwaysOrganisationDesk) {
+    GreenwaysOrganisationDesk.init({
+      agentSlug: "grants-agent",
+      agentName: "Andrieus",
+      watchSchemes: true
+    });
+  }
 })();
 </script>
 </body>

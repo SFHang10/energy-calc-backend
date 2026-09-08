@@ -79,6 +79,7 @@
 | **Agents portal — story** | `HTMLS GWM GWB/greenways-agents-story.html` · `/greenways/agents-story` — why the Transition Agents exist (Wix entry / embed) |
 | **Agents portal — highlights** | `HTMLS GWM GWB/greenways-agents-highlights.html` · `/greenways/agents-highlights` · `npm run build:agent-highlights` — weekly grounded `/ask` snapshot per specialist |
 | **Customer Hub (member home)** | `HTMLS GWM GWB/greenways-customer-hub.html` · `/greenways/customer-hub` · PRD `tasks/prd-customer-hub.json` — saved / suggestions / deals / Cheryce news; not the ops buildings dashboard |
+| **Organisation Desk (plan board)** | `HTMLS GWM GWB/greenways-organisation-desk.html` · `/greenways/organisation-desk` · PRD `tasks/prd-organisation-desk.json` — board + calendar for products/news/notes; Add to desk from Artemis/Zyanne; not Customer Hub / not Buildings |
 | **Agent Market (in-agent shop)** | `HTMLS GWM GWB/greenways-agent-market.html` · `/greenways/agent-market` · module id `agent-market` · PRD `tasks/prd-agent-market.json` — **v1 complete** (lanes, shortlist, buy handoff, dual compare, shared marketplace backdrop). Enhancements: AM-008+ in PRD backlog |
 | **Agent story pages (selling)** | `HTMLS GWM GWB/greenways-agent-story.html` · `/greenways/agents/{slug}/story` · JSON `data/greenways-agent-stories/` · PRD `tasks/prd-agent-story-pages.json` — intro, video slot, 3-step journeys, live HTML demos |
 | **Greenways Orchestra (hub)** | `HTMLS GWM GWB/greenways-orchestra-hub.html` · `/greenways/orchestra-hub` · `/api/guide-agent/ask` |

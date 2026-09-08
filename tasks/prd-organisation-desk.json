@@ -1,0 +1,201 @@
+{
+  "featureName": "Greenways Organisation Desk",
+  "branchName": "feature/organisation-desk",
+  "description": "Member planning surface where users save products, news, deals, schemes, and agent suggestions onto a clear board with calendar view. Distinct from Customer Hub (discovery home) and Buildings dashboard (ops). Agents suggest and hand off; the desk owns the plan.",
+  "targetSkills": [
+    "greenways-chat-interface-skill.md",
+    "greenways-transition-agents.md",
+    "energy-dashboard-skill.md",
+    "Skills/greenways-agents-improvements-master.md"
+  ],
+  "principles": [
+    "Organisation Desk = plan & arrange; Customer Hub = discover; Buildings = ops",
+    "One card model for every saved item (typed: product, news, deal, scheme, module, note, suggestion)",
+    "Calendar is a view of dated cards — not a separate product",
+    "Reuse shortlist + member saved-items before inventing a CRM",
+    "Empty states are honest — never fake a filled plan",
+    "Calm desk UI — clear cards, light calendar; not another dark ops dashboard clone"
+  ],
+  "waves": [
+    { "id": "OD1", "name": "Shell + card store + board columns", "weeks": "1" },
+    { "id": "OD2", "name": "Calendar view + shortlist / hub import", "weeks": "1-2" },
+    { "id": "OD3", "name": "Add to desk from agents + content module", "weeks": "2" },
+    { "id": "OD4", "name": "Member persist + agent suggestion inbox", "weeks": "3+" }
+  ],
+  "userStories": [
+    {
+      "id": "OD-001",
+      "wave": "OD1",
+      "title": "Organisation Desk shell",
+      "description": "As a member, I want a single clean desk page so I can organise saved items without opening seven tools.",
+      "acceptanceCriteria": [
+        "HTML at HTMLS GWM GWB/greenways-organisation-desk.html",
+        "Route GET /greenways/organisation-desk (and optional -embed)",
+        "Header explains desk vs Customer Hub; link to Customer Hub and Orchestra",
+        "Wix no-scroll meta; usable desktop and mobile",
+        "Demo mode works without login via localStorage"
+      ],
+      "priority": 1,
+      "estimatedEffort": "medium",
+      "passes": true
+    },
+    {
+      "id": "OD-002",
+      "wave": "OD1",
+      "title": "Typed desk cards + board columns",
+      "description": "As a planner, I want saved items as cards I can move between Inbox, This week, Later, and Done.",
+      "acceptanceCriteria": [
+        "localStorage key greenways-organisation-desk-v1 stores array of cards",
+        "Card shape: id, type, title, href, sourceAgent, status, date, note, refId, addedAt",
+        "Types: product | news | deal | scheme | module | note | suggestion",
+        "Statuses: inbox | planned | later | done map to board columns",
+        "User can add a quick note card; edit status; remove card",
+        "Shared JS: HTMLS GWM GWB/js/greenways-organisation-desk.js"
+      ],
+      "priority": 2,
+      "estimatedEffort": "medium",
+      "passes": true
+    },
+    {
+      "id": "OD-003",
+      "wave": "OD2",
+      "title": "Month / week calendar strip",
+      "description": "As a planner, I want a calendar view of dated cards so the desk doubles as a simple plan board.",
+      "acceptanceCriteria": [
+        "Month strip shows days; cards with date appear on that day",
+        "Clicking a day filters or highlights matching cards",
+        "User can set or clear a card date from the card UI",
+        "Undated cards stay on board only (not forced onto calendar)"
+      ],
+      "priority": 3,
+      "estimatedEffort": "medium",
+      "dependencies": ["OD-002"],
+      "passes": true
+    },
+    {
+      "id": "OD-004",
+      "wave": "OD2",
+      "title": "Import shortlist + Customer Hub bridge",
+      "description": "As a shopper, I want products I already shortlisted to land on my desk Inbox in one action.",
+      "acceptanceCriteria": [
+        "Import from sessionStorage greenways-product-shortlist creates product cards (dedupe by refId)",
+        "Customer Hub links to /greenways/organisation-desk",
+        "Desk empty state offers Import shortlist and Open Customer Hub"
+      ],
+      "priority": 4,
+      "estimatedEffort": "small",
+      "dependencies": ["OD-002"],
+      "passes": true
+    },
+    {
+      "id": "OD-005",
+      "wave": "OD3",
+      "title": "Add to desk from agent product cards",
+      "description": "As a user chatting with Artemis or Zyanne, I want Add to desk on product sample cards without leaving chat.",
+      "acceptanceCriteria": [
+        "Product sample cards show Add to desk control (alongside shortlist where present)",
+        "Writes product card with sourceAgent slug/name",
+        "Toast confirms; optional Open desk link",
+        "Wired on equipment-agent and sustainable-products-agent at minimum"
+      ],
+      "priority": 5,
+      "estimatedEffort": "medium",
+      "dependencies": ["OD-002"],
+      "passes": true
+    },
+    {
+      "id": "OD-006",
+      "wave": "OD3",
+      "title": "Content module + Quick link",
+      "description": "As an agent user, I want Organisation Desk available as a content module / quick link.",
+      "acceptanceCriteria": [
+        "Module id organisation-desk in data/greenways-content-modules.json",
+        "Listed for equipment, products, finance, grants, deals, media",
+        "AGENTS.md key file row for desk page + PRD"
+      ],
+      "priority": 6,
+      "estimatedEffort": "small",
+      "passes": true
+    },
+    {
+      "id": "OD-007",
+      "wave": "OD4",
+      "title": "Member persist (optional)",
+      "description": "As a logged-in member, I want my desk to survive across devices when auth is present.",
+      "acceptanceCriteria": [
+        "When member auth present, attempt sync with GET/POST /api/members/saved-items or dedicated desk endpoint",
+        "localStorage remains offline fallback",
+        "No silent wipe of local cards on failed API"
+      ],
+      "priority": 7,
+      "estimatedEffort": "large",
+      "dependencies": ["OD-002"],
+      "passes": false
+    },
+    {
+      "id": "OD-008",
+      "wave": "OD4",
+      "title": "Agent suggestion inbox",
+      "description": "As a member, I want agent handoffs / suggestions to appear as suggestion cards I can accept onto the board.",
+      "acceptanceCriteria": [
+        "Handoff or structured suggestion payload can create type=suggestion cards",
+        "Accept moves to planned; Dismiss removes",
+        "Attributed with agent portrait when roster data available"
+      ],
+      "priority": 8,
+      "estimatedEffort": "medium",
+      "dependencies": ["OD-002"],
+      "passes": true
+    },
+    {
+      "id": "OD-009",
+      "wave": "OD4",
+      "title": "Add to desk — news, deals, schemes",
+      "description": "As a planner, I want to save Cheryce news, Zara deals, and Andrieus schemes onto the desk — not only products.",
+      "acceptanceCriteria": [
+        "Cheryce banner news/module cards expose Add to desk (type=news)",
+        "Zara banner deal cards expose Add to desk (type=deal)",
+        "Andrieus scheme tablets expose Add to desk (type=scheme; deadline → date when present)",
+        "Quick links include Organisation Desk on media, deals, and grants agents"
+      ],
+      "priority": 9,
+      "estimatedEffort": "medium",
+      "dependencies": ["OD-002"],
+      "passes": true
+    }
+  ],
+  "outOfScopeV1": [
+    "Multi-user collaborative boards",
+    "Full kanban drag polish / swimlanes",
+    "Email / calendar provider sync (Google, Outlook)",
+    "Buildings KPI / sensor clone on the desk",
+    "New personalisation engine",
+    "Replacing Customer Hub or Agent Market"
+  ],
+  "keyFiles": [
+    "HTMLS GWM GWB/greenways-organisation-desk.html",
+    "HTMLS GWM GWB/js/greenways-organisation-desk.js",
+    "HTMLS GWM GWB/js/greenways-organisation-desk.css",
+    "HTMLS GWM GWB/js/greenways-agent-product-shortlist.js",
+    "HTMLS GWM GWB/greenways-customer-hub.html",
+    "data/greenways-content-modules.json",
+    "tasks/prd-organisation-desk.json",
+    "server-new.js"
+  ],
+  "storage": {
+    "deskKey": "greenways-organisation-desk-v1",
+    "shortlistKey": "greenways-product-shortlist",
+    "cardExample": {
+      "id": "desk_…",
+      "type": "product",
+      "title": "Example product",
+      "href": "/product-page-v2-marketplace.html?product=etl_14_59333&fromPopup=true",
+      "refId": "etl_14_59333",
+      "sourceAgent": { "slug": "equipment-agent", "name": "Artemis" },
+      "status": "inbox",
+      "date": null,
+      "note": "",
+      "addedAt": "2026-09-08T00:00:00.000Z"
+    }
+  }
+}

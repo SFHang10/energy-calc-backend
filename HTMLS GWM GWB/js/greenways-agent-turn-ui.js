@@ -481,8 +481,10 @@
             '" title="Save deadline to your Greenways calendar">Add to calendar</button>';
         }
       }
+      const schemeRef = escapeHtml(String(s.id || s.schemeId || ("scheme_" + String(s.title || "item").slice(0, 40))));
+      const deskDate = s.deadline ? ' data-desk-date="' + escapeHtml(String(s.deadline).slice(0, 10)) + '"' : "";
       return (
-        '<article class="scheme-tablet">' +
+        '<article class="scheme-tablet"' + deskDate + ">" +
         '<div class="scheme-tablet-head">' +
         '<button type="button" class="scheme-chip-btn scheme-tablet-title" data-scheme="' + payload + '" title="Tap to select for compare">' + title + "</button>" +
         '<div class="scheme-tablet-badges">' +
@@ -493,6 +495,15 @@
         '<p class="scheme-tablet-desc">' + desc + "</p>" +
         '<div class="scheme-tablet-actions">' +
         '<button type="button" class="scheme-tablet-ask scheme-chip-ask" data-prompt="' + escapeHtml(askPrompt) + '">Ask about this</button>' +
+        '<button type="button" class="scheme-tablet-desk product-desk-btn" data-desk-type="scheme" data-desk-id="' +
+        schemeRef +
+        '" data-desk-title="' +
+        title +
+        '" data-desk-href="' +
+        url +
+        '"' +
+        deskDate +
+        ">Add to desk</button>" +
         calendarBtn +
         linkHtml +
         "</div></article>"
