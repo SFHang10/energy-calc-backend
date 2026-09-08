@@ -20,7 +20,8 @@
     { "id": "OD1", "name": "Shell + card store + board columns", "weeks": "1" },
     { "id": "OD2", "name": "Calendar view + shortlist / hub import", "weeks": "1-2" },
     { "id": "OD3", "name": "Add to desk from agents + content module", "weeks": "2" },
-    { "id": "OD4", "name": "Member persist + agent suggestion inbox", "weeks": "3+" }
+    { "id": "OD4", "name": "Member persist + agent suggestion inbox", "weeks": "3+" },
+    { "id": "OD5", "name": "Drag, week agenda, Ask agent, Hub bridge", "weeks": "3+" }
   ],
   "userStories": [
     {
@@ -161,6 +162,65 @@
       "priority": 9,
       "estimatedEffort": "medium",
       "dependencies": ["OD-002"],
+      "passes": true
+    },
+    {
+      "id": "OD-010",
+      "wave": "OD5",
+      "title": "Drag cards between columns",
+      "description": "As a planner, I want to drag desk cards between Inbox, This week, Later, and Done.",
+      "acceptanceCriteria": [
+        "Cards are draggable on the Organisation Desk board",
+        "Dropping on a column updates status and re-renders",
+        "Status dropdown still works as fallback"
+      ],
+      "priority": 10,
+      "estimatedEffort": "medium",
+      "dependencies": ["OD-002"],
+      "passes": true
+    },
+    {
+      "id": "OD-011",
+      "wave": "OD5",
+      "title": "This week agenda strip",
+      "description": "As a planner, I want a week list under the month calendar so dated cards are easy to scan.",
+      "acceptanceCriteria": [
+        "Week strip shows Mon–Sun for the current week with card titles",
+        "Copy this week exports a plain-text plan to the clipboard",
+        "Clicking a week item focuses that date on the board"
+      ],
+      "priority": 11,
+      "estimatedEffort": "small",
+      "dependencies": ["OD-003"],
+      "passes": true
+    },
+    {
+      "id": "OD-012",
+      "wave": "OD5",
+      "title": "Ask agent from a desk card",
+      "description": "As a planner, I want one tap to ask the right specialist about a saved card.",
+      "acceptanceCriteria": [
+        "Each board card has Ask [Agent] linking to /greenways/{slug}?q=…",
+        "Routing prefers sourceAgent, then type defaults (news→Cheryce, deal→Zara, scheme→Andrieus, product→Artemis)"
+      ],
+      "priority": 12,
+      "estimatedEffort": "small",
+      "dependencies": ["OD-002"],
+      "passes": true
+    },
+    {
+      "id": "OD-013",
+      "wave": "OD5",
+      "title": "Customer Hub → Add to desk",
+      "description": "As a member on Customer Hub, I want to send Saved items to Organisation Desk without re-searching.",
+      "acceptanceCriteria": [
+        "Saved lane cards show Add to desk / On desk toggle",
+        "Writes product cards into greenways-organisation-desk-v1",
+        "Toast offers Open desk"
+      ],
+      "priority": 13,
+      "estimatedEffort": "small",
+      "dependencies": ["OD-002", "OD-004"],
       "passes": true
     }
   ],

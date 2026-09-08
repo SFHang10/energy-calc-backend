@@ -9,7 +9,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-portal-nav.css">
+  <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-organisation-desk.css">
   <script src="/HTMLS%20GWM%20GWB/js/greenways-portal-embed.js"></script>
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-organisation-desk.js"></script>
   <style>
     :root {
       --bg: #0b1410;
@@ -1029,6 +1031,37 @@
     .card:hover {
       border-color: rgba(61, 207, 122, 0.45);
       transform: translateY(-2px);
+    }
+    .card-wrap {
+      flex: 0 0 auto;
+      width: min(240px, 78vw);
+      max-width: 280px;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .card-wrap > .card {
+      width: 100%;
+      max-width: none;
+    }
+    .hub-to-desk-btn {
+      align-self: stretch;
+      border-radius: 999px;
+      border: 1px solid rgba(201, 169, 97, 0.45);
+      background: rgba(201, 169, 97, 0.12);
+      color: #e8d5a3;
+      font: 600 0.72rem/1.2 var(--font-clean);
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+    .hub-to-desk-btn:hover {
+      background: rgba(201, 169, 97, 0.22);
+    }
+    .hub-to-desk-btn.is-saved {
+      border-color: rgba(61, 207, 122, 0.45);
+      background: rgba(61, 207, 122, 0.16);
+      color: #9fd4b0;
     }
     .card-media {
       height: 96px;
@@ -2319,6 +2352,7 @@
       '<div class="empty-actions">' +
       '<a href="/product-page-v2-marketplace.html">Browse marketplace</a>' +
       '<a href="/greenways/equipment-agent">Ask Artemis</a>' +
+      '<a href="/greenways/organisation-desk">Organisation Desk</a>' +
       '<a href="/greenways/sustainable-products-agent">Ask Zyanne</a>' +
       '</div>'
     );
@@ -2363,12 +2397,20 @@
     var media = image
       ? '<div class="card-media"><img src="' + escapeHtml(image) + '" alt="" loading="lazy" decoding="async"></div>'
       : '<div class="card-media" aria-hidden="true">' + escapeHtml(opts.mediaLabel || 'Greenways') + '</div>';
+    var deskId = String(opts.deskId || opts.productId || '').trim();
+    var deskType = String(opts.deskType || 'product').trim();
+    var deskBtn = deskId
+      ? '<button type="button" class="hub-to-desk-btn" data-desk-id="' + escapeHtml(deskId) + '" data-desk-type="' + escapeHtml(deskType) + '" data-desk-title="' + escapeHtml(opts.title || deskId) + '" data-desk-href="' + escapeHtml(opts.href || '') + '">Add to desk</button>'
+      : '';
     return (
+      '<div class="card-wrap">' +
       '<a class="card" href="' + escapeHtml(opts.href) + '">' +
         badge + media +
         '<div class="card-body"><h3>' + escapeHtml(opts.title) + '</h3>' +
         (opts.line ? '<p>' + escapeHtml(opts.line) + '</p>' : '') +
-        '</div></a>'
+        '</div></a>' +
+      deskBtn +
+      '</div>'
     );
   }
 
@@ -2513,9 +2555,25 @@
         image: card.image,
         href: card.href,
         agent: agent,
-        mediaLabel: 'Saved'
+        mediaLabel: 'Saved',
+        deskId: card.id,
+        deskType: 'product',
+        productId: card.id
       });
     }).join('');
+    syncHubDeskButtons(lane);
+  }
+
+  function syncHubDeskButtons(root) {
+    var Desk = window.GreenwaysOrganisationDesk;
+    if (!Desk || !root) return;
+    root.querySelectorAll('.hub-to-desk-btn').forEach(function (btn) {
+      var id = btn.getAttribute('data-desk-id') || '';
+      var type = btn.getAttribute('data-desk-type') || 'product';
+      var on = Desk.isOnDesk(id, type);
+      btn.classList.toggle('is-saved', on);
+      btn.textContent = on ? 'On desk · tap to remove' : 'Add to desk';
+    });
   }
 
   async function renderRestaurantAgents() {
@@ -3446,6 +3504,41 @@
       });
     }
   }
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target && e.target.closest ? e.target.closest('.hub-to-desk-btn') : null;
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var Desk = window.GreenwaysOrganisationDesk;
+    if (!Desk) return;
+    var id = btn.getAttribute('data-desk-id') || '';
+    var type = btn.getAttribute('data-desk-type') || 'product';
+    var title = btn.getAttribute('data-desk-title') || id;
+    var href = btn.getAttribute('data-desk-href') || '';
+    if (!id) return;
+    if (Desk.isOnDesk(id, type)) {
+      var existing = Desk.findByRef(id, type);
+      if (existing) Desk.removeCard(existing.id);
+      Desk.showToast('Removed from Organisation Desk');
+    } else {
+      Desk.addTypedItem({
+        type: type,
+        id: id,
+        refId: id,
+        title: title,
+        href: href,
+        fromSlug: 'customer-hub',
+        fromName: 'Customer Hub'
+      });
+      Desk.showToast('Saved to Organisation Desk', Desk.deskHref(), 'Open desk');
+    }
+    syncHubDeskButtons(document.getElementById('saved-lane'));
+  });
+
+  window.addEventListener('gw-desk-change', function () {
+    syncHubDeskButtons(document.getElementById('saved-lane'));
+  });
 
   init();
 })();

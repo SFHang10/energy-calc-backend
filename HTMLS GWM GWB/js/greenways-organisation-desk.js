@@ -321,6 +321,89 @@
     return "/greenways/organisation-desk";
   }
 
+  function defaultAgentSlugForCard(card) {
+    if (!card) return "equipment-agent";
+    if (card.suggestionMeta && card.suggestionMeta.toSlug) return card.suggestionMeta.toSlug;
+    if (card.sourceAgent && card.sourceAgent.slug) return card.sourceAgent.slug;
+    var t = card.type || "note";
+    if (t === "news") return "media-agent";
+    if (t === "deal") return "deals-agent";
+    if (t === "scheme") return "grants-agent";
+    if (t === "product") return "equipment-agent";
+    if (t === "module") return "media-agent";
+    return "equipment-agent";
+  }
+
+  function askHrefForCard(card) {
+    var slug = defaultAgentSlugForCard(card);
+    var title = (card && card.title) || "this item";
+    var question =
+      card && card.suggestionMeta && card.suggestionMeta.question
+        ? card.suggestionMeta.question
+        : "Tell me more about " + title + " for my business profile";
+    if (slug === "orchestra-hub" || slug === "guide-agent") {
+      return "/greenways/orchestra-hub?q=" + encodeURIComponent(question);
+    }
+    return "/greenways/" + slug + "?q=" + encodeURIComponent(question);
+  }
+
+  function startOfWeek(d) {
+    var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var day = (x.getDay() + 6) % 7;
+    x.setDate(x.getDate() - day);
+    return x;
+  }
+
+  function ymdLocal(d) {
+    var m = d.getMonth() + 1;
+    var day = d.getDate();
+    return d.getFullYear() + "-" + (m < 10 ? "0" : "") + m + "-" + (day < 10 ? "0" : "") + day;
+  }
+
+  function cardsForWeek(anchorDate) {
+    var start = startOfWeek(anchorDate || new Date());
+    var days = [];
+    for (var i = 0; i < 7; i++) {
+      var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      var key = ymdLocal(d);
+      days.push({
+        date: key,
+        label: d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }),
+        isToday: key === ymdLocal(new Date()),
+        cards: readCards().filter(function (c) {
+          return c.date === key;
+        })
+      });
+    }
+    return { start: ymdLocal(start), days: days };
+  }
+
+  function formatWeekPlanText(anchorDate) {
+    var week = cardsForWeek(anchorDate);
+    var lines = ["Greenways Organisation Desk — this week", "Week of " + week.start, ""];
+    week.days.forEach(function (day) {
+      lines.push(day.label + (day.isToday ? " (today)" : ""));
+      if (!day.cards.length) {
+        lines.push("  — none —");
+      } else {
+        day.cards.forEach(function (c) {
+          lines.push("  • [" + c.type + "] " + c.title + (c.href ? " — " + c.href : ""));
+        });
+      }
+      lines.push("");
+    });
+    var undated = readCards().filter(function (c) {
+      return c.status === "planned" && !c.date;
+    });
+    if (undated.length) {
+      lines.push("This week (no date yet)");
+      undated.forEach(function (c) {
+        lines.push("  • [" + c.type + "] " + c.title);
+      });
+    }
+    return lines.join("\n");
+  }
+
   function extractProductId(href) {
     try {
       var match = String(href || "").match(/[?&]product=([^&]+)/i);
@@ -557,6 +640,12 @@
     showToast: showToast,
     deskHref: deskHref,
     escapeHtml: escapeHtml,
+    defaultAgentSlugForCard: defaultAgentSlugForCard,
+    askHrefForCard: askHrefForCard,
+    cardsForWeek: cardsForWeek,
+    formatWeekPlanText: formatWeekPlanText,
+    ymdLocal: ymdLocal,
+    startOfWeek: startOfWeek,
     init: init
   };
 

@@ -312,6 +312,90 @@
       font-family: var(--font-clean);
     }
     .foot a { color: var(--cyan); }
+
+    .week-agenda {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 18px;
+    }
+    .week-agenda-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .week-agenda-head h2 {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+    .week-days {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+    }
+    @media (max-width: 900px) {
+      .week-days { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    .week-day {
+      background: var(--surface-2);
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 8px;
+      min-height: 72px;
+    }
+    .week-day.is-today { border-color: rgba(78, 200, 232, 0.45); }
+    .week-day-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-family: var(--font-clean);
+    }
+    .week-day ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .week-day li {
+      font-size: 0.72rem;
+      line-height: 1.25;
+      color: var(--text);
+      background: rgba(61, 207, 122, 0.1);
+      border-radius: 6px;
+      padding: 4px 6px;
+      cursor: pointer;
+    }
+    .week-day li:hover { background: rgba(61, 207, 122, 0.2); }
+    .week-day .week-empty {
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-family: var(--font-clean);
+    }
+
+    .card[draggable="true"] { cursor: grab; }
+    .card.is-dragging { opacity: 0.45; }
+    .col-body.is-drop-target {
+      outline: 2px dashed rgba(201, 169, 97, 0.55);
+      outline-offset: 2px;
+      border-radius: 10px;
+      min-height: 48px;
+    }
+    .card-actions a.ask-link {
+      color: var(--cyan);
+      text-decoration: none;
+      font: 500 0.7rem/1.2 var(--font-clean);
+      padding: 4px 6px;
+      border: 1px solid rgba(78, 200, 232, 0.35);
+      border-radius: 6px;
+    }
+    .card-actions a.ask-link:hover { background: rgba(78, 200, 232, 0.12); }
   </style>
 </head>
 <body>
@@ -325,6 +409,7 @@
       </p>
       <div class="hero-actions">
         <button type="button" class="btn btn-primary" id="btnImportShortlist">Import shortlist</button>
+        <button type="button" class="btn" id="btnCopyWeek">Copy this week</button>
         <a class="btn" href="/greenways/customer-hub" target="_top">Customer Hub</a>
         <a class="btn" href="/greenways/orchestra-hub" target="_top">Orchestra</a>
         <a class="btn btn-ghost" href="/greenways/agent-market" target="_top">Agent Market</a>
@@ -354,6 +439,14 @@
         </div>
       </div>
       <div class="cal-grid" id="calGrid"></div>
+    </section>
+
+    <section class="week-agenda" aria-label="This week agenda">
+      <div class="week-agenda-head">
+        <h2>This week</h2>
+        <span id="weekRangeLabel" style="font-size:0.8rem;color:var(--muted);font-family:var(--font-clean)"></span>
+      </div>
+      <div class="week-days" id="weekDays"></div>
     </section>
 
     <section class="compose">
@@ -547,6 +640,68 @@
         }).join("");
       }
 
+      function renderWeekAgenda() {
+        var wrap = document.getElementById("weekDays");
+        var label = document.getElementById("weekRangeLabel");
+        if (!wrap) return;
+        var week = Desk.cardsForWeek(now);
+        if (label) label.textContent = "Week of " + week.start;
+        wrap.innerHTML = "";
+        week.days.forEach(function (day) {
+          var el = document.createElement("div");
+          el.className = "week-day" + (day.isToday ? " is-today" : "");
+          var listHtml = "";
+          if (!day.cards.length) {
+            listHtml = '<div class="week-empty">—</div>';
+          } else {
+            listHtml =
+              "<ul>" +
+              day.cards
+                .map(function (c) {
+                  return (
+                    '<li data-card-id="' +
+                    Desk.escapeHtml(c.id) +
+                    '" title="' +
+                    Desk.escapeHtml(c.type) +
+                    '">' +
+                    Desk.escapeHtml(c.title) +
+                    "</li>"
+                  );
+                })
+                .join("") +
+              "</ul>";
+          }
+          el.innerHTML = '<div class="week-day-label">' + Desk.escapeHtml(day.label) + "</div>" + listHtml;
+          el.querySelectorAll("li[data-card-id]").forEach(function (li) {
+            li.addEventListener("click", function () {
+              selectedDay = day.date;
+              renderAll();
+              var col = document.querySelector('.col[data-status="planned"], .col[data-status="inbox"]');
+              if (col) col.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            });
+          });
+          wrap.appendChild(el);
+        });
+      }
+
+      function bindColumnDrop(body, status) {
+        body.addEventListener("dragover", function (e) {
+          e.preventDefault();
+          body.classList.add("is-drop-target");
+        });
+        body.addEventListener("dragleave", function () {
+          body.classList.remove("is-drop-target");
+        });
+        body.addEventListener("drop", function (e) {
+          e.preventDefault();
+          body.classList.remove("is-drop-target");
+          var id = e.dataTransfer.getData("text/desk-card-id") || e.dataTransfer.getData("text/plain");
+          if (!id) return;
+          Desk.updateCard(id, { status: status });
+          renderAll();
+        });
+      }
+
       function renderBoard() {
         var cards = boardCards();
         document.getElementById("statTotal").textContent = String(Desk.readCards().length);
@@ -556,7 +711,7 @@
           filterLabel.textContent = "Focusing " + selectedDay + " (dated cards highlighted)";
           clearBtn.hidden = false;
         } else {
-          filterLabel.textContent = "Showing all columns";
+          filterLabel.textContent = "Showing all columns · drag cards to move";
           clearBtn.hidden = true;
         }
 
@@ -570,14 +725,18 @@
           });
           countEl.textContent = String(list.length);
           body.innerHTML = "";
+          if (!body.getAttribute("data-drop-bound")) {
+            bindColumnDrop(body, status);
+            body.setAttribute("data-drop-bound", "1");
+          }
 
           if (!list.length) {
             var empty = document.createElement("div");
             empty.className = "empty";
             empty.textContent =
               status === "inbox"
-                ? "Nothing here yet — import your shortlist, save news/deals/schemes, or add a note."
-                : "No cards in this column.";
+                ? "Nothing here yet — import shortlist, save from agents, or add a note."
+                : "Drop cards here, or use the status menu.";
             body.appendChild(empty);
             return;
           }
@@ -585,6 +744,8 @@
           list.forEach(function (card) {
             var el = document.createElement("article");
             el.className = "card";
+            el.draggable = true;
+            el.setAttribute("data-card-id", card.id);
             if (selectedDay && card.date !== selectedDay) el.classList.add("is-dim");
             var agent =
               card.sourceAgent && card.sourceAgent.name
@@ -600,6 +761,18 @@
                 titleHtml +
                 "</a>";
             }
+            var askHref = Desk.askHrefForCard(card);
+            var askName =
+              (card.sourceAgent && card.sourceAgent.name) ||
+              ({
+                "media-agent": "Cheryce",
+                "deals-agent": "Zara",
+                "grants-agent": "Andrieus",
+                "equipment-agent": "Artemis",
+                "sustainable-products-agent": "Zyanne",
+                "finance-agent": "Vincent"
+              }[Desk.defaultAgentSlugForCard(card)] || "agent");
+            var askLabel = "Ask " + askName;
             el.innerHTML =
               '<div class="card-type">' +
               Desk.escapeHtml(card.type) +
@@ -619,8 +792,26 @@
               '<input type="date" data-act="date" value="' +
               (card.date || "") +
               '" aria-label="Plan date">' +
+              '<a class="ask-link" data-act="ask" href="' +
+              Desk.escapeHtml(askHref) +
+              '" target="_top" rel="noopener">' +
+              Desk.escapeHtml(askLabel) +
+              "</a>" +
               '<button type="button" data-act="remove" class="danger">Remove</button>' +
               "</div>";
+
+            el.addEventListener("dragstart", function (e) {
+              el.classList.add("is-dragging");
+              e.dataTransfer.setData("text/desk-card-id", card.id);
+              e.dataTransfer.setData("text/plain", card.id);
+              e.dataTransfer.effectAllowed = "move";
+            });
+            el.addEventListener("dragend", function () {
+              el.classList.remove("is-dragging");
+              document.querySelectorAll(".col-body.is-drop-target").forEach(function (b) {
+                b.classList.remove("is-drop-target");
+              });
+            });
 
             el.querySelector('[data-act="status"]').addEventListener("change", function (e) {
               Desk.updateCard(card.id, { status: e.target.value });
@@ -642,6 +833,7 @@
       function renderAll() {
         renderSuggestions();
         renderCalendar();
+        renderWeekAgenda();
         renderBoard();
       }
 
@@ -675,6 +867,19 @@
               : "Shortlist is empty — save products with Artemis or Zyanne first"
         );
         renderAll();
+      });
+      document.getElementById("btnCopyWeek").addEventListener("click", function () {
+        var text = Desk.formatWeekPlanText(now);
+        function ok() {
+          Desk.showToast("This week’s plan copied");
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(ok).catch(function () {
+            window.prompt("Copy this week’s plan:", text);
+          });
+        } else {
+          window.prompt("Copy this week’s plan:", text);
+        }
       });
       document.getElementById("btnAddNote").addEventListener("click", function () {
         var input = document.getElementById("noteTitle");
