@@ -462,71 +462,104 @@
       else if (askBtn) card.insertBefore(btn, askBtn);
       else card.appendChild(btn);
     }
-    btn.setAttribute("data-desk-type", meta.type);
-    btn.setAttribute("data-desk-id", meta.refId);
-    btn.setAttribute("data-desk-title", meta.title);
-    btn.setAttribute("data-desk-href", meta.href || "");
+    if (btn.getAttribute("data-desk-type") !== meta.type) btn.setAttribute("data-desk-type", meta.type);
+    if (btn.getAttribute("data-desk-id") !== meta.refId) btn.setAttribute("data-desk-id", meta.refId);
+    if (btn.getAttribute("data-desk-title") !== meta.title) btn.setAttribute("data-desk-title", meta.title);
+    var hrefVal = meta.href || "";
+    if (btn.getAttribute("data-desk-href") !== hrefVal) btn.setAttribute("data-desk-href", hrefVal);
     syncDeskButton(btn, meta.refId, meta.type);
   }
 
   function syncDeskButton(btn, refId, type) {
     if (!btn) return;
     var on = isOnDesk(refId, type || "product");
-    btn.classList.toggle("is-saved", on);
-    btn.textContent = on ? "On desk · tap to remove" : "Add to desk";
-    btn.setAttribute("aria-pressed", on ? "true" : "false");
+    var label = on ? "On desk · tap to remove" : "Add to desk";
+    var pressed = on ? "true" : "false";
+    if (btn.classList.contains("is-saved") !== on) {
+      btn.classList.toggle("is-saved", on);
+    }
+    if (btn.textContent !== label) {
+      btn.textContent = label;
+    }
+    if (btn.getAttribute("aria-pressed") !== pressed) {
+      btn.setAttribute("aria-pressed", pressed);
+    }
   }
+
+  var decorating = false;
 
   /** Decorate banner / sample cards (products, news, deals). */
   function decorateSaveableCards(opts) {
-    opts = opts || {};
-    var agentSlug = opts.agentSlug || state.agentSlug || "";
-    var roots = [];
-    if (opts.bannerSelector || state.bannerSelector) {
-      var b = document.querySelector(opts.bannerSelector || state.bannerSelector);
-      if (b) roots.push(b);
+    if (decorating) return;
+    decorating = true;
+    var observed = state.observer;
+    if (observed) {
+      try {
+        observed.disconnect();
+      } catch (_) {}
     }
-    document.querySelectorAll(".product-samples").forEach(function (el) {
-      roots.push(el);
-    });
-    if (!roots.length) {
-      var top = document.querySelector("#top-product-samples");
-      if (top) roots.push(top);
-    }
+    try {
+      opts = opts || {};
+      var agentSlug = opts.agentSlug || state.agentSlug || "";
+      var roots = [];
+      var seen = [];
+      function pushRoot(el) {
+        if (!el || seen.indexOf(el) >= 0) return;
+        seen.push(el);
+        roots.push(el);
+      }
+      if (opts.bannerSelector || state.bannerSelector) {
+        pushRoot(document.querySelector(opts.bannerSelector || state.bannerSelector));
+      }
+      document.querySelectorAll(".product-samples").forEach(pushRoot);
+      if (!roots.length) {
+        pushRoot(document.querySelector("#top-product-samples"));
+      }
 
-    roots.forEach(function (root) {
-      root.querySelectorAll(".product-sample-card").forEach(function (card) {
-        var link = card.querySelector("a.product-sample-link, button.product-sample-link");
-        var href = "";
-        if (link) {
-          href = link.getAttribute("href") || "";
-          if (!href && link.getAttribute("data-module-open")) {
-            href = "/greenways/organisation-desk";
+      roots.forEach(function (root) {
+        root.querySelectorAll(".product-sample-card").forEach(function (card) {
+          var link = card.querySelector("a.product-sample-link, button.product-sample-link");
+          var href = "";
+          if (link) {
+            href = link.getAttribute("href") || "";
+            if (!href && link.getAttribute("data-module-open")) {
+              href = "/greenways/organisation-desk";
+            }
           }
-        }
-        var titleEl = card.querySelector(".product-sample-name");
-        var title = titleEl ? titleEl.textContent.trim() : "";
-        var type = inferCardType(card, agentSlug);
-        var productId = extractProductId(href);
-        var refId =
-          card.getAttribute("data-desk-id") ||
-          productId ||
-          (title ? type + "_" + title.toLowerCase().replace(/[^a-z0-9]+/g, "_").slice(0, 48) : "");
-        if (!refId || !title) return;
-        if (type === "product" && !/^(etl_|sust_)/i.test(refId) && !productId) {
-          /* non-product banner without stable id — still allow as news/deal/module */
-          if (type === "product") type = /media-agent/.test(agentSlug) ? "news" : /deals-agent/.test(agentSlug) ? "deal" : "note";
-        }
-        if (type === "product" && productId) {
-          href = marketplaceHrefFor(productId, href);
-          refId = productId;
-        }
-        ensureDeskButton(card, { type: type, refId: refId, title: title, href: href });
+          var titleEl = card.querySelector(".product-sample-name");
+          var title = titleEl ? titleEl.textContent.trim() : "";
+          var type = inferCardType(card, agentSlug);
+          var productId = extractProductId(href);
+          var refId =
+            card.getAttribute("data-desk-id") ||
+            productId ||
+            (title ? type + "_" + title.toLowerCase().replace(/[^a-z0-9]+/g, "_").slice(0, 48) : "");
+          if (!refId || !title) return;
+          if (type === "product" && !/^(etl_|sust_)/i.test(refId) && !productId) {
+            type = /media-agent/.test(agentSlug) ? "news" : /deals-agent/.test(agentSlug) ? "deal" : "note";
+          }
+          if (type === "product" && productId) {
+            href = marketplaceHrefFor(productId, href);
+            refId = productId;
+          }
+          ensureDeskButton(card, { type: type, refId: refId, title: title, href: href });
+        });
       });
-    });
+    } finally {
+      decorating = false;
+      if (observed) {
+        var el = document.querySelector(state.bannerSelector);
+        if (el) {
+          try {
+            observed.observe(el, { childList: true, subtree: false });
+          } catch (_) {}
+        }
+      }
+    }
   }
 
   function decorateSchemeTablets(root) {
+    if (decorating) return;
     var scope = root || document;
     scope.querySelectorAll(".scheme-tablet-desk").forEach(function (btn) {
       var refId = btn.getAttribute("data-desk-id") || "";
@@ -573,26 +606,41 @@
     agentSlug: "",
     agentName: "",
     bannerSelector: "#top-product-samples",
-    observer: null
+    observer: null,
+    chatObserver: null
   };
 
   function observeBanner() {
     var el = document.querySelector(state.bannerSelector);
     if (!el || typeof MutationObserver === "undefined") return;
     if (state.observer) state.observer.disconnect();
+    var timer = null;
     state.observer = new MutationObserver(function () {
-      decorateSaveableCards(state);
+      if (decorating) return;
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(function () {
+        timer = null;
+        decorateSaveableCards(state);
+      }, 50);
     });
-    state.observer.observe(el, { childList: true, subtree: true });
+    /* childList only on the banner root — not subtree — so button text updates cannot loop */
+    state.observer.observe(el, { childList: true, subtree: false });
   }
 
   function observeChatForSchemes() {
     var chat = document.getElementById("chat-log") || document.querySelector(".chat-log, #messages, .guide-messages");
     if (!chat || typeof MutationObserver === "undefined") return;
-    var mo = new MutationObserver(function () {
-      decorateSchemeTablets(chat);
+    if (state.chatObserver) state.chatObserver.disconnect();
+    var timer = null;
+    state.chatObserver = new MutationObserver(function () {
+      if (decorating) return;
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(function () {
+        timer = null;
+        decorateSchemeTablets(chat);
+      }, 80);
     });
-    mo.observe(chat, { childList: true, subtree: true });
+    state.chatObserver.observe(chat, { childList: true, subtree: true });
     decorateSchemeTablets(chat);
   }
 
