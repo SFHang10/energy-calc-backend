@@ -1,6 +1,15 @@
 /**
  * Greenways Organisation Desk — local card store for plan / board / calendar.
  * Storage: localStorage greenways-organisation-desk-v1
+ *
+ * GOTCHA (Sep 2026): Agent banner decoration uses MutationObserver.
+ * Never re-introduce observe(..., { childList: true, subtree: true }) that re-runs
+ * decorate on every button textContent/class change — that freezes agent pages
+ * (Chrome "Page Unresponsive") and product images never paint.
+ * Safe pattern: decorating guard, disconnect while mutating, debounce, subtree:false
+ * on the banner root, only write textContent/attrs when values actually change.
+ * Smoke after desk/agent banner edits: /greenways/grants-agent must stay interactive
+ * with ETL product images visible.
  */
 (function (global) {
   "use strict";

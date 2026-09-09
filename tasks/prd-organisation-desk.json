@@ -232,6 +232,15 @@
     "New personalisation engine",
     "Replacing Customer Hub or Agent Market"
   ],
+  "gotchas": [
+    {
+      "id": "OD-MUTATION-LOOP",
+      "summary": "Banner MutationObserver + unconditional button textContent updates freezes agent pages",
+      "detail": "Do not observe agent #top-product-samples with childList+subtree while decorateSaveableCards/syncDeskButton always rewrite button DOM. That loops → Chrome Page Unresponsive; product images fail to paint. Keep decorating guard, disconnect-while-mutate, debounce, subtree:false on banner root, and write text/attrs only when values change. Smoke: /greenways/grants-agent stays interactive with ETL images.",
+      "file": "HTMLS GWM GWB/js/greenways-organisation-desk.js",
+      "fixedIn": "bececf7"
+    }
+  ],
   "keyFiles": [
     "HTMLS GWM GWB/greenways-organisation-desk.html",
     "HTMLS GWM GWB/js/greenways-organisation-desk.js",

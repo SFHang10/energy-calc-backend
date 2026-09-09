@@ -79,7 +79,7 @@
 | **Agents portal — story** | `HTMLS GWM GWB/greenways-agents-story.html` · `/greenways/agents-story` — why the Transition Agents exist (Wix entry / embed) |
 | **Agents portal — highlights** | `HTMLS GWM GWB/greenways-agents-highlights.html` · `/greenways/agents-highlights` · `npm run build:agent-highlights` — weekly grounded `/ask` snapshot per specialist |
 | **Customer Hub (member home)** | `HTMLS GWM GWB/greenways-customer-hub.html` · `/greenways/customer-hub` · PRD `tasks/prd-customer-hub.json` — saved / suggestions / deals / Cheryce news; not the ops buildings dashboard |
-| **Organisation Desk (plan board)** | `HTMLS GWM GWB/greenways-organisation-desk.html` · `/greenways/organisation-desk` · PRD `tasks/prd-organisation-desk.json` — board + calendar for products/news/notes; Add to desk from Artemis/Zyanne; not Customer Hub / not Buildings |
+| **Organisation Desk (plan board)** | `HTMLS GWM GWB/greenways-organisation-desk.html` · `/greenways/organisation-desk` · PRD `tasks/prd-organisation-desk.json` — board + calendar; Add to desk from agents/hub · **⚠️ banner MutationObserver gotcha** (see Learnings Sep 2026 / JS header) |
 | **Agent Market (in-agent shop)** | `HTMLS GWM GWB/greenways-agent-market.html` · `/greenways/agent-market` · module id `agent-market` · PRD `tasks/prd-agent-market.json` — **v1 complete** (lanes, shortlist, buy handoff, dual compare, shared marketplace backdrop). Enhancements: AM-008+ in PRD backlog |
 | **Agent story pages (selling)** | `HTMLS GWM GWB/greenways-agent-story.html` · `/greenways/agents/{slug}/story` · JSON `data/greenways-agent-stories/` · PRD `tasks/prd-agent-story-pages.json` — intro, video slot, 3-step journeys, live HTML demos |
 | **Greenways Orchestra (hub)** | `HTMLS GWM GWB/greenways-orchestra-hub.html` · `/greenways/orchestra-hub` · `/api/guide-agent/ask` |
@@ -365,6 +365,10 @@ html, body {
 ---
 
 ## 🧠 Learnings Log
+
+### September 2026
+
+- **⚠️ Organisation Desk → agent banner freeze**: Decorating product banners with `MutationObserver` + `subtree: true` while `syncDeskButton` always set `textContent` caused an infinite mutation loop on Andrieus (and any agent with desk init). Chrome showed **Page Unresponsive**; product images never painted even though `/api/grants-agent/samples` returned valid ETL image URLs. **Fix:** re-entrancy `decorating` flag, disconnect observer while decorating, debounce, observe banner with `subtree: false`, only update button text/attrs when changed. File: `HTMLS GWM GWB/js/greenways-organisation-desk.js`. **When changing desk or Add-to-desk wiring:** hard-refresh `/greenways/grants-agent` and confirm the page stays responsive with images.
 
 ### January 2026
 
