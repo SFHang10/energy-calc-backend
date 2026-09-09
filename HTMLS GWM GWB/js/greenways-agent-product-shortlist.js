@@ -84,7 +84,9 @@
       id: id,
       title: String(item.title || id).slice(0, 120),
       addedAt: new Date().toISOString(),
-      marketplaceHref: marketplaceHrefFor(id, item.marketplaceHref)
+      marketplaceHref: marketplaceHrefFor(id, item.marketplaceHref),
+      fromSlug: String(item.fromSlug || state.agentSlug || "").trim(),
+      fromName: String(item.fromName || state.agentName || "").trim()
     });
     writeShortlist(list);
     return true;

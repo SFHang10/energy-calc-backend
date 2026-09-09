@@ -129,6 +129,15 @@ const memberSchema = new mongoose.Schema({
     ],
     default: []
   },
+
+  /** Organisation Desk board cards (plan surface) — JSON array, max ~80 client-side */
+  organisationDesk: {
+    type: {
+      cards: { type: Array, default: [] },
+      updatedAt: { type: Date, default: null }
+    },
+    default: () => ({ cards: [], updatedAt: null })
+  },
   
   // Subscription Information
   subscriptionTier: {

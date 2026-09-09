@@ -93,6 +93,182 @@
       /* quota */
     }
     dispatchChange();
+    scheduleRemotePush();
+  }
+
+  function getAuthToken() {
+    try {
+      return (
+        localStorage.getItem("token") ||
+        localStorage.getItem("authToken") ||
+        localStorage.getItem("jwt") ||
+        sessionStorage.getItem("token") ||
+        sessionStorage.getItem("authToken") ||
+        ""
+      );
+    } catch (_) {
+      return "";
+    }
+  }
+
+  function apiBase() {
+    try {
+      if (global.location && global.location.origin && /^https?:/i.test(global.location.origin)) {
+        return global.location.origin;
+      }
+    } catch (_) {}
+    return "";
+  }
+
+  function mergeCardLists(localCards, remoteCards) {
+    var map = {};
+    (remoteCards || []).forEach(function (c) {
+      var n = normalizeCard(c);
+      if (n) map[n.id] = n;
+    });
+    (localCards || []).forEach(function (c) {
+      var n = normalizeCard(c);
+      if (!n) return;
+      if (!map[n.id]) {
+        map[n.id] = n;
+        return;
+      }
+      var localTs = Date.parse(n.addedAt || 0) || 0;
+      var remoteTs = Date.parse(map[n.id].addedAt || 0) || 0;
+      if (localTs >= remoteTs) map[n.id] = n;
+    });
+    return Object.keys(map)
+      .map(function (k) {
+        return map[k];
+      })
+      .slice(0, MAX_CARDS);
+  }
+
+  var pushTimer = null;
+  var syncState = { status: "local", lastError: "", updatedAt: null };
+
+  function getSyncState() {
+    return {
+      status: syncState.status,
+      lastError: syncState.lastError,
+      updatedAt: syncState.updatedAt,
+      hasToken: !!getAuthToken()
+    };
+  }
+
+  function scheduleRemotePush() {
+    if (!getAuthToken()) {
+      syncState.status = "local";
+      return;
+    }
+    if (pushTimer) clearTimeout(pushTimer);
+    pushTimer = setTimeout(function () {
+      pushTimer = null;
+      pushRemoteDesk();
+    }, 900);
+  }
+
+  function pushRemoteDesk() {
+    var token = getAuthToken();
+    if (!token) {
+      syncState.status = "local";
+      return Promise.resolve({ ok: false, reason: "no-token" });
+    }
+    syncState.status = "saving";
+    return fetch(apiBase() + "/api/members/organisation-desk", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify({ cards: readCards() })
+    })
+      .then(function (res) {
+        if (res.status === 401 || res.status === 403) {
+          syncState.status = "local";
+          syncState.lastError = "auth";
+          return { ok: false, reason: "auth" };
+        }
+        if (!res.ok) throw new Error("save " + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        if (!data || data.ok === false) return data;
+        syncState.status = "synced";
+        syncState.lastError = "";
+        syncState.updatedAt = data.updatedAt || new Date().toISOString();
+        try {
+          global.dispatchEvent(new CustomEvent("gw-desk-sync", { detail: getSyncState() }));
+        } catch (_) {}
+        return data;
+      })
+      .catch(function (err) {
+        syncState.status = "error";
+        syncState.lastError = String((err && err.message) || "save-failed");
+        try {
+          global.dispatchEvent(new CustomEvent("gw-desk-sync", { detail: getSyncState() }));
+        } catch (_) {}
+        return { ok: false, reason: "error" };
+      });
+  }
+
+  /** Pull member desk and merge into localStorage. Never wipes local on failure. */
+  function pullRemoteDesk() {
+    var token = getAuthToken();
+    if (!token) {
+      syncState.status = "local";
+      return Promise.resolve({ ok: false, reason: "no-token", cards: readCards() });
+    }
+    syncState.status = "loading";
+    return fetch(apiBase() + "/api/members/organisation-desk", {
+      headers: { Authorization: "Bearer " + token }
+    })
+      .then(function (res) {
+        if (res.status === 401 || res.status === 403) {
+          syncState.status = "local";
+          syncState.lastError = "auth";
+          return null;
+        }
+        if (!res.ok) throw new Error("load " + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        if (!data) return { ok: false, reason: "auth", cards: readCards() };
+        var remote = Array.isArray(data.cards) ? data.cards : [];
+        var merged = mergeCardLists(readCards(), remote);
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(merged.slice(0, MAX_CARDS)));
+        } catch (_) {}
+        syncState.status = "synced";
+        syncState.lastError = "";
+        syncState.updatedAt = data.updatedAt || null;
+        dispatchChange();
+        try {
+          global.dispatchEvent(new CustomEvent("gw-desk-sync", { detail: getSyncState() }));
+        } catch (_) {}
+        /* Push merge so server catches local-only or newer local cards */
+        scheduleRemotePush();
+        return { ok: true, cards: merged, updatedAt: data.updatedAt };
+      })
+      .catch(function (err) {
+        syncState.status = "error";
+        syncState.lastError = String((err && err.message) || "load-failed");
+        try {
+          global.dispatchEvent(new CustomEvent("gw-desk-sync", { detail: getSyncState() }));
+        } catch (_) {}
+        return { ok: false, reason: "error", cards: readCards() };
+      });
+  }
+
+  function weekMailtoHref(anchorDate) {
+    var body = formatWeekPlanText(anchorDate);
+    var subject = "Greenways Organisation Desk — this week";
+    return (
+      "mailto:?subject=" +
+      encodeURIComponent(subject) +
+      "&body=" +
+      encodeURIComponent(body.slice(0, 1800))
+    );
   }
 
   function dispatchChange() {
@@ -701,6 +877,11 @@
     askHrefForCard: askHrefForCard,
     cardsForWeek: cardsForWeek,
     formatWeekPlanText: formatWeekPlanText,
+    weekMailtoHref: weekMailtoHref,
+    pullRemoteDesk: pullRemoteDesk,
+    pushRemoteDesk: pushRemoteDesk,
+    getSyncState: getSyncState,
+    getAuthToken: getAuthToken,
     ymdLocal: ymdLocal,
     startOfWeek: startOfWeek,
     init: init

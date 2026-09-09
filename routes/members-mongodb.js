@@ -730,6 +730,43 @@ router.delete('/saved-items/:type/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Organisation Desk — member-synced plan board (localStorage remains offline fallback)
+router.get('/organisation-desk', authenticateToken, async (req, res) => {
+  try {
+    const member = await Member.findById(req.user.id).select('organisationDesk');
+    if (!member) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const desk = member.organisationDesk || {};
+    const cards = Array.isArray(desk.cards) ? desk.cards.slice(0, 80) : [];
+    res.json({
+      ok: true,
+      cards,
+      updatedAt: desk.updatedAt || null
+    });
+  } catch (error) {
+    console.error('❌ Organisation desk read error:', error.message);
+    res.status(500).json({ error: 'Failed to load organisation desk', details: error.message });
+  }
+});
+
+router.put('/organisation-desk', authenticateToken, async (req, res) => {
+  try {
+    const member = await Member.findById(req.user.id);
+    if (!member) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const cards = Array.isArray(req.body && req.body.cards) ? req.body.cards.slice(0, 80) : [];
+    const updatedAt = new Date();
+    member.organisationDesk = { cards, updatedAt };
+    await member.save();
+    res.json({ ok: true, cards, updatedAt });
+  } catch (error) {
+    console.error('❌ Organisation desk save error:', error.message);
+    res.status(500).json({ error: 'Failed to save organisation desk', details: error.message });
+  }
+});
+
 // Content catalog
 router.get('/content-catalog', authenticateToken, (req, res) => {
   const type = req.query.type;

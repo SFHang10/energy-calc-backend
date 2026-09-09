@@ -97,7 +97,8 @@ const db = new sqlite3.Database(dbPath, (err) => {
         { name: 'saved_videos', type: 'TEXT' },
         { name: 'saved_blogs', type: 'TEXT' },
         { name: 'saved_reports', type: 'TEXT' },
-        { name: 'saved_products', type: 'TEXT' }
+        { name: 'saved_products', type: 'TEXT' },
+        { name: 'organisation_desk', type: 'TEXT' }
       ];
 
       columnsToAdd.forEach((column) => {
@@ -862,6 +863,47 @@ router.delete('/saved-items/:type/:id', authenticateToken, (req, res) => {
       }
       res.json({ saved: filtered });
     });
+  });
+});
+
+// Organisation Desk — member-synced plan board (localStorage remains offline fallback)
+router.get('/organisation-desk', authenticateToken, (req, res) => {
+  db.get('SELECT organisation_desk FROM members WHERE id = ?', [req.user.id], (err, row) => {
+    if (err) {
+      console.error('❌ Organisation desk read error:', err.message);
+      return res.status(500).json({ error: 'Database error', details: err.message });
+    }
+    if (!row) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    let payload = { cards: [], updatedAt: null };
+    try {
+      const parsed = row.organisation_desk ? JSON.parse(row.organisation_desk) : null;
+      if (parsed && Array.isArray(parsed.cards)) {
+        payload = { cards: parsed.cards.slice(0, 80), updatedAt: parsed.updatedAt || null };
+      } else if (Array.isArray(parsed)) {
+        payload = { cards: parsed.slice(0, 80), updatedAt: null };
+      }
+    } catch (_) {
+      /* keep empty */
+    }
+    res.json({ ok: true, ...payload });
+  });
+});
+
+router.put('/organisation-desk', authenticateToken, (req, res) => {
+  const cards = Array.isArray(req.body && req.body.cards) ? req.body.cards.slice(0, 80) : [];
+  const updatedAt = new Date().toISOString();
+  const payload = JSON.stringify({ cards, updatedAt });
+  db.run('UPDATE members SET organisation_desk = ? WHERE id = ?', [payload, req.user.id], function (err) {
+    if (err) {
+      console.error('❌ Organisation desk save error:', err.message);
+      return res.status(500).json({ error: 'Database error', details: err.message });
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({ ok: true, cards, updatedAt });
   });
 });
 

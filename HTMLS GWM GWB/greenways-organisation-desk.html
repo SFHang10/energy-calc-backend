@@ -396,6 +396,27 @@
       border-radius: 6px;
     }
     .card-actions a.ask-link:hover { background: rgba(78, 200, 232, 0.12); }
+    .suggest-face {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      vertical-align: middle;
+      margin-right: 6px;
+      border: 1px solid var(--line);
+    }
+    .card-note {
+      width: 100%;
+      margin: 0 0 8px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--text);
+      font: 500 0.75rem/1.35 var(--font-clean);
+      resize: vertical;
+      min-height: 40px;
+    }
   </style>
 </head>
 <body>
@@ -410,6 +431,8 @@
       <div class="hero-actions">
         <button type="button" class="btn btn-primary" id="btnImportShortlist">Import shortlist</button>
         <button type="button" class="btn" id="btnCopyWeek">Copy this week</button>
+        <a class="btn" id="btnEmailWeek" href="mailto:">Email this week</a>
+        <button type="button" class="btn btn-ghost" id="btnSyncDesk" hidden>Sync account</button>
         <a class="btn" href="/greenways/customer-hub" target="_top">Customer Hub</a>
         <a class="btn" href="/greenways/orchestra-hub" target="_top">Orchestra</a>
         <a class="btn btn-ghost" href="/greenways/agent-market" target="_top">Agent Market</a>
@@ -418,6 +441,7 @@
 
     <div class="meta-row">
       <span><strong id="statTotal">0</strong> on desk</span>
+      <span id="syncLabel">Browser only</span>
       <span id="filterLabel">Showing all columns</span>
       <button type="button" class="btn btn-ghost" id="btnClearDayFilter" hidden>Clear day filter</button>
     </div>
@@ -478,8 +502,9 @@
 
     <p class="foot">
       Desk cards stay in this browser (<code>greenways-organisation-desk-v1</code>).
-      Member sync across devices is a later wave — see
-      <a href="/greenways/customer-hub" target="_top">Customer Hub</a> for discovery.
+      When you are logged in as a member, Sync account merges with your profile
+      (<code>/api/members/organisation-desk</code>) — local cards are never wiped on a failed sync.
+      See <a href="/greenways/customer-hub" target="_top">Customer Hub</a> for discovery.
     </p>
   </div>
 
@@ -498,6 +523,42 @@
       viewMonth = now.getMonth();
 
       var DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+      var rosterBySlug = {};
+
+      function loadRoster() {
+        return fetch("/data/greenways-agent-roster.json")
+          .then(function (r) {
+            return r.ok ? r.json() : null;
+          })
+          .then(function (data) {
+            var agents = (data && data.agents) || [];
+            agents.forEach(function (a) {
+              if (a && a.slug) rosterBySlug[a.slug] = a;
+            });
+          })
+          .catch(function () {});
+      }
+
+      function updateSyncUi() {
+        var st = Desk.getSyncState();
+        var label = document.getElementById("syncLabel");
+        var btn = document.getElementById("btnSyncDesk");
+        if (btn) btn.hidden = !st.hasToken;
+        if (!label) return;
+        if (!st.hasToken) {
+          label.textContent = "Browser only";
+          return;
+        }
+        if (st.status === "synced") label.textContent = "Synced to account";
+        else if (st.status === "saving" || st.status === "loading") label.textContent = "Syncing…";
+        else if (st.status === "error") label.textContent = "Sync paused — local copy kept";
+        else label.textContent = "Signed in · tap Sync account";
+      }
+
+      function refreshEmailWeekLink() {
+        var a = document.getElementById("btnEmailWeek");
+        if (a) a.href = Desk.weekMailtoHref(now);
+      }
 
       function ymd(d) {
         var m = d.getMonth() + 1;
@@ -527,16 +588,25 @@
         items.forEach(function (card) {
           var el = document.createElement("article");
           el.className = "card";
+          var slug = (card.sourceAgent && card.sourceAgent.slug) || "";
           var agent =
             card.sourceAgent && card.sourceAgent.name
               ? Desk.escapeHtml(card.sourceAgent.name)
               : "Specialist";
+          var face = rosterBySlug[slug];
+          var faceHtml =
+            face && face.imageUrl
+              ? '<img class="suggest-face" src="' +
+                Desk.escapeHtml(face.imageUrl) +
+                '" alt="" width="28" height="28" loading="lazy">'
+              : "";
           var href = card.href
             ? '<a href="' + Desk.escapeHtml(card.href) + '" target="_top" rel="noopener">Open handoff</a>'
             : "";
           el.innerHTML =
             '<div class="card-type">suggestion</div>' +
             '<h4 class="card-title">' +
+            faceHtml +
             Desk.escapeHtml(card.title) +
             "</h4>" +
             '<div class="card-meta">From ' +
@@ -785,6 +855,9 @@
               agent +
               dateLabel +
               "</div>" +
+              '<textarea class="card-note" data-act="note" rows="2" placeholder="Add a note…">' +
+              Desk.escapeHtml(card.note || "") +
+              "</textarea>" +
               '<div class="card-actions">' +
               '<select data-act="status" aria-label="Move column">' +
               statusOptions(card.status) +
@@ -821,6 +894,17 @@
               Desk.updateCard(card.id, { date: e.target.value || null });
               renderAll();
             });
+            var noteEl = el.querySelector('[data-act="note"]');
+            noteEl.addEventListener("change", function (e) {
+              Desk.updateCard(card.id, { note: e.target.value || "" });
+            });
+            noteEl.addEventListener("mousedown", function (e) {
+              e.stopPropagation();
+            });
+            noteEl.addEventListener("dragstart", function (e) {
+              e.preventDefault();
+              e.stopPropagation();
+            });
             el.querySelector('[data-act="remove"]').addEventListener("click", function () {
               Desk.removeCard(card.id);
               renderAll();
@@ -831,6 +915,8 @@
       }
 
       function renderAll() {
+        refreshEmailWeekLink();
+        updateSyncUi();
         renderSuggestions();
         renderCalendar();
         renderWeekAgenda();
@@ -881,6 +967,20 @@
           window.prompt("Copy this week’s plan:", text);
         }
       });
+      document.getElementById("btnSyncDesk").addEventListener("click", function () {
+        Desk.pullRemoteDesk().then(function (result) {
+          if (result && result.ok) {
+            Desk.showToast("Desk synced with your account");
+          } else if (result && result.reason === "auth") {
+            Desk.showToast("Sign in via Membership to sync across devices");
+          } else if (result && result.reason === "no-token") {
+            Desk.showToast("Sign in via Membership to sync across devices");
+          } else {
+            Desk.showToast("Could not reach sync — local desk kept");
+          }
+          renderAll();
+        });
+      });
       document.getElementById("btnAddNote").addEventListener("click", function () {
         var input = document.getElementById("noteTitle");
         var title = (input.value || "").trim();
@@ -897,13 +997,18 @@
       });
 
       window.addEventListener("gw-desk-change", renderAll);
+      window.addEventListener("gw-desk-sync", updateSyncUi);
       if (window.parent && window.parent !== window) {
         try {
           window.parent.postMessage({ type: "gw-module-embed-ready", moduleId: "organisation-desk" }, "*");
         } catch (_) {}
       }
       Desk.ingestOpenHandoff();
-      renderAll();
+      loadRoster().then(function () {
+        return Desk.pullRemoteDesk();
+      }).finally(function () {
+        renderAll();
+      });
     })();
   </script>
 </body>

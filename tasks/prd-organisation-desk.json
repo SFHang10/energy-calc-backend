@@ -124,14 +124,14 @@
       "title": "Member persist (optional)",
       "description": "As a logged-in member, I want my desk to survive across devices when auth is present.",
       "acceptanceCriteria": [
-        "When member auth present, attempt sync with GET/POST /api/members/saved-items or dedicated desk endpoint",
+        "When member auth present, sync via GET/PUT /api/members/organisation-desk",
         "localStorage remains offline fallback",
         "No silent wipe of local cards on failed API"
       ],
       "priority": 7,
       "estimatedEffort": "large",
       "dependencies": ["OD-002"],
-      "passes": false
+      "passes": true
     },
     {
       "id": "OD-008",
@@ -221,6 +221,21 @@
       "priority": 13,
       "estimatedEffort": "small",
       "dependencies": ["OD-002", "OD-004"],
+      "passes": true
+    },
+    {
+      "id": "OD-014",
+      "wave": "OD4",
+      "title": "Email this week + card notes + suggestion portraits",
+      "description": "As a planner, I want to email or copy this week’s plan, jot notes on cards, and see who suggested what.",
+      "acceptanceCriteria": [
+        "Email this week opens mailto with week plan body",
+        "Board cards have editable note field persisted to desk store",
+        "Suggestion inbox shows agent portrait when roster data is available"
+      ],
+      "priority": 14,
+      "estimatedEffort": "small",
+      "dependencies": ["OD-011", "OD-008"],
       "passes": true
     }
   ],
