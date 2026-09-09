@@ -12,8 +12,8 @@
   <style>
     :root {
       --bg: #0c1210;
-      --surface: #141c18;
-      --surface-2: #1a2420;
+      --surface: rgba(14, 24, 20, 0.72);
+      --surface-2: rgba(20, 32, 26, 0.78);
       --line: rgba(75, 140, 104, 0.28);
       --text: #e8f0ea;
       --muted: #9bb5a4;
@@ -24,6 +24,8 @@
       --font-clean: "IBM Plex Sans", system-ui, sans-serif;
       --radius: 14px;
       --shadow: 0 10px 32px rgba(0, 0, 0, 0.28);
+      /* Organisation Desk backdrop — Hub-style treatment, different photo */
+      --page-backdrop-image: url("https://static.wixstatic.com/media/c123de_2b7453bb263942a08c5b8aab85be69ea~mv2.jpeg");
     }
     * { box-sizing: border-box; }
     html, body {
@@ -33,19 +35,89 @@
       color: var(--text);
       font-family: var(--font);
       overflow-x: hidden;
+      position: relative;
+    }
+    .greenways-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(rgba(5, 14, 9, 0.58), rgba(5, 14, 9, 0.64)),
+        radial-gradient(circle at 78% 18%, rgba(201, 169, 97, 0.1), transparent 42%),
+        radial-gradient(circle at 18% 72%, rgba(61, 207, 122, 0.08), transparent 48%),
+        var(--page-backdrop-image);
+      background-size: cover, cover, cover, cover;
+      background-position: center, center, center, center;
+      background-repeat: no-repeat;
+      opacity: 0.48;
+      filter: brightness(1.02) saturate(1.04);
+      transition: filter 0.45s ease, opacity 0.45s ease, background-image 0.45s ease;
+    }
+    body.gw-backdrop-day .greenways-backdrop {
+      background-image:
+        linear-gradient(rgba(5, 14, 9, 0.36), rgba(5, 14, 9, 0.42)),
+        radial-gradient(circle at 78% 18%, rgba(201, 169, 97, 0.14), transparent 42%),
+        radial-gradient(circle at 18% 72%, rgba(61, 207, 122, 0.12), transparent 48%),
+        var(--page-backdrop-image);
+      opacity: 0.68;
+      filter: brightness(1.22) saturate(1.06) contrast(1.02);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .greenways-backdrop { transition: none; }
     }
     .wrap {
+      position: relative;
+      z-index: 1;
       max-width: 1180px;
       margin: 0 auto;
       padding: 20px 18px 48px;
     }
     .hero {
-      background: linear-gradient(145deg, #15261c 0%, #0e1a14 100%);
+      background: rgba(10, 20, 16, 0.58);
       border: 1px solid var(--line);
       border-radius: var(--radius);
       padding: 22px 22px 18px;
       box-shadow: var(--shadow);
       margin-bottom: 18px;
+      backdrop-filter: blur(14px) saturate(1.12);
+      -webkit-backdrop-filter: blur(14px) saturate(1.12);
+    }
+    .hero-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .btn-topbar-theme {
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(18, 32, 24, 0.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: var(--muted);
+      font: 600 0.82rem var(--font);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    .btn-topbar-theme:hover {
+      border-color: rgba(61, 207, 122, 0.55);
+      color: var(--text);
+    }
+    #btnGreenwaysBackdropTheme .backdrop-theme-label--day {
+      color: #ffb830;
+      font-weight: 600;
+    }
+    #btnGreenwaysBackdropTheme .backdrop-theme-label--night {
+      color: #22d4ff;
+      font-weight: 600;
     }
     .hero-kicker {
       font-size: 0.75rem;
@@ -53,7 +125,7 @@
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--gold);
-      margin-bottom: 8px;
+      margin: 0;
     }
     .hero h1 {
       font-size: clamp(1.45rem, 3vw, 1.9rem);
@@ -109,6 +181,12 @@
       font-size: 0.82rem;
       color: var(--muted);
       font-family: var(--font-clean);
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(75, 140, 104, 0.2);
+      background: rgba(8, 16, 12, 0.45);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
     .meta-row strong { color: var(--text); font-weight: 600; }
 
@@ -118,6 +196,8 @@
       border-radius: var(--radius);
       padding: 14px 14px 12px;
       margin-bottom: 18px;
+      backdrop-filter: blur(12px) saturate(1.1);
+      -webkit-backdrop-filter: blur(12px) saturate(1.1);
     }
     .calendar-head {
       display: flex;
@@ -203,6 +283,8 @@
       border-radius: var(--radius);
       padding: 12px;
       min-height: 220px;
+      backdrop-filter: blur(12px) saturate(1.1);
+      -webkit-backdrop-filter: blur(12px) saturate(1.1);
     }
     .col-head {
       display: flex;
@@ -276,6 +358,8 @@
       border-radius: var(--radius);
       padding: 14px;
       margin-bottom: 12px;
+      backdrop-filter: blur(12px) saturate(1.1);
+      -webkit-backdrop-filter: blur(12px) saturate(1.1);
     }
     .compose h2 {
       margin: 0 0 10px;
@@ -319,6 +403,8 @@
       border-radius: var(--radius);
       padding: 14px;
       margin-bottom: 18px;
+      backdrop-filter: blur(12px) saturate(1.1);
+      -webkit-backdrop-filter: blur(12px) saturate(1.1);
     }
     .week-agenda-head {
       display: flex;
@@ -420,9 +506,13 @@
   </style>
 </head>
 <body>
+  <div class="greenways-backdrop" aria-hidden="true"></div>
   <div class="wrap">
     <header class="hero">
-      <div class="hero-kicker">Plan · organise · follow through</div>
+      <div class="hero-head">
+        <div class="hero-kicker">Plan · organise · follow through</div>
+        <button type="button" class="btn-topbar-theme" id="btnGreenwaysBackdropTheme" aria-pressed="false" aria-label="Switch to day mode (page look)" title="Switch to day mode (page look)">☀ <span class="backdrop-theme-label backdrop-theme-label--day">Day Mode</span></button>
+      </div>
       <h1>Organisation Desk</h1>
       <p>
         Park products, news, and agent suggestions here. Move them across the board,
@@ -1004,6 +1094,44 @@
         } catch (_) {}
       }
       Desk.ingestOpenHandoff();
+      (function initGreenwaysBackdropTheme() {
+        var BACKDROP_THEME_KEY = "greenways_backdrop_theme";
+        var btn = document.getElementById("btnGreenwaysBackdropTheme");
+        function applyBackdropTheme(mode) {
+          var day = mode === "day";
+          document.body.classList.toggle("gw-backdrop-day", day);
+          if (!btn) return;
+          btn.innerHTML = day
+            ? '🌙 <span class="backdrop-theme-label backdrop-theme-label--night">Night Mode</span>'
+            : '☀ <span class="backdrop-theme-label backdrop-theme-label--day">Day Mode</span>';
+          btn.setAttribute("aria-pressed", day ? "true" : "false");
+          btn.setAttribute(
+            "aria-label",
+            day ? "Switch to night mode (page look)" : "Switch to day mode (page look)"
+          );
+          btn.title = day ? "Switch to night mode (page look)" : "Switch to day mode (page look)";
+        }
+        function getBackdropTheme() {
+          try {
+            var saved = localStorage.getItem(BACKDROP_THEME_KEY);
+            if (saved === "day" || saved === "night") return saved;
+          } catch (_) {}
+          return "night";
+        }
+        function setBackdropTheme(mode) {
+          var next = mode === "day" ? "day" : "night";
+          try {
+            localStorage.setItem(BACKDROP_THEME_KEY, next);
+          } catch (_) {}
+          applyBackdropTheme(next);
+        }
+        applyBackdropTheme(getBackdropTheme());
+        if (btn) {
+          btn.addEventListener("click", function () {
+            setBackdropTheme(document.body.classList.contains("gw-backdrop-day") ? "night" : "day");
+          });
+        }
+      })();
       loadRoster().then(function () {
         return Desk.pullRemoteDesk();
       }).finally(function () {
