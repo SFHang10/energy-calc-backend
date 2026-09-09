@@ -658,7 +658,7 @@
   function syncDeskButton(btn, refId, type) {
     if (!btn) return;
     var on = isOnDesk(refId, type || "product");
-    var label = on ? "On desk · tap to remove" : "Add to desk";
+    var label = on ? "On desk · remove" : "Add to desk";
     var pressed = on ? "true" : "false";
     if (btn.classList.contains("is-saved") !== on) {
       btn.classList.toggle("is-saved", on);
