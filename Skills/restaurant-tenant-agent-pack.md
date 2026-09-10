@@ -34,6 +34,7 @@ Tenant agents are the **front door for a client**. They hand off to Transition A
 | Equipment slim list | `data/restaurant-assets/wok-to-walk-equipment-list.json` |
 | Buildings map data | `data/company-map-buildings.json` (`companyId: wok-to-walk`) |
 | Chain hub (shell) | `/greenways/tenants/wok-to-walk` |
+| Idea illustration (website demo) | `/greenways/tenant-pack-idea` — animated how sub-agents + Transition Agents work (Wok Restaurant demo) |
 | API | `GET /api/tenant-packs`, `GET /api/tenant-packs/:chainId` |
 
 Treat W2W as the **live reference**. Next chains copy the pack shape, not the Transition Agent roster.
