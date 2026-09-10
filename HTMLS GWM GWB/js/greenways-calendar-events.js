@@ -20,6 +20,16 @@
     return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
   }
 
+  /** Display ISO YYYY-MM-DD as European DD/MM/YYYY. */
+  function formatEuDate(isoOrDate) {
+    if (isoOrDate instanceof Date && !isNaN(isoOrDate.getTime())) {
+      return isoDate(isoOrDate).replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$3/$2/$1");
+    }
+    var m = String(isoOrDate || "").match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return m[3] + "/" + m[2] + "/" + m[1];
+    return String(isoOrDate || "");
+  }
+
   function normalizeEvent(raw) {
     if (!raw || typeof raw !== "object") return null;
     var date = String(raw.date || "").trim();
@@ -159,6 +169,7 @@
     CALENDAR_PATH: CALENDAR_PATH,
     isoDate: isoDate,
     parseIso: parseIso,
+    formatEuDate: formatEuDate,
     normalizeEvent: normalizeEvent,
     readPersonalEvents: readPersonalEvents,
     writePersonalEvents: writePersonalEvents,

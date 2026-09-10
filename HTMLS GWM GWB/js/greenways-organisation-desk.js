@@ -545,6 +545,17 @@
     return d.getFullYear() + "-" + (m < 10 ? "0" : "") + m + "-" + (day < 10 ? "0" : "") + day;
   }
 
+  /** Display ISO YYYY-MM-DD as European DD/MM/YYYY. */
+  function formatEuDate(isoOrDate) {
+    if (isoOrDate instanceof Date && !isNaN(isoOrDate.getTime())) {
+      return ymdLocal(isoOrDate).replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$3/$2/$1");
+    }
+    var s = String(isoOrDate || "").trim();
+    var m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return m[3] + "/" + m[2] + "/" + m[1];
+    return s;
+  }
+
   function cardsForWeek(anchorDate) {
     var start = startOfWeek(anchorDate || new Date());
     var days = [];
@@ -560,12 +571,12 @@
         })
       });
     }
-    return { start: ymdLocal(start), days: days };
+    return { start: ymdLocal(start), startLabel: formatEuDate(start), days: days };
   }
 
   function formatWeekPlanText(anchorDate) {
     var week = cardsForWeek(anchorDate);
-    var lines = ["Greenways Organisation Desk — this week", "Week of " + week.start, ""];
+    var lines = ["Greenways Organisation Desk — this week", "Week of " + week.startLabel, ""];
     week.days.forEach(function (day) {
       lines.push(day.label + (day.isToday ? " (today)" : ""));
       if (!day.cards.length) {
@@ -883,6 +894,7 @@
     getSyncState: getSyncState,
     getAuthToken: getAuthToken,
     ymdLocal: ymdLocal,
+    formatEuDate: formatEuDate,
     startOfWeek: startOfWeek,
     init: init
   };
