@@ -258,7 +258,7 @@ Tell users to press **Savings projection** on a product card when they see it du
 - **Header + tab bar:** dark glass (not forest green); **tab icon slots** use subtle glow on all tabs, **stronger gold glow** on **`.tab-btn.active`**.
 - **Five tabs:** Grants & Subsidies · Buy Now Pay Later · Equipment Finance · Green Loans · Europe Examples — each runs AI web-search style prompts via in-page **`askClaude()`** (wire to backend proxy if keys must not live client-side).
 - **Grants category grid:** Wix photos on subject tiles; each tile has **`.cat-label`**, **`.cat-hint`** (what you might find), **`.cat-example`** (e.g. ISDE, BMKB-Groen); tiles use **lighter grey glass** on **darker `.card`** panel so buttons read distinct from the panel.
-- **Tab icons (TODO):** Top tabs still use emoji in **`.tab-icon-slot`** — swap for `<img src="https://static.wixstatic.com/media/…">` same pattern as grants grid when assets are ready.
+- **Tab icons:** Top tabs use Wix photos in **`.tab-icon-slot`** (reused from finance desk/wire: funding, kitchen, refrigeration, bills, prices). Grants tiles Food waste + Green certification also photo-backed.
 
 ### Savings page wiring
 
@@ -526,7 +526,7 @@ When this skill is used, provide:
 - **`savings.html`:** **Grants & schemes** tab actions — Restaurant schemes portal, EU schemes, **Financial assistance** → finance finder; classic backdrop button removed.
 - **`Full Schemes Portal Restaurant.html`:** Hospitality copy + restaurant backdrop; Business.gov.nl header CTA; **`loadSchemes()`** prefers **`/api/schemes`**.
 - **`schemes.json`:** **`nl-business-gov-finder`** + NL Business.gov-linked rows; **`node product-grants-integrator.js`** after batch adds.
-- **Pending:** Wix images for top tab bar icons (`.tab-icon-slot`); optional Green certification tile image URL.
+- **Pending:** Optional dedicated badge-style image for Green certification (currently reuses desk “site numbers” photo); BNPL tab uses kitchen equipment photo until a card/credit asset is uploaded.
 
 ### 2026-05-16 — Savings projections (popup, model, tour tab)
 
