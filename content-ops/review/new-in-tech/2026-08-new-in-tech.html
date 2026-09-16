@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="wix-html-scroll" content="no-scroll">
+    <title>August 2026 New in Tech</title>
+    <meta name="description" content="Monthly New in Tech roundup covering green technology, innovation, and global tech developments">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+Pro:wght@300;400;600;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { font-size: 16px; scroll-behavior: smooth; scroll-padding-top: 20px; }
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            line-height: 1.6;
+            color: #263238;
+            background-color: #FAFAFA;
+            background-image:
+                linear-gradient(rgba(250, 250, 250, 0.78), rgba(250, 250, 250, 0.84)),
+                var(--page-backdrop-image, var(--header-backdrop-image));
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+        html, body { height: auto; overflow-x: hidden; }
+
+        :root {
+            --primary-green: #2E7D32; --primary-blue: #0277BD; --accent-teal: #00897B;
+            --light-green: #81C784; --neutral-gray: #757575; --bg-white: #FFFFFF;
+            --space-xs: 8px; --space-sm: 16px; --space-md: 24px; --space-lg: 40px; --space-xl: 64px;
+            --radius: 8px; --radius-lg: 12px; --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --header-backdrop-image: url('https://static.wixstatic.com/media/c123de_0263fecb41e34ce6a742e80e76181c20~mv2.jpg');
+            --page-backdrop-image: url('https://static.wixstatic.com/media/c123de_0263fecb41e34ce6a742e80e76181c20~mv2.jpg');
+            --header-overlay: linear-gradient(135deg, rgba(12, 38, 68, 0.75), rgba(8, 52, 72, 0.71));
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 var(--space-md); }
+        .grid { display: grid; gap: var(--space-lg); }
+        .grid-2col { grid-template-columns: 2fr 1fr; overflow: visible; position: relative; z-index: 0; }
+        main { position: relative; z-index: 5; }
+        aside { position: relative; z-index: 1; }
+        .grid-auto { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        
+        .site-header {
+            position: relative;
+            isolation: isolate;
+            color: white;
+            padding: var(--space-xl) var(--space-md);
+            text-align: center;
+            background-color: #0f2744;
+            background-image: var(--header-overlay), var(--header-backdrop-image);
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+        }
+        .site-header::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .site-header .site-title,
+        .site-header .site-subtitle,
+        .site-header .meta-info {
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.45);
+        }
+        .site-title { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; margin-bottom: var(--space-sm); }
+        .site-subtitle { font-size: 22px; opacity: 0.95; font-weight: 300; }
+        .meta-info { margin-top: var(--space-md); font-size: 14px; opacity: 0.9; }
+        
+        .hero-photo-strip { background: #F1F5F9; padding: var(--space-md) 0; }
+        .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); }
+        .photo-card { background: white; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+        .photo-card img { width: 100%; height: 200px; object-fit: cover; display: block; }
+
+        .sidebar-nav { position: sticky; top: var(--space-md); background: white; border-radius: var(--radius); padding: var(--space-md); box-shadow: var(--shadow-sm); z-index: 1; }
+        .sidebar-nav h3 { font-size: 22px; margin-bottom: var(--space-sm); color: var(--primary-green); }
+        .sidebar-nav ul { list-style: none; }
+        .sidebar-nav li { margin-bottom: var(--space-xs); }
+        .sidebar-nav a { color: var(--neutral-gray); text-decoration: none; display: block; padding: var(--space-xs); border-radius: var(--radius); transition: all 0.2s; }
+        .sidebar-nav a:hover { background: #F5F5F5; color: var(--primary-green); padding-left: var(--space-sm); }
+        
+        .section { padding: var(--space-xl) 0; border-bottom: 1px solid #E0E0E0; scroll-margin-top: 20px; }
+        .section:last-child { border-bottom: none; }
+        .section-header { display: flex; align-items: center; margin-bottom: var(--space-lg); }
+        .section-header::before { content: ''; width: 4px; height: 40px; background: var(--primary-green); margin-right: var(--space-sm); border-radius: 2px; }
+        .section-header.with-image { justify-content: space-between; gap: var(--space-md); }
+        .section-header-img {
+            width: 200px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+        }
+        .section-title { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; color: #263238; }
+        .section-header::before { display: none; }
+        .section-title-hero {
+            flex: 1;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            padding: 20px 28px;
+            border-radius: 12px;
+            color: #FFFFFF;
+            background-image:
+                linear-gradient(rgba(20, 83, 45, 0.74), rgba(22, 101, 52, 0.74)),
+                url('https://static.wixstatic.com/media/c123de_957ddf8c995e441cb9d1535015adbdf4~mv2.jpg');
+            background-size: cover;
+            background-position: center;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .card { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; transition: all 0.3s; }
+        .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+        .card-content { padding: var(--space-md); }
+        .card-title { font-size: 22px; font-weight: 600; margin-bottom: var(--space-sm); color: #263238; }
+        .card-text { color: var(--neutral-gray); margin-bottom: var(--space-sm); }
+        .card-link { color: var(--primary-blue); text-decoration: none; font-weight: 600; }
+        .card-link:hover { text-decoration: underline; }
+
+        .hover-card { position: relative; overflow: hidden; z-index: 1; }
+        .impact-toggle {
+            margin-top: var(--space-sm);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 2px solid #F59E0B;
+            background: rgba(245, 158, 11, 0.12);
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .impact-toggle::after {
+            content: '▾';
+            font-size: 12px;
+        }
+        .hover-card.open .impact-toggle::after {
+            content: '▴';
+        }
+        .impact-panel {
+            margin-top: var(--space-sm);
+            background: rgba(15, 23, 42, 0.06);
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            border-radius: 12px;
+            padding: 0 16px;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.2s ease;
+        }
+        .hover-card.open .impact-panel {
+            max-height: 600px;
+            opacity: 1;
+            padding: 14px 16px;
+        }
+        .impact-box {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: #0f172a;
+            margin-bottom: var(--space-sm);
+        }
+        .impact-box:last-child { margin-bottom: 0; }
+        .impact-box h4 { font-size: 15px; margin-bottom: 6px; color: #0f172a; }
+        .impact-box ul { margin: 0; padding-left: 18px; line-height: 1.6; font-size: 13px; color: #334155; }
+        .impact-box p { margin: 0 0 8px 0; font-size: 13px; color: #334155; }
+        .impact-cta {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            color: #0f172a;
+            background: #38bdf8;
+        }
+        .impact-cta.secondary { background: #a7f3d0; color: #0f172a; }
+        
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md); margin: var(--space-lg) 0; }
+        .stat-box { background: linear-gradient(135deg, var(--light-green), var(--primary-green)); color: white; padding: var(--space-md); border-radius: var(--radius); text-align: center; }
+        .stat-number { font-size: 48px; font-weight: 700; font-family: 'Roboto Mono', monospace; line-height: 1; }
+        .stat-label { font-size: 16px; margin-top: var(--space-xs); opacity: 0.95; }
+        
+        .quote { border-left: 4px solid var(--accent-teal); padding-left: var(--space-md); margin: var(--space-lg) 0; font-style: italic; font-size: 20px; color: var(--neutral-gray); }
+        .quote-attribution { font-style: normal; font-size: 16px; margin-top: var(--space-sm); font-weight: 600; color: var(--primary-green); }
+        .quote-attribution::before { content: '— '; }
+        
+        .org-spotlight { background: white; border-radius: var(--radius-lg); overflow: hidden; margin: var(--space-xl) 0; box-shadow: var(--shadow-md); }
+        .org-header { background: linear-gradient(135deg, var(--primary-green), var(--accent-teal)); color: white; padding: var(--space-lg); }
+        .org-content { padding: var(--space-lg); }
+        
+        .badge { display: inline-block; padding: 4px var(--space-sm); border-radius: 20px; font-size: 14px; font-weight: 600; background: var(--light-green); color: white; margin-right: var(--space-xs); }
+        
+        @media (max-width: 768px) {
+            .grid-2col { grid-template-columns: 1fr; }
+            .site-title { font-size: 32px; }
+            .section-title { font-size: 28px; }
+            .sidebar-nav { position: static; }
+            .photo-grid { grid-template-columns: 1fr; }
+            .photo-card img { height: 180px; }
+            .section-header.with-image {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .section-header-img { width: 100%; height: 190px; }
+        }
+        
+        @media print {
+            .sidebar-nav { display: none; }
+            .card { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <h1 class="site-title">New in Tech Roundup</h1>
+        <p class="site-subtitle">Green Industry + Global Technology Updates</p>
+        <p class="meta-info">August 2026 Edition | Published 16 September 2026</p>
+    </header>
+
+    <!-- Hero photo strip (pick 1 image from each folder set in hero-photo-pool.json) -->
+            <section class="hero-photo-strip">
+        <div class="container">
+            <div class="photo-grid">
+                <div class="photo-card">
+                    <img src="https://static.wixstatic.com/media/c123de_8b97e722da8b4cc18c90ee2f3fe38b80~mv2.jpg" alt="Sustainability technology">
+                </div>
+                <div class="photo-card">
+                    <img src="https://static.wixstatic.com/media/c123de_91cc26e815b648e0a3f3abb091b60a54~mv2.jpg" alt="Energy efficiency systems">
+                </div>
+                <div class="photo-card">
+                    <img src="https://static.wixstatic.com/media/c123de_fd12ec1af0c84157b5445a2e53446942~mv2.jpg" alt="Green infrastructure tech">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="grid grid-2col">
+            <main>
+                <section class="section" id="summary">
+                    <div class="quote">
+                        August moves July’s Omnibus XII examination from legislative reading into stakeholder engineering: the Commission’s **Call for Feedback** on the energy products omnibus runs **21 August–15 October 2026**—the window to stress-test digital EPREL flows, QR-linked product sheets, and supplier registration before amendments harden. The **IEA Electricity Mid-Year Update 2026** (23 July) remains the live Q3 power-demand story—**+3.6%** global growth in 2026, with data centres and electrification as accelerators. Teams should parallel-track **Circular Economy Act** product-passport data models ahead of the **~30 September** proposal countdown, and line up consortia for **UKRI Transformative sustainable AI technologies** (applications **24 August–10 November**, up to **£10m**). Pair grid-aware compute planning with on-site sub-metering so H2 AI RFPs stay credible.
+                    </div>
+                </section>
+
+                <section class="section" id="top-stories">
+                    <div class="section-header with-image">
+                        <h2 class="section-title section-title-hero">Top Stories</h2>
+                        <img class="section-header-img" src="https://static.wixstatic.com/media/c123de_a5ffbebc4b11400d8ac7f37912462262~mv2.jpg" alt="Top stories image">
+                    </div>
+                    
+                    <div class="grid grid-auto">
+                        <div class="card hover-card">
+                            <div class="card-content">
+                                <h3 class="card-title">Call for Feedback — energy products omnibus (21 Aug–15 Oct)</h3>
+                                <p class="card-text">DG Energy opened stakeholder feedback on the energy products omnibus on 21 August 2026—covering digital EPREL engineering, QR-linked product information, and registration simplification while Omnibus XII moves through co-legislative examination. Responses shape how suppliers and retailers implement compliance before rules crystallise.</p>
+                                <span class="badge">EU</span><span class="badge">EPREL</span>
+                                <button class="impact-toggle" type="button">How this affects you</button>
+                            </div>
+                            <div class="impact-panel">
+                                <div class="impact-box">
+                                    <h4>How this affects you</h4>
+                                    <ul>
+                                        <li>File structured feedback on QR resolution, API limits, and dealer display duties.</li>
+                                        <li>Attach pilot evidence from July EPREL sprints to strengthen stakeholder comments.</li>
+                                        <li>Example action: schedule a cross-functional review before the 15 October close.</li>
+                                    </ul>
+                                    <a class="impact-cta" href="https://energy-efficient-products.ec.europa.eu/news/call-feedback-energy-products-omnibus-2026-08-21_en">View example</a>
+                                </div>
+                                <div class="impact-box">
+                                    <h4>Find out more…</h4>
+                                    <p>Official call page and EPREL product registry hub.</p>
+                                    <a class="impact-cta secondary" href="https://energy.ec.europa.eu/topics/energy-efficiency/energy-efficient-products/energy-label-and-ecodesign/product-registry-energy-labelling_en">Find out more</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card hover-card">
+                            <div class="card-content">
+                                <h3 class="card-title">IEA Electricity Mid-Year Update 2026 — demand +3.6%</h3>
+                                <p class="card-text">Published 23 July, the IEA’s mid-year electricity outlook flags accelerating global demand growth in 2026—+3.6%—with data centres, electrification, and heat pumps stretching grids. August is when procurement and site teams translate those trends into colocation clauses and on-site load plans.</p>
+                                <span class="badge">Power</span><span class="badge">Data Centres</span>
+                                <button class="impact-toggle" type="button">How this affects you</button>
+                            </div>
+                            <div class="impact-panel">
+                                <div class="impact-box">
+                                    <h4>How this affects you</h4>
+                                    <ul>
+                                        <li>Benchmark AI and batch workloads against regional demand growth assumptions.</li>
+                                        <li>Pair IEA load trends with sub-metering on hospitality and retail estates.</li>
+                                        <li>Example action: add mid-year IEA stats to your H2 sustainable-compute RFP scorecard.</li>
+                                    </ul>
+                                    <a class="impact-cta" href="https://www.iea.org/reports/electricity-mid-year-update-2026">View example</a>
+                                </div>
+                                <div class="impact-box">
+                                    <h4>Find out more…</h4>
+                                    <p>IEA report landing page and July news release on demand acceleration.</p>
+                                    <a class="impact-cta secondary" href="https://www.iea.org/news/global-electricity-demand-growth-set-to-accelerate-as-power-systems-adjust-to-recent-shocks">Find out more</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card hover-card">
+                            <div class="card-content">
+                                <h3 class="card-title">Circular Economy Act — product passport engineering (~30 Sep)</h3>
+                                <p class="card-text">Q3 countdown to the Circular Economy Act proposal (~30 September / early October) puts digital product passport and secondary-materials data models on critical path—August sprints should align EPREL identifiers with passport schemas before Brussels tables the package.</p>
+                                <span class="badge">DPP</span><span class="badge">Materials</span>
+                                <button class="impact-toggle" type="button">How this affects you</button>
+                            </div>
+                            <div class="impact-panel">
+                                <div class="impact-box">
+                                    <h4>How this affects you</h4>
+                                    <ul>
+                                        <li>Map SKU-level material flows to passport field prototypes this month.</li>
+                                        <li>Reuse Omnibus QR infrastructure for future passport resolution URLs.</li>
+                                        <li>Example action: run a tabletop with suppliers on recycled-content attestations.</li>
+                                    </ul>
+                                    <a class="impact-cta" href="https://environment.ec.europa.eu/strategy/circular-economy_en">View example</a>
+                                </div>
+                                <div class="impact-box">
+                                    <h4>Find out more…</h4>
+                                    <p>Commission circular economy strategy and implementation timeline.</p>
+                                    <a class="impact-cta secondary" href="https://environment.ec.europa.eu/strategy/circular-economy_en">Find out more</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card hover-card">
+                            <div class="card-content">
+                                <h3 class="card-title">UKRI Transformative sustainable AI — opens 24 Aug (£10m)</h3>
+                                <p class="card-text">UK Research and Innovation opens Transformative sustainable AI technologies on 24 August 2026 (closes 10 November)—up to £10m for projects that cut AI energy intensity while delivering economic impact. Optional context: Lanarkshire AI Growth Zone’s £300m renewables-backed compute investment as Dell establishes a Scottish base.</p>
+                                <span class="badge">UK</span><span class="badge">Green AI</span>
+                                <button class="impact-toggle" type="button">How this affects you</button>
+                            </div>
+                            <div class="impact-panel">
+                                <div class="impact-box">
+                                    <h4>How this affects you</h4>
+                                    <ul>
+                                        <li>Align consortium partners before the 24 August portal open.</li>
+                                        <li>Document baseline kWh per inference/training job for credible impact claims.</li>
+                                        <li>Example action: pair grant narrative with on-site metering from retail pilots.</li>
+                                    </ul>
+                                    <a class="impact-cta" href="https://www.ukri.org/opportunity/transformative-sustainable-ai-technologies/">View example</a>
+                                </div>
+                                <div class="impact-box">
+                                    <h4>Find out more…</h4>
+                                    <p>UKRI opportunity page and Lanarkshire AI Growth Zone announcement.</p>
+                                    <a class="impact-cta secondary" href="https://www.gov.uk/government/news/lanarkshire-ai-growth-zone-secures-300-million-investment-as-dell-establishes-scottish-base">Find out more</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="statistics">
+                    <div class="section-header with-image">
+                        <h2 class="section-title section-title-hero">By The Numbers</h2>
+                        <img class="section-header-img" src="https://static.wixstatic.com/media/c123de_64f33894c73f4968b3a1bf200d2808ad~mv2.webp" alt="By the numbers image">
+                    </div>
+                    
+                    <div class="stat-grid">
+                        <div class="stat-box">
+                            <div class="stat-number">+3.6%</div>
+                            <div class="stat-label">IEA 2026 global electricity demand growth (mid-year update)</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number">21 Aug</div>
+                            <div class="stat-label">Energy products omnibus Call for Feedback opens</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number">£10m</div>
+                            <div class="stat-label">UKRI Transformative sustainable AI — max award per project</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="policy">
+                    <div class="section-header with-image">
+                        <h2 class="section-title section-title-hero">Policy & Regulation</h2>
+                        <img class="section-header-img" src="https://static.wixstatic.com/media/c123de_2b55825d2bc04e7ea629ddfab1efb312~mv2.jpg" alt="Policy and regulation image">
+                    </div>
+                    
+                    <div class="grid grid-auto">
+                        <div class="card hover-card">
+                            <div class="card-content">
+                                <h3 class="card-title">Energy products omnibus — Call for Feedback window</h3>
+                                <p class="card-text">August shifts Omnibus XII from passive tracking to active stakeholder input—21 August through 15 October 2026—on digital EPREL, QR product sheets, and registration workflows while Parliament and Council examination continues.</p>
+                                <button class="impact-toggle" type="button">How this affects you</button>
+                            </div>
+                            <div class="impact-panel">
+                                <div class="impact-box">
+                                    <h4>How this affects you</h4>
+                                    <ul>
+                                        <li>Coordinate supplier, legal, and IT responses before the October deadline.</li>
+                                        <li>Reference COM(2026) 565 implementation pain points with evidence.</li>
+                                        <li>Example action: publish internal FAQ on QR display for dealers.</li>
+                                    </ul>
+                                    <a class="impact-cta" href="https://energy-efficient-products.ec.europa.eu/news/call-feedback-energy-products-omnibus-2026-08-21_en">View example</a>
+                                </div>
+                                <div class="impact-box">
+                                    <h4>Find out more…</h4>
+                                    <p>Omnibus XII proposal page (24 Jun 2026).</p>
+                                    <a class="impact-cta secondary" href="https://energy.ec.europa.eu/publications/proposal-regulation-simplification-and-better-use-digital-options-energy-and-tyre-labelling_en">Find out more</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card hover-card">
+                            <div class="card-content">
+                                <h3 class="card-title">Circular Economy Act — passport &amp; secondary materials</h3>
+                                <p class="card-text">With the proposal expected around 30 September, August is the engineering month for digital product passport schemas, recycled-content attestations, and secondary-materials traceability aligned with upcoming CEA obligations.</p>
+                                <button class="impact-toggle" type="button">How this affects you</button>
+                            </div>
+                            <div class="impact-panel">
+                                <div class="impact-box">
+                                    <h4>How this affects you</h4>
+                                    <ul>
+                                        <li>Extend EPREL SKU maps to material-composition fields.</li>
+                                        <li>Engage recyclers on data exchange formats early.</li>
+                                        <li>Example action: draft passport JSON schema for top equipment lines.</li>
+                                    </ul>
+                                    <a class="impact-cta" href="https://environment.ec.europa.eu/strategy/circular-economy_en">View example</a>
+                                </div>
+                                <div class="impact-box">
+                                    <h4>Find out more…</h4>
+                                    <p>EU circular economy strategy hub.</p>
+                                    <a class="impact-cta secondary" href="https://environment.ec.europa.eu/strategy/circular-economy_en">Find out more</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card hover-card">
+                            <div class="card-content">
+                                <h3 class="card-title">IEA electricity trends — grid &amp; compute policy context</h3>
+                                <p class="card-text">The 23 July mid-year update anchors Q3 policy conversations—rising demand from data centres and electrification should inform EU ICT guidance, colocation standards, and national grid investment narratives through autumn.</p>
+                                <button class="impact-toggle" type="button">How this affects you</button>
+                            </div>
+                            <div class="impact-panel">
+                                <div class="impact-box">
+                                    <h4>How this affects you</h4>
+                                    <ul>
+                                        <li>Cite IEA +3.6% growth when justifying load-management capex.</li>
+                                        <li>Align H2 AI procurement with regional demand forecasts.</li>
+                                        <li>Example action: brief executives with IEA mid-year slides.</li>
+                                    </ul>
+                                    <a class="impact-cta" href="https://www.iea.org/reports/electricity-mid-year-update-2026">View example</a>
+                                </div>
+                                <div class="impact-box">
+                                    <h4>Find out more…</h4>
+                                    <p>EU JRC ICT energy efficiency knowledge centre.</p>
+                                    <a class="impact-cta secondary" href="https://energy-efficiency-ict.jrc.ec.europa.eu/">Find out more</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="funding">
+                    <div class="section-header with-image">
+                        <h2 class="section-title section-title-hero">Funding Spotlight</h2>
+                        <img class="section-header-img" src="https://static.wixstatic.com/media/c123de_c935567d6b884055a9851d742b940eba~mv2.jpg" alt="Funding spotlight image">
+                    </div>
+                    
+                    <div class="grid grid-auto">
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">UKRI — Transformative sustainable AI technologies</h3>
+                                <p class="card-text"><strong>Amount:</strong> Up to £10m per project</p>
+                                <p class="card-text"><strong>Deadline:</strong> Opens 24 Aug 2026 · Closes 10 Nov 2026</p>
+                                <p class="card-text"><strong>Focus:</strong> August — consortium formation, energy-intensity baselines, and impact pathways for transformative sustainable AI.</p>
+                                <a href="https://www.ukri.org/opportunity/transformative-sustainable-ai-technologies/" class="card-link">View opportunity</a>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">Lanarkshire AI Growth Zone (context)</h3>
+                                <p class="card-text"><strong>Amount:</strong> ~£300m zone investment (announced)</p>
+                                <p class="card-text"><strong>Deadline:</strong> Ongoing programme development</p>
+                                <p class="card-text"><strong>Focus:</strong> Renewables-backed compute infrastructure as Dell establishes a Scottish base—reference for green-AI site strategy.</p>
+                                <a href="https://www.gov.uk/government/news/lanarkshire-ai-growth-zone-secures-300-million-investment-as-dell-establishes-scottish-base" class="card-link">Read announcement</a>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">EU CORDIS / Horizon portfolio</h3>
+                                <p class="card-text"><strong>Amount:</strong> Program‑specific</p>
+                                <p class="card-text"><strong>Deadline:</strong> See call calendar</p>
+                                <p class="card-text"><strong>Focus:</strong> Q3 reporting and amendments; align digital product data work with passport prep for CEA-linked consortia.</p>
+                                <a href="https://cordis.europa.eu/" class="card-link">View CORDIS</a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="green-tech">
+                    <div class="section-header with-image">
+                        <h2 class="section-title section-title-hero">Green Tech Developments</h2>
+                        <img class="section-header-img" src="https://static.wixstatic.com/media/c123de_aafe287030ff44bfa5b3d98f6a97e6b5~mv2.jpeg" alt="Green tech image">
+                    </div>
+                    
+                    <div class="grid grid-auto">
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">Digital EPREL &amp; omnibus feedback tooling</h3>
+                                <p class="card-text">August engineering priorities: QR resolution services, registry API monitoring, and structured responses to the 21 Aug–15 Oct Call for Feedback—building on July compliance sprints.</p>
+                                <a href="https://energy-efficient-products.ec.europa.eu/news/call-feedback-energy-products-omnibus-2026-08-21_en" class="card-link">Read the call</a>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">Electrification &amp; data‑centre load growth</h3>
+                                <p class="card-text">IEA mid-year data (+3.6% demand in 2026) reinforces the case for workload-efficient AI, renewable-backed compute zones, and sub-metered estate upgrades.</p>
+                                <a href="https://www.iea.org/reports/electricity-mid-year-update-2026" class="card-link">Read IEA update</a>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">Product passport prototypes</h3>
+                                <p class="card-text">Ahead of the Circular Economy Act proposal, pilot passport schemas that bridge EPREL identifiers with material and secondary-content fields.</p>
+                                <a href="https://environment.ec.europa.eu/strategy/circular-economy_en" class="card-link">Circular economy hub</a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="countries">
+                    <div class="section-header with-image">
+                        <h2 class="section-title section-title-hero">Country Spotlights</h2>
+                        <img class="section-header-img" src="https://static.wixstatic.com/media/c123de_53ee36f4fd4343d9b9cd58829bb9d145~mv2.avif" alt="Country spotlights image">
+                    </div>
+                    
+                    <h3 style="color: var(--primary-green); margin-top: var(--space-lg); font-size: 24px;">🇳🇱 Netherlands</h3>
+                    <p style="margin-bottom: var(--space-md);">August focus: submit omnibus feedback on EPREL digital flows for marketplace SKUs; align colocation RFPs with IEA mid-year demand signals.</p>
+                    
+                    <h3 style="color: var(--primary-green); margin-top: var(--space-lg); font-size: 24px;">🇬🇧 United Kingdom</h3>
+                    <p style="margin-bottom: var(--space-md);">UKRI sustainable AI call opens 24 August—pair Lanarkshire zone renewables-compute narrative with consortium bids; watch H2 public-service AI RFP peaks.</p>
+                    
+                    <h3 style="color: var(--primary-green); margin-top: var(--space-lg); font-size: 24px;">🇪🇺 European Union</h3>
+                    <p style="margin-bottom: var(--space-md);">Call for Feedback on energy products omnibus (21 Aug–15 Oct) and CEA proposal countdown—coordinate passport pilots with DG Energy stakeholder input.</p>
+                    
+                    <h3 style="color: var(--primary-green); margin-top: var(--space-lg); font-size: 24px;">🌍 Global</h3>
+                    <p style="margin-bottom: var(--space-md);">IEA Electricity Mid-Year Update sets Q3 procurement tone—data-centre and electrification load growth informs site and cloud strategy worldwide.</p>
+                </section>
+
+                <section class="section" id="organizations">
+                    <div class="section-header">
+                        <h2 class="section-title section-title-hero">Organization Spotlight</h2>
+                    </div>
+                    
+                    <div class="org-spotlight">
+                        <div class="org-header">
+                            <div class="org-info">
+                                <h3>International Energy Agency (IEA)</h3>
+                                <p style="opacity: 0.9; margin-top: var(--space-xs);">Global | Electricity Mid-Year Update 2026</p>
+                            </div>
+                        </div>
+                        
+                        <div class="org-content">
+                            <h4 style="margin-bottom: var(--space-sm); color: var(--primary-green);">August focus: Q3 power-demand benchmark</h4>
+                            <p style="margin-bottom: var(--space-md);">The 23 July Electricity Mid-Year Update 2026 flags +3.6% global demand growth in 2026—accelerated by data centres, electrification, and heat pumps. August teams use the release to calibrate sustainable-AI procurement, grid upgrades, and estate sub-metering before Q4 outlook cadence.</p>
+                            
+                            <div class="stat-grid" style="margin-top: var(--space-md);">
+                                <div class="stat-box">
+                                    <div class="stat-number">23 Jul</div>
+                                    <div class="stat-label">Mid-year update publication</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-number">+3.6%</div>
+                                    <div class="stat-label">2026 global electricity demand growth</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="upcoming">
+                    <div class="section-header">
+                        <h2 class="section-title section-title-hero">Looking Ahead</h2>
+                    </div>
+                    
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: var(--space-sm); background: #F5F5F5; margin-bottom: var(--space-xs); border-radius: var(--radius);">
+                            <strong style="color: var(--primary-green);">15 Oct 2026:</strong> Energy products omnibus Call for Feedback closes —
+                            <a href="https://energy-efficient-products.ec.europa.eu/news/call-feedback-energy-products-omnibus-2026-08-21_en" class="card-link">Feedback call</a>
+                        </li>
+                        <li style="padding: var(--space-sm); background: #F5F5F5; margin-bottom: var(--space-xs); border-radius: var(--radius);">
+                            <strong style="color: var(--primary-green);">~30 Sep 2026:</strong> Circular Economy Act proposal — product passport &amp; secondary-materials data —
+                            <a href="https://environment.ec.europa.eu/strategy/circular-economy_en" class="card-link">Circular economy strategy</a>
+                        </li>
+                        <li style="padding: var(--space-sm); background: #F5F5F5; margin-bottom: var(--space-xs); border-radius: var(--radius);">
+                            <strong style="color: var(--primary-green);">10 Nov 2026:</strong> UKRI Transformative sustainable AI technologies — applications close —
+                            <a href="https://www.ukri.org/opportunity/transformative-sustainable-ai-technologies/" class="card-link">UKRI opportunity</a>
+                        </li>
+                        <li style="padding: var(--space-sm); background: #F5F5F5; margin-bottom: var(--space-xs); border-radius: var(--radius);">
+                            <strong style="color: var(--primary-green);">Q4 2026:</strong> IEA World Energy Outlook cadence &amp; further electricity/statistics releases —
+                            <a href="https://www.iea.org/data-and-statistics" class="card-link">IEA data hub</a> /
+                            <a href="https://www.iea.org/reports/electricity-mid-year-update-2026" class="card-link">Mid-year update</a>
+                        </li>
+                        <li style="padding: var(--space-sm); background: #F5F5F5; margin-bottom: var(--space-xs); border-radius: var(--radius);">
+                            <strong style="color: var(--primary-green);">H2 2026:</strong> UK &amp; EU sustainable computing / AI RFP peaks —
+                            <a href="https://energy-efficiency-ict.jrc.ec.europa.eu/" class="card-link">EU ICT</a> /
+                            <a href="https://www.gov.uk/government/news/lanarkshire-ai-growth-zone-secures-300-million-investment-as-dell-establishes-scottish-base" class="card-link">Lanarkshire zone</a>
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="section" id="resources">
+                    <div class="section-header">
+                        <h2 class="section-title section-title-hero">Resources & Links</h2>
+                    </div>
+                    
+                    <div class="grid grid-auto">
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">Energy Data & Tools</h3>
+                                <ul style="color: var(--neutral-gray); line-height: 1.8;">
+                                    <li><a href="https://www.iea.org/reports/electricity-mid-year-update-2026" class="card-link">IEA Electricity Mid-Year Update 2026</a></li>
+                                    <li><a href="https://www.iea.org/news/global-electricity-demand-growth-set-to-accelerate-as-power-systems-adjust-to-recent-shocks" class="card-link">IEA demand growth news (Jul 2026)</a></li>
+                                    <li><a href="https://energy-efficient-products.ec.europa.eu/news/call-feedback-energy-products-omnibus-2026-08-21_en" class="card-link">Energy products omnibus Call for Feedback (21 Aug 2026)</a></li>
+                                    <li><a href="https://energy.ec.europa.eu/publications/proposal-regulation-simplification-and-better-use-digital-options-energy-and-tyre-labelling_en" class="card-link">Omnibus XII proposal (24 Jun 2026)</a></li>
+                                    <li><a href="https://energy.ec.europa.eu/topics/energy-efficiency/energy-efficient-products/energy-label-and-ecodesign/product-registry-energy-labelling_en" class="card-link">EPREL product registry</a></li>
+                                    <li><a href="https://environment.ec.europa.eu/strategy/circular-economy_en" class="card-link">EU circular economy strategy</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">Green AI & Sustainable Computing</h3>
+                                <ul style="color: var(--neutral-gray); line-height: 1.8;">
+                                    <li><a href="https://www.ukri.org/opportunity/transformative-sustainable-ai-technologies/" class="card-link">UKRI Transformative sustainable AI (24 Aug–10 Nov 2026)</a></li>
+                                    <li><a href="https://www.gov.uk/government/news/lanarkshire-ai-growth-zone-secures-300-million-investment-as-dell-establishes-scottish-base" class="card-link">Lanarkshire AI Growth Zone (£300m)</a></li>
+                                    <li><a href="https://energy-efficiency-ict.jrc.ec.europa.eu/" class="card-link">EU ICT energy efficiency (JRC)</a></li>
+                                    <li><a href="https://news.mit.edu/topic/sustainable-computing" class="card-link">MIT sustainable computing research</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">Public‑Service Tech Pilots</h3>
+                                <ul style="color: var(--neutral-gray); line-height: 1.8;">
+                                    <li><a href="https://www.digit.fyi/ai-public-services/" class="card-link">UK AI public‑services pilots</a></li>
+                                    <li><a href="https://www.gov.uk/government/organisations/department-for-energy-security-and-net-zero" class="card-link">DESNZ</a></li>
+                                    <li><a href="https://arstechnica.com/ai/2026/02/sixteen-claude-ai-agents-working-together-created-a-new-c-compiler" class="card-link">AI agents collaborating at scale</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="card-title">Green Tech Research</h3>
+                                <ul style="color: var(--neutral-gray); line-height: 1.8;">
+                                    <li><a href="https://techxplore.com/news/2026-01-optimizing-wastewater-green-hydrogen-production.html" class="card-link">Wastewater‑to‑hydrogen optimization</a></li>
+                                    <li><a href="https://techxplore.com/" class="card-link">TechXplore technology news</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <aside>
+                <nav class="sidebar-nav">
+                    <h3>Contents</h3>
+                    <ul>
+                        <li><a href="#summary">Executive Summary</a></li>
+                        <li><a href="#top-stories">Top Stories</a></li>
+                        <li><a href="#statistics">By The Numbers</a></li>
+                        <li><a href="#policy">Policy & Regulation</a></li>
+                        <li><a href="#funding">Funding Spotlight</a></li>
+                        <li><a href="#green-tech">Green Tech</a></li>
+                        <li><a href="#countries">Country Spotlights</a></li>
+                        <li><a href="#organizations">Organizations</a></li>
+                        <li><a href="#upcoming">Looking Ahead</a></li>
+                        <li><a href="#resources">Resources</a></li>
+                    </ul>
+                </nav>
+            </aside>
+        </div>
+    </div>
+
+    <footer style="background: #263238; color: white; padding: var(--space-lg); text-align: center; margin-top: var(--space-xl);">
+        <p style="font-size: 18px; margin-bottom: var(--space-xs);">New in Tech Roundup | August 2026</p>
+        <p style="opacity: 0.7; font-size: 14px;">
+            Sources: EU/UK/US official agencies, research bodies, verified tech outlets<br>
+            Generated using New in Tech News Finder Skill
+        </p>
+    </footer>
+
+    <script>
+        (function () {
+            const handleAnchorClick = (event) => {
+                const link = event.currentTarget;
+                const hash = link.getAttribute('href');
+                if (!hash || !hash.startsWith('#')) return;
+                const target = document.querySelector(hash);
+                if (!target) return;
+                event.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                history.replaceState(null, '', hash);
+            };
+
+            document.querySelectorAll('.sidebar-nav a[href^="#"], .impact-cta[href^="#"]').forEach((link) => {
+                link.addEventListener('click', handleAnchorClick);
+            });
+        })();
+    </script>
+    <script>
+        // Keep only the impact toggle functionality
+        (function () {
+            document.querySelectorAll('.impact-toggle').forEach((btn) => {
+                const closedLabel = btn.getAttribute('data-closed-label') || 'How this affects you';
+                const openLabel = btn.getAttribute('data-open-label') || 'Hide details';
+                btn.textContent = closedLabel;
+
+                btn.addEventListener('click', () => {
+                    const card = btn.closest('.hover-card');
+                    if (!card) return;
+                    card.classList.toggle('open');
+                    btn.textContent = card.classList.contains('open') ? openLabel : closedLabel;
+                });
+            });
+        })();
+    </script>
+    <script>
+        (function () {
+            const isExternal = (href) => /^https?:\/\//i.test(href || '');
+            document.querySelectorAll('a[href]').forEach((link) => {
+                const href = link.getAttribute('href') || '';
+                if (!isExternal(href)) return;
+                link.setAttribute('target', '_blank');
+                link.setAttribute('rel', 'noopener noreferrer');
+            });
+        })();
+    </script>
+</body>
+</html>
