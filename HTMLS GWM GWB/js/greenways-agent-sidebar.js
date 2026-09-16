@@ -144,7 +144,7 @@
       var icon = document.createElement("span");
       icon.className = "helper-icon";
       icon.setAttribute("aria-hidden", "true");
-      icon.textContent = h.icon || "💬";
+      fillSidebarIcon(icon, h);
 
       var body = document.createElement("div");
       body.className = "helper-card-body";
