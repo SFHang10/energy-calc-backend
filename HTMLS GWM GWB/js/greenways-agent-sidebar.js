@@ -39,6 +39,26 @@
     return String(name || "").length > compactLen;
   }
 
+  /** Prefer Wix photo thumbs (iconUrl); keep emoji icon as fallback for other agents. */
+  function fillSidebarIcon(iconEl, link) {
+    var url = String((link && (link.iconUrl || link.thumb)) || "").trim();
+    iconEl.replaceChildren();
+    if (url && /^https?:\/\//i.test(url)) {
+      iconEl.classList.add("has-photo");
+      var img = document.createElement("img");
+      img.src = url;
+      img.alt = "";
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.width = 32;
+      img.height = 32;
+      iconEl.appendChild(img);
+      return;
+    }
+    iconEl.classList.remove("has-photo");
+    iconEl.textContent = (link && link.icon) || "🔗";
+  }
+
   function renderQuickLinks(mount, links, opts) {
     if (!mount) return;
     mount.replaceChildren();
@@ -68,7 +88,7 @@
       var icon = document.createElement("span");
       icon.className = "gw-sidebar-ql-icon";
       icon.setAttribute("aria-hidden", "true");
-      icon.textContent = link.icon || "🔗";
+      fillSidebarIcon(icon, link);
 
       var label = document.createElement("span");
       label.className = "gw-sidebar-ql-label";
@@ -558,7 +578,7 @@
       var icon = document.createElement("span");
       icon.className = "gw-composer-tools-chip-icon";
       icon.setAttribute("aria-hidden", "true");
-      icon.textContent = link.icon || "🔗";
+      fillSidebarIcon(icon, link);
 
       var label = document.createElement("span");
       label.className = "gw-composer-tools-chip-label";
