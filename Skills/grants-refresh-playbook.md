@@ -111,6 +111,8 @@ Runtime code **prefers** `products-with-grants-and-collection.json` over `produc
 node product-grants-integrator.js
 ```
 
+- **Preserve curated Wix cutouts:** `imageUrl` overrides in `data/grants-agent-showcase-products.json` survive integrator; re-apply Wix cutouts into grants JSON for `etl_14_59333` after refresh or rely on the showcase override (`node scripts/patch-ecostore-wix-cutout.js`).
+
 - Reads SQLite `database/energy_calculator_central.db`
 - Writes `products-with-grants.json` with `metadata.exportDate` and combined grants stats
 - Updates `database/energy_calculator_with_grants.db` (optional for SQLite API paths)
