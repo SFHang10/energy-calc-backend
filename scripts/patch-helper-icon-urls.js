@@ -21,7 +21,7 @@ const MAPS = {
   'greenways-finance-agent.html': {
     byId: {
       prices: U('c123de_a7746ac7981d466095fdc261bb208fa8~mv2.jpg'),
-      etl: U('c123de_8d73f3cd13164907ba5b65e13e29370c~mv2.jpg'),
+      etl: U('c123de_bf1ad7e1c10d44349f9927401a3ab550~mv2.png'),
       calc: U('c123de_281b24bf85fc4b2d8cf13e3a6cefcf92~mv2.jpeg'),
       audit: U('c123de_0d7afe9e21764df285cc2a357e218ddd~mv2.webp'),
       upgrade: U('c123de_3e2c2ae921094adb867970a6ec792f35~mv2.png'),
@@ -66,7 +66,7 @@ const MAPS = {
   'greenways-sustainable-products-agent.html': {
     byId: {
       water: U('c123de_82c7779bdacd41fd8b9e26891e32baa2~mv2.jpg'),
-      elec: U('c123de_8d73f3cd13164907ba5b65e13e29370c~mv2.jpg'),
+      elec: U('c123de_bf1ad7e1c10d44349f9927401a3ab550~mv2.png'),
       gas: U('c123de_281b24bf85fc4b2d8cf13e3a6cefcf92~mv2.jpeg'),
       spot: U('c123de_c7cdbed4a4ee407289677a4f0079c1e5~mv2.png'),
       sources: U('c123de_dc5b2e3e4aef4cc4b75c7b44888281bd~mv2.png'),
@@ -83,7 +83,7 @@ const MAPS = {
       'Energy dashboard': U('c123de_eeb61cbf84bd402eb642e28b2b457c76~mv2.png'),
       'Dashboard maths': U('c123de_a7746ac7981d466095fdc261bb208fa8~mv2.jpg'),
       'Peak vs off-peak': U('c123de_0d7afe9e21764df285cc2a357e218ddd~mv2.webp'),
-      'ETL examples': U('c123de_8d73f3cd13164907ba5b65e13e29370c~mv2.jpg'),
+      'ETL examples': U('c123de_bf1ad7e1c10d44349f9927401a3ab550~mv2.png'),
       'Deep dive': U('c123de_957ddf8c995e441cb9d1535015adbdf4~mv2.jpg'),
       'Platform health': U('c123de_eeb61cbf84bd402eb642e28b2b457c76~mv2.png')
     }
