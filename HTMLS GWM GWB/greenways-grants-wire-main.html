@@ -404,6 +404,143 @@
       margin-bottom: 10px;
     }
     .status.error { color: #f87171; }
+    .grants-brief {
+      margin: 0 0 14px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 123, 255, 0.35);
+      background: rgba(6, 10, 16, 0.92);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+      text-align: left;
+    }
+    .grants-brief[hidden] { display: none; }
+    .grants-brief-kicker {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+    .grants-brief-headline {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 0 0 8px;
+      line-height: 1.3;
+    }
+    .grants-brief-list {
+      margin: 0 0 10px;
+      padding-left: 1.1rem;
+      color: var(--muted);
+      font-family: var(--clean);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+    .grants-brief-list li { margin-bottom: 4px; }
+    .grants-brief-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    @media (min-width: 720px) {
+      .grants-brief-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .grants-brief-panel {
+      border: 1px solid rgba(0, 123, 255, 0.18);
+      border-radius: 10px;
+      background: rgba(8, 14, 22, 0.75);
+      padding: 10px 12px;
+    }
+    .grants-brief-panel h3 {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin: 0 0 8px;
+    }
+    .grants-brief-panel.closing h3 { color: #fbbf24; }
+    .grants-brief-pick {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      padding: 8px 0;
+      border-top: 1px solid rgba(0, 123, 255, 0.1);
+    }
+    .grants-brief-pick:first-of-type { border-top: none; padding-top: 0; }
+    .grants-brief-pick-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 3px;
+    }
+    .grants-brief-tag {
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 123, 255, 0.35);
+      color: #9ec5ff;
+    }
+    .grants-brief-panel.closing .grants-brief-tag {
+      border-color: rgba(251, 191, 36, 0.45);
+      color: #fde68a;
+    }
+    .grants-brief-date {
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      color: #6a7f9a;
+    }
+    .grants-brief-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 3px;
+    }
+    .grants-brief-detail {
+      font-family: var(--clean);
+      font-size: 0.72rem;
+      line-height: 1.4;
+      color: var(--muted);
+    }
+    .grants-brief-meta {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      color: #6a7f9a;
+      margin-top: 10px;
+    }
+    .grants-brief-meta a {
+      color: var(--green);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .grants-brief-meta a:hover { text-decoration: underline; }
+    .grants-brief-cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .grants-brief-cta {
+      display: inline-flex;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 123, 255, 0.4);
+      background: rgba(0, 123, 255, 0.12);
+      color: #dbeafe;
+      text-decoration: none;
+    }
+    .grants-brief-cta:hover { background: rgba(0, 123, 255, 0.22); }
+    .grants-brief-cta--ghost {
+      background: transparent;
+      border-color: rgba(201, 169, 97, 0.4);
+      color: #f0e6c8;
+    }
   </style>
 </head>
 <body>
@@ -412,8 +549,30 @@
     <header class="header">
       <div class="header-eyebrow">Grants wire · scheme scan</div>
       <h1 class="header-title">Andrieus <span>Wire</span></h1>
-      <p class="header-sub">Scheme counts above · desk spotlights below</p>
+      <p class="header-sub">Scheme brief · live counts · desk spotlights</p>
     </header>
+
+    <section class="grants-brief" id="grantsBrief" hidden aria-live="polite">
+      <div class="grants-brief-kicker">Today's schemes brief · Andrieus</div>
+      <h2 class="grants-brief-headline" id="grantsBriefHeadline"></h2>
+      <ul class="grants-brief-list" id="grantsBriefList"></ul>
+      <div class="grants-brief-grid">
+        <div class="grants-brief-panel closing" id="grantsBriefClosingWrap" hidden>
+          <h3>Closing soon</h3>
+          <div id="grantsBriefClosing"></div>
+        </div>
+        <div class="grants-brief-panel" id="grantsBriefComingWrap" hidden>
+          <h3>Watch / coming up</h3>
+          <div id="grantsBriefComing"></div>
+        </div>
+      </div>
+      <div class="grants-brief-cta-row">
+        <a class="grants-brief-cta" href="/greenways/scheme-fit" target="_top" rel="noopener">Scheme Fit</a>
+        <a class="grants-brief-cta" href="/greenways/grants-agent" target="_top" rel="noopener">Ask Andrieus</a>
+        <a class="grants-brief-cta grants-brief-cta--ghost" href="/HTMLS%20GWM%20GWB/Full%20Schemes%20Portal%20Restaurant.html" target="_top" rel="noopener">Restaurant portal</a>
+      </div>
+      <p class="grants-brief-meta" id="grantsBriefMeta"></p>
+    </section>
 
     <div class="region-chip-row" id="regionChips" aria-label="Region context"></div>
 
@@ -535,6 +694,87 @@
         } else {
           row.innerHTML = '<span class="region-chip muted">Set region in member profile for tailored scheme copy</span>';
         }
+      }
+
+      function stripMd(s) {
+        return String(s || '').replace(/\*\*/g, '');
+      }
+
+      function absHref(href) {
+        var h = String(href || '').trim();
+        if (!h) return '#';
+        if (/^https?:\/\//i.test(h)) return h;
+        return origin() + (h.charAt(0) === '/' ? h : '/' + h);
+      }
+
+      function renderBrief(brief) {
+        var box = document.getElementById('grantsBrief');
+        if (!box) return;
+        if (!brief || !brief.headline) {
+          box.hidden = true;
+          return;
+        }
+        box.hidden = false;
+        document.getElementById('grantsBriefHeadline').textContent = brief.headline;
+        document.getElementById('grantsBriefList').innerHTML = (brief.bullets || [])
+          .slice(0, 4)
+          .map(function (b) {
+            return '<li>' + esc(stripMd(b.text || b)) + '</li>';
+          })
+          .join('');
+
+        var closing = brief.closingSoon || [];
+        var closingWrap = document.getElementById('grantsBriefClosingWrap');
+        var closingEl = document.getElementById('grantsBriefClosing');
+        if (closing.length) {
+          closingWrap.hidden = false;
+          closingEl.innerHTML = closing.slice(0, 4).map(function (row) {
+            var ask = origin() + '/greenways/grants-agent?q=' + encodeURIComponent(row.title || row.id || '');
+            return (
+              '<a class="grants-brief-pick" href="' + esc(ask) + '" target="_top" rel="noopener">' +
+              '<div class="grants-brief-pick-top">' +
+              '<span class="grants-brief-tag">' + esc(row.tag || 'DEADLINE') + '</span>' +
+              '<span class="grants-brief-date">' + esc(row.deadlineLabel || row.deadline || '') +
+              (row.daysLeft != null ? ' · ' + row.daysLeft + 'd' : '') + '</span>' +
+              '</div>' +
+              '<div class="grants-brief-title">' + esc(row.title || row.id) + '</div>' +
+              '<div class="grants-brief-detail">' + esc((row.region || '').toUpperCase()) +
+              ' · Ask Andrieus before the window moves</div>' +
+              '</a>'
+            );
+          }).join('');
+        } else {
+          closingWrap.hidden = true;
+          closingEl.innerHTML = '';
+        }
+
+        var coming = brief.comingSoon || [];
+        var comingWrap = document.getElementById('grantsBriefComingWrap');
+        var comingEl = document.getElementById('grantsBriefComing');
+        if (coming.length) {
+          comingWrap.hidden = false;
+          comingEl.innerHTML = coming.slice(0, 4).map(function (row) {
+            var href = absHref(row.href || '/greenways/grants-agent');
+            return (
+              '<a class="grants-brief-pick" href="' + esc(href) + '" target="_top" rel="noopener">' +
+              '<div class="grants-brief-pick-top">' +
+              '<span class="grants-brief-tag">' + esc(row.tag || 'WATCH') + '</span>' +
+              '</div>' +
+              '<div class="grants-brief-title">' + esc(row.title || 'Watch item') + '</div>' +
+              '<div class="grants-brief-detail">' + esc(row.detail || '') + '</div>' +
+              '</a>'
+            );
+          }).join('');
+        } else {
+          comingWrap.hidden = true;
+          comingEl.innerHTML = '';
+        }
+
+        var meta = brief.meta || {};
+        document.getElementById('grantsBriefMeta').innerHTML =
+          'As of ' + esc(meta.briefDate || 'today') +
+          ' · ' + esc(meta.source || 'schemes catalogue') +
+          ' · <a href="' + origin() + '/greenways/grants-agent" target="_top" rel="noopener">Ask Andrieus</a>';
       }
 
       function renderKpis(data) {
@@ -662,6 +902,7 @@
 
       function applySnapshot(data) {
         if (!data || !data.ok) throw new Error('snapshot');
+        renderBrief(data.brief);
         renderKpis(data);
         renderRegionTrack(data);
         renderDeadlineTrack(data.upcomingDeadlines);
