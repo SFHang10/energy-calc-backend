@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Energy data journey · Greenways</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070e0b;
+      --panel: rgba(12, 22, 18, 0.78);
+      --line: rgba(75, 140, 104, 0.32);
+      --text: #e8f0ea;
+      --muted: #9bb5a4;
+      --gold: #c9a961;
+      --green: #3dcf7a;
+      --cyan: #4ec8e8;
+      --blue: #60a5fa;
+      --font: "Space Grotesk", system-ui, sans-serif;
+      --font-clean: "IBM Plex Sans", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      color: var(--text);
+      font-family: var(--font);
+      overflow-x: hidden;
+      background: var(--bg);
+    }
+    .backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(rgba(5, 14, 9, 0.62), rgba(5, 14, 9, 0.72)),
+        radial-gradient(circle at 18% 20%, rgba(61, 207, 122, 0.1), transparent 42%),
+        radial-gradient(circle at 82% 12%, rgba(201, 169, 97, 0.08), transparent 40%),
+        url("https://static.wixstatic.com/media/c123de_b93d0b9604444e3f91cbad6529ad9d58~mv2.jpg");
+      background-size: cover, cover, cover, cover;
+      background-position: center, center, center, center;
+      background-repeat: no-repeat;
+      opacity: 0.92;
+      filter: brightness(1.02) saturate(1.05);
+    }
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 22px 16px 40px;
+    }
+    .top-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .top-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(14, 28, 22, 0.65);
+      color: var(--muted);
+      text-decoration: none;
+      font: 600 0.78rem/1.2 var(--font-clean);
+    }
+    .top-links a:hover { color: var(--text); border-color: rgba(61, 207, 122, 0.45); }
+    .hero { margin-bottom: 18px; }
+    .eyebrow {
+      font: 600 0.72rem/1.2 var(--font-clean);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.45rem, 3.4vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .lede {
+      margin: 0;
+      max-width: 62ch;
+      color: var(--muted);
+      font: 500 0.98rem/1.55 var(--font-clean);
+    }
+
+    .stage-board {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+    @media (min-width: 860px) {
+      .stage-board {
+        grid-template-columns: 1.35fr 0.95fr;
+        align-items: stretch;
+      }
+    }
+
+    .diagram {
+      position: relative;
+      min-height: 440px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(8, 16, 12, 0.72);
+      overflow: hidden;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+    }
+    .diagram::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        conic-gradient(from 120deg, transparent 0 65%, rgba(61, 207, 122, 0.08) 72%, transparent 82%),
+        radial-gradient(circle at 50% 50%, rgba(78, 200, 232, 0.06), transparent 55%);
+      animation: swirl 28s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes swirl {
+      to { transform: rotate(360deg); }
+    }
+
+    .layer {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(92%, 420px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.45s ease, transform 0.45s ease, filter 0.45s ease;
+    }
+    .layer[data-layer="data"] { top: 22px; }
+    .layer[data-layer="equipment"] { top: 128px; }
+    .layer[data-layer="agents"] { top: 248px; }
+    .layer[data-layer="market"] { bottom: 22px; }
+    .layer.is-dim {
+      opacity: 0.35;
+      filter: grayscale(0.25);
+    }
+    .layer.is-active {
+      opacity: 1;
+      filter: none;
+      transform: translateX(-50%) scale(1.02);
+      z-index: 2;
+    }
+    .layer-label {
+      font: 600 0.68rem/1.2 var(--font-clean);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .layer.is-active .layer-label { color: var(--gold); }
+
+    .kpi-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+    .kpi-chip {
+      min-width: 88px;
+      padding: 10px 10px 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(75, 140, 104, 0.35);
+      background: rgba(16, 32, 24, 0.9);
+      text-align: center;
+      animation: floaty 4.5s ease-in-out infinite;
+    }
+    .kpi-chip:nth-child(2) { animation-delay: 0.4s; }
+    .kpi-chip:nth-child(3) { animation-delay: 0.8s; }
+    .kpi-chip strong {
+      display: block;
+      font-size: 0.78rem;
+      margin-bottom: 2px;
+    }
+    .kpi-chip span {
+      font: 500 0.62rem/1.2 var(--font-clean);
+      color: var(--muted);
+    }
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    .layer.is-active .kpi-chip {
+      border-color: rgba(61, 207, 122, 0.55);
+      box-shadow: 0 0 0 1px rgba(61, 207, 122, 0.15), 0 8px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .equip-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      max-width: 380px;
+    }
+    .equip-card {
+      min-width: 96px;
+      padding: 10px 12px 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(201, 169, 97, 0.35);
+      background: linear-gradient(135deg, rgba(28, 36, 18, 0.95), rgba(14, 24, 20, 0.95));
+      text-align: center;
+    }
+    .equip-card strong {
+      display: block;
+      font-size: 0.76rem;
+      margin-bottom: 2px;
+    }
+    .equip-card span {
+      font: 500 0.6rem/1.2 var(--font-clean);
+      color: #e8d5a3;
+    }
+    .layer.is-active .equip-card {
+      border-color: rgba(201, 169, 97, 0.55);
+      box-shadow: 0 0 0 1px rgba(201, 169, 97, 0.12), 0 8px 18px rgba(0, 0, 0, 0.25);
+      animation: floaty 4.2s ease-in-out infinite;
+    }
+    .layer.is-active .equip-card:nth-child(2) { animation-delay: 0.35s; }
+    .layer.is-active .equip-card:nth-child(3) { animation-delay: 0.7s; }
+
+    .platform-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+    .agent-face {
+      width: 46px;
+      text-align: center;
+      transition: transform 0.35s ease;
+    }
+    .agent-face img {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(96, 165, 250, 0.35);
+      background: #0d1520;
+    }
+    .agent-face span {
+      display: block;
+      margin-top: 4px;
+      font: 600 0.58rem/1.1 var(--font-clean);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .layer.is-active .agent-face {
+      animation: bob 2.6s ease-in-out infinite;
+    }
+    .layer.is-active .agent-face:nth-child(2) { animation-delay: 0.15s; }
+    .layer.is-active .agent-face:nth-child(3) { animation-delay: 0.3s; }
+    .layer.is-active .agent-face:nth-child(4) { animation-delay: 0.45s; }
+    .layer.is-active .agent-face:nth-child(5) { animation-delay: 0.6s; }
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .market-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+      max-width: 360px;
+      min-height: 28px;
+    }
+    .market-chip {
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px dashed rgba(78, 200, 232, 0.4);
+      background: rgba(20, 40, 48, 0.55);
+      color: #b8e6f2;
+      font: 600 0.62rem/1.2 var(--font-clean);
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    .market-chip.gold {
+      border-color: rgba(201, 169, 97, 0.45);
+      background: rgba(40, 34, 18, 0.55);
+      color: #e8d5a3;
+    }
+    .market-chip.green {
+      border-color: rgba(61, 207, 122, 0.4);
+      background: rgba(16, 40, 28, 0.55);
+      color: #b8f0ce;
+    }
+    .layer.is-active .market-chip {
+      animation: chip-in 0.55s ease forwards;
+    }
+    .layer.is-active .market-chip:nth-child(1) { animation-delay: 0.05s; }
+    .layer.is-active .market-chip:nth-child(2) { animation-delay: 0.18s; }
+    .layer.is-active .market-chip:nth-child(3) { animation-delay: 0.31s; }
+    .layer.is-active .market-chip:nth-child(4) { animation-delay: 0.44s; }
+    @keyframes chip-in {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .beam {
+      position: absolute;
+      left: 50%;
+      width: 2px;
+      transform: translateX(-50%);
+      background: linear-gradient(180deg, transparent, rgba(61, 207, 122, 0.55), rgba(96, 165, 250, 0.55), transparent);
+      opacity: 0.25;
+      pointer-events: none;
+    }
+    .beam-a { top: 100px; height: 28px; }
+    .beam-b { top: 210px; height: 36px; }
+    .beam-c { top: 330px; height: 36px; }
+    .diagram[data-step="1"] .beam-a,
+    .diagram[data-step="2"] .beam-a,
+    .diagram[data-step="2"] .beam-b,
+    .diagram[data-step="3"] .beam-b,
+    .diagram[data-step="3"] .beam-c,
+    .diagram[data-step="4"] .beam-a,
+    .diagram[data-step="4"] .beam-b,
+    .diagram[data-step="4"] .beam-c {
+      opacity: 1;
+      animation: beam-pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes beam-pulse {
+      0%, 100% { opacity: 0.35; filter: brightness(1); }
+      50% { opacity: 1; filter: brightness(1.4); }
+    }
+
+    .packet {
+      position: absolute;
+      left: 50%;
+      width: 10px;
+      height: 10px;
+      margin-left: -5px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 12px rgba(61, 207, 122, 0.8);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 3;
+    }
+    .diagram[data-step="1"] .packet-down,
+    .diagram[data-step="2"] .packet-down {
+      animation: packet-down 1.8s ease-in-out infinite;
+    }
+    .diagram[data-step="3"] .packet-mid {
+      animation: packet-mid 1.8s ease-in-out infinite;
+      background: var(--cyan);
+      box-shadow: 0 0 12px rgba(78, 200, 232, 0.8);
+    }
+    .diagram[data-step="3"] .packet-up,
+    .diagram[data-step="4"] .packet-up {
+      animation: packet-up 1.8s ease-in-out infinite;
+    }
+    .diagram[data-step="4"] .packet-loop {
+      animation: packet-loop 2.2s ease-in-out infinite;
+      background: var(--gold);
+      box-shadow: 0 0 12px rgba(201, 169, 97, 0.85);
+    }
+    @keyframes packet-down {
+      0% { top: 102px; opacity: 0; }
+      15% { opacity: 1; }
+      85% { opacity: 1; }
+      100% { top: 145px; opacity: 0; }
+    }
+    @keyframes packet-mid {
+      0% { top: 215px; opacity: 0; }
+      15% { opacity: 1; }
+      85% { opacity: 1; }
+      100% { top: 268px; opacity: 0; }
+    }
+    @keyframes packet-up {
+      0% { top: 360px; opacity: 0; }
+      15% { opacity: 1; }
+      85% { opacity: 1; }
+      100% { top: 300px; opacity: 0; }
+    }
+    @keyframes packet-loop {
+      0% { top: 360px; opacity: 0; }
+      15% { opacity: 1; }
+      50% { top: 220px; opacity: 1; }
+      85% { opacity: 1; }
+      100% { top: 70px; opacity: 0; }
+    }
+
+    .story-panel {
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 18px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .step-copy h2 {
+      margin: 0 0 8px;
+      font-size: 1.15rem;
+    }
+    .step-copy p {
+      margin: 0;
+      color: var(--muted);
+      font: 500 0.92rem/1.55 var(--font-clean);
+    }
+    .step-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .step-dots {
+      display: flex;
+      gap: 6px;
+      flex: 1;
+    }
+    .step-dots button {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 0;
+      padding: 0;
+      background: rgba(155, 181, 164, 0.35);
+      cursor: pointer;
+    }
+    .step-dots button.is-on {
+      background: var(--green);
+      box-shadow: 0 0 0 3px rgba(61, 207, 122, 0.2);
+    }
+    .nav-btn {
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(18, 32, 24, 0.7);
+      color: var(--text);
+      font: 600 0.78rem/1.2 var(--font);
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    .nav-btn:hover { border-color: rgba(61, 207, 122, 0.5); }
+    .example {
+      border-radius: 12px;
+      border: 1px solid rgba(201, 169, 97, 0.28);
+      background: rgba(201, 169, 97, 0.08);
+      padding: 10px 12px;
+      font: 500 0.82rem/1.45 var(--font-clean);
+      color: #e8d5a3;
+    }
+    .example strong {
+      color: var(--gold);
+      font-weight: 600;
+    }
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .cta-row a {
+      display: inline-flex;
+      align-items: center;
+      padding: 9px 14px;
+      border-radius: 999px;
+      text-decoration: none;
+      font: 600 0.82rem/1.2 var(--font);
+      border: 1px solid transparent;
+    }
+    .cta-primary {
+      background: rgba(61, 207, 122, 0.18);
+      border-color: rgba(61, 207, 122, 0.45);
+      color: #b8f0ce;
+    }
+    .cta-ghost {
+      background: transparent;
+      border-color: var(--line);
+      color: var(--muted);
+    }
+    .cta-ghost:hover { color: var(--text); }
+
+    .foot {
+      margin-top: 16px;
+      color: var(--muted);
+      font: 500 0.78rem/1.45 var(--font-clean);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .diagram::before,
+      .kpi-chip,
+      .equip-card,
+      .agent-face,
+      .beam,
+      .packet,
+      .market-chip {
+        animation: none !important;
+      }
+      .market-chip { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="backdrop" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="top-links">
+      <a href="/greenways/agents-website-demo" target="_top">← Agents website demo</a>
+      <a href="/greenways/tenant-pack-idea" target="_top">How restaurant packs work</a>
+      <a href="/greenways/equipment-deep-dive?profile=freezer&theme=light&display=1" target="_top">Equipment deep dive</a>
+    </div>
+
+    <header class="hero">
+      <div class="eyebrow">Greenways · website demo</div>
+      <h1>From energy data to smarter equipment</h1>
+      <p class="lede">
+        Greenways helps restaurants collect meters, bills, and site baselines — then Transition Agents
+        turn that picture into replacements, recycling at a fair price, and grant-backed marketplace upgrades.
+      </p>
+    </header>
+
+    <div class="stage-board">
+      <section class="diagram" id="diagram" data-step="0" aria-label="Animated energy data journey">
+        <div class="beam beam-a" aria-hidden="true"></div>
+        <div class="beam beam-b" aria-hidden="true"></div>
+        <div class="beam beam-c" aria-hidden="true"></div>
+        <div class="packet packet-down" aria-hidden="true"></div>
+        <div class="packet packet-mid" aria-hidden="true"></div>
+        <div class="packet packet-up" aria-hidden="true"></div>
+        <div class="packet packet-loop" aria-hidden="true"></div>
+
+        <div class="layer is-active" data-layer="data">
+          <div class="layer-label">Energy data · meters &amp; baselines</div>
+          <div class="kpi-row">
+            <div class="kpi-chip"><strong>Electricity</strong><span>Meter · bills</span></div>
+            <div class="kpi-chip"><strong>Gas</strong><span>Site baseline</span></div>
+            <div class="kpi-chip"><strong>Water</strong><span>Usage trail</span></div>
+          </div>
+        </div>
+
+        <div class="layer is-dim" data-layer="equipment">
+          <div class="layer-label">High-usage equipment</div>
+          <div class="equip-row">
+            <div class="equip-card"><strong>Freezer</strong><span>High kWh</span></div>
+            <div class="equip-card"><strong>Fryer</strong><span>Peak load</span></div>
+            <div class="equip-card"><strong>Hood / HVAC</strong><span>Watch list</span></div>
+          </div>
+        </div>
+
+        <div class="layer is-dim" data-layer="agents">
+          <div class="layer-label">Transition Agents</div>
+          <div class="platform-row">
+            <div class="agent-face">
+              <img src="https://static.wixstatic.com/media/c123de_46943b6b1f8d41a59960fd8fdde4097b~mv2.png" alt="" width="42" height="42" decoding="async">
+              <span>Andrieus</span>
+            </div>
+            <div class="agent-face">
+              <img src="https://static.wixstatic.com/media/c123de_63359ab891354966aa9ff792fe998677~mv2.png" alt="" width="42" height="42" decoding="async">
+              <span>Vincent</span>
+            </div>
+            <div class="agent-face">
+              <img src="https://static.wixstatic.com/media/c123de_126830b1fc224df880dfa37ec830620e~mv2.png" alt="" width="42" height="42" decoding="async">
+              <span>Artemis</span>
+            </div>
+            <div class="agent-face">
+              <img src="https://static.wixstatic.com/media/c123de_c7cdbed4a4ee407289677a4f0079c1e5~mv2.png" alt="" width="42" height="42" decoding="async">
+              <span>Zara</span>
+            </div>
+            <div class="agent-face">
+              <img src="https://static.wixstatic.com/media/c123de_333c90ab8930465a98b503e1d24316b4~mv2.png" alt="" width="42" height="42" decoding="async">
+              <span>Cheryce</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="layer is-dim" data-layer="market">
+          <div class="layer-label">Recycle · Marketplace · grants</div>
+          <div class="market-row" aria-hidden="true">
+            <span class="market-chip green">Sustainability map</span>
+            <span class="market-chip">Recycle / trade-in</span>
+            <span class="market-chip gold">Marketplace</span>
+            <span class="market-chip gold">Grants 💶</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="story-panel">
+        <div class="step-copy" id="stepCopy">
+          <h2></h2>
+          <p></p>
+        </div>
+        <div class="example" id="stepExample"></div>
+        <div class="step-nav">
+          <div class="step-dots" id="stepDots" role="tablist" aria-label="Illustration steps"></div>
+          <button type="button" class="nav-btn" id="btnPrev">Back</button>
+          <button type="button" class="nav-btn" id="btnNext">Next</button>
+        </div>
+        <div class="cta-row">
+          <a class="cta-primary" href="/greenways/agents-website-demo" target="_top">Open website demo</a>
+          <a class="cta-ghost" href="/greenways/tenant-pack-idea" target="_top">See tenant pack idea</a>
+        </div>
+      </aside>
+    </div>
+
+    <p class="foot">
+      Illustration for the Greenways website demo — how energy data flows into equipment decisions,
+      recycling partners, and grant-backed upgrades on the Marketplace.
+    </p>
+  </div>
+
+  <script>
+    (function () {
+      var STEPS = [
+        {
+          title: "Greenways helps you gather energy data",
+          body: "Meters, bills, and site baselines rarely sit in one place. Greenways helps collect and organise electricity, gas, and water data so you have a clear picture of how the kitchen actually runs.",
+          example: "<strong>Example:</strong> pull last 12 months of bills + meter reads into a simple site baseline for Canal and Centre.",
+          layers: ["data"]
+        },
+        {
+          title: "Data shows what equipment to replace",
+          body: "Once usage is visible, high-draw freezers, fryers, and hood systems stand out. You stop guessing which appliances are costing the most — the numbers point to the shortlist.",
+          example: "<strong>Callout:</strong> walk-in freezer + fryer pair driving peak electricity — flag for Artemis deep dive.",
+          layers: ["data", "equipment"]
+        },
+        {
+          title: "Agents highlight replacements and recycling",
+          body: "Transition Agents help spotlight high-usage equipment and find recycling agencies and companies so old units leave at a fair price — Cheryce’s sustainability map points to partners and case studies nearby.",
+          example: "<strong>Map:</strong> recycle / trade-in partners near your site · Cheryce opens the sustainability map for examples.",
+          layers: ["equipment", "agents", "market"]
+        },
+        {
+          title: "Marketplace upgrades with grants stay current",
+          body: "Agents keep looking for better Electrical, Gas, and Water equipment on Greenways Marketplace — with associated grants — and alert you when improved models appear from suppliers.",
+          example: "<strong>Watch:</strong> new A+++ freezer with scheme chips · Andrieus for grants · Vincent for payback.",
+          layers: ["agents", "market"]
+        },
+        {
+          title: "A continuous loop for the kitchen",
+          body: "Data feeds replace decisions; recycling clears the old line; Marketplace and grants bring the next upgrade in. The loop keeps turning as bills, equipment, and supplier stock change.",
+          example: "<strong>Loop:</strong> data → replace → recycle → market + grants — then refresh the baseline.",
+          layers: ["data", "equipment", "agents", "market"]
+        }
+      ];
+
+      var step = 0;
+      var timer = null;
+      var diagram = document.getElementById("diagram");
+      var copy = document.getElementById("stepCopy");
+      var example = document.getElementById("stepExample");
+      var dots = document.getElementById("stepDots");
+      var layers = {
+        data: diagram.querySelector('[data-layer="data"]'),
+        equipment: diagram.querySelector('[data-layer="equipment"]'),
+        agents: diagram.querySelector('[data-layer="agents"]'),
+        market: diagram.querySelector('[data-layer="market"]')
+      };
+
+      function renderDots() {
+        dots.innerHTML = STEPS.map(function (_, i) {
+          return '<button type="button" data-step="' + i + '" aria-label="Step ' + (i + 1) + '"' +
+            (i === step ? ' class="is-on" aria-current="true"' : "") + "></button>";
+        }).join("");
+      }
+
+      function applyStep(i) {
+        step = (i + STEPS.length) % STEPS.length;
+        var s = STEPS[step];
+        copy.querySelector("h2").textContent = s.title;
+        copy.querySelector("p").textContent = s.body;
+        example.innerHTML = s.example;
+        diagram.setAttribute("data-step", String(step));
+        Object.keys(layers).forEach(function (key) {
+          var el = layers[key];
+          var on = s.layers.indexOf(key) >= 0;
+          el.classList.toggle("is-active", on);
+          el.classList.toggle("is-dim", !on);
+        });
+        renderDots();
+      }
+
+      function next() { applyStep(step + 1); restart(); }
+      function prev() { applyStep(step - 1); restart(); }
+      function restart() {
+        if (timer) clearInterval(timer);
+        if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        timer = setInterval(function () { applyStep(step + 1); }, 6500);
+      }
+
+      document.getElementById("btnNext").addEventListener("click", next);
+      document.getElementById("btnPrev").addEventListener("click", prev);
+      dots.addEventListener("click", function (e) {
+        var btn = e.target.closest("button[data-step]");
+        if (!btn) return;
+        applyStep(Number(btn.getAttribute("data-step")));
+        restart();
+      });
+
+      applyStep(0);
+      restart();
+    })();
+  </script>
+</body>
+</html>

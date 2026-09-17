@@ -47,6 +47,7 @@
 | **Tenant (restaurant) agent packs** | `data/tenant-agent-packs/{chainId}.json` + registry `data/greenways-tenant-agent-packs.json` ⭐ · skill: `Skills/restaurant-tenant-agent-pack.md` |
 | **Chain hub (tenant pack home)** | `HTMLS GWM GWB/greenways-tenant-hub.html` — `/greenways/tenants/:chainId` (W2W: `/greenways/tenants/wok-to-walk`) |
 | **Tenant pack idea (illustration)** | `HTMLS GWM GWB/greenways-tenant-pack-idea.html` · `/greenways/tenant-pack-idea` — animated how/why for website-demo (Wok Restaurant) |
+| **Energy data journey (illustration)** | `HTMLS GWM GWB/greenways-energy-data-journey.html` · `/greenways/energy-data-journey` — animated data → equipment → recycle/map → marketplace + grants loop |
 | **Deep Dive Content** | `deep-dive-content.json` |
 | **Member Profile Page** | `wix-integration/member-profile.html` |
 | **Member Uploads** | `uploads/members/` |
