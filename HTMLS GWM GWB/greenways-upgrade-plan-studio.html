@@ -24,6 +24,75 @@
     /* Renovation / premises — Sustainable Renovations photo */
     --gw-mp-backdrop-image: url("https://static.wixstatic.com/media/c123de_03c788262317429cb4d3c9b8c1c6595a~mv2.webp");
   }
+  html.theme-light, html.theme-light body.theme-light, body.theme-light {
+    --bg: #f6f8fb;
+    --text: #152033;
+    --muted: #5a6b82;
+    --cyan: #0284c7;
+    --green: #16a34a;
+    --gold: #b45309;
+  }
+  html.theme-light body, body.theme-light {
+    background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+    color: var(--text);
+  }
+  html.theme-light .gw-mp-backdrop {
+    opacity: 0.18;
+    filter: brightness(1.12) saturate(0.82);
+  }
+  html.theme-light .up-return {
+    border-color: rgba(15, 55, 100, 0.14);
+    background: rgba(255, 255, 255, 0.92);
+  }
+  html.theme-light .up-return-btn {
+    border-color: rgba(37, 99, 235, 0.35);
+    background: rgba(37, 99, 235, 0.08);
+    color: #1d4ed8;
+  }
+  html.theme-light .up-hero h1 {
+    background: linear-gradient(135deg, #152033 0%, #0284c7 55%, #16a34a 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  html.theme-light .up-hero p { color: var(--muted); }
+  html.theme-light .up-lane,
+  html.theme-light .up-summary,
+  html.theme-light .up-step {
+    background: #ffffff;
+    border-color: rgba(15, 55, 100, 0.14);
+    box-shadow: 0 6px 22px rgba(15, 23, 42, 0.06);
+  }
+  html.theme-light .up-lane.is-active {
+    border-color: rgba(2, 132, 199, 0.45);
+    background: #f0f9ff;
+  }
+  html.theme-light .up-summary p,
+  html.theme-light .up-step p { color: #334155; }
+  html.theme-light .up-btn {
+    border-color: rgba(2, 132, 199, 0.35);
+    background: rgba(2, 132, 199, 0.08);
+    color: #0369a1;
+  }
+  html.theme-light .up-note {
+    border-color: rgba(180, 83, 9, 0.28);
+    background: rgba(254, 243, 199, 0.45);
+    color: #334155;
+  }
+  html.display-mode .up-return { display: none !important; }
+  html.display-mode .website-demo-banner { display: block; }
+  .website-demo-banner {
+    display: none;
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(37, 99, 235, 0.25);
+    background: rgba(37, 99, 235, 0.08);
+    color: var(--text);
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+  .website-demo-banner strong { color: #1d4ed8; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body {
     min-height: 100%;
@@ -143,6 +212,10 @@
     <p>Tick through the same six-step path Artemis shows in chat — open tools, copy the plan, hand off to Vincent or Andrieus.</p>
   </header>
 
+  <div class="website-demo-banner" role="note">
+    <strong>Website illustration</strong> — Six-step plan of action for a commercial fridge upgrade. Demo only; progress stays in this browser session.
+  </div>
+
   <div class="up-lanes" id="up-lanes" aria-label="Upgrade scenarios"></div>
   <p class="up-status" id="up-status">Loading plan…</p>
 
@@ -168,6 +241,24 @@
 </main>
 <script>
 (function () {
+  (function applyWebsiteModes() {
+    var p = new URLSearchParams(window.location.search);
+    var theme = (p.get("theme") || "").toLowerCase();
+    var display = p.get("display") === "1" || p.get("website") === "1";
+    function apply() {
+      if (theme === "light" || theme === "website") {
+        document.documentElement.classList.add("theme-light");
+        document.body.classList.add("theme-light");
+      }
+      if (display) {
+        document.documentElement.classList.add("display-mode");
+        document.body.classList.add("display-mode");
+      }
+    }
+    if (document.body) apply();
+    else document.addEventListener("DOMContentLoaded", apply);
+  })();
+
   var PROGRESS_KEY = "gw-upgrade-plan-progress-v1";
   var state = { vertical: "fridge", payload: null };
 

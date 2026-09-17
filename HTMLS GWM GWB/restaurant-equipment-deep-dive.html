@@ -25,6 +25,88 @@
       --equipment-deep-dive-backdrop-image:url("https://static.wixstatic.com/media/c123de_5255a020de60477db1fcb1ec6d553d55~mv2.jpg");
       --equipment-page-hero-image:url("https://static.wixstatic.com/media/c123de_45ee327168f847a783271a65cd4f98c6~mv2.jpg");
     }
+    html.theme-light, html.theme-light body.theme-light, body.theme-light {
+      --bg: #f6f8fb;
+      --surface: #ffffff;
+      --surface-2: #eef3f9;
+      --line: rgba(15, 55, 100, 0.14);
+      --text: #152033;
+      --muted: #5a6b82;
+      --accent: #2563eb;
+      --accent-bright: #1d4ed8;
+      --accent-muted: #3b82f6;
+      --accent-on: #ffffff;
+      --green: #16a34a;
+      --amber: #b45309;
+      --blue: #0284c7;
+    }
+    html.theme-light body, body.theme-light {
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+      color: var(--text);
+    }
+    html.theme-light .equipment-deep-dive-backdrop {
+      opacity: 0.22;
+      filter: brightness(1.15) saturate(0.85);
+      background-image:
+        linear-gradient(rgba(248,250,252,.88), rgba(238,242,247,.92)),
+        var(--equipment-deep-dive-backdrop-image);
+    }
+    html.theme-light .card,
+    html.theme-light .accent-panel,
+    html.theme-light .context-banner {
+      background: var(--surface) !important;
+      color: var(--text);
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+    }
+    html.theme-light .sub,
+    html.theme-light .muted { color: var(--muted) !important; }
+    html.theme-light .btn:not(.primary) {
+      background: var(--surface-2);
+      color: var(--text);
+      border-color: var(--line);
+    }
+    html.theme-light .btn.primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    html.display-mode .page-hero-banner { display: none; }
+    html.display-mode #wokSitePanel,
+    html.display-mode #customForm,
+    html.display-mode .picker-lead { display: none !important; }
+    html.display-mode .picker {
+      padding: 12px 14px;
+    }
+    html.display-mode .website-demo-banner {
+      display: block;
+    }
+    .website-demo-banner {
+      display: none;
+      margin: 0 0 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(37, 99, 235, 0.25);
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--text);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+    .website-demo-banner strong { color: var(--accent-bright); }
+    html.display-mode a.utility-btn,
+    html.display-mode #openRestaurantDataLink,
+    html.display-mode #deepDiveRestaurantDataBtn {
+      pointer-events: none;
+      opacity: 0.72;
+      cursor: default;
+    }
+    html.display-mode a.utility-btn::after,
+    html.display-mode #openRestaurantDataLink::after {
+      content: none;
+    }
+    html.display-mode .alt-item a.btn.primary {
+      pointer-events: none;
+      opacity: 0.72;
+      cursor: default;
+    }
     *{box-sizing:border-box}
     body{
       margin:0;
@@ -1254,6 +1336,11 @@
       />
     </figure>
 
+    <div class="website-demo-banner" role="note">
+      <strong>Website illustration</strong> — Commercial freezer deep dive with marketplace vs external alternatives.
+      Demo only; not linked into the live buildings dashboard.
+    </div>
+
     <section class="picker accent-panel accent-panel--picker">
       <div class="sub picker-lead">Choose equipment profile (module view, no page reload)</div>
       <div class="wok-site-panel accent-panel accent-panel--picker" id="wokSitePanel" hidden>
@@ -1945,6 +2032,36 @@
   <script>
     const CUSTOM_PROFILE_STORAGE_KEY = 'restaurantEquipmentDeepDiveCustomProfile';
     const incomingParams = new URLSearchParams(window.location.search);
+
+    (function applyWebsiteModes() {
+      const theme = (incomingParams.get('theme') || '').toLowerCase();
+      const display = incomingParams.get('display') === '1' || incomingParams.get('website') === '1';
+      function apply() {
+        if (theme === 'light' || theme === 'website') {
+          document.documentElement.classList.add('theme-light');
+          document.body.classList.add('theme-light');
+        }
+        if (display) {
+          document.documentElement.classList.add('display-mode');
+          document.body.classList.add('display-mode');
+        }
+      }
+      if (document.body) apply();
+      else document.addEventListener('DOMContentLoaded', apply);
+    })();
+
+    function isWebsiteDisplayMode() {
+      return incomingParams.get('display') === '1' || incomingParams.get('website') === '1';
+    }
+
+    function hasDeepDiveEquipParam() {
+      return !!(
+        incomingParams.get('profile') ||
+        incomingParams.get('wok') ||
+        incomingParams.get('asset') ||
+        incomingParams.get('equipment')
+      );
+    }
 
     function initDeepDiveReturnNav() {
       const ret = incomingParams.get('return');
@@ -4618,7 +4735,10 @@
     initEquipmentAnalyticsHub();
     renderIncomingComparisonContext();
     loadWokInventory().finally(() => {
-      if (!wokBootstrapped) setProfile('fridge');
+      if (!wokBootstrapped) {
+        const defaultKey = isWebsiteDisplayMode() && !hasDeepDiveEquipParam() ? 'freezer' : 'fridge';
+        setProfile(defaultKey);
+      }
     });
     document.getElementById('catalogManualForm')?.addEventListener('submit', submitCatalogManualForm);
     document.getElementById('catManualPrefill')?.addEventListener('click', prefillCatalogManualFromProfile);

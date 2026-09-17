@@ -260,6 +260,7 @@ app.get('/greenways/guide-agent', (req, res) => sendLiveMusicHtml(res, 'greenway
 app.get('/greenways/agents-highlights', (req, res) => sendLiveMusicHtml(res, 'greenways-agents-highlights.html'));
 app.get('/greenways/agents-map', (req, res) => sendLiveMusicHtml(res, 'greenways-agents-map.html'));
 app.get('/greenways/agents-story', (req, res) => sendLiveMusicHtml(res, 'greenways-agents-story.html'));
+app.get('/greenways/agents-website-demo', (req, res) => sendLiveMusicHtml(res, 'greenways-agents-website-demo.html'));
 /** Wix website embed — same story page, no portal family menu (?embed=1 also works) */
 app.get('/greenways/agents-story-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-agents-story.html'));
 app.get('/greenways/agents-highlights-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-agents-highlights.html'));
