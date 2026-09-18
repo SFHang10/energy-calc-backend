@@ -82,6 +82,57 @@
       background: var(--accent);
       color: #fff;
     }
+    /* Tags / chips: night palette is pale-on-pale in light mode */
+    html.theme-light .tag.green {
+      background: #dbeafe;
+      color: #1e40af !important;
+    }
+    html.theme-light .tag.amber {
+      background: #ffedd5;
+      color: #9a3412 !important;
+    }
+    html.theme-light .tag.blue {
+      background: #e0f2fe;
+      color: #075985 !important;
+    }
+    /* Energy usage sketch banner */
+    html.theme-light .efficiency-pulse-wrap {
+      background: #eef3f9 !important;
+      border-color: var(--line);
+    }
+    html.theme-light .efficiency-pulse-caption,
+    html.theme-light .alt-eff-caption {
+      color: #1e3a5f !important;
+    }
+    html.theme-light .efficiency-pulse-wrap--wok-stress .efficiency-pulse-caption {
+      color: #9a3412 !important;
+    }
+    html.theme-light .alt-eff-wrap {
+      background: #f1f5f9 !important;
+      border-color: var(--line);
+    }
+    /* Official benchmark: keep light card chrome (backdrop otherwise forces dark navy) */
+    html.theme-light body.equipment-deep-dive--backdrop .official-benchmark-banner,
+    html.theme-light .official-benchmark-banner,
+    html.theme-light body.equipment-deep-dive--backdrop .context-banner,
+    html.theme-light .context-banner {
+      background: #ffffff !important;
+      color: var(--text) !important;
+      border-color: rgba(180, 83, 9, 0.28);
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+    }
+    html.theme-light .official-benchmark-banner a,
+    html.theme-light .context-banner a {
+      color: #1d4ed8 !important;
+      font-weight: 600;
+    }
+    html.theme-light .pill {
+      background: var(--surface-2) !important;
+      color: var(--text);
+    }
+    html.theme-light .pill strong {
+      color: #152033 !important;
+    }
     html.display-mode .page-hero-banner { display: none; }
     html.display-mode #wokSitePanel,
     html.display-mode #customForm,
@@ -3234,6 +3285,7 @@
       const ctx = canvas.getContext('2d');
       const yMin = Math.max(0, Math.min(...datasets.flatMap((d) => d.data)) * 0.88);
       const yMax = Math.max(...datasets.flatMap((d) => d.data)) * 1.08 || 1;
+      const ui = chartUiColors();
       eaProjectionChart = new Chart(ctx, {
         type: 'line',
         data: { labels, datasets },
@@ -3244,7 +3296,7 @@
           plugins: {
             legend: {
               position: 'bottom',
-              labels: { color: '#9bb0cc', boxWidth: 10, font: { size: 11 } }
+              labels: { color: ui.legend, boxWidth: 10, font: { size: 11 } }
             },
             tooltip: {
               callbacks: {
@@ -3255,13 +3307,13 @@
             }
           },
           scales: {
-            x: { ticks: { color: '#9bb0cc', maxRotation: 0 }, grid: { color: 'rgba(255,255,255,.06)' } },
+            x: { ticks: { color: ui.ticks, maxRotation: 0 }, grid: { color: ui.grid } },
             y: {
               min: yMin,
               max: yMax,
-              ticks: { color: '#9bb0cc' },
-              grid: { color: 'rgba(255,255,255,.06)' },
-              title: { display: true, text: 'kWh/day (line model)', color: '#7aa894', font: { size: 11 } }
+              ticks: { color: ui.ticks },
+              grid: { color: ui.grid },
+              title: { display: true, text: 'kWh/day (line model)', color: ui.title, font: { size: 11 } }
             }
           }
         }
@@ -3317,8 +3369,8 @@
         options: {
           plugins: { legend: { display: false } },
           scales: {
-            x: { ticks: { color: '#9bb0cc' }, grid: { color: 'rgba(255,255,255,.06)' } },
-            y: { ticks: { color: '#9bb0cc' }, grid: { color: 'rgba(255,255,255,.06)' }, beginAtZero: true }
+            x: { ticks: { color: chartUiColors().ticks }, grid: { color: chartUiColors().grid } },
+            y: { ticks: { color: chartUiColors().ticks }, grid: { color: chartUiColors().grid }, beginAtZero: true }
           }
         }
       });
@@ -3364,6 +3416,7 @@
       if (costCtx) {
         const parts = [m.eCost, m.gCost, m.wCost].map((x) => Math.max(0, x));
         const sum = parts.reduce((a, b) => a + b, 0) || 1;
+        const ui = chartUiColors();
         eaCostMixChart = new Chart(costCtx, {
           type: 'doughnut',
           data: {
@@ -3377,7 +3430,7 @@
           },
           options: {
             plugins: {
-              legend: { position: 'bottom', labels: { color: '#c8d4e8', boxWidth: 12, font: { size: 11 } } },
+              legend: { position: 'bottom', labels: { color: ui.legend, boxWidth: 12, font: { size: 11 } } },
               tooltip: {
                 callbacks: {
                   label(ctx) {
@@ -3440,10 +3493,10 @@
             }]
           },
           options: {
-            plugins: { legend: { labels: { color: '#9bb0cc' } } },
+            plugins: { legend: { labels: { color: chartUiColors().legend } } },
             scales: {
-              x: { ticks: { color: '#9bb0cc', maxRotation: 0 }, grid: { color: 'rgba(255,255,255,.06)' } },
-              y: { ticks: { color: '#9bb0cc' }, grid: { color: 'rgba(255,255,255,.06)' } }
+              x: { ticks: { color: chartUiColors().ticks, maxRotation: 0 }, grid: { color: chartUiColors().grid } },
+              y: { ticks: { color: chartUiColors().ticks }, grid: { color: chartUiColors().grid } }
             }
           }
         });
@@ -3711,12 +3764,35 @@
       }).join('');
     }
 
+    function isLightTheme() {
+      return document.documentElement.classList.contains('theme-light')
+        || document.body.classList.contains('theme-light');
+    }
+
+    function chartUiColors() {
+      if (isLightTheme()) {
+        return {
+          legend: '#334155',
+          ticks: '#475569',
+          grid: 'rgba(15, 55, 100, 0.12)',
+          title: '#1e3a5f'
+        };
+      }
+      return {
+        legend: '#c8d4e8',
+        ticks: '#9bb0cc',
+        grid: '#1a2d45',
+        title: '#7aa894'
+      };
+    }
+
     function renderPerfTrend(profile) {
       if (perfTrendChart) perfTrendChart.destroy();
       const gasWok = isGasLedWokStation(profile);
       const series = gasWok ? trendGasM3FromKwhSeries(profile) : profile.trendData;
       const lineColor = gasWok ? '#f5a623' : '#5b9eff';
       const fillColor = gasWok ? 'rgba(245,166,35,.16)' : 'rgba(47,111,201,.18)';
+      const ui = chartUiColors();
       perfTrendChart = new Chart(document.getElementById('perfTrend'), {
       type:'line',
       data:{
@@ -3733,10 +3809,10 @@
         }]
       },
       options:{
-        plugins:{legend:{labels:{color:'#c8d4e8'}}},
+        plugins:{legend:{labels:{color:ui.legend}}},
         scales:{
-          x:{ticks:{color:'#9bb0cc'},grid:{color:'#1a2d45'}},
-          y:{ticks:{color:'#9bb0cc'},grid:{color:'#1a2d45'}}
+          x:{ticks:{color:ui.ticks},grid:{color:ui.grid}},
+          y:{ticks:{color:ui.ticks},grid:{color:ui.grid}}
         }
       }
     });
@@ -3748,6 +3824,7 @@
       const mixLabels = gasWok
         ? ['Electrical aux (line)', 'Water', 'Gas (cooking)']
         : ['Electricity', 'Water', 'Gas equivalent'];
+      const ui = chartUiColors();
       mixChart = new Chart(document.getElementById('mixChart'), {
       type:'doughnut',
       data:{
@@ -3758,7 +3835,7 @@
           borderWidth:0
         }]
       },
-      options:{plugins:{legend:{labels:{color:'#c8d4e8'}}},cutout:'62%'}
+      options:{plugins:{legend:{labels:{color:ui.legend}}},cutout:'62%'}
     });
     }
 
@@ -3776,6 +3853,7 @@
       document.getElementById('statAverage').textContent = `${avg.toFixed(1)} L/day`;
 
       if (waterChart) waterChart.destroy();
+      const ui = chartUiColors();
       waterChart = new Chart(document.getElementById('waterRangeChart'), {
         type:'bar',
         data:{
@@ -3789,10 +3867,10 @@
           }]
         },
         options:{
-          plugins:{legend:{labels:{color:'#c8d4e8'}}},
+          plugins:{legend:{labels:{color:ui.legend}}},
           scales:{
-            x:{ticks:{color:'#9bb0cc'},grid:{color:'#1a2d45'}},
-            y:{ticks:{color:'#9bb0cc'},grid:{color:'#1a2d45'}}
+            x:{ticks:{color:ui.ticks},grid:{color:ui.grid}},
+            y:{ticks:{color:ui.ticks},grid:{color:ui.grid}}
           }
         }
       });
