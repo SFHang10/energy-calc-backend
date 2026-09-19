@@ -76,7 +76,7 @@
 | **Energy monitoring references** | `HTMLS GWM GWB/Refrenece Energy monitoring .Html` · `/greenways/energy-monitoring-references` |
 | **Renovation project plans** | `HTMLs/Renovation project plans.html` · `/greenways/renovation-plans` |
 | **Eco project planner** | `HTMLs/eco_project_planning_guide_fixed.html` · `/greenways/eco-project-planner` |
-| **ETL official hub** | `HTMLS GWM GWB/etl-official-site.html` · `/greenways/etl-official` |
+| **ETL hub (consumer guide)** | `HTMLS GWM GWB/etl-official-site.html` · `/greenways/etl` (aliases: `/greenways/etl-hub`, `/greenways/etl-official`) — single market-facing ETL guide; Sustainable References links here instead of duplicating ETL cards |
 | **Grants Agent (chat)** | `HTMLS GWM GWB/greenways-grants-agent.html` — `/greenways/grants-agent`, `/api/grants-agent/*` ⭐ clone pattern: `Skills/greenways-chat-interface-skill.md` |
 | **Finance Agent (chat)** | `HTMLS GWM GWB/greenways-finance-agent.html` — gold theme — funding **+ energy prices** (ticker, upgrade case, tariff compare) — `/greenways/finance-agent`, `/api/finance-agent/*` |
 | **Equipment Agent (chat)** | `HTMLS GWM GWB/greenways-equipment-agent.html` — green theme — equipment upgrades **+ premises renovation** (insulation, retrofit, project plans) — `/greenways/equipment-agent`, `/api/equipment-agent/*` |

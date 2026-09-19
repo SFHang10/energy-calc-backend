@@ -194,7 +194,10 @@ app.get('/greenways/equipment-desk-embed', (req, res) => sendLiveMusicHtml(res, 
 // Artemis desk tools — short /greenways paths (avoid fragile spaced HTMLS URLs in Wix embeds)
 app.get('/greenways/equipment-deep-dive', (req, res) => sendLiveMusicHtml(res, 'restaurant-equipment-deep-dive.html'));
 app.get('/greenways/etl-finder', (req, res) => sendLiveMusicHtml(res, 'equipment_intelligence_tool.html'));
+app.get('/greenways/etl', (req, res) => sendLiveMusicHtml(res, 'etl-official-site.html'));
+app.get('/greenways/etl-hub', (req, res) => sendLiveMusicHtml(res, 'etl-official-site.html'));
 app.get('/greenways/etl-official', (req, res) => sendLiveMusicHtml(res, 'etl-official-site.html'));
+
 app.get('/greenways/sustainable-renovations', (req, res) => sendLiveMusicHtml(res, 'Sustainable Renovations New .html'));
 app.get('/greenways/sustainable-references', (req, res) => sendLiveMusicHtml(res, 'Sustainable References .HTML'));
 app.get('/greenways/energy-monitoring', (req, res) => sendLiveMusicHtml(res, 'Importance of Energy Monitoring.html'));
