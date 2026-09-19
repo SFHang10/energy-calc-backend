@@ -28,6 +28,8 @@ Use **one** embed/page for ETL explainer:
 
 Other pages should link here or to `https://etl.energysecurity.gov.uk/` / product/category/case-study URLs — not duplicate full ETL explainers.
 
+**2026-09 follow-up:** See `docs/etl-compliance-fixes-2026-09.md` — Eco Project Planner / renovation plans ECA removal, references wording, and new `/greenways/*` Render routes for Wix.
+
 ---
 
 ## Render links — pages changed this pass (update Wix embeds if used)

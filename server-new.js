@@ -105,6 +105,22 @@ function sendLiveMusicHtml(res, filename) {
   return res.sendFile(filename, { root: LIVE_MUSIC_GWB_DIR });
 }
 
+/** Serve HTML from HTMLs/ (eco planner, renovation plans, etc.) */
+function sendHtmlsFile(res, filename) {
+  const fsSync = require('fs');
+  const root = path.join(__dirname, 'HTMLs');
+  const filePath = path.join(root, filename);
+  if (!fsSync.existsSync(filePath)) {
+    return res.status(404).json({
+      error: 'File not found',
+      message: `${filename} not found on server`,
+      path: filePath
+    });
+  }
+  res.type('html');
+  return res.sendFile(filename, { root });
+}
+
 LIVE_MUSIC_FILES.forEach((filename) => {
   const webPath = `/HTMLS GWM GWB/${filename}`;
   app.get(webPath, (req, res) => sendLiveMusicHtml(res, filename));
@@ -180,6 +196,11 @@ app.get('/greenways/equipment-deep-dive', (req, res) => sendLiveMusicHtml(res, '
 app.get('/greenways/etl-finder', (req, res) => sendLiveMusicHtml(res, 'equipment_intelligence_tool.html'));
 app.get('/greenways/etl-official', (req, res) => sendLiveMusicHtml(res, 'etl-official-site.html'));
 app.get('/greenways/sustainable-renovations', (req, res) => sendLiveMusicHtml(res, 'Sustainable Renovations New .html'));
+app.get('/greenways/sustainable-references', (req, res) => sendLiveMusicHtml(res, 'Sustainable References .HTML'));
+app.get('/greenways/energy-monitoring', (req, res) => sendLiveMusicHtml(res, 'Importance of Energy Monitoring.html'));
+app.get('/greenways/energy-monitoring-references', (req, res) => sendLiveMusicHtml(res, 'Refrenece Energy monitoring .Html'));
+app.get('/greenways/renovation-plans', (req, res) => sendHtmlsFile(res, 'Renovation project plans.html'));
+app.get('/greenways/eco-project-planner', (req, res) => sendHtmlsFile(res, 'eco_project_planning_guide_fixed.html'));
 app.get('/greenways/insulation-guide', (req, res) => sendLiveMusicHtml(res, 'Insulation .html'));
 app.get('/greenways/finance-prices-board', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-prices-board.html'));
 app.get('/greenways/finance-prices-board-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-prices-board.html'));

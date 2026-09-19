@@ -70,6 +70,13 @@
 | **Water Saving Finder** | `HTMLS GWM GWB/water-saving-finder.html` |
 | **Savings tour page** | `HTMLS GWM GWB/savings.html` — Grants tab: Restaurant portal, EU schemes, **Financial assistance** |
 | **Restaurant finance finder** | `HTMLS GWM GWB/finance-finder-restaurant.html` (draft: `Fianance Finder/Finance Finder .html`) |
+| **Sustainable renovations** | `HTMLS GWM GWB/Sustainable Renovations New .html` · `/greenways/sustainable-renovations` |
+| **Sustainable references** | `HTMLS GWM GWB/Sustainable References .HTML` · `/greenways/sustainable-references` |
+| **Energy monitoring (guide)** | `HTMLS GWM GWB/Importance of Energy Monitoring.html` · `/greenways/energy-monitoring` |
+| **Energy monitoring references** | `HTMLS GWM GWB/Refrenece Energy monitoring .Html` · `/greenways/energy-monitoring-references` |
+| **Renovation project plans** | `HTMLs/Renovation project plans.html` · `/greenways/renovation-plans` |
+| **Eco project planner** | `HTMLs/eco_project_planning_guide_fixed.html` · `/greenways/eco-project-planner` |
+| **ETL official hub** | `HTMLS GWM GWB/etl-official-site.html` · `/greenways/etl-official` |
 | **Grants Agent (chat)** | `HTMLS GWM GWB/greenways-grants-agent.html` — `/greenways/grants-agent`, `/api/grants-agent/*` ⭐ clone pattern: `Skills/greenways-chat-interface-skill.md` |
 | **Finance Agent (chat)** | `HTMLS GWM GWB/greenways-finance-agent.html` — gold theme — funding **+ energy prices** (ticker, upgrade case, tariff compare) — `/greenways/finance-agent`, `/api/finance-agent/*` |
 | **Equipment Agent (chat)** | `HTMLS GWM GWB/greenways-equipment-agent.html` — green theme — equipment upgrades **+ premises renovation** (insulation, retrofit, project plans) — `/greenways/equipment-agent`, `/api/equipment-agent/*` |
