@@ -48,6 +48,7 @@
 | **Chain hub (tenant pack home)** | `HTMLS GWM GWB/greenways-tenant-hub.html` — `/greenways/tenants/:chainId` (W2W: `/greenways/tenants/wok-to-walk`) |
 | **Tenant pack idea (illustration)** | `HTMLS GWM GWB/greenways-tenant-pack-idea.html` · `/greenways/tenant-pack-idea` — animated how/why for website-demo (Wok Restaurant) |
 | **Energy data journey (illustration)** | `HTMLS GWM GWB/greenways-energy-data-journey.html` · `/greenways/energy-data-journey` — animated data → equipment → recycle/map → marketplace + grants loop |
+| **Site energy reading** | `HTMLS GWM GWB/site-energy-reading.html` · `/greenways/site-energy-reading` (+ `-embed`) — postcode → site utility connections + grid carbon; module `site-energy-reading`; demo: `?theme=light&display=1&embed=1` |
 | **Deep Dive Content** | `deep-dive-content.json` |
 | **Member Profile Page** | `wix-integration/member-profile.html` |
 | **Member Uploads** | `uploads/members/` |

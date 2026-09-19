@@ -1,14 +1,26 @@
 /**
  * Site energy reading — UK + EU (NL, ES, PT) via /api/site-energy-reading/lookup
+ * Site connections (electricity / gas / water) + grid carbon intensity.
  */
 (function () {
   'use strict';
+
+  var PROFILE_KEY = 'gw-team-profile-v1';
+  var CONNECTIONS_KEY = 'gw-site-energy-connections-v1';
 
   var COUNTRIES = {
     uk: { label: 'United Kingdom', flag: '🇬🇧', mode: 'uk' },
     nl: { label: 'Netherlands', flag: '🇳🇱', mode: 'eu' },
     es: { label: 'Spain', flag: '🇪🇸', mode: 'eu' },
     pt: { label: 'Portugal', flag: '🇵🇹', mode: 'eu' }
+  };
+
+  /** Hospitality defaults: restaurant demo typically has all three. */
+  var HOSPITALITY_DEFAULTS = {
+    uk: { electricity: true, gas: true, water: true },
+    nl: { electricity: true, gas: true, water: true },
+    es: { electricity: true, gas: true, water: true },
+    pt: { electricity: true, gas: true, water: true }
   };
 
   var INDEX_COLORS = {
@@ -37,7 +49,12 @@
       'Carbon-heavy stretch for the local grid. Delay energy-intensive processes a few hours if you can without affecting service.'
   };
 
-  var state = { country: 'uk' };
+  var state = {
+    country: 'uk',
+    postcode: '',
+    connections: { electricity: true, gas: true, water: true },
+    lastLookup: null
+  };
 
   function params() {
     return new URLSearchParams(window.location.search || '');
@@ -46,6 +63,14 @@
   function isEmbed() {
     var p = params();
     return p.get('embed') === '1' || p.get('popup') === '1';
+  }
+
+  function isLightTheme() {
+    return String(params().get('theme') || '').toLowerCase() === 'light';
+  }
+
+  function isDisplayMode() {
+    return params().get('display') === '1';
   }
 
   function apiBase() {
@@ -69,11 +94,38 @@
     return '';
   }
 
+  function readJsonStorage(storage, key) {
+    try {
+      var raw = storage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function writeJsonBoth(key, value) {
+    var json = JSON.stringify(value);
+    try {
+      localStorage.setItem(key, json);
+    } catch (_) {}
+    try {
+      sessionStorage.setItem(key, json);
+    } catch (_) {}
+  }
+
+  /** Prefer localStorage (durable), fall back to sessionStorage (agents). */
+  function readTeamProfile() {
+    var local = readJsonStorage(localStorage, PROFILE_KEY);
+    var sess = readJsonStorage(sessionStorage, PROFILE_KEY);
+    if (local && typeof local === 'object' && sess && typeof sess === 'object') {
+      return Object.assign({}, sess, local);
+    }
+    return local || sess || {};
+  }
+
   function countryFromProfile() {
     try {
-      var raw = sessionStorage.getItem('gw-team-profile-v1');
-      if (!raw) return '';
-      return profileCountryFromRegion(JSON.parse(raw).region);
+      return profileCountryFromRegion(readTeamProfile().region);
     } catch (_) {
       return '';
     }
@@ -85,6 +137,35 @@
       return profileCountryFromRegion(p.get('country') || p.get('region')) || 'uk';
     }
     return countryFromProfile() || 'uk';
+  }
+
+  function defaultConnectionsFor(country) {
+    var d = HOSPITALITY_DEFAULTS[country] || HOSPITALITY_DEFAULTS.uk;
+    return {
+      electricity: !!d.electricity,
+      gas: !!d.gas,
+      water: !!d.water
+    };
+  }
+
+  function loadSavedConnections(country) {
+    var saved = readJsonStorage(localStorage, CONNECTIONS_KEY);
+    if (saved && saved.connections && String(saved.country || '') === country) {
+      return {
+        electricity: !!saved.connections.electricity,
+        gas: !!saved.connections.gas,
+        water: !!saved.connections.water
+      };
+    }
+    var profile = readTeamProfile();
+    if (profile.siteConnections && typeof profile.siteConnections === 'object') {
+      return {
+        electricity: !!profile.siteConnections.electricity,
+        gas: !!profile.siteConnections.gas,
+        water: !!profile.siteConnections.water
+      };
+    }
+    return defaultConnectionsFor(country);
   }
 
   var MODULE_HREFS = {
@@ -112,9 +193,41 @@
     window.location.href = href;
   }
 
-  function applyEmbedMode() {
-    if (!isEmbed()) return;
-    document.body.classList.add('embed-mode');
+  function applyThemeModes() {
+    if (isEmbed()) document.body.classList.add('embed-mode');
+    if (isLightTheme()) {
+      document.documentElement.classList.add('theme-light');
+      document.body.classList.add('theme-light');
+    }
+    if (isDisplayMode()) {
+      document.documentElement.classList.add('display-mode');
+      document.body.classList.add('display-mode');
+    }
+  }
+
+  function syncConnChips() {
+    document.querySelectorAll('.conn-chip[data-conn]').forEach(function (chip) {
+      var key = chip.getAttribute('data-conn');
+      var on = !!state.connections[key];
+      chip.classList.toggle('is-on', on);
+      chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+
+  function setConnections(partial) {
+    state.connections = Object.assign({}, state.connections, partial || {});
+    syncConnChips();
+    var note = document.getElementById('connSaveNote');
+    if (note) {
+      note.textContent = '';
+      note.classList.remove('ok');
+    }
+  }
+
+  function showConnectionsPanel() {
+    var panel = document.getElementById('connectionsPanel');
+    if (panel) panel.classList.add('show');
+    syncConnChips();
   }
 
   function setCountry(country, pushUrl) {
@@ -141,11 +254,13 @@
     if (lede) {
       lede.textContent =
         state.country === 'uk'
-          ? 'Enter a UK postcode for live grid carbon intensity, generation mix, network operator, and 24-hour forecast — plus kitchen timing tips.'
-          : 'Enter a ' +
+          ? 'Two layers for a UK site: which utilities the premises is connected to (electricity, gas, water — illustrative until you confirm with bills), and live grid carbon intensity / mix / forecast for kitchen timing — not a substitute for your meter bills.'
+          : 'Two layers for a ' +
             cfg.label +
-            ' postal code for grid carbon reading, generation mix, and kitchen timing tips (live when ENTSO-E or Electricity Maps is configured on Render).';
+            ' site: which utilities this premises typically has on supply, and grid carbon / generation mix for timing high-draw tasks (live when ENTSO-E or Electricity Maps is configured on Render). Confirm connections with bills.';
     }
+    state.connections = loadSavedConnections(state.country);
+    syncConnChips();
     if (pushUrl !== false && window.history && window.history.replaceState) {
       var p = params();
       p.set('country', state.country);
@@ -159,6 +274,48 @@
     if (!el) return;
     el.textContent = msg || '';
     el.classList.toggle('err', !!isErr);
+  }
+
+  function saveConnectionsForAgents() {
+    var postcode =
+      state.postcode ||
+      (document.getElementById('postcode') && document.getElementById('postcode').value.trim()) ||
+      '';
+    var connections = {
+      electricity: !!state.connections.electricity,
+      gas: !!state.connections.gas,
+      water: !!state.connections.water
+    };
+    var updatedAt = new Date().toISOString();
+
+    var modulePayload = {
+      country: state.country,
+      postcode: postcode,
+      connections: connections,
+      updatedAt: updatedAt
+    };
+    try {
+      localStorage.setItem(CONNECTIONS_KEY, JSON.stringify(modulePayload));
+    } catch (_) {}
+
+    var existing = readTeamProfile();
+    if (!existing || typeof existing !== 'object') existing = {};
+    var merged = Object.assign({}, existing, {
+      region: existing.region || state.country,
+      sitePostcode: postcode || existing.sitePostcode || '',
+      siteConnections: connections,
+      siteEnergyUpdatedAt: updatedAt
+    });
+    writeJsonBoth(PROFILE_KEY, merged);
+    try {
+      window.dispatchEvent(new CustomEvent('gw-profile-changed', { detail: merged }));
+    } catch (_) {}
+
+    var note = document.getElementById('connSaveNote');
+    if (note) {
+      note.textContent = 'Saved for agents — connections + postcode on shared profile.';
+      note.classList.add('ok');
+    }
   }
 
   function renderResults(data) {
@@ -178,6 +335,12 @@
     var liveBadge = document.getElementById('liveBadge');
     var resultLinks = document.getElementById('resultLinks');
 
+    state.lastLookup = data;
+    state.postcode =
+      (data.locality && (data.locality.postcode || data.locality.label)) ||
+      (document.getElementById('postcode') && document.getElementById('postcode').value.trim()) ||
+      '';
+
     if (localityEl) localityEl.innerHTML = '<b>' + escapeHtml(data.locality.label) + '</b>';
 
     if (liveBadge) {
@@ -192,12 +355,15 @@
     }
     if (resultLinks) resultLinks.hidden = false;
 
+    state.connections = loadSavedConnections(state.country);
+    showConnectionsPanel();
+
     var idx = (data.intensity.index || 'moderate').toLowerCase();
     if (needle) needle.setAttribute('transform', 'rotate(' + (INDEX_ANGLES[idx] || 0) + ' 120 130)');
     if (indexLabel) indexLabel.textContent = idx.charAt(0).toUpperCase() + idx.slice(1);
     if (gco2Label) {
       gco2Label.innerHTML =
-        'Carbon intensity: <span>' +
+        'Grid carbon intensity: <span>' +
         (data.intensity.forecast != null ? data.intensity.forecast + ' gCO₂/kWh' : '—') +
         '</span>';
     }
@@ -287,7 +453,7 @@
       var max = Math.max.apply(null, values);
       var range = Math.max(max - min, 1);
       forecastChart.innerHTML = periods
-        .map(function (p, i) {
+        .map(function (p) {
           var idx2 = (p.intensity.index || 'moderate').toLowerCase();
           var color = INDEX_COLORS[idx2] || '#93a099';
           var val = p.intensity.forecast;
@@ -323,9 +489,11 @@
             })
           );
         }
-        forecastAxis.innerHTML = labels.map(function (l) {
-          return '<span>' + escapeHtml(l) + '</span>';
-        }).join('');
+        forecastAxis.innerHTML = labels
+          .map(function (l) {
+            return '<span>' + escapeHtml(l) + '</span>';
+          })
+          .join('');
       }
     } else if (forecastChart) {
       forecastChart.innerHTML = '';
@@ -356,15 +524,18 @@
     var resultsEl = document.getElementById('results');
     var liveBadge = document.getElementById('liveBadge');
     var resultLinks = document.getElementById('resultLinks');
+    var connPanel = document.getElementById('connectionsPanel');
     if (resultsEl) resultsEl.classList.remove('show');
     if (liveBadge) liveBadge.hidden = true;
     if (resultLinks) resultLinks.hidden = true;
+    if (connPanel) connPanel.classList.remove('show');
 
     try {
       var q = new URLSearchParams({ country: state.country, postcode: raw });
       var res = await fetch(apiBase() + '/api/site-energy-reading/lookup?' + q);
       var data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error || 'Lookup failed.');
+      state.postcode = raw;
       renderResults(data);
       setStatus('');
     } catch (err) {
@@ -375,12 +546,23 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    applyEmbedMode();
+    applyThemeModes();
     document.querySelectorAll('.country-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
         setCountry(btn.getAttribute('data-country'));
       });
     });
+    document.querySelectorAll('.conn-chip[data-conn]').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        var key = chip.getAttribute('data-conn');
+        var next = {};
+        next[key] = !state.connections[key];
+        setConnections(next);
+      });
+    });
+    var saveBtn = document.getElementById('saveConnectionsBtn');
+    if (saveBtn) saveBtn.addEventListener('click', saveConnectionsForAgents);
+
     var initial = normalizeCountryFromQuery();
     setCountry(initial, false);
     var prefill = params().get('postcode') || params().get('postal');
@@ -391,9 +573,9 @@
     }
     var btn = document.getElementById('lookupBtn');
     if (btn) btn.addEventListener('click', lookup);
-    var input = document.getElementById('postcode');
-    if (input) {
-      input.addEventListener('keydown', function (e) {
+    var inputEl = document.getElementById('postcode');
+    if (inputEl) {
+      inputEl.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') lookup();
       });
     }
