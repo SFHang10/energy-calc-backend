@@ -597,6 +597,12 @@
   html.theme-light footer { color: #64748b; border-color: rgba(15, 55, 100, 0.12); }
   html.theme-light #needle line { stroke: #152033; }
   html.theme-light #gaugeSvg circle { fill: #152033; }
+  html.theme-light #gaugeSvg path[stroke="rgba(147,160,153,.28)"] {
+    stroke: rgba(15, 55, 100, 0.12);
+  }
+  html.theme-light .gauge-arc-fill {
+    filter: none;
+  }
   html.theme-light .info-tip-btn {
     background: #eef3f9;
     border-color: rgba(15, 55, 100, 0.18);
@@ -721,13 +727,32 @@
         <p class="sub">Regional grid electricity mix — not your site meter or bill. How carbon-heavy power on this part of the network is at this moment.</p>
         <div class="gauge-body">
           <div class="gauge-face">
-            <svg id="gaugeSvg" viewBox="0 0 240 150" width="100%" height="auto">
-              <!-- zones -->
-              <path d="M 20 130 A 100 100 0 0 1 60.4 51.7" fill="none" stroke="#4fa097" stroke-width="16" stroke-linecap="round"/>
-              <path d="M 60.4 51.7 A 100 100 0 0 1 105.9 21.2" fill="none" stroke="#7fae5e" stroke-width="16" stroke-linecap="round"/>
-              <path d="M 105.9 21.2 A 100 100 0 0 1 134.1 21.2" fill="none" stroke="#e8a33d" stroke-width="16" stroke-linecap="round"/>
-              <path d="M 134.1 21.2 A 100 100 0 0 1 179.6 51.7" fill="none" stroke="#cf7a3d" stroke-width="16" stroke-linecap="round"/>
-              <path d="M 179.6 51.7 A 100 100 0 0 1 220 130" fill="none" stroke="#c1544c" stroke-width="16" stroke-linecap="round"/>
+            <svg id="gaugeSvg" viewBox="0 0 240 150" width="100%" height="auto" shape-rendering="geometricPrecision">
+              <defs>
+                <linearGradient id="carbonGaugeGrad" x1="20" y1="130" x2="220" y2="130" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#4fa097"/>
+                  <stop offset="22%" stop-color="#7fae5e"/>
+                  <stop offset="48%" stop-color="#e8a33d"/>
+                  <stop offset="72%" stop-color="#cf7a3d"/>
+                  <stop offset="100%" stop-color="#c1544c"/>
+                </linearGradient>
+              </defs>
+              <!-- Continuous semicircle (same smooth style as utility dashboard gauges) -->
+              <path
+                d="M 20 130 A 100 100 0 0 1 220 130"
+                fill="none"
+                stroke="rgba(147,160,153,.28)"
+                stroke-width="16"
+                stroke-linecap="round"
+              />
+              <path
+                class="gauge-arc-fill"
+                d="M 20 130 A 100 100 0 0 1 220 130"
+                fill="none"
+                stroke="url(#carbonGaugeGrad)"
+                stroke-width="16"
+                stroke-linecap="round"
+              />
               <!-- needle -->
               <g id="needle" transform="rotate(-90 120 130)" style="transition: transform 1.1s cubic-bezier(.4,1.4,.4,1);">
                 <line x1="120" y1="130" x2="120" y2="42" stroke="#f2efe4" stroke-width="3" stroke-linecap="round"/>
