@@ -58,6 +58,19 @@ const {
   getDefaultConsumerSamples,
   runChecks
 } = require('./systems-agent-knowledge');
+const {
+  normalizeSiteConnections,
+  prependSiteConnectionsBrief
+} = require('./site-energy-profile');
+
+/** Consumer energy-related agents that should cite saved site connections. */
+const SITE_ENERGY_BRIEF_AGENTS = new Set([
+  'finance',
+  'equipment',
+  'systems',
+  'deals',
+  'sustainable-products'
+]);
 
 const AGENT_PROFILES = {
   grants: {
@@ -541,6 +554,23 @@ function enrichWithMeaning(knowledge, profile, context = {}) {
   };
 }
 
+function shouldApplySiteConnectionsBrief(agentKey, knowledge = {}) {
+  if (!SITE_ENERGY_BRIEF_AGENTS.has(agentKey)) return false;
+  if (knowledge.intentId === 'email_me_this') return false;
+  if (knowledge.checkReport) return false;
+  if (/_status$/.test(knowledge.intentId || '')) return false;
+  return true;
+}
+
+function withSiteConnectionsBrief(agentKey, knowledge, profile) {
+  if (!knowledge?.answer || !shouldApplySiteConnectionsBrief(agentKey, knowledge)) {
+    return knowledge;
+  }
+  const answer = prependSiteConnectionsBrief(knowledge.answer, profile);
+  if (answer === knowledge.answer) return knowledge;
+  return { ...knowledge, answer };
+}
+
 /**
  * Standard knowledge-hit response for agent routes (meaning line + optional polish).
  */
@@ -558,7 +588,8 @@ async function finishKnowledgeAskResponse(agentKey, knowledge, question, profile
     skipMeaning || process.env.GREENWAYS_AGENT_MEANING === '0'
       ? working
       : enrichWithMeaning(working, profile, context);
-  const final = await maybePolishKnowledgeAnswer(agentKey, withMeaning, question, profile);
+  const polished = await maybePolishKnowledgeAnswer(agentKey, withMeaning, question, profile);
+  const final = withSiteConnectionsBrief(agentKey, polished, profile);
   const answer = sanitizeLeftColumnProse(final.answer);
   const response = {
     ok: true,
@@ -596,7 +627,8 @@ async function buildAgentAskFallback(agentKey, question, profile = {}) {
   }
   const result = await builder(question, profile);
   if (result?.answer) {
-    result.answer = sanitizeLeftColumnProse(result.answer);
+    const withBrief = withSiteConnectionsBrief(agentKey, result, profile);
+    result.answer = sanitizeLeftColumnProse(withBrief.answer);
   }
   return result;
 }
@@ -605,15 +637,26 @@ const { normalizeHandoffContext } = require('./greenways-agent-handoff');
 
 function normalizeAskProfile(body) {
   const handoff = normalizeHandoffContext(body?.profile?.handoff);
+  const raw = body?.profile || {};
   const profile = {
-    region: String(body?.profile?.region || '').trim(),
-    sector: String(body?.profile?.sector || '').trim(),
-    focus: String(body?.profile?.focus || '').trim(),
-    lane: String(body?.profile?.lane || '').trim().toLowerCase(),
-    tier: String(body?.profile?.tier || '').trim(),
-    memberId: String(body?.profile?.memberId || '').trim(),
-    siteId: String(body?.profile?.siteId || '').trim()
+    region: String(raw.region || '').trim(),
+    sector: String(raw.sector || '').trim(),
+    focus: String(raw.focus || '').trim(),
+    lane: String(raw.lane || '').trim().toLowerCase(),
+    tier: String(raw.tier || '').trim(),
+    memberId: String(raw.memberId || '').trim(),
+    siteId: String(raw.siteId || '').trim(),
+    chainId: String(raw.chainId || '').trim(),
+    companyId: String(raw.companyId || '').trim()
   };
+  const siteConnections = normalizeSiteConnections(raw.siteConnections);
+  if (siteConnections) profile.siteConnections = siteConnections;
+  const sitePostcode = String(raw.sitePostcode || '').trim();
+  if (sitePostcode) profile.sitePostcode = sitePostcode;
+  const siteEnergyCountry = String(raw.siteEnergyCountry || '').trim();
+  if (siteEnergyCountry) profile.siteEnergyCountry = siteEnergyCountry;
+  const siteEnergyUpdatedAt = String(raw.siteEnergyUpdatedAt || '').trim();
+  if (siteEnergyUpdatedAt) profile.siteEnergyUpdatedAt = siteEnergyUpdatedAt;
   if (handoff) profile.handoff = handoff;
   return profile;
 }

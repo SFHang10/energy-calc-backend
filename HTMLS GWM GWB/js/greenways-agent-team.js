@@ -4,6 +4,7 @@
   var ROSTER_URL = '/data/greenways-agent-roster.json';
   var HANDOFF_KEY = 'gw-team-handoff-v1';
   var PROFILE_KEY = 'gw-team-profile-v1';
+  var SITE_ENERGY_KEY = 'gw-site-energy-connections-v1';
   var MEMBER_CTX_KEY = 'greenways_member_context_v1';
   var JOURNEY_KEY = 'gw-team-journey-v1';
   var JOURNEY_PLAN_KEY = 'gw-team-journey-plan-v1';
@@ -160,6 +161,62 @@
     } catch (_) {}
   }
 
+  function writeJsonBoth(key, value) {
+    var json = JSON.stringify(value);
+    try {
+      global.localStorage.setItem(key, json);
+    } catch (_) {}
+    try {
+      global.sessionStorage.setItem(key, json);
+    } catch (_) {}
+  }
+
+  function normalizeSiteConnectionsClient(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    if (!('electricity' in raw) && !('gas' in raw) && !('water' in raw)) return null;
+    return {
+      electricity: !!raw.electricity,
+      gas: !!raw.gas,
+      water: !!raw.water
+    };
+  }
+
+  function attachSiteEnergyToProfile(profile) {
+    var out = {};
+    var base = profile || {};
+    Object.keys(base).forEach(function (k) {
+      out[k] = base[k];
+    });
+    var shared = readSharedProfile() || {};
+    if (!out.siteConnections && shared.siteConnections) {
+      out.siteConnections = normalizeSiteConnectionsClient(shared.siteConnections) || shared.siteConnections;
+    }
+    if (!out.sitePostcode && shared.sitePostcode) out.sitePostcode = String(shared.sitePostcode);
+    if (!out.siteEnergyUpdatedAt && shared.siteEnergyUpdatedAt) {
+      out.siteEnergyUpdatedAt = String(shared.siteEnergyUpdatedAt);
+    }
+    if (!out.siteEnergyCountry && shared.siteEnergyCountry) {
+      out.siteEnergyCountry = String(shared.siteEnergyCountry);
+    }
+    if (!out.siteConnections) {
+      var saved = readLocalJson(SITE_ENERGY_KEY);
+      if (saved && saved.connections) {
+        out.siteConnections = normalizeSiteConnectionsClient(saved.connections);
+        if (!out.sitePostcode && saved.postcode) out.sitePostcode = String(saved.postcode);
+        if (!out.siteEnergyUpdatedAt && saved.updatedAt) {
+          out.siteEnergyUpdatedAt = String(saved.updatedAt);
+        }
+        if (!out.siteEnergyCountry && saved.country) {
+          out.siteEnergyCountry = String(saved.country);
+        }
+        if (!out.region && saved.country) {
+          out.region = normalizeAgentRegion(saved.country) || String(saved.country);
+        }
+      }
+    }
+    return out;
+  }
+
   function readHandoff() {
     return readJson(HANDOFF_KEY);
   }
@@ -237,6 +294,7 @@
           ? getProfile
           : {};
     base = mergeMemberContext(base);
+    base = attachSiteEnergyToProfile(base);
     var ho = takeHandoffForAsk(currentSlug || '');
     if (!ho) return base;
     var out = {};
@@ -251,7 +309,12 @@
   }
 
   function readSharedProfile() {
-    return readJson(PROFILE_KEY);
+    var local = readLocalJson(PROFILE_KEY);
+    var sess = readJson(PROFILE_KEY);
+    if (local && typeof local === 'object' && sess && typeof sess === 'object') {
+      return Object.assign({}, sess, local);
+    }
+    return local || sess || null;
   }
 
   function readMemberContext() {
@@ -282,16 +345,38 @@
 
   function writeSharedProfile(profile) {
     if (!profile || typeof profile !== 'object') return;
-    var row = {
-      region: profile.region != null ? String(profile.region) : '',
-      sector: profile.sector != null ? String(profile.sector) : '',
-      focus: profile.focus != null ? String(profile.focus) : '',
-      lane: profile.lane != null ? String(profile.lane) : '',
-      tier: profile.tier != null ? String(profile.tier) : '',
-      memberId: profile.memberId != null ? String(profile.memberId) : '',
-      siteId: profile.siteId != null ? String(profile.siteId) : ''
-    };
-    writeJson(PROFILE_KEY, row);
+    var existing = readSharedProfile() || {};
+    var row = {};
+    Object.keys(existing).forEach(function (k) {
+      row[k] = existing[k];
+    });
+    ['region', 'sector', 'focus', 'lane', 'tier', 'memberId', 'siteId', 'chainId', 'companyId'].forEach(
+      function (key) {
+        if (profile[key] != null) row[key] = String(profile[key]);
+      }
+    );
+    var incomingConnections = normalizeSiteConnectionsClient(profile.siteConnections);
+    if (incomingConnections) {
+      row.siteConnections = incomingConnections;
+    } else if (existing.siteConnections) {
+      row.siteConnections = normalizeSiteConnectionsClient(existing.siteConnections) || existing.siteConnections;
+    }
+    if (profile.sitePostcode != null && String(profile.sitePostcode).trim()) {
+      row.sitePostcode = String(profile.sitePostcode).trim();
+    } else if (existing.sitePostcode) {
+      row.sitePostcode = String(existing.sitePostcode);
+    }
+    if (profile.siteEnergyUpdatedAt != null && String(profile.siteEnergyUpdatedAt).trim()) {
+      row.siteEnergyUpdatedAt = String(profile.siteEnergyUpdatedAt).trim();
+    } else if (existing.siteEnergyUpdatedAt) {
+      row.siteEnergyUpdatedAt = String(existing.siteEnergyUpdatedAt);
+    }
+    if (profile.siteEnergyCountry != null && String(profile.siteEnergyCountry).trim()) {
+      row.siteEnergyCountry = String(profile.siteEnergyCountry).trim();
+    } else if (existing.siteEnergyCountry) {
+      row.siteEnergyCountry = String(existing.siteEnergyCountry);
+    }
+    writeJsonBoth(PROFILE_KEY, row);
     try {
       global.dispatchEvent(new CustomEvent('gw-profile-changed', { detail: row }));
     } catch (_) {

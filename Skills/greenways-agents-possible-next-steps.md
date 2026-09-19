@@ -17,6 +17,7 @@
 - [x] Ops hygiene — `data/agents-data-pipeline.json`, Edwardo verify, content-module sync
 - [x] Restaurant Energy Snapshot v1 mockup — `restaurant-energy-snapshot.html` + `/api/restaurant-snapshot/pilot` (commit `5ce0a5d`)
 - [x] **Site energy reading** — UK live postcode grid carbon + EU NL/ES/PT (zone benchmark until ENTSO-E key) — `site-energy-reading.html` · `/api/site-energy-reading` · module id `site-energy-reading` (commits `1ad6573`, `3681ccd`)
+- [x] **Site energy → agent ask wiring** — saved `siteConnections` / `sitePostcode` pass through `normalizeAskProfile` + `profileForAsk`; Vincent / Artemis / Edwardo / Zara / Zyanne prepend an “Assuming this site runs on…” line (`services/site-energy-profile.js`)
 
 ---
 
@@ -243,6 +244,7 @@ Work through in this order unless a launch deadline forces a swap:
 | 2026-07-10 | Doc created | Captured gap analysis from agent team review |
 | 2026-07-10 | **Sustainability glossary v1** | `data/greenways-sustainability-glossary.json` + `services/greenways-sustainability-glossary.js` — all seven agents |
 | 2026-07-13 | **Site energy reading module** | UK + EU NL/ES/PT postcode grid carbon; Edwardo / Vincent / Zara wiring; commits `1ad6573`, `3681ccd` |
+| 2026-09-19 | **Site energy → agent profiles** | `siteConnections` / `sitePostcode` in ask profile + answer brief for finance/equipment/systems/deals/products |
 | 2026-07-13 | **TODO — ENTSO-E live EU grid** | Gap 2: register token + `ENTSOE_API_KEY` on Render (EU still on zone benchmark until done) |
 | 2026-07-15 | **Gap 10 enrich pipeline** | `npm run enrich:video-knowledge` → drafts in `content-ops/drafts/video-knowledge/`; `--merge` for approved; 8 live Cheryce pointers |
 | 2026-08-17 | **Gap 11 path recorded** | Edwardo systems-tech-news planned (Vincent finance-news pattern); interim = New in Tech edition |

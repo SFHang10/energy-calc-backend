@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs/promises');
+const { formatSiteConnectionsLabel, normalizeSiteConnections } = require('./site-energy-profile');
 
 const schemesPath = path.join(__dirname, '..', 'schemes.json');
 const PRODUCT_FILES = [
@@ -638,13 +639,17 @@ function meaningForProfile(profile = {}, context = {}) {
       : `this **${topic}** topic`
     : 'these options';
 
+  const utilities = normalizeSiteConnections(profile.siteConnections);
+  const utilitiesLabel = utilities ? formatSiteConnectionsLabel(utilities) : '';
+  const utilitiesClause = utilitiesLabel ? ` with utilities noted as ${utilitiesLabel}` : '';
+
   if (audience) {
     if (intentId.startsWith('video_') || intentId.startsWith('channel_') || intentId === 'wix_videos') {
-      return `${where}, **${topic}** often connect to **${focusHint}** for ${audience}.`;
+      return `${where}, **${topic}** often connect to **${focusHint}** for ${audience}${utilitiesClause}.`;
     }
-    return `${where}, ${topicHint} usually affects **${focusHint}** for ${audience} — not just headline savings.`;
+    return `${where}, ${topicHint} usually affects **${focusHint}** for ${audience}${utilitiesClause} — not just headline savings.`;
   }
-  return `${where}, ${topicHint} is about **${focusHint}** and what you can act on next.`;
+  return `${where}, ${topicHint} is about **${focusHint}**${utilitiesClause} and what you can act on next.`;
 }
 
 /** User asking to email / send themselves an answer (Wave 9 Email me this). */
