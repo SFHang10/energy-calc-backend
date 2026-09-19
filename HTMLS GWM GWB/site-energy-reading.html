@@ -516,6 +516,40 @@
   }
   .conn-note.ok { color: #9fd4cc; }
 
+  /* ---------- UK EPC heating hint ---------- */
+  .epc-hint-box {
+    display: none;
+    margin: 12px 0 4px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(232, 163, 61, 0.35);
+    background: rgba(232, 163, 61, 0.08);
+  }
+  .epc-hint-box.show { display: block; }
+  .epc-hint-summary {
+    margin: 0 0 6px;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: #e8e4d8;
+  }
+  .epc-hint-note {
+    margin: 0 0 10px;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+  .epc-hint-apply {
+    font-family: inherit;
+    font-size: 0.85rem;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(232, 163, 61, 0.55);
+    background: rgba(232, 163, 61, 0.18);
+    color: #f2efe4;
+    cursor: pointer;
+  }
+  .epc-hint-apply:hover { filter: brightness(1.08); }
+
   /* ---------- Light / display (website demo) ---------- */
   html.theme-light, html.theme-light body.theme-light, body.theme-light {
     --ink: #eef2f7;
@@ -587,6 +621,17 @@
     color: #b45309;
   }
   html.theme-light .conn-note.ok { color: #0f766e; }
+  html.theme-light .epc-hint-box {
+    border-color: rgba(180, 83, 9, 0.28);
+    background: rgba(254, 243, 199, 0.55);
+  }
+  html.theme-light .epc-hint-summary { color: #152033; }
+  html.theme-light .epc-hint-note { color: #64748b; }
+  html.theme-light .epc-hint-apply {
+    border-color: rgba(180, 83, 9, 0.4);
+    background: #fff7ed;
+    color: #9a3412;
+  }
   html.theme-light .card,
   html.theme-light .search-panel,
   html.theme-light .country-bar,
@@ -647,7 +692,7 @@
       <div class="info-tip-panel" id="bestUseTip" role="dialog" aria-label="Best use">
         <strong>Best use</strong>
         <p><strong style="display:inline;text-transform:none;letter-spacing:0;font-size:inherit;color:inherit;">Postcode</strong> → grid carbon &amp; kitchen timing (how clean the local electricity network is).</p>
-        <p><strong style="display:inline;text-transform:none;letter-spacing:0;font-size:inherit;color:inherit;">Connections</strong> → you confirm electricity / gas / water (not detected from the postcode).</p>
+        <p><strong style="display:inline;text-transform:none;letter-spacing:0;font-size:inherit;color:inherit;">Connections</strong> → you confirm electricity / gas / water (UK may offer an EPC heating hint when open-data keys are set — still confirm with bills).</p>
         <p>UK carbon can be live. NL / ES / PT are live when API keys are set on Render; otherwise illustrative baselines.</p>
       </div>
     </div>
@@ -658,7 +703,7 @@
     <strong>How to use</strong>
     <ol>
       <li>Pick the market and enter the site postcode / postal code.</li>
-      <li>Review <strong>Site connections</strong> (illustrative hospitality defaults) and toggle if needed.</li>
+      <li>Review <strong>Site connections</strong> (illustrative hospitality defaults; UK may show an EPC heating hint when configured) and toggle if needed.</li>
       <li>Save for agents so Transition Agents know which utilities apply — then use the grid carbon gauge and 24h forecast for kitchen timing.</li>
     </ol>
   </div>
@@ -690,6 +735,7 @@
           <div class="info-tip-panel" id="connUseTip" role="dialog" aria-label="About site connections">
             <strong>Connections</strong>
             <p>Defaults are typical for hospitality. Toggle to match your bills, then <strong style="display:inline;text-transform:none;letter-spacing:0;font-size:inherit;color:inherit;">Save for agents</strong>.</p>
+            <p>UK lookups may show an EPC heating hint when open-data keys are configured — apply only as a starting point, then confirm with bills.</p>
             <p>Water is usually on for an occupied kitchen — leave it on unless you know otherwise.</p>
           </div>
         </span>
@@ -699,6 +745,11 @@
         <button type="button" class="conn-chip is-on" data-conn="electricity" aria-pressed="true">⚡ Electricity</button>
         <button type="button" class="conn-chip is-on" data-conn="gas" aria-pressed="true">🔥 Gas</button>
         <button type="button" class="conn-chip is-on" data-conn="water" aria-pressed="true">💧 Water</button>
+      </div>
+      <div class="epc-hint-box" id="epcHintBox" hidden aria-live="polite">
+        <p class="epc-hint-summary" id="epcHintSummary"></p>
+        <p class="epc-hint-note" id="epcHintNote">Hint from open EPC data for this postcode — not a live meter check. Confirm with bills.</p>
+        <button type="button" class="epc-hint-apply" id="applyEpcHintBtn">Apply EPC hint</button>
       </div>
       <div class="conn-actions">
         <button type="button" class="conn-save" id="saveConnectionsBtn">Save for agents</button>
@@ -806,8 +857,8 @@
   </div>
 
   <footer>
-    <p id="sourceNote">UK: live Carbon Intensity API + postcodes.io. EU (NL, ES, PT): geocoded via OpenStreetMap; live mix when ENTSO-E or Electricity Maps keys are set on Render, otherwise zone benchmark.</p>
-    UK power cuts: call <b>105</b> free. Netherlands outages: check your DSO (e.g. Liander, Stedin). Spain/Portugal: contact your local distribuidora. Building EPCs are not included — use the official national register for the site.
+    <p id="sourceNote">UK: live Carbon Intensity API + postcodes.io; optional EPC heating hint when open-data keys are set. EU (NL, ES, PT): geocoded via OpenStreetMap; live mix when ENTSO-E or Electricity Maps keys are set on Render, otherwise zone benchmark.</p>
+    UK power cuts: call <b>105</b> free. Netherlands outages: check your DSO (e.g. Liander, Stedin). Spain/Portugal: contact your local distribuidora. Building EPCs are not a live meter check — use the official national register for the site.
   </footer>
 </div>
 

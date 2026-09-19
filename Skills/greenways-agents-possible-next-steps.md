@@ -18,6 +18,7 @@
 - [x] Restaurant Energy Snapshot v1 mockup — `restaurant-energy-snapshot.html` + `/api/restaurant-snapshot/pilot` (commit `5ce0a5d`)
 - [x] **Site energy reading** — UK live postcode grid carbon + EU NL/ES/PT (zone benchmark until ENTSO-E key) — `site-energy-reading.html` · `/api/site-energy-reading` · module id `site-energy-reading` (commits `1ad6573`, `3681ccd`)
 - [x] **Site energy → agent ask wiring** — saved `siteConnections` / `sitePostcode` pass through `normalizeAskProfile` + `profileForAsk`; Vincent / Artemis / Edwardo / Zara / Zyanne prepend an “Assuming this site runs on…” line (`services/site-energy-profile.js`)
+- [x] **UK EPC heating hint (optional)** — when `EPC_OPEN_DATA_EMAIL` + `EPC_OPEN_DATA_API_KEY` (aliases `EPC_API_*`) are set, UK lookup may attach `connectionHint` from MHCLG EPC Open Data; UI shows Apply EPC hint (does not auto-overwrite). Health: `dataSources.epcOpenData`.
 
 ---
 
@@ -46,6 +47,7 @@
 | Step | Status | Notes |
 |------|--------|-------|
 | Register ENTSO-E API + set `ENTSOE_API_KEY` on Render for **site energy reading** (NL / ES / PT) | ☐ | [transparency.entsoe.eu](https://transparency.entsoe.eu/) → email transparency@entsoe.eu (“Restful API access”) → My Account → token → Render **Environment**. Verify: `/api/site-energy-reading/health` → `euLiveReady: true`; lookup `?country=nl&postcode=1012AB` → `live: true`, `source: ENTSO-E`. Optional: `ELECTRICITY_MAPS_API_KEY` for EU 24h forecast. |
+| Optional: UK EPC Open Data keys for **connection heating hint** | ☐ | Register [epc.opendatacommunities.org](https://epc.opendatacommunities.org/) → set `EPC_OPEN_DATA_EMAIL` + `EPC_OPEN_DATA_API_KEY` on Render. Health → `epcOpenData: true`; UK lookup may include `connectionHint` (Apply in UI, then Save). |
 | Document which KPIs are live vs placeholder in agent copy | ☐ | Avoid implying live feeds when demo |
 | Wire `company-map-buildings.json` site id into member profile → agent context | ☐ | Natural link to snapshot service |
 | When `/api/dashboard/live` (or site feed) returns real data, surface in Edwardo intents | ☐ | `energy-dashboard-skill.md` |

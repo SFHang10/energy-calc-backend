@@ -53,7 +53,8 @@
     country: 'uk',
     postcode: '',
     connections: { electricity: true, gas: true, water: true },
-    lastLookup: null
+    lastLookup: null,
+    connectionHint: null
   };
 
   function params() {
@@ -230,6 +231,49 @@
     syncConnChips();
   }
 
+  function hideEpcHintBox() {
+    var box = document.getElementById('epcHintBox');
+    if (box) {
+      box.hidden = true;
+      box.classList.remove('show');
+    }
+    state.connectionHint = null;
+  }
+
+  function updateEpcHintBox(data) {
+    var box = document.getElementById('epcHintBox');
+    var summaryEl = document.getElementById('epcHintSummary');
+    var noteEl = document.getElementById('epcHintNote');
+    var hint = data && data.connectionHint ? data.connectionHint : null;
+    state.connectionHint = hint;
+    if (!box) return;
+    if (hint) {
+      box.hidden = false;
+      box.classList.add('show');
+      if (summaryEl) summaryEl.textContent = hint.summary || '';
+      if (noteEl) noteEl.textContent = hint.note || 'Hint from open EPC data for this postcode — not a live meter check. Confirm with bills.';
+    } else {
+      box.hidden = true;
+      box.classList.remove('show');
+      if (summaryEl) summaryEl.textContent = '';
+    }
+  }
+
+  function applyEpcHint() {
+    var hint = state.connectionHint;
+    if (!hint || !hint.suggested) return;
+    setConnections({
+      electricity: !!hint.suggested.electricity,
+      gas: !!hint.suggested.gas,
+      water: hint.suggested.water !== false
+    });
+    var note = document.getElementById('connSaveNote');
+    if (note) {
+      note.textContent = 'Applied EPC hint — review chips then Save for agents.';
+      note.classList.add('ok');
+    }
+  }
+
   function setCountry(country, pushUrl) {
     state.country = COUNTRIES[country] ? country : 'uk';
     document.querySelectorAll('.country-btn').forEach(function (btn) {
@@ -357,6 +401,7 @@
 
     state.connections = loadSavedConnections(state.country);
     showConnectionsPanel();
+    updateEpcHintBox(data);
 
     var idx = (data.intensity.index || 'moderate').toLowerCase();
     if (needle) needle.setAttribute('transform', 'rotate(' + (INDEX_ANGLES[idx] || 0) + ' 120 130)');
@@ -529,6 +574,7 @@
     if (liveBadge) liveBadge.hidden = true;
     if (resultLinks) resultLinks.hidden = true;
     if (connPanel) connPanel.classList.remove('show');
+    hideEpcHintBox();
 
     try {
       var q = new URLSearchParams({ country: state.country, postcode: raw });
@@ -563,6 +609,8 @@
     });
     var saveBtn = document.getElementById('saveConnectionsBtn');
     if (saveBtn) saveBtn.addEventListener('click', saveConnectionsForAgents);
+    var applyEpcBtn = document.getElementById('applyEpcHintBtn');
+    if (applyEpcBtn) applyEpcBtn.addEventListener('click', applyEpcHint);
 
     var initial = normalizeCountryFromQuery();
     setCountry(initial, false);

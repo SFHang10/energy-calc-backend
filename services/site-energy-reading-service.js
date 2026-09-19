@@ -205,6 +205,174 @@ function buildForecastWindow(periods) {
   };
 }
 
+function getEpcCredentials() {
+  const email = process.env.EPC_OPEN_DATA_EMAIL || process.env.EPC_API_EMAIL;
+  const key = process.env.EPC_OPEN_DATA_API_KEY || process.env.EPC_API_KEY;
+  if (!email || !key) return null;
+  return { email: String(email).trim(), key: String(key).trim() };
+}
+
+function epcAuthHeader(creds) {
+  return `Basic ${Buffer.from(`${creds.email}:${creds.key}`).toString('base64')}`;
+}
+
+function normalizeEpcRows(data) {
+  if (Array.isArray(data)) return data;
+  if (data && Array.isArray(data.rows)) return data.rows;
+  return [];
+}
+
+function epcRowField(row, ...names) {
+  if (!row || typeof row !== 'object') return '';
+  for (const name of names) {
+    if (row[name] != null && row[name] !== '') return row[name];
+  }
+  const byNorm = {};
+  for (const key of Object.keys(row)) {
+    byNorm[String(key).toLowerCase().replace(/_/g, '-')] = row[key];
+  }
+  for (const name of names) {
+    const norm = String(name).toLowerCase().replace(/_/g, '-');
+    if (byNorm[norm] != null && byNorm[norm] !== '') return byNorm[norm];
+  }
+  return '';
+}
+
+function epcLodgementTime(row) {
+  const raw = epcRowField(row, 'lodgement-date', 'lodgement_date', 'LODGEMENT_DATE', 'LODGEMENT-DATE');
+  const t = Date.parse(String(raw || ''));
+  return Number.isFinite(t) ? t : 0;
+}
+
+function isTruthyGasFlag(value) {
+  const s = String(value || '')
+    .trim()
+    .toLowerCase();
+  return s === 'y' || s === 'yes' || s === 'true' || s === '1';
+}
+
+async function fetchEpcRegisterRows(register, formattedPostcode, creds) {
+  const url =
+    `https://epc.opendatacommunities.org/api/v1/${register}/search?postcode=` +
+    encodeURIComponent(formattedPostcode);
+  const data = await fetchJson(url, {
+    headers: {
+      Accept: 'application/json',
+      Authorization: epcAuthHeader(creds)
+    }
+  });
+  return normalizeEpcRows(data).map((row) => ({ ...row, _epcRegister: register }));
+}
+
+/**
+ * Optional UK heating-fuel hint from MHCLG EPC Open Data.
+ * Returns null when keys are missing, the API fails, or there are no usable rows.
+ * Never throws to the caller — lookupUk swallows errors around this.
+ */
+async function lookupUkEpcConnectionHint(postcode) {
+  const creds = getEpcCredentials();
+  if (!creds) return null;
+
+  const formatted = String(postcode || '')
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, ' ');
+  if (!formatted) return null;
+
+  const FEW_ROWS = 5;
+  const MAX_SAMPLE = 100;
+
+  let nonDomestic = [];
+  let domestic = [];
+  try {
+    nonDomestic = await fetchEpcRegisterRows('non-domestic', formatted, creds);
+  } catch (error) {
+    console.warn('[site-energy-reading] EPC non-domestic search failed:', error.message || error);
+  }
+
+  if (nonDomestic.length < FEW_ROWS) {
+    try {
+      domestic = await fetchEpcRegisterRows('domestic', formatted, creds);
+    } catch (error) {
+      console.warn('[site-energy-reading] EPC domestic search failed:', error.message || error);
+    }
+  }
+
+  const combined = [...nonDomestic, ...domestic]
+    .slice()
+    .sort((a, b) => epcLodgementTime(b) - epcLodgementTime(a))
+    .slice(0, MAX_SAMPLE);
+
+  if (!combined.length) return null;
+
+  let gasLikely = 0;
+  let electricHeat = 0;
+  let otherFuel = 0;
+  let usedNonDomestic = false;
+  let usedDomestic = false;
+
+  for (const row of combined) {
+    if (row._epcRegister === 'non-domestic') usedNonDomestic = true;
+    if (row._epcRegister === 'domestic') usedDomestic = true;
+
+    const fuelText = String(
+      epcRowField(
+        row,
+        'main-fuel',
+        'main-heating-fuel',
+        'MAINFUEL',
+        'MAIN_FUEL',
+        'main_fuel',
+        'mainheatingfuel'
+      ) || ''
+    );
+    const gasFlag = epcRowField(row, 'mains-gas-flag', 'mains_gas_flag', 'MAINS_GAS_FLAG', 'MAINS-GAS-FLAG');
+    const looksGas = isTruthyGasFlag(gasFlag) || /\b(mains\s*)?gas\b/i.test(fuelText);
+    const looksElectric = /electric/i.test(fuelText) && !looksGas;
+
+    if (looksGas) gasLikely += 1;
+    else if (looksElectric) electricHeat += 1;
+    else if (fuelText.trim()) otherFuel += 1;
+  }
+
+  const sampleSize = combined.length;
+  const gasShare = sampleSize ? gasLikely / sampleSize : 0;
+  const electricShare = sampleSize ? electricHeat / sampleSize : 0;
+  const gasThreshold = Math.max(1, Math.ceil(sampleSize * 0.35));
+  const gasSuggested = gasLikely >= gasThreshold || gasShare > electricShare;
+
+  let register = 'non-domestic';
+  if (usedNonDomestic && usedDomestic) register = 'mixed';
+  else if (usedDomestic && !usedNonDomestic) register = 'domestic';
+
+  let summary;
+  if (gasLikely > 0) {
+    summary = `Of ${sampleSize} nearby EPCs, ${gasLikely} list mains gas heating`;
+    if (electricHeat > 0) summary += `; ${electricHeat} look electric-heated`;
+    if (otherFuel > 0 && !electricHeat) summary += `; ${otherFuel} list other fuels`;
+    summary += '.';
+  } else if (electricHeat > 0 && electricShare >= 0.5) {
+    summary = `Of ${sampleSize} nearby EPCs, ${electricHeat} list electric heating (few or no mains-gas flags).`;
+  } else {
+    summary = `Of ${sampleSize} nearby EPCs, heating fuel was mixed or unclear — review connections against your bills.`;
+  }
+
+  return {
+    source: 'uk-epc',
+    register,
+    sampleSize,
+    gasShare: Math.round(gasShare * 1000) / 1000,
+    suggested: {
+      electricity: true,
+      gas: !!gasSuggested,
+      water: true
+    },
+    summary,
+    note: 'Hint from open EPC data for this postcode — not a live meter check. Confirm with bills.',
+    registerUrl: 'https://find-energy-certificate.service.gov.uk/'
+  };
+}
+
 async function lookupUk(postcode) {
   const pcData = await fetchJson(
     `https://api.postcodes.io/postcodes/${encodeURIComponent(postcode)}`
@@ -233,7 +401,7 @@ async function lookupUk(postcode) {
   const forecast = period.intensity.forecast;
   const actual = period.intensity.actual;
 
-  return {
+  const payload = {
     ok: true,
     region: 'uk',
     country: 'uk',
@@ -269,6 +437,15 @@ async function lookupUk(postcode) {
     source: 'carbonintensity.org.uk',
     live: true
   };
+
+  try {
+    const hint = await lookupUkEpcConnectionHint(info.postcode);
+    if (hint) payload.connectionHint = hint;
+  } catch (error) {
+    console.warn('[site-energy-reading] EPC connection hint failed:', error.message || error);
+  }
+
+  return payload;
 }
 
 async function geocodeEu(countryKey, postcode) {
@@ -430,6 +607,7 @@ function getDataSourceStatus() {
   return {
     entsoe: Boolean(process.env.ENTSOE_API_KEY),
     electricityMaps: Boolean(process.env.ELECTRICITY_MAPS_API_KEY),
+    epcOpenData: Boolean(getEpcCredentials()),
     euLiveWhen: 'ENTSO-E gives live generation mix + intensity; Electricity Maps adds forecast when set'
   };
 }
@@ -540,5 +718,6 @@ module.exports = {
   enrichWithRecommendations,
   normalizeCountry,
   intensityToIndex,
-  getDataSourceStatus
+  getDataSourceStatus,
+  lookupUkEpcConnectionHint
 };
