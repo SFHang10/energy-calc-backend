@@ -364,6 +364,80 @@
   .how-to ol { margin: 8px 0 0; padding-left: 1.25em; }
   .how-to li { margin-bottom: 4px; }
 
+  /* ---------- Best-use info tips (click ⓘ — works on touch) ---------- */
+  .title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 0 0 12px;
+  }
+  .title-row h1 { margin: 0; flex: 1 1 auto; }
+  .info-tip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+  }
+  .info-tip-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--hairline);
+    background: var(--panel-raised);
+    color: var(--amber);
+    font: 700 0.78rem/1 'IBM Plex Sans', sans-serif;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .info-tip-btn:hover,
+  .info-tip-btn[aria-expanded="true"] {
+    border-color: rgba(232, 163, 61, 0.55);
+    box-shadow: 0 0 0 3px rgba(232, 163, 61, 0.15);
+  }
+  .info-tip-panel {
+    display: none;
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 8px);
+    left: 0;
+    width: min(340px, 78vw);
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--hairline);
+    background: var(--panel-raised);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+    color: var(--cream);
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
+  .info-tip.is-open .info-tip-panel { display: block; }
+  .info-tip-panel strong {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--amber);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .info-tip-panel p { margin: 0 0 8px; color: #c5d0c8; }
+  .info-tip-panel p:last-child { margin-bottom: 0; }
+  .info-tip--inline {
+    margin-left: 6px;
+  }
+  .info-tip--inline .info-tip-btn {
+    width: 22px;
+    height: 22px;
+    font-size: 0.68rem;
+  }
+  .info-tip--inline .info-tip-panel {
+    left: auto;
+    right: 0;
+    width: min(300px, 72vw);
+  }
+  .card h2 .info-tip { margin-left: 6px; }
+
   /* ---------- Site connections ---------- */
   .connections-panel {
     display: none;
@@ -375,6 +449,9 @@
   }
   .connections-panel.show { display: block; }
   .connections-panel h2 {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     font-family: 'Space Grotesk', sans-serif;
     font-size: 14px;
     font-weight: 600;
@@ -520,6 +597,19 @@
   html.theme-light footer { color: #64748b; border-color: rgba(15, 55, 100, 0.12); }
   html.theme-light #needle line { stroke: #152033; }
   html.theme-light #gaugeSvg circle { fill: #152033; }
+  html.theme-light .info-tip-btn {
+    background: #eef3f9;
+    border-color: rgba(15, 55, 100, 0.18);
+    color: #b45309;
+  }
+  html.theme-light .info-tip-panel {
+    background: #ffffff;
+    border-color: rgba(15, 55, 100, 0.14);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+    color: #152033;
+  }
+  html.theme-light .info-tip-panel strong { color: #b45309; }
+  html.theme-light .info-tip-panel p { color: #5a6b82; }
   .website-demo-banner {
     display: none;
     margin: 0 0 16px;
@@ -544,7 +634,18 @@
   </div>
 
   <p class="eyebrow">Greenways Market — Site Energy Reading</p>
-  <h1>Site utilities &amp; grid carbon</h1>
+  <div class="title-row">
+    <h1>Site utilities &amp; grid carbon</h1>
+    <div class="info-tip" data-info-tip>
+      <button type="button" class="info-tip-btn" aria-expanded="false" aria-controls="bestUseTip" title="Best use">ⓘ</button>
+      <div class="info-tip-panel" id="bestUseTip" role="dialog" aria-label="Best use">
+        <strong>Best use</strong>
+        <p><strong style="display:inline;text-transform:none;letter-spacing:0;font-size:inherit;color:inherit;">Postcode</strong> → grid carbon &amp; kitchen timing (how clean the local electricity network is).</p>
+        <p><strong style="display:inline;text-transform:none;letter-spacing:0;font-size:inherit;color:inherit;">Connections</strong> → you confirm electricity / gas / water (not detected from the postcode).</p>
+        <p>UK carbon can be live. NL / ES / PT are live when API keys are set on Render; otherwise illustrative baselines.</p>
+      </div>
+    </div>
+  </div>
   <p class="lede" id="heroLede">Two layers for the same premises: which utilities this site is connected to (electricity, gas, water), and how carbon-heavy the <em>grid</em> electricity mix is right now — not a substitute for your meter bills.</p>
 
   <div class="how-to" id="howToUse">
@@ -576,7 +677,17 @@
     <p class="live-badge" id="liveBadge" hidden></p>
 
     <div class="connections-panel" id="connectionsPanel" aria-label="Site connections">
-      <h2>Site connections</h2>
+      <h2>
+        Site connections
+        <span class="info-tip info-tip--inline" data-info-tip>
+          <button type="button" class="info-tip-btn" aria-expanded="false" aria-controls="connUseTip" title="About connections">ⓘ</button>
+          <div class="info-tip-panel" id="connUseTip" role="dialog" aria-label="About site connections">
+            <strong>Connections</strong>
+            <p>Defaults are typical for hospitality. Toggle to match your bills, then <strong style="display:inline;text-transform:none;letter-spacing:0;font-size:inherit;color:inherit;">Save for agents</strong>.</p>
+            <p>Water is usually on for an occupied kitchen — leave it on unless you know otherwise.</p>
+          </div>
+        </span>
+      </h2>
       <p class="conn-sub">Which utilities this premises typically has on supply. Defaults are hospitality-oriented and <strong>illustrative — confirm with bills</strong>. Grid carbon below is about the electricity network mix, not your meter reading.</p>
       <div class="conn-chips" role="group" aria-label="Utility toggles">
         <button type="button" class="conn-chip is-on" data-conn="electricity" aria-pressed="true">⚡ Electricity</button>
@@ -596,7 +707,17 @@
 
     <div class="grid">
       <div class="card gauge-card">
-        <h2>Grid carbon intensity, right now</h2>
+        <h2>
+          Grid carbon intensity, right now
+          <span class="info-tip info-tip--inline" data-info-tip>
+            <button type="button" class="info-tip-btn" aria-expanded="false" aria-controls="gridUseTip" title="About grid carbon">ⓘ</button>
+            <div class="info-tip-panel" id="gridUseTip" role="dialog" aria-label="About grid carbon">
+              <strong>Grid carbon</strong>
+              <p>This is the electricity <em>network</em> feeding the area — not whether your building has gas or water.</p>
+              <p>Use the forecast to time energy-heavy kitchen tasks when the grid is cleaner.</p>
+            </div>
+          </span>
+        </h2>
         <p class="sub">Regional grid electricity mix — not your site meter or bill. How carbon-heavy power on this part of the network is at this moment.</p>
         <div class="gauge-body">
           <div class="gauge-face">

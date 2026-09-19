@@ -547,6 +547,7 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     applyThemeModes();
+    initInfoTips();
     document.querySelectorAll('.country-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
         setCountry(btn.getAttribute('data-country'));
@@ -585,4 +586,42 @@
       });
     });
   });
+
+  function initInfoTips() {
+    var tips = document.querySelectorAll('[data-info-tip]');
+    if (!tips.length) return;
+
+    function closeAll(except) {
+      tips.forEach(function (tip) {
+        if (except && tip === except) return;
+        tip.classList.remove('is-open');
+        var b = tip.querySelector('.info-tip-btn');
+        if (b) b.setAttribute('aria-expanded', 'false');
+      });
+    }
+
+    tips.forEach(function (tip) {
+      var btn = tip.querySelector('.info-tip-btn');
+      var panel = tip.querySelector('.info-tip-panel');
+      if (!btn) return;
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var open = tip.classList.contains('is-open');
+        closeAll();
+        if (!open) {
+          tip.classList.add('is-open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+      if (panel) {
+        panel.addEventListener('click', function (e) { e.stopPropagation(); });
+      }
+    });
+
+    document.addEventListener('click', function () { closeAll(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeAll();
+    });
+  }
 })();
