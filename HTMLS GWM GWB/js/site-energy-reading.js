@@ -171,8 +171,23 @@
 
   var MODULE_HREFS = {
     'european-energy': './european_energy_deals_portal.html',
-    'utility-detail': './utility-detail.html'
+    'utility-detail': './utility-detail.html',
+    'water-saving-finder': './water-saving-finder.html',
+    'energy-prices-ticker': '../content-ops/drafts/energy-ticker/energy-ticker-colour-swap.html',
+    'equipment-deep-dive': './restaurant-equipment-deep-dive.html'
   };
+
+  var GREENWAYS_MODULE_HREFS = {
+    'water-saving-finder': '/greenways/water-saving-finder',
+    'energy-prices-ticker': '/greenways/energy-ticker',
+    'equipment-deep-dive': '/greenways/equipment-deep-dive'
+  };
+
+  function resolveModuleHref(moduleId) {
+    var onGw = /\/greenways(\/|$)/i.test(window.location.pathname || '');
+    if (onGw && GREENWAYS_MODULE_HREFS[moduleId]) return GREENWAYS_MODULE_HREFS[moduleId];
+    return MODULE_HREFS[moduleId] || '';
+  }
 
   function openRelatedModule(moduleId, query) {
     if (isEmbed() && window.parent && window.parent !== window) {
@@ -188,7 +203,7 @@
         return;
       } catch (_) {}
     }
-    var href = MODULE_HREFS[moduleId] || '';
+    var href = resolveModuleHref(moduleId);
     if (!href) return;
     if (query) href += (href.indexOf('?') >= 0 ? '&' : '?') + query;
     window.location.href = href;
@@ -223,6 +238,81 @@
       note.textContent = '';
       note.classList.remove('ok');
     }
+    renderUtilityLanes();
+  }
+
+  function hideUtilityLanes() {
+    var lanes = document.getElementById('utilityLanes');
+    var grid = document.getElementById('utilityLanesGrid');
+    if (lanes) lanes.hidden = true;
+    if (grid) grid.innerHTML = '';
+  }
+
+  function laneChipHtml(label, moduleId, query) {
+    return (
+      '<button type="button" class="result-chip" data-module-id="' +
+      escapeHtml(moduleId) +
+      '"' +
+      (query ? ' data-module-query="' + escapeHtml(query) + '"' : '') +
+      '>' +
+      escapeHtml(label) +
+      '</button>'
+    );
+  }
+
+  function renderUtilityLanes() {
+    var lanes = document.getElementById('utilityLanes');
+    var grid = document.getElementById('utilityLanesGrid');
+    var resultsEl = document.getElementById('results');
+    if (!lanes || !grid) return;
+
+    var resultsVisible = !!(resultsEl && resultsEl.classList.contains('show') && state.lastLookup);
+    var conn = state.connections || {};
+    var cards = [];
+
+    if (conn.electricity) {
+      cards.push(
+        '<article class="lane-card" data-lane="electricity">' +
+          '<h3>⚡ Electricity</h3>' +
+          '<p class="lane-tip">Use the grid carbon gauge on this page for cleaner kitchen timing, then check the site utility view and compare tariffs.</p>' +
+          '<div class="lane-actions">' +
+          laneChipHtml('Site utility view →', 'utility-detail', 'type=electricity') +
+          laneChipHtml('Compare tariffs →', 'european-energy', '') +
+          laneChipHtml('Energy prices →', 'energy-prices-ticker', '') +
+          '</div></article>'
+      );
+    }
+    if (conn.gas) {
+      cards.push(
+        '<article class="lane-card" data-lane="gas">' +
+          '<h3>🔥 Gas</h3>' +
+          '<p class="lane-tip">Gas often dominates kitchen heat — open the gas utility view, then browse equipment upgrades when you are ready to cut load.</p>' +
+          '<div class="lane-actions">' +
+          laneChipHtml('Site utility view →', 'utility-detail', 'type=gas') +
+          laneChipHtml('Equipment deep dive →', 'equipment-deep-dive', '') +
+          '</div></article>'
+      );
+    }
+    if (conn.water) {
+      cards.push(
+        '<article class="lane-card" data-lane="water">' +
+          '<h3>💧 Water</h3>' +
+          '<p class="lane-tip">Water is usually on for an occupied kitchen — use the utility view for bills context, then the finder for saving options.</p>' +
+          '<div class="lane-actions">' +
+          laneChipHtml('Site utility view →', 'utility-detail', 'type=water') +
+          laneChipHtml('Water saving finder →', 'water-saving-finder', '') +
+          '</div></article>'
+      );
+    }
+
+    if (!resultsVisible || !cards.length) {
+      lanes.hidden = true;
+      grid.innerHTML = '';
+      return;
+    }
+
+    grid.innerHTML = cards.join('');
+    lanes.hidden = false;
   }
 
   function showConnectionsPanel() {
@@ -397,7 +487,7 @@
         liveBadge.textContent = 'Zone benchmark — not live grid';
       }
     }
-    if (resultLinks) resultLinks.hidden = false;
+    if (resultLinks) resultLinks.hidden = true;
 
     state.connections = loadSavedConnections(state.country);
     showConnectionsPanel();
@@ -546,6 +636,7 @@
     }
 
     if (resultsEl) resultsEl.classList.add('show');
+    renderUtilityLanes();
   }
 
   function escapeHtml(s) {
@@ -575,6 +666,8 @@
     if (resultLinks) resultLinks.hidden = true;
     if (connPanel) connPanel.classList.remove('show');
     hideEpcHintBox();
+    hideUtilityLanes();
+    state.lastLookup = null;
 
     try {
       var q = new URLSearchParams({ country: state.country, postcode: raw });
@@ -633,6 +726,14 @@
         openRelatedModule(chip.getAttribute('data-module-id'), chip.getAttribute('data-module-query') || '');
       });
     });
+    var lanesGrid = document.getElementById('utilityLanesGrid');
+    if (lanesGrid) {
+      lanesGrid.addEventListener('click', function (e) {
+        var chip = e.target && e.target.closest ? e.target.closest('[data-module-id]') : null;
+        if (!chip || !lanesGrid.contains(chip)) return;
+        openRelatedModule(chip.getAttribute('data-module-id'), chip.getAttribute('data-module-query') || '');
+      });
+    }
   });
 
   function initInfoTips() {

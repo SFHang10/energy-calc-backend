@@ -516,6 +516,63 @@
   }
   .conn-note.ok { color: #9fd4cc; }
 
+  /* ---------- Utility lanes (by connection) ---------- */
+  .utility-lanes {
+    margin: 0 0 22px;
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+  }
+  .utility-lanes h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin: 0 0 4px;
+    color: var(--cream);
+  }
+  .utility-lanes .lanes-sub {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin: 0 0 14px;
+    line-height: 1.5;
+  }
+  .lanes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .lane-card {
+    background: var(--panel-raised);
+    border: 1px solid var(--hairline);
+    border-left: 3px solid var(--teal);
+    border-radius: 10px;
+    padding: 14px 14px 12px;
+  }
+  .lane-card[data-lane="electricity"] { border-left-color: #4fa097; }
+  .lane-card[data-lane="gas"] { border-left-color: #e8a33d; }
+  .lane-card[data-lane="water"] { border-left-color: #38bdf8; }
+  .lane-card h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 6px;
+    color: var(--cream);
+  }
+  .lane-card .lane-tip {
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.45;
+    margin: 0 0 12px;
+  }
+  .lane-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
   /* ---------- UK EPC heating hint ---------- */
   .epc-hint-box {
     display: none;
@@ -621,6 +678,15 @@
     color: #b45309;
   }
   html.theme-light .conn-note.ok { color: #0f766e; }
+  html.theme-light .lane-card {
+    background: #f8fafc;
+    border-color: rgba(15, 55, 100, 0.12);
+  }
+  html.theme-light .lane-card[data-lane="electricity"] { border-left-color: #0d9488; }
+  html.theme-light .lane-card[data-lane="gas"] { border-left-color: #b45309; }
+  html.theme-light .lane-card[data-lane="water"] { border-left-color: #0284c7; }
+  html.theme-light .lane-card h3 { color: #152033; }
+  html.theme-light .lane-card .lane-tip { color: #5a6b82; }
   html.theme-light .epc-hint-box {
     border-color: rgba(180, 83, 9, 0.28);
     background: rgba(254, 243, 199, 0.55);
@@ -636,7 +702,8 @@
   html.theme-light .search-panel,
   html.theme-light .country-bar,
   html.theme-light .how-to,
-  html.theme-light .connections-panel {
+  html.theme-light .connections-panel,
+  html.theme-light .utility-lanes {
     box-shadow: 0 6px 22px rgba(15, 23, 42, 0.06);
   }
   html.theme-light footer { color: #64748b; border-color: rgba(15, 55, 100, 0.12); }
@@ -757,10 +824,13 @@
       </div>
     </div>
 
-    <div class="result-links" id="resultLinks" hidden>
-      <button type="button" class="result-chip" data-module-id="european-energy">Compare tariffs →</button>
-      <button type="button" class="result-chip" data-module-id="utility-detail" data-module-query="type=electricity">Site utility view →</button>
+    <div class="utility-lanes" id="utilityLanes" hidden>
+      <h2>Utility lanes</h2>
+      <p class="lanes-sub">Based on the connections above — open the matching Greenways tools for bills, timing, and upgrades.</p>
+      <div class="lanes-grid" id="utilityLanesGrid"></div>
     </div>
+
+    <div class="result-links" id="resultLinks" hidden aria-hidden="true"></div>
 
     <div class="grid">
       <div class="card gauge-card">
