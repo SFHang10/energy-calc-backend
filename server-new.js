@@ -264,6 +264,7 @@ app.get('/greenways/droppie-recycle', (req, res) =>
   sendLiveMusicHtml(res, 'greenways-droppie-recycle-journey.html'));
 app.get('/greenways/droppie-recycle-embed', (req, res) =>
   sendLiveMusicHtml(res, 'greenways-droppie-recycle-journey.html'));
+app.get('/greenways/recycling', (req, res) => sendLiveMusicHtml(res, 'Recycling.html'));
 app.get('/greenways/media-video-desk', (req, res) => sendLiveMusicHtml(res, 'greenways-media-video-desk.html'));
 app.get('/greenways/media-video-desk-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-media-video-desk.html'));
 app.get('/greenways/media-wire', (req, res) => sendLiveMusicHtml(res, 'greenways-media-wire.html'));
