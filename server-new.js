@@ -205,6 +205,7 @@ app.get('/greenways/energy-monitoring-references', (req, res) => sendLiveMusicHt
 app.get('/greenways/renovation-plans', (req, res) => sendHtmlsFile(res, 'Renovation project plans.html'));
 app.get('/greenways/eco-project-planner', (req, res) => sendHtmlsFile(res, 'eco_project_planning_guide_fixed.html'));
 app.get('/greenways/low-energy-equipment-savings', (req, res) => sendHtmlsFile(res, 'Low-energy-equipment saving.html'));
+app.get('/greenways/citizen-benefits', (req, res) => sendHtmlsFile(res, 'Citizen benefits Guide 2 update.html'));
 app.get('/greenways/insulation-guide', (req, res) => sendLiveMusicHtml(res, 'Insulation .html'));
 app.get('/greenways/finance-prices-board', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-prices-board.html'));
 app.get('/greenways/finance-prices-board-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-prices-board.html'));
