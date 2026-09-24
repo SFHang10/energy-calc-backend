@@ -199,6 +199,7 @@ app.get('/greenways/etl-hub', (req, res) => sendLiveMusicHtml(res, 'etl-official
 app.get('/greenways/etl-official', (req, res) => sendLiveMusicHtml(res, 'etl-official-site.html'));
 
 app.get('/greenways/sustainable-renovations', (req, res) => sendLiveMusicHtml(res, 'Sustainable Renovations New .html'));
+app.get('/greenways/sustainable-renovations-classic', (req, res) => sendLiveMusicHtml(res, 'Sustainable Renovations .html'));
 app.get('/greenways/sustainable-references', (req, res) => sendLiveMusicHtml(res, 'Sustainable References .HTML'));
 app.get('/greenways/energy-monitoring', (req, res) => sendLiveMusicHtml(res, 'Importance of Energy Monitoring.html'));
 app.get('/greenways/energy-monitoring-references', (req, res) => sendLiveMusicHtml(res, 'Refrenece Energy monitoring .Html'));
