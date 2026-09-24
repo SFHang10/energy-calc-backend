@@ -5,7 +5,7 @@
     const TYPE_LABELS = {
         'third-party': 'Published / official programme',
         'gw-estimate': 'Greenways illustrative',
-        'etl-official': 'UK Energy Technology List (ETL)',
+        'etl-official': 'Energy-efficient alternative',
         'gw-tool': 'Greenways demo / synthesis',
     };
 
@@ -19,8 +19,8 @@
         'ref-em-02': {
             num: 2,
             type: 'etl-official',
-            short: 'ETL = DESNZ product efficiency list only — not Greenways savings/ROI figures',
-            label: 'UK ETL — monitoring & targeting',
+            short: 'Energy-efficient alternatives — monitoring & targeting context (not Greenways savings/ROI figures)',
+            label: 'Energy-efficient alternatives — monitoring',
         },
         'ref-em-03': {
             num: 3,
@@ -115,8 +115,8 @@
         'ref-em-18': {
             num: 18,
             type: 'etl-official',
-            short: 'Electrex product specs (ETL-listed examples)',
-            label: 'ETL product examples',
+            short: 'Electrex product specs (energy-efficient monitoring examples)',
+            label: 'Energy-efficient product examples',
         },
         'ref-em-19': {
             num: 19,
@@ -127,8 +127,8 @@
         'ref-em-etl-disclaimer': {
             num: 2,
             type: 'etl-official',
-            short: 'ETL = listed product criteria only — savings/ROI come from standards & case studies, not the ETL',
-            label: 'ETL vs other figures',
+            short: 'Savings/ROI come from standards & case studies — not from a product-list attribution',
+            label: 'Energy-efficient alternatives vs other figures',
         },
     };
 
@@ -358,7 +358,6 @@
             banner.innerHTML =
                 'Figures marked with <sup class="cite-demo">n</sup> link to <strong>Sources</strong> below. ' +
                 'Hover or <strong>tap</strong> highlighted figures for a short explanation; click the number to jump to the full source. ' +
-                '<span class="cite-type cite-type-etl-official">ETL</span> = UK Energy Technology List; ' +
                 '<span class="cite-type cite-type-third-party">Published</span> = research/programmes; ' +
                 '<span class="cite-type cite-type-gw-tool">Demo</span> = illustrative charts only.';
         }
