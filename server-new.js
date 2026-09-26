@@ -203,6 +203,7 @@ app.get('/greenways/sustainable-renovations-classic', (req, res) => sendLiveMusi
 app.get('/greenways/sustainable-references', (req, res) => sendLiveMusicHtml(res, 'Sustainable References .HTML'));
 app.get('/greenways/energy-monitoring', (req, res) => sendLiveMusicHtml(res, 'Importance of Energy Monitoring.html'));
 app.get('/greenways/energy-monitoring-references', (req, res) => sendLiveMusicHtml(res, 'Refrenece Energy monitoring .Html'));
+app.get('/greenways/discover-energy-savings', (req, res) => sendLiveMusicHtml(res, 'Discover Energy Savings .html'));
 app.get('/greenways/renovation-plans', (req, res) => sendHtmlsFile(res, 'Renovation project plans.html'));
 app.get('/greenways/eco-project-planner', (req, res) => sendHtmlsFile(res, 'eco_project_planning_guide_fixed.html'));
 app.get('/greenways/low-energy-equipment-savings', (req, res) => sendHtmlsFile(res, 'Low-energy-equipment saving.html'));
