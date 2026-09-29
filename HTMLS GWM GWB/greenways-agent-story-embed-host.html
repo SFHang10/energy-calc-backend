@@ -60,7 +60,7 @@
     iframe#storyFrame {
       display: block;
       width: 100%;
-      height: 980px;
+      height: 820px;
       border: 1px solid var(--line);
       border-radius: 14px;
       background: #060a10;
@@ -88,7 +88,7 @@
     <button type="button" id="reloadBtn">Reload</button>
   </div>
   <div class="frame-shell">
-    <p class="frame-meta" id="meta">iframe height: 980px · mode: story</p>
+    <p class="frame-meta" id="meta">iframe height: 820px · mode: story</p>
     <iframe id="storyFrame" title="Agent story embed" scrolling="no"></iframe>
   </div>
   <script>
@@ -96,8 +96,9 @@
       var frame = document.getElementById("storyFrame");
       var meta = document.getElementById("meta");
       var select = document.getElementById("agentSelect");
-      var storyHeight = 980;
+      var storyHeight = 820;
       var mode = "story";
+      var CHAT_FRAME_H = 800;
 
       function slugFromQuery() {
         var path = location.pathname || "";
@@ -118,12 +119,12 @@
         select.value = slug;
         frame.src = "/greenways/agents/" + encodeURIComponent(slug) + "/story-embed";
         mode = "story";
-        frame.style.height = "980px";
+        frame.style.height = "820px";
         setMeta();
       }
 
       function applyHeight(px) {
-        var h = Math.max(720, Math.min(Number(px) || 980, 12000));
+        var h = Math.max(640, Math.min(Number(px) || 820, 12000));
         frame.style.height = h + "px";
         setMeta();
       }
@@ -135,8 +136,7 @@
         if (data.type === "gw-embed-chrome") {
           mode = data.mode || "story";
           if (mode === "module") {
-            var chatH = data.preferredHeight || Math.min(window.innerHeight - 80, 980);
-            applyHeight(chatH);
+            applyHeight(data.preferredHeight || CHAT_FRAME_H);
             try {
               frame.scrollIntoView({ behavior: "smooth", block: "start" });
             } catch (_) {}

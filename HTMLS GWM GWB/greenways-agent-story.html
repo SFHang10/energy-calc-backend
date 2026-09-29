@@ -535,6 +535,8 @@
     }).join("");
   }
 
+  var storyEmbedChromeMode = "story";
+
   function isStoryEmbed() {
     return (
       /\/story-embed\/?$/i.test(location.pathname || "") ||
@@ -546,16 +548,23 @@
     var Embed = window.GreenwaysPortalEmbed;
     if (!Embed || !Embed.isEmbed || !Embed.isEmbed()) return;
     if (mode === "module") {
-      if (typeof Embed.reportChrome === "function") Embed.reportChrome("module");
+      storyEmbedChromeMode = "module";
+      if (typeof Embed.reportChrome === "function") Embed.reportChrome("module", 800);
       return;
     }
+    // Ignore late story-height ticks while chat/tool overlay is open
+    if (storyEmbedChromeMode === "module") return;
+    storyEmbedChromeMode = "story";
     if (typeof Embed.reportChrome === "function") Embed.reportChrome("story");
     else if (typeof Embed.reportHeight === "function") Embed.reportHeight();
   }
 
   function scheduleStoryHeightReports() {
     [0, 250, 800, 1600, 3200].forEach(function (ms) {
-      setTimeout(function () { reportStoryEmbed("story"); }, ms);
+      setTimeout(function () {
+        if (storyEmbedChromeMode === "module") return;
+        reportStoryEmbed("story");
+      }, ms);
     });
   }
 
@@ -573,6 +582,7 @@
     }
     if (typeof origClose === "function") {
       Mod.close = function () {
+        storyEmbedChromeMode = "story";
         var result = origClose.apply(this, arguments);
         setTimeout(function () { reportStoryEmbed("story"); }, 40);
         return result;
@@ -769,7 +779,8 @@
       description: "Chat stays here — use Back to return to " + (story.name || "this") + "’s story.",
       usageHint: "Ask your question, then close the module to pick up the story again.",
       href: href,
-      openSize: "near-full",
+      // Embed: compact panel (same feel as normal agent embeds). Full story page can stay near-full.
+      openSize: isStoryEmbed() ? "" : "near-full",
       kind: "html",
       theme: story.theme || story.id || "default",
       returnLabel: "← Back to " + (story.name || "agent") + " story"

@@ -80,7 +80,7 @@
         preferredHeight != null
           ? preferredHeight
           : mode === "module"
-            ? Math.min(Math.max(global.innerHeight || 900, 720), 980)
+            ? 800
             : null,
       source: "greenways-portal-embed"
     });
