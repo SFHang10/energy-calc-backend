@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Greenways — Agent story embed host (local)</title>
+  <style>
+    :root {
+      --bg: #0b1410;
+      --panel: #122018;
+      --line: rgba(61, 207, 122, 0.28);
+      --text: #e8f0ec;
+      --muted: #8fa89a;
+      --green: #3dcf7a;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+    .bar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      padding: 12px 16px;
+      background: rgba(10, 22, 16, 0.94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(8px);
+    }
+    .bar strong { color: var(--green); }
+    .bar span { color: var(--muted); font-size: 0.85rem; }
+    .bar select, .bar button {
+      font: 600 0.82rem system-ui;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      cursor: pointer;
+    }
+    .bar button:hover { border-color: var(--green); }
+    .frame-shell {
+      max-width: 1100px;
+      margin: 16px auto 40px;
+      padding: 0 12px;
+    }
+    .frame-meta {
+      margin: 0 0 8px;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    iframe#storyFrame {
+      display: block;
+      width: 100%;
+      height: 980px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #060a10;
+      overflow: hidden;
+      transition: height 0.25s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <strong>Story embed host</strong>
+    <span>Simulates a Wix iframe — grows for the explain page, shrinks for chat/module.</span>
+    <label>
+      Agent
+      <select id="agentSelect">
+        <option value="grants-agent">Andrieus</option>
+        <option value="finance-agent">Vincent</option>
+        <option value="equipment-agent">Artemis</option>
+        <option value="deals-agent">Zara</option>
+        <option value="media-agent">Cheryce</option>
+        <option value="sustainable-products-agent">Zyanne</option>
+        <option value="systems-agent">Edwardo</option>
+      </select>
+    </label>
+    <button type="button" id="reloadBtn">Reload</button>
+  </div>
+  <div class="frame-shell">
+    <p class="frame-meta" id="meta">iframe height: 980px · mode: story</p>
+    <iframe id="storyFrame" title="Agent story embed" scrolling="no"></iframe>
+  </div>
+  <script>
+    (function () {
+      var frame = document.getElementById("storyFrame");
+      var meta = document.getElementById("meta");
+      var select = document.getElementById("agentSelect");
+      var storyHeight = 980;
+      var mode = "story";
+
+      function slugFromQuery() {
+        var path = location.pathname || "";
+        var m = path.match(/\/greenways\/agents\/([a-z0-9-]+)\/story-embed-host\/?$/i);
+        if (m) return m[1].toLowerCase();
+        var q = new URLSearchParams(location.search || "");
+        return (q.get("agent") || q.get("slug") || "grants-agent").toLowerCase();
+      }
+
+      function setMeta() {
+        meta.textContent =
+          "iframe height: " + Math.round(frame.getBoundingClientRect().height) +
+          "px · mode: " + mode +
+          " · src: " + (frame.getAttribute("src") || "");
+      }
+
+      function loadAgent(slug) {
+        select.value = slug;
+        frame.src = "/greenways/agents/" + encodeURIComponent(slug) + "/story-embed";
+        mode = "story";
+        frame.style.height = "980px";
+        setMeta();
+      }
+
+      function applyHeight(px) {
+        var h = Math.max(720, Math.min(Number(px) || 980, 12000));
+        frame.style.height = h + "px";
+        setMeta();
+      }
+
+      window.addEventListener("message", function (event) {
+        var data = event.data;
+        if (!data || typeof data !== "object") return;
+
+        if (data.type === "gw-embed-chrome") {
+          mode = data.mode || "story";
+          if (mode === "module") {
+            var chatH = data.preferredHeight || Math.min(window.innerHeight - 80, 980);
+            applyHeight(chatH);
+            try {
+              frame.scrollIntoView({ behavior: "smooth", block: "start" });
+            } catch (_) {}
+          } else {
+            storyHeight = data.height || storyHeight;
+            applyHeight(storyHeight);
+          }
+          return;
+        }
+
+        if (data.type === "gw-embed-height") {
+          if (mode === "module") return;
+          storyHeight = data.height || storyHeight;
+          applyHeight(storyHeight);
+        }
+      });
+
+      select.addEventListener("change", function () {
+        var url = new URL(location.href);
+        url.searchParams.set("agent", select.value);
+        history.replaceState({}, "", url);
+        loadAgent(select.value);
+      });
+      document.getElementById("reloadBtn").addEventListener("click", function () {
+        loadAgent(select.value);
+      });
+
+      var initial = slugFromQuery();
+      if ([].some.call(select.options, function (o) { return o.value === initial; })) {
+        loadAgent(initial);
+      } else {
+        loadAgent("grants-agent");
+      }
+    })();
+  </script>
+</body>
+</html>

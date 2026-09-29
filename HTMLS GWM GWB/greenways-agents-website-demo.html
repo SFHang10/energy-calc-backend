@@ -116,6 +116,9 @@
       width: 100%;
       border: 0;
       background: #f8fafc;
+      overflow: hidden;
+      /* Tall enough that most content fits; JS below grows further if needed */
+      min-height: 1100px;
     }
     .bridge {
       margin: 8px 0 20px;
@@ -156,9 +159,11 @@
         </p>
       </div>
       <iframe
+        class="demo-embed"
         title="Site energy reading — postcode connections and grid carbon"
         src="/greenways/site-energy-reading?theme=light&display=1&embed=1&country=nl&postcode=1012AB"
-        height="920"
+        height="1400"
+        scrolling="no"
         loading="lazy"
       ></iframe>
     </section>
@@ -169,9 +174,11 @@
         <p>Commercial freezer example — Greenways marketplace matches vs high-saving external alternatives.</p>
       </div>
       <iframe
+        class="demo-embed"
         title="Restaurant equipment deep dive — freezer illustration"
         src="/greenways/equipment-deep-dive?profile=freezer&theme=light&display=1"
-        height="900"
+        height="1600"
+        scrolling="no"
         loading="lazy"
       ></iframe>
     </section>
@@ -186,12 +193,60 @@
         <p>Same six-step journey Artemis surfaces in chat — illustrated for your website visitors.</p>
       </div>
       <iframe
+        class="demo-embed"
         title="Upgrade plan studio illustration"
         src="/greenways/upgrade-plan-studio?theme=light&display=1&embed=1"
-        height="720"
+        height="1200"
+        scrolling="no"
         loading="lazy"
       ></iframe>
     </section>
   </main>
+  <script>
+    (function () {
+      function measureDoc(doc) {
+        if (!doc || !doc.documentElement) return 0;
+        var body = doc.body;
+        var html = doc.documentElement;
+        return Math.max(
+          body ? body.scrollHeight : 0,
+          body ? body.offsetHeight : 0,
+          html.scrollHeight || 0,
+          html.offsetHeight || 0
+        );
+      }
+
+      function fitIframe(iframe) {
+        try {
+          var doc = iframe.contentDocument;
+          if (!doc) return;
+          var h = measureDoc(doc);
+          if (h < 400) return;
+          iframe.style.height = (h + 24) + "px";
+        } catch (_) { /* cross-origin — keep fixed height */ }
+      }
+
+      function wire(iframe) {
+        fitIframe(iframe);
+        iframe.addEventListener("load", function () {
+          fitIframe(iframe);
+          try {
+            var doc = iframe.contentDocument;
+            if (!doc) return;
+            var ro = typeof ResizeObserver !== "undefined"
+              ? new ResizeObserver(function () { fitIframe(iframe); })
+              : null;
+            if (ro && doc.body) ro.observe(doc.body);
+            // Late content (API fills) — a few follow-up passes
+            [400, 1200, 2500].forEach(function (ms) {
+              setTimeout(function () { fitIframe(iframe); }, ms);
+            });
+          } catch (_) {}
+        });
+      }
+
+      document.querySelectorAll("iframe.demo-embed").forEach(wire);
+    })();
+  </script>
 </body>
 </html>

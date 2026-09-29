@@ -249,6 +249,22 @@
     }
     .demo-actions { padding: 10px 12px; display: flex; gap: 8px; flex-wrap: wrap; }
 
+    /* Embed / Wix: keep explain page scannable — tools open in the same overlay chat uses */
+    body.embed-mode .page { padding: 14px 12px 28px; }
+    body.embed-mode .hero { padding: 16px; margin-bottom: 12px; }
+    body.embed-mode .section { padding: 14px; margin-bottom: 12px; }
+    body.embed-mode .demo-frame-wrap { display: none; }
+    body.embed-mode .demo-embed-note {
+      display: block;
+      margin: 0;
+      padding: 12px 14px;
+      font: 500 0.82rem/1.45 var(--font-clean);
+      color: #cfe8d9;
+      background: rgba(15, 23, 42, 0.45);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .demo-embed-note { display: none; }
+
     .tips { list-style: none; }
     .tips li {
       padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -519,9 +535,55 @@
     }).join("");
   }
 
+  function isStoryEmbed() {
+    return (
+      /\/story-embed\/?$/i.test(location.pathname || "") ||
+      /[?&]embed=1(?:&|$)/.test(location.search || "")
+    );
+  }
+
+  function reportStoryEmbed(mode) {
+    var Embed = window.GreenwaysPortalEmbed;
+    if (!Embed || !Embed.isEmbed || !Embed.isEmbed()) return;
+    if (mode === "module") {
+      if (typeof Embed.reportChrome === "function") Embed.reportChrome("module");
+      return;
+    }
+    if (typeof Embed.reportChrome === "function") Embed.reportChrome("story");
+    else if (typeof Embed.reportHeight === "function") Embed.reportHeight();
+  }
+
+  function scheduleStoryHeightReports() {
+    [0, 250, 800, 1600, 3200].forEach(function (ms) {
+      setTimeout(function () { reportStoryEmbed("story"); }, ms);
+    });
+  }
+
+  function wrapModuleChromeHooks(Mod) {
+    if (!Mod || Mod.__gwStoryEmbedChromeWrapped) return;
+    Mod.__gwStoryEmbedChromeWrapped = true;
+    var origOpen = Mod.open;
+    var origClose = Mod.close;
+    if (typeof origOpen === "function") {
+      Mod.open = function () {
+        var result = origOpen.apply(this, arguments);
+        reportStoryEmbed("module");
+        return result;
+      };
+    }
+    if (typeof origClose === "function") {
+      Mod.close = function () {
+        var result = origClose.apply(this, arguments);
+        setTimeout(function () { reportStoryEmbed("story"); }, 40);
+        return result;
+      };
+    }
+  }
+
   function renderDemos(story, modulesById) {
     var items = story.illustrations || [];
     if (!items.length) return "";
+    var embed = isStoryEmbed();
     return (
       '<section class="glass section">' +
       '<p class="section-label">See it in action</p>' +
@@ -529,18 +591,21 @@
       '<div class="demo-grid">' +
       items.map(function (item) {
         var href = resolveModuleHref(item.moduleId, modulesById);
-        var showEmbed = item.embed !== false;
+        var showEmbed = !embed && item.embed !== false;
         var src = showEmbed ? embedHref(href) : "";
         var title =
           item.title ||
           (modulesById[item.moduleId] && modulesById[item.moduleId].title) ||
           item.moduleId;
-        var openLabel = item.openLabel || (showEmbed ? "Open full page" : "Open tool");
+        var openLabel = item.openLabel || (embed ? "Preview tool" : showEmbed ? "Open full page" : "Open tool");
         return (
           '<div class="demo-card glass">' +
           '<p class="demo-caption"><strong>' + escapeHtml(title) + "</strong> — " + escapeHtml(item.caption || "") + "</p>" +
           (src
             ? '<div class="demo-frame-wrap"><iframe src="' + escapeHtml(src) + '" title="' + escapeHtml(title) + '" loading="lazy"></iframe></div>'
+            : "") +
+          (embed
+            ? '<p class="demo-embed-note">Opens in this same frame (like chat) — no nested scroll box.</p>'
             : "") +
           '<div class="demo-actions">' +
           (item.moduleId
@@ -696,6 +761,7 @@
       location.href = askHref(story, prompt);
       return;
     }
+    wrapModuleChromeHooks(Mod);
     var href = askHref(story, prompt);
     Mod.open({
       moduleId: String(story.slug || "agent-chat"),
@@ -708,11 +774,13 @@
       theme: story.theme || story.id || "default",
       returnLabel: "← Back to " + (story.name || "agent") + " story"
     });
+    reportStoryEmbed("module");
   }
 
   function wireStoryModules(story, root) {
     var Mod = window.GreenwaysAgentContentModule;
     if (!Mod) return;
+    wrapModuleChromeHooks(Mod);
     if (typeof Mod.init === "function") {
       Mod.init({
         agentSlug: story.slug || "",
@@ -751,6 +819,7 @@
         if (tickerMount && window.GreenwaysAgentWireTicker && typeof window.GreenwaysAgentWireTicker.initMount === "function") {
           window.GreenwaysAgentWireTicker.initMount(tickerMount);
         }
+        scheduleStoryHeightReports();
       })
       .catch(function (err) {
         root.className = "glass error-box";
@@ -759,6 +828,7 @@
           "<p>" + escapeHtml(err.message || "Could not load this agent story.") + "</p>" +
           '<p style="margin-top:12px"><a class="btn" href="' + contentBase() + '/greenways/agents/grants-agent/story">Open Andrieus story</a> ' +
           '<a class="btn ghost" href="' + contentBase() + '/greenways/agents-map">Agent map</a></p>';
+        scheduleStoryHeightReports();
       });
   }
 
