@@ -249,21 +249,11 @@
     }
     .demo-actions { padding: 10px 12px; display: flex; gap: 8px; flex-wrap: wrap; }
 
-    /* Embed / Wix: keep explain page scannable — tools open in the same overlay chat uses */
+    /* Embed / Wix: slightly tighter page chrome; keep live tool previews visible */
     body.embed-mode .page { padding: 14px 12px 28px; }
     body.embed-mode .hero { padding: 16px; margin-bottom: 12px; }
     body.embed-mode .section { padding: 14px; margin-bottom: 12px; }
-    body.embed-mode .demo-frame-wrap { display: none; }
-    body.embed-mode .demo-embed-note {
-      display: block;
-      margin: 0;
-      padding: 12px 14px;
-      font: 500 0.82rem/1.45 var(--font-clean);
-      color: #cfe8d9;
-      background: rgba(15, 23, 42, 0.45);
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-    }
-    .demo-embed-note { display: none; }
+    body.embed-mode .demo-frame-wrap { height: min(340px, 48vh); }
 
     .tips { list-style: none; }
     .tips li {
@@ -600,7 +590,6 @@
   function renderDemos(story, modulesById) {
     var items = story.illustrations || [];
     if (!items.length) return "";
-    var embed = isStoryEmbed();
     return (
       '<section class="glass section">' +
       '<p class="section-label">See it in action</p>' +
@@ -608,21 +597,18 @@
       '<div class="demo-grid">' +
       items.map(function (item) {
         var href = resolveModuleHref(item.moduleId, modulesById);
-        var showEmbed = !embed && item.embed !== false;
-        var src = showEmbed ? embedHref(href) : "";
+        var showPreview = item.embed !== false && !!href;
+        var src = showPreview ? embedHref(href) : "";
         var title =
           item.title ||
           (modulesById[item.moduleId] && modulesById[item.moduleId].title) ||
           item.moduleId;
-        var openLabel = item.openLabel || (embed ? "Preview tool" : showEmbed ? "Open full page" : "Open tool");
+        var openLabel = item.openLabel || (showPreview ? "Open full page" : "Open tool");
         return (
           '<div class="demo-card glass">' +
           '<p class="demo-caption"><strong>' + escapeHtml(title) + "</strong> — " + escapeHtml(item.caption || "") + "</p>" +
           (src
             ? '<div class="demo-frame-wrap"><iframe src="' + escapeHtml(src) + '" title="' + escapeHtml(title) + '" loading="lazy"></iframe></div>'
-            : "") +
-          (embed
-            ? '<p class="demo-embed-note">Opens in this same frame (like chat) — no nested scroll box.</p>'
             : "") +
           '<div class="demo-actions">' +
           (item.moduleId
