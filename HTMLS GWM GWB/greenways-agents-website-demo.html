@@ -10,20 +10,22 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f4f7fb;
+      --bg: #eef6f1;
       --surface: #ffffff;
-      --line: rgba(15, 55, 100, 0.12);
-      --text: #152033;
-      --muted: #5a6b82;
+      --line: rgba(15, 80, 45, 0.14);
+      --text: #13261c;
+      --muted: #3f5a4a;
       --accent: #2563eb;
       --green: #16a34a;
       --font: "Space Grotesk", system-ui, sans-serif;
       --font-clean: "IBM Plex Sans", system-ui, sans-serif;
+      /* Darker green Greenways backdrop (customer hub family) */
+      --page-backdrop-image: url("https://static.wixstatic.com/media/c123de_8d73f3cd13164907ba5b65e13e29370c~mv2.jpg");
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
       min-height: 100%;
-      background: #eef2f7;
+      background: #0c1a12;
       color: var(--text);
       font-family: var(--font);
       overflow-x: hidden;
@@ -34,15 +36,17 @@
       inset: 0;
       z-index: 0;
       pointer-events: none;
-      background-color: #eef2f7;
+      background-color: #0c1a12;
       background-image:
-        linear-gradient(rgba(248, 250, 252, 0.78), rgba(238, 242, 247, 0.84)),
-        url("https://static.wixstatic.com/media/c123de_23efb70b102f4bf6a15a6f005e65022a~mv2.jpg");
-      background-size: cover;
-      background-position: center;
+        linear-gradient(180deg, rgba(6, 22, 14, 0.55) 0%, rgba(10, 36, 24, 0.48) 38%, rgba(14, 42, 28, 0.58) 100%),
+        radial-gradient(circle at 18% 12%, rgba(61, 207, 122, 0.12), transparent 44%),
+        radial-gradient(circle at 82% 8%, rgba(201, 169, 97, 0.06), transparent 38%),
+        var(--page-backdrop-image);
+      background-size: cover, cover, cover, cover;
+      background-position: center, center, center, center;
       background-repeat: no-repeat;
-      opacity: 0.92;
-      filter: brightness(1.08) saturate(0.9);
+      opacity: 0.94;
+      filter: brightness(0.92) saturate(1.12) contrast(1.06);
     }
     .page {
       position: relative;
@@ -50,6 +54,16 @@
       max-width: 1040px;
       margin: 0 auto;
       padding: 24px 16px 48px;
+    }
+    .hero {
+      margin-bottom: 8px;
+      padding: 16px 16px 4px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.55) 70%, rgba(255, 255, 255, 0.28) 100%);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 0 8px 24px rgba(5, 20, 12, 0.18);
     }
     .eyebrow {
       font: 600 0.72rem/1.2 var(--font-clean);
@@ -63,6 +77,8 @@
       font-weight: 700;
       letter-spacing: -0.02em;
       margin-bottom: 12px;
+      color: var(--text);
+      text-shadow: none;
     }
     .lede {
       max-width: 62ch;
@@ -74,8 +90,8 @@
       margin-bottom: 20px;
       border-radius: 16px;
       border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.94);
-      box-shadow: 0 10px 32px rgba(15, 23, 42, 0.06);
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 10px 32px rgba(15, 40, 28, 0.1);
       overflow: hidden;
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
@@ -105,27 +121,30 @@
       margin: 8px 0 20px;
       padding: 12px 14px;
       border-radius: 12px;
-      border: 1px solid rgba(37, 99, 235, 0.2);
-      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(22, 163, 74, 0.22);
+      background: rgba(255, 255, 255, 0.9);
       font: 500 0.92rem/1.5 var(--font-clean);
       color: #334155;
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
+      box-shadow: 0 6px 18px rgba(15, 40, 28, 0.06);
     }
-    .bridge strong { color: var(--accent); }
+    .bridge strong { color: var(--green); }
   </style>
 </head>
 <body>
   <div class="page-backdrop" aria-hidden="true"></div>
   <main class="page">
-    <p class="eyebrow">Greenways Transition Agents · Restaurants</p>
-    <h1>See the equipment story, then turn it into a plan</h1>
-    <p class="lede">
-      Start with a postcode site reading — which utilities the premises is on, plus grid carbon for the agents.
-      Artemis helps you compare what you run today with marketplace and external upgrade options.
-      The Upgrade Plan Studio turns that into a six-step path you can tick through — grants, payback, and hand-offs to Vincent and Andrieus included.
-      See also the <a href="/greenways/energy-data-journey" target="_top" style="color:var(--accent);font-weight:600;text-decoration:none;">energy data journey</a> — how meters and baselines lead to replace, recycle, and grant-backed upgrades.
-    </p>
+    <header class="hero">
+      <p class="eyebrow">Greenways Transition Agents · Restaurants</p>
+      <h1>See the equipment story, then turn it into a plan</h1>
+      <p class="lede">
+        Start with a postcode site reading — which utilities the premises is on, plus grid carbon for the agents.
+        Artemis helps you compare what you run today with marketplace and external upgrade options.
+        The Upgrade Plan Studio turns that into a six-step path you can tick through — grants, payback, and hand-offs to Vincent and Andrieus included.
+        See also the <a href="/greenways/energy-data-journey" target="_top" style="color:var(--accent);font-weight:600;text-decoration:none;">energy data journey</a> — how meters and baselines lead to replace, recycle, and grant-backed upgrades.
+      </p>
+    </header>
 
     <section class="panel" aria-labelledby="site-energy-heading">
       <div class="panel-head">
