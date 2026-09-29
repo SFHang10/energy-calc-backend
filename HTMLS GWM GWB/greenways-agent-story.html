@@ -443,8 +443,14 @@
 
   function askHref(story, prompt) {
     var base = contentBase() + (story.chatPath || "/greenways/" + story.slug);
-    if (!prompt) return base;
-    return base + "?q=" + encodeURIComponent(prompt);
+    var params = new URLSearchParams();
+    if (prompt) params.set("q", prompt);
+    if (isStoryEmbed()) {
+      params.set("embed", "1");
+      params.set("popup", "1");
+    }
+    var qs = params.toString();
+    return qs ? base + "?" + qs : base;
   }
 
   function storyPath(slug) {
@@ -779,8 +785,8 @@
       description: "Chat stays here — use Back to return to " + (story.name || "this") + "’s story.",
       usageHint: "Ask your question, then close the module to pick up the story again.",
       href: href,
-      // Full width like other agent modules; host keeps chat frame ~800px tall so it does not tower.
-      openSize: "near-full",
+      // Embed host: edge-to-edge like a normal agent iframe. Full story page keeps near-full.
+      openSize: isStoryEmbed() ? "expanded" : "near-full",
       kind: "html",
       theme: story.theme || story.id || "default",
       returnLabel: "← Back to " + (story.name || "agent") + " story"
