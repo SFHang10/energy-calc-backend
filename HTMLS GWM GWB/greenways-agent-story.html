@@ -303,6 +303,7 @@
       border: 1px solid rgba(201, 169, 97, 0.4); background: rgba(201, 169, 97, 0.12);
       color: #fde68a; text-decoration: none; cursor: pointer;
     }
+    button.starter { font-family: inherit; }
     .starter:hover { background: rgba(201, 169, 97, 0.22); }
 
     .error-box {
@@ -679,7 +680,13 @@
     }).join("");
 
     var starters = (story.starterPrompts || []).map(function (p) {
-      return '<a class="starter" href="' + escapeHtml(askHref(story, p)) + '">' + escapeHtml(p) + "</a>";
+      return (
+        '<button type="button" class="starter" data-story-ask="1" data-ask-prompt="' +
+        escapeHtml(p) +
+        '">' +
+        escapeHtml(p) +
+        "</button>"
+      );
     }).join("");
 
     return (
@@ -697,7 +704,7 @@
       "</div></div>" +
       '<p class="story-lede">' + escapeHtml(story.story || "") + "</p>" +
       '<div class="hero-actions">' +
-      '<a class="btn" href="' + escapeHtml(askHref(story)) + '">Ask ' + escapeHtml(story.name) + "</a>" +
+      '<button type="button" class="btn" data-story-ask="1">Ask ' + escapeHtml(story.name) + "</button>" +
       ((story.heroTools || []).map(function (t) {
         if (!t.moduleId) return "";
         return (
@@ -746,7 +753,7 @@
       "<h2>Starter questions</h2>" +
       '<div class="starters">' + starters + "</div>" +
       '<div class="hero-actions" style="margin-top:14px">' +
-      '<a class="btn" href="' + escapeHtml(askHref(story)) + '">Open chat with ' + escapeHtml(story.name) + "</a>" +
+      '<button type="button" class="btn" data-story-ask="1">Open chat with ' + escapeHtml(story.name) + "</button>" +
       "</div></section>"
     );
   }
@@ -779,6 +786,7 @@
     }
     wrapModuleChromeHooks(Mod);
     var href = askHref(story, prompt);
+    var size = isStoryEmbed() ? "expanded" : "near-full";
     Mod.open({
       moduleId: String(story.slug || "agent-chat"),
       title: "Ask " + (story.name || "agent"),
@@ -786,11 +794,14 @@
       usageHint: "Ask your question, then close the module to pick up the story again.",
       href: href,
       // Embed host: edge-to-edge like a normal agent iframe. Full story page keeps near-full.
-      openSize: isStoryEmbed() ? "expanded" : "near-full",
+      openSize: size,
       kind: "html",
       theme: story.theme || story.id || "default",
       returnLabel: "← Back to " + (story.name || "agent") + " story"
     });
+    if (size === "expanded" && typeof Mod.setExpanded === "function") {
+      Mod.setExpanded(true);
+    }
     reportStoryEmbed("module");
   }
 
