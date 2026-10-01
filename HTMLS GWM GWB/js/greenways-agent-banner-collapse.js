@@ -81,10 +81,24 @@
     applySpotlightExpanded(!loadCollapsedState());
   }
 
+  function isCompactFrame() {
+    try {
+      var q = new URLSearchParams(location.search || "");
+      if (q.get("embed") === "1" || q.get("popup") === "1") return true;
+    } catch (_) {}
+    var h = window.innerHeight || 0;
+    return h > 0 && h < 860;
+  }
+
   function setConversation(active) {
     var main = mainEl();
     if (!main) return;
     main.classList.toggle("has-conversation", !!active);
+    // After the first question in a short/embed frame, free space like Vincent's flow.
+    if (active && isCompactFrame() && main.classList.contains("is-banner-expanded")) {
+      applySpotlightExpanded(false);
+      return;
+    }
     syncToggleLabel();
   }
 

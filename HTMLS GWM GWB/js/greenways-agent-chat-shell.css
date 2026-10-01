@@ -210,40 +210,78 @@
   padding: 12px 18px 14px;
 }
 
-.guide-main:not(.is-banner-expanded) .chat-panel {
-  min-height: min(62vh, 580px);
+/*
+ * Keep the ask box visible even when the shell is crowded (story embed / short iframe).
+ * Large min-heights were pushing .chat-compose below overflow:hidden and hiding the
+ * first-question field — so auto-collapse after send never got a chance to run.
+ * Tall desktop pages still get a roomy chat panel; short / embed frames flex instead.
+ */
+.guide-main .chat-panel {
+  flex: 1 1 0;
+  min-height: 0;
 }
 
-.guide-main.has-conversation .chat-panel {
-  min-height: min(58vh, 540px);
+.guide-main .chat-compose {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 3;
 }
 
-.guide-main.has-conversation:not(.is-banner-expanded) .chat-panel {
-  min-height: min(66vh, 620px);
-}
-
-.guide-main:not(.is-banner-expanded) .chat-thread {
-  min-height: 260px;
-}
-
-.guide-main.has-conversation .chat-thread {
-  min-height: 220px;
-}
-
-.guide-main.has-conversation:not(.is-banner-expanded) .chat-thread {
-  min-height: 300px;
-}
-
-@media (max-width: 720px) {
+@media (min-height: 900px) {
   .guide-main:not(.is-banner-expanded) .chat-panel {
-    min-height: min(54vh, 460px);
+    min-height: min(62vh, 580px);
   }
 
   .guide-main.has-conversation .chat-panel {
-    min-height: min(50vh, 420px);
+    min-height: min(58vh, 540px);
   }
 
   .guide-main.has-conversation:not(.is-banner-expanded) .chat-panel {
-    min-height: min(58vh, 500px);
+    min-height: min(66vh, 620px);
+  }
+
+  .guide-main:not(.is-banner-expanded) .chat-thread {
+    min-height: 260px;
+  }
+
+  .guide-main.has-conversation .chat-thread {
+    min-height: 220px;
+  }
+
+  .guide-main.has-conversation:not(.is-banner-expanded) .chat-thread {
+    min-height: 300px;
+  }
+}
+
+html.embed-wix .guide-main .chat-panel,
+html.embed-wix .guide-main:not(.is-banner-expanded) .chat-panel,
+html.embed-wix .guide-main.has-conversation .chat-panel,
+html.embed-wix .guide-main.has-conversation:not(.is-banner-expanded) .chat-panel {
+  min-height: 0;
+}
+
+html.embed-wix .guide-main {
+  overflow: hidden;
+}
+
+html.embed-wix .guide-main:not(.is-banner-expanded) .chat-thread,
+html.embed-wix .guide-main.has-conversation .chat-thread,
+html.embed-wix .guide-main.has-conversation:not(.is-banner-expanded) .chat-thread {
+  min-height: 120px;
+}
+
+@media (max-width: 720px) {
+  @media (min-height: 900px) {
+    .guide-main:not(.is-banner-expanded) .chat-panel {
+      min-height: min(54vh, 460px);
+    }
+
+    .guide-main.has-conversation .chat-panel {
+      min-height: min(50vh, 420px);
+    }
+
+    .guide-main.has-conversation:not(.is-banner-expanded) .chat-panel {
+      min-height: min(58vh, 500px);
+    }
   }
 }
