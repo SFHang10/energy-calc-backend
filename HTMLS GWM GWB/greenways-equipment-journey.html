@@ -1,0 +1,1787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="wix-html-scroll" content="no-scroll">
+  <title>Restaurant equipment journey · Greenways</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/HTMLS%20GWM%20GWB/js/greenways-agent-product-shortlist.css">
+  <style>
+    :root {
+      --bg: #070e0b;
+      --panel: rgba(12, 22, 18, 0.78);
+      --line: rgba(75, 140, 104, 0.32);
+      --text: #e8f0ea;
+      --muted: #9bb5a4;
+      --gold: #c9a961;
+      --green: #3dcf7a;
+      --cyan: #4ec8e8;
+      --blue: #60a5fa;
+      --font: "Space Grotesk", system-ui, sans-serif;
+      --font-clean: "IBM Plex Sans", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      color: var(--text);
+      font-family: var(--font);
+      overflow-x: hidden;
+      background: var(--bg);
+    }
+    .backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(rgba(5, 14, 9, 0.62), rgba(5, 14, 9, 0.72)),
+        radial-gradient(circle at 18% 20%, rgba(61, 207, 122, 0.1), transparent 42%),
+        radial-gradient(circle at 82% 12%, rgba(201, 169, 97, 0.08), transparent 40%),
+        url("https://static.wixstatic.com/media/c123de_1fe1c58ec83544f0b0eaf57cf9ac4e02~mv2.avif");
+      background-size: cover, cover, cover, cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 0.92;
+      filter: brightness(1.02) saturate(1.05);
+    }
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 22px 16px 48px;
+    }
+    .top-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .top-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(14, 28, 22, 0.65);
+      color: var(--muted);
+      text-decoration: none;
+      font: 600 0.78rem/1.2 var(--font-clean);
+    }
+    .top-links a:hover { color: var(--text); border-color: rgba(61, 207, 122, 0.45); }
+    .hero { margin-bottom: 18px; }
+    .eyebrow {
+      font: 600 0.72rem/1.2 var(--font-clean);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.45rem, 3.4vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .lede {
+      margin: 0;
+      max-width: 64ch;
+      color: var(--muted);
+      font: 500 0.98rem/1.55 var(--font-clean);
+    }
+
+    .intake {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(8px);
+    }
+    .intake h2 {
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+    }
+    .intake .hint {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font: 500 0.85rem/1.45 var(--font-clean);
+    }
+    .asset-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 900px) {
+      .asset-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      .asset-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    .asset-card {
+      appearance: none;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      padding: 0;
+      margin: 0;
+      border: 1px solid rgba(75, 140, 104, 0.32);
+      border-radius: 14px;
+      background: rgba(10, 20, 16, 0.88);
+      color: var(--text);
+      cursor: pointer;
+      overflow: hidden;
+      text-align: left;
+      transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .asset-card:hover {
+      border-color: rgba(61, 207, 122, 0.5);
+      transform: translateY(-3px);
+    }
+    .asset-card:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(61, 207, 122, 0.45);
+    }
+    .asset-card.is-on {
+      border-color: rgba(201, 169, 97, 0.7);
+      box-shadow: 0 0 0 1px rgba(201, 169, 97, 0.22), 0 10px 22px rgba(0, 0, 0, 0.28);
+      background: linear-gradient(180deg, rgba(40, 34, 18, 0.92), rgba(12, 22, 18, 0.95));
+    }
+    .asset-photo-wrap {
+      height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 10px;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.38) 0%, rgba(0, 0, 0, 0.12) 100%);
+      border-bottom: 1px solid rgba(61, 207, 122, 0.12);
+    }
+    .asset-photo {
+      max-width: 100%;
+      max-height: 64px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+      image-rendering: -webkit-optimize-contrast;
+    }
+    .asset-card-body {
+      padding: 8px 10px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-height: 52px;
+    }
+    .asset-card-body strong {
+      font: 600 0.72rem/1.25 var(--font);
+      letter-spacing: -0.01em;
+    }
+    .asset-card-body span {
+      font: 500 0.62rem/1.25 var(--font-clean);
+      color: var(--muted);
+    }
+    .asset-card.is-on .asset-card-body span { color: #e8d5a3; }
+    .custom-row {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    @media (min-width: 720px) {
+      .custom-row { grid-template-columns: 1.4fr 1fr auto; align-items: end; }
+    }
+    label {
+      display: block;
+      font: 600 0.68rem/1.2 var(--font-clean);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(75, 140, 104, 0.4);
+      background: rgba(8, 16, 12, 0.85);
+      color: var(--text);
+      font: 500 0.92rem/1.3 var(--font-clean);
+    }
+    input[type="text"]:focus {
+      outline: none;
+      border-color: rgba(61, 207, 122, 0.65);
+      box-shadow: 0 0 0 2px rgba(61, 207, 122, 0.12);
+    }
+    .btn-primary, .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 16px;
+      border-radius: 12px;
+      font: 700 0.88rem/1.2 var(--font);
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #2f9d58, #1f7a42);
+      color: #f4fff7;
+      border-color: rgba(61, 207, 122, 0.45);
+      min-height: 44px;
+    }
+    .btn-primary:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+    .btn-ghost {
+      background: rgba(14, 28, 22, 0.65);
+      color: var(--muted);
+      border-color: var(--line);
+    }
+    .btn-ghost:hover { color: var(--text); }
+    .kitchen-note {
+      margin-top: 10px;
+      font: 500 0.8rem/1.4 var(--font-clean);
+      color: var(--muted);
+    }
+    .kitchen-note strong { color: var(--gold); font-weight: 600; }
+
+    .stage-board {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+    @media (min-width: 900px) {
+      .stage-board {
+        grid-template-columns: 1.35fr 0.95fr;
+        align-items: stretch;
+      }
+    }
+
+    .diagram {
+      position: relative;
+      min-height: 420px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(8, 16, 12, 0.72);
+      overflow: hidden;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+    }
+    .diagram::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        conic-gradient(from 120deg, transparent 0 65%, rgba(61, 207, 122, 0.08) 72%, transparent 82%),
+        radial-gradient(circle at 50% 50%, rgba(78, 200, 232, 0.06), transparent 55%);
+      animation: swirl 28s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes swirl { to { transform: rotate(360deg); } }
+
+    .layer {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(92%, 440px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.45s ease, transform 0.45s ease, filter 0.45s ease;
+    }
+    .layer[data-layer="assets"] { top: 22px; }
+    .layer[data-layer="agents"] { top: 150px; }
+    .layer[data-layer="alts"] { bottom: 22px; }
+    .layer.is-dim { opacity: 0.35; filter: grayscale(0.25); }
+    .layer.is-active {
+      opacity: 1;
+      filter: none;
+      transform: translateX(-50%) scale(1.02);
+      z-index: 2;
+    }
+    .layer-label {
+      font: 600 0.68rem/1.2 var(--font-clean);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .layer.is-active .layer-label { color: var(--gold); }
+
+    .kpi-row, .platform-row, .equip-row, .market-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+    .kpi-chip, .equip-card {
+      min-width: 88px;
+      padding: 10px 10px 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(75, 140, 104, 0.35);
+      background: rgba(16, 32, 24, 0.9);
+      text-align: center;
+    }
+    .kpi-chip strong, .equip-card strong {
+      display: block;
+      font-size: 0.95rem;
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 2px;
+    }
+    .kpi-chip span, .equip-card span {
+      font: 500 0.62rem/1.2 var(--font-clean);
+      color: var(--muted);
+    }
+    .layer.is-active .kpi-chip,
+    .layer.is-active .equip-card {
+      border-color: rgba(61, 207, 122, 0.55);
+      box-shadow: 0 0 0 1px rgba(61, 207, 122, 0.15), 0 8px 20px rgba(0, 0, 0, 0.25);
+      animation: floaty 4.5s ease-in-out infinite;
+    }
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .agent-face { width: 46px; text-align: center; }
+    .agent-face img {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(96, 165, 250, 0.35);
+      background: #0d1520;
+    }
+    .agent-face span {
+      display: block;
+      margin-top: 4px;
+      font: 600 0.58rem/1.1 var(--font-clean);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .layer.is-active .agent-face { animation: bob 2.6s ease-in-out infinite; }
+    .layer.is-active .agent-face:nth-child(2) { animation-delay: 0.15s; }
+    .layer.is-active .agent-face:nth-child(3) { animation-delay: 0.3s; }
+    .layer.is-active .agent-face:nth-child(4) { animation-delay: 0.45s; }
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .market-chip {
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px dashed rgba(78, 200, 232, 0.4);
+      background: rgba(20, 40, 48, 0.55);
+      color: #b8e6f2;
+      font: 600 0.62rem/1.2 var(--font-clean);
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    .market-chip.gold {
+      border-color: rgba(201, 169, 97, 0.45);
+      background: rgba(40, 34, 18, 0.55);
+      color: #e8d5a3;
+    }
+    .market-chip.green {
+      border-color: rgba(61, 207, 122, 0.4);
+      background: rgba(16, 40, 28, 0.55);
+      color: #b8f0ce;
+    }
+    .layer.is-active .market-chip { animation: chip-in 0.55s ease forwards; }
+    .layer.is-active .market-chip:nth-child(1) { animation-delay: 0.05s; }
+    .layer.is-active .market-chip:nth-child(2) { animation-delay: 0.18s; }
+    .layer.is-active .market-chip:nth-child(3) { animation-delay: 0.31s; }
+    .layer.is-active .market-chip:nth-child(4) { animation-delay: 0.44s; }
+    @keyframes chip-in {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .beam {
+      position: absolute;
+      left: 50%;
+      width: 2px;
+      transform: translateX(-50%);
+      background: linear-gradient(180deg, transparent, rgba(61, 207, 122, 0.55), rgba(96, 165, 250, 0.55), transparent);
+      opacity: 0.25;
+      pointer-events: none;
+    }
+    .beam-a { top: 108px; height: 36px; }
+    .beam-b { top: 250px; height: 48px; }
+    .diagram[data-phase="scan"] .beam,
+    .diagram[data-phase="agents"] .beam,
+    .diagram[data-phase="report"] .beam {
+      opacity: 0.7;
+      animation: beam-pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes beam-pulse {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 0.9; }
+    }
+    .packet {
+      position: absolute;
+      left: 50%;
+      width: 8px;
+      height: 8px;
+      margin-left: -4px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 12px rgba(78, 200, 232, 0.8);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .diagram[data-phase="scan"] .packet,
+    .diagram[data-phase="agents"] .packet,
+    .diagram[data-phase="report"] .packet {
+      animation: packet-down 1.8s ease-in-out infinite;
+      opacity: 1;
+    }
+    .packet-a { top: 100px; }
+    .packet-b { top: 240px; animation-delay: 0.4s !important; }
+    @keyframes packet-down {
+      0% { transform: translateY(0); opacity: 0; }
+      20% { opacity: 1; }
+      100% { transform: translateY(42px); opacity: 0; }
+    }
+
+    .story-panel {
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      backdrop-filter: blur(8px);
+    }
+    .story-panel h2 {
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+    }
+    .story-panel p {
+      margin: 0;
+      color: var(--muted);
+      font: 500 0.9rem/1.5 var(--font-clean);
+    }
+    .status-line {
+      font: 600 0.78rem/1.35 var(--font-clean);
+      color: var(--cyan);
+      min-height: 1.35em;
+    }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+
+    .report {
+      margin-top: 22px;
+      display: none;
+    }
+    .report.is-visible { display: block; }
+    .report-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 14px;
+    }
+    .report-head h2 {
+      margin: 0 0 6px;
+      font-size: 1.25rem;
+    }
+    .report-head p {
+      margin: 0;
+      color: var(--muted);
+      font: 500 0.9rem/1.45 var(--font-clean);
+      max-width: 58ch;
+    }
+    .insight-grid {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    @media (min-width: 720px) {
+      .insight-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    .insight {
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(75, 140, 104, 0.28);
+      background: rgba(10, 20, 16, 0.75);
+    }
+    .insight strong {
+      display: block;
+      font-size: 1.15rem;
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 4px;
+    }
+    .insight span {
+      font: 500 0.75rem/1.35 var(--font-clean);
+      color: var(--muted);
+    }
+    .section-label {
+      margin: 0 0 10px;
+      font: 600 0.72rem/1.2 var(--font-clean);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .alt-grid {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    @media (min-width: 760px) {
+      .alt-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .alt-card {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(75, 140, 104, 0.3);
+      background: rgba(12, 22, 18, 0.82);
+    }
+    .alt-card img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .alt-card h3 {
+      margin: 0 0 4px;
+      font-size: 0.95rem;
+    }
+    .alt-meta {
+      margin: 0 0 8px;
+      font: 500 0.75rem/1.4 var(--font-clean);
+      color: var(--muted);
+    }
+    .grant-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+    .grant-chip {
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(201, 169, 97, 0.35);
+      background: rgba(40, 34, 18, 0.55);
+      color: #e8d5a3;
+      font: 600 0.62rem/1.2 var(--font-clean);
+    }
+    .alt-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .alt-actions a, .alt-actions button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: rgba(14, 28, 22, 0.7);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font: 600 0.72rem/1.2 var(--font-clean);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .alt-actions button.is-saved {
+      border-color: rgba(201, 169, 97, 0.55);
+      color: #f0e2b8;
+    }
+    .empty-alts {
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px dashed rgba(75, 140, 104, 0.35);
+      color: var(--muted);
+      font: 500 0.9rem/1.45 var(--font-clean);
+      margin-bottom: 14px;
+    }
+    .path-panel {
+      margin: 0 0 16px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(201, 169, 97, 0.35);
+      background:
+        radial-gradient(circle at 12% 0%, rgba(201, 169, 97, 0.1), transparent 42%),
+        rgba(14, 22, 18, 0.88);
+    }
+    .path-panel .eyebrow { margin-bottom: 6px; }
+    .path-panel h3 {
+      margin: 0 0 6px;
+      font-size: 1.08rem;
+    }
+    .path-why {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font: 500 0.88rem/1.5 var(--font-clean);
+      max-width: 68ch;
+    }
+    .path-steps {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+      counter-reset: pathstep;
+    }
+    @media (min-width: 820px) {
+      .path-steps {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+    }
+    .path-step {
+      position: relative;
+      padding: 12px 12px 12px 40px;
+      border-radius: 12px;
+      border: 1px solid rgba(75, 140, 104, 0.28);
+      background: rgba(8, 16, 12, 0.72);
+      min-height: 100%;
+    }
+    .path-step::before {
+      counter-increment: pathstep;
+      content: counter(pathstep);
+      position: absolute;
+      left: 10px;
+      top: 12px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: 700 0.7rem/1 var(--font-clean);
+      color: #0b1610;
+      background: linear-gradient(135deg, #c9a961, #e2c878);
+    }
+    .path-step strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.82rem;
+    }
+    .path-step span {
+      display: block;
+      font: 500 0.72rem/1.4 var(--font-clean);
+      color: var(--muted);
+    }
+    .path-step.is-focus {
+      border-color: rgba(61, 207, 122, 0.45);
+      box-shadow: 0 0 0 1px rgba(61, 207, 122, 0.12);
+    }
+    .path-disclaimer {
+      margin: 0 0 12px;
+      font: 500 0.72rem/1.4 var(--font-clean);
+      color: var(--muted);
+    }
+
+    .snapshot-panel {
+      margin: 0 0 16px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(78, 200, 232, 0.32);
+      background:
+        radial-gradient(circle at 88% 0%, rgba(78, 200, 232, 0.1), transparent 40%),
+        rgba(12, 22, 28, 0.88);
+    }
+    .snapshot-panel .eyebrow { color: var(--cyan); }
+    .snapshot-panel > h3 {
+      margin: 0 0 6px;
+      font-size: 1.08rem;
+    }
+    .snapshot-lede {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font: 500 0.88rem/1.5 var(--font-clean);
+      max-width: 70ch;
+    }
+    .snapshot-grid {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    @media (min-width: 900px) {
+      .snapshot-grid { grid-template-columns: 1.1fr 1fr 1fr; }
+    }
+    .snap-lane {
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(75, 140, 104, 0.28);
+      background: rgba(8, 16, 12, 0.72);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 100%;
+    }
+    .snap-lane h4 {
+      margin: 0;
+      font: 700 0.78rem/1.25 var(--font);
+      letter-spacing: 0.02em;
+    }
+    .snap-lane .snap-agent {
+      font: 600 0.62rem/1.2 var(--font-clean);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .snap-lane.vincent .snap-agent { color: #e8d5a3; }
+    .snap-lane.zara .snap-agent { color: var(--cyan); }
+    .snap-lane.andrieus .snap-agent { color: #93c5fd; }
+    .snap-lane p {
+      margin: 0;
+      font: 500 0.78rem/1.45 var(--font-clean);
+      color: var(--muted);
+      flex: 1;
+    }
+    .snap-lane p strong { color: var(--text); font-weight: 600; }
+    .snap-deal, .snap-case {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(75, 140, 104, 0.22);
+      background: rgba(0, 0, 0, 0.22);
+      text-decoration: none;
+      color: inherit;
+    }
+    .snap-deal:hover, .snap-case:hover {
+      border-color: rgba(78, 200, 232, 0.45);
+    }
+    .snap-deal img, .snap-case img {
+      width: 52px;
+      height: 52px;
+      object-fit: cover;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.3);
+    }
+    .snap-deal strong, .snap-case strong {
+      display: block;
+      font-size: 0.74rem;
+      margin-bottom: 2px;
+      color: var(--text);
+    }
+    .snap-deal span, .snap-case span {
+      display: block;
+      font: 500 0.64rem/1.35 var(--font-clean);
+      color: var(--muted);
+    }
+    .snap-proof {
+      margin-top: 4px;
+    }
+    .snap-proof h4 {
+      margin: 0 0 8px;
+      font: 700 0.78rem/1.25 var(--font);
+    }
+    .snap-cases {
+      display: grid;
+      gap: 8px;
+    }
+    @media (min-width: 720px) {
+      .snap-cases { grid-template-columns: 1fr 1fr; }
+    }
+    .snap-empty {
+      font: 500 0.75rem/1.4 var(--font-clean);
+      color: var(--muted);
+    }
+    .aware {
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(96, 165, 250, 0.28);
+      background: rgba(16, 28, 40, 0.55);
+      margin-bottom: 14px;
+    }
+    .aware h3 {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      color: var(--cyan);
+    }
+    .aware ul {
+      margin: 0;
+      padding-left: 1.1rem;
+      color: var(--muted);
+      font: 500 0.85rem/1.5 var(--font-clean);
+    }
+    .foot {
+      margin-top: 18px;
+      color: var(--muted);
+      font: 500 0.78rem/1.45 var(--font-clean);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .diagram::before,
+      .kpi-chip,
+      .equip-card,
+      .agent-face,
+      .market-chip,
+      .beam,
+      .packet,
+      .asset-card {
+        animation: none !important;
+      }
+      .asset-card:hover { transform: none; }
+      .market-chip { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="backdrop" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="top-links">
+      <a href="/greenways/energy-data-journey" target="_top">← Energy data journey</a>
+      <a href="/greenways/equipment-deep-dive" target="_top">Equipment deep dive</a>
+      <a href="/greenways/equipment-agent" target="_top">Ask Artemis</a>
+      <a href="/greenways/etl-finder" target="_top">Energy Efficient Alternatives</a>
+    </div>
+
+    <header class="hero">
+      <div class="eyebrow">Greenways · guest starter</div>
+      <h1>Find Energy Efficient Alternatives for restaurant equipment</h1>
+      <p class="lede">
+        No site inventory yet? Pick typical kitchen and HVAC assets — or type a name / model / serial —
+        and Transition Agents scan for Energy Efficient Alternatives. Join later to save a full equipment list.
+      </p>
+    </header>
+
+    <section class="intake" aria-label="Equipment intake">
+      <h2>Typical restaurant assets</h2>
+      <p class="hint">Tap a photo card to add it to your guest kitchen list (same look as site equipment lists). Last tapped becomes the focus for the scan. Serial / model is optional search text in v1.</p>
+      <div class="asset-grid" id="assetGrid"></div>
+      <div class="custom-row">
+        <div>
+          <label for="equipName">Equipment name or description</label>
+          <input id="equipName" type="text" placeholder="e.g. undercounter fridge, combi steamer, rooftop HVAC" autocomplete="off">
+        </div>
+        <div>
+          <label for="equipRef">Model / serial / ref (optional)</label>
+          <input id="equipRef" type="text" placeholder="e.g. ABC-1200 / SN…" autocomplete="off">
+        </div>
+        <button type="button" class="btn-primary" id="btnFind">Find alternatives</button>
+      </div>
+      <p class="kitchen-note" id="kitchenNote">Guest kitchen list: <strong>none yet</strong> — pick assets above.</p>
+    </section>
+
+    <div class="stage-board">
+      <section class="diagram" id="diagram" data-phase="idle" aria-label="Equipment journey stage">
+        <div class="beam beam-a" aria-hidden="true"></div>
+        <div class="beam beam-b" aria-hidden="true"></div>
+        <div class="packet packet-a" aria-hidden="true"></div>
+        <div class="packet packet-b" aria-hidden="true"></div>
+
+        <div class="layer is-active" data-layer="assets">
+          <div class="layer-label">Kitchen &amp; HVAC assets</div>
+          <div class="kpi-row">
+            <div class="kpi-chip"><strong id="nAssets">0</strong><span>Assets listed</span></div>
+            <div class="kpi-chip"><strong id="nFocus">—</strong><span>Focus item</span></div>
+            <div class="kpi-chip"><strong id="nScanned">0</strong><span>Checked</span></div>
+          </div>
+        </div>
+
+        <div class="layer is-dim" data-layer="agents">
+          <div class="layer-label">Transition Agents working</div>
+          <div class="platform-row">
+            <div class="agent-face">
+              <img src="https://static.wixstatic.com/media/c123de_126830b1fc224df880dfa37ec830620e~mv2.png" alt="" width="42" height="42" decoding="async">
+              <span>Artemis</span>
+            </div>
+            <div class="agent-face">
+              <img src="https://static.wixstatic.com/media/c123de_63359ab891354966aa9ff792fe998677~mv2.png" alt="" width="42" height="42" decoding="async">
+              <span>Vincent</span>
+            </div>
+            <div class="agent-face">
+              <img src="https://static.wixstatic.com/media/c123de_46943b6b1f8d41a59960fd8fdde4097b~mv2.png" alt="" width="42" height="42" decoding="async">
+              <span>Andrieus</span>
+            </div>
+            <div class="agent-face">
+              <img src="https://static.wixstatic.com/media/c123de_eeb61cbf84bd402eb642e28b2b457c76~mv2.png" alt="" width="42" height="42" decoding="async">
+              <span>Edwardo</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="layer is-dim" data-layer="alts">
+          <div class="layer-label">Energy Efficient Alternatives</div>
+          <div class="market-row" id="stageChips" aria-hidden="true">
+            <span class="market-chip green">Marketplace matches</span>
+            <span class="market-chip">External options</span>
+            <span class="market-chip gold">Grant hints</span>
+            <span class="market-chip gold">Shortlist ready</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="story-panel">
+        <div>
+          <h2 id="phaseTitle">Ready when you are</h2>
+          <p id="phaseBody">Select typical assets or type what you have. We will illustrate agents scanning, then open a short report with Energy Efficient Alternatives.</p>
+        </div>
+        <div class="status-line" id="statusLine" aria-live="polite"></div>
+        <div class="cta-row">
+          <a class="btn-ghost" href="/greenways/equipment-deep-dive" target="_top">Open deep dive</a>
+          <a class="btn-ghost" href="/greenways/equipment-agent?q=Help%20me%20find%20energy%20efficient%20alternatives%20for%20my%20kitchen" target="_top">Ask Artemis</a>
+        </div>
+      </aside>
+    </div>
+
+    <section class="report" id="report" aria-live="polite">
+      <div class="report-head">
+        <div>
+          <div class="eyebrow">Guest equipment report</div>
+          <h2 id="reportTitle">Your alternatives</h2>
+          <p id="reportLede"></p>
+        </div>
+        <div class="cta-row">
+          <a class="btn-primary" id="askArtemisReport" href="/greenways/equipment-agent" target="_top">Ask Artemis about these</a>
+          <a class="btn-ghost" href="/greenways/shortlist-compare" target="_top">Shortlist compare</a>
+        </div>
+      </div>
+
+      <div class="insight-grid">
+        <div class="insight"><strong id="rMatches">0</strong><span>Marketplace matches</span></div>
+        <div class="insight"><strong id="rExternal">0</strong><span>External alternatives</span></div>
+        <div class="insight"><strong id="rGrants">0</strong><span>Grant chips on top matches</span></div>
+      </div>
+
+      <p class="section-label">Suggested Energy Efficient Alternatives</p>
+      <div class="alt-grid" id="altGrid"></div>
+      <div class="empty-alts" id="emptyAlts" hidden>No close matches yet — try another asset name, or open the Efficiency finder / deep dive for broader browse.</div>
+
+      <div class="path-panel" id="pathPanel">
+        <div class="eyebrow">Illustrative guest path</div>
+        <h3 id="pathTitle">Suggested path — what to change first</h3>
+        <p class="path-why" id="pathWhy"></p>
+        <div class="path-steps" id="pathSteps"></div>
+        <p class="path-disclaimer">Example guidance for visitors who have not joined yet — not a signed-in project plan. Full phased templates and tickable upgrade checklists are linked below.</p>
+        <div class="cta-row">
+          <a class="btn-primary" id="pathStudioLink" href="/greenways/upgrade-plan-studio" target="_top">Open Upgrade Plan Studio</a>
+          <a class="btn-ghost" href="/greenways/renovation-plans" target="_top">Renovation project plans</a>
+          <a class="btn-ghost" id="pathArtemisLink" href="/greenways/equipment-agent" target="_top">Ask Artemis to walk this</a>
+          <a class="btn-ghost" href="/greenways/customer-hub" target="_top">Join / save a real plan</a>
+        </div>
+      </div>
+
+      <div class="snapshot-panel" id="snapshotPanel">
+        <div class="eyebrow">Market &amp; proof snapshot</div>
+        <h3 id="snapshotTitle">Prices, deals, grants &amp; examples</h3>
+        <p class="snapshot-lede" id="snapshotLede">
+          Illustrative guest view — Transition Agents frame timing, offers, schemes, and map case studies around your focus asset.
+        </p>
+        <div class="snapshot-grid">
+          <div class="snap-lane vincent">
+            <div class="snap-agent">Vincent · prices</div>
+            <h4>Energy price timing</h4>
+            <p id="snapVincentBody">Loading price context…</p>
+            <div class="cta-row">
+              <a class="btn-ghost" id="snapVincentLink" href="/greenways/finance-agent" target="_top">Ask Vincent</a>
+              <a class="btn-ghost" href="/greenways/deals-hub" target="_top">Energy deals hub</a>
+            </div>
+          </div>
+          <div class="snap-lane zara">
+            <div class="snap-agent">Zara · deals</div>
+            <h4>Offers near this asset</h4>
+            <div id="snapDeals"><p class="snap-empty">Loading deals…</p></div>
+            <div class="cta-row">
+              <a class="btn-ghost" id="snapZaraLink" href="/greenways/deals-agent" target="_top">Ask Zara</a>
+            </div>
+          </div>
+          <div class="snap-lane andrieus">
+            <div class="snap-agent">Andrieus · grants</div>
+            <h4>Schemes often paired</h4>
+            <div id="snapGrants"><p class="snap-empty">Collecting grant chips…</p></div>
+            <div class="cta-row">
+              <a class="btn-ghost" id="snapAndrieusLink" href="/greenways/grants-agent" target="_top">Ask Andrieus</a>
+            </div>
+          </div>
+        </div>
+        <div class="snap-proof">
+          <div class="snap-agent" style="margin-bottom:6px;color:var(--cyan);font:600 0.62rem/1.2 var(--font-clean);letter-spacing:0.06em;text-transform:uppercase;">Cheryce · sustainability map</div>
+          <h4>How others saved with similar equipment</h4>
+          <div class="snap-cases" id="snapCases"><p class="snap-empty">Loading map examples…</p></div>
+          <div class="cta-row" style="margin-top:10px;">
+            <a class="btn-ghost" id="snapMapLink" href="/greenways/sustainability-map" target="_top">Open sustainability map</a>
+            <a class="btn-ghost" id="snapCheryceLink" href="/greenways/media-agent" target="_top">Ask Cheryce</a>
+          </div>
+        </div>
+        <p class="path-disclaimer" style="margin-top:12px;">
+          Snapshot is composed from the deals feed, scheme chips on matches, and map case studies — illustrative until you join with site meters and a saved inventory. The map grows as more examples are added.
+        </p>
+      </div>
+
+      <div class="aware">
+        <h3>Things to be aware of</h3>
+        <ul>
+          <li>This guest scan uses name / type matching — serial numbers are search hints until a full inventory is linked.</li>
+          <li>Savings figures are illustrative until site meters or bills are connected (join for deep dive + projection).</li>
+          <li>Grant chips are scheme overlays — confirm eligibility with Andrieus for your region.</li>
+          <li>The suggested path is an example sequence so you can see how Greenways guides upgrades before signup.</li>
+          <li>Deals and map examples are curated snapshots — not personalised live quotes.</li>
+        </ul>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn-ghost" href="/greenways/etl-finder" target="_top">Browse Efficiency finder</a>
+        <a class="btn-ghost" href="/greenways/equipment-deep-dive" target="_top">Compare in deep dive</a>
+        <a class="btn-ghost" href="/greenways/customer-hub" target="_top">Join / Customer Hub</a>
+      </div>
+    </section>
+
+    <p class="foot">
+      Guest starter — journey stage, alternatives API, suggested path, and market &amp; proof snapshot
+      (deals feed · grant chips · sustainability map). Signed-in site lists stay on deep dive / tenant packs.
+    </p>
+  </div>
+
+  <script src="/HTMLS%20GWM%20GWB/js/greenways-agent-product-shortlist.js"></script>
+  <script>
+    (function () {
+      var STORAGE_KEY = "greenways-equipment-journey-v1";
+      var PLACEHOLDER_IMG = "https://static.wixstatic.com/media/c123de_cf3c9a53550d498589191bb008fe08fa~mv2.jpeg";
+      /* Same Wix assets as restaurant-data.html / product finder quick-select */
+      var FINDER_IMG = {
+        dishwasher: "https://static.wixstatic.com/media/c123de_af4ac2bc07a64960b502421fd2334290~mv2.png",
+        fridge: "https://static.wixstatic.com/media/c123de_7cda810cca9f466d9ad6dc913671fad9~mv2.png",
+        freezer: "https://static.wixstatic.com/media/c123de_d35c912346994644bc8f5d24d57e5138~mv2.png",
+        oven: "https://static.wixstatic.com/media/c123de_3b343da42a3e4de5afad292b71addb30~mv2.png",
+        wok: "https://static.wixstatic.com/media/c123de_e0feed69f9394a48bc820bdd6d5f339a~mv2.jpg",
+        fryer: "https://static.wixstatic.com/media/c123de_8f79286cf86d4e93ab8c71ed86293c78~mv2.jpg",
+        hvacUnit: "https://static.wixstatic.com/media/c123de_359ee3a12dc448bbad45db559ceb573c~mv2.png",
+        thermostat: "https://static.wixstatic.com/media/c123de_1045092ef691464e93d0eb6e2be5dda0~mv2.png"
+      };
+
+      var TYPICAL = [
+        { id: "fridge", label: "Undercounter fridge", blurb: "Cold storage", name: "undercounter fridge", type: "refrigerator", deepDive: "fridge", image: FINDER_IMG.fridge },
+        { id: "freezer", label: "Walk-in / freezer", blurb: "Frozen line", name: "walk-in freezer", type: "refrigerator", deepDive: "freezer", image: FINDER_IMG.freezer },
+        { id: "dishwasher", label: "Dishwasher", blurb: "Warewash", name: "hood dishwasher", type: "dishwasher", deepDive: "dishwasher", image: FINDER_IMG.dishwasher },
+        { id: "glasswasher", label: "Glasswasher", blurb: "Bar / front", name: "glasswasher", type: "dishwasher", deepDive: "dishwasher", image: FINDER_IMG.dishwasher },
+        { id: "combi", label: "Combi steamer", blurb: "Oven line", name: "combi steamer oven", type: "oven", deepDive: "combi", image: FINDER_IMG.oven },
+        { id: "fryer", label: "Fryer", blurb: "Cookline", name: "commercial fryer", type: "fryer", deepDive: "fryer", image: FINDER_IMG.fryer },
+        { id: "wok", label: "Wok range", blurb: "Cookline", name: "wok burner", type: "wok", deepDive: "wok", image: FINDER_IMG.wok },
+        { id: "hvac", label: "HVAC / extraction", blurb: "Air & hood", name: "restaurant HVAC ventilation hood", type: "hvac", deepDive: "hvac", image: FINDER_IMG.hvacUnit },
+        { id: "ice", label: "Ice machine", blurb: "Cold storage", name: "ice machine", type: "refrigerator", deepDive: "fridge", image: FINDER_IMG.freezer },
+        { id: "water", label: "Hot water / boiler", blurb: "Building services", name: "commercial water heater", type: "water saving", deepDive: null, image: FINDER_IMG.thermostat }
+      ];
+
+      var selected = loadSelected();
+      var grid = document.getElementById("assetGrid");
+      var diagram = document.getElementById("diagram");
+      var layers = {
+        assets: diagram.querySelector('[data-layer="assets"]'),
+        agents: diagram.querySelector('[data-layer="agents"]'),
+        alts: diagram.querySelector('[data-layer="alts"]')
+      };
+
+      function loadSelected() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          var parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (_) {
+          return [];
+        }
+      }
+
+      function saveSelected() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(selected.slice(0, 16)));
+        } catch (_) { /* ignore */ }
+      }
+
+      function escapeHtml(s) {
+        return String(s || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function resolveApiUrl(path) {
+        if (/^https?:\/\//i.test(path)) return path;
+        return path.charAt(0) === "/" ? path : "/" + path;
+      }
+
+      function renderChips() {
+        grid.innerHTML = TYPICAL.map(function (a) {
+          var on = selected.indexOf(a.id) >= 0;
+          var img = a.image || PLACEHOLDER_IMG;
+          return (
+            '<button type="button" class="asset-card' + (on ? " is-on" : "") + '" data-id="' + a.id + '" aria-pressed="' + (on ? "true" : "false") + '">' +
+              '<div class="asset-photo-wrap">' +
+                '<img class="asset-photo" src="' + escapeHtml(img) + '" alt="" loading="lazy" decoding="async" width="120" height="64">' +
+              "</div>" +
+              '<div class="asset-card-body">' +
+                "<strong>" + escapeHtml(a.label) + "</strong>" +
+                "<span>" + escapeHtml(on ? "On guest list" : (a.blurb || "Typical asset")) + "</span>" +
+              "</div>" +
+            "</button>"
+          );
+        }).join("");
+        updateKitchenNote();
+        document.getElementById("nAssets").textContent = String(selected.length);
+      }
+
+      function updateKitchenNote() {
+        var labels = TYPICAL.filter(function (a) { return selected.indexOf(a.id) >= 0; }).map(function (a) { return a.label; });
+        var el = document.getElementById("kitchenNote");
+        if (!labels.length) {
+          el.innerHTML = 'Guest kitchen list: <strong>none yet</strong> — pick assets above.';
+        } else {
+          el.innerHTML = "Guest kitchen list: <strong>" + escapeHtml(labels.join(" · ")) + "</strong>";
+        }
+      }
+
+      grid.addEventListener("click", function (e) {
+        var btn = e.target.closest(".asset-card");
+        if (!btn) return;
+        var id = btn.getAttribute("data-id");
+        var idx = selected.indexOf(id);
+        if (idx >= 0) selected.splice(idx, 1);
+        else selected.push(id);
+        saveSelected();
+        renderChips();
+        if (!document.getElementById("equipName").value.trim()) {
+          var asset = TYPICAL.find(function (a) { return a.id === id; });
+          if (asset && selected.indexOf(id) >= 0) {
+            document.getElementById("equipName").value = asset.name;
+          }
+        }
+      });
+
+      function setPhase(phase, title, body, status) {
+        diagram.setAttribute("data-phase", phase);
+        Object.keys(layers).forEach(function (key) {
+          var on = false;
+          if (phase === "idle") on = key === "assets";
+          if (phase === "scan") on = key === "assets" || key === "agents";
+          if (phase === "agents") on = key === "agents" || key === "alts";
+          if (phase === "report") on = true;
+          layers[key].classList.toggle("is-active", on);
+          layers[key].classList.toggle("is-dim", !on);
+        });
+        document.getElementById("phaseTitle").textContent = title;
+        document.getElementById("phaseBody").textContent = body;
+        document.getElementById("statusLine").textContent = status || "";
+      }
+
+      function animateCount(el, to, duration) {
+        if (!el) return;
+        var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var end = Number(to) || 0;
+        if (reduce) {
+          el.textContent = String(end);
+          return;
+        }
+        var start = 0;
+        var t0 = null;
+        function frame(t) {
+          if (t0 == null) t0 = t;
+          var p = Math.min(1, (t - t0) / (duration || 900));
+          el.textContent = String(Math.round(start + (end - start) * p));
+          if (p < 1) requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+      }
+
+      function wait(ms) {
+        return new Promise(function (resolve) { setTimeout(resolve, ms); });
+      }
+
+      function focusQuery() {
+        var name = document.getElementById("equipName").value.trim();
+        var ref = document.getElementById("equipRef").value.trim();
+        var asset = null;
+        if (selected.length) {
+          asset = TYPICAL.find(function (a) { return a.id === selected[selected.length - 1]; }) || null;
+        }
+        if (!name && asset) name = asset.name;
+        if (!name && ref) name = ref;
+        var type = asset ? asset.type : "";
+        if (!type && /hvac|ventil|hood|extract/i.test(name)) type = "hvac";
+        if (!type && /dish|glasswash/i.test(name)) type = "dishwasher";
+        if (!type && /fridge|freezer|ice/i.test(name)) type = "refrigerator";
+        if (!type && /combi|oven/i.test(name)) type = "oven";
+        if (!type && /fryer/i.test(name)) type = "fryer";
+        if (!type && /wok/i.test(name)) type = "wok";
+        return {
+          name: name,
+          model: ref,
+          type: type,
+          asset: asset,
+          kitchenCount: selected.length || (name ? 1 : 0)
+        };
+      }
+
+      function marketplaceHref(id) {
+        return "/product-page-v2-marketplace.html?product=" + encodeURIComponent(id) + "&fromPopup=true";
+      }
+
+      function grantLabels(item) {
+        var grants = Array.isArray(item.grants) ? item.grants : [];
+        return grants.slice(0, 3).map(function (g) {
+          return (g && (g.name || g.title || g.id)) || "";
+        }).filter(Boolean);
+      }
+
+      function studioVertical(q) {
+        var t = String((q && q.type) || "").toLowerCase();
+        var n = String((q && q.name) || "").toLowerCase();
+        var id = q && q.asset ? q.asset.id : "";
+        if (id === "wok" || t === "wok" || /wok/.test(n)) return "wok";
+        if (id === "dishwasher" || id === "glasswasher" || t === "dishwasher" || /dish|glasswash/.test(n)) return "dishwasher";
+        if (id === "fryer" || t === "fryer" || /fryer/.test(n)) return "fridge";
+        if (id === "hvac" || t === "hvac" || /hvac|ventil|hood|extract/.test(n)) return "fridge";
+        return "fridge";
+      }
+
+      function hasKitchenId(ids, id) {
+        return ids.indexOf(id) >= 0;
+      }
+
+      function buildSuggestedPath(q) {
+        var ids = selected.slice();
+        var focusLabel = (q.asset && q.asset.label) || q.name || "focus equipment";
+        var hasHvac = hasKitchenId(ids, "hvac") || /hvac|ventil|hood|extract/i.test(q.name || "") || q.type === "hvac";
+        var hasCold = hasKitchenId(ids, "fridge") || hasKitchenId(ids, "freezer") || hasKitchenId(ids, "ice") ||
+          /fridge|freezer|ice|refriger/i.test(q.name || "") || q.type === "refrigerator";
+        var hasCook = hasKitchenId(ids, "wok") || hasKitchenId(ids, "fryer") || hasKitchenId(ids, "combi") ||
+          /wok|fryer|combi|oven/i.test(q.name || "") || q.type === "wok" || q.type === "fryer" || q.type === "oven";
+        var hasWash = hasKitchenId(ids, "dishwasher") || hasKitchenId(ids, "glasswasher") ||
+          /dish|glasswash/i.test(q.name || "") || q.type === "dishwasher";
+
+        var why;
+        if (hasHvac && hasCook) {
+          why = "With extraction / HVAC on the list, we suggest sorting air and hood load before big cookline swaps — then tackle " + focusLabel + " with verified alternatives and funding.";
+        } else if (hasCold && !hasCook) {
+          why = "Cold storage is often a clear first win: run hours are long, so efficient " + focusLabel + " replacements show up quickly on the bill once you shortlist and check grants.";
+        } else if (hasWash) {
+          why = "Warewash couples electricity and water — a good first path is baseline usage, then Energy Efficient Alternatives for " + focusLabel + ", then grants / finance before a wider renovation.";
+        } else if (hasCook) {
+          why = "Cookline equipment is visible and high-draw. Start with a simple baseline, shortlist alternatives for " + focusLabel + ", then layer grants and a phased install plan.";
+        } else {
+          why = "A sensible guest path is baseline → shortlist Energy Efficient Alternatives for " + focusLabel + " → check grants & payback → open a fuller project template when you are ready to join.";
+        }
+
+        var steps = [
+          {
+            title: "Baseline the load",
+            body: "Bills, meters, or a simple site snapshot so you know what " + focusLabel + " costs to run today.",
+            focus: false
+          }
+        ];
+
+        if (hasHvac && (hasCook || hasCold || hasWash)) {
+          steps.push({
+            title: "Check HVAC / extraction",
+            body: "Confirm hood and HVAC are sized and efficient enough before locking cookline or cold-room upgrades.",
+            focus: q.type === "hvac" || (q.asset && q.asset.id === "hvac")
+          });
+        }
+
+        steps.push({
+          title: "Shortlist alternatives",
+          body: "Compare Energy Efficient Alternatives for " + focusLabel + " — marketplace rows, grant chips, then save a shortlist.",
+          focus: true
+        });
+
+        steps.push({
+          title: "Grants & payback",
+          body: "Andrieus for scheme fit; Vincent for finance — then sequence install via renovation / upgrade plan tools.",
+          focus: false
+        });
+
+        if (steps.length > 4) steps = steps.slice(0, 4);
+
+        return {
+          title: "Suggested path — start with " + focusLabel,
+          why: why,
+          steps: steps,
+          vertical: studioVertical(q),
+          ask: "Walk me through a guest upgrade path for " + focusLabel + " — what to change first"
+        };
+      }
+
+      function renderSuggestedPath(q) {
+        var plan = buildSuggestedPath(q);
+        document.getElementById("pathTitle").textContent = plan.title;
+        document.getElementById("pathWhy").textContent = plan.why;
+        document.getElementById("pathSteps").innerHTML = plan.steps.map(function (step) {
+          return (
+            '<div class="path-step' + (step.focus ? " is-focus" : "") + '">' +
+              "<strong>" + escapeHtml(step.title) + "</strong>" +
+              "<span>" + escapeHtml(step.body) + "</span>" +
+            "</div>"
+          );
+        }).join("");
+        document.getElementById("pathStudioLink").href =
+          "/greenways/upgrade-plan-studio?vertical=" + encodeURIComponent(plan.vertical) + "&demo=1";
+        document.getElementById("pathArtemisLink").href =
+          "/greenways/equipment-agent?q=" + encodeURIComponent(plan.ask);
+      }
+
+      function focusTheme(q) {
+        var t = String((q && q.type) || "").toLowerCase();
+        var n = String((q && q.name) || "").toLowerCase();
+        var id = q && q.asset ? q.asset.id : "";
+        if (id === "hvac" || t === "hvac" || /hvac|ventil|hood|extract|air.?con/.test(n)) {
+          return {
+            key: "hvac",
+            label: "HVAC / extraction",
+            energyLine: "long-running ventilation and HVAC loads",
+            dealTokens: ["hvac", "ventil", "air", "energy", "tariff", "kitchen"],
+            mapTokens: ["hvac", "ventil", "quintex", "cheetah", "kitchen", "extraction", "hood"],
+            mapQuery: "HVAC kitchen ventilation energy savings"
+          };
+        }
+        if (id === "dishwasher" || id === "glasswasher" || t === "dishwasher" || /dish|glasswash|warewash/.test(n)) {
+          return {
+            key: "dishwasher",
+            label: "warewash",
+            energyLine: "hot-water and electricity cycles on dishwashers",
+            dealTokens: ["warewash", "dish", "water", "kitchen", "meiko"],
+            mapTokens: ["dish", "warewash", "water", "kitchen", "hospitality"],
+            mapQuery: "commercial kitchen dishwasher water energy savings"
+          };
+        }
+        if (id === "wok" || id === "fryer" || id === "combi" || t === "wok" || t === "fryer" || t === "oven" ||
+            /wok|fryer|combi|oven|cook/.test(n)) {
+          return {
+            key: "cookline",
+            label: "cookline equipment",
+            energyLine: "peak cookline demand (wok, fryer, combi)",
+            dealTokens: ["cooking", "combi", "fryer", "wok", "etl", "kitchen", "energy"],
+            mapTokens: ["kitchen", "cook", "hospitality", "restaurant", "ventilation"],
+            mapQuery: "restaurant kitchen cooking equipment energy savings"
+          };
+        }
+        if (id === "water" || t === "water saving" || /water|boiler|heater/.test(n)) {
+          return {
+            key: "water",
+            label: "hot water / water kit",
+            energyLine: "hot water and water-using equipment",
+            dealTokens: ["water", "aerator", "boiler", "kitchen"],
+            mapTokens: ["water", "rainwater", "kitchen", "hospitality"],
+            mapQuery: "water saving commercial kitchen energy"
+          };
+        }
+        return {
+          key: "cold",
+          label: "cold storage",
+          energyLine: "24/7 refrigeration and freezer loads",
+          dealTokens: ["refriger", "freezer", "fridge", "cold", "etl", "energy"],
+          mapTokens: ["refriger", "cold", "freezer", "kitchen", "hospitality", "hvac"],
+          mapQuery: "refrigeration cold storage kitchen energy savings"
+        };
+      }
+
+      function resolvePublicHref(href) {
+        var h = String(href || "").trim();
+        if (!h) return "#";
+        if (/^https?:\/\//i.test(h)) return h;
+        if (h.charAt(0) === "/") return h;
+        h = h.replace(/^\.\//, "");
+        if (/water-saving-finder/i.test(h)) return "/greenways/water-saving-finder";
+        if (/european_energy/i.test(h)) return "/HTMLS%20GWM%20GWB/european_energy_deals_portal.html";
+        if (/sustainable_product_deal_finder/i.test(h)) return "/HTMLS%20GWM%20GWB/sustainable_product_deal_finder_portal.html";
+        if (/deals-ticker|Deals\.html/i.test(h)) return "/greenways/deals-hub";
+        return "/HTMLS%20GWM%20GWB/" + h.split("/").map(encodeURIComponent).join("/");
+      }
+
+      function scoreHay(hay, tokens) {
+        var score = 0;
+        var h = String(hay || "").toLowerCase();
+        (tokens || []).forEach(function (t) {
+          if (h.indexOf(String(t).toLowerCase()) >= 0) score += 3;
+        });
+        return score;
+      }
+
+      function pickDeals(deals, theme, limit) {
+        var list = Array.isArray(deals) ? deals.slice() : [];
+        var ranked = list.map(function (d) {
+          var hay = [d.title, d.line, d.category].concat(d.tags || []).join(" ");
+          var score = scoreHay(hay, theme.dealTokens);
+          if (d.category === "energy") score += 1;
+          if (d.category === "sustainability" && theme.key !== "water") score += 2;
+          if (d.category === "water" && (theme.key === "water" || theme.key === "dishwasher")) score += 3;
+          return { d: d, score: score };
+        }).filter(function (row) { return row.score > 0; })
+          .sort(function (a, b) { return b.score - a.score; });
+        var picked = ranked.slice(0, limit).map(function (r) { return r.d; });
+        if (picked.length < limit) {
+          list.filter(function (d) { return d.category === "energy"; }).forEach(function (d) {
+            if (picked.length >= limit) return;
+            if (!picked.some(function (p) { return p.id === d.id; })) picked.push(d);
+          });
+        }
+        return picked.slice(0, limit);
+      }
+
+      function pickCases(companies, theme, limit) {
+        var list = Array.isArray(companies) ? companies.slice() : [];
+        var ranked = list.map(function (c) {
+          var hay = [c.name, c.desc, c.sector, c.country, c.city].join(" ");
+          var score = scoreHay(hay, theme.mapTokens);
+          var stats = c.stats || {};
+          if (stats.savings || stats.energy || stats.payback) score += 2;
+          if (/hospitality|restaurant|food|hotel|leisure|retail/i.test(String(c.sector || ""))) score += 1;
+          return { c: c, score: score };
+        }).filter(function (row) { return row.score >= 3; })
+          .sort(function (a, b) { return b.score - a.score; });
+        var picked = ranked.slice(0, limit).map(function (r) { return r.c; });
+        if (picked.length < limit) {
+          list.filter(function (c) {
+            return c.stats && (c.stats.savings || c.stats.energy || c.stats.payback);
+          }).forEach(function (c) {
+            if (picked.length >= limit) return;
+            if (!picked.some(function (p) { return p.id === c.id; })) picked.push(c);
+          });
+        }
+        return picked.slice(0, limit);
+      }
+
+      function collectGrantChips(marketplace) {
+        var chips = [];
+        var seen = {};
+        (marketplace || []).slice(0, 6).forEach(function (m) {
+          (Array.isArray(m.grants) ? m.grants : []).forEach(function (g) {
+            var label = (g && (g.name || g.title || g.id)) || "";
+            if (!label || seen[label]) return;
+            seen[label] = true;
+            chips.push(label);
+          });
+        });
+        return chips.slice(0, 6);
+      }
+
+      function vincentCopy(theme, focusLabel) {
+        return (
+          "When wholesale and retail electricity stay elevated, <strong>" + escapeHtml(theme.energyLine) +
+          "</strong> usually repay upgrades faster. For <strong>" + escapeHtml(focusLabel) +
+          "</strong>, treat price spikes as a timing signal — shortlist Energy Efficient Alternatives now, then model payback with Vincent."
+        );
+      }
+
+      async function fetchJson(url) {
+        var res = await fetch(resolveApiUrl(url), { headers: { Accept: "application/json" } });
+        if (!res.ok) throw new Error("Failed " + url);
+        return res.json();
+      }
+
+      async function renderSnapshot(q, marketplace) {
+        var theme = focusTheme(q);
+        var focusLabel = (q.asset && q.asset.label) || q.name || theme.label;
+        document.getElementById("snapshotTitle").textContent =
+          "Snapshot · " + focusLabel;
+        document.getElementById("snapshotLede").textContent =
+          "When energy prices are high, " + theme.energyLine + " are often the first place to look. Below: Vincent’s timing note, Zara-style deals, Andrieus grant chips from your matches, and Cheryce map examples.";
+
+        document.getElementById("snapVincentBody").innerHTML = vincentCopy(theme, focusLabel);
+        document.getElementById("snapVincentLink").href =
+          "/greenways/finance-agent?q=" + encodeURIComponent(
+            "Energy prices are high — how does that affect payback if I upgrade " + focusLabel + "?"
+          );
+        document.getElementById("snapZaraLink").href =
+          "/greenways/deals-agent?q=" + encodeURIComponent("Deals and offers for " + focusLabel);
+        document.getElementById("snapAndrieusLink").href =
+          "/greenways/grants-agent?q=" + encodeURIComponent("Grants for upgrading " + focusLabel);
+        document.getElementById("snapCheryceLink").href =
+          "/greenways/media-agent?q=" + encodeURIComponent(theme.mapQuery);
+        document.getElementById("snapMapLink").href =
+          "/greenways/sustainability-map?q=" + encodeURIComponent(theme.mapQuery);
+
+        var grants = collectGrantChips(marketplace);
+        var grantsEl = document.getElementById("snapGrants");
+        if (grants.length) {
+          grantsEl.innerHTML =
+            '<p>Scheme chips from your Energy Efficient Alternatives matches:</p>' +
+            '<div class="grant-chips">' +
+            grants.map(function (g) {
+              return '<span class="grant-chip">' + escapeHtml(g) + "</span>";
+            }).join("") +
+            "</div>";
+        } else {
+          grantsEl.innerHTML =
+            '<p class="snap-empty">No grant chips on these matches yet — Ask Andrieus or open the restaurant schemes portal for region fit.</p>';
+        }
+
+        try {
+          var dealsPayload = await fetchJson("/data/deals-feed.json");
+          var deals = pickDeals(dealsPayload.deals || [], theme, 2);
+          var dealsEl = document.getElementById("snapDeals");
+          if (!deals.length) {
+            dealsEl.innerHTML = '<p class="snap-empty">No close deal rows — open the deals hub for energy and sustainability lanes.</p>';
+          } else {
+            dealsEl.innerHTML = deals.map(function (d) {
+              var href = resolvePublicHref(d.href);
+              var img = d.imageUrl || PLACEHOLDER_IMG;
+              return (
+                '<a class="snap-deal" href="' + escapeHtml(href) + '" target="_top" rel="noopener">' +
+                  '<img src="' + escapeHtml(img) + '" alt="" loading="lazy" decoding="async">' +
+                  "<div>" +
+                    "<strong>" + escapeHtml(d.title || "Deal") + "</strong>" +
+                    "<span>" + escapeHtml(d.line || d.category || "") + "</span>" +
+                  "</div>" +
+                "</a>"
+              );
+            }).join("");
+          }
+        } catch (_) {
+          document.getElementById("snapDeals").innerHTML =
+            '<p class="snap-empty">Deals feed unavailable right now — try the deals hub.</p>';
+        }
+
+        try {
+          var companiesPayload = await fetchJson("/api/companies");
+          var cases = pickCases(companiesPayload.items || companiesPayload || [], theme, 2);
+          var casesEl = document.getElementById("snapCases");
+          if (!cases.length) {
+            casesEl.innerHTML =
+              '<p class="snap-empty">No close map examples yet for this theme — open the sustainability map; more stories are added as we find them.</p>';
+          } else {
+            casesEl.innerHTML = cases.map(function (c) {
+              var href = "/greenways/sustainability-map?company=" + encodeURIComponent(c.id);
+              var img = c.imageUrl || PLACEHOLDER_IMG;
+              var stats = c.stats || {};
+              var meta = [c.country, stats.savings || stats.energy, stats.payback].filter(Boolean).join(" · ");
+              return (
+                '<a class="snap-case" href="' + escapeHtml(href) + '" target="_top" rel="noopener">' +
+                  '<img src="' + escapeHtml(img) + '" alt="" loading="lazy" decoding="async">' +
+                  "<div>" +
+                    "<strong>" + escapeHtml(c.name || "Case study") + "</strong>" +
+                    "<span>" + escapeHtml(meta || (c.desc || "").slice(0, 90)) + "</span>" +
+                  "</div>" +
+                "</a>"
+              );
+            }).join("");
+            if (cases[0] && cases[0].id != null) {
+              document.getElementById("snapMapLink").href =
+                "/greenways/sustainability-map?company=" + encodeURIComponent(cases[0].id);
+            }
+          }
+        } catch (_) {
+          document.getElementById("snapCases").innerHTML =
+            '<p class="snap-empty">Map examples unavailable right now — open the sustainability map directly.</p>';
+        }
+      }
+
+      function renderAlts(marketplace, external) {
+        var gridEl = document.getElementById("altGrid");
+        var empty = document.getElementById("emptyAlts");
+        var rows = []
+          .concat((marketplace || []).slice(0, 4).map(function (m) { return { kind: "marketplace", item: m }; }))
+          .concat((external || []).slice(0, 2).map(function (m) { return { kind: "external", item: m }; }));
+
+        if (!rows.length) {
+          gridEl.innerHTML = "";
+          empty.hidden = false;
+          return;
+        }
+        empty.hidden = true;
+
+        gridEl.innerHTML = rows.map(function (row) {
+          var item = row.item;
+          var id = item.id || "";
+          var title = item.name || "Alternative";
+          var brand = item.brand || "";
+          var img = item.imageUrl || PLACEHOLDER_IMG;
+          var grants = grantLabels(item);
+          var kwh = item.estimatedDailyKwh != null ? item.estimatedDailyKwh : (item.utilityProfile && item.utilityProfile.dailyKwh);
+          var metaBits = [];
+          if (brand) metaBits.push(brand);
+          if (row.kind === "marketplace") metaBits.push("Greenways Marketplace");
+          else metaBits.push("External / research");
+          if (kwh != null && kwh !== "") metaBits.push("~" + kwh + " kWh/day est.");
+          var href = id && /^(etl_|sust_)/i.test(id)
+            ? marketplaceHref(id)
+            : (item.url || item.link || "/greenways/etl-finder");
+          var shortlistBtn = id && /^(etl_|sust_)/i.test(id)
+            ? '<button type="button" class="shortlist-btn" data-id="' + escapeHtml(id) + '" data-title="' + escapeHtml(title) + '">Save to shortlist</button>'
+            : "";
+          return (
+            '<article class="alt-card">' +
+              '<img src="' + escapeHtml(img) + '" alt="" loading="lazy" decoding="async">' +
+              "<div>" +
+                "<h3>" + escapeHtml(title) + "</h3>" +
+                '<p class="alt-meta">' + escapeHtml(metaBits.join(" · ")) + "</p>" +
+                (grants.length
+                  ? '<div class="grant-chips">' + grants.map(function (g) {
+                      return '<span class="grant-chip">' + escapeHtml(g) + "</span>";
+                    }).join("") + "</div>"
+                  : "") +
+                '<div class="alt-actions">' +
+                  '<a href="' + escapeHtml(href) + '" target="_top" rel="noopener">View details</a>' +
+                  shortlistBtn +
+                "</div>" +
+              "</div>" +
+            "</article>"
+          );
+        }).join("");
+
+        gridEl.querySelectorAll(".shortlist-btn").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            var id = btn.getAttribute("data-id");
+            var title = btn.getAttribute("data-title") || id;
+            var api = window.GreenwaysAgentProductShortlist;
+            if (!api || typeof api.addItem !== "function") {
+              btn.textContent = "Shortlist unavailable";
+              return;
+            }
+            var saved = api.isSaved(id);
+            if (saved) {
+              api.removeItem(id);
+              btn.classList.remove("is-saved");
+              btn.textContent = "Save to shortlist";
+            } else {
+              api.addItem({
+                id: id,
+                title: title,
+                marketplaceHref: marketplaceHref(id),
+                fromSlug: "equipment-journey",
+                fromName: "Equipment journey"
+              });
+              btn.classList.add("is-saved");
+              btn.textContent = "Saved · tap to remove";
+              if (typeof api.showToast === "function") api.showToast("Saved to shortlist");
+            }
+          });
+        });
+      }
+
+      async function runFind() {
+        var q = focusQuery();
+        var btn = document.getElementById("btnFind");
+        if (!q.name && !q.type) {
+          setPhase("idle", "Pick an asset first", "Choose a typical restaurant asset or type an equipment name, then find alternatives.", "");
+          return;
+        }
+
+        btn.disabled = true;
+        document.getElementById("report").classList.remove("is-visible");
+        document.getElementById("nFocus").textContent = (q.asset && q.asset.label) ? q.asset.label.split(" ")[0] : "1";
+        animateCount(document.getElementById("nAssets"), q.kitchenCount, 700);
+        animateCount(document.getElementById("nScanned"), 0, 200);
+
+        setPhase(
+          "scan",
+          "Scanning kitchen assets",
+          "Greenways is lining up your guest list — fridge, dishwash, cooking line, HVAC — so agents know what to match.",
+          "Listing " + q.kitchenCount + " asset" + (q.kitchenCount === 1 ? "" : "s") + "…"
+        );
+        await wait(750);
+
+        setPhase(
+          "agents",
+          "Agents matching Energy Efficient Alternatives",
+          "Artemis leads equipment match; Vincent and Andrieus stand by for payback and grants once you shortlist.",
+          "Matching “" + q.name + (q.model ? " / " + q.model : "") + "”…"
+        );
+        animateCount(document.getElementById("nScanned"), Math.max(q.kitchenCount, 1), 1100);
+
+        var params = new URLSearchParams({
+          name: q.name,
+          type: q.type || "",
+          model: q.model || "",
+          finderSource: "equipment-journey"
+        });
+
+        var payload = null;
+        var errMsg = "";
+        try {
+          var res = await fetch(resolveApiUrl("/api/equipment-intelligence/alternatives?" + params.toString()), {
+            headers: { Accept: "application/json" }
+          });
+          payload = await res.json();
+          if (!res.ok || !payload.success) {
+            throw new Error((payload && payload.message) || "Could not load alternatives.");
+          }
+        } catch (err) {
+          errMsg = err.message || "Request failed";
+        }
+
+        await wait(400);
+
+        var market = (payload && payload.marketplaceMatches) || [];
+        var external = (payload && payload.externalAlternatives) || [];
+        var grantCount = market.slice(0, 4).reduce(function (n, m) {
+          return n + (Array.isArray(m.grants) ? Math.min(m.grants.length, 3) : 0);
+        }, 0);
+
+        setPhase(
+          "report",
+          errMsg ? "Scan finished with a hitch" : "Report ready",
+          errMsg
+            ? errMsg
+            : "Here is a short guest report for " + q.name + ". Save promising rows to your shortlist, then open deep dive or ask Artemis.",
+          errMsg ? "Try another name or open the Efficiency finder." : (market.length + external.length) + " alternatives surfaced"
+        );
+
+        document.getElementById("reportTitle").textContent = "Report · " + q.name;
+        document.getElementById("reportLede").textContent = q.model
+          ? ("Focus: " + q.name + " · ref used as search hint: " + q.model)
+          : ("Focus: " + q.name + (q.asset ? " (typical " + q.asset.label + ")" : "") + ". Guest list stays in this browser until you join.");
+        document.getElementById("askArtemisReport").href =
+          "/greenways/equipment-agent?q=" + encodeURIComponent("Energy efficient alternatives for " + q.name + (q.model ? " (" + q.model + ")" : ""));
+
+        animateCount(document.getElementById("rMatches"), market.length, 800);
+        animateCount(document.getElementById("rExternal"), external.length, 800);
+        animateCount(document.getElementById("rGrants"), grantCount, 900);
+
+        if (!errMsg) renderAlts(market, external);
+        else {
+          document.getElementById("altGrid").innerHTML = "";
+          document.getElementById("emptyAlts").hidden = false;
+          document.getElementById("emptyAlts").textContent = errMsg;
+        }
+
+        renderSuggestedPath(q);
+        renderSnapshot(q, market).catch(function () { /* non-blocking */ });
+
+        document.getElementById("report").classList.add("is-visible");
+        btn.disabled = false;
+        try {
+          document.getElementById("report").scrollIntoView({ behavior: "smooth", block: "start" });
+        } catch (_) { /* ignore */ }
+      }
+
+      document.getElementById("btnFind").addEventListener("click", function () {
+        runFind();
+      });
+      document.getElementById("equipName").addEventListener("keydown", function (e) {
+        if (e.key === "Enter") runFind();
+      });
+      document.getElementById("equipRef").addEventListener("keydown", function (e) {
+        if (e.key === "Enter") runFind();
+      });
+
+      if (window.GreenwaysAgentProductShortlist && typeof window.GreenwaysAgentProductShortlist.init === "function") {
+        try {
+          window.GreenwaysAgentProductShortlist.init({
+            agentSlug: "equipment-journey",
+            agentName: "Equipment journey"
+          });
+        } catch (_) { /* optional */ }
+      }
+
+      renderChips();
+      setPhase(
+        "idle",
+        "Ready when you are",
+        "Select typical assets or type what you have. We will illustrate agents scanning, then open a short report with Energy Efficient Alternatives.",
+        ""
+      );
+
+      var params = new URLSearchParams(window.location.search || "");
+      var pre = params.get("q") || params.get("name") || "";
+      if (pre) {
+        document.getElementById("equipName").value = pre;
+        if (params.get("auto") === "1") runFind();
+      }
+    })();
+  </script>
+</body>
+</html>
