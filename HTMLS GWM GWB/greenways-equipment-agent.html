@@ -220,6 +220,12 @@
     background: rgba(40, 167, 69, 0.22);
     border-color: rgba(93, 216, 121, 0.45);
   }
+  a.welcome-tag {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+  }
 
   .product-showcase-banner {
     flex-shrink: 0;
@@ -976,8 +982,9 @@
       <div class="chat-thread" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
         <div class="welcome-card" id="welcome-card">
           <h2>Ask Artemis</h2>
-          <p>Artemis balances <strong>energy efficiency</strong>, <strong>durability</strong>, and <strong>lifecycle cost</strong> — Energy Efficient Alternatives, deep dive comparisons, trajectory pages, and renovation guides on Greenways. <a href="/greenways/etl" target="_blank" rel="noopener noreferrer">Find out more on Energy Efficient Equipment</a>.</p>
+          <p>Artemis balances <strong>energy efficiency</strong>, <strong>durability</strong>, and <strong>lifecycle cost</strong> — Energy Efficient Alternatives, deep dive comparisons, trajectory pages, and renovation guides on Greenways.</p>
           <div class="welcome-tags">
+            <a class="welcome-tag" href="/greenways/etl" target="_blank" rel="noopener noreferrer">Energy Efficient Equipment</a>
             <button type="button" class="welcome-tag" data-prompt="Why upgrade to Energy Efficient Alternatives and renovation together?">Why upgrade?</button>
             <button type="button" class="welcome-tag" data-prompt="Where can I find out more on Energy Efficient Equipment?">Energy Efficient Equipment</button>
             <button type="button" class="welcome-tag" data-prompt="Explain lifecycle cost and durability for kitchen equipment">Lifecycle cost</button>
@@ -1494,8 +1501,9 @@
   function welcomeCardInnerHtml() {
     return (
       '<h2>Ask Artemis</h2>' +
-      '<p>Artemis balances <strong>energy efficiency</strong>, <strong>durability</strong>, and <strong>lifecycle cost</strong> — Energy Efficient Alternatives, deep dive comparisons, trajectory pages, and renovation guides on Greenways. <a href="/greenways/etl" target="_blank" rel="noopener noreferrer">Find out more on Energy Efficient Equipment</a>.</p>' +
+      '<p>Artemis balances <strong>energy efficiency</strong>, <strong>durability</strong>, and <strong>lifecycle cost</strong> — Energy Efficient Alternatives, deep dive comparisons, trajectory pages, and renovation guides on Greenways.</p>' +
       '<div class="welcome-tags">' +
+      '<a class="welcome-tag" href="/greenways/etl" target="_blank" rel="noopener noreferrer">Energy Efficient Equipment</a>' +
       '<button type="button" class="welcome-tag" data-prompt="Why upgrade to Energy Efficient Alternatives and renovation together?">Why upgrade?</button>' +
       '<button type="button" class="welcome-tag" data-prompt="Where can I find out more on Energy Efficient Equipment?">Energy Efficient Equipment</button>' +
       '<button type="button" class="welcome-tag" data-prompt="Explain lifecycle cost and durability for kitchen equipment">Lifecycle cost</button>' +
@@ -1801,7 +1809,7 @@
   }
 
   function bindWelcomeTags() {
-    document.querySelectorAll(".welcome-tag").forEach(function (btn) {
+    document.querySelectorAll("button.welcome-tag[data-prompt]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         sendQuestion(btn.getAttribute("data-prompt"));
       });

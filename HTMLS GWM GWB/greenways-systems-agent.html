@@ -165,6 +165,12 @@
     background: rgba(245, 158, 11, 0.22);
     border-color: rgba(251, 191, 36, 0.45);
   }
+  a.welcome-tag {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+  }
   .msg-row { display: flex; flex-direction: column; max-width: 92%; }
   .msg-row.agent { align-self: flex-start; }
   .msg-row.agent.has-split { max-width: min(820px, 98%); width: 100%; }
@@ -324,8 +330,9 @@
       <div class="chat-thread" id="chat-thread" role="log" aria-live="polite" aria-relevant="additions">
         <div class="welcome-card" id="welcome-card">
           <h2>Ask Edwardo</h2>
-          <p><strong>Systems &amp; equipment specialist</strong> — why monitoring matters for homes and restaurants, which sensors to prioritise, and how Greenways dashboards make waste visible. Ops teams can still run read-only <strong>health checks</strong> via the status banner and <strong>Verify selected</strong>. <a href="/greenways/etl" target="_blank" rel="noopener noreferrer">Find out more on Energy Efficient Equipment</a>.</p>
+          <p><strong>Systems &amp; equipment specialist</strong> — why monitoring matters for homes and restaurants, which sensors to prioritise, and how Greenways dashboards make waste visible. Ops teams can still run read-only <strong>health checks</strong> via the status banner and <strong>Verify selected</strong>.</p>
           <div class="welcome-tags">
+            <a class="welcome-tag" href="/greenways/etl" target="_blank" rel="noopener noreferrer">Energy Efficient Equipment</a>
             <button type="button" class="welcome-tag" data-prompt="What systems innovation should restaurants watch this month for monitoring and proof of savings?">Systems innovation</button>
             <button type="button" class="welcome-tag" data-prompt="Why is energy monitoring important before I upgrade equipment?">Why monitoring?</button>
             <button type="button" class="welcome-tag" data-prompt="What sensors should a restaurant install for cookline, refrigeration, and water?">Restaurant sensors</button>
@@ -418,6 +425,7 @@
       '<h2>Ask Edwardo</h2>' +
       '<p><strong>Systems &amp; equipment specialist</strong> — why monitoring matters for homes and restaurants, which sensors to prioritise, and how Greenways dashboards make waste visible. Ops teams can still run read-only <strong>health checks</strong> via the status banner and <strong>Verify selected</strong>.</p>' +
       '<div class="welcome-tags">' +
+      '<a class="welcome-tag" href="/greenways/etl" target="_blank" rel="noopener noreferrer">Energy Efficient Equipment</a>' +
       '<button type="button" class="welcome-tag" data-prompt="Why is energy monitoring important before I upgrade equipment?">Why monitoring?</button>' +
       '<button type="button" class="welcome-tag" data-prompt="What sensors should a restaurant install for cookline, refrigeration, and water?">Restaurant sensors</button>' +
       '<button type="button" class="welcome-tag" data-prompt="What home energy monitoring and sensors help consumers save money?">Home monitoring</button>' +
@@ -432,7 +440,7 @@
   }
 
   function bindWelcomeTags() {
-    document.querySelectorAll(".welcome-tag").forEach(function (btn) {
+    document.querySelectorAll("button.welcome-tag[data-prompt]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         sendQuestion(btn.getAttribute("data-prompt"));
       });
@@ -760,7 +768,7 @@
     GreenwaysAgentContentModule.bindContainer(document.body);
   }
 
-                if (window.GreenwaysAgentSidebar) {
+                  if (window.GreenwaysAgentSidebar) {
     GreenwaysAgentSidebar.init({
       quickLinks: [{"icon":"📡","name":"Restaurant monitoring","desc":"UK & EU guide","moduleOpen":true,"moduleId":"restaurant-energy-monitoring-guide","href":"./restaurant-energy-monitoring-guide.html","action":"Open","iconUrl":"https://static.wixstatic.com/media/c123de_e57c85ae1f0e4e59b2b6e1abece7df19~mv2.jpeg"},{"icon":"📋","name":"Site Brief","desc":"Shareable site overview","moduleOpen":true,"moduleId":"restaurant-energy-snapshot","href":"./greenways-site-brief.html","action":"Open","iconUrl":"https://static.wixstatic.com/media/c123de_988c141478e044d5ba8d137d2a451713~mv2.png"},{"icon":"📊","name":"Sensor dashboard","desc":"Live view","moduleOpen":true,"moduleId":"sensor-dashboard","href":"./sensor-dashboard.html","action":"Open","iconUrl":"https://static.wixstatic.com/media/c123de_eeb61cbf84bd402eb642e28b2b457c76~mv2.png"},{"icon":"🏢","name":"Buildings dashboard","desc":"Portfolio KPIs","moduleOpen":true,"moduleId":"greenways-dashboard","href":"./Greenways%20Interface%20.html","action":"Open","iconUrl":"https://static.wixstatic.com/media/c123de_eeb61cbf84bd402eb642e28b2b457c76~mv2.png"}],
       linksHint: "Core portals stay here. More tools sit under the chat composer (Tools ▾).",
