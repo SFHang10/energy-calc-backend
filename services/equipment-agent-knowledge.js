@@ -577,10 +577,18 @@ async function buildEtlVerificationAnswer(profile, tip) {
   const quartilePhrase =
     quartileNote.charAt(0).toLowerCase() + quartileNote.slice(1);
 
+  const europeReachSentence =
+    ` The underlying register is **UK-based**, but many pieces of equipment on that list come from manufacturers based in **Europe and beyond** — so although it is a UK list, you can often have confidence in the **same model** when you buy it from suppliers elsewhere.`;
+
+  const dutchAltSentence =
+    region === 'nl'
+      ? ` For the **Netherlands**, I also keep **Dutch alternatives** in view (for example EIA / Milieulijst-style efficiency pathways) alongside Greenways **etl_*** shortlists — use the verified performance signal to compare like-for-like, then ask **Andrieus** which local or EU schemes may apply.`
+      : ` Outside the UK, local schemes still matter — for example Dutch **EIA / Milieulijst**-style routes — and I will pair those with the same Energy Efficient Alternatives shortlist so you are not locked to a UK-only buy path.`;
+
   return {
     answer:
       `I'm **Artemis**. When you ask about **Energy Efficient Equipment**, I'm explaining how Greenways helps you choose **Energy Efficient Alternatives** you can trust — not marketing that only says "efficient".\n\n` +
-      `We highlight verified high-performing equipment; products on that verified list are ${quartilePhrase}, so you buy against tested performance rather than a brochure claim alone.${profileSentence}${grantsSentence}\n\n` +
+      `We highlight verified high-performing equipment; products on that verified list are ${quartilePhrase}, so you buy against tested performance rather than a brochure claim alone.${europeReachSentence}${dutchAltSentence}${profileSentence}${grantsSentence}\n\n` +
       `On Greenways, **etl_*** catalogue rows connect that verification to action: specs, grant chips, equipment deep dive comparisons, and savings projection so you can see payback before capex.\n\n` +
       (scan ? `${scan}\n` : '') +
       `Find out more on Energy Efficient Equipment: /greenways/etl. The tablets on the right open the **Equipment wire** scan, that hub, the equipment finder, and deep dive. Want this applied to a kitchen category, or grants on a specific **etl_*** pick?\n\n_${tip}_`,
