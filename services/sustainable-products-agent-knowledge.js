@@ -145,7 +145,7 @@ function portalLinkItems(portal = 'all') {
   }
   items.push(
     toLinkItem('Equipment deep dive', FINDER_LINKS.deepDive, 'Side-by-side alternatives with grants'),
-    toLinkItem('ETL product finder', FINDER_LINKS.equipmentTool, 'Verified efficient equipment catalog')
+    toLinkItem('Energy Efficient Alternatives finder', FINDER_LINKS.equipmentTool, 'Verified efficient equipment catalog')
   );
   return items;
 }
@@ -347,7 +347,7 @@ function buildHandoffs(briefing, question, intentId = '') {
       intentId
     )
   ) {
-    push('equipmentToArtemis', 'Explain ETL lifecycle cost for this equipment upgrade');
+    push('equipmentToArtemis', 'Explain lifecycle cost for this equipment upgrade');
     if (!['water_lane', 'find_dishwasher'].includes(intentId)) {
       push('grantsToAndrieus', 'What grants apply to these marketplace products in my region?');
     }
@@ -372,7 +372,7 @@ function buildHandoffs(briefing, question, intentId = '') {
     push('equipmentToArtemis', 'How do I spec replacement equipment after trade-in?');
   }
   if (!out.length) {
-    push('equipmentToArtemis', 'How does ETL equipment compare for my kitchen upgrade?');
+    push('equipmentToArtemis', 'How does Energy Efficient Alternatives compare for my kitchen upgrade?');
     push('dealsToZara', 'Are there weekly deal spotlights for efficient products?');
   }
   const seen = new Set();
@@ -784,7 +784,7 @@ async function buildOverviewAnswer(catalog, tip, briefing, wireSnapshot, profile
       (scan ? `${scan}\n` : '') +
       `**Three utility lanes:**\n` +
       `- ${LANE_LABELS.water} — ${water} \`sust_*\` catalog rows + marketplace dishwashers & aerators\n` +
-      `- ${LANE_LABELS.electricity} — ${elec} rows + ETL refrigeration & cooking\n` +
+      `- ${LANE_LABELS.electricity} — ${elec} rows + efficient refrigeration & cooking\n` +
       `- ${LANE_LABELS.gas} — ${gas} rows + wok, fryer & cooking retrofits\n\n` +
       `${journey ? `**Journey:** ${journey}\n\n` : ''}` +
       `Start on the **Products wire** for live lane counts and recent catalog rows, then open finders for full marketplace search. ` +
@@ -997,7 +997,7 @@ async function buildProductCredentialsAnswer(tip) {
   const narrative = briefing.guideNarratives?.productCredentials || '';
   return {
     answer:
-      `**Product credentials & ETL deep dive**\n\n` +
+      `**Product credentials & equipment deep dive**\n\n` +
       `${narrative}\n\n` +
       `**Live compare (Greenways):** ${live}\n` +
       `**Credentials guide:** ${legacy}\n\n` +
@@ -1005,8 +1005,8 @@ async function buildProductCredentialsAnswer(tip) {
     suggestions: [],
     blocks: linkOrModuleBlocks([
       toLinkItem('Restaurant equipment deep dive', live, 'Side-by-side alternatives with grants'),
-      toLinkItem('ETL product finder', FINDER_LINKS.equipmentTool, 'Verified efficient equipment catalog'),
-      toLinkItem('Product Deep Dive guide', legacy, 'ETL credentials framing')
+      toLinkItem('Energy Efficient Alternatives finder', FINDER_LINKS.equipmentTool, 'Verified efficient equipment catalog'),
+      toLinkItem('Product Deep Dive guide', legacy, 'efficiency credentials framing')
     ]),
     agentHandoffs: buildHandoffs(briefing, '', 'product_credentials')
   };
@@ -1204,7 +1204,7 @@ function equipmentLookupModuleBlocks() {
   return linkOrModuleBlocks([
     toLinkItem('Sustainable product finder', FINDER_LINKS.products, 'Full marketplace + catalog search'),
     toLinkItem('Equipment deep dive', FINDER_LINKS.deepDive, 'Side-by-side alternatives with grants'),
-    toLinkItem('Equipment intelligence tool', FINDER_LINKS.equipmentTool, 'ETL lookup & compare')
+    toLinkItem('Equipment intelligence tool', FINDER_LINKS.equipmentTool, 'efficiency lookup & compare')
   ]);
 }
 

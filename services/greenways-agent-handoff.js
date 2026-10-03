@@ -68,7 +68,7 @@ const FINANCE_INTENT_TOPICS = {
   price_upgrade_case: () => 'you were building a price-driven upgrade business case',
   compare_tariffs: () => 'you were comparing tariffs before financing upgrades',
   calculators_tools: () => 'you were using finance calculators and audit tools',
-  etl_products: () => 'you were stacking finance on ETL-verified equipment picks',
+  etl_products: () => 'you were stacking finance on Energy Efficient Alternatives picks',
   sustainability_finance_news: () => 'you were reading sustainability finance headlines',
   funding_news: () => 'you were following funding news for finance stacks',
   grants_tab: () => 'you were checking how grants stack with finance paths'
@@ -76,7 +76,7 @@ const FINANCE_INTENT_TOPICS = {
 
 const EQUIPMENT_INTENT_TOPICS = {
   lifecycle_cost: () => 'you were comparing lifecycle cost for equipment upgrades',
-  etl_verification: () => 'you were checking ETL verification on kitchen equipment',
+  etl_verification: () => 'you were checking efficiency verification on kitchen equipment',
   deep_dive: () => 'you were using the equipment deep dive for side-by-side compare',
   renovation: (profile) => `you were planning a renovation path for your ${profile.sector || 'site'}`,
   renovation_grants: () => 'you were linking renovation work to grant eligibility',
@@ -205,7 +205,7 @@ function buildHandoffTopicSummary(fromSlug, fromIntentId, profile = {}, question
   if (fromSlug === 'equipment-agent') {
     const line = topicFromMap(EQUIPMENT_INTENT_TOPICS, intentId, profile, question, summary);
     if (line) return line;
-    return `you were comparing ETL equipment and renovation options for your ${sector}`;
+    return `you were comparing Energy Efficient Alternatives and renovation options for your ${sector}`;
   }
 
   if (fromSlug === 'grants-agent') {

@@ -226,7 +226,7 @@ function buildHandoffs(briefing, question, intentId = '') {
     push('financeToVincent', 'How do current energy prices affect my upgrade payback?');
   }
   if (['product_deals', 'sustainability_deals', 'category'].includes(intentId)) {
-    push('equipmentToArtemis', 'What ETL equipment upgrades pair with current deals?');
+    push('equipmentToArtemis', 'What Energy Efficient Alternatives upgrades pair with current deals?');
   }
   if (['eligibility_grants', 'water_deals', 'sustainability_deals', 'savings_portal', 'water_finder'].includes(intentId)) {
     push('grantsToAndrieus', 'What grants and rebates am I eligible for in my region?');

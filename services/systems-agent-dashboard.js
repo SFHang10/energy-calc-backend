@@ -63,7 +63,7 @@ async function buildGreenwaysDashboardAnswer(profile, tip) {
       { title: 'Buildings dashboard', url: dash.href || PORTAL_LINKS.greenwaysDashboard, description: 'Portfolio KPIs' },
       { title: 'Utility detail', url: `${PORTAL_LINKS.utilityDetail}?type=electricity`, description: 'One utility at a time' },
       { title: 'Sensor dashboard', url: sensor.href || PORTAL_LINKS.sensorDashboard, description: 'IoT-style signals' },
-      { title: 'Equipment deep dive', url: PORTAL_LINKS.deepDive, description: 'ETL vs current asset' }
+      { title: 'Equipment deep dive', url: PORTAL_LINKS.deepDive, description: 'Energy Efficient Alternatives vs current asset' }
     ]),
     suggestions: []
   };
@@ -81,7 +81,7 @@ async function buildDashboardMathAnswer(question, profile, tip) {
       `- Gas **€${((t.kwhPerM3NaturalGas || 10.55) * (t.gasEurPerKwhThermal || 0.11)).toFixed(2)}/m³** (${t.kwhPerM3NaturalGas || 10.55} kWh(th)/m³ × €${t.gasEurPerKwhThermal || 0.11}/kWh)\n` +
       `- Water **€${((t.waterEurPerLitre || 0.0025) * 1000).toFixed(2)}/m³**\n\n` +
       `**Formulas:**\n${formatFormulaBullets(math.formulas, 7)}\n\n` +
-      `**Systems insight:** the dashboard compares **actual vs baseline** so you see drift before the bill arrives. Deep dive applies the same €/kWh logic **per equipment line** — that is how we justify ETL upgrades in €/day, not just % labels.\n\n_${tip}_`,
+      `**Systems insight:** the dashboard compares **actual vs baseline** so you see drift before the bill arrives. Deep dive applies the same €/kWh logic **per equipment line** — that is how we justify Energy Efficient Alternatives upgrades in €/day, not just % labels.\n\n_${tip}_`,
     suggestions: []
   };
 }
@@ -94,7 +94,7 @@ async function buildTimeOfUseAnswer(profile, tip) {
     answer:
       `**${tou.headline || 'When you use energy matters'}**\n\n` +
       `${(tou.points || []).map((p) => `- ${p}`).join('\n')}\n\n` +
-      `**For a ${profile.sector || 'restaurant'}:** open **Site energy reading** with your postcode for live grid carbon and the cleanest 2-hour window — or the **24h trend** on ${PORTAL_LINKS.utilityDetail}?type=electricity for peak bands, then ask Artemis which ETL equipment lowers baseline vs peak.\n\n` +
+      `**For a ${profile.sector || 'restaurant'}:** open **Site energy reading** with your postcode for live grid carbon and the cleanest 2-hour window — or the **24h trend** on ${PORTAL_LINKS.utilityDetail}?type=electricity for peak bands, then ask Artemis which Energy Efficient Alternatives lowers baseline vs peak.\n\n` +
       `**Finance angle:** Vincent can model payback if you shift load *and* upgrade — Edwardo shows *where* the kWh lives.\n\n_${tip}_`,
     blocks: systemsModuleBlock([{ moduleId: 'site-energy-reading', openSize: 'near-full' }]),
     suggestions: []
@@ -107,15 +107,15 @@ async function buildEtlSystemsSavingsAnswer(question, tip) {
 
   return {
     answer:
-      `**ETL from a systems lens** — certified efficient equipment is not just a label; it changes **kWh, gas, and water curves** the dashboard and deep dive measure:\n\n` +
+      `**Energy Efficient Alternatives from a systems lens** — certified efficient equipment is not just a label; it changes **kWh, gas, and water curves** the dashboard and deep dive measure:\n\n` +
       examples.map((e) => `- **${e.title}** — ${e.savings}`).join('\n') +
       `\n\n**How to use this on Greenways:**\n` +
-      `- **ETL overview:** ${PORTAL_LINKS.energyTechnologyList}\n` +
+      `- **Energy Efficient Equipment hub:** ${PORTAL_LINKS.energyTechnologyList}\n` +
       `- **Deep dive:** ${PORTAL_LINKS.deepDive} — compare your line vs \`etl_*\` alternatives with daily € model\n` +
       `- **Savings projection:** ${PORTAL_LINKS.savingsProjection}\n\n` +
       `_Example framing: “Site X saved Y kWh/mo — at €0.30/kWh that is €Z/mo off your bill.” Ask for a specific appliance._\n\n_${tip}_`,
     blocks: linkOrModuleBlocks([
-      { title: 'ETL technology list', url: './energy_technology_list_etl.html', description: 'Certified equipment savings ranges' },
+      { title: 'Energy Efficient Equipment', url: '/greenways/etl', description: 'Certified equipment savings ranges' },
       { title: 'Equipment deep dive', url: PORTAL_LINKS.deepDive, description: 'Per-line systems comparison' },
       { title: 'Low energy guide', url: PORTAL_LINKS.lowEnergyGuide, description: 'Real-site examples' }
     ]),
@@ -134,7 +134,7 @@ async function buildDeepDiveSystemsAnswer(profile, tip) {
       `- **Daily utility model:** electricity + gas + water €/day from measured or modelled kWh/L\n` +
       `- **Utility mix:** cookline may be gas-heavy — sub-meter gas and electrical aux separately\n` +
       `- **Decision matrix:** current asset vs marketplace \`etl_*\` rows with grant overlays\n` +
-      `- **Why ETL:** verified efficiency → lower baseline in charts → faster payback in projection\n\n` +
+      `- **Why Energy Efficient Alternatives:** verified efficiency → lower baseline in charts → faster payback in projection\n\n` +
       `**Open:** ${dd.href || PORTAL_LINKS.deepDive}${dd.exampleQuery ? dd.exampleQuery.replace('?', '?') : ''}\n\n` +
       `From the **Greenways dashboard** equipment tab you can jump into deep dive for a selected appliance — return path keeps site context.\n\n_${tip}_`,
     blocks: [systemsModuleBlock([{ moduleId: 'equipment-deep-dive', openSize: 'near-full' }])],

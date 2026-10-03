@@ -83,7 +83,7 @@ const WIRE_BUCKET_LABELS = {
   cookline: 'Cookline',
   refrigeration: 'Refrigeration',
   ventilation: 'Ventilation & HVAC',
-  other: 'Other ETL'
+  other: 'Other efficient equipment'
 };
 
 const PORTAL_PATH_MODULE_IDS = [
@@ -155,7 +155,7 @@ function formatEquipmentWireSnapshotBlock(snapshot, profile = {}) {
     .join(', ');
 
   let block =
-    `**Equipment wire scan (live):** **${total.toLocaleString('en-GB')}** UK ETL marketplace rows` +
+    `**Equipment wire scan (live):** **${total.toLocaleString('en-GB')}** UK Energy Efficient Alternatives marketplace rows` +
     (grants ? ` · **${grants.toLocaleString('en-GB')}** with grant overlays` : '') +
     (refreshed ? ` · grants data ${refreshed}` : '') +
     '.\n';
@@ -170,7 +170,7 @@ function formatEquipmentWireSnapshotBlock(snapshot, profile = {}) {
     block += `- **Showcase picks (live):** ${showcase.map((row) => row.label || row.name).join(' · ')}\n`;
   }
   if (snapshot.meta?.illustrativeSpotlights || snapshot.meta?.illustrativeNewRows) {
-    block += '- **Trust:** ETL counts and showcase picks are **live** from the enriched marketplace; desk spotlight cards and “new this month” ticker rows on the wire are **illustrative** curated links.\n';
+    block += '- **Trust:** efficiency catalogue counts and showcase picks are **live** from the enriched marketplace; desk spotlight cards and “new this month” ticker rows on the wire are **illustrative** curated links.\n';
   }
   return block;
 }
@@ -179,7 +179,7 @@ function equipmentWireModuleRow(overrides = {}) {
   return {
     moduleId: 'equipment-wire',
     title: 'Equipment wire',
-    description: 'ETL counts, category lanes, and equipment desk in one hub.',
+    description: 'efficiency catalogue counts, category lanes, and equipment desk in one hub.',
     usageHint: 'Scroll the scan rail, then open the desk for compare, payback, and renovations.',
     openSize: 'near-full',
     ...overrides
@@ -346,7 +346,7 @@ function buildHandoffs(briefing, question, intentId = '') {
     push('grantsToAndrieus', 'What grants fit kitchen equipment and building renovation for my profile?');
   }
   if (['renovation', 'insulation', 'renovation_plan', 'savings_projection', 'energy_sketch', 'restaurant_energy_sketch'].includes(intentId)) {
-    push('financeToVincent', 'How do I finance renovation and ETL equipment upgrades after payback looks good?');
+    push('financeToVincent', 'How do I finance renovation and Energy Efficient Alternatives upgrades after payback looks good?');
   }
   if (['overview', 'renovation_plan', 'monitoring_handoff', 'why_equipment'].includes(intentId)) {
     push('monitoringToEdwardo', 'Why should I baseline monitoring before upgrading kitchen equipment?');
@@ -387,14 +387,14 @@ function toolsToBlocks(tools, max = 6) {
 
 function equipmentPortalLinks() {
   return [
-    toLinkItem('Equipment wire', '/greenways/equipment-wire-embed', 'Live ETL counts, category lanes, and desk hub'),
-    toLinkItem('Equipment desk', '/greenways/equipment-desk-embed', 'Compare, payback, ETL finder, and renovation tabs'),
+    toLinkItem('Equipment wire', '/greenways/equipment-wire-embed', 'Live efficiency catalogue counts, category lanes, and desk hub'),
+    toLinkItem('Equipment desk', '/greenways/equipment-desk-embed', 'Compare, payback, Efficiency finder, and renovation tabs'),
     toLinkItem('Equipment deep dive', PORTAL_LINKS.deepDive, 'Compare current vs efficient equipment with grants'),
     toLinkItem('Sustainable renovations', PORTAL_LINKS.sustainableRenovations, 'Building retrofit pathways and grants'),
-    toLinkItem('Retrofit ROI guide', PORTAL_LINKS.retrofitRoiGuide, 'ETL retrofit payback and savings'),
+    toLinkItem('Retrofit ROI guide', PORTAL_LINKS.retrofitRoiGuide, 'energy-efficient retrofit payback and savings'),
     toLinkItem('Restaurant design', PORTAL_LINKS.restaurantDesign, 'Kitchen layout and ventilation savings'),
     toLinkItem('Insulation guide', PORTAL_LINKS.insulationGuide, 'Fabric and envelope improvements'),
-    toLinkItem('Appliance comparison', PORTAL_LINKS.applianceComparison, 'Standard vs ETL side-by-side with savings stories'),
+    toLinkItem('Appliance comparison', PORTAL_LINKS.applianceComparison, 'Standard vs Energy Efficient Alternatives side-by-side with savings stories'),
     toLinkItem('Intelligence tool', PORTAL_LINKS.equipmentTool, 'Marketplace alternatives and specs'),
     toLinkItem('Savings projection', PORTAL_LINKS.savingsProjection, 'Payback chart with grants'),
     toLinkItem('Grants Agent', '/greenways/grants-agent', 'Schemes chat for funding options'),
@@ -413,7 +413,7 @@ function renovationGuideModules(profile = {}) {
     {
       moduleId: 'retrofit-roi-guide',
       title: 'Retrofit ROI guide',
-      usageHint: 'Five ETL retrofit measures with payback ranges',
+      usageHint: 'Five energy-efficient retrofit measures with payback ranges',
       openSize: 'near-full'
     },
     {
@@ -467,13 +467,13 @@ async function buildOverviewAnswer(profile, tip) {
       agentIntroParagraph('equipment', briefing) +
       agentProfileBlock(
         `**Artemis — Equipment & renovation specialist**`,
-        briefing.roleSummary || 'ETL equipment upgrades and premises renovation on Greenways.'
+        briefing.roleSummary || 'Energy Efficient Alternatives upgrades and premises renovation on Greenways.'
       ) +
       `**What I help with:**\n${focus.map((f) => `- ${f}`).join('\n')}\n\n` +
       `**Typical path:**\n${steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}\n\n` +
       (scan ? `${scan}\n` : '') +
       `**Greenways tools:**\n${formatToolsListProse(tools, 5)}\n\n` +
-      `_Start on the **Equipment wire** for live ETL counts, then ask about a **${profile.sector || 'restaurant'}** category, renovation, deep dive, or savings projection._\n\n_${tip}_`,
+      `_Start on the **Equipment wire** for live efficiency catalogue counts, then ask about a **${profile.sector || 'restaurant'}** category, renovation, deep dive, or savings projection._\n\n_${tip}_`,
     blocks: prependWireToBlocks(toolsToModuleBlocks(tools, 6)),
     suggestions: [],
     agentHandoffs: buildHandoffs(briefing, '', 'overview')
@@ -496,7 +496,7 @@ async function buildWhyEquipmentAnswer(profile, tip) {
       (briefing.etlPrinciple ? `${briefing.etlPrinciple}\n\n` : '') +
       `For **${sector}**, efficient equipment is about more than a green label on paper — it is verified performance, durability, and a better match to how you actually cook, cool, and ventilate. ` +
       (whyLead ? `${whyLead} ` : '') +
-      `That is why I steer you through ETL-listed options and Greenways compare tools rather than marketing claims alone.\n\n` +
+      `That is why I steer you through Energy Efficient Alternatives and Greenways compare tools rather than marketing claims alone.\n\n` +
       (categoryNames.length
         ? `The lanes I see move the needle first are **${categoryNames.slice(0, 3).join('**, **')}**` +
           (categoryNames.length > 3 ? `, and **${categoryNames[3]}**` : '') +
@@ -579,11 +579,11 @@ async function buildEtlVerificationAnswer(profile, tip) {
 
   return {
     answer:
-      `I'm **Artemis**. When you ask about **ETL**, I'm really explaining how we help you choose equipment you can trust on your sustainable journey — not just marketing that says "efficient".\n\n` +
-      `The **Energy Technology List** is the UK's independently checked list. Products on the list are ${quartilePhrase}, so you are buying against tested performance rather than a brochure claim alone.${profileSentence}${grantsSentence}\n\n` +
-      `On Greenways, **etl_*** rows connect that verification to action: specs, grant chips, equipment deep dive comparisons, and savings projection so you can see payback before capex. I use those tools to move you from "sounds green" to a numbers-backed upgrade plan.\n\n` +
+      `I'm **Artemis**. When you ask about **Energy Efficient Equipment**, I'm explaining how Greenways helps you choose **Energy Efficient Alternatives** you can trust — not marketing that only says "efficient".\n\n` +
+      `We highlight verified high-performing equipment; products on that verified list are ${quartilePhrase}, so you buy against tested performance rather than a brochure claim alone.${profileSentence}${grantsSentence}\n\n` +
+      `On Greenways, **etl_*** catalogue rows connect that verification to action: specs, grant chips, equipment deep dive comparisons, and savings projection so you can see payback before capex.\n\n` +
       (scan ? `${scan}\n` : '') +
-      `The tablets on the right open the **Equipment wire** scan, official ETL overview, equipment finder, and deep dive — each explains what it does and how it can help your next step. Would you like me to apply this to a kitchen category, or show how grants stack on a specific **etl_*** pick?\n\n_${tip}_`,
+      `Find out more on Energy Efficient Equipment: /greenways/etl. The tablets on the right open the **Equipment wire** scan, that hub, the equipment finder, and deep dive. Want this applied to a kitchen category, or grants on a specific **etl_*** pick?\n\n_${tip}_`,
     suggestions: relatedSchemes.map(toSuggestion),
     blocks: prependWireToBlocks(
       linkOrModuleBlocks([
@@ -591,7 +591,7 @@ async function buildEtlVerificationAnswer(profile, tip) {
           toLinkItem(
             r.title,
             r.url,
-            `${r.summary || 'Official ETL reference'} — open when you want the full list detail and category rules.`
+            `${r.summary || 'Official Energy Efficient Alternatives reference'} — open when you want the full list detail and category rules.`
           )
         ),
         toLinkItem(
@@ -640,7 +640,7 @@ async function buildBaselineEquipmentAnswer(tip) {
       `- **Restaurant Energy Sketch** — illustrative €/mo by kitchen profile (scenario averages, trust-labelled)\n` +
       `- **Greenways buildings dashboard** — equipment baseline when site energy data is connected\n` +
       `- **Trajectory example** — see how savings build over time with a connected baseline\n` +
-      `- **Equipment intelligence module** — practical baseline check and ETL alternatives search\n\n` +
+      `- **Equipment intelligence module** — practical baseline check and Energy Efficient Alternatives search\n\n` +
       `Open the modules on the right to explore each path. Without baseline, lifecycle payback is guesswork — **Edwardo** helps monitoring and dashboard maths when live data is thin.\n\n_${tip}_`,
     suggestions: [],
     agentHandoffs: buildHandoffs(briefing, '', 'baseline_equipment'),
@@ -697,10 +697,10 @@ async function buildEquipmentIntelligenceAnswer(tip) {
 
   return {
     answer:
-      `**Equipment intelligence module** — practical way to check **what baseline use should look like** and find ETL alternatives.\n\n` +
+      `**Equipment intelligence module** — practical way to check **what baseline use should look like** and find Energy Efficient Alternatives.\n\n` +
       `Open the **Equipment intelligence** module on the right to search alternatives, compare specs, and see how verified equipment differs from what you run today.\n\n` +
       `**Why it matters:** you see efficient options before committing capex.\n\n` +
-      `Pair with **equipment deep dive** for grants and decision matrix, or **appliance comparison** for visual standard vs ETL stories.\n\n_${tip}_`,
+      `Pair with **equipment deep dive** for grants and decision matrix, or **appliance comparison** for visual standard vs Energy Efficient Alternatives stories.\n\n_${tip}_`,
     suggestions: [],
     blocks: linkOrModuleBlocks([
       toLinkItem('Open intelligence tool', PORTAL_LINKS.equipmentTool, 'Marketplace + alternatives'),
@@ -897,7 +897,7 @@ async function buildPortalsAnswer(tip) {
 
   return {
     answer: withTip(
-      `**Equipment and renovation on Greenways** — start on the **Equipment wire** for live ETL counts, then open desk tools or building guides.\n\n` +
+      `**Equipment and renovation on Greenways** — start on the **Equipment wire** for live efficiency catalogue counts, then open desk tools or building guides.\n\n` +
         (scan ? `${scan}\n` : '') +
         '_Pick a module on the right — description and how to use at the top of each tablet._',
       tip
@@ -928,7 +928,7 @@ async function buildEquipmentWireAnswer(profile, tip) {
       `**Equipment wire** — my scan + desk hub on Greenways.\n\n` +
       (scan ? `${scan}\n` : '') +
       spotlightLine +
-      `Scroll the scan rail for ETL counts and category lanes, then use the desk below for compare, payback, renovations, and the six-step upgrade plan. ` +
+      `Scroll the scan rail for efficiency catalogue counts and category lanes, then use the desk below for compare, payback, renovations, and the six-step upgrade plan. ` +
       `The counts refresh from our enriched marketplace export — same source as the wire page you can open on the right.\n\n` +
       trustNote +
       `_${tip}_`,
@@ -967,7 +967,7 @@ function buildRenovationAnswer(focus, schemes, profile, tip, guide = {}) {
         ? `**Hospitality note:** ${design.summary}\n\n`
         : focus === 'insulation'
           ? `I usually start with fabric and insulation before oversized HVAC or heavy cookline capex — a lower baseload makes every equipment upgrade pay back faster.\n\n`
-          : `Combine **building improvements** with **ETL equipment** swaps — grants may stack across both.\n\n`) +
+          : `Combine **building improvements** with **Energy Efficient Alternatives** swaps — grants may stack across both.\n\n`) +
       `The renovation guides on the right cover retrofit pathways, payback examples, and ${isRestaurant ? 'kitchen design' : 'building'} savings. ` +
       `When you want payback modelling, **Vincent** can help; for scheme eligibility, **Andrieus** has the catalogue.\n\n_${tip}_`,
     suggestions: relatedSchemes.map(toSuggestion),
@@ -987,9 +987,9 @@ async function buildRetrofitBenefitsAnswer(profile, tip, guide = {}) {
 
   return {
     answer:
-      `**Building retrofit benefits** — ETL-verified measures plus fabric upgrades move you toward **sustainability targets** with measurable energy and carbon savings.\n\n` +
+      `**Building retrofit benefits** — energy-efficient measures plus fabric upgrades move you toward **sustainability targets** with measurable energy and carbon savings.\n\n` +
       `${benefits.summary || ''}\n\n` +
-      `The **Retrofit ROI guide** compares five proven ETL retrofit lanes — from economisers and burner controls to refrigeration doors and LED — with typical payback ranges. ` +
+      `The **Retrofit ROI guide** compares five proven energy-efficient retrofit lanes — from economisers and burner controls to refrigeration doors and LED — with typical payback ranges. ` +
       `Illustrative savings depend on site hours, tariffs, and baseline use — confirm on the linked pages.\n\n` +
       `Pair quick-win retrofits (LED, fridge doors) with fabric work from the **Sustainable renovations** hub before large capex.\n\n_${tip}_`,
     suggestions: [],
@@ -999,7 +999,7 @@ async function buildRetrofitBenefitsAnswer(profile, tip, guide = {}) {
         {
           moduleId: 'retrofit-roi-guide',
           title: 'Retrofit ROI guide',
-          usageHint: 'Five ETL measures — payback and savings table',
+          usageHint: 'Five energy-efficient measures — payback and savings table',
           openSize: 'near-full'
         },
         {
@@ -1034,7 +1034,7 @@ async function buildRestaurantDesignAnswer(profile, tip, guide = {}) {
       `${design.summary || ''}\n\n` +
       (zones.length ? `**Layout principles:** ${zones.join(' ')}` : '') +
       (zones.length ? '\n\n' : '') +
-      `Use the design guide on the right for zone layout and ventilation cards, then open **equipment deep dive** or **savings projection** for ETL alternatives and payback.\n\n_${tip}_`,
+      `Use the design guide on the right for zone layout and ventilation cards, then open **equipment deep dive** or **savings projection** for Energy Efficient Alternatives and payback.\n\n_${tip}_`,
     suggestions: [],
     blocks: [
       ...(statItems.length ? [{ type: 'stat', items: statItems }] : []),
@@ -1096,7 +1096,7 @@ async function buildRenovationPlanAnswer(tip, guide = {}) {
   const steps = briefing.workflowSteps || [
     'Baseline use',
     'Pick category',
-    'Compare ETL alternatives',
+    'Compare Energy Efficient Alternatives',
     'Model payback',
     'Confirm grants and finance',
     'Plan install'
@@ -1105,7 +1105,7 @@ async function buildRenovationPlanAnswer(tip, guide = {}) {
     answer:
       `**Renovation project planning** — phased upgrades for premises + equipment:\n\n` +
       `${steps.map((s, i) => `${i + 1}. **${s}**`).join('\n')}\n\n` +
-      `Use the guides on the right — **sustainable renovations** for building targets, **retrofit ROI** for ETL payback lanes, and **renovation plans** for phased templates.\n\n_${tip}_`,
+      `Use the guides on the right — **sustainable renovations** for building targets, **retrofit ROI** for efficiency payback lanes, and **renovation plans** for phased templates.\n\n_${tip}_`,
     suggestions: [],
     blocks: [
       equipmentModuleBlock([
@@ -1124,7 +1124,7 @@ async function buildRenovationPlanAnswer(tip, guide = {}) {
         {
           moduleId: 'retrofit-roi-guide',
           title: 'Retrofit ROI guide',
-          usageHint: 'ETL measure payback table',
+          usageHint: 'Energy Efficient Alternatives measure payback table',
           openSize: 'near-full'
         }
       ]),
@@ -1181,8 +1181,8 @@ async function buildReferralWelcomeAnswer(question, profile, tip) {
   const productSamples = await pickEquipmentSamples(searchQ, profile, 4);
   const fromDeals = handoff.fromSlug === 'deals-agent';
   const angle = fromDeals
-    ? 'ETL equipment picks that fit offers and tariff timing'
-    : 'ETL-verified equipment depth on your product lane';
+    ? 'Energy Efficient Alternatives picks that fit offers and tariff timing'
+    : 'Energy Efficient Alternatives depth on your product lane';
 
   const blocks = [
     equipmentModuleBlock([
@@ -1212,7 +1212,7 @@ async function buildReferralWelcomeAnswer(question, profile, tip) {
       `Ask about lifecycle cost, grants stacking, or open the deep dive for side-by-side comparison.\n\n_${tip}_`,
     blocks,
     suggestions: [
-      toSuggestion('Explain ETL verification for these picks'),
+      toSuggestion('Explain efficiency verification for these picks'),
       toSuggestion('What grants stack on this kitchen equipment?'),
       toSuggestion('Show savings projection for an upgrade')
     ],

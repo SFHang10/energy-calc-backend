@@ -342,7 +342,7 @@ async function buildSustainabilityMapExplainedAnswer(question, profile, tip, int
   return {
     answer:
       `The **sustainability map** is Greenways’ interactive atlas of **companies and organisations worldwide** making a measurable impact on energy, water, and the circular economy — **${caseStudies.length} case studies** with savings stats and **${directory.length} directory leaders** (networks, banks, NGOs, and innovators).\n\n` +
-      `It helps you **learn before you invest**: see how others achieve results through **products, equipment, and processes**, and use those stories as inspiration for your own site. If an example is not in your region, treat it as a **playbook** — the same technique often works with local suppliers, ETL products, or grants.\n\n` +
+      `It helps you **learn before you invest**: see how others achieve results through **products, equipment, and processes**, and use those stories as inspiration for your own site. If an example is not in your region, treat it as a **playbook** — the same technique often works with local suppliers, Energy Efficient Alternatives, or grants.\n\n` +
       `For **${regionLabel}** and **${sectorLabel}**, I've picked headline examples above and **map panels on the right** that open **zoomed on each organisation**. When you're ready for the full atlas, use **Open on map** below.\n\n` +
       `${mapFollowUpQuestion(profile)}\n\n_${tip}_`,
     suggestions: [],

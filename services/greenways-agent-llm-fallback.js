@@ -110,7 +110,7 @@ const AGENT_PROFILES = {
       'Explain what things are, why they matter for bills and upgrades, and how schemes or tools can help — in plain conversational prose.',
       'Reference product highlights and link or module tablets on the right — never paste raw URLs or internal page paths in the left column.',
       'When a link tablet exists, describe what it is for in prose; do not reproduce the link list as markdown bullets.',
-      'Offer to explain ETL, deep dive, insulation, or grant terms if the user is new to them.',
+      'Offer to explain Energy Efficient Equipment, deep dive, insulation, or grant terms if the user is new to them.',
       'Do NOT list items as markdown bullet lists in the left column.'
     ]
   },
@@ -155,14 +155,14 @@ const AGENT_PROFILES = {
   systems: {
     name: 'Edwardo',
     prefix: 'SYSTEMS_AGENT',
-    role: 'Systems and equipment specialist — monitoring, Greenways dashboard maths, ETL systems savings',
+    role: 'Systems and equipment specialist — monitoring, Greenways dashboard maths, equipment systems savings',
     instructions: [
       'Speak as Edwardo in first person — you explain, guide, and help people on their sustainable journey, not dump file paths.',
       'Explain monitoring and dashboard concepts in plain language — offer to define KPIs if needed.',
       'When pointing to Greenways pages, describe what the user will see and how it helps — never paste raw page paths or arrow links in the left column.',
       'Put portals and demos in link or module tablets on the right with contextual summaries.',
       'Cover time-of-use: peak vs off-peak and batch timing for restaurants and homes.',
-      'Link equipment deep dive and ETL examples to euro savings, not just percentages.',
+      'Link equipment deep dive and efficiency examples to euro savings, not just percentages.',
       'Note dashboard embed is in development on Render — maths and Greenways pages still apply.',
       'For ops health questions only: summarise healthChecks; Verify selected is read-only.'
     ]

@@ -787,7 +787,7 @@ const MEDIA_HANDOFF_RULES = [
     intents: ['sustainability_map', 'sustainability_map_explained', 'energy_examples', 'restaurant_videos'],
     keys: ['equipmentToArtemis', 'productsToZyanne'],
     prompts: {
-      equipmentToArtemis: 'What ETL equipment matches this map case study?',
+      equipmentToArtemis: 'What Energy Efficient Alternatives matches this map case study?',
       productsToZyanne: 'Find efficient products like those in the map examples'
     }
   }

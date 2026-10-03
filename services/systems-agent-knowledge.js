@@ -244,7 +244,7 @@ function buildPortalsAnswer(tip) {
   return {
     answer:
       `**Ops references** (full Systems skill — not run from consumer chat):\n\n` +
-      `- \`Skills/Systems MD.md\` — Wix MCP, ETL API, Render deploy\n` +
+      `- \`Skills/Systems MD.md\` — Wix MCP, Energy Efficient Alternatives API, Render deploy\n` +
       `- \`AGENTS.md\` — update the **Schemes** catalogue → run product grants enrichment\n` +
       `- Refresh the **deals feed** when weekly spotlights change\n` +
       `- Render: \`/health\` on energy-calc-backend.onrender.com\n\n_${tip}_`,

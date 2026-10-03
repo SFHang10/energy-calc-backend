@@ -458,9 +458,9 @@ async function buildOverviewAnswer(schemes, profile, tip) {
       `- **Green loans** — BMKB-Groen, warmtefonds-style bank products\n` +
       `- **Europe** — EU-wide programmes & cross-border lenders\n` +
       `- **Energy prices** — prices board + wholesale ticker + tariff tools\n` +
-      `- **Product Calculator** — Greenways compare tool (efficient products incl. ETL-listed); plus audit, projection, trajectory, cost guide\n` +
-      `- **ETL products** — verified European efficient-equipment benchmark (\`etl_*\` marketplace rows)\n` +
-      `- **Sustainability news** — shared catalogue with Cheryce; Vincent maps headlines to grants, loans, BNPL, and ETL finance paths\n\n` +
+      `- **Product Calculator** — Greenways compare tool (efficient products incl. energy-efficient); plus audit, projection, trajectory, cost guide\n` +
+      `- **Energy Efficient Alternatives** — verified European efficient-equipment benchmark (\`etl_*\` marketplace rows)\n` +
+      `- **Sustainability news** — shared catalogue with Cheryce; Vincent maps headlines to grants, loans, BNPL, and Energy Efficient Alternatives finance paths\n\n` +
       (workflow ? `**Typical workflow:**\n${workflow}\n\n` : '') +
       (market ? `**Market snapshot (wholesale guide):**\n${market}\n\n` : '') +
       (ctxPrompt ? `${ctxPrompt}\n\n` : '') +
@@ -571,7 +571,7 @@ async function buildCalculatorsAnswer(question, tip) {
   return {
     answer:
       `**Greenways calculators & finance tools** — Vincent's registry (canonical paths, not draft copies).\n\n` +
-      `**Product Calculator** is Greenways' compare tool — it models energy use for **efficient equipment** (including ETL-listed rows today; more product lanes over time). It is not an ETL-owned calculator.\n\n` +
+      `**Product Calculator** is Greenways' compare tool — it models energy use for **efficient equipment** (including energy-efficient rows today; more product lanes over time). It is not an Energy Efficient Alternatives-owned calculator.\n\n` +
       `${formatToolsBullets(picks.slice(0, 6))}\n\n` +
       `**Audit → business case flow:**\n` +
       `1. **Energy audit** (${PORTAL_LINKS.energyAudit}) — baseline appliances (members on Render)\n` +
@@ -617,8 +617,8 @@ async function buildEtlProductsAnswer(question, profile, tip) {
 
   return {
     answer:
-      `**ETL products — Europe's verified efficient-equipment path on Greenways**\n\n` +
-      `${etl.summary || 'ETL-listed products are independently verified for energy performance — the benchmark to use when building an upgrade finance case.'}\n\n` +
+      `**Energy Efficient Alternatives — Europe's verified efficient-equipment path on Greenways**\n\n` +
+      `${etl.summary || 'Energy Efficient Alternatives are independently verified for energy performance — the benchmark to use when building an upgrade finance case.'}\n\n` +
       `Vincent leads here because verified savings beat generic “eco” claims, grant overlays attach to each \`etl_*\` row, and you can stack BNPL, equipment finance, or green loans after payback math. Banner cards above show examples; open the modules for browse paths.\n\n_${tip}_`,
     blocks: [financeStackModules(profile)],
     suggestions: [],
@@ -644,7 +644,7 @@ function buildPortalsAnswer(tip) {
         { moduleId: 'equipment-deep-dive', openSize: 'near-full' },
         { moduleId: 'energy-audit', openSize: 'near-full' }
       ]),
-      financeAgentLinkBlock('Grants Agent (Andrieus)', PORTAL_LINKS.grantsAgent, 'Scheme detail on ETL product grants')
+      financeAgentLinkBlock('Grants Agent (Andrieus)', PORTAL_LINKS.grantsAgent, 'Scheme detail on Energy Efficient Alternatives product grants')
     ]
   };
 }
@@ -740,7 +740,7 @@ async function buildEnergyPricesAnswer(profile, tip) {
       `${headline}\n\n` +
       (modelling ? `${modelling}\n\n` : '') +
       (sensitivity ? `${sensitivity}\n\n` : '') +
-      `When unit costs rise, **ETL-listed equipment** lowers the kWh you still buy — open **Prices board** first, then tariff compare and Product Calculator.\n\n` +
+      `When unit costs rise, **Energy Efficient Alternatives** lowers the kWh you still buy — open **Prices board** first, then tariff compare and Product Calculator.\n\n` +
       (ctxPrompt ? `${ctxPrompt}\n\n` : '') +
       `_${tip}_`,
     blocks: [
@@ -770,7 +770,7 @@ async function buildPriceUpgradeCaseAnswer(schemes, profile, tip) {
     answer:
       `${ctx}\n\n` +
       `**Why finance efficient equipment when energy prices move**\n\n` +
-      `Unit cost × usage drives your bill — when €/kWh or gas rates rise, every inefficient hour on ovens, refrigeration, or HVAC costs more. **ETL-listed products** cut verified demand; grants and green loans can reduce upfront capex.\n\n` +
+      `Unit cost × usage drives your bill — when €/kWh or gas rates rise, every inefficient hour on ovens, refrigeration, or HVAC costs more. **Energy Efficient Alternatives** cut verified demand; grants and green loans can reduce upfront capex.\n\n` +
       `${grounded}\n\n` +
       `${hint}\n\n` +
       `${stack}\n\n` +
@@ -832,7 +832,7 @@ function buildBnplAnswer(schemes, profile, tip) {
   return {
     answer:
       `**BNPL for restaurant equipment** — pay-later or split-payment paths can spread capex when a verified upgrade makes sense. Confirm merchant fees, credit checks, and who holds title before you sign.\n\n` +
-      `Pair BNPL with **ETL-listed products** so verified savings and grant overlays support the business case. I opened **Finance Finder → BNPL** on the right with a starter search — run it or change the topic.\n\n_${tip}_`,
+      `Pair BNPL with **Energy Efficient Alternatives** so verified savings and grant overlays support the business case. I opened **Finance Finder → BNPL** on the right with a starter search — run it or change the topic.\n\n_${tip}_`,
     blocks: [
       financeModuleBlock([
         financeFinderDemo({
@@ -943,7 +943,7 @@ async function buildReferralWelcomeAnswer(question, profile, tip) {
   const angle = fromDeals
     ? 'BNPL, equipment finance, and payback after deal selection'
     : fromEquipment
-      ? 'lifecycle payback and finance stacks for ETL equipment'
+      ? 'lifecycle payback and finance stacks for Energy Efficient Alternatives'
       : 'finance paths for your upgrade';
 
   const moduleRows = fromDeals
@@ -1036,7 +1036,7 @@ async function answerFromKnowledge(question, profile = {}) {
     case 'equipment_finance':
       result = buildTabAnswer(
         'equipment finance lease kitchen etl',
-        '**Equipment finance tab** — commercial leases and hire purchase for ovens, refrigeration, and HVAC. **Lead toward ETL-listed products** (`etl_*` IDs) so verified savings and grant overlays support the business case before you sign.',
+        '**Equipment finance tab** — commercial leases and hire purchase for ovens, refrigeration, and HVAC. **Lead toward Energy Efficient Alternatives** (`etl_*` IDs) so verified savings and grant overlays support the business case before you sign.',
         schemes,
         tip,
         profile

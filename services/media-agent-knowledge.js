@@ -264,7 +264,7 @@ const VIDEO_CATEGORIES = {
   hvac: 'Heating, cooling & HVAC',
   lighting: 'LED & lighting',
   monitoring: 'Energy monitoring',
-  etl: 'ETL & efficient products',
+  etl: 'Energy Efficient Alternatives & efficient products',
   news: 'News & reviews',
   refurbishment: 'Refurbishment ideas',
   building: 'Green building',
@@ -521,7 +521,7 @@ function buildHandoffs(briefing, question, intentId = '') {
     push('dealsToZara', 'What energy or sustainability deals are live this week?');
   }
   if (['sustainability_map', 'sustainability_map_explained', 'energy_examples', 'restaurant_videos'].includes(intentId)) {
-    push('equipmentToArtemis', 'What ETL equipment matches this map case study?');
+    push('equipmentToArtemis', 'What Energy Efficient Alternatives matches this map case study?');
     push('productsToZyanne', 'Find efficient products like those in the map examples');
   }
   if (['csr_overview'].includes(intentId)) {

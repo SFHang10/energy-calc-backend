@@ -35,8 +35,8 @@ const INSTRUMENT_HINTS = [
   },
   {
     keys: ['cbam', 'carbon border', 'csrd', 'reporting', 'omnibus', 'efficiency'],
-    label: 'Compliance → verified ETL upgrades',
-    action: `ETL product finder + savings projection — finance stack after payback`
+    label: 'Compliance → verified Energy Efficient Alternatives upgrades',
+    action: `Energy Efficient Alternatives finder + savings projection — finance stack after payback`
   }
 ];
 
@@ -188,7 +188,7 @@ async function buildFinanceNewsAnswer(question, profile, tip, options = {}) {
         : '_No fresh RSS headlines in the rolling buffer — run `npm run build:finance-external-news`._\n\n') +
       `**Monthly edition & knowledge base**\n` +
       `${catalogueBullets || '_No tight match — try “Horizon Europe funding” or “EIB climate finance”._'}\n\n` +
-      `**How Vincent uses this:** each headline links to **financial instruments on Greenways** — grants (Andrieus), green loans, BNPL, equipment finance, and ETL upgrades — not just the headline.\n\n` +
+      `**How Vincent uses this:** each headline links to **financial instruments on Greenways** — grants (Andrieus), green loans, BNPL, equipment finance, and Energy Efficient Alternatives upgrades — not just the headline.\n\n` +
       `**Editions & pages:**\n${editionLinksBlock(catalog)}\n\n` +
       `_Daily: EU Commission + EIB RSS. Monthly: sustainability newsletter (Cheryce pipeline)._\n\n_${tip}_`,
     suggestions: [],
