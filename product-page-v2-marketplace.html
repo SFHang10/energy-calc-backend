@@ -353,10 +353,16 @@
         }
 
         .product-price {
-            font-size: 32px;
-            font-weight: 700;
-            color: #28a745;
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a3a5c;
             margin-bottom: 20px;
+        }
+
+        .product-price.contact-for-price {
+            font-size: 18px;
+            font-weight: 600;
+            color: #495057;
         }
 
         .product-description {
@@ -940,7 +946,7 @@
             <div class="product-details">
                 <h1 id="product-title" class="product-title">Loading product...</h1>
                 <div id="product-sku" class="product-sku">SKU: Loading...</div>
-                <div id="product-price" class="product-price">€0.00</div>
+                <div id="product-price" class="product-price contact-for-price">Contact for price</div>
                 
                 <div class="product-description">
                     <div id="description-short" class="description-text description-short">
@@ -1011,7 +1017,7 @@
 
                 <!-- Main Marketplace Buy Button -->
                 <button class="marketplace-buy-btn" onclick="handleMainProductBuy()" style="margin-top: 20px;">
-                    🛒 Buy This Product - €1,299
+                    🛒 Buy This Product
                 </button>
             </div>
         </div>
@@ -1531,7 +1537,7 @@
                 id: 'sample_bosch_dishwasher',
                 name: 'Bosch Professional Dishwasher SMI88TS06E',
                 sku: 'ETL-SAMPLE-001',
-                price: 1299,
+                price: null, // List prices not published — manufacturers quote on request
                 category: 'Commercial Dishwashers',
                 brand: 'Bosch',
                 power: '2.1kW',
@@ -1587,7 +1593,7 @@
                     'ROI Information': 'Payback period typically 2-3 years',
                     'Support': 'Comprehensive technical support available',
                     'Delivery': 'Fast delivery and professional installation',
-                    'Financing': 'Flexible payment options available'
+                    'Financing': 'Contact us for pricing and payment options'
                 }
             };
             
@@ -1697,6 +1703,10 @@
             return `${baseUrl}/${encodedPath}`;
         }
 
+        function formatContactForPrice() {
+            return 'Contact for price';
+        }
+
         function transformETLProduct(product) {
             // Check if product is gas-powered
             const isGas = product.isGas || false;
@@ -1712,7 +1722,7 @@
                 id: product.id,
                 name: product.name,
                 sku: `ETL-${product.id.toUpperCase()}`,
-                price: 1500, // Fixed price for display
+                price: null, // No published list price — contact for quote
                 category: product.category || 'Energy Products',
                 brand: product.brand || 'Unknown',
                 power: powerDisplay, // Display version (string)
@@ -1767,7 +1777,7 @@
                     'ROI Information': 'Payback period typically 2-3 years',
                     'Support': 'Comprehensive technical support available',
                     'Delivery': 'Fast delivery and professional installation',
-                    'Financing': 'Flexible payment options available'
+                    'Financing': 'Contact us for pricing and payment options'
                 }
             };
         }
@@ -1823,8 +1833,13 @@
             // Basic info
             document.getElementById('product-title').textContent = currentProduct.name;
             document.getElementById('product-sku').textContent = `SKU: ${currentProduct.sku}`;
-            document.getElementById('product-price').textContent = `€${currentProduct.price.toLocaleString()}`;
+            document.getElementById('product-price').textContent = formatContactForPrice();
+            document.getElementById('product-price').classList.add('contact-for-price');
             
+            const mainBuyBtn = document.querySelector('.marketplace-buy-btn');
+            if (mainBuyBtn) {
+                mainBuyBtn.innerHTML = '🛒 Buy This Product';
+            }
             // Breadcrumb - make category clickable
             const categoryLink = document.getElementById('breadcrumb-category-link');
             if (categoryLink && currentProduct.category) {
@@ -2434,7 +2449,7 @@
         function showCartModal() {
             const product = currentProduct || {
                 name: 'Bosch Professional Dishwasher SMI88TS06E',
-                price: 1299,
+                price: null,
                 imageUrl: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f2f2c0?w=600&h=400&fit=crop'
             };
 
@@ -2494,8 +2509,8 @@
                             ">
                             <div>
                                 <h4 style="margin: 0 0 10px 0; color: #212529;">${product.name}</h4>
-                                <p style="margin: 0; font-size: 24px; font-weight: bold; color: #28a745;">€${product.price.toLocaleString()}</p>
-                                <p style="margin: 5px 0 0 0; color: #6c757d; font-size: 14px;">ETL Certified • Professional Grade</p>
+                                <p style="margin: 0; font-size: 18px; font-weight: 600; color: #495057;">${formatContactForPrice()}</p>
+                                <p style="margin: 5px 0 0 0; color: #6c757d; font-size: 14px;">Professional grade • Quote on request</p>
                             </div>
                         </div>
                         
@@ -2901,7 +2916,7 @@
                 // Render the products
                 container.innerHTML = products.map(product => {
                     const imageUrl = getRelatedProductImage(product);
-                    const displayPrice = product.price ? `€${product.price.toLocaleString()}` : '';
+                    const displayPrice = formatContactForPrice();
                     
                     return `
                         <div class="related-product" style="
@@ -2938,7 +2953,7 @@
                                  title="${product.name}">
                                 ${truncateName(product.name, 15)}
                             </div>
-                            ${displayPrice ? `<div style="font-size: 11px; color: #28a745; margin-top: 2px;">${displayPrice}</div>` : ''}
+                            <div style="font-size: 10px; color: #6c757d; margin-top: 2px;">${displayPrice}</div>
                         </div>
                     `;
                 }).join('');
@@ -3276,7 +3291,7 @@
             const responses = {
                 'installation': 'Professional installation is recommended for this ETL-certified dishwasher. Our certified technicians will ensure proper electrical and plumbing connections, maximizing energy efficiency.',
                 'energy': 'This Bosch dishwasher will save approximately €245/year compared to standard models. The ETL certification ensures maximum energy efficiency and water conservation.',
-                'financing': 'We offer flexible financing options: 24 months (€55/month), 36 months (€37/month), or 48 months (€28/month). 0% APR available for qualified buyers.',
+                'financing': 'List prices are not published for most equipment — contact Greenways Market or the manufacturer for a quote. Financing options can be discussed once pricing is confirmed.',
                 'warranty': 'This product comes with a 2-year comprehensive warranty. Extended warranty options are available for additional coverage up to 5 years.'
             };
             
