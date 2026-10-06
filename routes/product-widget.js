@@ -974,22 +974,7 @@ router.get('/products/all', (req, res) => {
       
       // Transform the data for the widget
       const products = rows.map(row => {
-        // Calculate estimated price based on power and category
-        let estimatedPrice = 1000; // Base price
-        const power = parseFloat(row.power) || 0;
-        
-        // Adjust price based on power and category
-        if (power > 0) {
-          estimatedPrice = Math.max(500, power * 50); // €50 per kW minimum €500
-        }
-        
-        // Category-based price adjustments
-        if (row.category && row.category.toLowerCase().includes('heat pump')) {
-          estimatedPrice *= 1.5; // Heat pumps are more expensive
-        } else if (row.category && row.category.toLowerCase().includes('motor')) {
-          estimatedPrice *= 0.8; // Motors are typically less expensive
-        }
-        
+      // List prices are not published yet — do not invent estimates for marketplace display
         return {
           id: row.id,
           name: row.name,
@@ -1001,7 +986,7 @@ router.get('/products/all', (req, res) => {
           efficiency: row.efficiency || 'Standard',
           modelNumber: row.model_number,
           image_url: row.image_url,  // Column is image_url (snake_case) in database
-          price: Math.round(estimatedPrice)
+          price: null
         };
       });
       
@@ -1080,7 +1065,7 @@ router.get('/products/search', (req, res) => {
       modelNumber: p.modelNumber,
       imageUrl: p.imageUrl || null,
       images: p.images || [],
-      price: p.price || null
+      price: null // Official list prices not published yet — UI shows Contact for price
     }));
     
     return res.json({

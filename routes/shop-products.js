@@ -74,6 +74,7 @@ async function loadProductsFromDatabase() {
                     );
                     return {
                         ...product,
+                        price: null, // Official list prices not published yet
                         displayCategory: categorization.displayCategory,
                         displaySubcategory: categorization.displaySubcategory,
                         shopCategory: categorization.shopCategory,

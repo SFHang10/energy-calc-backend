@@ -260,10 +260,16 @@
         }
 
         .product-price {
-            font-size: 32px;
-            font-weight: 700;
-            color: #28a745;
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a3a5c;
             margin-bottom: 20px;
+        }
+
+        .product-price.contact-for-price {
+            font-size: 18px;
+            font-weight: 600;
+            color: #495057;
         }
 
         .product-description {
@@ -793,7 +799,7 @@
             <div class="product-details">
                 <h1 id="product-title" class="product-title">Loading product...</h1>
                 <div id="product-sku" class="product-sku">SKU: Loading...</div>
-                <div id="product-price" class="product-price">€0.00</div>
+                <div id="product-price" class="product-price contact-for-price">Contact for price</div>
                 
                 <div class="product-description">
                     <div id="description-short" class="description-text description-short">
@@ -832,7 +838,7 @@
 
                 <!-- Main Marketplace Buy Button -->
                 <button class="marketplace-buy-btn" onclick="handleMainProductBuy()" style="margin-top: 20px;">
-                    🛒 Buy This Product - €1,299
+                    🛒 Buy This Product
                 </button>
             </div>
         </div>
@@ -1242,7 +1248,7 @@
                 id: 'sample_bosch_dishwasher',
                 name: 'Bosch Professional Dishwasher SMI88TS06E',
                 sku: 'ETL-SAMPLE-001',
-                price: 1299,
+                price: null,
                 category: 'Commercial Dishwashers',
                 brand: 'Bosch',
                 power: '2.1kW',
@@ -1356,12 +1362,16 @@
         }
 
         // Transform ETL product data to our format (working version)
+        function formatContactForPrice() {
+            return 'Contact for price';
+        }
+
         function transformETLProduct(product) {
             return {
                 id: product.id,
                 name: product.name,
                 sku: `ETL-${product.id.toUpperCase()}`,
-                price: 1500, // Fixed price for display
+                price: null, // No published list price — contact for quote
                 category: product.category || 'Energy Products',
                 brand: product.brand || 'Unknown',
                 power: `${product.power}kW`,
@@ -1467,7 +1477,9 @@
             // Basic info
             document.getElementById('product-title').textContent = currentProduct.name;
             document.getElementById('product-sku').textContent = `SKU: ${currentProduct.sku}`;
-            document.getElementById('product-price').textContent = `€${currentProduct.price.toLocaleString()}`;
+            document.getElementById('product-price').textContent = formatContactForPrice();
+            const _priceEl = document.getElementById('product-price');
+            if (_priceEl) _priceEl.classList.add('contact-for-price');
             
             // Breadcrumb
             document.getElementById('breadcrumb-category').textContent = currentProduct.category;
@@ -1947,7 +1959,7 @@
         function showCartModal() {
             const product = currentProduct || {
                 name: 'Bosch Professional Dishwasher SMI88TS06E',
-                price: 1299,
+                price: null,
                 imageUrl: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f2f2c0?w=600&h=400&fit=crop'
             };
 
@@ -2005,8 +2017,8 @@
                             ">
                             <div>
                                 <h4 style="margin: 0 0 10px 0; color: #212529;">${product.name}</h4>
-                                <p style="margin: 0; font-size: 24px; font-weight: bold; color: #28a745;">€${product.price.toLocaleString()}</p>
-                                <p style="margin: 5px 0 0 0; color: #6c757d; font-size: 14px;">ETL Certified • Professional Grade</p>
+                                <p style="margin: 0; font-size: 18px; font-weight: 600; color: #495057;">${formatContactForPrice()}</p>
+                                <p style="margin: 5px 0 0 0; color: #6c757d; font-size: 14px;">Professional grade • Quote on request</p>
                             </div>
                         </div>
                         

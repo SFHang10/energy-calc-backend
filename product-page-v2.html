@@ -296,10 +296,16 @@
         }
 
         .product-price {
-            font-size: 32px;
-            font-weight: 700;
-            color: #28a745;
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a3a5c;
             margin-bottom: 20px;
+        }
+
+        .product-price.contact-for-price {
+            font-size: 18px;
+            font-weight: 600;
+            color: #495057;
         }
 
         .product-description {
@@ -774,7 +780,7 @@
             <div class="product-details">
                 <h1 id="product-title" class="product-title">Loading product...</h1>
                 <div id="product-sku" class="product-sku">SKU: Loading...</div>
-                <div id="product-price" class="product-price">€0.00</div>
+                <div id="product-price" class="product-price contact-for-price">Contact for price</div>
                 
                 <div class="product-description">
                     <div id="description-short" class="description-text description-short">
@@ -979,6 +985,10 @@
         }
 
         // Transform ETL product data to our format (working version)
+        function formatContactForPrice() {
+            return 'Contact for price';
+        }
+
         function transformETLProduct(product) {
             // Check if product is gas-powered
             const isGas = product.isGas || false;
@@ -994,7 +1004,7 @@
                 id: product.id,
                 name: product.name,
                 sku: `ETL-${product.id.toUpperCase()}`,
-                price: 1500, // Fixed price for display
+                price: null, // No published list price — contact for quote
                 category: product.category || 'Energy Products',
                 brand: product.brand || 'Unknown',
                 power: powerDisplay, // Display version (string)
@@ -1156,7 +1166,9 @@
             // Basic info
             document.getElementById('product-title').textContent = currentProduct.name;
             document.getElementById('product-sku').textContent = `SKU: ${currentProduct.sku}`;
-            document.getElementById('product-price').textContent = `€${currentProduct.price.toLocaleString()}`;
+            document.getElementById('product-price').textContent = formatContactForPrice();
+            const _priceEl = document.getElementById('product-price');
+            if (_priceEl) _priceEl.classList.add('contact-for-price');
             
             // Breadcrumb - make category clickable
             const categoryLink = document.getElementById('breadcrumb-category-link');
