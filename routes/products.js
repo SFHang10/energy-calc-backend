@@ -348,10 +348,16 @@ async function getProducts(forceETL = false) {
 function filterMarketplaceProducts(products) {
     // Only include products with IDs starting with 'etl_' (ETL products)
     // Exclude comparative products like 'oven_1', 'sample_*', etc.
-    return products.filter(product => {
-        const productId = product.id || '';
-        return productId.startsWith('etl_');
-    });
+    // Official list prices are not published yet — strip placeholders until supplier quotes exist.
+    return products
+        .filter(product => {
+            const productId = product.id || '';
+            return productId.startsWith('etl_');
+        })
+        .map(product => ({
+            ...product,
+            price: null
+        }));
 }
 
 // Load ETL products on startup (background update)
