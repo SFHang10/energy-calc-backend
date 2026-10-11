@@ -2418,34 +2418,43 @@
     function defaultImageForWok(item) {
       const n = String(item.name || '').toLowerCase();
       const slug = String(item.slug || '').toLowerCase();
+      // Keep wok burner site photos only; other demo assets use generic Product Comparison / ETL imagery (not client site kit).
+      const wokBurner = '../product-placement/Wok%20to%20Walk/Wok%20Burner1.jpg';
+      const fridgeImg = './Product%20Comparison/hotpoint-undercounter-fridge-or-silver-or-rla36g1__79125%20(1).jpg';
+      const freezerImg = './Product%20Comparison/Restuarants/Oven/Refrigerator/ETL.jpeg';
+      const dishwasherImg = './Product%20Comparison/Restuarants/Oven/Hood%20Type%20Dishwasher/ETL%20Image_Product_Winterhalter_PT-L_1200x1200_JPG_01.jpg';
+      const hvacImg = './Product%20Comparison/HVAC/performance-heat-recovery-ventilator-HRVCRLHB.png';
+      const cookingImg = 'https://img.etl.energysecurity.gov.uk/200x/e3CKuL_tdueMJZdv';
+      const fryerImg = cookingImg;
       const wokImg = {
-        'wok-stove-burner': '../product-placement/Wok%20to%20Walk/Wok%20Burner1.jpg',
-        'wok-burner-1': '../product-placement/Wok%20to%20Walk/Wok%20Burner1.jpg',
-        'wok-burner-2': '../product-placement/Wok%20to%20Walk/Wok%20Burner1.jpg',
-        'wok-burner-3': '../product-placement/Wok%20to%20Walk/Wok%20Burner1.jpg',
-        'glass-fridge': '../product-placement/Wok%20to%20Walk/Friadge2.jpg',
-        'second-fridge': 'https://static.wixstatic.com/media/c123de_97ac0c85d8fb4d9ca463365f08b955a5~mv2.jpg',
-        'freezer-and-cooler': 'https://static.wixstatic.com/media/c123de_22a065dadd694c55aa25214b92ffc366~mv2.jpg',
-        'small-freezer': 'https://static.wixstatic.com/media/c123de_22a065dadd694c55aa25214b92ffc366~mv2.jpg',
-        'dishwasher': '../product-placement/Wok%20to%20Walk/Dishwasher.jpg',
-        'small-glass-dishwasher': 'https://static.wixstatic.com/media/c123de_c2902355c43d4e81b2c94f4f3cb64c72~mv2.jpg',
-        'rice-cooker': '../product-placement/Wok%20to%20Walk/Rice%20Cooker.jpg',
-        'induction-plate': '../product-placement/Wok%20to%20Walk/Induction%20Plate.jpg',
-        'induction-plates': '../product-placement/Wok%20to%20Walk/Induction%20Plate.jpg',
-        'small-oil-fryer': '../product-placement/Wok%20to%20Walk/Oil%20Fryer.jpg',
-        'fryer': 'https://static.wixstatic.com/media/c123de_e74ca7c83b974c71a31bf08840600965~mv2.jpg',
-        'ice-water-chiller': 'https://static.wixstatic.com/media/c123de_ff900011380243678cd06d6a380d383d~mv2.jpg',
-        'ac-unit': 'https://static.wixstatic.com/media/c123de_11eaa47f6d7f49a4b6d2ecd754d33ead~mv2.jpg',
-        'second-ac-unit': 'https://static.wixstatic.com/media/c123de_11eaa47f6d7f49a4b6d2ecd754d33ead~mv2.jpg'
+        'wok-stove-burner': wokBurner,
+        'wok-burner-1': wokBurner,
+        'wok-burner-2': wokBurner,
+        'wok-burner-3': wokBurner,
+        'glass-fridge': fridgeImg,
+        'second-fridge': fridgeImg,
+        'freezer-and-cooler': freezerImg,
+        'small-freezer': freezerImg,
+        'dishwasher': dishwasherImg,
+        'small-glass-dishwasher': dishwasherImg,
+        'rice-cooker': cookingImg,
+        'induction-plate': cookingImg,
+        'induction-plates': cookingImg,
+        'small-oil-fryer': fryerImg,
+        'fryer': fryerImg,
+        'ice-water-chiller': freezerImg,
+        'ac-unit': hvacImg,
+        'second-ac-unit': hvacImg
       };
       if (wokImg[slug]) return wokImg[slug];
-      if (/dishwasher/.test(n)) return '../product-placement/Wok%20to%20Walk/Dishwasher.jpg';
-      if (/freezer/.test(n) && !/dishwasher/.test(n)) return '../product-placement/Wok%20to%20Walk/Freezer%20Cooler.jpg';
-      if (/fridge|glass/.test(n)) return '../product-placement/Wok%20to%20Walk/Friadge2.jpg';
-      if (/cooler|chiller|dispenser/.test(n)) return '../product-placement/Wok%20to%20Walk/Ice%20Water%20Chiller.jpg';
-      if (/\bwok\b|wok\s*burner|burner.*wok/.test(n)) return '../product-placement/Wok%20to%20Walk/Wok%20Burner1.jpg';
-      if (/induction/.test(n)) return '../product-placement/Wok%20to%20Walk/Induction%20Plate.jpg';
-      if (/fryer|wok|burner|rice|induction|oil|cooker|plate/.test(n)) return '../product-placement/Wok%20to%20Walk/Fryer.jpg';
+      if (/\bwok\b|wok\s*burner|burner.*wok/.test(n)) return wokBurner;
+      if (/dishwasher/.test(n)) return dishwasherImg;
+      if (/freezer/.test(n)) return freezerImg;
+      if (/fridge|glass/.test(n)) return fridgeImg;
+      if (/cooler|chiller|dispenser/.test(n)) return freezerImg;
+      if (/induction|rice|cooker|combi|oven|plate/.test(n)) return cookingImg;
+      if (/fryer|oil/.test(n)) return fryerImg;
+      if (/hvac|ac\b|air.?con|extract|fan/.test(n)) return hvacImg;
       return './Product%20Comparison/Restuarants/Oven/Refrigerator/Stanadard.webp';
     }
 
