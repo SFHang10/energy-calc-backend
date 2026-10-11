@@ -123,6 +123,20 @@ function toSuggestion(scheme) {
   };
 }
 
+/** Catch-alls that must not beat domain tokens (e.g. "what is" stealing BNPL). */
+const GENERIC_INTENT_PATTERNS = new Set([
+  'what is',
+  'what does',
+  'define',
+  'explain',
+  'meaning of',
+  'glossary',
+  'sustainability term',
+  'options',
+  'latest',
+  'overview'
+]);
+
 function matchIntent(question, intents) {
   const q = question.toLowerCase();
   let best = null;
@@ -136,9 +150,15 @@ function matchIntent(question, intents) {
       if (!p) continue;
       if (q.includes(p)) {
         // Prefer longer phrases so "deep dive" beats short/generic tokens on ties.
-        const weight = p.length >= 8 ? 3 : 2;
+        // Keep glossary stems weak so "What is BNPL…" still hits bnpl, not glossary.
+        let weight = 2;
+        if (GENERIC_INTENT_PATTERNS.has(p)) weight = 1;
+        else if (p.length >= 8) weight = 3;
         score += weight + Math.min(2, Math.floor(p.length / 10));
-        spec = Math.max(spec, p.length);
+        // Generic stems do not count toward specificity tie-breaks.
+        if (!GENERIC_INTENT_PATTERNS.has(p)) {
+          spec = Math.max(spec, p.length);
+        }
       }
     }
     if (score > bestScore || (score === bestScore && spec > bestSpec)) {

@@ -7,7 +7,7 @@ const {
   agentIntroParagraph,
   spokenSummary
 } = require('./greenways-agent-persona');
-const { toModuleItem } = require('./greenways-agent-shared');
+const { toModuleItem, matchIntent } = require('./greenways-agent-shared');
 const { mergeModuleRow, enrichKnowledgeAnswer } = require('./greenways-content-modules');
 const { resolveGlossaryFromIntent, tryBuildGlossaryAnswer } = require('./greenways-sustainability-glossary');
 const { schemeFitDemo } = require('./greenways-module-demo');
@@ -281,25 +281,6 @@ async function compareSchemesByIds(idA, idB, profile = {}) {
     regionLabels: REGION_LABELS
   });
   return result;
-}
-
-function matchIntent(question, intents) {
-  const q = question.toLowerCase();
-  let best = null;
-  let bestScore = 0;
-  for (const intent of intents.intents || []) {
-    let score = 0;
-    for (const pattern of intent.patterns || []) {
-      const p = pattern.toLowerCase().trim();
-      if (!p) continue;
-      if (q.includes(p)) score += p.length >= 8 ? 3 : 2;
-    }
-    if (score > bestScore) {
-      bestScore = score;
-      best = intent;
-    }
-  }
-  return bestScore > 0 ? best : null;
 }
 
 function profileRegion(profile) {
@@ -905,7 +886,11 @@ async function pickProductSamples(question, profile = {}, limit = 3) {
   const curated = [];
   for (const row of showcase.products || []) {
     const product = byId.get(String(row.id));
-    if (product) curated.push(toProductSample(product, row.label));
+    if (product) {
+      const sample = toProductSample(product, row.label);
+      if (row.imageUrl) sample.imageUrl = normalizeImageUrl(row.imageUrl);
+      curated.push(sample);
+    }
     if (curated.length >= limit) break;
   }
 
