@@ -498,9 +498,9 @@ async function buildWhyEquipmentAnswer(profile, tip) {
       (whyLead ? `${whyLead} ` : '') +
       `That is why I steer you through Energy Efficient Alternatives and Greenways compare tools rather than marketing claims alone.\n\n` +
       (categoryNames.length
-        ? `The lanes I see move the needle first are **${categoryNames.slice(0, 3).join('**, **')}**` +
+        ? `I usually start with **${categoryNames.slice(0, 3).join('**, **')}**` +
           (categoryNames.length > 3 ? `, and **${categoryNames[3]}**` : '') +
-          `. Open the modules on the right when you want illustrated examples and payback stories.\n\n`
+          ` — those tend to move bills and comfort first. Open the modules on the right when you want illustrated examples and payback stories.\n\n`
         : '') +
       (demos.length
         ? `When you are ready to explore, the demonstration tools on the right walk through deep dive, comparison, and projection paths step by step.\n\n`
@@ -591,10 +591,15 @@ async function buildEtlVerificationAnswer(profile, tip) {
       `We highlight verified high-performing equipment; products on that verified list are ${quartilePhrase}, so you buy against tested performance rather than a brochure claim alone.${europeReachSentence}${dutchAltSentence}${profileSentence}${grantsSentence}\n\n` +
       `On Greenways, **etl_*** catalogue rows connect that verification to action: specs, grant chips, equipment deep dive comparisons, and savings projection so you can see payback before capex.\n\n` +
       (scan ? `${scan}\n` : '') +
-      `Find out more on Energy Efficient Equipment: /greenways/etl. The tablets on the right open the **Equipment wire** scan, that hub, the equipment finder, and deep dive. Want this applied to a kitchen category, or grants on a specific **etl_*** pick?\n\n_${tip}_`,
+      `Start with our central guide — **Energy Efficient Equipment** at **/greenways/etl** — then use the tablets on the right for the hub, Equipment wire scan, finder, and deep dive. Want this applied to a kitchen category, or grants on a specific **etl_*** pick?\n\n_${tip}_`,
     suggestions: relatedSchemes.map(toSuggestion),
     blocks: prependWireToBlocks(
       linkOrModuleBlocks([
+        toLinkItem(
+          'Energy Efficient Equipment — central guide',
+          '/greenways/etl',
+          'What verified Energy Efficient Alternatives mean, how Greenways uses the list, and where to search next.'
+        ),
         ...etlRefs.map((r) =>
           toLinkItem(
             r.title,
@@ -844,15 +849,18 @@ function buildProductComparisonAnswer(tip) {
 function buildSustainableAnswer(question, tip) {
   return {
     answer:
-      `**Sustainable catalog** — non-marketplace \`sust_*\` products we collect from finder searches (water, electricity, and gas lanes).\n\n` +
-      `- Sustainable product finder portal\n` +
-      `- Water Saving Finder\n` +
-      `- Search runs through the sustainable products API\n\n` +
-      `Marketplace **etl_*** rows and **sust_*** catalog cover different lanes — both can sit on one upgrade plan.\n\n_${tip}_`,
+      `I'm **Artemis**. When you want options that are **not yet on the Greenways marketplace**, I point you to our **sustainable catalog** — research rows (\`sust_*\`) gathered from finder searches across water, electricity, and gas equipment.\n\n` +
+      `Use that catalog when you need a broader market check. For **verified Energy Efficient Alternatives** already on Greenways (\`etl_*\` rows with grants and deep dive), start at the central guide **/greenways/etl**, then shortlist in the finders.\n\n` +
+      `Both can sit on one upgrade plan — marketplace for verified buy-path products, catalog for external alternatives. **Zyanne** helps with catalog search; I stay with compare, deep dive, and renovation fit.\n\n_${tip}_`,
     suggestions: [],
     blocks: linkOrModuleBlocks([
-      toLinkItem('Sustainable product finder', './sustainable_product_deal_finder_portal.html', 'Catalog search'),
-      toLinkItem('Water Saving Finder', './water-saving-finder.html', 'Water lane products')
+      toLinkItem(
+        'Energy Efficient Equipment — central guide',
+        '/greenways/etl',
+        'Verified marketplace path first — then compare external catalog options.'
+      ),
+      toLinkItem('Sustainable product finder', './sustainable_product_deal_finder_portal.html', 'Search external / catalog alternatives'),
+      toLinkItem('Water Saving Finder', './water-saving-finder.html', 'Water-saving equipment search')
     ]),
     agentHandoffs: buildHandoffs({}, question, 'sustainable')
   };
