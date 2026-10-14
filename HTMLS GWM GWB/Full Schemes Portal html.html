@@ -1491,11 +1491,26 @@
 
             async loadSchemes() {
                 try {
-                    const schemeSources = [
-                        '/api/schemes?limit=200',
-                        '../schemes.json',
-                        'schemes.json'
-                    ];
+                    const params = new URLSearchParams(window.location.search || '');
+                    const sourceHint = String(params.get('source') || params.get('catalogue') || '').toLowerCase();
+                    const preferAgentCatalogue =
+                        sourceHint === 'json' ||
+                        sourceHint === 'file' ||
+                        sourceHint === 'schemes.json' ||
+                        sourceHint === 'agent';
+                    // ?source=json|agent → same 78-row schemes.json catalogue agents use (not Mongo ~62).
+                    const schemeSources = preferAgentCatalogue
+                        ? [
+                            '/api/schemes?limit=200&source=json',
+                            '../schemes.json',
+                            '/schemes.json',
+                            'schemes.json'
+                          ]
+                        : [
+                            '/api/schemes?limit=200',
+                            '../schemes.json',
+                            'schemes.json'
+                          ];
                     let loaded = false;
                     for (const src of schemeSources) {
                         try {

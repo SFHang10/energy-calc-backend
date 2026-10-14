@@ -31,10 +31,13 @@ function loadSchemesFromJson() {
   return schemesJsonCache;
 }
 
-function querySchemesFromJson({ region, type, search, limit = 100 }) {
+function querySchemesFromJson({ region, type, search, limit = 100, includeAllStatuses = false }) {
+  // Agent catalogue (schemes.json) keeps expired/paused rows unless retired — match that when source=json.
   const activeStatuses = new Set(['active', 'expiring-soon']);
   let list = loadSchemesFromJson().filter((s) => {
     const status = String(s.status || 'active').toLowerCase();
+    if (status === 'retired') return false;
+    if (includeAllStatuses) return true;
     return activeStatuses.has(status);
   });
 
@@ -77,8 +80,26 @@ function querySchemesFromJson({ region, type, search, limit = 100 }) {
   return list.slice(0, cap);
 }
 
+function wantsJsonCatalogue(query = {}) {
+  const raw = String(query.source || query.catalogue || '').toLowerCase().trim();
+  return raw === 'json' || raw === 'file' || raw === 'schemes.json' || raw === 'agent';
+}
+
 async function fetchPublicSchemes(query) {
   const { region, type, search, limit = 100 } = query;
+  const useJson = wantsJsonCatalogue(query);
+
+  // Same catalogue Andrieus / agents use (repo schemes.json) — skip stale Mongo when requested.
+  if (useJson) {
+    const schemes = querySchemesFromJson({
+      region,
+      type,
+      search,
+      limit,
+      includeAllStatuses: true
+    });
+    return { schemes, source: 'schemes.json' };
+  }
 
   if (isMongoDBConnected()) {
     try {
