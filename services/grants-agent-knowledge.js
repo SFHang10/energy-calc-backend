@@ -43,8 +43,8 @@ const REGION_LABELS = {
 };
 
 const PORTAL_LINKS = {
-  restaurant: './Full%20Schemes%20Portal%20Restaurant.html',
-  eu: './Full%20Schemes%20Portal%20html.html',
+  restaurant: './Full%20Schemes%20Portal%20Restaurant.html?source=json',
+  eu: './Full%20Schemes%20Portal%20html.html?source=json',
   finance: './finance-finder-restaurant.html',
   savings: './savings.html'
 };

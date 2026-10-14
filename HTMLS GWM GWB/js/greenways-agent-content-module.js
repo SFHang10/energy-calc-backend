@@ -397,7 +397,7 @@
       title: "Restaurant schemes portal",
       description: "Browse hospitality and restaurant grants and subsidies in one catalogue.",
       usageHint: "Filter by region or topic, open scheme rows for deadlines, then compare two schemes in chat.",
-      href: "./Full%20Schemes%20Portal%20Restaurant.html",
+      href: "./Full%20Schemes%20Portal%20Restaurant.html?source=json",
       defaultOpenSize: "near-full"
     },
     "schemes-portal-eu": {
@@ -405,7 +405,7 @@
       title: "EU schemes portal",
       description: "EU-wide programmes and cross-border funding in one browse view.",
       usageHint: "Scan EU-wide rows, then pair with the restaurant portal or finance finder when you need stacked funding paths.",
-      href: "./Full%20Schemes%20Portal%20html.html",
+      href: "./Full%20Schemes%20Portal%20html.html?source=json",
       defaultOpenSize: "near-full"
     },
     "equipment-deep-dive": {
