@@ -117,14 +117,9 @@ function coordsFor(org) {
   return jitter(100000 + org.n, base.lng, base.lat);
 }
 
-function clearbitHost(url) {
-  try {
-    const u = new URL(url.startsWith("http") ? url : `https://${url}`);
-    return u.hostname.replace(/^www\./, "");
-  } catch {
-    return "";
-  }
-}
+/** Clearbit logo API is retired — use shared Wix sustainability placeholder instead. */
+const DEFAULT_ORG_IMAGE =
+  "https://static.wixstatic.com/media/c123de_cdf6d4209eeb4dd190dd900b5b5d4263~mv2.jpeg";
 
 function main() {
   const html = fs.readFileSync(htmlPath, "utf8");
@@ -140,7 +135,6 @@ function main() {
 
   const mapped = orgs.map((org) => {
     const { lng, lat } = coordsFor(org);
-    const host = clearbitHost(org.url);
     const wk = wiki[String(org.n)];
     let imageUrl;
     let wikipediaUrl;
@@ -148,7 +142,7 @@ function main() {
       imageUrl = wk.thumbnail;
       wikipediaUrl = wk.article || undefined;
     } else {
-      imageUrl = host ? `https://logo.clearbit.com/${host}` : undefined;
+      imageUrl = DEFAULT_ORG_IMAGE;
     }
     return {
       id: 100000 + org.n,
