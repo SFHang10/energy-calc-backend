@@ -432,16 +432,27 @@
     return href + sep + "embed=1&popup=1" + hash;
   }
 
-  function askHref(story, prompt) {
+  function askHref(story, prompt, opts) {
     var base = contentBase() + (story.chatPath || "/greenways/" + story.slug);
     var params = new URLSearchParams();
     if (prompt) params.set("q", prompt);
-    if (isStoryEmbed()) {
+    // Module iframe chat needs embed chrome; story-embed → full Render chat does not.
+    if (opts && opts.forModule) {
       params.set("embed", "1");
       params.set("popup", "1");
     }
     var qs = params.toString();
     return qs ? base + "?" + qs : base;
+  }
+
+  function navigateTop(url) {
+    try {
+      if (window.top && window.top !== window) {
+        window.top.location.href = url;
+        return;
+      }
+    } catch (_) { /* cross-origin top — fall through */ }
+    location.href = url;
   }
 
   function storyPath(slug) {
@@ -765,30 +776,29 @@
   }
 
   function openStoryAsk(story, prompt) {
+    // Wix story-embed: nested chat iframe clips the compose bar — open full Render chat instead.
+    if (isStoryEmbed()) {
+      navigateTop(askHref(story, prompt, { forModule: false }));
+      return;
+    }
     var Mod = window.GreenwaysAgentContentModule;
     if (!Mod || typeof Mod.open !== "function") {
-      location.href = askHref(story, prompt);
+      location.href = askHref(story, prompt, { forModule: false });
       return;
     }
     wrapModuleChromeHooks(Mod);
-    var href = askHref(story, prompt);
-    var size = isStoryEmbed() ? "expanded" : "near-full";
+    var href = askHref(story, prompt, { forModule: true });
     Mod.open({
       moduleId: String(story.slug || "agent-chat"),
       title: "Ask " + (story.name || "agent"),
       description: "Chat stays here — use Back to return to " + (story.name || "this") + "’s story.",
       usageHint: "Ask your question, then close the module to pick up the story again.",
       href: href,
-      // Embed host: edge-to-edge like a normal agent iframe. Full story page keeps near-full.
-      openSize: size,
+      openSize: "near-full",
       kind: "html",
       theme: story.theme || story.id || "default",
       returnLabel: "← Back to " + (story.name || "agent") + " story"
     });
-    if (size === "expanded" && typeof Mod.setExpanded === "function") {
-      Mod.setExpanded(true);
-    }
-    reportStoryEmbed("module");
   }
 
   function wireStoryModules(story, root) {
