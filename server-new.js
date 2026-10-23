@@ -212,6 +212,7 @@ app.get('/greenways/energy-efficient-alt', (req, res) => sendLiveMusicHtml(res, 
 app.get('/greenways/citizen-benefits', (req, res) => sendHtmlsFile(res, 'Citizen benefits Guide 2 update.html'));
 app.get('/greenways/insulation-guide', (req, res) => sendLiveMusicHtml(res, 'Insulation .html'));
 app.get('/greenways/energy-efficient-hvac', (req, res) => sendLiveMusicHtml(res, 'Energy Efficient HVAC .html'));
+app.get('/greenways/hvac-compare', (req, res) => sendLiveMusicHtml(res, 'HVAC Compare .html'));
 app.get('/greenways/finance-prices-board', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-prices-board.html'));
 app.get('/greenways/finance-prices-board-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-finance-prices-board.html'));
 app.get('/greenways/grants-wire', (req, res) => sendLiveMusicHtml(res, 'greenways-grants-wire.html'));
