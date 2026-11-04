@@ -8,16 +8,35 @@ const {
 
 const router = express.Router();
 
-router.get('/health', (_req, res) => {
+router.get('/health', async (req, res) => {
   const providers = getTtsProviderStatus();
-  res.json({
+  const payload = {
     ok: true,
     service: 'agent-voice',
-    version: '1',
+    version: '2',
     maxChars: MAX_TTS_CHARS,
     providers,
     ttsAvailable: providers.available
-  });
+  };
+  if (req.query.probe === '1' && providers.available) {
+    try {
+      const audio = await synthesizeSpeech('Greenways voice probe.', 'grants-agent');
+      payload.probe = {
+        ok: true,
+        provider: audio.provider,
+        bytes: audio.buffer?.length || 0,
+        voiceId: audio.voiceId || null
+      };
+    } catch (error) {
+      payload.probe = {
+        ok: false,
+        code: error.code || 'TTS_PROBE_FAILED',
+        error: error.message || 'probe failed',
+        fallback: 'browser'
+      };
+    }
+  }
+  res.json(payload);
 });
 
 router.post('/tts', async (req, res) => {

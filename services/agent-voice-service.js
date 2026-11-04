@@ -62,6 +62,11 @@ function normalizeTtsText(text) {
   return plain.length > MAX_TTS_CHARS ? `${plain.slice(0, MAX_TTS_CHARS - 1)}…` : plain;
 }
 
+const SKILLBOSS_API_BASE = String(process.env.SKILLBOSS_API_BASE || 'https://api.skillboss.co/v1').replace(
+  /\/$/,
+  ''
+);
+
 async function fetchBuffer(url, options) {
   const res = await fetch(url, options);
   if (!res.ok) {
@@ -73,28 +78,103 @@ async function fetchBuffer(url, options) {
   return { buffer, contentType };
 }
 
+function skillBossAuthHeaders(apiKey) {
+  return {
+    Authorization: `Bearer ${apiKey}`,
+    'Content-Type': 'application/json'
+  };
+}
+
+function extractAudioUrl(payload) {
+  if (!payload || typeof payload !== 'object') return null;
+  const inner = payload.result && typeof payload.result === 'object' ? payload.result : payload;
+  return (
+    inner.audio_url ||
+    inner.audioUrl ||
+    inner.url ||
+    (inner.data && (inner.data.audio_url || inner.data.url)) ||
+    null
+  );
+}
+
+async function synthesizeViaSkillBossRun(text, voiceConfig, apiKey) {
+  const voiceId = voiceConfig.voiceId || '';
+  const model = `elevenlabs/${voiceConfig.modelId || DEFAULT_MODEL}`;
+  const res = await fetch(`${SKILLBOSS_API_BASE}/run`, {
+    method: 'POST',
+    headers: skillBossAuthHeaders(apiKey),
+    body: JSON.stringify({
+      model,
+      inputs: {
+        text,
+        input: text,
+        voice: voiceId,
+        voice_id: voiceId
+      }
+    })
+  });
+  const contentType = res.headers.get('content-type') || '';
+  if (!res.ok) {
+    const detail = await res.text().catch(() => '');
+    throw new Error(`SkillBoss /run ${res.status}: ${detail.slice(0, 180)}`);
+  }
+  if (contentType.includes('audio')) {
+    const buffer = Buffer.from(await res.arrayBuffer());
+    if (buffer.length > 256) {
+      return { buffer, contentType: contentType || 'audio/mpeg' };
+    }
+  }
+  const raw = await res.text();
+  let json;
+  try {
+    json = JSON.parse(raw);
+  } catch (_) {
+    throw new Error('SkillBoss /run returned non-JSON without audio content-type');
+  }
+  const audioUrl = extractAudioUrl(json);
+  if (audioUrl) {
+    return fetchBuffer(audioUrl, { method: 'GET' });
+  }
+  const b64 =
+    json.audio_base64 ||
+    json.audioBase64 ||
+    (json.result && (json.result.audio_base64 || json.result.audioBase64));
+  if (b64) {
+    return { buffer: Buffer.from(b64, 'base64'), contentType: 'audio/mpeg' };
+  }
+  throw new Error('SkillBoss /run response had no audio payload');
+}
+
+async function synthesizeViaSkillBossSpeech(text, voiceConfig, apiKey) {
+  const voice = voiceConfig.voiceId || 'default';
+  const model = `elevenlabs/${voiceConfig.modelId || DEFAULT_MODEL}`;
+  return fetchBuffer(`${SKILLBOSS_API_BASE}/audio/speech`, {
+    method: 'POST',
+    headers: skillBossAuthHeaders(apiKey),
+    body: JSON.stringify({
+      model,
+      input: text,
+      voice
+    })
+  });
+}
+
 async function synthesizeViaSkillBoss(text, voiceConfig) {
   const apiKey = process.env.SKILLBOSS_API_KEY;
   if (!apiKey) return null;
-  const voice = voiceConfig.voiceId || 'default';
-  const model = `elevenlabs/${voiceConfig.modelId || DEFAULT_MODEL}`;
+  const errors = [];
   try {
-    return await fetchBuffer('https://api.skillboss.co/v1/audio/speech', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model,
-        input: text,
-        voice
-      })
-    });
+    return await synthesizeViaSkillBossRun(text, voiceConfig, apiKey);
   } catch (error) {
-    console.warn('[agent-voice] SkillBoss TTS failed:', error.message || error);
-    return null;
+    errors.push(`run: ${error.message || error}`);
   }
+  try {
+    return await synthesizeViaSkillBossSpeech(text, voiceConfig, apiKey);
+  } catch (error) {
+    errors.push(`speech: ${error.message || error}`);
+  }
+  console.warn('[agent-voice] SkillBoss TTS failed:', errors.join(' · '));
+  return null;
 }
 
 async function synthesizeViaElevenLabs(text, voiceConfig) {

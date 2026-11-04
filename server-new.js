@@ -7,7 +7,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const { buildEnergyTickerPayload } = require('./services/energy-ticker-service');
+const {
+  buildEnergyTickerPayload,
+  getEnergyTickerConfigStatus,
+  probeEnergyTickerLive
+} = require('./services/energy-ticker-service');
 
 async function getFetch() {
   if (typeof fetch !== 'undefined') {
@@ -1152,10 +1156,27 @@ app.get('/test-members', (req, res) => {
   });
 });
 
-// Energy ticker endpoint (supports external source URL or demo data)
+// Energy ticker endpoint (supports external source URL, native ENTSO-E, or demo data)
+app.get('/api/energy-ticker/health', async (_req, res) => {
+  try {
+    const config = getEnergyTickerConfigStatus();
+    const probe = config.liveMode ? await probeEnergyTickerLive() : { isLive: false, source: 'demo' };
+    res.json({
+      ok: true,
+      service: 'energy-ticker',
+      config,
+      probe
+    });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message || 'health check failed' });
+  }
+});
+
 app.get('/api/energy-ticker', async (req, res) => {
   try {
-    const payload = await buildEnergyTickerPayload();
+    const payload = await buildEnergyTickerPayload({
+      bypassCache: req.query.refresh === '1' || req.query.bypassCache === '1'
+    });
     res.json(payload);
   } catch (error) {
     console.error('❌ Energy ticker endpoint error:', error.message);

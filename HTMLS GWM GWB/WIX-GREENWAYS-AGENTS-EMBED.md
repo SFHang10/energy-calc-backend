@@ -323,7 +323,7 @@ https://energy-calc-backend.onrender.com/greenways/sustainable-products-agent
 ```
 
 - **Sync after config changes:** `node scripts/sync-greenways-agent-voice.js` (wires assets + buttons on all seven HTML shells).
-- **Premium TTS (optional):** set `SKILLBOSS_API_KEY` or `ELEVENLABS_API_KEY` on Render — Andrieus tries `POST /api/agent-voice/tts` first (`useServerTts: true` in voice config), others use browser voice until enabled.
+- **Premium TTS (demo cast):** set `SKILLBOSS_API_KEY` + `AGENT_VOICE_TTS_PROVIDER=skillboss` on Render — **Andrieus, Vincent, Zara, Artemis** use `POST /api/agent-voice/tts` when `useServerTts: true` in `data/greenways-agent-voice-config.json`. Runbook: `Skills/agent-voice-demo-setup.md` · `npm run smoke:agent-voice`.
 - **Member auto-listen (🔁):** shown only when `profile.tier=member` (from `greenways_member_context_v1`). Opt-in persists in `localStorage` (`gw-voice-listen-mode-v1`). Each reply then reads `spokenSummary` aloud; tap **⏹** on the Listen button to stop. Public embeds stay unchanged until a member opts in.
 
 ---

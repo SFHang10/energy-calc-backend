@@ -1,6 +1,8 @@
 /**
  * Shared energy ticker payload for /api/energy-ticker and finance wire snapshot.
  */
+const { buildEntsoeTickerPayload } = require('./entsoe-ticker-builder');
+
 const demoEnergyTickerData = {
   allEnergy: [
     { code: 'FR', name: 'France', priceEurMwh: 101.31, changePct: -2.5 },
@@ -89,6 +91,8 @@ async function buildEnergyTickerPayload({ bypassCache = false } = {}) {
         renewableShare
       };
     }
+  } else if (entsoeApiKey) {
+    payload = await buildEntsoeTickerPayload(entsoeApiKey);
   } else if (sourceUrl) {
     const externalData = await fetchJsonFromUrl(sourceUrl);
     if (externalData && externalData.allEnergy && externalData.renewableShare) {
@@ -116,7 +120,37 @@ async function buildEnergyTickerPayload({ bypassCache = false } = {}) {
   return payload;
 }
 
+function getEnergyTickerConfigStatus() {
+  const apiKey = Boolean(process.env.ENTSOE_API_KEY);
+  return {
+    entsoeApiKey: apiKey,
+    entsoePriceUrl: Boolean(process.env.ENTSOE_PRICE_URL),
+    entsoeRenewableUrl: Boolean(process.env.ENTSOE_RENEWABLE_URL),
+    energyTickerUrl: Boolean(process.env.ENERGY_TICKER_URL),
+    liveMode:
+      apiKey ||
+      Boolean(process.env.ENTSOE_PRICE_URL) ||
+      Boolean(process.env.ENTSOE_RENEWABLE_URL) ||
+      Boolean(process.env.ENERGY_TICKER_URL),
+    note: apiKey
+      ? 'ENTSOE_API_KEY enables site energy reading (NL/ES/PT) and native energy ticker when JSON proxy URLs are not set.'
+      : 'Set ENTSOE_API_KEY on Render for live EU grid and wholesale prices.'
+  };
+}
+
+async function probeEnergyTickerLive() {
+  const payload = await buildEnergyTickerPayload({ bypassCache: true });
+  return {
+    isLive: Boolean(payload?.isLive),
+    source: payload?.source || 'unknown',
+    updatedAt: payload?.updatedAt,
+    priceZones: payload?.allEnergy?.length || 0
+  };
+}
+
 module.exports = {
   buildEnergyTickerPayload,
-  demoEnergyTickerData
+  demoEnergyTickerData,
+  getEnergyTickerConfigStatus,
+  probeEnergyTickerLive
 };

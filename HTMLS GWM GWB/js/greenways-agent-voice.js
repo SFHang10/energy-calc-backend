@@ -404,9 +404,14 @@
         micBtn.setAttribute('aria-pressed', 'false');
       };
 
-      rec.onerror = function () {
+      rec.onerror = function (ev) {
         listening = false;
         micBtn.classList.remove('is-active');
+        micBtn.setAttribute('aria-pressed', 'false');
+        var err = ev && ev.error ? String(ev.error) : '';
+        if (err === 'not-allowed' || err === 'service-not-allowed') {
+          micBtn.title = 'Mic blocked — type your question or open this agent on the full Greenways page (not Wix iframe)';
+        }
       };
 
       rec.onresult = function (ev) {

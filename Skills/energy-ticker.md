@@ -84,15 +84,23 @@ Set these on Render to enable live data:
 
 ```
 ENTSOE_API_KEY=your_key_here
-ENTSOE_PRICE_URL=https://...{API_KEY}...
-ENTSOE_RENEWABLE_URL=https://...{API_KEY}...
-ENERGY_TICKER_URL=https://... (optional fallback JSON)
 ENERGY_TICKER_CACHE_MS=1800000
 ```
 
+**Recommended:** `ENTSOE_API_KEY` alone — server fetches ENTSO-E A44 (prices) + A75 (renewable share) for Europe zones (`data/energy-ticker-zones.json`). See **`Skills/entsoe-setup.md`**.
+
+Optional legacy / custom JSON:
+
+```
+ENTSOE_PRICE_URL=https://...{API_KEY}...
+ENTSOE_RENEWABLE_URL=https://...{API_KEY}...
+ENERGY_TICKER_URL=https://... (fallback JSON)
+```
+
 Notes:
-- `{API_KEY}` is replaced automatically if present in the URL.
-- Price/Renewable URLs must return JSON arrays (or `{ allEnergy }` / `{ renewableShare }`).
+- `{API_KEY}` is replaced automatically if present in proxy URLs.
+- When `ENTSOE_PRICE_URL` or `ENTSOE_RENEWABLE_URL` is set, those take precedence over native ENTSO-E fetch.
+- Verify: `GET /api/energy-ticker/health` · `npm run smoke:entsoe`
 
 ---
 
