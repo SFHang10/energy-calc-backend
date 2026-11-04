@@ -29,6 +29,11 @@ async function smokeLocal() {
   console.log('  with tablets:', withTablets.length);
   console.log('  gallery:', gallery.length);
   console.log('  weekLabel:', payload.meta?.weekLabel || '(none)');
+  const vids = (payload.videos && payload.videos.suggestions) || [];
+  console.log('  video suggestions:', vids.length);
+  if (vids.length < 3) {
+    throw new Error(`expected at least 3 video suggestions, got ${vids.length}`);
+  }
   return payload;
 }
 

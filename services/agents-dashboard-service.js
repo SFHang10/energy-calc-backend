@@ -11,6 +11,8 @@ const HIGHLIGHTS_PATH = path.join(__dirname, '..', 'data', 'greenways-agent-high
 const ROSTER_PATH = path.join(__dirname, '..', 'data', 'greenways-agent-roster.json');
 const DEALS_FEED_PATH = path.join(__dirname, '..', 'data', 'deals-feed.json');
 const CALENDAR_DEMO_PATH = path.join(__dirname, '..', 'data', 'greenways-calendar-demo.json');
+const VIDEO_PICKS_PATH = path.join(__dirname, '..', 'data', 'agents-dashboard-video-picks.json');
+const VIDEO_KNOWLEDGE_PATH = path.join(__dirname, '..', 'data', 'greenways-video-knowledge.json');
 
 function stripMarkdown(text) {
   return String(text || '')
@@ -202,8 +204,79 @@ function buildReminderSeeds(calendarDemo) {
   }));
 }
 
+function youtubeThumb(videoId) {
+  const id = String(videoId || '').trim();
+  return id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : '';
+}
+
+function catalogMatch(catalog, knowledgeId, ptr) {
+  const vid = ptr?.videoId;
+  return (catalog || []).find(
+    (v) =>
+      v.id === knowledgeId ||
+      (vid && (v.videoId === vid || v.youtubeId === vid || String(v.videoUrl || '').includes(vid)))
+  );
+}
+
+function mergeVideoCard(ptr, pick, apiRow) {
+  if (!ptr) return null;
+  const videoId = String(ptr.videoId || apiRow?.videoId || apiRow?.youtubeId || '').trim();
+  const title = ptr.title || apiRow?.title || 'Greenways video';
+  return {
+    id: ptr.id,
+    title,
+    summary: teaser(ptr.summary || apiRow?.description || apiRow?.summary, 160),
+    takeaways: Array.isArray(ptr.takeaways) ? ptr.takeaways.slice(0, 2) : [],
+    videoId,
+    youtubeId: videoId,
+    videoUrl:
+      apiRow?.videoUrl ||
+      (videoId ? `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}` : ''),
+    thumbnail: apiRow?.thumbnail || apiRow?.imageUrl || youtubeThumb(videoId),
+    category: apiRow?.category || 'media',
+    lane: pick.lane === 'highlight' ? 'highlight' : 'suggestion',
+    kind: 'suggestion',
+    suggestedBy: pick.suggestedBy || 'Cheryce',
+    agentSlug: pick.agentSlug || 'media-agent'
+  };
+}
+
+async function buildVideoSuggestions() {
+  const [picksCfg, knowledge] = await Promise.all([
+    loadJson(VIDEO_PICKS_PATH, { picks: [] }),
+    loadJson(VIDEO_KNOWLEDGE_PATH, { items: [] })
+  ]);
+  const knowledgeById = new Map((knowledge.items || []).map((item) => [item.id, item]));
+
+  let catalog = [];
+  try {
+    const { getVideosForAgent } = require('./wix-media-service');
+    const result = await getVideosForAgent();
+    catalog = result.videos || [];
+  } catch (_) {
+    /* knowledge + YouTube thumbs still work offline */
+  }
+
+  const suggestions = (picksCfg.picks || [])
+    .map((pick) => {
+      const ptr = knowledgeById.get(pick.knowledgeId);
+      if (!ptr || !ptr.videoId) return null;
+      return mergeVideoCard(ptr, pick, catalogMatch(catalog, pick.knowledgeId, ptr));
+    })
+    .filter(Boolean);
+
+  return {
+    suggestions,
+    links: {
+      mediaAgent: '/greenways/media-agent',
+      videoDesk: '/greenways/media-video-desk',
+      askPrompt: 'Show restaurant and kitchen energy saving videos'
+    }
+  };
+}
+
 async function buildAgentsDashboardOverview() {
-  const [highlights, roster, dealsFeed, calendarDemo, grantsSnap, dealsSnap, financeSnap] =
+  const [highlights, roster, dealsFeed, calendarDemo, grantsSnap, dealsSnap, financeSnap, videos] =
     await Promise.all([
       loadJson(HIGHLIGHTS_PATH, { agents: [], meta: {} }),
       loadJson(ROSTER_PATH, { agents: [] }),
@@ -211,7 +284,8 @@ async function buildAgentsDashboardOverview() {
       loadJson(CALENDAR_DEMO_PATH, { events: [] }),
       buildGrantsWireSnapshot().catch(() => null),
       buildDealsWireSnapshot().catch(() => null),
-      buildFinanceWireSnapshot().catch(() => null)
+      buildFinanceWireSnapshot().catch(() => null),
+      buildVideoSuggestions()
     ]);
 
   const rosterBySlug = new Map((roster.agents || []).map((a) => [a.slug, a]));
@@ -261,17 +335,21 @@ async function buildAgentsDashboardOverview() {
     agents,
     gallery: buildGallery(dealsFeed, highlights.agents || []),
     reminderSeeds: buildReminderSeeds(calendarDemo),
+    videos,
     links: {
       customerHub: '/greenways/customer-hub',
       organisationDesk: '/greenways/organisation-desk',
       orchestraHub: '/greenways/orchestra-hub',
-      agentsHighlights: '/greenways/agents-highlights'
+      agentsHighlights: '/greenways/agents-highlights',
+      mediaAgent: videos?.links?.mediaAgent || '/greenways/media-agent',
+      videoDesk: videos?.links?.videoDesk || '/greenways/media-video-desk'
     }
   };
 }
 
 module.exports = {
   buildAgentsDashboardOverview,
+  buildVideoSuggestions,
   stripMarkdown,
   teaser
 };

@@ -4,6 +4,7 @@
   var DESK_KEY = 'greenways-organisation-desk-v1';
   var SHORTLIST_KEY = 'greenways-product-shortlist';
   var LOCAL_SAVED_KEY = 'gw_saved_products';
+  var LOCAL_SAVED_VIDEOS_KEY = 'gw_saved_videos';
   var CALENDAR_KEY = 'gw_personal_calendar_events';
   var MEMBER_CTX_KEY = 'greenways_member_context_v1';
 
@@ -189,6 +190,174 @@
     }
   }
 
+  async function fetchMemberSavedVideos() {
+    if (isDemo() || !getAuthToken()) return [];
+    try {
+      var res = await fetch(apiBase() + '/api/members/saved-items', {
+        headers: { Authorization: 'Bearer ' + getAuthToken() }
+      });
+      if (!res.ok) return [];
+      var data = await res.json();
+      return Array.isArray(data.saved && data.saved.videos) ? data.saved.videos : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function readSavedVideosList() {
+    var raw = readJson(LOCAL_SAVED_VIDEOS_KEY);
+    return Array.isArray(raw) ? raw : [];
+  }
+
+  function normalizeSavedVideo(row) {
+    if (!row) return null;
+    var id = row.id || row.videoId || row.title;
+    if (!id) return null;
+    var videoId = row.videoId || row.youtubeId || '';
+    var thumb = row.thumbnail || row.imageUrl || '';
+    if (!thumb && videoId) thumb = 'https://i.ytimg.com/vi/' + videoId + '/hqdefault.jpg';
+    return {
+      id: String(id),
+      title: row.title || row.name || 'Saved video',
+      summary: row.description || row.summary || row.line || 'From your saved library.',
+      videoId: videoId,
+      youtubeId: videoId,
+      videoUrl: row.videoUrl || row.url || row.href || '',
+      thumbnail: thumb,
+      category: row.category || 'saved',
+      lane: 'saved',
+      kind: 'saved',
+      suggestedBy: 'You',
+      agentSlug: 'media-agent',
+      takeaways: row.takeaways || []
+    };
+  }
+
+  function mergeSavedVideos(profileVideos, localVideos) {
+    var out = [];
+    var seen = new Set();
+    function push(row) {
+      var v = normalizeSavedVideo(row);
+      if (!v || seen.has(v.id)) return;
+      seen.add(v.id);
+      out.push(v);
+    }
+    (profileVideos || []).forEach(push);
+    (localVideos || []).forEach(push);
+    return out.slice(0, 8);
+  }
+
+  function videoLaneMeta(v) {
+    if (v.lane === 'saved' || v.kind === 'saved') {
+      return { label: 'Saved', cls: 'ad-vt-saved' };
+    }
+    if (v.lane === 'highlight') {
+      return { label: 'Highlight', cls: 'ad-vt-highlight' };
+    }
+    return { label: 'Suggestion', cls: 'ad-vt-suggest' };
+  }
+
+  function renderVideoCard(v, agents) {
+    var lane = videoLaneMeta(v);
+    var payload = '';
+    if (window.GreenwaysAgentVideo && GreenwaysAgentVideo.encodePayload) {
+      payload = GreenwaysAgentVideo.encodePayload(
+        Object.assign({}, v, { description: v.summary || v.description, takeaways: v.takeaways || [] })
+      );
+    }
+    var thumb = v.thumbnail
+      ? '<img class="ad-video-thumb" src="' + escapeHtml(v.thumbnail) + '" alt="">'
+      : '<span class="ad-video-thumb ad-video-thumb-fallback" aria-hidden="true"></span>';
+    var by = v.suggestedBy ? '<span class="ad-video-by">' + escapeHtml(v.suggestedBy) + '</span>' : '';
+    return (
+      '<button type="button" class="ad-video-card" data-video-payload="' +
+      escapeHtml(payload) +
+      '">' +
+      '<div class="ad-video-thumb-wrap">' +
+      thumb +
+      '<span class="ad-video-play" aria-hidden="true">▶</span>' +
+      '<span class="ad-video-lane ' +
+      lane.cls +
+      '">' +
+      escapeHtml(lane.label) +
+      '</span></div>' +
+      '<div class="ad-video-body">' +
+      '<strong>' +
+      escapeHtml(v.title) +
+      '</strong>' +
+      '<p>' +
+      escapeHtml(String(v.summary || '').slice(0, 120)) +
+      '</p>' +
+      by +
+      portraitBadge(agents, v.agentSlug || 'media-agent') +
+      '</div></button>'
+    );
+  }
+
+  function renderVideoModule(videoData, savedVideos, agents, links) {
+    var suggestions = (videoData && videoData.suggestions) || [];
+    var seen = new Set();
+    var cards = [];
+    suggestions.forEach(function (v) {
+      if (!v || !v.id || seen.has(v.id)) return;
+      seen.add(v.id);
+      cards.push(v);
+    });
+    savedVideos.forEach(function (v) {
+      if (!v || !v.id || seen.has(v.id)) return;
+      seen.add(v.id);
+      cards.push(v);
+    });
+
+    if (!cards.length) {
+      return (
+        '<section class="ad-section ad-video-module" id="ad-video-module">' +
+        '<div class="ad-empty">Video picks load from Cheryce’s library — open <a href="/greenways/media-agent">Media Agent</a>.</div></section>'
+      );
+    }
+
+    var mediaHref = (links && links.mediaAgent) || '/greenways/media-agent';
+    var deskHref = (links && links.videoDesk) || '/greenways/media-video-desk';
+
+    return (
+      '<section class="ad-section ad-video-module" id="ad-video-module" aria-labelledby="ad-video-heading">' +
+      '<div class="ad-section-head">' +
+      '<h2 id="ad-video-heading">Cheryce · media showcase</h2>' +
+      '<span>Cinema briefing · same player as Media Agent</span></div>' +
+      '<div class="ad-video-title-row">' +
+      '<span class="ad-vt-highlight">Video highlights</span>' +
+      '<span class="ad-vt-sep">·</span>' +
+      '<span class="ad-vt-suggest">Suggestions</span>' +
+      '<span class="ad-vt-sep">·</span>' +
+      '<span class="ad-vt-saved">Saved</span>' +
+      '</div>' +
+      '<p class="ad-video-intro">Agent-picked clips so this lane is never empty — plus anything you save from membership or Cheryce chat.</p>' +
+      '<div class="ad-video-track">' +
+      cards.map(function (c) {
+        return renderVideoCard(c, agents);
+      }).join('') +
+      '</div>' +
+      '<div class="ad-video-foot">' +
+      '<a href="' +
+      escapeHtml(mediaHref) +
+      '" target="_top">Open Media Agent</a>' +
+      '<a href="' +
+      escapeHtml(deskHref) +
+      '" target="_top">Video desk</a>' +
+      '</div></section>'
+    );
+  }
+
+  function initVideoCinema() {
+    if (!window.GreenwaysAgentVideo) return;
+    GreenwaysAgentVideo.configure({
+      apiBase: apiBase,
+      deskLabel: 'Cheryce · Agents Dashboard'
+    });
+    var mod = document.getElementById('ad-video-module');
+    if (mod) GreenwaysAgentVideo.bindContainer(mod);
+  }
+
   function readShortlist() {
     var data = readJson(SHORTLIST_KEY);
     return Array.isArray(data) ? data : Array.isArray(data && data.items) ? data.items : [];
@@ -334,6 +503,8 @@
       var agents = data.agents || [];
 
       var profileSaved = await fetchMemberSaved();
+      var profileVideos = await fetchMemberSavedVideos();
+      var savedVideos = mergeSavedVideos(profileVideos, readSavedVideosList());
       var savedCards = mergeSavedCards(readShortlist(), profileSaved, readJson(LOCAL_SAVED_KEY), agents);
       var deskCards = readDeskCards();
       var reminders = readReminders(data.reminderSeeds, agents);
@@ -385,7 +556,9 @@
         '<span>Organisation Desk</span></div>' +
         '<div class="ad-lane-cards">' +
         renderProjects(deskCards, agents) +
-        '</div></section>';
+        '</div></section>' +
+        renderVideoModule(data.videos, savedVideos, agents, data.links);
+      initVideoCinema();
     } catch (err) {
       root.innerHTML =
         '<div class="ad-empty">Could not load dashboard — try again in a moment or open <a href="/greenways/customer-hub">Your Hub</a>.</div>';
