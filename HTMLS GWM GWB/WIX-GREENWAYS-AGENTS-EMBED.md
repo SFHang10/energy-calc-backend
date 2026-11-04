@@ -33,9 +33,11 @@ https://energy-calc-backend.onrender.com/greenways/buildings-dashboard-demo
 https://energy-calc-backend.onrender.com/greenways/agents/grants-agent/story
 https://energy-calc-backend.onrender.com/greenways/agents-story
 https://energy-calc-backend.onrender.com/greenways/agents-highlights
+https://energy-calc-backend.onrender.com/greenways/agents-dashboard
+https://energy-calc-backend.onrender.com/greenways/agents-dashboard-demo
 ```
 
-**Your Hub demo** (`/greenways/customer-hub-demo`) = website sample with anonymised **Wok Restaurant** branding and portal menus hidden. **Your Hub** (`/customer-hub`) = member home (saved / suggestions / deals / news) — may show linked tenant packs when signed in. **Agent story** = per-specialist selling page (`/greenways/agents/{slug}/story`, JSON in `data/greenways-agent-stories/`) — intro, video slot, 3-step journeys, live tool demos. Story = why the agents exist · Highlights = weekly grounded picks per specialist (`npm run build:agent-highlights`). Shared portal nav links Hub ↔ story ↔ highlights ↔ Orchestra ↔ agent map.
+**Your Hub demo** (`/greenways/customer-hub-demo`) = website sample with anonymised **Wok Restaurant** branding and portal menus hidden. **Your Hub** (`/customer-hub`) = member home (saved / suggestions / deals / news) — may show linked tenant packs when signed in. **Agents Dashboard** (`/greenways/agents-dashboard`) = specialist team desk — wire tablets per agent, spotlight gallery, weekly highlights list, saves / reminders / Organisation Desk cards (complements Your Hub). **Demo:** `/greenways/agents-dashboard-demo` (sample region label, no login). **Embed:** `/greenways/agents-dashboard-embed` or `?embed=1` (hides portal nav). Smoke: `npm run smoke:agents-dashboard`. **Agent story** = per-specialist selling page (`/greenways/agents/{slug}/story`, JSON in `data/greenways-agent-stories/`) — intro, video slot, 3-step journeys, live tool demos. Story = why the agents exist · Highlights = weekly grounded picks per specialist (`npm run build:agent-highlights`). Shared portal nav links Hub ↔ Agents Dashboard ↔ story ↔ highlights ↔ Orchestra.
 
 ### Website embeds vs demo (full menu) — Aug 2026
 
@@ -60,6 +62,8 @@ Use **`-embed` URLs** (or `?embed=1`) on the **new Wix website** so portal famil
 | Orchestra / operate portal | `/greenways/orchestra-hub-embed` (or `?embed=1` / wix-frame) | `/greenways/orchestra-hub` |
 | Your Hub (live / member) | `/greenways/customer-hub-embed` or `/greenways/customer-hub?embed=1` | `/greenways/customer-hub` |
 | Your Hub (**website demo** — no client brand) | `/greenways/customer-hub-demo` | same (menus already hidden) |
+| Agents Dashboard (team desk) | `/greenways/agents-dashboard-embed` or `/greenways/agents-dashboard?embed=1` | `/greenways/agents-dashboard` |
+| Agents Dashboard (**website demo**) | `/greenways/agents-dashboard-demo` | same (demo region label) |
 | Buildings dashboard (live) | `/greenways/buildings-dashboard-embed` or `?embed=1` | `/greenways/buildings-dashboard` |
 | Buildings dashboard (**website demo**) | `/greenways/buildings-dashboard-demo` | same (menus already hidden) |
 | Restaurant story (**website demo**) | `/greenways/tenants/wok-restaurant-demo` | live: `/greenways/tenants/wok-to-walk` |

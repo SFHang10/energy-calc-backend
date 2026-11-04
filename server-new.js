@@ -329,6 +329,9 @@ app.get('/greenways/buildings-dashboard-embed', (req, res) => sendLiveMusicHtml(
 app.get('/greenways/customer-hub', (req, res) => sendLiveMusicHtml(res, 'greenways-customer-hub.html'));
 app.get('/greenways/customer-hub-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-customer-hub.html'));
 app.get('/greenways/customer-hub-demo', (req, res) => sendLiveMusicHtml(res, 'greenways-customer-hub.html'));
+app.get('/greenways/agents-dashboard', (req, res) => sendLiveMusicHtml(res, 'greenways-agents-dashboard.html'));
+app.get('/greenways/agents-dashboard-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-agents-dashboard.html'));
+app.get('/greenways/agents-dashboard-demo', (req, res) => sendLiveMusicHtml(res, 'greenways-agents-dashboard.html'));
 app.get('/greenways/calendar-demo', (req, res) => sendLiveMusicHtml(res, 'greenways-calendar-demo.html'));
 app.get('/greenways/calendar', (req, res) => sendLiveMusicHtml(res, 'greenways-calendar-demo.html'));
 app.get('/greenways/calendar-embed', (req, res) => sendLiveMusicHtml(res, 'greenways-calendar-demo.html'));
@@ -590,6 +593,7 @@ let restaurantSnapshotRouter;
 let siteEnergyReadingRouter;
 let agentVoiceRouter;
 let agentMailRouter;
+let agentsDashboardRouter;
 try {
   musicVenuesRouter = require('./routes/music-venues');
   musicGuideRouter = require('./routes/music-guide');
@@ -617,6 +621,7 @@ try {
   siteEnergyReadingRouter = require('./routes/site-energy-reading');
   agentVoiceRouter = require('./routes/agent-voice');
   agentMailRouter = require('./routes/agent-mail');
+  agentsDashboardRouter = require('./routes/agents-dashboard');
   console.log('Live music routers loaded successfully');
 } catch (error) {
   console.error('❌ Failed to load live music routers:', error.message);
@@ -646,6 +651,7 @@ try {
   siteEnergyReadingRouter = null;
   agentVoiceRouter = null;
   agentMailRouter = null;
+  agentsDashboardRouter = null;
 }
 
 function mountApiRoutes() {
@@ -741,6 +747,10 @@ function mountApiRoutes() {
   if (agentMailRouter) {
     app.use('/api/agent-mail', agentMailRouter);
     console.log('✅ /api/agent-mail route mounted');
+  }
+  if (agentsDashboardRouter) {
+    app.use('/api/agents-dashboard', agentsDashboardRouter);
+    console.log('✅ /api/agents-dashboard route mounted');
   }
   if (greenwaysModuleRouter) {
     app.use('/api/greenways-module', greenwaysModuleRouter);
