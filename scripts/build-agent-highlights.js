@@ -200,6 +200,13 @@ async function build() {
     console.log('OK', spec.id, '→', hit.intentId || '(no intent)');
   }
 
+  const systemsRow = agents.find((a) => a.slug === 'systems-agent');
+  const systemsIntent = systemsRow?.highlight?.intentId || 'systems_innovation';
+  const focusLabel =
+    systemsIntent === 'systems_innovation'
+      ? 'systems innovation'
+      : String(systemsIntent).replace(/_/g, ' ');
+
   const payload = {
     updatedAt: now.toISOString(),
     meta: {
@@ -208,7 +215,13 @@ async function build() {
         'Weekly snapshot of what each Transition Agent is answering — refreshed from live knowledge, not stale demos.',
       weekKey: isoWeekKey(now),
       weekLabel: `Week snapshot · ${weekLabel(now)}`,
-      profileNote: 'Sample profile: Netherlands · restaurant · energy focus'
+      profileNote: 'Sample profile: Netherlands · restaurant · energy focus',
+      weekSpotlight: {
+        agentSlug: systemsRow?.slug || 'systems-agent',
+        agentName: systemsRow?.name || 'Edwardo',
+        focusLabel,
+        tagline: 'measure, control, prove'
+      }
     },
     agents
   };

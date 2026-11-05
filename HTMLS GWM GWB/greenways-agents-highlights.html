@@ -211,6 +211,28 @@
     color: #fff;
     font-weight: 600;
   }
+  .highlights-intro a {
+    color: #86efac;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .highlights-intro a:hover {
+    text-decoration: underline;
+  }
+  .highlights-summary {
+    max-width: 680px;
+    margin: 14px auto 0;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: #d1e0d8;
+  }
+  .highlights-summary strong {
+    color: #fff;
+    font-weight: 600;
+  }
+  .highlights-hero-panel .highlights-summary {
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.65);
+  }
   .highlights-meta {
     margin-top: 10px;
     font-size: 0.72rem;
@@ -503,14 +525,17 @@
   </nav>
   <header class="highlights-hero">
     <div class="highlights-hero-panel">
-      <h1>Transition Agents Portal — Highlights</h1>
+      <h1>Transition Agents — Highlights</h1>
       <span class="highlights-badge" id="week-badge">Portal · weekly snapshot</span>
       <p class="highlights-intro">
-        Welcome to the <strong>Greenways Agent Transition Portal</strong> — a digital interface where seven
-        specialists each have their own chat room. This highlights portal pulls a
-        <strong>fresh answer from this week</strong> so you see an up-to-date version of what they are saying,
-        not just a demo. Edwardo’s card this week focuses on <strong>systems innovation</strong> — measure, control, prove.
+        This page is the <strong>weekly highlights desk</strong> for the seven Transition Agents — not the full portal
+        introduction (see <a href="/greenways/agents-story">Why this portal</a> for that story).
+        Here you get one <strong>grounded answer per specialist</strong> for the current week, live
+        <strong>Zara</strong> and <strong>Zyanne</strong> deal tickers, and a straight path into each agent’s chat when
+        a topic fits your site. Pair it with <a href="/greenways/agents-dashboard">Agents Dashboard</a> for saves,
+        reminders, and desk cards, or <a href="/greenways/customer-hub">Your Hub</a> for the wider member home.
       </p>
+      <p class="highlights-summary" id="highlights-week-summary"></p>
       <p class="highlights-meta" id="profile-note"></p>
     </div>
   </header>
@@ -591,6 +616,31 @@
     if (!key) return "highlight";
     if (INTENT_LABELS[key]) return INTENT_LABELS[key];
     return key.replace(/_/g, " ");
+  }
+
+  function setWeekSummary(agents, meta) {
+    var el = document.getElementById("highlights-week-summary");
+    if (!el) return;
+    var spot = (meta && meta.weekSpotlight) || {};
+    var slug = spot.agentSlug || "systems-agent";
+    var agent = (agents || []).find(function (a) {
+      return a.slug === slug;
+    });
+    var name = spot.agentName || (agent && agent.name) || "A specialist";
+    var focus =
+      spot.focusLabel ||
+      (agent && agent.highlight && intentLabel(agent.highlight.intentId)) ||
+      "this week’s theme";
+    var tagline = spot.tagline || "measure, control, prove";
+    el.innerHTML =
+      "Each card is rebuilt from this week’s knowledge — not a canned demo. " +
+      "<strong>" +
+      escapeHtml(name) +
+      "</strong>’s card spotlights <strong>" +
+      escapeHtml(focus) +
+      "</strong> — " +
+      escapeHtml(tagline) +
+      ".";
   }
 
   function tidyHighlightAnswer(text) {
@@ -744,6 +794,7 @@
       if (meta.profileNote) {
         document.getElementById("profile-note").textContent = meta.profileNote;
       }
+      setWeekSummary(data.agents || [], meta);
 
       (data.agents || []).forEach(function (agent) {
         grid.appendChild(renderCard(agent));
