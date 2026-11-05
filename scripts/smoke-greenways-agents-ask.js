@@ -31,7 +31,12 @@ const AGENT_SMOOKES = [
     key: 'equipment',
     route: '/api/equipment-agent/ask',
     load: () => require(path.join(ROOT, 'services/equipment-agent-knowledge')),
-    questions: ['insulation guide restaurant', 'equipment deep dive', 'fridge upgrade plan']
+    questions: [
+      'Who are the ETL',
+      'insulation guide restaurant',
+      'equipment deep dive',
+      'fridge upgrade plan'
+    ]
   },
   {
     key: 'deals',
